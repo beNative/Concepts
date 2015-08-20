@@ -52,7 +52,6 @@ type
     lblChange     : TLabel;
     edtIndex      : TcxSpinEdit;
     edtName       : TEdit;
-    tvpMain1: TTreeViewPresenter;
 
     procedure tvpMainSelectionChanged(Sender: TObject);
     procedure btnFilterClick(Sender: TObject);
@@ -61,7 +60,6 @@ type
   private
     FList      : IList;
     FSelection : IList;
-    FList3     : IList;
 
   public
     procedure AfterConstruction; override;

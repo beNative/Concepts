@@ -290,9 +290,8 @@ var
   FontColor : TColor;
   BackColor : TColor;
   T         : TRttiType;
-  M         : TRttiMethod;
-  P         : TRttiProperty;
-  F         : TRttiField;
+  //M         : TRttiMethod;
+  //P         : TRttiProperty;
 begin
   FontColor := Sender.Canvas.Font.Color;
   Sender.Canvas.Font.Color := clNavy;
@@ -335,13 +334,13 @@ begin
 
         if TRttiObject(Node.Data).ClassNameIs('TRttiInstanceMethodEx') then
         begin
-          M := Node.Data;
+          //M := Node.Data;
           FontColor := clGray;
         end
         else if TRttiObject(Node.Data).ClassNameIs('TRttiInstancePropertyEx')
           then
         begin
-          P := Node.Data;
+          //P := Node.Data;
           FontColor := clNavy;
         end;
       end;

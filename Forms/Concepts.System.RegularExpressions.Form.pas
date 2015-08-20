@@ -105,12 +105,11 @@ end;
 
 procedure TfrmRegularExpressions.UpdateView;
 var
-  RE : TRegEx;
   M  : TMatch;
 begin
   mmoOutput.Clear;
   try
-    for M in RE.Matches(
+    for M in TRegEx.Matches(
       mmoInput.Text,
       edtRegExpression.Text
     ) do
@@ -131,7 +130,6 @@ end;
 
 procedure TfrmRegularExpressions.UpdateViewThreaded;
 var
-  RE : TRegEx;
   SI : string;
   SO : string;
   S  : string;
@@ -153,7 +151,7 @@ begin
       begin
         FThreadRunning := True;
         try
-          for M in RE.Matches(
+          for M in TRegEx.Matches(
             SI,
             S
           ) do

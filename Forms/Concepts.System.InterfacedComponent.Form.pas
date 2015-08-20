@@ -45,19 +45,12 @@ type
     procedure actCreateBothExecute(Sender: TObject);
 
   private
-    FNormalComponent           : TComponent;
-    FReferenceCountedComponent : IInterface;
-    FReference                 : IInterface;
-    FForm                      : TfrmTest;
     FEdit                      : IInterface;
-    FRCEdit                    : TEdit;
 
   public
     procedure BeforeDestruction; override;
 
-
   end;
-
 
 implementation
 

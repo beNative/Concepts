@@ -45,12 +45,14 @@ type
         function GetData: T;
         procedure SetData(const Value: T);
 
-        property Data: T
-          read GetData write SetData;
-
       public
         procedure AfterConstruction; override;
+
+        property Data: T
+          read GetData write SetData;
     end;
+
+  public
     class function Create: IThreadSafe<T>; static; inline;
   end;
 

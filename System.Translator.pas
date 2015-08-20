@@ -60,21 +60,6 @@ const
 type
   Translator = record
   private
-    FVMIForm       : TVirtualMethodInterceptor;
-    FVMIDataModule : TVirtualMethodInterceptor;
-
-    procedure FormDoBefore(Instance: TObject; Method: TRttiMethod;
-      const Args: TArray<TValue>; out DoInvoke: Boolean; out Result: TValue);
-
-    procedure FormDoAfter(Instance: TObject; Method: TRttiMethod;
-      const Args: TArray<TValue>; var Result: TValue);
-
-    procedure DataModuleDoBefore(Instance: TObject; Method: TRttiMethod;
-      const Args: TArray<TValue>; out DoInvoke: Boolean; out Result: TValue);
-
-    procedure DataModuleDoAfter(Instance: TObject; Method: TRttiMethod;
-      const Args: TArray<TValue>; var Result: TValue);
-
     class function GetLanguageCode: string; static;
     class procedure SetLanguageCode(const Value: string); static;
     class function GetTextDomain: string; static;
@@ -259,34 +244,10 @@ begin
   //AddDomainForResourceString('delphi');
 end;
 
-procedure Translator.DataModuleDoAfter(Instance: TObject; Method: TRttiMethod;
-  const Args: TArray<TValue>; var Result: TValue);
-begin
-//
-end;
-
-procedure Translator.DataModuleDoBefore(Instance: TObject; Method: TRttiMethod;
-  const Args: TArray<TValue>; out DoInvoke: Boolean; out Result: TValue);
-begin
-//
-end;
-
 class destructor Translator.Destroy;
 begin
 //  FVMIForm := nil;
 //  FVMIDataModule := nil;
-end;
-
-procedure Translator.FormDoAfter(Instance: TObject; Method: TRttiMethod;
-  const Args: TArray<TValue>; var Result: TValue);
-begin
-//
-end;
-
-procedure Translator.FormDoBefore(Instance: TObject; Method: TRttiMethod;
-  const Args: TArray<TValue>; out DoInvoke: Boolean; out Result: TValue);
-begin
-//
 end;
 
 class function Translator.GetLanguageCode: string;
