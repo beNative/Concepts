@@ -141,9 +141,6 @@
         <DCCReference Include="Forms\Concepts.VCL.GridPanels.Form.pas">
             <Form>frmGridPanels</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Concepts.DSharp.Bindings.Form.pas">
-            <Form>frmBindings</Form>
-        </DCCReference>
         <DCCReference Include="Forms\Concepts.AsyncCalls.Form.pas">
             <Form>frmAsyncCalls</Form>
         </DCCReference>
@@ -227,6 +224,10 @@
         </DCCReference>
         <DCCReference Include="Libraries\PasZip.pas"/>
         <DCCReference Include="Libraries\gnugettext.pas"/>
+        <DCCReference Include="Forms\Concepts.DSharp.Bindings.Form.pas">
+            <Form>frmBindings</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <DCCReference Include="Forms\Concepts.Spring.ObjectDataSet.Form.pas">
             <Form>frmObjectDataSet</Form>
             <FormType>dfm</FormType>
@@ -624,13 +625,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

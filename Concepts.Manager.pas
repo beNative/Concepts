@@ -94,6 +94,13 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION 'property access methods'}
+function TConcept.GetSourceFilename: string;
+begin
+  Result := FFormClass.UnitName;
+end;
+{$ENDREGION}
+
 {$REGION 'public methods'}
 class procedure TConceptManager.Execute(AConcept: TObject; AShowModal: Boolean);
 var
@@ -134,12 +141,5 @@ begin
   Result := True;
 end;
 {$ENDREGION}
-
-{ TConcept }
-
-function TConcept.GetSourceFilename: string;
-begin
-  Result := FFormClass.UnitName;
-end;
 
 end.

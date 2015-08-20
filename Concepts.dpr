@@ -23,7 +23,6 @@ uses
   Concepts.MainForm in 'Concepts.MainForm.pas' {frmMain},
   Concepts.WinApi.LockPaint.Form in 'Forms\Concepts.WinApi.LockPaint.Form.pas' {frmLockPaint},
   Concepts.VCL.GridPanels.Form in 'Forms\Concepts.VCL.GridPanels.Form.pas' {frmGridPanels},
-  Concepts.DSharp.Bindings.Form in 'Forms\Concepts.DSharp.Bindings.Form.pas' {frmBindings},
   Concepts.AsyncCalls.Form in 'Forms\Concepts.AsyncCalls.Form.pas' {frmAsyncCalls},
   Concepts.Spring.Collections.Form in 'Forms\Concepts.Spring.Collections.Form.pas' {frmCollections},
   Concepts.DevExpress.cxEditors.Form in 'Forms\cx\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
@@ -54,6 +53,7 @@ uses
   Concepts.System.InterfacedComponent.Form in 'Forms\Concepts.System.InterfacedComponent.Form.pas' {frmInterfacedComponent},
   PasZip in 'Libraries\PasZip.pas',
   gnugettext in 'Libraries\gnugettext.pas',
+  Concepts.DSharp.Bindings.Form in 'Forms\Concepts.DSharp.Bindings.Form.pas' {frmBindings},
   Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmObjectDataSet};
 
 {$R *.res}
@@ -71,8 +71,6 @@ begin
   begin
     Application.Title := 'Concepts';
     Application.CreateForm(TfrmMain, frmMain);
-  Application.CreateForm(TfrmVirtualMethodInterceptor, frmVirtualMethodInterceptor);
-  Application.CreateForm(TForm2, Form2);
   end;
   Application.Run;
 end.
