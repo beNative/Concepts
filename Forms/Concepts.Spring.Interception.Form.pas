@@ -122,7 +122,7 @@ end;
 
 procedure TfrmSpringInterception.BeforeDestruction;
 begin
-  inherited;
+  inherited BeforeDestruction;
 end;
 
 { TTestObject }

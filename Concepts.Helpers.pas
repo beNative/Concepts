@@ -16,6 +16,8 @@
 
 unit Concepts.Helpers;
 
+{ Collection of helper routines. }
+
 interface
 
 uses
@@ -66,6 +68,7 @@ begin
         Email       := RandomData.Email(Firstname, Lastname);
         Address     := RandomData.Address;
         Number      := RandomData.Number(100);
+        BirthDate   := RandomData.BirthDate(1920, 1988);
       end;
       AList.Add(C);
     end;

@@ -16,6 +16,8 @@
 
 unit Concepts.Factories;
 
+{ Factories for some commonly used components and objects. }
+
 interface
 
 uses
@@ -27,8 +29,8 @@ uses
 
   Spring, Spring.Collections, Spring.Collections.Lists,
 
-  DSharp.Windows.TreeViewPresenter,
-  DSharp.Bindings.Collections, DSharp.Core.DataTemplates,
+  DSharp.Windows.TreeViewPresenter, DSharp.Bindings.Collections,
+  DSharp.Core.DataTemplates,
 
   DDuce.Components.PropertyInspector, DDuce.Components.LogTree,
   DDuce.Components.GridView, DDuce.Components.DBGridView,
@@ -85,7 +87,6 @@ type
     ): TDBGridView; static;
 
     { Create standard VCL DB Grid. }
-
     class function CreateDBGrid(
             AOwner      : TComponent;
             AParent     : TWinControl;
@@ -458,7 +459,7 @@ begin
     AList.Clear;
     for I := 0 to ACount - 1 do
     begin
-      //AList.Add(CreateRandomContact);
+      //AList.Add(TConcept CreateRandomContact);
     end;
   end;
 end;

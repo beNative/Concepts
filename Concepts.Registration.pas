@@ -20,6 +20,12 @@ interface
 
 {$I Concepts.inc}
 
+{ TODO:
+
+  - TJSONObject in Data.DBXJSON (AddPair, ToJson, ...)
+
+}
+
 procedure RegisterConcepts;
 
 implementation
@@ -44,6 +50,7 @@ uses
   Concepts.Spring.Collections.Form,
   Concepts.Spring.LazyInstantiation.Form,
   Concepts.Spring.MulticastEvents.Form,
+  Concepts.Spring.ObjectDataSet.Form,
   {$ENDIF}
 
   {$IFDEF ASYNCCALLS}
@@ -85,8 +92,6 @@ uses
 
 procedure RegisterConcepts;
 begin
-//  ConceptManager.Register(TfrmcxGridViewPresenter, 'cxGridViewPresenter');
-
 {$IFDEF DSHARP}
   ConceptManager.Register(
     TfrmBindings,
@@ -131,6 +136,12 @@ begin
     'Interception',
     'Spring',
     'Aspect Oriented Programming'
+  );
+  ConceptManager.Register(
+    TfrmObjectDataSet,
+    'Spring',
+    'Spring',
+    'TObjectDataSet'
   );
 {$ENDIF}
 {$IFDEF DEVEXPRESS}
@@ -218,13 +229,13 @@ begin
     TfrmThreading,
     'Parallel library',
     'System',
-    'Demonstrates the new System.Threading library.'
+    'Demonstrates the System.Threading library introduced in Delphi XE7'
   );
   ConceptManager.Register(
     TfrmThreads,
     'Threads',
     'System',
-    'Demonstrates some basic threading scenarios and primitives.'
+    'Demonstrates some basic threading scenarios and primitives'
   );
   ConceptManager.Register(
     TfrmAnonymousMethods,

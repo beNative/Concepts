@@ -53,7 +53,8 @@ uses
   Concepts.System.VirtualInterface.Form in 'Forms\Concepts.System.VirtualInterface.Form.pas' {Form2},
   Concepts.System.InterfacedComponent.Form in 'Forms\Concepts.System.InterfacedComponent.Form.pas' {frmInterfacedComponent},
   PasZip in 'Libraries\PasZip.pas',
-  gnugettext in 'Libraries\gnugettext.pas';
+  gnugettext in 'Libraries\gnugettext.pas',
+  Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmObjectDataSet};
 
 {$R *.res}
 
