@@ -56,6 +56,7 @@ type
   private
     FList      : IList;
     FSelection : IList;
+    FTVP       : TTreeViewPresenter;
 
   public
     procedure AfterConstruction; override;
@@ -78,13 +79,16 @@ uses
 procedure TfrmTreeViewPresenter.AfterConstruction;
 begin
   inherited;
-  FList := TObservableCollection<TObject>.Create(True);
+  FTVP := TTreeViewPresenter.Create(Self);
+
+  FList := TCollections.CreateObjectList<TObject> as IList;
   //FList3 := TObjectList<TObject>.Create(False);
 
   FillList(FList, 1000);
   //FillList(FList3, 1000);
-  //tvpMain.View.ItemsSource := FList;
+  FTVP.View.ItemsSource := FList as IObjectList;
   FSelection := TObservableCollection<TObject>.Create(False);
+
   //tvpMainDetail.View.ItemsSource := FSelection;
   grdMain.Header.AutoFitColumns(False);
 end;

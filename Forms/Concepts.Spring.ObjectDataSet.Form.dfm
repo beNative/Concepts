@@ -1,4 +1,4 @@
-object frmObjectDataSet: TfrmObjectDataSet
+object frmSpringObjectDataSet: TfrmSpringObjectDataSet
   Left = 0
   Top = 0
   Caption = 'Spring ObjectDataSet example'

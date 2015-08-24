@@ -54,8 +54,9 @@ uses
   PasZip in 'Libraries\PasZip.pas',
   gnugettext in 'Libraries\gnugettext.pas',
   Concepts.DSharp.Bindings.Form in 'Forms\Concepts.DSharp.Bindings.Form.pas' {frmBindings},
-  Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmObjectDataSet},
-  Concepts.Spring.Logging.Form in 'Forms\Concepts.Spring.Logging.Form.pas' {frmSpringLogging};
+  Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmSpringObjectDataSet},
+  Concepts.Spring.Logging.Form in 'Forms\Concepts.Spring.Logging.Form.pas' {frmSpringLogging},
+  Concepts.Spring.Utils.Form in 'Forms\Concepts.Spring.Utils.Form.pas' {frmSpringUtils};
 
 {$R *.res}
 

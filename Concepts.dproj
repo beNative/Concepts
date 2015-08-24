@@ -227,11 +227,15 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.Spring.ObjectDataSet.Form.pas">
-            <Form>frmObjectDataSet</Form>
+            <Form>frmSpringObjectDataSet</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.Spring.Logging.Form.pas">
             <Form>frmSpringLogging</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.Spring.Utils.Form.pas">
+            <Form>frmSpringUtils</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Debug">
@@ -624,13 +628,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

@@ -24,7 +24,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
 
 type
-  TfrmObjectDataSet = class(TForm)
+  TfrmSpringObjectDataSet = class(TForm)
   private
     { Private declarations }
   public

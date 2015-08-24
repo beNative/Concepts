@@ -51,6 +51,8 @@ uses
   Concepts.Spring.LazyInstantiation.Form,
   Concepts.Spring.MulticastEvents.Form,
   Concepts.Spring.ObjectDataSet.Form,
+  Concepts.Spring.Logging.Form,
+  Concepts.Spring.Utils.Form,
   {$ENDIF}
 
   {$IFDEF ASYNCCALLS}
@@ -138,10 +140,22 @@ begin
     'Aspect Oriented Programming'
   );
   ConceptManager.Register(
-    TfrmObjectDataSet,
-    'Spring',
+    TfrmSpringObjectDataSet,
+    'Persistence',
     'Spring',
     'TObjectDataSet'
+  );
+  ConceptManager.Register(
+    TfrmSpringLogging,
+    'Logging',
+    'Spring',
+    'Spring Logging system'
+  );
+  ConceptManager.Register(
+    TfrmSpringUtils,
+    'Utils',
+    'Spring',
+    'Utillity classes and routines'
   );
 {$ENDIF}
 {$IFDEF DEVEXPRESS}
@@ -249,6 +263,18 @@ begin
     'System',
     'using the ''implements'' keyword'
   );
+  ConceptManager.Register(
+    TfrmVirtualInterfaceDemo,
+    'TVirtualInterface demo',
+    'System',
+    ''
+  );
+  ConceptManager.Register(
+    TfrmVirtualMethodInterceptor,
+    'TVirtualMethodInterceptor demo',
+    'System',
+    ''
+  )
 {$ENDIF}
  {
     ConceptManager.Register(
