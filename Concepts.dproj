@@ -101,11 +101,9 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <DCC_IntegerOverflowCheck>false</DCC_IntegerOverflowCheck>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <DCC_IOChecking>false</DCC_IOChecking>
-        <DCC_RangeChecking>false</DCC_RangeChecking>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -138,7 +136,7 @@
         <DCCReference Include="Forms\Concepts.WinApi.LockPaint.Form.pas">
             <Form>frmLockPaint</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Concepts.VCL.GridPanels.Form.pas">
+        <DCCReference Include="Forms\Concepts.Vcl.GridPanels.Form.pas">
             <Form>frmGridPanels</Form>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.AsyncCalls.Form.pas">
@@ -215,7 +213,7 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.System.VirtualInterface.Form.pas">
-            <Form>Form2</Form>
+            <Form>frmVirtualInterfaceDemo</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.System.InterfacedComponent.Form.pas">
@@ -230,6 +228,10 @@
         </DCCReference>
         <DCCReference Include="Forms\Concepts.Spring.ObjectDataSet.Form.pas">
             <Form>frmObjectDataSet</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.Spring.Logging.Form.pas">
+            <Form>frmSpringLogging</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Debug">
@@ -286,14 +288,11 @@
                     <VersionInfoKeys Name="Comments"/>
                 </VersionInfoKeys>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dclcxSchedulerRibbonStyleEventEditorRS19.bpl">File C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dclcxSchedulerRibbonStyleEventEditorRS19.bpl not found</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPSPrVwRibbonRS19.bpl">File C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPSPrVwRibbonRS19.bpl not found</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\ReportBuilder\Win32\dclRBE1519.bpl">ReportBuilder Components</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\ReportBuilder\Win32\dclDAD1519.bpl">ReportBuilder Data Access Environment</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k190.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp190.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPSDBTeeChartRS19.bpl">ExpressPrinting System ReportLink for DBTeeChart by Developer Express Inc.</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\ReportBuilder\Win32\dclRBC1519.bpl">ReportBuilder TeeChart 9 Components</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\16.0\Bpl\VirtualTreesDD220.bpl">TurboPack VirtualTree Delphi designtime package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k220.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp220.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k220.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp220.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>
@@ -629,9 +628,9 @@
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
             </Deployment>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

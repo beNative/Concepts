@@ -67,7 +67,6 @@ procedure TfrmCollections.AfterConstruction;
 begin
   inherited;
   FList := TCollections.CreateObjectList<TContact>;
-  FillList;
 end;
 {$ENDREGION}
 
@@ -78,6 +77,7 @@ begin
   try
     FList.Clear;
     FillList;
+    ShowMessage('Contactlist has been created.');
   finally
     Screen.Cursor := crDefault;
   end;

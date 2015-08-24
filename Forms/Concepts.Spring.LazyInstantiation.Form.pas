@@ -67,7 +67,7 @@ implementation
 {$REGION 'construction and destruction'}
 procedure TfrmLazyInstantiation.AfterConstruction;
 begin
-  inherited;
+  inherited AfterConstruction;
   FLazyCheckBox.Create(
     function: TCheckBox
     begin
@@ -100,7 +100,7 @@ procedure TfrmLazyInstantiation.BeforeDestruction;
 begin
   if FLazyMyType.IsValueCreated then
     FLazyMyType.Value.Free;
-  inherited;
+  inherited BeforeDestruction;
 end;
 {$ENDREGION}
 

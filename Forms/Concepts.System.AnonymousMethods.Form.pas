@@ -93,7 +93,7 @@ implementation
 {$REGION 'construction and destruction'}
 procedure TTestObject.AfterConstruction;
 begin
-  inherited;
+  inherited AfterConstruction;
   FTestString  := 'Original value';
   FTestInt     := 6;
   FTestVariant := 'Variant original value';

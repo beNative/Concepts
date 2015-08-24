@@ -16,6 +16,8 @@
 
 unit Concepts.System.VirtualMethodInterceptor.Form;
 
+{ Form demonstrating how to use the TVirtualMethodInterceptor class. }
+
 interface
 
 uses
@@ -30,9 +32,6 @@ type
   public
     { Public declarations }
   end;
-
-var
-  frmVirtualMethodInterceptor: TfrmVirtualMethodInterceptor;
 
 implementation
 

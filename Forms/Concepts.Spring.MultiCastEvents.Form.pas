@@ -56,7 +56,7 @@ uses
 {$REGION 'construction and destruction'}
 procedure TfrmMulticastEvents.AfterConstruction;
 begin
-  inherited;
+  inherited AfterConstruction;
   FTestComponent := TTestComponent.Create(Self);
   FTestComponent.OnChange.Add(TestComponentChange1);
   FTestComponent.OnChange.Add(TestComponentChange2);

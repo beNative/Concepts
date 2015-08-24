@@ -16,26 +16,88 @@
 
 unit Concepts.System.VirtualInterface.Form;
 
+{ Form demonstrating how to use the System.Rtti.TVirtualInterface class, which
+  was introduced in Delphi XE2. }
+
+{
+  Remarks
+    - TVirtualInterface works only on interfaces which have TypeInfo enabled
+      for it ($M+ directive or descendant from IInvokable)
+}
+
 interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+  System.SysUtils, System.Variants, System.Classes, System.Rtti, System.Actions,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList,
+  Vcl.StdCtrls;
 
 type
-  TForm2 = class(TForm)
-  private
-    { Private declarations }
-  public
-    { Public declarations }
+  IGoStop = interface(IInvokable)
+  ['{DAA28BA6-2243-41BE-BC61-2A548999753A}']
+    procedure Go(AInteger: Integer = 5);
+    procedure Stop(const AString: string = 'TEST');
   end;
 
-var
-  Form2: TForm2;
+  TfrmVirtualInterfaceDemo = class(TForm)
+    aclMain       : TActionList;
+    actGo         : TAction;
+    actStop       : TAction;
+    lblDefinition : TLabel;
+    btnGo         : TButton;
+    btnStop       : TButton;
+
+    procedure actGoExecute(Sender: TObject);
+    procedure actStopExecute(Sender: TObject);
+
+  private
+    FGoStop : IGoStop;
+
+  public
+    procedure AfterConstruction; override;
+
+  end;
 
 implementation
 
 {$R *.dfm}
+
+{$REGION 'construction and destruction'}
+procedure TfrmVirtualInterfaceDemo.AfterConstruction;
+var
+ VIIE : TVirtualInterfaceInvokeEvent; // anonymous callback procedure
+begin
+  inherited AfterConstruction;
+  VIIE := procedure(Method: TRttiMethod; const Args: TArray<TValue>;
+    out Result: TValue)
+    const
+      MSG = 'Method declaration: %s' + sLineBreak +
+            'Argument values:' + sLineBreak + '%s' +
+            'Return value: %s';
+    var
+      S : string;
+      V : TValue;
+    begin
+      for V in Args do
+        S := S + V.ToString + sLineBreak;
+      S := Format(MSG, [Method.ToString, S, Result.ToString]);
+      ShowMessage(S);
+    end;
+  FGoStop := TVirtualInterface.Create(TypeInfo(IGoStop), VIIE) as IGoStop;
+end;
+{$ENDREGION}
+
+{$REGION 'action handlers'}
+procedure TfrmVirtualInterfaceDemo.actGoExecute(Sender: TObject);
+begin
+  FGoStop.Go;
+end;
+
+procedure TfrmVirtualInterfaceDemo.actStopExecute(Sender: TObject);
+begin
+  FGoStop.Stop;
+end;
+{$ENDREGION}
 
 end.

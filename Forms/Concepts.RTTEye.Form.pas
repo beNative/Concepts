@@ -79,7 +79,9 @@ implementation
 
 uses
   System.SysUtils, System.TypInfo,
-  Vcl.Dialogs, Vcl.Graphics;
+  Vcl.Dialogs, Vcl.Graphics,
+
+  Spring, Spring.Reflection;
 
 const
   LEVEL_PACKAGE = 0;
@@ -87,12 +89,15 @@ const
   LEVEL_TYPE    = 2;
   LEVEL_FIELD   = 3;
 
+resourcestring
+  SNotFound = '%s Not found';
+
 {$REGION 'interfaced routines'}
 procedure ShowRTTEye;
 var
   F: TfrmRTTEye;
 begin
-  F := TfrmRTTEye.Create(nil);
+  F := TfrmRTTEye.Create(Application);
   try
     F.ShowModal;
   finally
@@ -138,12 +143,15 @@ begin
       tvRTTI.Selected := Node
     end
     else
-      ShowMessage(Format('%s Not found', [Trim(EditSearch.Text)]));
+      ShowMessage(Format(SNotFound, [Trim(EditSearch.Text)]));
   end;
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
+
+{ Builds listview items for selected treenode. }
+
 procedure TfrmRTTEye.tvRttiChange(Sender: TObject; Node: TTreeNode);
 var
   lTyp  : TRttiType;
@@ -152,6 +160,7 @@ var
   P     : TRttiProperty;
   lProp : TRttiProperty;
   F     : TRttiField;
+  O     : TRttiObject;
   Item  : TListItem;
 begin
   if Assigned(Node.Data) then
@@ -159,35 +168,30 @@ begin
     lvRtti.Items.BeginUpdate;
     try
       lvRtti.Items.Clear;
+      O := TRttiObject(Node.Data);
       case Node.Level of
         LEVEL_TYPE:
         begin
           lTyp := Node.Data;
           T := FRttiContext.GetType(TRttiType);
+          for P in T.GetProperties do
+          begin
+          // Ugly hack to prevent calling properties in the RTTI type which
+          // start with 'As' like AsInstance, AsOrdinal, AsRecord, AsSet
+            if Copy(P.Name, 1, 2) = 'As' then
+              Continue;
 
-          lvRtti.Items.BeginUpdate;
-          try
-            for P in T.GetProperties do
-            begin
-            // Ugly hack to prevent calling properties in the RTTI type which
-            // start with 'As' like AsInstance, AsOrdinal, AsRecord, AsSet
-              if Copy(P.Name, 1, 2) = 'As' then
-                Continue;
-
-              Item := lvRtti.Items.Add;
-              Item.Caption := P.Name;
-              Item.SubItems.Add(P.GetValue(lTyp).ToString);
-            end;
-          finally
-            lvRtti.Items.EndUpdate;
+            Item := lvRtti.Items.Add;
+            Item.Caption := P.Name;
+            Item.SubItems.Add(P.GetValue(lTyp).ToString);
           end;
         end;
 
         LEVEL_FIELD:
         begin
-          if TRttiObject(Node.Data).ClassNameIs('TRttiInstanceMethodEx') or
-            TRttiObject(Node.Data).ClassNameIs('TRttiIntfMethod') or      // TS
-            TRttiObject(Node.Data).ClassNameIs('TRttiRecordMethod') then  // TS
+          if O.ClassNameIs('TRttiInstanceMethodEx')
+            or O.ClassNameIs('TRttiIntfMethod')
+            or O.ClassNameIs('TRttiRecordMethod') then
           begin
             M := Node.Data;
             T := FRttiContext.GetType(TRttiMethod);
@@ -198,8 +202,7 @@ begin
               Item.SubItems.Add(P.GetValue(M).ToString);
             end;
           end
-          else if TRttiObject(Node.Data).ClassNameIs('TRttiInstancePropertyEx')
-            then
+          else if O.ClassNameIs('TRttiInstancePropertyEx') then
           begin
             lProp := Node.Data;
             T := FRttiContext.GetType(TRttiProperty);
@@ -210,7 +213,7 @@ begin
               Item.SubItems.Add(P.GetValue(lProp).ToString);
             end;
           end
-          else if TRttiObject(Node.Data).ClassNameIs('TRttiIndexedProperty') then
+          else if O.ClassNameIs('TRttiIndexedProperty') then
           begin
             F := Node.Data;
             T := FRttiContext.GetType(TRttiIndexedProperty);
@@ -220,30 +223,30 @@ begin
               Item.Caption := P.Name;
               Item.SubItems.Add(P.GetValue(F).ToString);
             end;
-            end
-            else if TRttiObject(Node.Data).ClassNameIs('TRttiInstanceFieldEx')
-              or TRttiObject(Node.Data).ClassNameIs('TRttiRecordField') then
+          end
+          else if O.ClassNameIs('TRttiInstanceFieldEx')
+            or O.ClassNameIs('TRttiRecordField') then
+          begin
+            F := Node.Data;
+            T := FRttiContext.GetType(TRttiField);
+            for P in T.GetProperties do
             begin
-              F := Node.Data;
-              T := FRttiContext.GetType(TRttiField);
-              for P in T.GetProperties do
-              begin
-                Item := lvRtti.Items.Add;
-                Item.Caption := P.Name;
-                Item.SubItems.Add(P.GetValue(F).ToString);
-              end;
-            end
-            else
-            begin
-               // TS: debug
-              ShowMessage(TRttiObject(Node.Data).ClassName);
+              Item := lvRtti.Items.Add;
+              Item.Caption := P.Name;
+              Item.SubItems.Add(P.GetValue(F).ToString);
             end;
+          end
+          else
+          begin
+            // TS: debug
+            ShowMessage(O.ClassName);
           end;
         end;
-      finally
-        lvRtti.Items.EndUpdate;
       end;
+    finally
+      lvRtti.Items.EndUpdate;
     end;
+  end;
 end;
 
 procedure TfrmRTTEye.tvRttiCustomDrawItem(Sender: TCustomTreeView;
@@ -276,7 +279,7 @@ begin
           tkClass:
             begin
               FontColor := clGreen;
-              Sender.Canvas.Font.Style := [fsBold]
+              Sender.Canvas.Font.Style := [fsBold];
             end;
         else
           FontColor := clBlue;
@@ -333,12 +336,14 @@ var
   M    : TRttiMethod;
   P    : TRttiProperty;
   F    : TRttiField;
+  O    : TRttiObject;
 begin
   Node := tvRTTI.Selected;
+  O := TRttiObject(Node.Data);
   case Node.Level of
     LEVEL_FIELD:
       begin
-        if TRttiObject(Node.Data).ClassNameIs('TRttiInstanceFieldEx') then
+        if O.ClassNameIs('TRttiInstanceFieldEx') then
         begin
           F := Node.Data;
           T := FRttiContext.FindType(F.FieldType.QualifiedName);
@@ -352,8 +357,7 @@ begin
             end;
           end;
         end
-        else if TRttiObject(Node.Data).ClassNameIs('TRttiInstancePropertyEx')
-          then
+        else if O.ClassNameIs('TRttiInstancePropertyEx') then
         begin
           P := Node.Data;
           T := FRttiContext.FindType(P.PropertyType.QualifiedName);
@@ -367,11 +371,11 @@ begin
             end;
           end;
         end
-        else if TRttiObject(Node.Data).ClassNameIs('TRttiInstanceMethodEx') then
+        else if O.ClassNameIs('TRttiInstanceMethodEx') then
         begin
           M := Node.Data;
-          if M.HasExtendedInfo and (M.MethodKind in [mkFunction,
-            mkClassFunction]) then
+          if M.HasExtendedInfo
+            and (M.MethodKind in [mkFunction, mkClassFunction]) then
           begin
             T := FRttiContext.FindType(M.ReturnType.QualifiedName);
             if Assigned(T) then
@@ -397,28 +401,29 @@ var
   Node: TTreeNode;
 begin
   Result := nil;
-  ATreeView.Items.BeginUpdate;
-  try
-    if ATreeView.Items.Count = 0 then
-      Exit;
-    Node := ATreeView.Selected;
-    if Node = nil then
-      Node := ATreeView.Items[0]
-    else
-      Node := Node.GetNext;
-
-    while Node <> nil do
-    begin
-      if Node.Text.Contains(AText) then
-      begin
-        Result := Node;
-        Exit;
-      end
+  if ATreeView.Items.Count > 0 then
+  begin
+    ATreeView.Items.BeginUpdate;
+    try
+      Node := ATreeView.Selected;
+      if Node = nil then
+        Node := ATreeView.Items[0]
       else
         Node := Node.GetNext;
+
+      while Assigned(Node) do
+      begin
+        if Node.Text.Contains(AText) then
+        begin
+          Result := Node;
+          Exit;
+        end
+        else
+          Node := Node.GetNext;
+      end;
+    finally
+      ATreeView.Items.EndUpdate;
     end;
-  finally
-    ATreeView.Items.EndUpdate;
   end;
 end;
 
@@ -473,40 +478,37 @@ begin
     begin
       Units.Clear;
       PackageNode := tvRTTI.Items.Add(nil, Package.Name);
-      B := True;
       try
         TypeList := Package.GetTypes;
       except
-        ShowMessageFmt('Package.GetTypes failed on %s', [Package.Name]);
-        B := False;
+        raise Exception.CreateFmt(
+          'Package.GetTypes failed on %s',
+          [Package.Name]
+        );
       end;
-
-      if B then
+      PNode := nil;
+      for T in TypeList do
       begin
-        PNode := nil;
-        for T in TypeList do
+        UnitName := GetUnitName(T);
+        if Units.IndexOf(UnitName) < 0 then
         begin
-          UnitName := GetUnitName(T);
-          if Units.IndexOf(UnitName) < 0 then
-          begin
-            Units.Add(UnitName);
-            PNode := tvRTTI.Items.AddChild(PackageNode, UnitName);
-          end;
-
-          Node := tvRTTI.Items.AddChildObject(PNode, T.ToString, T);
-
-          for F in T.GetDeclaredFields do
-            tvRTTI.Items.AddChildObject(Node, F.ToString, F);
-
-          for M in T.GetDeclaredMethods do
-            tvRTTI.Items.AddChildObject(Node, M.ToString, M);
-
-          for P in T.GetDeclaredProperties do
-            tvRTTI.Items.AddChildObject(Node, P.ToString, P);
-
-          for IP in T.GetDeclaredIndexedProperties do
-            tvRTTI.Items.AddChildObject(Node, IP.ToString, IP);
+          Units.Add(UnitName);
+          PNode := tvRTTI.Items.AddChild(PackageNode, UnitName);
         end;
+
+        Node := tvRTTI.Items.AddChildObject(PNode, T.ToString, T);
+
+        for F in T.GetDeclaredFields do
+          tvRTTI.Items.AddChildObject(Node, F.ToString, F);
+
+        for M in T.GetDeclaredMethods do
+          tvRTTI.Items.AddChildObject(Node, M.ToString, M);
+
+        for P in T.GetDeclaredProperties do
+          tvRTTI.Items.AddChildObject(Node, P.ToString, P);
+
+        for IP in T.GetDeclaredIndexedProperties do
+          tvRTTI.Items.AddChildObject(Node, IP.ToString, IP);
       end;
     end;
   finally

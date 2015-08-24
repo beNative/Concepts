@@ -2,7 +2,7 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Concepts'
-  ClientHeight = 468
+  ClientHeight = 669
   ClientWidth = 788
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -14,13 +14,13 @@ object frmMain: TfrmMain
   Position = poScreenCenter
   DesignSize = (
     788
-    468)
+    669)
   PixelsPerInch = 96
   TextHeight = 13
   object btnExecute: TBitBtn
     AlignWithMargins = True
     Left = 3
-    Top = 421
+    Top = 622
     Width = 782
     Height = 25
     Action = actExecuteModal
@@ -28,11 +28,12 @@ object frmMain: TfrmMain
     Caption = 'Execute modal'
     Default = True
     TabOrder = 0
+    ExplicitTop = 421
   end
   object btnExecute1: TBitBtn
     AlignWithMargins = True
     Left = 3
-    Top = 391
+    Top = 592
     Width = 782
     Height = 24
     Action = actExecute
@@ -40,16 +41,18 @@ object frmMain: TfrmMain
     Caption = 'Execute non-modal'
     Default = True
     TabOrder = 1
+    ExplicitTop = 391
   end
   object pnlVST: TPanel
     Left = 0
     Top = 0
     Width = 788
-    Height = 385
+    Height = 586
     Align = alTop
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitHeight = 385
     object edtFilter: TEdit
       AlignWithMargins = True
       Left = 3
@@ -71,11 +74,12 @@ object frmMain: TfrmMain
   end
   object sbrMain: TStatusBar
     Left = 0
-    Top = 449
+    Top = 650
     Width = 788
     Height = 19
     Panels = <>
     SimplePanel = True
+    ExplicitTop = 449
   end
   object aclMain: TActionList
     Left = 192

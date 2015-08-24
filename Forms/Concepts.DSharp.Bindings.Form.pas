@@ -21,8 +21,8 @@ unit Concepts.DSharp.Bindings.Form;
 interface
 
 uses
-  System.Actions, System.SysUtils, System.Variants, System.Classes, System.Rtti,
   WinApi.Windows, WinApi.Messages,
+  System.Actions, System.SysUtils, System.Variants, System.Classes, System.Rtti,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids,
   Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.ActnList,
 
@@ -82,8 +82,6 @@ implementation
 {$R *.dfm}
 
 uses
-  DSharp.Core.Reflection,
-
   DDuce.RandomData,
 
   Concepts.Utils, Concepts.Types.ValidationRules;
@@ -91,7 +89,7 @@ uses
 {$REGION 'construction and destruction'}
 procedure TfrmBindings.AfterConstruction;
 begin
-  inherited;
+  inherited AfterConstruction;
   FBindingGroup := TBindingGroup.Create(Self);
   FContact := TContact.Create;
   FRule := TRequiredRule.Create;
@@ -121,20 +119,21 @@ end;
 procedure TfrmBindings.BeforeDestruction;
 begin
   FreeAndNil(FContact);
-  inherited;
+  inherited BeforeDestruction;
 end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
+{TODO -oTS -cGeneral : Check why this does not work anymore}
 procedure TfrmBindings.actValidateExecute(Sender: TObject);
-//var
-//  VE: IValidationResult;
+var
+  VE: IValidationResult;
 begin
-//  bgpMain.Validate;
-//  for VE in bgpMain.ValidationErrors do
-//  begin
-//    ShowMessage(VE.ErrorContent);
-//  end;
+  FBindingGroup.Validate;
+  for VE in FBindingGroup.ValidationErrors do
+  begin
+    ShowMessage(VE.ErrorContent);
+  end;
 end;
 {$ENDREGION}
 
@@ -151,7 +150,7 @@ begin
     NotifyOnSourceUpdated := True;
     NotifyOnTargetUpdated := True;
     OnSourceUpdated       := BindingPropertyChanged;
-    //ValidationRules.Add(FRule);
+    ValidationRules.Add(FRule);
   end;
 end;
 

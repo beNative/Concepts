@@ -36,10 +36,6 @@ uses
 
   Spring.Collections,
 
-  //DSharp.Collections,
-//  DSharp.Linq.QueryProvider.SQL,
-
-
   Concepts.Types.Contact;
 
 type

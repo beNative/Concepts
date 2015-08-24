@@ -29,8 +29,6 @@ uses
 
 type
   TfrmLibraries = class(TForm)
-  private
-
   public
     procedure AfterConstruction; override;
 
@@ -40,14 +38,14 @@ implementation
 
 {$R *.dfm}
 
-{ TfrmLibraries }
-
+{$REGION 'construction and destruction'}
 procedure TfrmLibraries.AfterConstruction;
 begin
-  inherited;
+  inherited AfterConstruction;
 //  LoadLibrary()
 //  FreeLibrary()
 //  GetModuleHandle()
 end;
+{$ENDREGION}
 
 end.

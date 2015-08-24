@@ -35,7 +35,6 @@ type
     splVertical        : TSplitter;
     cbxControls        : TComboBox;
     lstBindings        : TBindingsList;
-    bsBindScope        : TBindScope;
     edtButtonCaption   : TEdit;
     btnButton          : TButton;
     lnkCaption         : TLinkControlToProperty;
@@ -75,7 +74,7 @@ uses
 {$REGION 'construction and destruction'}
 procedure TfrmLiveBindings.AfterConstruction;
 begin
-  inherited;
+  inherited AfterConstruction;
   AddComponents;
   FPropertyInspector := TConceptFactories.CreateInspector(Self, pnlLeft, Self);
   FPropertyInspector.UpdateItems;

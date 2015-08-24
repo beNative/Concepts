@@ -30,11 +30,8 @@ uses
 type
   TfrmThreading = class(TForm)
     aclMain: TActionList;
+
     procedure FormCreate(Sender: TObject);
-  private
-
-  public
-
   end;
 
 implementation

@@ -58,7 +58,7 @@ object frmCollections: TfrmCollections
     Left = 72
     Top = 152
     object actCreateList: TAction
-      Caption = 'Create contact list'
+      Caption = 'Create a random contact list'
       OnExecute = actCreateListExecute
     end
     object actEnumerate: TAction

@@ -22,7 +22,7 @@ uses
   Concepts.Spring.MultiCastEvents.Form in 'Forms\Concepts.Spring.MultiCastEvents.Form.pas' {frmMulticastEvents},
   Concepts.MainForm in 'Concepts.MainForm.pas' {frmMain},
   Concepts.WinApi.LockPaint.Form in 'Forms\Concepts.WinApi.LockPaint.Form.pas' {frmLockPaint},
-  Concepts.VCL.GridPanels.Form in 'Forms\Concepts.VCL.GridPanels.Form.pas' {frmGridPanels},
+  Concepts.Vcl.GridPanels.Form in 'Forms\Concepts.Vcl.GridPanels.Form.pas' {frmGridPanels},
   Concepts.AsyncCalls.Form in 'Forms\Concepts.AsyncCalls.Form.pas' {frmAsyncCalls},
   Concepts.Spring.Collections.Form in 'Forms\Concepts.Spring.Collections.Form.pas' {frmCollections},
   Concepts.DevExpress.cxEditors.Form in 'Forms\cx\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
@@ -49,12 +49,13 @@ uses
   Concepts.System.InterfaceImplementationByAggregation.Form in 'Forms\Concepts.System.InterfaceImplementationByAggregation.Form.pas' {frmIterFaceImplementationByAggregation},
   Concepts.Spring.Interception.Form in 'Forms\Concepts.Spring.Interception.Form.pas' {frmSpringInterception},
   Concepts.System.VirtualMethodInterceptor.Form in 'Forms\Concepts.System.VirtualMethodInterceptor.Form.pas' {frmVirtualMethodInterceptor},
-  Concepts.System.VirtualInterface.Form in 'Forms\Concepts.System.VirtualInterface.Form.pas' {Form2},
+  Concepts.System.VirtualInterface.Form in 'Forms\Concepts.System.VirtualInterface.Form.pas' {frmVirtualInterfaceDemo},
   Concepts.System.InterfacedComponent.Form in 'Forms\Concepts.System.InterfacedComponent.Form.pas' {frmInterfacedComponent},
   PasZip in 'Libraries\PasZip.pas',
   gnugettext in 'Libraries\gnugettext.pas',
   Concepts.DSharp.Bindings.Form in 'Forms\Concepts.DSharp.Bindings.Form.pas' {frmBindings},
-  Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmObjectDataSet};
+  Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmObjectDataSet},
+  Concepts.Spring.Logging.Form in 'Forms\Concepts.Spring.Logging.Form.pas' {frmSpringLogging};
 
 {$R *.res}
 

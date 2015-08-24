@@ -69,7 +69,7 @@ end;
 {$REGION 'protected methods'}
 procedure TfrmGridPanels.UpdateActions;
 begin
-  inherited;
+  inherited UpdateActions;
   pnl1.Visible := chk1.Checked;
   pnl2.Visible := chk2.Checked;
   pnl3.Visible := chk3.Checked;
@@ -88,7 +88,6 @@ var
   ColCount : Integer;
   RowCount : Integer;
 begin
-  inherited;
   ColCount := AGridPanel.ColumnCollection.Count;
   RowCount := AGridPanel.RowCollection.Count;
 
