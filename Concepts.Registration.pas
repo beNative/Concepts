@@ -94,6 +94,10 @@ uses
   Concepts.SQLBuilder4D.Form,
   {$ENDIF}
 
+  {$IFDEF CHROMETABS}
+  Concepts.ChromeTabs.Form,
+  {$ENDIF}
+
   Concepts.Manager;
 
 procedure RegisterConcepts;
@@ -155,12 +159,12 @@ begin
     'Spring',
     'Spring Logging system'
   );
-  ConceptManager.Register(
-    TfrmSpringUtils,
-    'Utils',
-    'Spring',
-    'Utillity classes and routines'
-  );
+//  ConceptManager.Register(
+//    TfrmSpringUtils,
+//    'Utils',
+//    'Spring',
+//    'Utillity classes and routines'
+//  );
 {$ENDIF}
 {$IFDEF DEVEXPRESS}
   ConceptManager.Register(
@@ -288,6 +292,14 @@ begin
     ''
   );
 {$ENDIF}
+{$IFDEF CHROMETABS}
+  ConceptManager.Register(
+    TfrmChromeTabs,
+    'ChromeTabs',
+    'TChromeTabs',
+    'TChromeTabs demo'
+  );
+{$ENDIF}
  {
     ConceptManager.Register(
     TfrmInterfacedComponent,
@@ -295,6 +307,8 @@ begin
     'System',
     'Demonstrates how TComponent descendents can be reference counted'
   ); }
+
+
 end;
 
 end.

@@ -49,3 +49,5 @@
 // SQLBuilder4D.pas
 {$DEFINE SQLBUILDER4D}
 
+// TChromeTabs
+{$DEFINE CHROMETABS}

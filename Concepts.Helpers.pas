@@ -35,9 +35,6 @@ procedure FillListWithContacts(
   ACount : Integer
 );
 
-//procedure ExecuteCommandLine(const commandLine: string;
-//  var exitCode: Cardinal);
-
 implementation
 
 uses
@@ -121,29 +118,5 @@ begin
     end;
   end;
 end;
-
-//procedure ExecuteCommandLine(const commandLine: string;
-//  var exitCode: Cardinal);
-//var
-//  localCommandLine: string;
-//  startupInfo: TStartupInfo;
-//  processInfo: TProcessInformation;
-//begin
-//  ZeroMemory(@startupInfo, SizeOf(startupInfo));
-//  ZeroMemory(@processInfo, SizeOf(processInfo));
-//  startupInfo.cb := SizeOf(startupInfo);
-//  localCommandLine := commandLine;
-//  UniqueString(localCommandLine);
-//  if not CreateProcess(nil, PChar(localCommandLine), nil, nil, True,
-//    CREATE_NEW_PROCESS_GROUP + NORMAL_PRIORITY_CLASS,
-//    nil, nil, startupInfo, processInfo) then
-//  begin
-//    raise Exception.Create('Failed to create the process.');
-//  end;
-//  WaitForSingleObject(processInfo.hProcess, INFINITE);
-//  GetExitCodeProcess(processInfo.hProcess, exitCode);
-//  CloseHandle(processInfo.hProcess);
-//  CloseHandle(processInfo.hThread);
-//end;
 
 end.

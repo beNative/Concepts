@@ -54,10 +54,11 @@ uses
   PasZip in 'Libraries\PasZip.pas',
   gnugettext in 'Libraries\gnugettext.pas',
   Concepts.DSharp.Bindings.Form in 'Forms\Concepts.DSharp.Bindings.Form.pas' {frmBindings},
-  //Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmSpringObjectDataSet},
   Concepts.Spring.Logging.Form in 'Forms\Concepts.Spring.Logging.Form.pas' {frmSpringLogging},
   Concepts.Spring.Utils.Form in 'Forms\Concepts.Spring.Utils.Form.pas' {frmSpringUtils},
-  Concepts.SQLBuilder4D.Form in 'Forms\Concepts.SQLBuilder4D.Form.pas' {frmSQLBuilder4D};
+  Concepts.SQLBuilder4D.Form in 'Forms\Concepts.SQLBuilder4D.Form.pas' {frmSQLBuilder4D},
+  Concepts.ChromeTabs.Form in 'Forms\Concepts.ChromeTabs.Form.pas' {frmChromeTabs},
+  Concepts.ComponentInspectorTemplate.Form in 'Forms\Concepts.ComponentInspectorTemplate.Form.pas' {frmPropertyInspector};
 
 {$R *.res}
 
