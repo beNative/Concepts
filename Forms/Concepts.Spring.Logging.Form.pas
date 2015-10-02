@@ -120,8 +120,6 @@ procedure TfrmSpringLogging.AfterConstruction;
 var
   FLA : TFileLogAppender;
   LP : ILoggerProperties;
-  L : TLogger;
-
 begin
   inherited AfterConstruction;
   FController := TLoggerController.Create;

@@ -40,8 +40,8 @@ type
 
   private
     FIns      : TPropertyInspector;
-    FVST      : TVirtualStringTree;
-    FTVP      : TTreeViewPresenter;
+//    FVST      : TVirtualStringTree;
+//    FTVP      : TTreeViewPresenter;
 //    FTemplate : IDataTemplate;
 //    FList     : IList;
 

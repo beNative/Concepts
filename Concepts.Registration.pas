@@ -50,7 +50,7 @@ uses
   Concepts.Spring.Collections.Form,
   Concepts.Spring.LazyInstantiation.Form,
   Concepts.Spring.MulticastEvents.Form,
-  Concepts.Spring.ObjectDataSet.Form,
+  //Concepts.Spring.ObjectDataSet.Form,
   Concepts.Spring.Logging.Form,
   Concepts.Spring.Utils.Form,
   {$ENDIF}
@@ -88,6 +88,10 @@ uses
   Concepts.System.VirtualMethodInterceptor.Form,
   Concepts.System.VirtualInterface.Form,
   Concepts.System.InterfacedComponent.Form,
+  {$ENDIF}
+
+  {$IFDEF SQLBUILDER4D}
+  Concepts.SQLBuilder4D.Form,
   {$ENDIF}
 
   Concepts.Manager;
@@ -139,12 +143,12 @@ begin
     'Spring',
     'Aspect Oriented Programming'
   );
-  ConceptManager.Register(
-    TfrmSpringObjectDataSet,
-    'Persistence',
-    'Spring',
-    'TObjectDataSet'
-  );
+//  ConceptManager.Register(
+//    TfrmSpringObjectDataSet,
+//    'Persistence',
+//    'Spring',
+//    'TObjectDataSet'
+//  );
   ConceptManager.Register(
     TfrmSpringLogging,
     'Logging',
@@ -274,7 +278,15 @@ begin
     'TVirtualMethodInterceptor demo',
     'System',
     ''
-  )
+  );
+{$ENDIF}
+{$IFDEF SQLBUILDER4D}
+  ConceptManager.Register(
+    TfrmSQLBuilder4D,
+    'TfrmSQLBuilder4D demo',
+    'TfrmSQLBuilder4D',
+    ''
+  );
 {$ENDIF}
  {
     ConceptManager.Register(

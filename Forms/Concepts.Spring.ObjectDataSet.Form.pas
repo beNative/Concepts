@@ -21,18 +21,56 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+
+  Spring.Persistence.ObjectDataSet,
+
+  Spring.Persistence.Core.Interfaces,
+  Spring.Persistence.Core.Session,
+  Spring.Collections,
+  SQLiteTable3;
 
 type
   TfrmSpringObjectDataSet = class(TForm)
   private
-    { Private declarations }
+    FConnection : IDBConnection;
+    FDatabase   : TSQLiteDatabase;
+    //FProducts   : IList<TProduct>;
+    FObjectDataSet : TObjectDataset;
+    FSession    : TSession;
   public
-    { Public declarations }
+    procedure CreateDBObjects;
   end;
 
 implementation
 
 {$R *.dfm}
+
+uses
+  Spring.Persistence.Core.DatabaseManager,
+  Spring.Persistence.Core.ConnectionFactory,
+
+  Spring.Persistence.Adapters.SQLite;
+
+procedure TfrmSpringObjectDataSet.CreateDBObjects;
+begin
+  FDatabase := TSQLiteDatabase.Create(Self);
+  FDatabase.Filename := 'chinook.db3';
+  FConnection := TSQLiteConnectionAdapter.Create(FDatabase);
+
+  FConnection.AutoFreeConnection := True;
+  FConnection.Connect;
+  FSession := TSession.Create(FConnection);
+  FObjectDataSet := TObjectDataSet.Create(Self);
+
+  //FObjectDataSet.DataList :=
+
+  //FDatabase.GetUniTableIntf()
+
+
+  //FObjectDataSet.SetDataList<TContact>(FList as IList<TContact>);
+
+  //FProducts := TCollections.CreateObjectList<TProduct>(True);
+end;
 
 end.

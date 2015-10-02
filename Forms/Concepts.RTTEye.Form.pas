@@ -468,7 +468,6 @@ var
   UnitName    : string;
   Package     : TRttiPackage;
   PackageNode : TTreeNode;
-  B           : Boolean;
 begin
   tvRTTI.Items.BeginUpdate;
   tvRTTI.Items.Clear;
