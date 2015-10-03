@@ -54,14 +54,14 @@ type
     procedure btnEventClick(Sender: TObject);
 
   private
-    FList      : IList;
+    FList      : IList<TContact>;
     FSelection : IList;
     FTVP       : TTreeViewPresenter;
 
   public
     procedure AfterConstruction; override;
 
-    procedure FillList(AList: IList; ACount: Integer);
+    procedure FillList(AList: IList<TContact>; ACount: Integer);
 
   end;
 
@@ -71,6 +71,8 @@ implementation
 
 uses
   Spring.Events,
+  DSharp.Core.DataTemplates,  DSharp.Windows.ColumnDefinitions.RttiDataTemplate,
+
   DSharp.Bindings.Notifications,
 
   DDuce.RandomData;
@@ -78,26 +80,32 @@ uses
 {$REGION 'construction and destruction'}
 procedure TfrmTreeViewPresenter.AfterConstruction;
 begin
-  inherited;
+  inherited AfterConstruction;
   FTVP := TTreeViewPresenter.Create(Self);
 
-  FList := TCollections.CreateObjectList<TObject> as IList;
+  FList := TCollections.CreateObjectList<TContact>;
+
+  FTVP.TreeView := grdMain;
+
   //FList3 := TObjectList<TObject>.Create(False);
 
   FillList(FList, 1000);
   //FillList(FList3, 1000);
   FTVP.View.ItemsSource := FList as IObjectList;
-  FSelection := TObservableCollection<TObject>.Create(False);
+  FTVP.View.ItemTemplate := TRttiDataTemplate.Create(FTVP.ColumnDefinitions);
+
+
+  //FSelection := TObservableCollection<TObject>.Create(False);
 
   //tvpMainDetail.View.ItemsSource := FSelection;
-  grdMain.Header.AutoFitColumns(False);
+  //grdMain.Header.AutoFitColumns(False);
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
 procedure TfrmTreeViewPresenter.btnEventClick(Sender: TObject);
 begin
-  (FList[edtIndex.Value].AsObject as TContact).Firstname := edtName.Text;
+  (FList[edtIndex.Value] as TContact).Firstname := edtName.Text;
 end;
 
 procedure TfrmTreeViewPresenter.btnFilterClick(Sender: TObject);
@@ -115,7 +123,7 @@ end;
 {$ENDREGION}
 
 {$REGION 'private methods'}
-procedure TfrmTreeViewPresenter.FillList(AList: IList;
+procedure TfrmTreeViewPresenter.FillList(AList: IList<TContact>;
   ACount: Integer);
 var
   C: TContact;

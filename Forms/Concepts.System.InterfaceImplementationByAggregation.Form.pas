@@ -48,13 +48,8 @@ type
     let an outer object implement IInnerInterface through the 'implements'
     syntax. }
   TInnerObject = class
-  strict private
-    //FOuterInterface: IOuterInterface;
   public
     procedure InnerMethod;
-
-//    constructor Create(AOuterInterface: IOuterInterface); reintroduce; virtual;
-//    procedure BeforeDestruction; override;
 
   end;
 
@@ -101,7 +96,7 @@ type
     btnOuterMethod : TButton;
 
     procedure actInnerMethodExecute(Sender: TObject);
-    procedure actOuterMethodExecute(Sender: TObject);private
+    procedure actOuterMethodExecute(Sender: TObject);
 
   private
     FInstance: IInterface;
@@ -120,7 +115,6 @@ implementation
 procedure TOuterObject.AfterConstruction;
 begin
   inherited AfterConstruction;
-  //FInnerObject := TInnerObject.Create(Self);
   FInnerObject := TInnerObject.Create;
 end;
 
@@ -138,18 +132,6 @@ end;
 {$ENDREGION}
 
 {$REGION 'TInnerObject'}
-//procedure TInnerObject.BeforeDestruction;
-//begin
-//  FOuterInterface := nil;
-//  inherited BeforeDestruction;
-//end;
-
-//constructor TInnerObject.Create(AOuterInterface: IOuterInterface);
-//begin
-//  inherited Create;
-//  FOuterInterface := AOuterInterface;
-//end;
-
 procedure TInnerObject.InnerMethod;
 begin
   ShowMessage('IInnerInterface.InnerMethod called from TOuterObject instance.');

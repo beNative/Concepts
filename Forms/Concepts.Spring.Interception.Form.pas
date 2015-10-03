@@ -56,10 +56,10 @@ type
     aclMain  : TActionList;
     actStart : TAction;
     actStop  : TAction;
-    actMove: TAction;
-    btnStart: TButton;
-    btnStop: TButton;
-    btnMove: TButton;
+    actMove  : TAction;
+    btnStart : TButton;
+    btnStop  : TButton;
+    btnMove  : TButton;
 
     procedure actStartExecute(Sender: TObject);
     procedure actStopExecute(Sender: TObject);
@@ -70,7 +70,6 @@ type
 
   public
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
 
   end;
 
@@ -81,24 +80,7 @@ implementation
 uses
   Spring.Interception;
 
-procedure TfrmSpringInterception.actMoveExecute(Sender: TObject);
-var
-  LMove: IMovable;
-begin
-  if Supports(FTest, IMovable, LMove) then
-    LMove.Move;
-end;
-
-procedure TfrmSpringInterception.actStartExecute(Sender: TObject);
-begin
-  (FTest as IStartable).Start;
-end;
-
-procedure TfrmSpringInterception.actStopExecute(Sender: TObject);
-begin
-  (FTest as IStoppable).Stop;
-end;
-
+{$REGION 'construction and destruction'}
 procedure TfrmSpringInterception.AfterConstruction;
 var
   LOptions : TProxyGenerationOptions;
@@ -119,11 +101,27 @@ begin
 
 //  TProxyGenerator.
 end;
+{$ENDREGION}
 
-procedure TfrmSpringInterception.BeforeDestruction;
+{$REGION 'action handlers'}
+procedure TfrmSpringInterception.actMoveExecute(Sender: TObject);
+var
+  LMove: IMovable;
 begin
-  inherited BeforeDestruction;
+  if Supports(FTest, IMovable, LMove) then
+    LMove.Move;
 end;
+
+procedure TfrmSpringInterception.actStartExecute(Sender: TObject);
+begin
+  (FTest as IStartable).Start;
+end;
+
+procedure TfrmSpringInterception.actStopExecute(Sender: TObject);
+begin
+  (FTest as IStoppable).Stop;
+end;
+{$ENDREGION}
 
 { TTestObject }
 

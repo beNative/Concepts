@@ -28,7 +28,6 @@ type
   public
     procedure AfterConstruction; override;
 
-
   end;
 
 implementation
@@ -52,7 +51,7 @@ procedure TfrmSQLBuilder4D.AfterConstruction;
 var
   S: string;
 begin
-  inherited;
+  inherited AfterConstruction;
   S := SQL.Select
     .Distinct
     .Column('Id')
