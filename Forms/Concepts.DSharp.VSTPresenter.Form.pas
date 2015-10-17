@@ -32,7 +32,7 @@ uses
 
   DSharp.Core.DataTemplates,
   DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter,
-  DSharp.Bindings, DSharp.Windows.CustomPresenter;
+  DSharp.Windows.CustomPresenter, DSharp.Bindings;
 
 type
   TfrmVSTPresenter = class(TForm)
@@ -55,7 +55,7 @@ implementation
 {$R *.dfm}
 
 uses
-  DSharp.Collections.ObservableCollection,
+
   DSharp.Windows.ColumnDefinitions.RttiDataTemplate,
 
   Concepts.Types.Contact,

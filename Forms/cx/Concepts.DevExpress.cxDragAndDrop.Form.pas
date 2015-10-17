@@ -23,10 +23,12 @@ uses
   Vcl.Controls, Vcl.ActnList, Vcl.Forms,
   Data.DB, Datasnap.DBClient,
 
-  cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters,
-  cxStyles, cxCustomData, cxFilter, cxData, cxDataStorage, cxEdit, cxDBData,
+  cxGraphics, cxControls,
+
   cxGridCustomView, cxGridCustomTableView, cxGridTableView, cxGridDBTableView,
-  cxClasses, cxGridLevel, cxGrid, cxNavigator;
+  cxClasses, cxGridLevel, cxGrid, cxLookAndFeels, cxLookAndFeelPainters,
+  cxStyles, cxCustomData, cxFilter, cxData, cxDataStorage, cxEdit, cxNavigator,
+  cxDBData;
 
 type
   TfrmcxDragAndDrop = class(TForm)

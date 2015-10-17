@@ -31,7 +31,7 @@ procedure RegisterConcepts;
 implementation
 
 uses
-  System.SysUtils, System.StrUtils,
+  System.SysUtils,
 
   {$IFDEF DEVEXPRESS}
   Concepts.DevExpress.cxEditors.Form,
@@ -52,7 +52,7 @@ uses
   Concepts.Spring.MulticastEvents.Form,
   //Concepts.Spring.ObjectDataSet.Form,
   Concepts.Spring.Logging.Form,
-  Concepts.Spring.Utils.Form,
+
   {$ENDIF}
 
   {$IFDEF ASYNCCALLS}
@@ -87,7 +87,7 @@ uses
   Concepts.System.InterfaceImplementationByAggregation.Form,
   Concepts.System.VirtualMethodInterceptor.Form,
   Concepts.System.VirtualInterface.Form,
-  Concepts.System.InterfacedComponent.Form,
+
   {$ENDIF}
 
   {$IFDEF SQLBUILDER4D}

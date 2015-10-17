@@ -26,13 +26,20 @@ uses
 type
   TfrmSpringUtils = class(TForm)
   private
-    { Private declarations }
+
   public
-    { Public declarations }
+
   end;
 
 implementation
 
 {$R *.dfm}
+
+
+
+
+
+
+
 
 end.

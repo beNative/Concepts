@@ -34,7 +34,6 @@ implementation
 {$R *.dfm}
 
 uses
-  System.TypInfo, System.Character,
   Vcl.Dialogs,
 
   Concepts.Utils;

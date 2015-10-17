@@ -27,14 +27,13 @@ uses
 
   VirtualTrees,
 
-  Spring, Spring.Collections, Spring.Collections.Lists,
+  Spring, Spring.Collections,
 
   DSharp.Windows.TreeViewPresenter, DSharp.Bindings.Collections,
   DSharp.Core.DataTemplates,
 
   DDuce.Components.PropertyInspector, DDuce.Components.LogTree,
-  DDuce.Components.GridView, DDuce.Components.DBGridView,
-  DDuce.Components.VirtualDBGrid;
+  DDuce.Components.GridView, DDuce.Components.DBGridView;
 
 type
   TConceptFactories = record
@@ -94,13 +93,6 @@ type
       const AName       : string = ''
     ): TDBGrid; static;
 
-    class function CreateVirtualDBGrid(
-            AOwner      : TComponent;
-            AParent     : TWinControl;
-            ADataSource : TDataSource = nil;
-      const AName       : string = ''
-    ): TVirtualDBGrid; static;
-
   end;
 
 implementation
@@ -111,6 +103,7 @@ uses
 
   DSharp.Windows.ColumnDefinitions.ControlTemplate;
 
+{$REGION 'TVirtualStringTree settings'}
 const
   DEFAULT_VST_SELECTIONOPTIONS = [
     { Prevent user from selecting with the selection rectangle in multiselect
@@ -325,9 +318,9 @@ const
       to highest index and vice versa when the tree's bidi mode is changed. }
     toAutoBidiColumnOrdering
   ];
+{$ENDREGION}
 
-{ TConceptFactories }
-
+{$REGION 'TConceptFactories'}
 class function TConceptFactories.CreateDBGrid(AOwner: TComponent;
   AParent: TWinControl; ADataSource: TDataSource; const AName: string): TDBGrid;
 var
@@ -412,21 +405,6 @@ begin
   Result := TVP;
 end;
 
-class function TConceptFactories.CreateVirtualDBGrid(AOwner: TComponent;
-  AParent: TWinControl; ADataSource: TDataSource;
-  const AName: string): TVirtualDBGrid;
-var
-  VDBG: TVirtualDBGrid;
-begin
-  VDBG                      := TVirtualDBGrid.Create(AOwner);
-  VDBG.AlignWithMargins     := True;
-  VDBG.Parent               := AParent;
-  VDBG.Align                := alClient;
-  VDBG.DBOptions.DataSource := ADataSource;
-  VDBG.DBOptions.AdvOptions := VDBG.DBOptions.AdvOptions - [aoStrippedRows];
-  Result := VDBG;
-end;
-
 class function TConceptFactories.CreateVST(AOwner: TComponent;
   AParent: TWinControl; const AName: string): TVirtualStringTree;
 var
@@ -490,5 +468,6 @@ begin
   if Assigned(AFilter) then
     ATVP.View.Filter.Add(AFilter);
 end;
+{$ENDREGION}
 
 end.

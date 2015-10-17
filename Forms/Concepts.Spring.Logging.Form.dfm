@@ -25,7 +25,7 @@ object frmSpringLogging: TfrmSpringLogging
     Caption = 'Track a method'
     TabOrder = 0
   end
-  object grp1: TGroupBox
+  object grpLogEntry: TGroupBox
     Left = 8
     Top = 39
     Width = 409

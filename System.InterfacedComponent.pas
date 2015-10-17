@@ -19,8 +19,8 @@ unit System.InterfacedComponent;
 interface
 
 uses
-  Winapi.ActiveX,
-  System.Classes, System.Win.VCLCom, System.Win.ComObj;
+
+  System.Classes, System.Win.VCLCom;
 
 { TODO: does not work yet! }
 

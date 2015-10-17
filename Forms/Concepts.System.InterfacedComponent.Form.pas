@@ -26,9 +26,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ActnList,
   System.Actions,
-  System.InterfacedComponent,
-
-  Concepts.TestForm;
+  System.InterfacedComponent;
 
 type
   TfrmInterfacedComponent = class(TForm)

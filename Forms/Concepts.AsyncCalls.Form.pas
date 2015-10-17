@@ -19,11 +19,11 @@ unit Concepts.AsyncCalls.Form;
 interface
 
 uses
-  System.Actions, System.Classes,
+  System.Actions, System.Classes, System.ImageList,
   Vcl.Forms, Vcl.ImgList, Vcl.Controls, Vcl.ActnList, Vcl.StdCtrls,
   Vcl.ComCtrls,
 
-  AsyncCalls, System.ImageList;
+  AsyncCalls;
 
 { Remark: The AsyncCalls library is not supported on x64 and is not
   maintained anymore. }
@@ -47,8 +47,8 @@ implementation
 {$R *.dfm}
 
 uses
-  System.SysUtils,
-  WinApi.Windows;
+  WinApi.Windows,
+  System.SysUtils;
 
 {$REGION 'non-interfaced routines'}
 { The cdecl function GetFiles() has two arguments, a string and an object which

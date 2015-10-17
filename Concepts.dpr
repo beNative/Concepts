@@ -58,7 +58,11 @@ uses
   Concepts.Spring.Utils.Form in 'Forms\Concepts.Spring.Utils.Form.pas' {frmSpringUtils},
   Concepts.SQLBuilder4D.Form in 'Forms\Concepts.SQLBuilder4D.Form.pas' {frmSQLBuilder4D},
   Concepts.ChromeTabs.Form in 'Forms\Concepts.ChromeTabs.Form.pas' {frmChromeTabs},
-  Concepts.ComponentInspectorTemplate.Form in 'Forms\Concepts.ComponentInspectorTemplate.Form.pas' {frmPropertyInspector};
+  Concepts.ComponentInspectorTemplate.Form in 'Forms\Concepts.ComponentInspectorTemplate.Form.pas' {frmPropertyInspector},
+  Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmSpringObjectDataSet},
+  Vcl.Themes,
+  Vcl.Styles,
+  Concepts.Resources in 'Concepts.Resources.pas' {dmResources: TDataModule};
 
 {$R *.res}
 
@@ -75,6 +79,7 @@ begin
   begin
     Application.Title := 'Concepts';
     Application.CreateForm(TfrmMain, frmMain);
+  Application.CreateForm(TdmResources, dmResources);
   end;
   Application.Run;
 end.

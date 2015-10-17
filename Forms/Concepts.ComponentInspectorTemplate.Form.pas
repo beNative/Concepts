@@ -22,7 +22,7 @@ interface
 
 uses
   System.Classes,
-  Vcl.ComCtrls, Vcl.ButtonGroup, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls,
+  Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls,
   Vcl.Forms,
 
   DDuce.Components.PropertyInspector;

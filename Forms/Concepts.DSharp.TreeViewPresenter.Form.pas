@@ -22,17 +22,17 @@ unit Concepts.DSharp.TreeViewPresenter.Form;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Generics.Collections,
+  Winapi.Windows, Winapi.Messages,
+  System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
 
-  cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxContainer,
-  cxEdit, cxTextEdit, cxMaskEdit, cxSpinEdit,
+  cxGraphics, cxControls, cxContainer, cxEdit, cxTextEdit, cxMaskEdit,
+  cxSpinEdit, cxLookAndFeels, cxLookAndFeelPainters,
 
   VirtualTrees,
 
   DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter,
-  DSharp.Collections.ObservableCollection, DSharp.Bindings,
-  DSharp.Windows.CustomPresenter,
+  DSharp.Bindings, DSharp.Windows.CustomPresenter,
 
   Spring.Collections,
 
@@ -70,10 +70,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Spring.Events,
-  DSharp.Core.DataTemplates,  DSharp.Windows.ColumnDefinitions.RttiDataTemplate,
-
-  DSharp.Bindings.Notifications,
+  DSharp.Windows.ColumnDefinitions.RttiDataTemplate,
 
   DDuce.RandomData;
 

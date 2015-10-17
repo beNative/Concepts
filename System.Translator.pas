@@ -97,7 +97,7 @@ implementation
 uses
   gnugettext,
 
-  System.RTLConsts, System.SysUtils, System.TypInfo, System.IOUtils,
+  System.SysUtils, System.IOUtils,
   Winapi.Windows, SHDocVw,
   Vcl.ActnList, Vcl.Forms, Vcl.Controls, Vcl.Graphics, Vcl.ExtCtrls,
   Vcl.DBCtrls, Vcl.StdCtrls,

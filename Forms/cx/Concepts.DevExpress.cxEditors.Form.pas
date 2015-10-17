@@ -20,16 +20,17 @@ interface
 
 uses
   System.Classes, System.Actions,
-  Vcl.Menus, Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms,
+  Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms,
   Vcl.Graphics,
 
-  cxShellCommon, cxGraphics, cxLookAndFeelPainters, cxEdit, cxContainer,
-  cxDBExtLookupComboBox, cxShellComboBox, cxRichEdit, cxDBLookupComboBox,
-  cxDropDownEdit, cxMRUEdit, cxBlobEdit, cxCurrencyEdit, cxTimeEdit,
-  cxHyperLinkEdit, cxCalc, cxSpinEdit, cxImageComboBox, cxCheckBox,
-  cxButtonEdit, cxCalendar, cxMemo, cxMaskEdit, cxControls, cxTextEdit,
-  cxInplaceContainer, cxVGrid, cxOI, cxStyles, cxLookAndFeels, cxClasses,
-  cxButtons, dxStatusBar;
+  cxGraphics, cxEdit, cxContainer,
+  cxRichEdit,
+
+  cxCheckBox,
+  cxMemo, cxMaskEdit, cxControls, cxTextEdit,
+  cxInplaceContainer, cxVGrid, cxOI, cxClasses,
+  cxButtons, dxStatusBar, cxLookAndFeels, cxLookAndFeelPainters, cxStyles,
+  Vcl.Menus;
 
 type
   TfrmcxEditors = class(TForm)

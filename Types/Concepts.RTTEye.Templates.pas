@@ -19,7 +19,7 @@ unit Concepts.RTTEye.Templates;
 interface
 
 uses
-  DSharp.Core.DataTemplates, DSharp.Windows.ColumnDefinitions.ControlTemplate;
+  DSharp.Windows.ColumnDefinitions.ControlTemplate;
 
 implementation
 

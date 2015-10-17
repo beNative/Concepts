@@ -27,7 +27,7 @@ uses
 
   Spring.Persistence.Core.Interfaces,
   Spring.Persistence.Core.Session,
-  Spring.Collections,
+
   SQLiteTable3;
 
 type
@@ -47,8 +47,8 @@ implementation
 {$R *.dfm}
 
 uses
-  Spring.Persistence.Core.DatabaseManager,
-  Spring.Persistence.Core.ConnectionFactory,
+
+
 
   Spring.Persistence.Adapters.SQLite;
 

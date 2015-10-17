@@ -21,9 +21,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-
-  ChromeTabs;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
 
 type
 
@@ -35,7 +33,6 @@ type
   end;
 
   TfrmTest = class(TForm, IInterface)
-    ct1: TChromeTabs;
   private
   public
     procedure AfterConstruction; override;

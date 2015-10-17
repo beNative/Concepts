@@ -23,16 +23,14 @@ interface
 uses
   WinApi.Windows, WinApi.Messages,
   System.Actions, System.SysUtils, System.Variants, System.Classes, System.Rtti,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.ActnList,
 
-  cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxContainer,
-  cxEdit, cxTextEdit, cxMaskEdit,
+  cxGraphics, cxControls,
 
   Spring,
 
-  DSharp.Bindings.VCLControls, DSharp.Bindings, DSharp.Bindings.Notifications,
-  DSharp.Core.Validations,
+  DSharp.Bindings.VCLControls, DSharp.Bindings, DSharp.Core.Validations,
 
   Concepts.Types.Contact;
 

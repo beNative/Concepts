@@ -19,8 +19,8 @@ unit Concepts.MainForm;
 interface
 
 uses
-  System.Actions, System.Generics.Collections, System.Classes,
-  Vcl.ActnList, Vcl.Controls, Vcl.StdCtrls, Vcl.Buttons, Vcl.Forms,
+  System.Actions, System.Classes,
+  Vcl.ActnList, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms,
   Vcl.ExtCtrls, Vcl.ComCtrls,
 
   VirtualTrees,
@@ -29,16 +29,17 @@ uses
 
 type
   TfrmMain = class(TForm)
-    {$REGION 'designer controls'}
-    btnExecute      : TBitBtn;
     aclMain         : TActionList;
     actExecute      : TAction;
     actClose        : TAction;
-    btnExecute1     : TBitBtn;
     actExecuteModal : TAction;
     pnlVST          : TPanel;
     edtFilter       : TEdit;
     sbrMain         : TStatusBar;
+    pnlButtons: TGridPanel;
+    btnExecute: TButton;
+    btnClose: TButton;
+    btnExecuteModal: TButton;
     {$ENDREGION}
 
     procedure actExecuteExecute(Sender: TObject);
@@ -49,6 +50,7 @@ type
     procedure edtFilterKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure edtFilterChange(Sender: TObject);
+    procedure actCloseExecute(Sender: TObject);
 
   strict private
     FVKPressed : Boolean;
@@ -185,6 +187,11 @@ end;
 procedure TfrmMain.actExecuteModalExecute(Sender: TObject);
 begin
   ConceptManager.Execute(FTVP.SelectedItem);
+end;
+
+procedure TfrmMain.actCloseExecute(Sender: TObject);
+begin
+  Close;
 end;
 {$ENDREGION}
 

@@ -28,7 +28,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList, Vcl.StdCtrls,
   Vcl.ExtCtrls,
 
-  Spring, Spring.Logging, Spring.Logging.Controller, Spring.Logging.Extensions,
+  Spring.Logging, Spring.Logging.Controller, Spring.Logging.Extensions,
   Spring.Logging.Appenders;
 
 type
@@ -38,7 +38,7 @@ type
     btnTrackThis       : TButton;
     actWarn            : TAction;
     actLog             : TAction;
-    grp1               : TGroupBox;
+    grpLogEntry        : TGroupBox;
     rgpLogEntryTypes   : TRadioGroup;
     rgpLogLevel        : TRadioGroup;
     edtMessage         : TEdit;
@@ -91,7 +91,6 @@ implementation
 {$R *.dfm}
 
 uses
-  Spring.Reflection,
   Spring.Logging.Loggers, Spring.Logging.Serializers,
 
   DDuce.Reflect;

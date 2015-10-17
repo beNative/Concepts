@@ -79,9 +79,7 @@ implementation
 
 uses
   System.SysUtils, System.TypInfo,
-  Vcl.Dialogs, Vcl.Graphics,
-
-  Spring, Spring.Reflection;
+  Vcl.Dialogs, Vcl.Graphics;
 
 const
   LEVEL_PACKAGE = 0;

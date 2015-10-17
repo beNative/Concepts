@@ -24,9 +24,7 @@ interface
 uses
   Spring,
   DSharp.Core.PropertyChangedBase, // TPropertyChangedBase
-  DSharp.Core.Properties,          // TField<T>/TProperty<T>
-  DSharp.Bindings.Notifications,   // INotifyPropertyChanged
-  DSharp.Core.Validations          // IDataErrorInfo
+  DSharp.Core.Properties         // IDataErrorInfo
   ;
 
 type
