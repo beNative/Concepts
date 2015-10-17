@@ -2,8 +2,8 @@ object frmVariants: TfrmVariants
   Left = 0
   Top = 0
   Caption = 'Variants'
-  ClientHeight = 138
-  ClientWidth = 269
+  ClientHeight = 131
+  ClientWidth = 266
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -54,8 +54,8 @@ object frmVariants: TfrmVariants
     TabOrder = 4
   end
   object aclMain: TActionList
-    Left = 16
-    Top = 136
+    Left = 152
+    Top = 8
     object actAssignUnassigned: TAction
       Caption = 'Assign Unassigned'
       OnExecute = actAssignUnassignedExecute

@@ -1,13 +1,5 @@
 program Concepts;
 
-
-//{$RTTI EXPLICIT
-//  METHODS([vcPrivate,vcProtected, vcPublic, vcPublished])
-//  PROPERTIES([vcPrivate,vcProtected, vcPublic, vcPublished])
-//  FIELDS([vcPrivate,vcProtected, vcPublic, vcPublished])
-//}
-//{$STRONGLINKTYPES ON}
-
 uses
   Forms,
   Concepts.Registration in 'Concepts.Registration.pas',
@@ -42,8 +34,6 @@ uses
   Concepts.Types.ThreadSafe in 'Types\Concepts.Types.ThreadSafe.pas',
   Concepts.System.RegularExpressions.Form in 'Forms\Concepts.System.RegularExpressions.Form.pas' {frmRegularExpressions},
   Concepts.System.Threading.Form in 'Forms\Concepts.System.Threading.Form.pas' {frmThreading},
-  System.Translator in 'System.Translator.pas',
-  System.InterfacedComponent in 'System.InterfacedComponent.pas',
   Concepts.TestForm in 'Concepts.TestForm.pas' {frmTest},
   Concepts.System.AnonymousMethods.Form in 'Forms\Concepts.System.AnonymousMethods.Form.pas' {frmAnonymousMethods},
   Concepts.System.InterfaceImplementationByAggregation.Form in 'Forms\Concepts.System.InterfaceImplementationByAggregation.Form.pas' {frmIterFaceImplementationByAggregation},
@@ -79,7 +69,7 @@ begin
   begin
     Application.Title := 'Concepts';
     Application.CreateForm(TfrmMain, frmMain);
-  Application.CreateForm(TdmResources, dmResources);
+    Application.CreateForm(TdmResources, dmResources);
   end;
   Application.Run;
 end.

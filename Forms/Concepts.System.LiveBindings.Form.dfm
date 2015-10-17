@@ -119,14 +119,13 @@ object frmLiveBindings: TfrmLiveBindings
     Width = 121
     Height = 21
     TabOrder = 2
-    Text = 'btnButton'
+    Text = 'ButtonCaption'
   end
   object btnButton: TButton
     Left = 407
     Top = 6
     Width = 179
     Height = 25
-    Caption = 'btnButton'
     TabOrder = 3
   end
   object pbProgressBar: TProgressBar

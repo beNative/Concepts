@@ -3,8 +3,8 @@ object frmGridPanels: TfrmGridPanels
   Top = 0
   BorderStyle = bsDialog
   Caption = 'Gridpanels'
-  ClientHeight = 159
-  ClientWidth = 539
+  ClientHeight = 153
+  ClientWidth = 536
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -241,6 +241,7 @@ object frmGridPanels: TfrmGridPanels
     Width = 217
     Height = 25
     Caption = 'Update layout'
+    Default = True
     TabOrder = 9
     OnClick = btnUpdateLayoutClick
   end

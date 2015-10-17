@@ -39,6 +39,8 @@ type
     btnExecuteQuery    : TButton;
     btnLastNameRoberts : TButton;
     mmoList            : TMemo;
+    edtFirstName       : TEdit;
+    edtLastName        : TEdit;
 
     procedure actCreateListExecute(Sender: TObject);
     procedure actFirstNameJohnExecute(Sender: TObject);
@@ -65,7 +67,7 @@ uses
 {$REGION 'construction and destruction'}
 procedure TfrmCollections.AfterConstruction;
 begin
-  inherited;
+  inherited AfterConstruction;
   FList := TCollections.CreateObjectList<TContact>;
 end;
 {$ENDREGION}
@@ -93,7 +95,7 @@ begin
   try
     FirstNameIsJohn := function(const AC: TContact): Boolean
     begin
-      Result := AC.Firstname = 'John';
+      Result := AC.Firstname = edtFirstName.Text;
     end;
 
     for C in FList.Where(FirstNameIsJohn) do
@@ -116,7 +118,7 @@ begin
   try
     LastNameIsRoberts := function(const AC: TContact): Boolean
     begin
-      Result := AC.Lastname = 'Roberts';
+      Result := AC.Lastname = edtLastName.Text;
     end;
 
     for C in FList.Where(LastNameIsRoberts) do
