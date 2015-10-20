@@ -35,7 +35,6 @@ type
     FCompanyName : string;
     FEmail       : string;
     FAddress     : string;
-    FCountry     : TField<string>;
     FNumber      : Integer;
     FBirthDate   : TDate;
 
@@ -49,8 +48,7 @@ type
     procedure SetBirthDate(const Value: TDate);
 
   published
-    procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
+
 
     property Firstname: string
       read FFirstname write SetFirstname;
@@ -72,10 +70,6 @@ type
 
     property BirthDate: TDate
       read FBirthDate write SetBirthDate;
-
-    { property reference sample. }
-    property Country: TProperty<string>
-      read FCountry.Value write FCountry.Value;
   end;
 
 implementation
@@ -83,18 +77,6 @@ implementation
 uses
   System.Classes,
   Vcl.Dialogs;
-
-procedure TContact.AfterConstruction;
-begin
-  inherited;
-  FCountry.Initialize(Self);
-end;
-
-procedure TContact.BeforeDestruction;
-begin
-  inherited;
-  FCountry.Finalize;
-end;
 
 procedure TContact.SetAddress(const Value: string);
 begin

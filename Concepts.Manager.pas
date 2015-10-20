@@ -85,7 +85,7 @@ uses
 {$REGION 'construction and destruction'}
 class constructor TConceptManager.Create;
 begin
-  FList := TCollections.CreateObjectList<TConcept>(True);
+  FList := TCollections.CreateObjectList<TConcept>;
 end;
 
 class destructor TConceptManager.Destroy;

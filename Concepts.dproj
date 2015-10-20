@@ -112,12 +112,15 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="Libraries\PasZip\PasZip.pas"/>
+        <DCCReference Include="Libraries\AsyncCalls\AsyncCalls.pas"/>
+        <DCCReference Include="Libraries\gnugettext\gnugettext.pas"/>
+        <DCCReference Include="Libraries\BTMemoryModule\BTMemoryModule.pas"/>
         <DCCReference Include="Concepts.Registration.pas"/>
         <DCCReference Include="Concepts.Utils.pas"/>
         <DCCReference Include="Types\Concepts.Types.ValidationRules.pas"/>
         <DCCReference Include="Types\Concepts.Types.Contact.pas"/>
         <DCCReference Include="Concepts.Manager.pas"/>
-        <DCCReference Include="Libraries\AsyncCalls.pas"/>
         <DCCReference Include="Forms\Concepts.System.Variants.Form.pas">
             <Form>frmVariants</Form>
         </DCCReference>
@@ -154,7 +157,6 @@
         <DCCReference Include="Forms\Concepts.BTMemoryModule.Form.pas">
             <Form>frmBTMemoryModule</Form>
         </DCCReference>
-        <DCCReference Include="Libraries\BTMemoryModule.pas"/>
         <DCCReference Include="Forms\Concepts.System.Libraries.Form.pas">
             <Form>frmLibraries</Form>
         </DCCReference>
@@ -218,8 +220,6 @@
             <Form>frmInterfacedComponent</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Libraries\PasZip.pas"/>
-        <DCCReference Include="Libraries\gnugettext.pas"/>
         <DCCReference Include="Forms\Concepts.DSharp.Bindings.Form.pas">
             <Form>frmBindings</Form>
             <FormType>dfm</FormType>
@@ -250,6 +250,45 @@
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="Forms\Concepts.Spring.Types.Form.pas">
+            <Form>frmSpringTypes</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.Collections.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.CollectionView.Adapters.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.CollectionView.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.CollectionView.VCLAdapters.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.Exceptions.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.Notifications.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.Validations.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.VCLControls.Extensions.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.VCLControls.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Collections.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.CopyOperator.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.DataConversion.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.DataTemplates.Default.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.DataTemplates.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.DependencyProperty.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Editable.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Expressions.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Framework.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Properties.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.PropertyChangedBase.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Reflection.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Utils.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Validations.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.ControlTemplate.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.RttiDataTemplate.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.XmlDataTemplate.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.ControlTemplates.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.CustomPresenter.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.CustomPresenter.Types.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.TreeViewPresenter.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.ComponentModel.DataAnnotations.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.XNode.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Collections.ObservableCollection.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -641,13 +680,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <ModelSupport>False</ModelSupport>
         </BorlandProject>

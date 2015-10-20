@@ -52,6 +52,7 @@ uses
   Concepts.Spring.MulticastEvents.Form,
   //Concepts.Spring.ObjectDataSet.Form,
   Concepts.Spring.Logging.Form,
+  Concepts.Spring.Types.Form,
 
   {$ENDIF}
 
@@ -158,6 +159,12 @@ begin
     'Logging',
     'Spring',
     'Spring Logging system'
+  );
+  ConceptManager.Register(
+    TfrmSpringTypes,
+    'Types',
+    'Spring',
+    'Spring types'
   );
 //  ConceptManager.Register(
 //    TfrmSpringUtils,

@@ -41,7 +41,7 @@ type
     class procedure InitializeTVP(
       ATVP      : TTreeViewPresenter;
       AVST      : TVirtualStringTree = nil;
-      ASource   : IList = nil;
+      ASource   : IObjectList = nil;
       ATemplate : IDataTemplate = nil;
       AFilter   : TFilterEvent = nil
     ); static;
@@ -72,7 +72,7 @@ type
     class function CreateTVP(
             AOwner    : TComponent;
             AVST      : TVirtualStringTree = nil;
-            ASource   : IList = nil;
+            ASource   : IObjectList = nil;
             ATemplate : IDataTemplate = nil;
             AFilter   : TFilterEvent = nil;
       const AName     : string = ''
@@ -395,7 +395,7 @@ begin
 end;
 
 class function TConceptFactories.CreateTVP(AOwner: TComponent;
-  AVST: TVirtualStringTree; ASource: IList; ATemplate: IDataTemplate;
+  AVST: TVirtualStringTree; ASource: IObjectList; ATemplate: IDataTemplate;
   AFilter: TFilterEvent; const AName: string): TTreeViewPresenter;
 var
   TVP: TTreeViewPresenter;
@@ -437,13 +437,14 @@ begin
     AList.Clear;
     for I := 0 to ACount - 1 do
     begin
+
       //AList.Add(TConcept CreateRandomContact);
     end;
   end;
 end;
 
 class procedure TConceptFactories.InitializeTVP(ATVP: TTreeViewPresenter;
-  AVST: TVirtualStringTree; ASource: IList; ATemplate: IDataTemplate;
+  AVST: TVirtualStringTree; ASource: IObjectList; ATemplate: IDataTemplate;
   AFilter: TFilterEvent);
 var
   P : TRttiProperty;
@@ -461,7 +462,7 @@ begin
   ATVP.SyncMode := False;
   ATVP.UseColumnDefinitions := True;
   ATVP.ListMode             := True;
-  ATVP.View.ItemsSource     := ASource as IObjectList;
+  ATVP.View.ItemsSource     := ASource;
   if Assigned(ATemplate) then
     ATVP.View.ItemTemplate :=
       TColumnDefinitionsControlTemplate.Create(ATVP.ColumnDefinitions);

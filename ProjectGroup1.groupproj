@@ -1,0 +1,120 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{F5E08C84-68AB-4CF0-94FD-14728B3C3902}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Concepts.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\DataGrabber\DataGrabber.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\libraries\dduce\Demos\DDuce.Demos.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\libraries\dduce\Tests\DDuce.Tests.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\experts\DebugVisualizers\DebugVisualizers.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\libraries\Delphi-Mocks\Tests\Delphi.Mocks.Tests.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\libraries\spring4d\Marshmallow\Demos\GettingStarted\GettingStarted.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\libraries\spring4d\Tests\Spring.Tests.DelphiXE8.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Concepts">
+        <MSBuild Projects="Concepts.dproj"/>
+    </Target>
+    <Target Name="Concepts:Clean">
+        <MSBuild Projects="Concepts.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Concepts:Make">
+        <MSBuild Projects="Concepts.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DataGrabber">
+        <MSBuild Projects="..\DataGrabber\DataGrabber.dproj"/>
+    </Target>
+    <Target Name="DataGrabber:Clean">
+        <MSBuild Projects="..\DataGrabber\DataGrabber.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DataGrabber:Make">
+        <MSBuild Projects="..\DataGrabber\DataGrabber.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DDuce_Demos">
+        <MSBuild Projects="..\..\libraries\dduce\Demos\DDuce.Demos.dproj"/>
+    </Target>
+    <Target Name="DDuce_Demos:Clean">
+        <MSBuild Projects="..\..\libraries\dduce\Demos\DDuce.Demos.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DDuce_Demos:Make">
+        <MSBuild Projects="..\..\libraries\dduce\Demos\DDuce.Demos.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DDuce_Tests">
+        <MSBuild Projects="..\..\libraries\dduce\Tests\DDuce.Tests.dproj"/>
+    </Target>
+    <Target Name="DDuce_Tests:Clean">
+        <MSBuild Projects="..\..\libraries\dduce\Tests\DDuce.Tests.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DDuce_Tests:Make">
+        <MSBuild Projects="..\..\libraries\dduce\Tests\DDuce.Tests.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DebugVisualizers">
+        <MSBuild Projects="..\..\experts\DebugVisualizers\DebugVisualizers.dproj"/>
+    </Target>
+    <Target Name="DebugVisualizers:Clean">
+        <MSBuild Projects="..\..\experts\DebugVisualizers\DebugVisualizers.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DebugVisualizers:Make">
+        <MSBuild Projects="..\..\experts\DebugVisualizers\DebugVisualizers.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Delphi_Mocks_Tests">
+        <MSBuild Projects="..\..\libraries\Delphi-Mocks\Tests\Delphi.Mocks.Tests.dproj"/>
+    </Target>
+    <Target Name="Delphi_Mocks_Tests:Clean">
+        <MSBuild Projects="..\..\libraries\Delphi-Mocks\Tests\Delphi.Mocks.Tests.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Delphi_Mocks_Tests:Make">
+        <MSBuild Projects="..\..\libraries\Delphi-Mocks\Tests\Delphi.Mocks.Tests.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="GettingStarted">
+        <MSBuild Projects="..\..\libraries\spring4d\Marshmallow\Demos\GettingStarted\GettingStarted.dproj"/>
+    </Target>
+    <Target Name="GettingStarted:Clean">
+        <MSBuild Projects="..\..\libraries\spring4d\Marshmallow\Demos\GettingStarted\GettingStarted.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="GettingStarted:Make">
+        <MSBuild Projects="..\..\libraries\spring4d\Marshmallow\Demos\GettingStarted\GettingStarted.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Spring_Tests_DelphiXE8">
+        <MSBuild Projects="..\..\libraries\spring4d\Tests\Spring.Tests.DelphiXE8.dproj"/>
+    </Target>
+    <Target Name="Spring_Tests_DelphiXE8:Clean">
+        <MSBuild Projects="..\..\libraries\spring4d\Tests\Spring.Tests.DelphiXE8.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Spring_Tests_DelphiXE8:Make">
+        <MSBuild Projects="..\..\libraries\spring4d\Tests\Spring.Tests.DelphiXE8.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Concepts;DataGrabber;DDuce_Demos;DDuce_Tests;DebugVisualizers;Delphi_Mocks_Tests;GettingStarted;Spring_Tests_DelphiXE8"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Concepts:Clean;DataGrabber:Clean;DDuce_Demos:Clean;DDuce_Tests:Clean;DebugVisualizers:Clean;Delphi_Mocks_Tests:Clean;GettingStarted:Clean;Spring_Tests_DelphiXE8:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Concepts:Make;DataGrabber:Make;DDuce_Demos:Make;DDuce_Tests:Make;DebugVisualizers:Make;Delphi_Mocks_Tests:Make;GettingStarted:Make;Spring_Tests_DelphiXE8:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

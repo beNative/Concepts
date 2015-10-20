@@ -26,9 +26,6 @@ uses
   System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
 
-  cxGraphics, cxControls, cxContainer, cxEdit, cxTextEdit, cxMaskEdit,
-  cxSpinEdit, cxLookAndFeels, cxLookAndFeelPainters,
-
   VirtualTrees,
 
   DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter,
@@ -36,7 +33,7 @@ uses
 
   Spring.Collections,
 
-  Concepts.Types.Contact;
+  Concepts.Types.Contact, Vcl.Samples.Spin;
 
 type
   TfrmTreeViewPresenter = class(TForm)
@@ -46,8 +43,8 @@ type
     edtFilter     : TEdit;
     btnEvent      : TButton;
     lblChange     : TLabel;
-    edtIndex      : TcxSpinEdit;
     edtName       : TEdit;
+    edtIndex      : TSpinEdit;
 
     procedure tvpMainSelectionChanged(Sender: TObject);
     procedure btnFilterClick(Sender: TObject);
@@ -55,6 +52,8 @@ type
 
   private
     FList      : IList<TContact>;
+    //FList      : IObjectList;
+    //FList      : IList;
     FSelection : IList;
     FTVP       : TTreeViewPresenter;
 
@@ -72,24 +71,53 @@ implementation
 uses
   DSharp.Windows.ColumnDefinitions.RttiDataTemplate,
 
+  Concepts.Factories,
+
   DDuce.RandomData;
 
 {$REGION 'construction and destruction'}
 procedure TfrmTreeViewPresenter.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FTVP := TTreeViewPresenter.Create(Self);
-
   FList := TCollections.CreateObjectList<TContact>;
+  FillList(FList, 1000);
+  FTVP  := TConceptFactories.CreateTVP(Self, grdMain, FList as IObjectList);
 
-  FTVP.TreeView := grdMain;
+//  with FTVP.ColumnDefinitions.Add('Firstname') do
+//  begin
+//    ValuePropertyName := 'Firstname';
+//    AutoSize          := True;
+//    Alignment         := taCenter;
+//  end;
+//  with FTVP.ColumnDefinitions.Add('Lastname') do
+//  begin
+//    ValuePropertyName := 'Lastname';
+//    AutoSize          := True;
+//    Alignment         := taLeftJustify;
+//  end;
+//  with FTVP.ColumnDefinitions.Add('Email') do
+//  begin
+//    ValuePropertyName := 'Email';
+//    AutoSize          := True;
+//  end;
+//  with FTVP.ColumnDefinitions.Add('CompanyName') do
+//  begin
+//    ValuePropertyName := 'CompanyName';
+//    AutoSize          := True;
+//  end;
+  //FTVP.UseColumnDefinitions := True;
+  //FTVP.View.ItemsSource := FList as IObjectList;
+  //FTVP.TreeView := grdMain;
+  //FTVP.View.ItemTemplate := TRttiDataTemplate.Create(FTVP.ColumnDefinitions);
+
+
 
   //FList3 := TObjectList<TObject>.Create(False);
 
-  FillList(FList, 1000);
-  //FillList(FList3, 1000);
-  FTVP.View.ItemsSource := FList as IObjectList;
-  FTVP.View.ItemTemplate := TRttiDataTemplate.Create(FTVP.ColumnDefinitions);
+
+
+
+
 
 
   //FSelection := TObservableCollection<TObject>.Create(False);

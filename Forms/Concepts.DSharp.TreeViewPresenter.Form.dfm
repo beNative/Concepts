@@ -92,15 +92,6 @@ object frmTreeViewPresenter: TfrmTreeViewPresenter
     TabOrder = 4
     OnClick = btnEventClick
   end
-  object edtIndex: TcxSpinEdit
-    Left = 446
-    Top = 323
-    Anchors = [akLeft, akBottom]
-    Properties.Alignment.Horz = taCenter
-    Style.BorderStyle = ebs3D
-    TabOrder = 5
-    Width = 41
-  end
   object edtName: TEdit
     Left = 490
     Top = 323
@@ -108,5 +99,16 @@ object frmTreeViewPresenter: TfrmTreeViewPresenter
     Height = 21
     Anchors = [akLeft, akBottom]
     TabOrder = 6
+  end
+  object edtIndex: TSpinEdit
+    Left = 446
+    Top = 323
+    Width = 41
+    Height = 22
+    Anchors = [akLeft, akBottom]
+    MaxValue = 0
+    MinValue = 0
+    TabOrder = 5
+    Value = 0
   end
 end

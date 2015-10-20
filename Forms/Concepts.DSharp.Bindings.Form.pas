@@ -89,8 +89,8 @@ procedure TfrmBindings.AfterConstruction;
 begin
   inherited AfterConstruction;
   FBindingGroup := TBindingGroup.Create(Self);
-  FContact := TContact.Create;
-  FRule := TRequiredRule.Create;
+  FContact      := TContact.Create;
+  FRule         := TRequiredRule.Create;
   with FContact do
   begin
     Firstname   := RandomData.FirstName(gnMale);
@@ -98,7 +98,6 @@ begin
     CompanyName := RandomData.CompanyName;
     Email       := RandomData.Email(Firstname, Lastname);
     Address     := RandomData.Address;
-    Country     := RandomData.State;
     Number      := RandomData.Number(100);
   end;
   AddEditBinding('Firstname', edtFirstname);
