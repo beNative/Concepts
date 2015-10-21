@@ -1,28 +1,43 @@
+{
+  Copyright (C) 2013-2015 Tim Sinaeve tim.sinaeve@gmail.com
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+}
+
 unit Concepts.DevExpress.cxGridViewPresenter.Form;
 
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, DB, ComCtrls, ActnList, StdCtrls,
+  Winapi.Windows, Winapi.Messages,
+  System.SysUtils, System.Variants, System.Classes, System.Actions,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls,
+  Vcl.ActnList, Vcl.StdCtrls,
 
   cxControls, cxGridLevel, cxClasses, cxGridCustomView, cxGridCustomTableView,
   cxGridTableView, cxGrid, cxTL, cxInplaceContainer, cxTLData, cxGraphics,
   cxLookAndFeels, cxLookAndFeelPainters, cxStyles, cxCustomData, cxFilter,
-  cxData, cxDataStorage, cxEdit, cxTextEdit, cxTLdxBarBuiltInMenu,
+  cxData, cxDataStorage, cxEdit, cxTextEdit, cxTLdxBarBuiltInMenu, cxNavigator,
+
+  Spring.Collections,
 
   DSharp.Windows.CustomPresenter, DSharp.Windows.ColumnDefinitions,
-  DSharp.Collections.ObservableCollection,
-  DSharp.Linq.QueryProvider.SQL, DSharp.Bindings,
   DSharp.Windows.TreeViewPresenter, DSharp.DevExpress.GridViewPresenter,
   DSharp.DevExpress.TreeListPresenter,
 
-  Concepts.Types.Contact, cxNavigator, System.Actions, VirtualTrees;
+  VirtualTrees,
 
-  {
-    Now a presenter exists for every component. One could be created that
-    supports several components using a registration mechanism.
-  }
+  Concepts.Types.Contact;
 
 type
   TfrmcxGridViewPresenter = class(TForm)
@@ -39,28 +54,24 @@ type
     aclMain                : TActionList;
     actFillList            : TAction;
     btnFillList            : TButton;
-    tvpMain                : TTreeViewPresenter;
     tsVirtualTree          : TTabSheet;
     vstMain                : TVirtualStringTree;
-    cxgrdclmnMainColumn1: TcxGridColumn;
-    cxgrdclmnMainColumn2: TcxGridColumn;
-    cxgrdclmnMainColumn3: TcxGridColumn;
-    cxgrdclmnMainColumn4: TcxGridColumn;
-    cxgrdclmnMainColumn5: TcxGridColumn;
-    cxtrlstclmnMainColumn1: TcxTreeListColumn;
-    cxtrlstclmnMainColumn2: TcxTreeListColumn;
-    cxtrlstclmnMainColumn3: TcxTreeListColumn;
-    cxtrlstclmnMainColumn4: TcxTreeListColumn;
-    cxtrlstclmnMainColumn5: TcxTreeListColumn;
-    cxtrlstclmnMainColumn6: TcxTreeListColumn;
+    tlcMainColumn1: TcxTreeListColumn;
+    tlcMainColumn2: TcxTreeListColumn;
+    tlcMainColumn3: TcxTreeListColumn;
+    tlcMainColumn4: TcxTreeListColumn;
+    tlcMainColumn5: TcxTreeListColumn;
+    tlcMainColumn6: TcxTreeListColumn;
+    tlcMainColumn7: TcxTreeListColumn;
     {$ENDREGION}
+
     procedure actFillListExecute(Sender: TObject);
 
   private
-    FList: IList;
-
-  protected
-    procedure FillList;
+    FList        : IList<TContact>;
+    FGVPresenter : TGridViewPresenter;
+    FTLPresenter : TTreeListPresenter;
+    FTVPresenter : TTreeViewPresenter;
 
   public
     procedure AfterConstruction; override;
@@ -74,59 +85,33 @@ implementation
 uses
   DSharp.Bindings.Notifications,
 
-  Concepts.Types.RandomData;
+  DDuce.RandomData,
+
+  Concepts.Factories;
 
 {$REGION 'construction and destruction'}
 procedure TfrmcxGridViewPresenter.AfterConstruction;
+var
+  OL : IObjectList;
 begin
-  inherited;
+  inherited AfterConstruction;
+  FList := TCollections.CreateObjectList<TContact>;
+  OL := FList as IObjectList;
+  TConceptFactories.FillListWithContacts(OL, 1000);
+  FGVPresenter := TConceptFactories.CreatecxGVP(Self, tvwMain, OL);
+  FTLPresenter := TConceptFactories.CreatecxTreeListPresenter(Self, lstMain, OL);
+  FTVPresenter := TConceptFactories.CreateTVP(Self, vstMain, OL);
 
-  FList := TObservableCollection<TContact>.Create(True);
-
-  { for the dx controls the columns have to be created. This is not required
-    for the TVirtualStringTree. }
-  gvpMain.UseColumnDefinitions := True;
-  tlpMain.UseColumnDefinitions := True;
-  tvpMain.UseColumnDefinitions := True;
+  tvwMain.ApplyBestFit;
+  lstMain.ApplyBestFit;
+  vstMain.Header.AutoFitColumns(False);
 end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
 procedure TfrmcxGridViewPresenter.actFillListExecute(Sender: TObject);
 begin
-  FillList;
-end;
-{$ENDREGION}
-
-{$REGION 'protected methods'}
-procedure TfrmcxGridViewPresenter.FillList;
-var
-  I: Integer;
-  C: TContact;
-begin
-  tlpMain.View.ItemsSource := nil;
-  gvpMain.View.ItemsSource := nil;
-  tvpMain.View.ItemsSource := nil;
-  FList.Clear;
-  for I := 0 to 1000 do
-  begin
-    C := TContact.Create;
-    with C do
-    begin
-      Firstname   := RandomData.FirstName(gnMale);
-      Lastname    := RandomData.LastName;
-      CompanyName := RandomData.CompanyName;
-      Email       := RandomData.Email(Firstname, Lastname);
-      Address     := RandomData.Address;
-    end;
-    FList.Add(C);
-  end;
-  tlpMain.View.ItemsSource := FList;
-  gvpMain.View.ItemsSource := FList;
-  tvpMain.View.ItemsSource := FList;
-  tvwMain.ApplyBestFit;
-  lstMain.ApplyBestFit;
-  vstMain.Header.AutoFitColumns(False);
+  TConceptFactories.FillListWithContacts(FList as IObjectList, 1000);
 end;
 {$ENDREGION}
 

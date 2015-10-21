@@ -21,10 +21,10 @@ unit Concepts.Spring.Collections.Form;
 interface
 
 uses
-  System.Actions, System.Classes,
-  Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.Forms,
+  System.Actions, System.Classes, System.SysUtils,
+  Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.Forms, Vcl.ComCtrls,
 
-  Spring.Collections,
+  Spring, Spring.Collections,
 
   Concepts.Types.Contact;
 
@@ -33,25 +33,35 @@ type
     aclMain            : TActionList;
     actCreateList      : TAction;
     actEnumerate       : TAction;
-    actFirstNameJohn   : TAction;
-    actLastNameRoberts : TAction;
+    actFirstNameIs     : TAction;
+    actLastNameIs      : TAction;
     btnCreateList      : TButton;
     btnExecuteQuery    : TButton;
     btnLastNameRoberts : TButton;
     mmoList            : TMemo;
     edtFirstName       : TEdit;
     edtLastName        : TEdit;
+    actBoth            : TAction;
+    btnBoth            : TButton;
+    trbRecordCount     : TTrackBar;
 
     procedure actCreateListExecute(Sender: TObject);
-    procedure actFirstNameJohnExecute(Sender: TObject);
-    procedure actLastNameRobertsExecute(Sender: TObject);
+    procedure actFirstNameIsExecute(Sender: TObject);
+    procedure actLastNameIsExecute(Sender: TObject);
+    procedure actBothExecute(Sender: TObject);
 
   private
-    FList : IList<TContact>;
+    FList        : IList<TContact>;
+    FFirstNameIs : TPredicate<TContact>;
+    FLastNameIs  : TPredicate<TContact>;
 
   public
     procedure FillList;
+
+    procedure HourGlass(AProc: TProc);
+
     procedure AfterConstruction; override;
+    procedure DefinePredicates;
 
   end;
 
@@ -62,7 +72,9 @@ implementation
 uses
   Vcl.Dialogs,
 
-  DDuce.RandomData;
+  DDuce.RandomData,
+
+  Concepts.Factories;
 
 {$REGION 'construction and destruction'}
 procedure TfrmCollections.AfterConstruction;
@@ -78,27 +90,22 @@ begin
   Screen.Cursor := crHourGlass;
   try
     FList.Clear;
-    FillList;
+    TConceptFactories.FillListWithContacts(FList as IObjectList, trbRecordCount.Position);
     ShowMessage('Contactlist has been created.');
   finally
     Screen.Cursor := crDefault;
   end;
 end;
 
-procedure TfrmCollections.actFirstNameJohnExecute(Sender: TObject);
+procedure TfrmCollections.actFirstNameIsExecute(Sender: TObject);
 var
-  SL              : TStringList;
-  C               : TContact;
-  FirstNameIsJohn : Spring.TPredicate<TContact>;
+  SL          : TStringList;
+  C           : TContact;
 begin
+  DefinePredicates;
   SL := TStringList.Create;
   try
-    FirstNameIsJohn := function(const AC: TContact): Boolean
-    begin
-      Result := AC.Firstname = edtFirstName.Text;
-    end;
-
-    for C in FList.Where(FirstNameIsJohn) do
+    for C in FList.Where(FFirstNameIs) do
     begin
       SL.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
     end;
@@ -108,27 +115,26 @@ begin
   end;
 end;
 
-procedure TfrmCollections.actLastNameRobertsExecute(Sender: TObject);
-var
-  SL                : TStringList;
-  C                 : TContact;
-  LastNameIsRoberts : Spring.TPredicate<TContact>;
+procedure TfrmCollections.actLastNameIsExecute(Sender: TObject);
 begin
-  SL := TStringList.Create;
-  try
-    LastNameIsRoberts := function(const AC: TContact): Boolean
+  HourGlass(procedure
+    var
+      SL         : TStringList;
+      C          : TContact;
     begin
-      Result := AC.Lastname = edtLastName.Text;
-    end;
-
-    for C in FList.Where(LastNameIsRoberts) do
-    begin
-      SL.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
-    end;
-    mmoList.Text := SL.Text;
-  finally
-    SL.Free;
-  end;
+      DefinePredicates;
+      SL := TStringList.Create;
+      try
+        for C in FList.Where(FLastNameIs) do
+        begin
+          SL.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
+        end;
+        mmoList.Text := SL.Text;
+      finally
+        SL.Free;
+      end;
+    end
+  );
 end;
 {$ENDREGION}
 
@@ -155,5 +161,49 @@ begin
   end;
 end;
 {$ENDREGION}
+
+procedure TfrmCollections.DefinePredicates;
+begin
+  FFirstNameIs := function(const AC: TContact): Boolean
+  begin
+    Result := AC.Firstname = edtFirstName.Text;
+  end;
+  FLastNameIs := function(const AC: TContact): Boolean
+  begin
+    Result := AC.Lastname = edtLastName.Text;
+  end;
+end;
+
+procedure TfrmCollections.actBothExecute(Sender: TObject);
+begin
+  HourGlass(procedure
+    var
+      SL         : TStringList;
+      C          : TContact;
+    begin
+      DefinePredicates;
+      SL := TStringList.Create;
+      try
+        for C in FList.Where(FLastNameIs).Where(FFirstNameIs) do
+        begin
+          SL.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
+        end;
+        mmoList.Text := SL.Text;
+      finally
+        SL.Free;
+      end;
+    end
+  );
+end;
+
+procedure TfrmCollections.HourGlass(AProc: TProc);
+begin
+  Screen.Cursor := crHourGlass;
+  try
+    AProc();
+  finally
+    Screen.Cursor := crDefault;
+  end;
+end;
 
 end.

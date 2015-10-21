@@ -30,10 +30,16 @@ uses
   Spring, Spring.Collections,
 
   DSharp.Windows.TreeViewPresenter, DSharp.Bindings.Collections,
-  DSharp.Core.DataTemplates,
+  DSharp.Core.DataTemplates, DSharp.DevExpress.GridViewPresenter,
+  DSharp.DevExpress.PresenterDataSource, DSharp.DevExpress.TreeListPresenter,
+  DSharp.Windows.CustomPresenter,
 
   DDuce.Components.PropertyInspector, DDuce.Components.LogTree,
-  DDuce.Components.GridView, DDuce.Components.DBGridView;
+  DDuce.Components.GridView, DDuce.Components.DBGridView,
+
+  cxGridCustomView, cxTL, cxTLData,
+
+  Concepts.Types.Contact;
 
 type
   TConceptFactories = record
@@ -46,9 +52,16 @@ type
       AFilter   : TFilterEvent = nil
     ); static;
 
+    class procedure InitializePresenter(
+      APresenter: TCustomPresenter;
+      ASource   : IObjectList = nil;
+      ATemplate : IDataTemplate = nil;
+      AFilter   : TFilterEvent = nil
+    ); static;
+
   public
     class procedure FillListWithContacts(
-      AList  : IList;
+      AList  : IObjectList;
       ACount : Integer
     ); static;
 
@@ -78,6 +91,37 @@ type
       const AName     : string = ''
     ): TTreeViewPresenter; static;
 
+    class function CreateTreeViewPresenter(
+            AOwner    : TComponent;
+            AVST      : TVirtualStringTree = nil;
+            ASource   : IObjectList = nil;
+            ATemplate : IDataTemplate = nil;
+            AFilter   : TFilterEvent = nil;
+      const AName     : string = ''
+    ): TTreeViewPresenter; static;
+
+
+
+    class function CreatecxGVP(
+            AOwner    : TComponent;
+            AGridView : TcxCustomGridView = nil;
+            ASource   : IObjectList = nil;
+            ATemplate : IDataTemplate = nil;
+            AFilter   : TFilterEvent = nil;
+      const AName     : string = ''
+    ): TGridViewPresenter; static;
+
+    class function CreatecxTreeListPresenter(
+            AOwner    : TComponent;
+            ATreeList : TcxVirtualTreeList = nil;
+            ASource   : IObjectList = nil;
+            ATemplate : IDataTemplate = nil;
+            AFilter   : TFilterEvent = nil;
+      const AName     : string = ''
+    ): TTreeListPresenter; static;
+
+
+
     class function CreateDBGridView(
             AOwner      : TComponent;
             AParent     : TWinControl;
@@ -93,6 +137,8 @@ type
       const AName       : string = ''
     ): TDBGrid; static;
 
+    class function CreateRandomContact: TContact; static;
+
   end;
 
 implementation
@@ -100,6 +146,8 @@ implementation
 uses
   System.Rtti,
   Vcl.Forms,
+
+  DDuce.RandomData,
 
   DSharp.Windows.ColumnDefinitions.ControlTemplate;
 
@@ -405,6 +453,30 @@ begin
   Result := TVP;
 end;
 
+class function TConceptFactories.CreateTreeViewPresenter(AOwner: TComponent;
+  AVST: TVirtualStringTree; ASource: IObjectList; ATemplate: IDataTemplate;
+  AFilter: TFilterEvent; const AName: string): TTreeViewPresenter;
+var
+  TVP: TTreeViewPresenter;
+begin
+  TVP := TTreeViewPresenter.Create(AOwner);
+  TVP.TreeView := AVST;
+  InitializePresenter(TVP, ASource, ATemplate, AFilter);
+  Result := TVP;
+end;
+
+class function TConceptFactories.CreatecxGVP(AOwner: TComponent;
+  AGridView: TcxCustomGridView; ASource: IObjectList; ATemplate: IDataTemplate;
+  AFilter: TFilterEvent; const AName: string): TGridViewPresenter;
+var
+  GVP: TGridViewPresenter;
+begin
+  GVP := TGridViewPresenter.Create(AOwner);
+  GVP.GridView := AGridView;
+  InitializePresenter(GVP, ASource, ATemplate, AFilter);
+  Result := GVP;
+end;
+
 class function TConceptFactories.CreateVST(AOwner: TComponent;
   AParent: TWinControl; const AName: string): TVirtualStringTree;
 var
@@ -427,7 +499,7 @@ begin
   Result := VST;
 end;
 
-class procedure TConceptFactories.FillListWithContacts(AList: IList;
+class procedure TConceptFactories.FillListWithContacts(AList: IObjectList;
   ACount: Integer);
 var
   I : Integer;
@@ -437,8 +509,7 @@ begin
     AList.Clear;
     for I := 0 to ACount - 1 do
     begin
-
-      //AList.Add(TConcept CreateRandomContact);
+      AList.Add(CreateRandomContact);
     end;
   end;
 end;
@@ -469,6 +540,66 @@ begin
   if Assigned(AFilter) then
     ATVP.View.Filter.Add(AFilter);
 end;
+
+
+class function TConceptFactories.CreateRandomContact: TContact;
+var
+  C: TContact;
+begin
+  C := TContact.Create;
+  with C do
+  begin
+    FirstName   := RandomData.FirstName;
+    LastName    := RandomData.LastName;
+    CompanyName := RandomData.CompanyName;
+    Email       := RandomData.Email(FirstName, LastName);
+    Address     := RandomData.Address;
+    Number      := RandomData.Number(100);
+    BirthDate   := RandomData.BirthDate(1928, 1987);
+    Active      := RandomData.Bool;
+  end;
+  Result := C;
+end;
 {$ENDREGION}
+
+class procedure TConceptFactories.InitializePresenter(
+  APresenter: TCustomPresenter; ASource: IObjectList; ATemplate: IDataTemplate;
+  AFilter: TFilterEvent);
+var
+  P : TRttiProperty;
+  C : TRttiContext;
+begin
+  if Assigned(ASource) then // auto create column definitions
+  begin
+    for P in C.GetType(ASource.ElementType).GetProperties do
+    begin
+      with APresenter.ColumnDefinitions.Add(P.Name) do
+        ValuePropertyName := P.Name;
+    end;
+  end;
+
+//  ATVP.TreeView := AVST;
+//  APresenter.SyncMode := False;
+//  APresenter.ListMode             := True;
+  APresenter.UseColumnDefinitions := True;
+  APresenter.View.ItemsSource     := ASource;
+  if Assigned(ATemplate) then
+    APresenter.View.ItemTemplate :=
+      TColumnDefinitionsControlTemplate.Create(APresenter.ColumnDefinitions);
+  if Assigned(AFilter) then
+    APresenter.View.Filter.Add(AFilter);
+end;
+
+class function TConceptFactories.CreatecxTreeListPresenter(AOwner: TComponent;
+  ATreeList: TcxVirtualTreeList; ASource: IObjectList; ATemplate: IDataTemplate;
+  AFilter: TFilterEvent; const AName: string): TTreeListPresenter;
+var
+  TLP: TTreeListPresenter;
+begin
+  TLP := TTreeListPresenter.Create(AOwner);
+  TLP.TreeList := ATreeList;
+  InitializePresenter(TLP, ASource, ATemplate, AFilter);
+  Result := TLP;
+end;
 
 end.

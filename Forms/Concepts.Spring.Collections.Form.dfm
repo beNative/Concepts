@@ -3,7 +3,7 @@ object frmCollections: TfrmCollections
   Top = 0
   Caption = 'Spring collections'
   ClientHeight = 443
-  ClientWidth = 394
+  ClientWidth = 508
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,72 +12,89 @@ object frmCollections: TfrmCollections
   Font.Style = []
   OldCreateOrder = False
   DesignSize = (
-    394
+    508
     443)
   PixelsPerInch = 96
   TextHeight = 13
   object btnExecuteQuery: TButton
     Left = 8
     Top = 33
-    Width = 271
+    Width = 329
     Height = 25
-    Action = actFirstNameJohn
+    Action = actFirstNameIs
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Find all contacts with first name = '#39'?'#39' '
     TabOrder = 0
-    ExplicitWidth = 257
   end
   object mmoList: TMemo
     Left = 8
-    Top = 95
-    Width = 378
-    Height = 340
+    Top = 136
+    Width = 492
+    Height = 299
     Anchors = [akLeft, akTop, akRight, akBottom]
     ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 1
-    ExplicitWidth = 364
+    ExplicitWidth = 378
   end
   object btnCreateList: TButton
     Left = 8
     Top = 2
-    Width = 271
+    Width = 329
     Height = 25
     Action = actCreateList
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 2
-    ExplicitWidth = 257
   end
   object btnLastNameRoberts: TButton
     Left = 8
     Top = 64
-    Width = 271
+    Width = 329
     Height = 25
-    Action = actLastNameRoberts
+    Action = actLastNameIs
     Anchors = [akLeft, akTop, akRight]
-    Caption = 'Find contacts with  last name = '#39'?'#39
     TabOrder = 3
-    ExplicitWidth = 257
   end
   object edtFirstName: TEdit
-    Left = 285
+    Left = 399
     Top = 35
     Width = 101
     Height = 21
     Anchors = [akTop, akRight]
     TabOrder = 4
     Text = 'John'
-    ExplicitLeft = 271
+    ExplicitLeft = 285
   end
   object edtLastName: TEdit
-    Left = 285
+    Left = 399
     Top = 66
     Width = 101
-    Height = 22
+    Height = 21
     Anchors = [akTop, akRight]
     TabOrder = 5
     Text = 'Roberts'
-    ExplicitLeft = 271
+    ExplicitLeft = 285
+  end
+  object btnBoth: TButton
+    Left = 8
+    Top = 95
+    Width = 329
+    Height = 25
+    Action = actBoth
+    Anchors = [akLeft, akTop, akRight]
+    TabOrder = 6
+  end
+  object trbRecordCount: TTrackBar
+    Left = 343
+    Top = 2
+    Width = 157
+    Height = 19
+    Max = 2000000
+    Min = 1000
+    Position = 100000
+    PositionToolTip = ptTop
+    ShowSelRange = False
+    TabOrder = 7
   end
   object aclMain: TActionList
     Left = 72
@@ -89,13 +106,17 @@ object frmCollections: TfrmCollections
     object actEnumerate: TAction
       Caption = 'actEnumerate'
     end
-    object actFirstNameJohn: TAction
-      Caption = 'Execute Query: find all contacts with first name = '#39'John'#39' '
-      OnExecute = actFirstNameJohnExecute
+    object actFirstNameIs: TAction
+      Caption = 'Execute Query: find all contacts with first name = '#39'?'#39' '
+      OnExecute = actFirstNameIsExecute
     end
-    object actLastNameRoberts: TAction
-      Caption = 'Find contacts with  last name = '#39'Roberts'#39
-      OnExecute = actLastNameRobertsExecute
+    object actLastNameIs: TAction
+      Caption = 'Find contacts with  last name = '#39'?'#39
+      OnExecute = actLastNameIsExecute
+    end
+    object actBoth: TAction
+      Caption = 'actBoth'
+      OnExecute = actBothExecute
     end
   end
 end

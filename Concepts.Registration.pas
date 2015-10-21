@@ -36,13 +36,12 @@ uses
   {$IFDEF DEVEXPRESS}
   Concepts.DevExpress.cxEditors.Form,
   Concepts.DevExpress.cxDragAndDrop.Form,
-    //Concepts.DevExpress.cxGridViewPresenter.Form,
+  Concepts.DevExpress.cxGridViewPresenter.Form,
   {$ENDIF}
 
   {$IFDEF DSHARP}
   Concepts.DSharp.TreeViewPresenter.Form,
   Concepts.DSharp.Bindings.Form,
-  Concepts.DSharp.VSTPresenter.Form,
   {$ENDIF}
 
   {$IFDEF SPRING}
@@ -116,12 +115,6 @@ begin
     'DSharp',
     'DSharp TreeViewPresenter'
   );
-  ConceptManager.Register(
-    TfrmVSTPresenter,
-    'VSTPresenter',
-    'DSharp',
-    'DSharp TVirtualStringTreePresenter'
-  );
 {$ENDIF}
 {$IFDEF SPRING}
   ConceptManager.Register(
@@ -186,6 +179,13 @@ begin
     'DevExpress',
     ''
   );
+  ConceptManager.Register(
+    TfrmcxGridViewPresenter,
+    'cxGridViewPresenter',
+    'DevExpress',
+    ''
+  );
+
 {$ENDIF}
 {$IFDEF BTMEMORYMODULE}
   ConceptManager.Register(

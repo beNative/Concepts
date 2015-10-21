@@ -26,7 +26,6 @@ uses
   Concepts.DevExpress.cxDragAndDrop.Form in 'Forms\cx\Concepts.DevExpress.cxDragAndDrop.Form.pas' {frmcxDragAndDrop},
   Concepts.BTMemoryModule.Form in 'Forms\Concepts.BTMemoryModule.Form.pas' {frmBTMemoryModule},
   Concepts.System.Libraries.Form in 'Forms\Concepts.System.Libraries.Form.pas' {frmLibraries},
-  Concepts.DSharp.VSTPresenter.Form in 'Forms\Concepts.DSharp.VSTPresenter.Form.pas' {frmVSTPresenter},
   Concepts.Spring.MultiCastEvents.Data in 'Forms\Concepts.Spring.MultiCastEvents.Data.pas',
   Concepts.RTTEye.Form in 'Forms\Concepts.RTTEye.Form.pas' {frmRTTEye},
   Concepts.System.LiveBindings.Form in 'Forms\Concepts.System.LiveBindings.Form.pas' {frmLiveBindings},
@@ -88,7 +87,11 @@ uses
   DSharp.Windows.TreeViewPresenter in 'Libraries\DSharp\DSharp.Windows.TreeViewPresenter.pas',
   DSharp.ComponentModel.DataAnnotations in 'Libraries\DSharp\DSharp.ComponentModel.DataAnnotations.pas',
   DSharp.Core.XNode in 'Libraries\DSharp\DSharp.Core.XNode.pas',
-  DSharp.Collections.ObservableCollection in 'Libraries\DSharp\DSharp.Collections.ObservableCollection.pas';
+  DSharp.Collections.ObservableCollection in 'Libraries\DSharp\DSharp.Collections.ObservableCollection.pas',
+  DSharp.DevExpress.GridViewPresenter in 'Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas',
+  DSharp.DevExpress.PresenterDataSource in 'Libraries\DSharp\DSharp.DevExpress.PresenterDataSource.pas',
+  DSharp.DevExpress.TreeListPresenter in 'Libraries\DSharp\DSharp.DevExpress.TreeListPresenter.pas',
+  Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\cx\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter};
 
 {$R *.res}
 
@@ -104,7 +107,7 @@ begin
   begin
     Application.Title := 'Concepts';
     Application.CreateForm(TfrmMain, frmMain);
-    Application.CreateForm(TdmResources, dmResources);
+  Application.CreateForm(TdmResources, dmResources);
   end;
   Application.Run;
 end.

@@ -21,106 +21,44 @@ unit Concepts.Types.Contact;
 
 interface
 
-uses
-  Spring,
-  DSharp.Core.PropertyChangedBase, // TPropertyChangedBase
-  DSharp.Core.Properties         // IDataErrorInfo
-  ;
-
 type
-  TContact = class(TPropertyChangedBase, INotifyPropertyChanged)
+  TContact = class
   private
-    FLastname    : string;
-    FFirstname   : string;
+    FLastName    : string;
+    FFirstName   : string;
     FCompanyName : string;
     FEmail       : string;
     FAddress     : string;
     FNumber      : Integer;
     FBirthDate   : TDate;
+    FActive      : Boolean;
 
-    // property access methods
-    procedure SetFirstname(const Value: string);
-    procedure SetLastname(const Value: string);
-    procedure SetCompanyName(const Value: string);
-    procedure SetEmail(const Value: string);
-    procedure SetAddress(const Value: string);
-    procedure SetNumber(const Value: Integer);
-    procedure SetBirthDate(const Value: TDate);
-
-  published
-
-
-    property Firstname: string
-      read FFirstname write SetFirstname;
+  public
+    property FirstName: string
+      read FFirstName write FFirstName;
 
     property Lastname: string
-      read FLastname write SetLastname;
+      read FLastName write FLastName;
 
     property Email: string
-      read FEmail write SetEmail;
+      read FEmail write FEmail;
 
     property CompanyName: string
-      read FCompanyName write SetCompanyName;
+      read FCompanyName write FCompanyName;
 
     property Address: string
-      read FAddress write SetAddress;
+      read FAddress write FAddress;
 
     property Number: Integer
-      read FNumber write SetNumber;
+      read FNumber write FNumber;
 
     property BirthDate: TDate
-      read FBirthDate write SetBirthDate;
+      read FBirthDate write FBirthDate;
+
+    property Active: Boolean
+      read FActive write FActive;
   end;
 
 implementation
-
-uses
-  System.Classes,
-  Vcl.Dialogs;
-
-procedure TContact.SetAddress(const Value: string);
-begin
-  FAddress := Value;
-  NotifyOfPropertyChange('Address');
-end;
-
-procedure TContact.SetBirthDate(const Value: TDate);
-begin
-  FBirthDate := Value;
-  NotifyOfPropertyChange('BirthDate');
-end;
-
-procedure TContact.SetCompanyName(const Value: string);
-begin
-  FCompanyName := Value;
-  NotifyOfPropertyChange('CompanyName');
-end;
-
-procedure TContact.SetEmail(const Value: string);
-begin
-  FEmail := Value;
-  NotifyOfPropertyChange('Email');
-end;
-
-procedure TContact.SetFirstname(const Value: string);
-begin
-  FFirstname := Value;
-  NotifyOfPropertyChange('Firstname');
-end;
-
-procedure TContact.SetLastname(const Value: string);
-begin
-  FLastname := Value;
-  NotifyOfPropertyChange('Lastname');
-end;
-
-procedure TContact.SetNumber(const Value: Integer);
-begin
-  FNumber := Value;
-  NotifyOfPropertyChange('Number');
-end;
-
-initialization
-  RegisterClass(TContact);
 
 end.

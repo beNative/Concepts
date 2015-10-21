@@ -33,18 +33,22 @@ uses
 
   Spring.Collections,
 
-  Concepts.Types.Contact, Vcl.Samples.Spin;
+  DDuce.Components.PropertyInspector,
+
+  Concepts.Types.Contact, Vcl.Samples.Spin, Vcl.ExtCtrls;
 
 type
   TfrmTreeViewPresenter = class(TForm)
-    grdMain       : TVirtualStringTree;
-    grdMainDetail : TVirtualStringTree;
-    btnFilter     : TButton;
-    edtFilter     : TEdit;
-    btnEvent      : TButton;
-    lblChange     : TLabel;
-    edtName       : TEdit;
-    edtIndex      : TSpinEdit;
+    pnlTop    : TPanel;
+    pnlBottom : TPanel;
+    edtFilter : TEdit;
+    btnFilter : TButton;
+    lblChange : TLabel;
+    edtIndex  : TSpinEdit;
+    edtName   : TEdit;
+    btnEvent  : TButton;
+    spl1      : TSplitter;
+    pnlLeft   : TPanel;
 
     procedure tvpMainSelectionChanged(Sender: TObject);
     procedure btnFilterClick(Sender: TObject);
@@ -54,13 +58,13 @@ type
     FList      : IList<TContact>;
     //FList      : IObjectList;
     //FList      : IList;
+    FPI        : TPropertyInspector;
     FSelection : IList;
+    FVST       : TVirtualStringTree;
     FTVP       : TTreeViewPresenter;
 
   public
     procedure AfterConstruction; override;
-
-    procedure FillList(AList: IList<TContact>; ACount: Integer);
 
   end;
 
@@ -79,9 +83,11 @@ uses
 procedure TfrmTreeViewPresenter.AfterConstruction;
 begin
   inherited AfterConstruction;
+  FVST := TConceptFactories.CreateVST(Self, pnlTop);
   FList := TCollections.CreateObjectList<TContact>;
-  FillList(FList, 1000);
-  FTVP  := TConceptFactories.CreateTVP(Self, grdMain, FList as IObjectList);
+  TConceptFactories.FillListWithContacts(FList as IObjectList, 10000);
+  FTVP  := TConceptFactories.CreateTVP(Self, FVST, FList as IObjectList);
+  FPI := TConceptFactories.CreateInspector(Self, pnlLeft, FTVP);
 
 //  with FTVP.ColumnDefinitions.Add('Firstname') do
 //  begin
@@ -109,18 +115,8 @@ begin
   //FTVP.View.ItemsSource := FList as IObjectList;
   //FTVP.TreeView := grdMain;
   //FTVP.View.ItemTemplate := TRttiDataTemplate.Create(FTVP.ColumnDefinitions);
-
-
-
-  //FList3 := TObjectList<TObject>.Create(False);
-
-
-
-
-
-
-
-  //FSelection := TObservableCollection<TObject>.Create(False);
+   //FList3 := TObjectList<TObject>.Create(False);
+   //FSelection := TObservableCollection<TObject>.Create(False);
 
   //tvpMainDetail.View.ItemsSource := FSelection;
   //grdMain.Header.AutoFitColumns(False);
@@ -140,38 +136,10 @@ end;
 
 procedure TfrmTreeViewPresenter.tvpMainSelectionChanged(Sender: TObject);
 begin
-  grdMainDetail.BeginUpdate;
+  //grdMainDetail.BeginUpdate;
 //  FSelection.Clear;
 //  FSelection.AddRange(tvpMain.SelectedItems);
-  grdMainDetail.EndUpdate;
-end;
-{$ENDREGION}
-
-{$REGION 'private methods'}
-procedure TfrmTreeViewPresenter.FillList(AList: IList<TContact>;
-  ACount: Integer);
-var
-  C: TContact;
-  I: Integer;
-begin
-  if Assigned(AList) then
-  begin
-    AList.Clear;
-    for I := 0 to ACount - 1 do
-    begin
-      C := TContact.Create;
-      with C do
-      begin
-        Firstname   := RandomData.FirstName(gnMale);
-        Lastname    := RandomData.LastName;
-        CompanyName := RandomData.CompanyName;
-        Email       := RandomData.Email(Firstname, Lastname);
-        Address     := RandomData.Address;
-        Number      := RandomData.Number(100);
-      end;
-      AList.Add(C);
-    end;
-  end;
+  //grdMainDetail.EndUpdate;
 end;
 {$ENDREGION}
 
