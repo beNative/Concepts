@@ -22,12 +22,16 @@ uses
   System.Classes, System.Rtti, System.TypInfo,
   Vcl.Controls;
 
-procedure AppendLine(var   AToString : string;
-                     const ALine     : string); overload;
+procedure AppendLine(
+  var   AToString : string;
+  const ALine     : string
+); overload;
 
-procedure AppendLine(var   AToString : string;
-                     const ALine     : string;
-                     const AArgs     : array of const); overload;
+procedure AppendLine(
+  var   AToString : string;
+  const ALine     : string;
+  const AArgs     : array of const
+); overload;
 
 function AsPropString(AValue: TValue): string;
 
@@ -46,8 +50,6 @@ function SetToString(
         ABrackets    : Boolean = True;
         ATrimChars   : Integer = -1
 ): string;
-
-procedure InitializeRecord(var ARec: TValue);
 
 implementation
 
@@ -418,11 +420,6 @@ begin
   end;
   if ABrackets and (Result <> '') then
     Result := '(' + Result + ')';
-end;
-
-procedure InitializeRecord(var ARec: TValue);
-begin
-  ARec := TValue.Empty;
 end;
 {$ENDREGION}
 

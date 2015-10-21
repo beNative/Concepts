@@ -2,7 +2,6 @@ program Concepts;
 
 uses
   Forms,
-  PasZip in 'Libraries\PasZip\PasZip.pas',
   AsyncCalls in 'Libraries\AsyncCalls\AsyncCalls.pas',
   gnugettext in 'Libraries\gnugettext\gnugettext.pas',
   BTMemoryModule in 'Libraries\BTMemoryModule\BTMemoryModule.pas',
@@ -22,8 +21,6 @@ uses
   Concepts.Vcl.GridPanels.Form in 'Forms\Concepts.Vcl.GridPanels.Form.pas' {frmGridPanels},
   Concepts.AsyncCalls.Form in 'Forms\Concepts.AsyncCalls.Form.pas' {frmAsyncCalls},
   Concepts.Spring.Collections.Form in 'Forms\Concepts.Spring.Collections.Form.pas' {frmCollections},
-  Concepts.DevExpress.cxEditors.Form in 'Forms\cx\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
-  Concepts.DevExpress.cxDragAndDrop.Form in 'Forms\cx\Concepts.DevExpress.cxDragAndDrop.Form.pas' {frmcxDragAndDrop},
   Concepts.BTMemoryModule.Form in 'Forms\Concepts.BTMemoryModule.Form.pas' {frmBTMemoryModule},
   Concepts.System.Libraries.Form in 'Forms\Concepts.System.Libraries.Form.pas' {frmLibraries},
   Concepts.Spring.MultiCastEvents.Data in 'Forms\Concepts.Spring.MultiCastEvents.Data.pas',
@@ -50,7 +47,6 @@ uses
   Concepts.SQLBuilder4D.Form in 'Forms\Concepts.SQLBuilder4D.Form.pas' {frmSQLBuilder4D},
   Concepts.ChromeTabs.Form in 'Forms\Concepts.ChromeTabs.Form.pas' {frmChromeTabs},
   Concepts.ComponentInspectorTemplate.Form in 'Forms\Concepts.ComponentInspectorTemplate.Form.pas' {frmPropertyInspector},
-  Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmSpringObjectDataSet},
   Concepts.Resources in 'Concepts.Resources.pas' {dmResources: TDataModule},
   Concepts.Spring.Types.Form in 'Forms\Concepts.Spring.Types.Form.pas' {frmSpringTypes},
   DSharp.Bindings.Collections in 'Libraries\DSharp\DSharp.Bindings.Collections.pas',
@@ -91,14 +87,16 @@ uses
   DSharp.DevExpress.GridViewPresenter in 'Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas',
   DSharp.DevExpress.PresenterDataSource in 'Libraries\DSharp\DSharp.DevExpress.PresenterDataSource.pas',
   DSharp.DevExpress.TreeListPresenter in 'Libraries\DSharp\DSharp.DevExpress.TreeListPresenter.pas',
-  Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\cx\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter};
+  Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmListDataSet},
+  Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
+  Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter};
 
 {$R *.res}
 
 begin
   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;
-  RegisterConcepts;
+  TConcepts.RegisterConcepts;
   if ConceptManager.ItemList.Count = 1 then
   begin
     ConceptManager.Execute(ConceptManager.ItemList.First);

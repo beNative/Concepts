@@ -59,8 +59,9 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_ExeOutput>.\Library\$(Platform)\$(Config)\</DCC_ExeOutput>
+        <DCC_DcuOutput>.\Library\$(Platform)\$(Config)\</DCC_DcuOutput>
         <SanitizedProjectName>Concepts</SanitizedProjectName>
-        <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;Bde;$(DCC_Namespace)</DCC_Namespace>
@@ -112,7 +113,6 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Libraries\PasZip\PasZip.pas"/>
         <DCCReference Include="Libraries\AsyncCalls\AsyncCalls.pas"/>
         <DCCReference Include="Libraries\gnugettext\gnugettext.pas"/>
         <DCCReference Include="Libraries\BTMemoryModule\BTMemoryModule.pas"/>
@@ -147,12 +147,6 @@
         </DCCReference>
         <DCCReference Include="Forms\Concepts.Spring.Collections.Form.pas">
             <Form>frmCollections</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\cx\Concepts.DevExpress.cxEditors.Form.pas">
-            <Form>frmcxEditors</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\cx\Concepts.DevExpress.cxDragAndDrop.Form.pas">
-            <Form>frmcxDragAndDrop</Form>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.BTMemoryModule.Form.pas">
             <Form>frmBTMemoryModule</Form>
@@ -238,10 +232,6 @@
             <Form>frmPropertyInspector</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Forms\Concepts.Spring.ObjectDataSet.Form.pas">
-            <Form>frmSpringObjectDataSet</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="Concepts.Resources.pas">
             <Form>dmResources</Form>
             <FormType>dfm</FormType>
@@ -289,7 +279,15 @@
         <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.PresenterDataSource.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.TreeListPresenter.pas"/>
-        <DCCReference Include="Forms\cx\Concepts.DevExpress.cxGridViewPresenter.Form.pas">
+        <DCCReference Include="Forms\Concepts.Spring.ObjectDataSet.Form.pas">
+            <Form>frmListDataSet</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.DevExpress.cxEditors.Form.pas">
+            <Form>frmcxEditors</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas">
             <Form>frmcxGridViewPresenter</Form>
             <FormType>dfm</FormType>
         </DCCReference>
@@ -348,6 +346,7 @@
                 </VersionInfoKeys>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\Castalia220.bpl">(untitled)</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\16.0\Bpl\DebugVisualizers.bpl">File C:\Users\Public\Documents\Embarcadero\Studio\16.0\Bpl\DebugVisualizers.bpl not found</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcboffice2k220.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcbofficexp220.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k220.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
@@ -360,6 +359,12 @@
                 <Platform value="Win64">True</Platform>
             </Platforms>
             <Deployment Version="1">
+                <DeployFile LocalName="Library\Win64\Debug\Concepts.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>Concepts.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="Concepts.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>Concepts.exe</RemoteName>
@@ -684,13 +689,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <ModelSupport>False</ModelSupport>
         </BorlandProject>

@@ -23,12 +23,8 @@ uses
   Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms,
   Vcl.Graphics,
 
-  cxGraphics, cxEdit, cxContainer,
-  cxRichEdit,
-
-  cxCheckBox,
-  cxMemo, cxMaskEdit, cxControls, cxTextEdit,
-  cxInplaceContainer, cxVGrid, cxOI, cxClasses,
+  cxGraphics, cxEdit, cxContainer, cxRichEdit, cxCheckBox, cxMemo, cxMaskEdit,
+  cxControls, cxTextEdit, cxInplaceContainer, cxVGrid, cxOI, cxClasses,
   cxButtons, dxStatusBar, cxLookAndFeels, cxLookAndFeelPainters, cxStyles,
   Vcl.Menus;
 

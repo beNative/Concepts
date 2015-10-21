@@ -44,14 +44,6 @@ uses
 type
   TConceptFactories = record
   strict private
-    class procedure InitializeTVP(
-      ATVP      : TTreeViewPresenter;
-      AVST      : TVirtualStringTree = nil;
-      ASource   : IObjectList = nil;
-      ATemplate : IDataTemplate = nil;
-      AFilter   : TFilterEvent = nil
-    ); static;
-
     class procedure InitializePresenter(
       APresenter: TCustomPresenter;
       ASource   : IObjectList = nil;
@@ -100,8 +92,6 @@ type
       const AName     : string = ''
     ): TTreeViewPresenter; static;
 
-
-
     class function CreatecxGVP(
             AOwner    : TComponent;
             AGridView : TcxCustomGridView = nil;
@@ -120,8 +110,6 @@ type
       const AName     : string = ''
     ): TTreeListPresenter; static;
 
-
-
     class function CreateDBGridView(
             AOwner      : TComponent;
             AParent     : TWinControl;
@@ -138,7 +126,6 @@ type
     ): TDBGrid; static;
 
     class function CreateRandomContact: TContact; static;
-
   end;
 
 implementation
@@ -449,7 +436,8 @@ var
   TVP: TTreeViewPresenter;
 begin
   TVP := TTreeViewPresenter.Create(AOwner);
-  InitializeTVP(TVP, AVST, ASource, ATemplate, AFilter);
+  TVP.TreeView := AVST;
+  InitializePresenter(TVP, ASource, ATemplate, AFilter);
   Result := TVP;
 end;
 
@@ -514,34 +502,6 @@ begin
   end;
 end;
 
-class procedure TConceptFactories.InitializeTVP(ATVP: TTreeViewPresenter;
-  AVST: TVirtualStringTree; ASource: IObjectList; ATemplate: IDataTemplate;
-  AFilter: TFilterEvent);
-var
-  P : TRttiProperty;
-  C : TRttiContext;
-begin
-  if Assigned(ASource) then // auto create column definitions
-  begin
-    for P in C.GetType(ASource.ElementType).GetProperties do
-    begin
-      with ATVP.ColumnDefinitions.Add(P.Name) do
-        ValuePropertyName := P.Name;
-    end;
-  end;
-  ATVP.TreeView := AVST;
-  ATVP.SyncMode := False;
-  ATVP.UseColumnDefinitions := True;
-  ATVP.ListMode             := True;
-  ATVP.View.ItemsSource     := ASource;
-  if Assigned(ATemplate) then
-    ATVP.View.ItemTemplate :=
-      TColumnDefinitionsControlTemplate.Create(ATVP.ColumnDefinitions);
-  if Assigned(AFilter) then
-    ATVP.View.Filter.Add(AFilter);
-end;
-
-
 class function TConceptFactories.CreateRandomContact: TContact;
 var
   C: TContact;
@@ -560,7 +520,6 @@ begin
   end;
   Result := C;
 end;
-{$ENDREGION}
 
 class procedure TConceptFactories.InitializePresenter(
   APresenter: TCustomPresenter; ASource: IObjectList; ATemplate: IDataTemplate;
@@ -577,10 +536,6 @@ begin
         ValuePropertyName := P.Name;
     end;
   end;
-
-//  ATVP.TreeView := AVST;
-//  APresenter.SyncMode := False;
-//  APresenter.ListMode             := True;
   APresenter.UseColumnDefinitions := True;
   APresenter.View.ItemsSource     := ASource;
   if Assigned(ATemplate) then
@@ -601,5 +556,7 @@ begin
   InitializePresenter(TLP, ASource, ATemplate, AFilter);
   Result := TLP;
 end;
+{$ENDREGION}
+
 
 end.

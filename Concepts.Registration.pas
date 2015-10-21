@@ -20,22 +20,26 @@ interface
 
 {$I Concepts.inc}
 
-{ TODO:
-
-  - TJSONObject in Data.DBXJSON (AddPair, ToJson, ...)
-
-}
-
-procedure RegisterConcepts;
+type
+  TConcepts = record
+  strict private
+    class procedure RegisterSpringConcepts; static;
+    class procedure RegisterDSharpConcepts; static;
+    class procedure RegisterDevExpressConcepts; static;
+    class procedure RegisterSystemConcepts; static;
+    class procedure RegisterVclConcepts; static;
+  public
+    class procedure RegisterConcepts; static;
+  end;
 
 implementation
 
 uses
   System.SysUtils,
 
+  {$REGION 'Concept form units'}
   {$IFDEF DEVEXPRESS}
   Concepts.DevExpress.cxEditors.Form,
-  Concepts.DevExpress.cxDragAndDrop.Form,
   Concepts.DevExpress.cxGridViewPresenter.Form,
   {$ENDIF}
 
@@ -49,10 +53,9 @@ uses
   Concepts.Spring.Collections.Form,
   Concepts.Spring.LazyInstantiation.Form,
   Concepts.Spring.MulticastEvents.Form,
-  //Concepts.Spring.ObjectDataSet.Form,
+  Concepts.Spring.ObjectDataSet.Form,
   Concepts.Spring.Logging.Form,
   Concepts.Spring.Types.Form,
-
   {$ENDIF}
 
   {$IFDEF ASYNCCALLS}
@@ -87,7 +90,6 @@ uses
   Concepts.System.InterfaceImplementationByAggregation.Form,
   Concepts.System.VirtualMethodInterceptor.Form,
   Concepts.System.VirtualInterface.Form,
-
   {$ENDIF}
 
   {$IFDEF SQLBUILDER4D}
@@ -97,26 +99,14 @@ uses
   {$IFDEF CHROMETABS}
   Concepts.ChromeTabs.Form,
   {$ENDIF}
+  {$ENDREGION}
 
   Concepts.Manager;
 
-procedure RegisterConcepts;
+{$REGION 'private methods'}
+class procedure TConcepts.RegisterSpringConcepts;
 begin
-{$IFDEF DSHARP}
-  ConceptManager.Register(
-    TfrmBindings,
-    'Bindings',
-    'DSharp',
-    'DSharp bindings'
-  );
-  ConceptManager.Register(
-    TfrmTreeViewPresenter,
-    'TreeViewPresenter',
-    'DSharp',
-    'DSharp TreeViewPresenter'
-  );
-{$ENDIF}
-{$IFDEF SPRING}
+  {$IFDEF SPRING}
   ConceptManager.Register(
     TfrmCollections,
     'Collections',
@@ -165,59 +155,48 @@ begin
 //    'Spring',
 //    'Utillity classes and routines'
 //  );
-{$ENDIF}
-{$IFDEF DEVEXPRESS}
+  {$ENDIF}
+end;
+
+class procedure TConcepts.RegisterDSharpConcepts;
+begin
+  {$IFDEF DSHARP}
+  ConceptManager.Register(
+    TfrmBindings,
+    'Bindings',
+    'DSharp',
+    'DSharp bindings'
+  );
+  ConceptManager.Register(
+    TfrmTreeViewPresenter,
+    'TreeViewPresenter',
+    'DSharp',
+    'DSharp TreeViewPresenter'
+  );
+  ConceptManager.Register(
+    TfrmcxGridViewPresenter,
+    'Presenters',
+    'DSharp',
+    'Specialized presenters'
+  );
+  {$ENDIF}
+end;
+
+class procedure TConcepts.RegisterDevExpressConcepts;
+begin
+  {$IFDEF DEVEXPRESS}
   ConceptManager.Register(
     TfrmcxEditors,
     'cxEditors',
     'DevExpress',
     'Demonstrates the DevExpress edit controls'
   );
-  ConceptManager.Register(
-    TfrmcxDragAndDrop,
-    'Drag and drop',
-    'DevExpress',
-    ''
-  );
-  ConceptManager.Register(
-    TfrmcxGridViewPresenter,
-    'cxGridViewPresenter',
-    'DevExpress',
-    ''
-  );
+  {$ENDIF}
+end;
 
-{$ENDIF}
-{$IFDEF BTMEMORYMODULE}
-  ConceptManager.Register(
-    TfrmBTMemoryModule,
-    'BTMemoryModule',
-    'BTMemoryModule',
-    'Demonstrates how to load a DLL direct from memory.'
-  );
-{$ENDIF}
-{$IFDEF ASYNCCALLS}
-  ConceptManager.Register(
-    TfrmAsyncCalls,
-    'AsyncCalls',
-    'AsyncCalls',
-    'Demonstrates how to use AsyncCalls.pas'
-  );
-{$ENDIF}
-{$IFDEF VCL}
-  ConceptManager.Register(
-    TfrmGridPanels,
-    'Grid panels',
-    'Vcl',
-    'Demonstrates TGridPanel component'
-  );
-  ConceptManager.Register(
-    TfrmLockPaint,
-    'LockPaint',
-    'Vcl',
-    'Demonstrates LockPaint/UnlockPaint routines'
-  );
-{$ENDIF}
-{$IFDEF SYSTEM}
+class procedure TConcepts.RegisterSystemConcepts;
+begin
+  {$IFDEF SYSTEM}
   ConceptManager.Register(
     TfrmLibraries,
     'Libraries',
@@ -290,23 +269,72 @@ begin
     'System',
     ''
   );
-{$ENDIF}
-{$IFDEF SQLBUILDER4D}
+  {$ENDIF}
+end;
+
+class procedure TConcepts.RegisterVclConcepts;
+begin
+  {$IFDEF VCL}
+  ConceptManager.Register(
+    TfrmGridPanels,
+    'Grid panels',
+    'Vcl',
+    'Demonstrates TGridPanel component'
+  );
+  ConceptManager.Register(
+    TfrmLockPaint,
+    'LockPaint',
+    'Vcl',
+    'Demonstrates LockPaint/UnlockPaint routines'
+  );
+  {$ENDIF}
+end;
+{$ENDREGION}
+
+{$REGION 'public methods'}
+class procedure TConcepts.RegisterConcepts;
+begin
+  RegisterSpringConcepts;
+  RegisterDSharpConcepts;
+  RegisterDevExpressConcepts;
+  RegisterSystemConcepts;
+  RegisterVclConcepts;
+
+  {$IFDEF BTMEMORYMODULE}
+  ConceptManager.Register(
+    TfrmBTMemoryModule,
+    'BTMemoryModule',
+    'BTMemoryModule',
+    'Demonstrates how to load a DLL direct from memory.'
+  );
+  {$ENDIF}
+
+  {$IFDEF ASYNCCALLS}
+  ConceptManager.Register(
+    TfrmAsyncCalls,
+    'AsyncCalls',
+    'AsyncCalls',
+    'Demonstrates how to use AsyncCalls.pas'
+  );
+  {$ENDIF}
+
+  {$IFDEF SQLBUILDER4D}
   ConceptManager.Register(
     TfrmSQLBuilder4D,
     'TfrmSQLBuilder4D demo',
     'TfrmSQLBuilder4D',
     ''
   );
-{$ENDIF}
-{$IFDEF CHROMETABS}
+  {$ENDIF}
+
+  {$IFDEF CHROMETABS}
   ConceptManager.Register(
     TfrmChromeTabs,
     'ChromeTabs',
     'TChromeTabs',
     'TChromeTabs demo'
   );
-{$ENDIF}
+  {$ENDIF}
  {
     ConceptManager.Register(
     TfrmInterfacedComponent,
@@ -314,9 +342,7 @@ begin
     'System',
     'Demonstrates how TComponent descendents can be reference counted'
   ); }
-
-
 end;
+{$ENDREGION}
 
 end.
-

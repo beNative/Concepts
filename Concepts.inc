@@ -18,14 +18,14 @@
   By (un)commenting the following defines you can customize the project's
   dependencies.
 }
-
+(*
 // Delphi RTL units ('System' prefix)
 {$DEFINE SYSTEM}
 // Delphi VCL units ('Vcl' prefix)
 {$DEFINE VCL}
 // Delphi WinApi units ('WinApi' prefix)
 {$DEFINE WINAPI}
-
+*)
 // Spring4D - http://bitbucket.org/sglienke/spring4d
 {$DEFINE SPRING}
 // DSharp - http://bitbucket.org/sglienke/dsharp
@@ -36,6 +36,8 @@
 {$DEFINE DDUCE}
 // DevExpress - http://www.devexpress.com/Products/VCL/
 {$DEFINE DEVEXPRESS}
+
+(*
 // AsyncCalls.pas
 {$DEFINE ASYNCCALLS}
 
@@ -51,3 +53,4 @@
 
 // TChromeTabs
 {$DEFINE CHROMETABS}
+*)

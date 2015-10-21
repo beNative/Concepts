@@ -25,11 +25,6 @@ uses
 
   Spring.Collections;
 
-procedure LoadFromEmbedded(
-        AImgList : TImageList;
-  const AZipName : string
-);
-
 procedure FillListWithContacts(
   AList  : IList;
   ACount : Integer
@@ -39,8 +34,6 @@ implementation
 
 uses
   ImgList, Forms, Graphics,
-
-  PasZip,
 
   DDuce.RandomData,
 
@@ -68,53 +61,6 @@ begin
         BirthDate   := RandomData.BirthDate(1920, 1988);
       end;
       AList.Add(C);
-    end;
-  end;
-end;
-
-/// uncompress an image list from a .zip embedded as a .res to the executable
-procedure LoadFromEmbedded(AImgList: TImageList; const AZipName: string);
-var
-  I      : Integer;
-  BMP    : TBitmap;
-  Stream : TStringStream;
-  BW     : Integer;
-  BH     : Integer;
-  W      : Integer;
-  H      : Integer;
-begin
-  with TZipRead.Create(HInstance, 'Zip', 'ZIP') do
-  begin
-    try
-      I := NameToIndex(AnsiString(AZipName));
-      if I < 0 then
-        exit;
-      Stream := TStringStream.Create(UnZip(I)); // uncompress
-      try
-        BMP := TBitmap.Create;
-        try
-          BMP.LoadFromStream(Stream);
-        // from multi-line (I.e. IDE export) into one-line (for AddMasked)
-          BW := BMP.Width;
-          BH := BMP.Height;
-          W := (BW div AImgList.Width);
-          H := (BH div AImgList.Height);
-          BMP.Width := W * H * AImgList.Width;
-          BH := AImgList.Height;
-          for I := 2 to H do
-            BMP.Canvas.CopyRect(Rect((I - 1) * BW, 0, I * BW, BH), BMP.Canvas,
-              Rect(0, (I - 1) * BH, BW, I * BH));
-          BMP.Height := BH;
-        // add these images to the image list
-          AImgList.AddMasked(BMP, clFuchsia);
-        finally
-          BMP.Free;
-        end;
-      finally
-        Stream.Free;
-      end;
-    finally
-      Free;
     end;
   end;
 end;
