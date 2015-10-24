@@ -53,13 +53,15 @@ type
     FPropertyInspector: TPropertyInspector;
 
   protected
-    procedure ProcessDroppedTab(Sender: TObject; X, Y: Integer;
-      DragTabObject     : IDragTabObject; Cancelled: Boolean;
-      var TabDropOptions: TTabDropOptions);
+    procedure ProcessDroppedTab(
+          Sender         : TObject;
+          X, Y           : Integer;
+          DragTabObject  : IDragTabObject;
+          Cancelled      : Boolean;
+      var TabDropOptions : TTabDropOptions
+    );
   public
     procedure AfterConstruction; override;
-
-
 
   end;
 
@@ -77,12 +79,9 @@ var
   C: TWinControl;
 begin
   inherited;
-  FPropertyInspector := TConceptFactories.CreateInspector(
-    Self,
-    pnlLeft,
-    ctTop
-  );
-  FPropertyInspector.Name := 'PropertyInspector';
+  FPropertyInspector :=
+    TConceptFactories.CreatePropertyInspector(Self, pnlLeft, ctTop);
+  FPropertyInspector.Name := 'FPropertyInspector';
   for I := 0 to ComponentCount - 1 do
   begin
     if Components[I] is TWinControl then

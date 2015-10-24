@@ -26,7 +26,9 @@ uses
   Vcl.ComCtrls, Vcl.Bind.DBEngExt, Vcl.Bind.Editors, Vcl.ExtCtrls,
   Data.Bind.EngExt, Data.Bind.Components,
 
-  DDuce.Components.PropertyInspector;
+  DDuce.Components.PropertyInspector,
+
+  Concepts.Types.Contact;
 
 type
   TfrmLiveBindings = class(TForm)
@@ -49,18 +51,30 @@ type
     pbMulti2           : TProgressBar;
     sbrMain            : TStatusBar;
     bxpStatusbar       : TBindExpression;
+    edt1: TEdit;
+    edt2: TEdit;
+    btn1: TButton;
+    btn2: TButton;
 
     procedure cbxControlsChange(Sender: TObject);
     procedure trbTrackBarChange(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    procedure btn1Click(Sender: TObject);
+    procedure btn2Click(Sender: TObject);
 
   private
-    FPropertyInspector: TPropertyInspector;
+    FPropertyInspector : TPropertyInspector;
+    FBindScope         : TBindScope;
+    FContact           : TContact;
 
     procedure AddComponents;
 
   public
     procedure AfterConstruction; override;
+
+
+    procedure CreateObjectBindings;
+    procedure BeforeDestruction; override;
 
   end;
 
@@ -69,15 +83,27 @@ implementation
 {$R *.dfm}
 
 uses
-  Concepts.Factories;
+  Concepts.Factories, Concepts.Utils;
 
 {$REGION 'construction and destruction'}
 procedure TfrmLiveBindings.AfterConstruction;
 begin
   inherited AfterConstruction;
   AddComponents;
-  FPropertyInspector := TConceptFactories.CreateInspector(Self, pnlLeft, Self);
+  FPropertyInspector :=
+    TConceptFactories.CreatePropertyInspector(Self, pnlLeft, Self);
   FPropertyInspector.UpdateItems;
+  FBindScope := TBindScope.Create(Self);
+  FContact   := TConceptFactories.CreateRandomContact;
+  FBindScope.DataObject := FContact;
+  FBindScope.Active := True;
+  CreateObjectBindings;
+end;
+
+procedure TfrmLiveBindings.BeforeDestruction;
+begin
+  FreeAndNil(FContact);
+  inherited BeforeDestruction;
 end;
 {$ENDREGION}
 
@@ -118,5 +144,38 @@ begin
   lstBindings.Notify(Sender, '');
 end;
 {$ENDREGION}
+
+procedure TfrmLiveBindings.CreateObjectBindings;
+var
+  BE : TBindExpression;
+begin
+  BE := TBindExpression.Create(Self);
+  BE.ControlComponent  := edt1;
+  BE.ControlExpression := 'Text';
+  BE.SourceComponent := FBindScope;
+  BE.SourceExpression := 'FirstName';
+  BE.Direction       := TExpressionDirection.dirBidirectional;
+  BE.BindingsList := lstBindings;
+end;
+
+procedure TfrmLiveBindings.btn1Click(Sender: TObject);
+var
+ CBC: TContainedBindComponent;
+begin
+  FreeAndNil(FContact);
+  FContact := TConceptFactories.CreateRandomContact;
+  FBindScope.DataObject := FContact;
+  //lstBindings.Notify(edt1, '');
+//  for CBC in lstBindings do
+//    CBC.
+
+
+
+end;
+
+procedure TfrmLiveBindings.btn2Click(Sender: TObject);
+begin
+  ShowMessage(AsPropString(FContact));
+end;
 
 end.

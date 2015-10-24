@@ -17,8 +17,7 @@
 unit Concepts.Spring.ObjectDataSet.Form;
 
 { Demonstrates how TObjectDataSet can represent content of a Spring collection:
-    - TDBGridView - DDuce.Components.DBGridView
-    - DSharp bindings
+//    - DSharp bindings
     - Spring ObjectDataSet
 }
 
@@ -27,80 +26,76 @@ interface
 uses
   System.Actions, System.Classes,
   Vcl.ActnList, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Mask, Vcl.DBCtrls, Vcl.StdCtrls,
-  Vcl.Controls, Vcl.DBGrids,
+  Vcl.Controls, Vcl.DBGrids, Vcl.Forms,
   Data.DB,
 
   VirtualTrees,
 
   Spring, Spring.Collections, Spring.Persistence.ObjectDataSet,
 
-  DSharp.Bindings, DSharp.Bindings.VCLControls,
+//  DSharp.Bindings, DSharp.Bindings.VCLControls,
   DSharp.Windows.TreeViewPresenter,
 
-  DDuce.Components.GridView, DDuce.Components.DBGridView,
-
-  Concepts.Types.Contact;
+  Concepts.Types.Contact, Concepts.Resources;
 
 type
   TfrmObjectDataSet = class(TForm)
     {$REGION 'designer controls'}
-    aclMain                   : TActionList;
-    actConnectDataSet         : TAction;
-    actConnectPresenter       : TAction;
-    actDisconnectDataSet      : TAction;
-    actDisconnectPresenter    : TAction;
-    actFillList               : TAction;
-    actInspectComponents      : TAction;
-    btnConnectPresenter       : TButton;
-    btnDisconnectPresenter    : TButton;
-    btnExecute                : TButton;
-    btnExecute1               : TButton;
-    btnExecute2               : TButton;
-    dscMain                   : TDataSource;
-    edtAddress                : TLabeledEdit;
-    edtCompanyName            : TLabeledEdit;
-    edtCountry                : TLabeledEdit;
-    edtDBAddress              : TDBEdit;
-    edtDBCompanyName          : TDBEdit;
-    edtDBCountry              : TDBEdit;
-    edtDBEmail                : TDBEdit;
-    edtDBFirstname            : TDBEdit;
-    edtDBLastname             : TDBEdit;
-    edtDBNumber               : TDBEdit;
-    edtEmail                  : TLabeledEdit;
-    edtFirstname              : TLabeledEdit;
-    edtLastname               : TLabeledEdit;
-    edtNumber                 : TLabeledEdit;
-    edtRecordCount            : TEdit;
-    lblRecordCount            : TLabel;
-    navDataSet                : TDBNavigator;
-    pnlClient                 : TPanel;
-    pnlDataAware              : TPanel;
-    pnlLeft                   : TPanel;
-    pnlLeftFooter             : TPanel;
-    pnlLeftHeader             : TPanel;
-    pnlPresenter              : TPanel;
-    pnlRight                  : TPanel;
-    pnlRightFooter            : TPanel;
-    pnlRightHeader            : TPanel;
-    pnlTop                    : TPanel;
-    sbrMain                   : TStatusBar;
-    splVertical               : TSplitter;
-    pnlDataAwareControls      : TPanel;
-    pnlVCLControls            : TPanel;
-    lblFirstname              : TLabel;
-    lblLastname               : TLabel;
-    lblEmail                  : TLabel;
-    lblCompanyName            : TLabel;
-    lblAddress                : TLabel;
-    lblCountry                : TLabel;
-    lblNumber                 : TLabel;
+    aclMain                : TActionList;
+    actConnectDataSet      : TAction;
+    actConnectPresenter    : TAction;
+    actDisconnectDataSet   : TAction;
+    actDisconnectPresenter : TAction;
+    actFillList            : TAction;
+    btnConnectPresenter    : TButton;
+    btnDisconnectPresenter : TButton;
+    btnExecute             : TButton;
+    btnExecute1            : TButton;
+    btnExecute2            : TButton;
+    dscMain                : TDataSource;
+    edtAddress             : TLabeledEdit;
+    edtCompanyName         : TLabeledEdit;
+    edtCountry             : TLabeledEdit;
+    edtDBAddress           : TDBEdit;
+    edtDBCompanyName       : TDBEdit;
+    edtDBCountry           : TDBEdit;
+    edtDBEmail             : TDBEdit;
+    edtDBFirstname         : TDBEdit;
+    edtDBLastname          : TDBEdit;
+    edtDBNumber            : TDBEdit;
+    edtEmail               : TLabeledEdit;
+    edtFirstname           : TLabeledEdit;
+    edtLastname            : TLabeledEdit;
+    edtNumber              : TLabeledEdit;
+    edtRecordCount         : TEdit;
+    lblRecordCount         : TLabel;
+    navDataSet             : TDBNavigator;
+    pnlClient              : TPanel;
+    pnlDataAware           : TPanel;
+    pnlLeft                : TPanel;
+    pnlLeftFooter          : TPanel;
+    pnlLeftHeader          : TPanel;
+    pnlPresenter           : TPanel;
+    pnlRight               : TPanel;
+    pnlRightFooter         : TPanel;
+    pnlRightHeader         : TPanel;
+    pnlTop                 : TPanel;
+    sbrMain                : TStatusBar;
+    splVertical            : TSplitter;
+    pnlDataAwareControls   : TPanel;
+    pnlVCLControls         : TPanel;
+    lblFirstname           : TLabel;
+    lblLastname            : TLabel;
+    lblEmail               : TLabel;
+    lblCompanyName         : TLabel;
+    lblAddress             : TLabel;
+    lblCountry             : TLabel;
+    lblNumber              : TLabel;
     {$ENDREGION}
 
     procedure actFillListExecute(Sender: TObject);
     procedure actConnectDataSetExecute(Sender: TObject);
     procedure actDisconnectDataSetExecute(Sender: TObject);
-    procedure actInspectComponentsExecute(Sender: TObject);
     procedure actDisconnectPresenterExecute(Sender: TObject);
     procedure actConnectPresenterExecute(Sender: TObject);
 
@@ -110,10 +105,8 @@ type
   private
     FList          : IList<TContact>;
     FVST           : TVirtualStringTree;
-    FDBGV          : TDBGridView;
     FDBG           : TDBGrid;
     FTVP           : TTreeViewPresenter;
-    FBG            : TBindingGroup;
     FObjectDataSet : TObjectDataset;
 
     function GetDataSet: TDataSet;
@@ -129,8 +122,6 @@ type
     procedure ConnectDataSet;
 
   protected
-    procedure FDBGVHeaderClick(Sender: TObject; Section: TGridHeaderSection);
-
     procedure UpdateActions; override;
 
   public
@@ -145,7 +136,6 @@ type
 
     property PresenterEnabled: Boolean
       read GetPresenterEnabled write SetPresenterEnabled;
-
   end;
 
 implementation
@@ -154,7 +144,6 @@ implementation
 
 uses
   System.SysUtils,
-  Vcl.Forms,
 
   Concepts.Factories, Concepts.Utils;
 
@@ -162,16 +151,12 @@ uses
 procedure TfrmObjectDataSet.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FList               := TConceptFactories.CreateContactList(1000);
-  FVST                := TConceptFactories.CreateVST(Self, pnlRight);
-  //FDBGV               := TConceptFactories.CreateDBGridView(Self, pnlLeft, dscMain);
-  FDBG                := TConceptFactories.CreateDBGrid(Self, pnlLeft, dscMain);
-  FObjectDataSet      := TObjectDataset.Create(Self);
+  FList := TConceptFactories.CreateContactList(1000);
+  FVST  := TConceptFactories.CreateVirtualStringTree(Self, pnlRight);
+  FTVP  := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList as IObjectList);
+  FDBG  := TConceptFactories.CreateDBGrid(Self, pnlLeft, dscMain);
+  FObjectDataSet          := TObjectDataset.Create(Self);
   FObjectDataSet.DataList := FList as IObjectList;
-
-  FBG                 := TBindingGroup.Create(Self);
-  //FDBGV.OnHeaderClick := FDBGVHeaderClick;
-  //FDBGV.OnGetSortDirection := FDBGVGe
 end;
 
 procedure TfrmObjectDataSet.BeforeDestruction;
@@ -208,11 +193,6 @@ begin
   DisconnectPresenter;
   DisconnectDataSet;
   FillList;
-end;
-
-procedure TfrmObjectDataSet.actInspectComponentsExecute(Sender: TObject);
-begin
-  //InspectComponents([DataSet, FVST, FDBGV, FTVP]);
 end;
 {$ENDREGION}
 
@@ -266,68 +246,6 @@ end;
 {$ENDREGION}
 
 {$REGION 'private methods'}
-procedure TfrmObjectDataSet.FDBGVHeaderClick(Sender: TObject;
-  Section: TGridHeaderSection);
-var
-//  bDesc : Boolean;
-  Field : TField;
-begin
-  Screen.Cursor := crSQLWait;
-  try
-    Field := FDBGV.Columns[Section.ColumnIndex].Field;
-    if Assigned(Field) and (Field.FieldKind = fkData) then
-    begin
-//      FList.Sort(
-//        function(const Left, Right: TContact): Integer
-//        var
-//          V1 : TValue;
-//          V2 : TValue;
-//        begin
-//          V1 := Left.GetProperty(Field.FieldName).GetValue(Left);
-//          V2 := Right.GetProperty(Field.FieldName).GetValue(Right);
-//          if V1.IsOrdinal and V2.IsOrdinal then
-//          begin
-//            Result := Math.CompareValue(V1.AsOrdinal, V2.AsOrdinal);
-//          end else
-//          if V1.IsFloat and V2.IsFloat then
-//          begin
-//            Result := Math.CompareValue(V1.AsFloat, V2.AsFloat);
-//          end else
-//          if V1.IsString and V2.IsString then
-//          begin
-//            Result := SysUtils.CompareStr(V1.AsString, V2.AsString);
-//          end else
-//          begin
-//            Result := 0;
-//          end;
-//        end);
-    DataSet.Refresh;
-//      FSortedFieldName := Field.FieldName;
-//      if SortDataSet(FSortedFieldName, bDesc) then
-//        if bDesc then
-//          FSortDirection := gsDescending
-//        else
-//          FSortDirection := gsAscending
-//      else
-//      begin
-//        FSortDirection   := gsNone;
-//        FSortedFieldName := '';
-//      end;
-//      if GotoFirstAfterSort then
-//        DataSet.First;
-//    end
-//    else
-//    begin
-//      FSortDirection   := gsNone;
-//      FSortedFieldName := '';
-//    end;
-//    // TODO: should maybe only be triggered after a successful sort operation.
-   end;
-  finally
-    Screen.Cursor := crDefault;
-  end;
-end;
-
 procedure TfrmObjectDataSet.FillList;
 begin
   TConceptFactories.FillListWithContacts(FList as IObjectList,
@@ -339,18 +257,14 @@ begin
   FObjectDataSet.DataList := FList as IObjectList;
   DataSet.Active := True;
   AutoSizeDisplayWidths(DataSet);
-
   dscMain.DataSet := DataSet;
-
-
-  //FDBGV.AutoSizeCols;
 end;
 
 procedure TfrmObjectDataSet.ConnectPresenter;
 begin
   if not Assigned(FTVP) then
   begin
-    FTVP := TConceptFactories.CreateTVP(Self, FVST, FList as IObjectList);
+    FTVP := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList as IObjectList);
     FVST.Header.AutoFitColumns;
 //    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Firstname', edtFirstname);
 //    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Lastname', edtLastname);
@@ -371,7 +285,6 @@ end;
 procedure TfrmObjectDataSet.DisconnectPresenter;
 begin
   FVST.Clear;
-  FBG.Bindings.Clear;
   FreeAndNil(FTVP);
 end;
 {$ENDREGION}

@@ -26,28 +26,30 @@ object frmObjectDataSet: TfrmObjectDataSet
     FullRepaint = False
     TabOrder = 0
     object lblRecordCount: TLabel
-      Left = 3
-      Top = 7
+      Left = 165
+      Top = 12
       Width = 47
       Height = 13
       Caption = 'Listcount:'
     end
     object edtRecordCount: TEdit
-      Left = 56
-      Top = 2
+      Left = 218
+      Top = 7
       Width = 68
       Height = 21
       Alignment = taRightJustify
       TabOrder = 0
-      Text = '100'
+      Text = '1000'
     end
     object btnExecute: TButton
-      Left = 135
-      Top = 0
-      Width = 153
+      Left = 3
+      Top = 5
+      Width = 150
       Height = 25
       Action = actFillList
       Default = True
+      ImageMargins.Left = 4
+      Images = dmResources.imlMain
       TabOrder = 1
     end
   end
@@ -95,19 +97,21 @@ object frmObjectDataSet: TfrmObjectDataSet
           Left = 3
           Top = 3
           Width = 515
-          Height = 17
+          Height = 20
           Align = alTop
           BevelKind = bkFlat
           BevelOuter = bvNone
           Caption = 
             'TDBGridView -> TDataSource -> TObjectDataSet -> IObjectList<TCon' +
             'tact>'
+          Color = clAppWorkSpace
           FullRepaint = False
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
+          ParentBackground = False
           ParentFont = False
           TabOrder = 0
         end
@@ -124,17 +128,21 @@ object frmObjectDataSet: TfrmObjectDataSet
         object btnExecute2: TButton
           Left = 3
           Top = 25
-          Width = 65
+          Width = 150
           Height = 25
           Action = actConnectDataSet
+          ImageMargins.Left = 4
+          Images = dmResources.imlMain
           TabOrder = 2
         end
         object btnExecute1: TButton
-          Left = 74
+          Left = 159
           Top = 25
-          Width = 65
+          Width = 150
           Height = 25
           Action = actDisconnectDataSet
+          ImageMargins.Left = 4
+          Images = dmResources.imlMain
           TabOrder = 3
         end
       end
@@ -269,17 +277,19 @@ object frmObjectDataSet: TfrmObjectDataSet
           Left = 3
           Top = 3
           Width = 515
-          Height = 17
+          Height = 21
           Align = alTop
           BevelKind = bkFlat
           BevelOuter = bvNone
           Caption = 'Standard VCL data-aware controls'
+          Color = clAppWorkSpace
           FullRepaint = False
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
+          ParentBackground = False
           ParentFont = False
           TabOrder = 7
         end
@@ -309,36 +319,42 @@ object frmObjectDataSet: TfrmObjectDataSet
           Left = 3
           Top = 3
           Width = 562
-          Height = 17
+          Height = 21
           Align = alTop
           BevelKind = bkFlat
           BevelOuter = bvNone
           Caption = 
             'TVirtualStringTree -> TTreeViewPresenter -> TObjectList<TContact' +
             '>'
+          Color = clAppWorkSpace
           FullRepaint = False
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
+          ParentBackground = False
           ParentFont = False
           TabOrder = 0
         end
         object btnConnectPresenter: TButton
           Left = 6
           Top = 25
-          Width = 65
+          Width = 150
           Height = 25
           Action = actConnectPresenter
+          ImageMargins.Left = 4
+          Images = dmResources.imlMain
           TabOrder = 1
         end
         object btnDisconnectPresenter: TButton
-          Left = 77
+          Left = 162
           Top = 25
-          Width = 65
+          Width = 150
           Height = 25
           Action = actDisconnectPresenter
+          ImageMargins.Left = 4
+          Images = dmResources.imlMain
           TabOrder = 2
         end
       end
@@ -430,19 +446,21 @@ object frmObjectDataSet: TfrmObjectDataSet
           Left = 3
           Top = 3
           Width = 562
-          Height = 17
+          Height = 21
           Align = alTop
           BevelKind = bkFlat
           BevelOuter = bvNone
           Caption = 
             'Standard VCL TEdit controls connected to TContact properties usi' +
             'ng bindings.'
+          Color = clAppWorkSpace
           FullRepaint = False
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
+          ParentBackground = False
           ParentFont = False
           TabOrder = 7
         end
@@ -462,31 +480,33 @@ object frmObjectDataSet: TfrmObjectDataSet
     Top = 136
   end
   object aclMain: TActionList
+    Images = dmResources.imlMain
     Left = 312
     Top = 136
     object actFillList: TAction
-      Caption = 'Fill list with contacts'
+      Caption = 'Populate contactlist'
       Hint = 'Fills a TObjectList<TContact> instance with TContact objects.'
+      ImageIndex = 455
       OnExecute = actFillListExecute
     end
     object actDisconnectDataSet: TAction
-      Caption = 'Disconnect'
+      Caption = 'Disconnect dataset'
+      ImageIndex = 524
       OnExecute = actDisconnectDataSetExecute
     end
     object actConnectDataSet: TAction
-      Caption = 'Connect'
+      Caption = 'Connect dataset'
+      ImageIndex = 522
       OnExecute = actConnectDataSetExecute
     end
-    object actInspectComponents: TAction
-      Caption = 'Inspect'
-      OnExecute = actInspectComponentsExecute
-    end
     object actConnectPresenter: TAction
-      Caption = 'Connect'
+      Caption = 'Connect presenter'
+      ImageIndex = 522
       OnExecute = actConnectPresenterExecute
     end
     object actDisconnectPresenter: TAction
-      Caption = 'Disconnect'
+      Caption = 'Disconnect presenter'
+      ImageIndex = 524
       OnExecute = actDisconnectPresenterExecute
     end
   end

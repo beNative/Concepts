@@ -45,7 +45,6 @@ uses
   Concepts.SQLBuilder4D.Form in 'Forms\Concepts.SQLBuilder4D.Form.pas' {frmSQLBuilder4D},
   Concepts.ChromeTabs.Form in 'Forms\Concepts.ChromeTabs.Form.pas' {frmChromeTabs},
   Concepts.ComponentInspectorTemplate.Form in 'Forms\Concepts.ComponentInspectorTemplate.Form.pas' {frmPropertyInspector},
-  Concepts.Resources in 'Concepts.Resources.pas' {dmResources: TDataModule},
   Concepts.Spring.Types.Form in 'Forms\Concepts.Spring.Types.Form.pas' {frmSpringTypes},
   DSharp.Bindings.Collections in 'Libraries\DSharp\DSharp.Bindings.Collections.pas',
   DSharp.Bindings.CollectionView.Adapters in 'Libraries\DSharp\DSharp.Bindings.CollectionView.Adapters.pas',
@@ -87,7 +86,8 @@ uses
   DSharp.DevExpress.TreeListPresenter in 'Libraries\DSharp\DSharp.DevExpress.TreeListPresenter.pas',
   Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmObjectDataSet},
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
-  Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter};
+  Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter},
+  Concepts.Resources in 'Concepts.Resources.pas' {dmResources: TDataModule};
 
 {$R *.res}
 
@@ -103,6 +103,7 @@ begin
   begin
     Application.Title := 'Concepts';
     Application.CreateForm(TfrmMain, frmMain);
+  Application.CreateForm(TdmResources, dmResources);
   Application.CreateForm(TdmResources, dmResources);
   end;
   Application.Run;

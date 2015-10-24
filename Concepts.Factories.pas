@@ -66,26 +66,17 @@ type
       AParent : TWinControl
     ): TLogTree; static;
 
-    class function CreateInspector(
+    class function CreatePropertyInspector(
       AOwner  : TComponent;
       AParent : TWinControl;
       AObject : TPersistent = nil
     ): TPropertyInspector; static;
 
-    class function CreateVST(
+    class function CreateVirtualStringTree(
             AOwner  : TComponent;
             AParent : TWinControl;
       const AName   : string = ''
     ): TVirtualStringTree; static;
-
-    class function CreateTVP(
-            AOwner    : TComponent;
-            AVST      : TVirtualStringTree = nil;
-            ASource   : IObjectList = nil;
-            ATemplate : IDataTemplate = nil;
-            AFilter   : TFilterEvent = nil;
-      const AName     : string = ''
-    ): TTreeViewPresenter; static;
 
     class function CreateTreeViewPresenter(
             AOwner    : TComponent;
@@ -96,7 +87,7 @@ type
       const AName     : string = ''
     ): TTreeViewPresenter; static;
 
-    class function CreatecxGVP(
+    class function CreateGridViewPresenter(
             AOwner    : TComponent;
             AGridView : TcxCustomGridView = nil;
             ASource   : IObjectList = nil;
@@ -105,7 +96,7 @@ type
       const AName     : string = ''
     ): TGridViewPresenter; static;
 
-    class function CreatecxTreeListPresenter(
+    class function CreateTreeListPresenter(
             AOwner    : TComponent;
             ATreeList : TcxVirtualTreeList = nil;
             ASource   : IObjectList = nil;
@@ -121,7 +112,6 @@ type
       const AName       : string = ''
     ): TDBGridView; static;
 
-    { Create standard VCL DB Grid. }
     class function CreateDBGrid(
             AOwner      : TComponent;
             AParent     : TWinControl;
@@ -136,7 +126,7 @@ implementation
 
 uses
   System.Rtti,
-  Vcl.Forms,
+  Vcl.Forms, Vcl.Graphics,
 
   DDuce.RandomData,
 
@@ -398,7 +388,7 @@ begin
   Result := GV;
 end;
 
-class function TConceptFactories.CreateInspector(AOwner: TComponent;
+class function TConceptFactories.CreatePropertyInspector(AOwner: TComponent;
   AParent: TWinControl; AObject: TPersistent): TPropertyInspector;
 var
   PI : TPropertyInspector;
@@ -410,6 +400,7 @@ begin
   PI.PropKinds        := PI.PropKinds + [pkReadOnly];
   PI.Align            := alClient;
   PI.Splitter         := PI.Width div 2;
+  PI.Color            := clWhite;
   if Assigned(AObject) then
   begin
     PI.Add(AObject);
@@ -433,18 +424,6 @@ begin
   Result := VLT;
 end;
 
-class function TConceptFactories.CreateTVP(AOwner: TComponent;
-  AVST: TVirtualStringTree; ASource: IObjectList; ATemplate: IDataTemplate;
-  AFilter: TFilterEvent; const AName: string): TTreeViewPresenter;
-var
-  TVP: TTreeViewPresenter;
-begin
-  TVP := TTreeViewPresenter.Create(AOwner);
-  TVP.TreeView := AVST;
-  InitializePresenter(TVP, ASource, ATemplate, AFilter);
-  Result := TVP;
-end;
-
 class function TConceptFactories.CreateTreeViewPresenter(AOwner: TComponent;
   AVST: TVirtualStringTree; ASource: IObjectList; ATemplate: IDataTemplate;
   AFilter: TFilterEvent; const AName: string): TTreeViewPresenter;
@@ -457,7 +436,7 @@ begin
   Result := TVP;
 end;
 
-class function TConceptFactories.CreatecxGVP(AOwner: TComponent;
+class function TConceptFactories.CreateGridViewPresenter(AOwner: TComponent;
   AGridView: TcxCustomGridView; ASource: IObjectList; ATemplate: IDataTemplate;
   AFilter: TFilterEvent; const AName: string): TGridViewPresenter;
 var
@@ -469,7 +448,7 @@ begin
   Result := GVP;
 end;
 
-class function TConceptFactories.CreateVST(AOwner: TComponent;
+class function TConceptFactories.CreateVirtualStringTree(AOwner: TComponent;
   AParent: TWinControl; const AName: string): TVirtualStringTree;
 var
   VST : TVirtualStringTree;
@@ -556,7 +535,7 @@ begin
     APresenter.View.Filter.Add(AFilter);
 end;
 
-class function TConceptFactories.CreatecxTreeListPresenter(AOwner: TComponent;
+class function TConceptFactories.CreateTreeListPresenter(AOwner: TComponent;
   ATreeList: TcxVirtualTreeList; ASource: IObjectList; ATemplate: IDataTemplate;
   AFilter: TFilterEvent; const AName: string): TTreeListPresenter;
 var

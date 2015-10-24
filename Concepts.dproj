@@ -232,11 +232,6 @@
             <Form>frmPropertyInspector</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Concepts.Resources.pas">
-            <Form>dmResources</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
         <DCCReference Include="Forms\Concepts.Spring.Types.Form.pas">
             <Form>frmSpringTypes</Form>
             <FormType>dfm</FormType>
@@ -290,6 +285,11 @@
         <DCCReference Include="Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas">
             <Form>frmcxGridViewPresenter</Form>
             <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Concepts.Resources.pas">
+            <Form>dmResources</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>

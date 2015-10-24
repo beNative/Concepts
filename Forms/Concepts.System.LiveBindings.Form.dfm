@@ -1,8 +1,8 @@
 object frmLiveBindings: TfrmLiveBindings
   Left = 177
   Top = 140
-  ClientHeight = 459
-  ClientWidth = 614
+  ClientHeight = 451
+  ClientWidth = 630
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -16,18 +16,18 @@ object frmLiveBindings: TfrmLiveBindings
   PixelsPerInch = 96
   TextHeight = 13
   object splVertical: TSplitter
-    Left = 257
+    Left = 274
     Top = 0
     Width = 6
-    Height = 440
+    Height = 432
     ExplicitLeft = 251
     ExplicitHeight = 459
   end
   object pnlLeft: TPanel
     Left = 0
     Top = 0
-    Width = 257
-    Height = 440
+    Width = 274
+    Height = 432
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
@@ -35,7 +35,7 @@ object frmLiveBindings: TfrmLiveBindings
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 251
+      Width = 268
       Height = 21
       Margins.Bottom = 0
       Align = alTop
@@ -43,13 +43,14 @@ object frmLiveBindings: TfrmLiveBindings
       DropDownCount = 20
       TabOrder = 0
       OnChange = cbxControlsChange
+      ExplicitWidth = 251
     end
   end
   object pnlRight: TPanel
-    Left = 263
+    Left = 280
     Top = 0
-    Width = 351
-    Height = 440
+    Width = 350
+    Height = 432
     Align = alClient
     BevelOuter = bvNone
     Font.Charset = DEFAULT_CHARSET
@@ -59,6 +60,8 @@ object frmLiveBindings: TfrmLiveBindings
     Font.Style = []
     ParentFont = False
     TabOrder = 1
+    ExplicitLeft = 263
+    ExplicitWidth = 367
     object lblLabel: TLabel
       Left = 17
       Top = 97
@@ -119,7 +122,6 @@ object frmLiveBindings: TfrmLiveBindings
     Width = 121
     Height = 21
     TabOrder = 2
-    Text = 'ButtonCaption'
   end
   object btnButton: TButton
     Left = 407
@@ -140,12 +142,46 @@ object frmLiveBindings: TfrmLiveBindings
   end
   object sbrMain: TStatusBar
     Left = 0
-    Top = 440
-    Width = 614
+    Top = 432
+    Width = 630
     Height = 19
     Panels = <>
     SimplePanel = True
     SimpleText = 'TPanel, Width: 348, Height: 440'
+  end
+  object edt1: TEdit
+    Left = 269
+    Top = 368
+    Width = 121
+    Height = 21
+    TabOrder = 6
+    Text = 'edt1'
+  end
+  object edt2: TEdit
+    Left = 407
+    Top = 368
+    Width = 121
+    Height = 21
+    TabOrder = 7
+    Text = 'edt2'
+  end
+  object btn1: TButton
+    Left = 511
+    Top = 192
+    Width = 75
+    Height = 25
+    Caption = 'btn1'
+    TabOrder = 8
+    OnClick = btn1Click
+  end
+  object btn2: TButton
+    Left = 511
+    Top = 223
+    Width = 75
+    Height = 25
+    Caption = 'btn2'
+    TabOrder = 9
+    OnClick = btn2Click
   end
   object lstBindings: TBindingsList
     Methods = <>

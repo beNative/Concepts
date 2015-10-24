@@ -1,7 +1,7 @@
 object frmcxGridViewPresenter: TfrmcxGridViewPresenter
   Left = 0
   Top = 0
-  Caption = 'Developer express presenters'
+  Caption = 'Specialized presenters'
   ClientHeight = 587
   ClientWidth = 835
   Color = clBtnFace
@@ -22,7 +22,6 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 582
     DesignSize = (
       835
       568)
@@ -32,23 +31,21 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
       Top = 3
       Width = 829
       Height = 526
-      ActivePage = tsTreelist
+      ActivePage = tsGridView
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 0
-      ExplicitWidth = 576
       object tsGridView: TTabSheet
-        Caption = 'Gridview'
-        ExplicitWidth = 568
+        Caption = 'DevExpress TcxGrid'
         object grdMain: TcxGrid
           AlignWithMargins = True
           Left = 3
           Top = 3
           Width = 815
-          Height = 492
+          Height = 493
           Align = alClient
           TabOrder = 0
-          ExplicitWidth = 562
+          ExplicitHeight = 492
           object tvwMain: TcxGridTableView
             Navigator.Buttons.CustomButtons = <>
             DataController.Options = [dcoAssignGroupingValues, dcoAssignMasterDetailKeys, dcoSaveExpanding, dcoFocusTopRowAfterSorting]
@@ -70,9 +67,8 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
         end
       end
       object tsTreelist: TTabSheet
-        Caption = 'Treelist'
+        Caption = 'DevExpress TcxVirtualTreelist'
         ImageIndex = 1
-        ExplicitWidth = 568
         object lstMain: TcxVirtualTreeList
           AlignWithMargins = True
           Left = 3
@@ -88,7 +84,6 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
           OptionsView.ColumnAutoWidth = True
           OptionsView.GridLineColor = clSilver
           TabOrder = 0
-          ExplicitWidth = 562
           object tlcMainColumn1: TcxTreeListColumn
             DataBinding.ValueType = 'String'
             Position.ColIndex = 0
@@ -148,9 +143,8 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
         end
       end
       object tsVirtualTree: TTabSheet
-        Caption = 'VirtualStringTree'
+        Caption = 'Virtual Treeview - TVirtualStringTree'
         ImageIndex = 2
-        ExplicitWidth = 568
         object vstMain: TVirtualStringTree
           AlignWithMargins = True
           Left = 3
@@ -168,20 +162,19 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
           Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
           NodeDataSize = 4
           TabOrder = 0
-          ExplicitWidth = 562
           Columns = <>
         end
       end
     end
     object btnFillList: TButton
-      Left = 750
+      Left = 712
       Top = 535
-      Width = 75
-      Height = 25
+      Width = 120
+      Height = 26
       Action = actFillList
       Anchors = [akRight, akBottom]
+      Default = True
       TabOrder = 1
-      ExplicitLeft = 497
     end
   end
   object sbrMain: TStatusBar
@@ -190,13 +183,12 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
     Width = 835
     Height = 19
     Panels = <>
-    ExplicitWidth = 582
   end
   object aclMain: TActionList
     Left = 96
     Top = 72
     object actFillList: TAction
-      Caption = 'Fill list'
+      Caption = 'Populate contactlist'
       OnExecute = actFillListExecute
     end
   end

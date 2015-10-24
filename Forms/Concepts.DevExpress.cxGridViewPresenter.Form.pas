@@ -95,12 +95,12 @@ var
   OL : IObjectList;
 begin
   inherited AfterConstruction;
-  FList := TCollections.CreateObjectList<TContact>;
+
+  FList := TConceptFactories.CreateContactList(1000);
   OL := FList as IObjectList;
-  TConceptFactories.FillListWithContacts(OL, 1000);
-  FGVPresenter := TConceptFactories.CreatecxGVP(Self, tvwMain, OL);
-  FTLPresenter := TConceptFactories.CreatecxTreeListPresenter(Self, lstMain, OL);
-  FTVPresenter := TConceptFactories.CreateTVP(Self, vstMain, OL);
+  FGVPresenter := TConceptFactories.CreateGridViewPresenter(Self, tvwMain, OL);
+  FTLPresenter := TConceptFactories.CreateTreeListPresenter(Self, lstMain, OL);
+  FTVPresenter := TConceptFactories.CreateTreeViewPresenter(Self, vstMain, OL);
 
   tvwMain.ApplyBestFit;
   lstMain.ApplyBestFit;
@@ -111,7 +111,13 @@ end;
 {$REGION 'action handlers'}
 procedure TfrmcxGridViewPresenter.actFillListExecute(Sender: TObject);
 begin
+  FGVPresenter.BeginUpdate;
+  FTLPresenter.BeginUpdate;
+  FTVPresenter.BeginUpdate;
   TConceptFactories.FillListWithContacts(FList as IObjectList, 1000);
+  FGVPresenter.EndUpdate;
+  FTLPresenter.EndUpdate;
+  FTVPresenter.EndUpdate;
 end;
 {$ENDREGION}
 

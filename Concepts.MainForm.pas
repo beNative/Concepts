@@ -146,9 +146,9 @@ var
 {$REGION 'construction and destruction'}
 procedure TfrmMain.AfterConstruction;
 begin
-  FVST := TConceptFactories.CreateVST(Self, pnlVST);
+  FVST := TConceptFactories.CreateVirtualStringTree(Self, pnlVST);
   FVST.OnKeyPress := FVSTKeyPress;
-  FTVP := TConceptFactories.CreateTVP(Self);
+  FTVP := TConceptFactories.CreateTreeViewPresenter(Self);
   InitializePresenter;
   sbrMain.SimpleText := Format(SConceptsLoaded, [ConceptManager.ItemList.Count]);
 end;

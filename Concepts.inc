@@ -18,16 +18,13 @@
   By (un)commenting the following defines you can customize the project's
   dependencies.
 }
-(*
+
 // Delphi RTL units ('System' prefix)
 {$DEFINE SYSTEM}
 // Delphi VCL units ('Vcl' prefix)
 {$DEFINE VCL}
 // Delphi WinApi units ('WinApi' prefix)
-// Delphi VCL units ('Vcl' prefix)
-{$DEFINE VCL}
 {$DEFINE WINAPI}
-*)
 
 // Delphi RTL units ('System' prefix)
 {$DEFINE SYSTEM}
@@ -42,7 +39,7 @@
 // DevExpress - http://www.devexpress.com/Products/VCL/
 {$DEFINE DEVEXPRESS}
 
-(*
+
 // AsyncCalls.pas
 {$DEFINE ASYNCCALLS}
 
@@ -50,12 +47,10 @@
 
 // BTMemoryModule.pas
 {$DEFINE BTMEMORYMODULE}
-// PasZip.pas
-{$DEFINE PASZIP}
 
 // SQLBuilder4D.pas
 {$DEFINE SQLBUILDER4D}
 
 // TChromeTabs
 {$DEFINE CHROMETABS}
-*)
+

@@ -25,6 +25,7 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.Samples.Spin, Vcl.ExtCtrls,
 
   VirtualTrees,
 
@@ -35,7 +36,7 @@ uses
 
   DDuce.Components.PropertyInspector,
 
-  Concepts.Types.Contact, Vcl.Samples.Spin, Vcl.ExtCtrls;
+  Concepts.Types.Contact;
 
 type
   TfrmTreeViewPresenter = class(TForm)
@@ -56,8 +57,6 @@ type
 
   private
     FList      : IList<TContact>;
-    //FList      : IObjectList;
-    //FList      : IList;
     FPI        : TPropertyInspector;
     FSelection : IList;
     FVST       : TVirtualStringTree;
@@ -83,11 +82,10 @@ uses
 procedure TfrmTreeViewPresenter.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FVST := TConceptFactories.CreateVST(Self, pnlTop);
-  FList := TCollections.CreateObjectList<TContact>;
-  TConceptFactories.FillListWithContacts(FList as IObjectList, 10000);
-  FTVP  := TConceptFactories.CreateTVP(Self, FVST, FList as IObjectList);
-  FPI := TConceptFactories.CreateInspector(Self, pnlLeft, FTVP);
+  FList := TConceptFactories.CreateContactList(10000);
+  FVST  := TConceptFactories.CreateVirtualStringTree(Self, pnlTop);
+  FTVP  := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList as IObjectList);
+  FPI   := TConceptFactories.CreatePropertyInspector(Self, pnlLeft, FTVP);
 
 //  with FTVP.ColumnDefinitions.Add('Firstname') do
 //  begin

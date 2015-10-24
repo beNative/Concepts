@@ -30,7 +30,7 @@ type
     aclMain      : TActionList;
     actCollapse  : TAction;
     actExpand    : TAction;
-    actLoad      : TAction;
+    actRefresh: TAction;
     actSearch    : TAction;
     btnCollapse1 : TButton;
     btnExpand1   : TButton;
@@ -49,7 +49,7 @@ type
     procedure tvRttiChange(Sender: TObject; Node: TTreeNode);
     procedure tvRttiDblClick(Sender: TObject);
 
-    procedure actLoadExecute(Sender: TObject);
+    procedure actRefreshExecute(Sender: TObject);
     procedure actCollapseExecute(Sender: TObject);
     procedure actExpandExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
@@ -79,7 +79,9 @@ implementation
 
 uses
   System.SysUtils, System.TypInfo,
-  Vcl.Dialogs, Vcl.Graphics;
+  Vcl.Dialogs, Vcl.Graphics,
+
+  Concepts.Resources;
 
 const
   LEVEL_PACKAGE = 0;
@@ -123,7 +125,7 @@ begin
   ExpandTree;
 end;
 
-procedure TfrmRTTEye.actLoadExecute(Sender: TObject);
+procedure TfrmRTTEye.actRefreshExecute(Sender: TObject);
 begin
   LoadTree;
 end;

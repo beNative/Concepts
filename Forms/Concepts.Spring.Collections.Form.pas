@@ -55,6 +55,7 @@ type
     procedure actFirstNameIsExecute(Sender: TObject);
     procedure actLastNameIsExecute(Sender: TObject);
     procedure actBothExecute(Sender: TObject);
+    procedure edtFirstNameChange(Sender: TObject);
 
   private
     FList        : IList<TContact>;
@@ -80,7 +81,11 @@ uses
 
   DDuce.RandomData,
 
-  Concepts.Factories;
+  Concepts.Factories, Concepts.Resources;
+
+resourcestring
+  SFindContactsWithFirstName = 'Find all contacts with first name = %s';
+  SFindContactsWithLastName  = 'Find all contacts with last name = %s';
 
 {$REGION 'construction and destruction'}
 procedure TfrmCollections.AfterConstruction;
@@ -210,6 +215,12 @@ begin
   finally
     Screen.Cursor := crDefault;
   end;
+end;
+
+procedure TfrmCollections.edtFirstNameChange(Sender: TObject);
+begin
+  actFirstNameIs.Caption := Format(SFindContactsWithFirstName, [edtFirstName.Text]);
+  actLastNameIs.Caption := Format(SFindContactsWithLastName, [edtLastName.Text]);
 end;
 
 end.

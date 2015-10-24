@@ -64,7 +64,7 @@ var
   C: TWinControl;
 begin
   inherited;
-  FPropertyInspector := TConceptFactories.CreateInspector(
+  FPropertyInspector := TConceptFactories.CreatePropertyInspector(
     Self,
     pnlLeft,
     chkCheckBox
