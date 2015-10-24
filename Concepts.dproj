@@ -88,6 +88,8 @@
         <DCC_DebugInformation>0</DCC_DebugInformation>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <DCC_ImportedDataReferences>false</DCC_ImportedDataReferences>
+        <DCC_DebugInfoInExe>false</DCC_DebugInfoInExe>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
@@ -173,8 +175,6 @@
         </DCCReference>
         <DCCReference Include="Types\Concepts.RTTEye.Templates.pas"/>
         <DCCReference Include="Concepts.Factories.pas"/>
-        <DCCReference Include="Concepts.Helpers.pas"/>
-        <DCCReference Include="Types\Concepts.Types.ThreadSafe.pas"/>
         <DCCReference Include="Forms\Concepts.System.RegularExpressions.Form.pas">
             <Form>frmRegularExpressions</Form>
             <FormType>dfm</FormType>
@@ -280,7 +280,7 @@
         <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.PresenterDataSource.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.TreeListPresenter.pas"/>
         <DCCReference Include="Forms\Concepts.Spring.ObjectDataSet.Form.pas">
-            <Form>frmListDataSet</Form>
+            <Form>frmObjectDataSet</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.DevExpress.cxEditors.Form.pas">
@@ -365,7 +365,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Concepts.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Library\Win32\Debug\Concepts.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>Concepts.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Library\Win32\Release\Concepts.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>Concepts.exe</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -693,8 +699,8 @@
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <ModelSupport>False</ModelSupport>

@@ -20,7 +20,12 @@ interface
 
 uses
   System.Classes, System.Rtti, System.TypInfo,
-  Vcl.Controls;
+  Vcl.Controls, Vcl.Graphics,
+
+  Data.DB;
+
+type
+  TBitmap = Vcl.Graphics.TBitmap;
 
 procedure AppendLine(
   var   AToString : string;
@@ -50,6 +55,19 @@ function SetToString(
         ABrackets    : Boolean = True;
         ATrimChars   : Integer = -1
 ): string;
+
+procedure AutoSizeDisplayWidths(
+  ADataSet : TDataSet;
+  ACount   : Integer = 100;
+  AOffset  : Integer = 2
+); overload;
+
+procedure AutoSizeDisplayWidths(
+  ADataSet : TDataSet;
+  AFont    : TFont;
+  ACount   : Integer = 100;
+  AOffset  : Integer = 0
+); overload;
 
 implementation
 
@@ -421,6 +439,151 @@ begin
   if ABrackets and (Result <> '') then
     Result := '(' + Result + ')';
 end;
+
+procedure AutoSizeDisplayWidths(ADataSet : TDataSet;
+                                AFont    : TFont;
+                                ACount   : Integer;
+                                AOffset  : Integer);
+var
+  BM : TBookmark;
+  I  : Integer;
+  J  : Integer;
+  L  : Integer;
+
+  function GetTextWidth(const AText: string; AFont: TFont): Integer;
+  var
+    Bitmap  : TBitmap;
+    SL      : TStringList;
+    I, W, R : Integer;
+  begin
+    SL := TStringList.Create;
+    try
+      SL.Text := AText;
+      Bitmap := TBitmap.Create;
+      try
+        Bitmap.Canvas.Font.Assign(AFont);
+        R := 0;
+        for I := 0 to SL.Count - 1 do
+        begin
+          W := Bitmap.Canvas.TextWidth(SL[I]);
+          if W > R then
+            R := W;
+        end;
+        Result := R div AFont.Size;
+      finally
+        Bitmap.Free;
+      end;
+    finally
+      SL.Free;
+    end;
+  end;
+
+begin
+  if not Assigned(ADataSet) then
+    raise Exception.Create('ADataSet not assigned!');
+  ADataSet.DisableControls;
+  try
+    BM := ADataSet.Bookmark;
+    try
+      for J := 0 to ADataSet.Fields.Count - 1 do
+        ADataSet.Fields[J].DisplayWidth := Length(ADataSet.Fields[J].DisplayLabel);
+
+      ADataSet.First;
+      I := 0;
+      while (I < ACount) and not ADataSet.Eof do
+      begin
+        for J := 0 to ADataSet.Fields.Count - 1 do
+        begin
+          if ADataSet.Fields[J].DataType in
+            [ftMemo, ftWideMemo, ftString, ftWideString]  then
+            L := GetTextWidth(ADataSet.Fields[J].DisplayText, AFont) + AOffset
+          else
+            L := Length(ADataSet.Fields[J].DisplayText) + AOffset;
+          if L > ADataSet.Fields[J].DisplayWidth then
+            ADataSet.Fields[J].DisplayWidth := L;
+        end;
+        ADataSet.Next;
+        Inc(I);
+      end;
+    finally
+      ADataSet.Bookmark := BM;
+    end;
+  finally
+    ADataSet.EnableControls;
+  end;
+end;
+
+{
+  REMARK : This method is not suitable for filtered datasets. For filtered
+  datasets the records should be enumerated with the dataset's FindFirst and
+  FindNext methods. We didn't use those methods because when used in combination
+  with a ClientDataSet (with fetch on demand enabled) this causes the provider
+  to fetch all the records from the server.
+}
+
+procedure AutoSizeDisplayWidths(ADataSet : TDataSet; ACount : Integer;
+  AOffSet : Integer);
+var
+  BM : TBookmark;
+  I  : Integer;
+  J  : Integer;
+  L  : Integer;
+
+  function GetTextWidth(const AText: string): Integer;
+  var
+    SL      : TStringList;
+    I, W, R : Integer;
+  begin
+    SL := TStringList.Create;
+    try
+      SL.Text := AText;
+      R := 0;
+      for I := 0 to SL.Count - 1 do
+      begin
+        W := Length(SL[I]);
+        if W > R then
+          R := W;
+      end;
+      Result := R;
+    finally
+      SL.Free;
+    end;
+  end;
+
+begin
+  if not Assigned(ADataSet) then
+    raise Exception.Create('ADataSet not assigned!');
+  ADataSet.DisableControls;
+  try
+    BM := ADataSet.Bookmark;
+    try
+      for J := 0 to ADataSet.Fields.Count - 1 do
+        ADataSet.Fields[J].DisplayWidth := Length(ADataSet.Fields[J].DisplayLabel);
+      ADataSet.First;
+      I := 0;
+      while (I < ACount) and not ADataSet.Eof do
+      begin
+        for J := 0 to ADataSet.Fields.Count - 1 do
+        begin
+          if ADataSet.Fields[J].DataType in
+            [ftMemo, {ftWideMemo,} ftString, ftWideString]  then
+            L := GetTextWidth(ADataSet.Fields[J].DisplayText) + AOffset
+          else
+            L := Length(ADataSet.Fields[J].DisplayText) + AOffset;
+          if L > ADataSet.Fields[J].DisplayWidth then
+            ADataSet.Fields[J].DisplayWidth := L;
+        end;
+        ADataSet.Next;
+        Inc(I);
+      end;
+    finally
+      ADataSet.Bookmark := BM;
+    end;
+  finally
+    ADataSet.EnableControls;
+  end;
+end;
+
 {$ENDREGION}
 
 end.

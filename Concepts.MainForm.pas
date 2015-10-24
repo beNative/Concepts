@@ -29,6 +29,7 @@ uses
 
 type
   TfrmMain = class(TForm)
+    {$REGION 'designer controls'}
     aclMain         : TActionList;
     actExecute      : TAction;
     actClose        : TAction;
@@ -36,21 +37,21 @@ type
     pnlVST          : TPanel;
     edtFilter       : TEdit;
     sbrMain         : TStatusBar;
-    pnlButtons: TGridPanel;
-    btnExecute: TButton;
-    btnClose: TButton;
-    btnExecuteModal: TButton;
+    pnlButtons      : TGridPanel;
+    btnExecute      : TButton;
+    btnClose        : TButton;
+    btnExecuteModal : TButton;
     {$ENDREGION}
 
     procedure actExecuteExecute(Sender: TObject);
     procedure actExecuteModalExecute(Sender: TObject);
+    procedure actCloseExecute(Sender: TObject);
 
     procedure edtFilterKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure edtFilterKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure edtFilterChange(Sender: TObject);
-    procedure actCloseExecute(Sender: TObject);
 
   strict private
     FVKPressed : Boolean;
@@ -69,8 +70,10 @@ type
     ): Boolean;
     procedure FTVPFilter(Item: TObject; var Accepted: Boolean);
     procedure FTVPDoubleClick(Sender: TObject);
+
     procedure FVSTKeyPress(Sender: TObject; var Key: Char);
 
+    procedure InitializePresenter;
     procedure ApplyFilter;
 
   public
@@ -97,6 +100,7 @@ uses
 resourcestring
   SConceptsLoaded = '%d concepts loaded.';
 
+{$REGION 'Virtual Key sets'}
 type
   TVKSet = set of Byte;
 
@@ -137,6 +141,7 @@ var
     VK_HOME,
     VK_END
   ];
+{$ENDREGION}
 
 {$REGION 'construction and destruction'}
 procedure TfrmMain.AfterConstruction;
@@ -144,36 +149,7 @@ begin
   FVST := TConceptFactories.CreateVST(Self, pnlVST);
   FVST.OnKeyPress := FVSTKeyPress;
   FTVP := TConceptFactories.CreateTVP(Self);
-  with FTVP.ColumnDefinitions.Add('Category') do
-  begin
-    ValuePropertyName := 'Category';
-    AutoSize          := True;
-    Alignment         := taCenter;
-    OnCustomDraw      := FTVPColumnDefinitionsCustomDrawColumn;
-  end;
-  with FTVP.ColumnDefinitions.Add('Name') do
-  begin
-    ValuePropertyName := 'Name';
-    AutoSize          := True;
-    Alignment         := taLeftJustify;
-    OnCustomDraw      := FTVPColumnDefinitionsCustomDrawColumn;
-  end;
-  with FTVP.ColumnDefinitions.Add('SourceFilename') do
-  begin
-    ValuePropertyName := 'SourceFilename';
-    AutoSize          := True;
-  end;
-  with FTVP.ColumnDefinitions.Add('Description') do
-  begin
-    ValuePropertyName := 'Description';
-    AutoSize          := True;
-  end;
-  FTVP.View.ItemsSource := (ConceptManager.ItemList as IObjectList);
-  FTVP.TreeView := FVST;
-  FTVP.View.Filter.Add(FTVPFilter);
-  FTVP.OnDoubleClick := FTVPDoubleClick;
-  FVST.Header.AutoFitColumns;
-  FTVP.Refresh;
+  InitializePresenter;
   sbrMain.SimpleText := Format(SConceptsLoaded, [ConceptManager.ItemList.Count]);
 end;
 {$ENDREGION}
@@ -288,6 +264,42 @@ end;
 {$ENDREGION}
 
 {$REGION 'private methods'}
+procedure TfrmMain.InitializePresenter;
+begin
+  with FTVP.ColumnDefinitions.Add('Category') do
+  begin
+    ValuePropertyName := 'Category';
+    Alignment         := taCenter;
+    OnCustomDraw      := FTVPColumnDefinitionsCustomDrawColumn;
+    AutoSize          := True;
+  end;
+  with FTVP.ColumnDefinitions.Add('Name') do
+  begin
+    ValuePropertyName := 'Name';
+    Alignment         := taLeftJustify;
+    OnCustomDraw      := FTVPColumnDefinitionsCustomDrawColumn;
+    AutoSize          := True;
+  end;
+  with FTVP.ColumnDefinitions.Add('Description') do
+  begin
+    ValuePropertyName := 'Description';
+    Alignment         := taLeftJustify;
+    AutoSize          := True;
+  end;
+  with FTVP.ColumnDefinitions.Add('SourceFilename') do
+  begin
+    ValuePropertyName := 'SourceFilename';
+    Alignment         := taLeftJustify;
+    AutoSize          := True;
+  end;
+  FTVP.View.ItemsSource := ConceptManager.ItemList as IObjectList;
+  FTVP.TreeView         := FVST;
+  FTVP.OnDoubleClick    := FTVPDoubleClick;
+  FTVP.View.Filter.Add(FTVPFilter);
+  FTVP.TreeView.Header.AutoFitColumns;
+  FTVP.Refresh;
+end;
+
 procedure TfrmMain.ApplyFilter;
 begin
   FTVP.ApplyFilter;

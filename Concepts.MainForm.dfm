@@ -22,8 +22,6 @@ object frmMain: TfrmMain
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 788
-    ExplicitHeight = 586
     object edtFilter: TEdit
       AlignWithMargins = True
       Left = 3
@@ -41,7 +39,6 @@ object frmMain: TfrmMain
       OnChange = edtFilterChange
       OnKeyDown = edtFilterKeyDown
       OnKeyUp = edtFilterKeyUp
-      ExplicitWidth = 782
     end
   end
   object sbrMain: TStatusBar
@@ -51,7 +48,6 @@ object frmMain: TfrmMain
     Height = 19
     Panels = <>
     SimplePanel = True
-    ExplicitWidth = 788
   end
   object pnlButtons: TGridPanel
     Left = 0
@@ -101,9 +97,6 @@ object frmMain: TfrmMain
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 0
-      ExplicitLeft = 308
-      ExplicitWidth = 75
-      ExplicitHeight = 0
     end
     object btnClose: TButton
       AlignWithMargins = True
@@ -116,9 +109,6 @@ object frmMain: TfrmMain
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 1
-      ExplicitLeft = 532
-      ExplicitWidth = 75
-      ExplicitHeight = 0
     end
     object btnExecuteModal: TButton
       AlignWithMargins = True
@@ -132,10 +122,6 @@ object frmMain: TfrmMain
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 2
-      ExplicitLeft = 3
-      ExplicitTop = 23
-      ExplicitWidth = 218
-      ExplicitHeight = 25
     end
   end
   object aclMain: TActionList

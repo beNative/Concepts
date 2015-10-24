@@ -131,12 +131,12 @@ begin
     'Spring',
     'Aspect Oriented Programming'
   );
-//  ConceptManager.Register(
-//    TfrmSpringObjectDataSet,
-//    'Persistence',
-//    'Spring',
-//    'TObjectDataSet'
-//  );
+  ConceptManager.Register(
+    TfrmObjectDataSet,
+    'Persistence',
+    'Spring',
+    'TObjectDataSet'
+  );
   ConceptManager.Register(
     TfrmSpringLogging,
     'Logging',
@@ -214,12 +214,6 @@ begin
     'Variants',
     'System',
     'Demonstrates some operations on Variants'
-  );
-  ConceptManager.Register(
-    TfrmRTTEye,
-    'RTTEye',
-    'System',
-    'Reflection-like overview using the enhanced RTTI'
   );
   ConceptManager.Register(
     TfrmLiveBindings,
@@ -333,6 +327,15 @@ begin
     'ChromeTabs',
     'TChromeTabs',
     'TChromeTabs demo'
+  );
+  {$ENDIF}
+
+  {$IFDEF RTTEYE}
+  ConceptManager.Register(
+    TfrmRTTEye,
+    'RTTEye',
+    'System',
+    'Reflection-like overview using the enhanced RTTI'
   );
   {$ENDIF}
  {

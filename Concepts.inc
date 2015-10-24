@@ -24,8 +24,13 @@
 // Delphi VCL units ('Vcl' prefix)
 {$DEFINE VCL}
 // Delphi WinApi units ('WinApi' prefix)
+// Delphi VCL units ('Vcl' prefix)
+{$DEFINE VCL}
 {$DEFINE WINAPI}
 *)
+
+// Delphi RTL units ('System' prefix)
+{$DEFINE SYSTEM}
 // Spring4D - http://bitbucket.org/sglienke/spring4d
 {$DEFINE SPRING}
 // DSharp - http://bitbucket.org/sglienke/dsharp

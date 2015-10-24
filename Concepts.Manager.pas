@@ -73,6 +73,7 @@ type
 
     class property ItemList: IList<TConcept>
       read FList;
+
   end;
 
   ConceptManager = TConceptManager;

@@ -52,6 +52,10 @@ type
     ); static;
 
   public
+    class function CreateContactList(
+      const ACount: Integer = 0
+    ): IList<TContact>; static;
+
     class procedure FillListWithContacts(
       AList  : IObjectList;
       ACount : Integer
@@ -487,18 +491,24 @@ begin
   Result := VST;
 end;
 
+class function TConceptFactories.CreateContactList(
+  const ACount: Integer): IList<TContact>;
+begin
+  Result := TCollections.CreateObjectList<TContact>;
+  if ACount > 0 then
+    FillListWithContacts(Result as IObjectList, ACount);
+end;
+
 class procedure TConceptFactories.FillListWithContacts(AList: IObjectList;
   ACount: Integer);
 var
   I : Integer;
 begin
-  if Assigned(AList) then
+  Guard.CheckNotNull(AList, 'AList');
+  AList.Clear;
+  for I := 0 to ACount - 1 do
   begin
-    AList.Clear;
-    for I := 0 to ACount - 1 do
-    begin
-      AList.Add(CreateRandomContact);
-    end;
+    AList.Add(CreateRandomContact);
   end;
 end;
 
@@ -528,6 +538,7 @@ var
   P : TRttiProperty;
   C : TRttiContext;
 begin
+  Guard.CheckNotNull(APresenter, 'APresenter');
   if Assigned(ASource) then // auto create column definitions
   begin
     for P in C.GetType(ASource.ElementType).GetProperties do
@@ -557,6 +568,5 @@ begin
   Result := TLP;
 end;
 {$ENDREGION}
-
 
 end.

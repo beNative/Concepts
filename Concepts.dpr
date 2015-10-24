@@ -30,8 +30,6 @@ uses
   Concepts.System.Threads.Form in 'Forms\Concepts.System.Threads.Form.pas' {frmThreads},
   Concepts.RTTEye.Templates in 'Types\Concepts.RTTEye.Templates.pas',
   Concepts.Factories in 'Concepts.Factories.pas',
-  Concepts.Helpers in 'Concepts.Helpers.pas',
-  Concepts.Types.ThreadSafe in 'Types\Concepts.Types.ThreadSafe.pas',
   Concepts.System.RegularExpressions.Form in 'Forms\Concepts.System.RegularExpressions.Form.pas' {frmRegularExpressions},
   Concepts.System.Threading.Form in 'Forms\Concepts.System.Threading.Form.pas' {frmThreading},
   Concepts.TestForm in 'Concepts.TestForm.pas' {frmTest},
@@ -87,7 +85,7 @@ uses
   DSharp.DevExpress.GridViewPresenter in 'Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas',
   DSharp.DevExpress.PresenterDataSource in 'Libraries\DSharp\DSharp.DevExpress.PresenterDataSource.pas',
   DSharp.DevExpress.TreeListPresenter in 'Libraries\DSharp\DSharp.DevExpress.TreeListPresenter.pas',
-  Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmListDataSet},
+  Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmObjectDataSet},
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
   Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter};
 
