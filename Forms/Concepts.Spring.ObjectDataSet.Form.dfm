@@ -1,4 +1,4 @@
-object frmListDataSet: TfrmListDataSet
+object frmObjectDataSet: TfrmObjectDataSet
   Left = 0
   Top = 0
   ClientHeight = 683
@@ -100,8 +100,8 @@ object frmListDataSet: TfrmListDataSet
           BevelKind = bkFlat
           BevelOuter = bvNone
           Caption = 
-            'TDBGridView -> TDataSource -> TListDataSet<TContact> -> TObjectL' +
-            'ist<TContact>'
+            'TDBGridView -> TDataSource -> TObjectDataSet -> IObjectList<TCon' +
+            'tact>'
           FullRepaint = False
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -253,7 +253,6 @@ object frmListDataSet: TfrmListDataSet
           Top = 127
           Width = 121
           Height = 21
-          DataField = 'Number'
           DataSource = dscMain
           TabOrder = 5
         end
@@ -262,7 +261,6 @@ object frmListDataSet: TfrmListDataSet
           Top = 127
           Width = 121
           Height = 21
-          DataField = 'Country'
           DataSource = dscMain
           TabOrder = 6
         end

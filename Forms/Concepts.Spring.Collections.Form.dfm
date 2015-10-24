@@ -35,7 +35,6 @@ object frmCollections: TfrmCollections
     ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 1
-    ExplicitWidth = 378
   end
   object btnCreateList: TButton
     Left = 8
@@ -63,7 +62,6 @@ object frmCollections: TfrmCollections
     Anchors = [akTop, akRight]
     TabOrder = 4
     Text = 'John'
-    ExplicitLeft = 285
   end
   object edtLastName: TEdit
     Left = 399
@@ -73,7 +71,6 @@ object frmCollections: TfrmCollections
     Anchors = [akTop, akRight]
     TabOrder = 5
     Text = 'Roberts'
-    ExplicitLeft = 285
   end
   object btnBoth: TButton
     Left = 8

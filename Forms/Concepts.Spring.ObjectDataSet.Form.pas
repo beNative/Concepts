@@ -16,9 +16,7 @@
 
 unit Concepts.Spring.ObjectDataSet.Form;
 
-{$I ..\Source\DDuce.inc}
-
-{ Demonstrates TListDataSet<T> and the following components:
+{ Demonstrates how TObjectDataSet can represent content of a Spring collection:
     - TDBGridView - DDuce.Components.DBGridView
     - DSharp bindings
     - Spring ObjectDataSet
@@ -29,7 +27,7 @@ interface
 uses
   System.Actions, System.Classes,
   Vcl.ActnList, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Mask, Vcl.DBCtrls, Vcl.StdCtrls,
-  Vcl.Controls,
+  Vcl.Controls, Vcl.DBGrids,
   Data.DB,
 
   VirtualTrees,
@@ -39,13 +37,12 @@ uses
   DSharp.Bindings, DSharp.Bindings.VCLControls,
   DSharp.Windows.TreeViewPresenter,
 
-  DDuce.Components.ListDataSet, DDuce.Components.GridView,
-  DDuce.Components.DBGridView,
+  DDuce.Components.GridView, DDuce.Components.DBGridView,
 
   Concepts.Types.Contact;
 
 type
-  TfrmListDataSet = class(TForm)
+  TfrmObjectDataSet = class(TForm)
     {$REGION 'designer controls'}
     aclMain                   : TActionList;
     actConnectDataSet         : TAction;
@@ -114,9 +111,9 @@ type
     FList          : IList<TContact>;
     FVST           : TVirtualStringTree;
     FDBGV          : TDBGridView;
+    FDBG           : TDBGrid;
     FTVP           : TTreeViewPresenter;
     FBG            : TBindingGroup;
-    FListDataSet   : TListDataSet<TContact>;
     FObjectDataSet : TObjectDataset;
 
     function GetDataSet: TDataSet;
@@ -159,23 +156,25 @@ uses
   System.SysUtils,
   Vcl.Forms,
 
-  Concepts.Factories, Concepts.Helpers;
+  Concepts.Factories, Concepts.Utils;
 
 {$REGION 'construction and destruction'}
-procedure TfrmListDataSet.AfterConstruction;
+procedure TfrmObjectDataSet.AfterConstruction;
 begin
   inherited AfterConstruction;
-  //FList               := TConceptFactories.CreateContactList;
+  FList               := TConceptFactories.CreateContactList(1000);
   FVST                := TConceptFactories.CreateVST(Self, pnlRight);
-  FDBGV               := TConceptFactories.CreateDBGridView(Self, pnlLeft, dscMain);
-  FListDataSet        := TListDataset<TContact>.Create(Self, FList);
+  //FDBGV               := TConceptFactories.CreateDBGridView(Self, pnlLeft, dscMain);
+  FDBG                := TConceptFactories.CreateDBGrid(Self, pnlLeft, dscMain);
   FObjectDataSet      := TObjectDataset.Create(Self);
+  FObjectDataSet.DataList := FList as IObjectList;
+
   FBG                 := TBindingGroup.Create(Self);
-  FDBGV.OnHeaderClick := FDBGVHeaderClick;
+  //FDBGV.OnHeaderClick := FDBGVHeaderClick;
   //FDBGV.OnGetSortDirection := FDBGVGe
 end;
 
-procedure TfrmListDataSet.BeforeDestruction;
+procedure TfrmObjectDataSet.BeforeDestruction;
 begin
   DisconnectPresenter;
   FList := nil;
@@ -184,64 +183,63 @@ end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
-procedure TfrmListDataSet.actConnectDataSetExecute(Sender: TObject);
+procedure TfrmObjectDataSet.actConnectDataSetExecute(Sender: TObject);
 begin
   ConnectDataSet;
 end;
 
-procedure TfrmListDataSet.actConnectPresenterExecute(Sender: TObject);
+procedure TfrmObjectDataSet.actConnectPresenterExecute(Sender: TObject);
 begin
   ConnectPresenter;
 end;
 
-procedure TfrmListDataSet.actDisconnectDataSetExecute(Sender: TObject);
+procedure TfrmObjectDataSet.actDisconnectDataSetExecute(Sender: TObject);
 begin
   DisconnectDataSet;
 end;
 
-procedure TfrmListDataSet.actDisconnectPresenterExecute(Sender: TObject);
+procedure TfrmObjectDataSet.actDisconnectPresenterExecute(Sender: TObject);
 begin
   DisconnectPresenter;
 end;
 
-procedure TfrmListDataSet.actFillListExecute(Sender: TObject);
+procedure TfrmObjectDataSet.actFillListExecute(Sender: TObject);
 begin
   DisconnectPresenter;
   DisconnectDataSet;
   FillList;
 end;
 
-procedure TfrmListDataSet.actInspectComponentsExecute(Sender: TObject);
+procedure TfrmObjectDataSet.actInspectComponentsExecute(Sender: TObject);
 begin
   //InspectComponents([DataSet, FVST, FDBGV, FTVP]);
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
-procedure TfrmListDataSet.FormResize(Sender: TObject);
+procedure TfrmObjectDataSet.FormResize(Sender: TObject);
 begin
   pnlLeft.Width := ClientWidth div 2;
 end;
 
-procedure TfrmListDataSet.dscMainUpdateData(Sender: TObject);
+procedure TfrmObjectDataSet.dscMainUpdateData(Sender: TObject);
 begin
   FVST.Invalidate;
 end;
 {$ENDREGION}
 
 {$REGION 'property access methods'}
-function TfrmListDataSet.GetDataSet: TDataSet;
+function TfrmObjectDataSet.GetDataSet: TDataSet;
 begin
-  Result := FListDataSet;
-//  Result := FObjectDataSet;
+  Result := FObjectDataSet;
 end;
 
-function TfrmListDataSet.GetDataSetEnabled: Boolean;
+function TfrmObjectDataSet.GetDataSetEnabled: Boolean;
 begin
   Result := DataSet.Active;
 end;
 
-procedure TfrmListDataSet.SetDataSetEnabled(const Value: Boolean);
+procedure TfrmObjectDataSet.SetDataSetEnabled(const Value: Boolean);
 begin
   if Value <> DataSetEnabled then
   begin
@@ -249,13 +247,13 @@ begin
   end;
 end;
 
-function TfrmListDataSet.GetPresenterEnabled: Boolean;
+function TfrmObjectDataSet.GetPresenterEnabled: Boolean;
 begin
   Result := False;
   Result := Assigned(FTVP);
 end;
 
-procedure TfrmListDataSet.SetPresenterEnabled(const Value: Boolean);
+procedure TfrmObjectDataSet.SetPresenterEnabled(const Value: Boolean);
 begin
   if Value <> PresenterEnabled then
   begin
@@ -268,7 +266,7 @@ end;
 {$ENDREGION}
 
 {$REGION 'private methods'}
-procedure TfrmListDataSet.FDBGVHeaderClick(Sender: TObject;
+procedure TfrmObjectDataSet.FDBGVHeaderClick(Sender: TObject;
   Section: TGridHeaderSection);
 var
 //  bDesc : Boolean;
@@ -330,21 +328,25 @@ begin
   end;
 end;
 
-procedure TfrmListDataSet.FillList;
+procedure TfrmObjectDataSet.FillList;
 begin
-  //TConceptFactories.FillListWithContacts(FList, StrToInt(edtRecordCount.Text));
+  TConceptFactories.FillListWithContacts(FList as IObjectList,
+  StrToInt(edtRecordCount.Text));
 end;
 
-procedure TfrmListDataSet.ConnectDataSet;
+procedure TfrmObjectDataSet.ConnectDataSet;
 begin
-  //FObjectDataSet.SetDataList<TContact>(FList as IList<TContact>);
+  FObjectDataSet.DataList := FList as IObjectList;
   DataSet.Active := True;
+  AutoSizeDisplayWidths(DataSet);
 
   dscMain.DataSet := DataSet;
-  FDBGV.AutoSizeCols;
+
+
+  //FDBGV.AutoSizeCols;
 end;
 
-procedure TfrmListDataSet.ConnectPresenter;
+procedure TfrmObjectDataSet.ConnectPresenter;
 begin
   if not Assigned(FTVP) then
   begin
@@ -360,13 +362,13 @@ begin
   end;
 end;
 
-procedure TfrmListDataSet.DisconnectDataSet;
+procedure TfrmObjectDataSet.DisconnectDataSet;
 begin
   DataSet.Active := False;
   dscMain.DataSet := nil;
 end;
 
-procedure TfrmListDataSet.DisconnectPresenter;
+procedure TfrmObjectDataSet.DisconnectPresenter;
 begin
   FVST.Clear;
   FBG.Bindings.Clear;
@@ -375,7 +377,7 @@ end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
-procedure TfrmListDataSet.UpdateActions;
+procedure TfrmObjectDataSet.UpdateActions;
 begin
   inherited;
   actConnectDataSet.Enabled         := not DataSetEnabled;

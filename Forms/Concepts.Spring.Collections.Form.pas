@@ -18,6 +18,12 @@ unit Concepts.Spring.Collections.Form;
 
 { Demonstrates the use of Spring collections. }
 
+{
+References:
+  http://delphisorcery.blogspot.be/search?q=Generics+and+variance
+
+}
+
 interface
 
 uses
