@@ -16,8 +16,7 @@
 
 unit Concepts.Types.Contact;
 
-{ Sample model object that typically represents a database entity object that
-  can be persisted. }
+{ Sample model object that typically represents a database entity. }
 
 interface
 
@@ -33,7 +32,7 @@ type
     FBirthDate   : TDate;
     FActive      : Boolean;
 
-  public
+  published
     property FirstName: string
       read FFirstName write FFirstName;
 
