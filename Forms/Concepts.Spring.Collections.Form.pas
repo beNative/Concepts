@@ -62,6 +62,9 @@ type
     FFirstNameIs : TPredicate<TContact>;
     FLastNameIs  : TPredicate<TContact>;
 
+  protected
+    procedure UpdateActions; override;
+
   public
     procedure FillList;
 
@@ -219,8 +222,16 @@ end;
 
 procedure TfrmCollections.edtFirstNameChange(Sender: TObject);
 begin
+
+end;
+
+{$REGION 'protected methods'}
+procedure TfrmCollections.UpdateActions;
+begin
   actFirstNameIs.Caption := Format(SFindContactsWithFirstName, [edtFirstName.Text]);
   actLastNameIs.Caption := Format(SFindContactsWithLastName, [edtLastName.Text]);
+  inherited UpdateActions;
 end;
+{$ENDREGION}
 
 end.

@@ -87,7 +87,24 @@ uses
   Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmObjectDataSet},
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
   Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter},
-  Concepts.Resources in 'Concepts.Resources.pas' {dmResources: TDataModule};
+  Concepts.Resources in 'Concepts.Resources.pas' {dmResources: TDataModule},
+  DDuce.DynamicRecord in 'Libraries\DDuce\DDuce.DynamicRecord.pas',
+  DDuce.Logger in 'Libraries\DDuce\DDuce.Logger.pas',
+  DDuce.RandomData in 'Libraries\DDuce\DDuce.RandomData.pas',
+  DDuce.Reflect in 'Libraries\DDuce\DDuce.Reflect.pas',
+  DDuce.ScopedReference in 'Libraries\DDuce\DDuce.ScopedReference.pas',
+  DDuce.Components.DBGridView in 'Libraries\DDuce\Components\DDuce.Components.DBGridView.pas',
+  DDuce.Components.GridView in 'Libraries\DDuce\Components\DDuce.Components.GridView.pas',
+  DDuce.Components.Inspector in 'Libraries\DDuce\Components\DDuce.Components.Inspector.pas',
+  DDuce.Components.ListDataSet in 'Libraries\DDuce\Components\DDuce.Components.ListDataSet.pas',
+  DDuce.Components.LogTree in 'Libraries\DDuce\Components\DDuce.Components.LogTree.pas',
+  DDuce.Components.PropertyInspector.CollectionEditor in 'Libraries\DDuce\Components\DDuce.Components.PropertyInspector.CollectionEditor.pas' {frmCollectionEditor},
+  DDuce.Components.PropertyInspector in 'Libraries\DDuce\Components\DDuce.Components.PropertyInspector.pas',
+  DDuce.Components.PropertyInspector.StringsEditor in 'Libraries\DDuce\Components\DDuce.Components.PropertyInspector.StringsEditor.pas' {StringsEditorDialog},
+  DDuce.Components.VirtualDataSet in 'Libraries\DDuce\Components\DDuce.Components.VirtualDataSet.pas',
+  DDuce.Components.XMLTree.Editors in 'Libraries\DDuce\Components\DDuce.Components.XMLTree.Editors.pas',
+  DDuce.Components.XMLTree.NodeAttributes in 'Libraries\DDuce\Components\DDuce.Components.XMLTree.NodeAttributes.pas',
+  DDuce.Components.XMLTree in 'Libraries\DDuce\Components\DDuce.Components.XMLTree.pas';
 
 {$R *.res}
 

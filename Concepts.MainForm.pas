@@ -95,7 +95,7 @@ uses
 
   Spring.Collections,
 
-  Concepts.Factories, Concepts.Manager;
+  Concepts.Factories, Concepts.Manager, Concepts.Resources;
 
 resourcestring
   SConceptsLoaded = '%d concepts loaded.';
@@ -147,7 +147,6 @@ var
 procedure TfrmMain.AfterConstruction;
 begin
   FVST := TConceptFactories.CreateVirtualStringTree(Self, pnlVST);
-  FVST.OnKeyPress := FVSTKeyPress;
   FTVP := TConceptFactories.CreateTreeViewPresenter(Self);
   InitializePresenter;
   sbrMain.SimpleText := Format(SConceptsLoaded, [ConceptManager.ItemList.Count]);
@@ -156,8 +155,13 @@ end;
 
 {$REGION 'action handlers'}
 procedure TfrmMain.actExecuteExecute(Sender: TObject);
+var
+  O : TObject;
 begin
-  ConceptManager.Execute(FTVP.SelectedItem, False);
+  for O in FTVP.SelectedItems do
+  begin
+    ConceptManager.Execute(O, False);
+  end;
 end;
 
 procedure TfrmMain.actExecuteModalExecute(Sender: TObject);
@@ -176,8 +180,17 @@ function TfrmMain.FTVPColumnDefinitionsCustomDrawColumn(Sender: TObject;
   ColumnDefinition: TColumnDefinition; Item: TObject; TargetCanvas: TCanvas;
   CellRect: TRect; ImageList: TCustomImageList; DrawMode: TDrawMode;
   Selected: Boolean): Boolean;
+var
+  C : TConcept;
 begin
-  TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsBold];
+  C := Item as TConcept;
+  if ColumnDefinition.Index < 2 then
+    TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsBold];
+  if DrawMode = TDrawMode.dmBeforeCellPaint then
+  begin
+    TargetCanvas.Brush.Color := C.Color;
+    TargetCanvas.FillRect(CellRect);
+  end;
   Result := True;
 end;
 
@@ -284,18 +297,22 @@ begin
   begin
     ValuePropertyName := 'Description';
     Alignment         := taLeftJustify;
+    OnCustomDraw      := FTVPColumnDefinitionsCustomDrawColumn;
     AutoSize          := True;
   end;
   with FTVP.ColumnDefinitions.Add('SourceFilename') do
   begin
     ValuePropertyName := 'SourceFilename';
     Alignment         := taLeftJustify;
+    OnCustomDraw      := FTVPColumnDefinitionsCustomDrawColumn;
     AutoSize          := True;
   end;
   FTVP.View.ItemsSource := ConceptManager.ItemList as IObjectList;
   FTVP.TreeView         := FVST;
   FTVP.OnDoubleClick    := FTVPDoubleClick;
+  FTVP.SelectionMode    := smMulti;
   FTVP.View.Filter.Add(FTVPFilter);
+  FTVP.TreeView.OnKeyPress := FVSTKeyPress;
   FTVP.TreeView.Header.AutoFitColumns;
   FTVP.Refresh;
 end;

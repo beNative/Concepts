@@ -16,8 +16,6 @@
 
 unit Concepts.ChromeTabs.Form;
 
-{$I ..\Source\DDuce.inc}
-
 interface
 
 uses

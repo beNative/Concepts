@@ -296,5 +296,3 @@ end;
 {$ENDREGION}
 
 end.
-
-

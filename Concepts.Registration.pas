@@ -20,9 +20,14 @@ interface
 
 {$I Concepts.inc}
 
+uses
+  Vcl.Graphics;
+
 type
   TConcepts = record
   strict private
+    class var FCategoryColor : TColor;
+
     class procedure RegisterSpringConcepts; static;
     class procedure RegisterDSharpConcepts; static;
     class procedure RegisterDevExpressConcepts; static;
@@ -107,53 +112,62 @@ uses
 class procedure TConcepts.RegisterSpringConcepts;
 begin
   {$IFDEF SPRING}
+  FCategoryColor := $00DDFFDD;
   ConceptManager.Register(
     TfrmCollections,
     'Collections',
     'Spring',
-    'Spring collections demo'
+    'Spring collections demo',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmMultiCastEvents,
     'Multicast events',
     'Spring',
-    'Spring multicast events'
+    'Spring multicast events',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmLazyInstantiation,
     'Lazy instantiation',
     'Spring',
-    'Spring lazy instantiation demo'
+    'Spring lazy instantiation demo',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmSpringInterception,
     'Interception',
     'Spring',
-    'Aspect Oriented Programming'
+    'Aspect Oriented Programming',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmObjectDataSet,
     'Persistence',
     'Spring',
-    'TObjectDataSet'
+    'TObjectDataSet',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmSpringLogging,
     'Logging',
     'Spring',
-    'Spring Logging system'
+    'Spring Logging system',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmSpringTypes,
     'Types',
     'Spring',
-    'Spring types'
+    'Spring types',
+    FCategoryColor
   );
 //  ConceptManager.Register(
 //    TfrmSpringUtils,
 //    'Utils',
 //    'Spring',
-//    'Utillity classes and routines'
+//    'Utillity classes and routines',
+//    FCategoryColor
 //  );
   {$ENDIF}
 end;
@@ -161,23 +175,27 @@ end;
 class procedure TConcepts.RegisterDSharpConcepts;
 begin
   {$IFDEF DSHARP}
+  FCategoryColor := $00B0FFFF;
   ConceptManager.Register(
     TfrmBindings,
     'Bindings',
     'DSharp',
-    'DSharp bindings'
+    'DSharp bindings',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmTreeViewPresenter,
     'TreeViewPresenter',
     'DSharp',
-    'DSharp TreeViewPresenter'
+    'DSharp TreeViewPresenter',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmcxGridViewPresenter,
     'Presenters',
     'DSharp',
-    'Specialized presenters'
+    'Specialized presenters',
+    FCategoryColor
   );
   {$ENDIF}
 end;
@@ -185,11 +203,13 @@ end;
 class procedure TConcepts.RegisterDevExpressConcepts;
 begin
   {$IFDEF DEVEXPRESS}
+  FCategoryColor := $00C1E0FF;
   ConceptManager.Register(
     TfrmcxEditors,
     'cxEditors',
     'DevExpress',
-    'Demonstrates the DevExpress edit controls'
+    'Demonstrates the DevExpress edit controls',
+    FCategoryColor
   );
   {$ENDIF}
 end;
@@ -197,71 +217,83 @@ end;
 class procedure TConcepts.RegisterSystemConcepts;
 begin
   {$IFDEF SYSTEM}
+  FCategoryColor := $00E1E1FF;
   ConceptManager.Register(
     TfrmLibraries,
     'Libraries',
     'System',
-    ''
+    '',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmRTTI,
     'RTTI',
     'System',
-    'Demonstrates the extended RTTI'
+    'Demonstrates the extended RTTI',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmVariants,
     'Variants',
     'System',
-    'Demonstrates some operations on Variants'
+    'Demonstrates some operations on Variants',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmLiveBindings,
     'LiveBindings',
     'System',
-    'Demonstrates Delphi''s LiveBindings system'
+    'Demonstrates Delphi''s LiveBindings system',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmRegularExpressions,
     'Regular Expressions',
     'System',
-    'Demonstrates support for regular expressions in the RTL'
+    'Demonstrates support for regular expressions in the RTL',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmThreading,
     'Parallel library',
     'System',
-    'Demonstrates the System.Threading library introduced in Delphi XE7'
+    'Demonstrates the System.Threading library introduced in Delphi XE7',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmThreads,
     'Threads',
     'System',
-    'Demonstrates some basic threading scenarios and primitives'
+    'Demonstrates some basic threading scenarios and primitives',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmAnonymousMethods,
     'Anonymous methods',
     'System',
-    'Anonymous methods - variable capturing'
+    'Anonymous methods - variable capturing',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmInterfaceImplementationByAggregation,
     'Interface implementation by aggregation',
     'System',
-    'using the ''implements'' keyword'
+    'using the ''implements'' keyword',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmVirtualInterfaceDemo,
     'TVirtualInterface demo',
     'System',
-    ''
+    '',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmVirtualMethodInterceptor,
     'TVirtualMethodInterceptor demo',
     'System',
-    ''
+    '',
+    FCategoryColor
   );
   {$ENDIF}
 end;
@@ -269,17 +301,20 @@ end;
 class procedure TConcepts.RegisterVclConcepts;
 begin
   {$IFDEF VCL}
+  FCategoryColor := $00FFD9D9;
   ConceptManager.Register(
     TfrmGridPanels,
     'Grid panels',
     'Vcl',
-    'Demonstrates TGridPanel component'
+    'Demonstrates TGridPanel component',
+    FCategoryColor
   );
   ConceptManager.Register(
     TfrmLockPaint,
     'LockPaint',
     'Vcl',
-    'Demonstrates LockPaint/UnlockPaint routines'
+    'Demonstrates LockPaint/UnlockPaint routines',
+    FCategoryColor
   );
   {$ENDIF}
 end;

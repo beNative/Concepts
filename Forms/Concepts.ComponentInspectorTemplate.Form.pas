@@ -16,8 +16,6 @@
 
 unit Concepts.ComponentInspectorTemplate.Form;
 
-{$I ..\Source\DDuce.inc}
-
 interface
 
 uses

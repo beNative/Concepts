@@ -93,7 +93,9 @@ implementation
 uses
   Spring.Logging.Loggers, Spring.Logging.Serializers,
 
-  DDuce.Reflect;
+  DDuce.Reflect,
+
+  Concepts.Resources;
 
 {$REGION 'TMemoLogAppender '}
 procedure TMemoLogAppender.Send(const entry: TLogEntry);

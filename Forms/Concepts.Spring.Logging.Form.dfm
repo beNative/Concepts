@@ -19,10 +19,12 @@ object frmSpringLogging: TfrmSpringLogging
   object btnTrackThis: TButton
     Left = 8
     Top = 8
-    Width = 129
+    Width = 130
     Height = 25
     Action = actTrackThis
     Caption = 'Track a method'
+    ImageMargins.Left = 4
+    Images = dmResources.imlMain
     TabOrder = 0
   end
   object grpLogEntry: TGroupBox
@@ -60,7 +62,7 @@ object frmSpringLogging: TfrmSpringLogging
     object rgpLogLevel: TRadioGroup
       Left = 216
       Top = 75
-      Width = 178
+      Width = 185
       Height = 121
       Caption = 'TLogLevel'
       Columns = 2
@@ -69,7 +71,7 @@ object frmSpringLogging: TfrmSpringLogging
     object edtMessage: TEdit
       Left = 68
       Top = 23
-      Width = 232
+      Width = 197
       Height = 21
       TabOrder = 2
       Text = 'You have been warned!'
@@ -77,23 +79,25 @@ object frmSpringLogging: TfrmSpringLogging
     object edtData: TEdit
       Left = 68
       Top = 48
-      Width = 232
+      Width = 333
       Height = 21
       TabOrder = 3
     end
     object btnLog: TButton
-      Left = 319
+      Left = 271
       Top = 21
-      Width = 75
+      Width = 130
       Height = 25
       Action = actLog
+      ImageMargins.Left = 4
+      Images = dmResources.imlMain
       TabOrder = 4
     end
   end
   object mmoLog: TMemo
-    Left = 432
+    Left = 423
     Top = 10
-    Width = 378
+    Width = 387
     Height = 242
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
@@ -105,7 +109,7 @@ object frmSpringLogging: TfrmSpringLogging
     TabOrder = 2
   end
   object chkTraceLogEnabled: TCheckBox
-    Left = 143
+    Left = 153
     Top = 12
     Width = 84
     Height = 17
@@ -113,7 +117,7 @@ object frmSpringLogging: TfrmSpringLogging
     TabOrder = 3
   end
   object chkFileLogEnabled: TCheckBox
-    Left = 233
+    Left = 248
     Top = 12
     Width = 83
     Height = 17
@@ -121,7 +125,7 @@ object frmSpringLogging: TfrmSpringLogging
     TabOrder = 4
   end
   object chkMemoLogEnabled: TCheckBox
-    Left = 320
+    Left = 334
     Top = 12
     Width = 92
     Height = 17
@@ -129,17 +133,21 @@ object frmSpringLogging: TfrmSpringLogging
     TabOrder = 5
   end
   object aclMain: TActionList
+    Images = dmResources.imlMain
     Left = 192
     Top = 160
     object actTrackThis: TAction
       Caption = 'Track this'
+      ImageIndex = 58
       OnExecute = actTrackThisExecute
     end
     object actWarn: TAction
       Caption = 'Warn'
+      ImageIndex = 388
     end
     object actLog: TAction
-      Caption = 'Log'
+      Caption = 'Log new entry'
+      ImageIndex = 486
       OnExecute = actLogExecute
     end
   end

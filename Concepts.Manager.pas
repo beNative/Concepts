@@ -20,17 +20,18 @@ interface
 
 uses
   System.Classes, System.Generics.Collections,
-  Vcl.Forms,
+  Vcl.Forms, Vcl.Graphics,
 
   Spring.Collections, Spring.Collections.Lists;
 
 type
   TConcept = class(TPersistent)
-  strict private
+  private
     FName        : string;
     FFormClass   : TComponentClass;
     FDescription : string;
     FCategory    : string;
+    FColor       : TColor;
 
     function GetSourceFilename: string;
 
@@ -43,6 +44,9 @@ type
 
     property Category: string
       read FCategory write FCategory;
+
+    property Color: TColor
+      read FColor write FColor;
 
     property FormClass: TComponentClass
       read FFormClass write FFormClass;
@@ -68,7 +72,8 @@ type
             AFormClass   : TComponentClass;
       const AName        : string = '';
       const ACategory    : string = '';
-      const ADescription : string = ''
+      const ADescription : string = '';
+            AColor       : TColor = clWhite
     ): Boolean; static;
 
     class property ItemList: IList<TConcept>
@@ -127,7 +132,7 @@ begin
 end;
 
 class function TConceptManager.Register(AFormClass: TComponentClass;
-  const AName, ACategory, ADescription: string): Boolean;
+  const AName, ACategory, ADescription: string; AColor: TColor): Boolean;
 var
   S : string;
   C : TConcept;
@@ -138,6 +143,7 @@ begin
   C.Category    := ACategory;
   C.Description := ADescription;
   C.FormClass   := AFormClass;
+  C.Color       := AColor;
   FList.Add(C);
   Result := True;
 end;

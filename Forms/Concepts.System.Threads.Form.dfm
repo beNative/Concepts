@@ -36,7 +36,6 @@ object frmThreads: TfrmThreads
     ParentDoubleBuffered = False
     ParentFont = False
     TabOrder = 0
-    ExplicitWidth = 379
   end
   object btnCreateAnonymousThreads: TButton
     Left = 8

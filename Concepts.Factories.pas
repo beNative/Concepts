@@ -215,7 +215,7 @@ const
     { Show the dropmark during drag'n drop operations. }
     toShowDropmark,
     { Display horizontal lines to simulate a grid. }
-    toShowHorzGridLines,
+//  toShowHorzGridLines,
     { Show static background instead of a tiled one. }
     toStaticBackground,
     { Show lines also at top level (does not show the hidden/internal root
