@@ -55,7 +55,6 @@ type
     procedure actFirstNameIsExecute(Sender: TObject);
     procedure actLastNameIsExecute(Sender: TObject);
     procedure actBothExecute(Sender: TObject);
-    procedure edtFirstNameChange(Sender: TObject);
 
   private
     FList        : IList<TContact>;
@@ -113,8 +112,8 @@ end;
 
 procedure TfrmCollections.actFirstNameIsExecute(Sender: TObject);
 var
-  SL          : TStringList;
-  C           : TContact;
+  SL : TStringList;
+  C  : TContact;
 begin
   DefinePredicates;
   SL := TStringList.Create;
@@ -159,7 +158,7 @@ var
   C : TContact;
 begin
   FList.Clear;
-  for I := 0 to 10000 do
+  for I := 0 to trbRecordCount.Position do
   begin
     C := TContact.Create;
     with C do
@@ -192,8 +191,8 @@ procedure TfrmCollections.actBothExecute(Sender: TObject);
 begin
   HourGlass(procedure
     var
-      SL         : TStringList;
-      C          : TContact;
+      SL : TStringList;
+      C  : TContact;
     begin
       DefinePredicates;
       SL := TStringList.Create;
@@ -220,16 +219,14 @@ begin
   end;
 end;
 
-procedure TfrmCollections.edtFirstNameChange(Sender: TObject);
-begin
-
-end;
-
 {$REGION 'protected methods'}
 procedure TfrmCollections.UpdateActions;
 begin
+  actFirstNameIs.Enabled := not FList.IsEmpty;
+  actLastNameIs.Enabled  := not FList.IsEmpty;
+  actBoth.Enabled        := not FList.IsEmpty;
   actFirstNameIs.Caption := Format(SFindContactsWithFirstName, [edtFirstName.Text]);
-  actLastNameIs.Caption := Format(SFindContactsWithLastName, [edtLastName.Text]);
+  actLastNameIs.Caption  := Format(SFindContactsWithLastName, [edtLastName.Text]);
   inherited UpdateActions;
 end;
 {$ENDREGION}

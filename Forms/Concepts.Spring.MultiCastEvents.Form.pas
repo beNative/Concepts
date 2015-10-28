@@ -24,25 +24,33 @@ uses
   System.Classes,
   Vcl.Controls, Vcl.StdCtrls, Vcl.Forms,
 
-  Concepts.Spring.MultiCastEvents.Data;
+  Concepts.Spring.MultiCastEvents.Data, Vcl.ComCtrls, Vcl.Buttons, Vcl.ExtCtrls,
+  System.Actions, Vcl.ActnList;
 
 type
   TfrmMulticastEvents = class(TForm)
     btnTriggerChangeEvent: TButton;
-
-    procedure btnTriggerChangeEventClick(Sender: TObject);
+    lblImageIndex: TLabel;
+    pnlImageIndex: TPanel;
+    pbrPosition: TProgressBar;
+    aclMain: TActionList;
+    actExecute: TAction;
+    btnExecute: TButton;
+    procedure actExecuteExecute(Sender: TObject);
 
   private
-    FTestComponent: TTestComponent;
+    FPosition: TPosition;
 
-    procedure TestComponentChange1(Sender: TObject);
-    procedure TestComponentChange2(Sender: TObject);
+    procedure FPositionOnChange(Sender: TObject);
 
   public
     procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
 
-    property TestComponent: TTestComponent
-      read FTestComponent;
+
+
+    property Position: TPosition
+      read FPosition;
 
   end;
 
@@ -51,34 +59,44 @@ implementation
 {$R *.dfm}
 
 uses
-  Vcl.Dialogs;
+  System.SysUtils,
+  Vcl.Dialogs,
+
+  Concepts.Resources, Concepts.Spring.MultiCastEvents.ChildForm;
 
 {$REGION 'construction and destruction'}
 procedure TfrmMulticastEvents.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FTestComponent := TTestComponent.Create(Self);
-  FTestComponent.OnChange.Add(TestComponentChange1);
-  FTestComponent.OnChange.Add(TestComponentChange2);
+  pbrPosition.Max := aclMain.Images.Count;
+  FPosition := TPosition.Create;
+  FPosition.OnChange.Add(FPositionOnChange);
+end;
+
+procedure TfrmMulticastEvents.BeforeDestruction;
+begin
+  FPosition.Free;
+  inherited BeforeDestruction;
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
-procedure TfrmMulticastEvents.btnTriggerChangeEventClick(Sender: TObject);
+procedure TfrmMulticastEvents.FPositionOnChange(Sender: TObject);
 begin
-  TestComponent.Change;
-end;
-
-procedure TfrmMulticastEvents.TestComponentChange1(Sender: TObject);
-begin
-  ShowMessage('TestComponent.OnChange -> TestComponentChange1')
-end;
-
-procedure TfrmMulticastEvents.TestComponentChange2(Sender: TObject);
-begin
-  ShowMessage('TestComponent.OnChange -> TestComponentChange2')
+  pnlImageIndex.Caption := FPosition.Position.ToString;
+  pbrPosition.Position  := FPosition.Position;
+  actExecute.ImageIndex := FPosition.Position;
 end;
 {$ENDREGION}
+
+
+procedure TfrmMulticastEvents.actExecuteExecute(Sender: TObject);
+var
+  F : TfrmMulticastEventsChild;
+begin
+  F := TfrmMulticastEventsChild.Create(Self, FPosition);
+  F.Show;
+end;
 
 end.
 
