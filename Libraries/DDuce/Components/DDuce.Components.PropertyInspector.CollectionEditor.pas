@@ -21,14 +21,15 @@ unit DDuce.Components.PropertyInspector.CollectionEditor;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.TypInfo,
-  System.Actions,
+  System.SysUtils, System.Classes, System.TypInfo,  System.Actions,
+  {$IFDEF DELPHIXE8UP}System.ImageList,{$ENDIF}
+
   Winapi.Windows,
-  Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.ActnList,
+  Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.ActnList, Vcl.ImgList, Vcl.ToolWin,
   Vcl.Controls, Vcl.Forms, Vcl.Menus,
 
 
-  DDuce.Components.PropertyInspector, Vcl.ImgList, Vcl.ToolWin, System.ImageList;
+  DDuce.Components.PropertyInspector;
 
 type
   TfrmCollectionEditor = class(TForm)
