@@ -61,7 +61,7 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <Icon_MainIcon>Concepts.ico</Icon_MainIcon>
         <DCC_BplOutput>.\Library\$(Platform)\$(Config)\</DCC_BplOutput>
-        <DCC_ExeOutput>.\Library\$(Platform)\$(Config)\ </DCC_ExeOutput>
+        <DCC_ExeOutput>.\Library\$(Platform)\$(Config)\</DCC_ExeOutput>
         <DCC_DcuOutput>.\Library\$(Platform)\$(Config)\</DCC_DcuOutput>
         <SanitizedProjectName>Concepts</SanitizedProjectName>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
@@ -909,13 +909,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <ModelSupport>False</ModelSupport>
         </BorlandProject>
