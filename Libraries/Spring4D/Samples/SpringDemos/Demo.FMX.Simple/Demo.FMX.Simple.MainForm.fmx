@@ -1,0 +1,24 @@
+object MainForm: TMainForm
+  Left = 0
+  Top = 0
+  Caption = 'MainForm'
+  ClientHeight = 567
+  ClientWidth = 384
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMobile = True
+  DesignerWidth = 384
+  DesignerHeight = 592
+  DesignerDeviceName = 'Google Nexus 4'
+  DesignerOrientation = 0
+  DesignerOSVersion = ''
+  object Label1: TLabel
+    Align = Center
+    AutoSize = True
+    Height = 22.000000000000000000
+    TextSettings.WordWrap = False
+    Text = 'Hello world'
+    Width = 91.000000000000000000
+  end
+end

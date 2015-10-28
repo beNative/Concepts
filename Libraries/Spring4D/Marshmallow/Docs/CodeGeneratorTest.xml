@@ -1,0 +1,458 @@
+<?xml version="1.0"?>
+<MDProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="www.metadrone.com.angry.army.1.0">
+  <Name>Marshmallow</Name>
+  <Profile>
+    <OpenEditorGUIDs>
+      <string>3d3125b7-837a-4ba9-b67f-f81f102833cc</string>
+      <string>6fc29b57-20fd-4363-bbbb-db2e5db30885</string>
+      <string>e5030459-b980-4726-8889-7b61b08b1da8</string>
+      <string>0bcf5651-f29d-4653-90e3-cad1b0f49dc2</string>
+      <string>95bd5328-c391-409a-ad16-602e852e388f</string>
+    </OpenEditorGUIDs>
+    <SelectedEditorGUID>95bd5328-c391-409a-ad16-602e852e388f</SelectedEditorGUID>
+  </Profile>
+  <Folders />
+  <Sources>
+    <Source>
+      <Name>Source</Name>
+      <Provider>SQLite</Provider>
+      <ConnectionString>Data Source=C:\Users\Linas\Dropbox\Code Samples\ORMGit\Data\sqlite.db3;Version=3;</ConnectionString>
+      <TableSchemaQuery>SELECT 
+    name, 
+    type 
+FROM 
+    SQLITE_MASTER 
+WHERE 
+    (type = 'table' OR type = 'view') 
+AND 
+    name &lt;&gt; 'sqlite_sequence' 
+ORDER BY 
+    name
+</TableSchemaQuery>
+      <ColumnSchemaQuery>PRAGMA TABLE_INFO('@TABLE_NAME')</ColumnSchemaQuery>
+      <TableNamePlaceHolder>@TABLE_NAME</TableNamePlaceHolder>
+      <Transformations>//Set column property values
+set table.lastpos = table.listpos = table.listcount
+set column.lastpos = column.listpos = column.listcount
+set column.sqltype = column.datatype
+set column.sqltypefullspec = column.datatype
+
+if column.datatype = "bit"
+	set column.vbtype = "Boolean"
+	set column.cstype = "bool"
+	set column.vbdefval = "False"
+	set column.csdefval = "false"
+	
+elseif column.datatype = "int" or column.datatype = "int identity" or column.datatype = "integer"
+	set column.vbtype = "Integer"
+	set column.cstype = "int"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	
+elseif column.datatype = "bigint" or column.datatype = "bigint identity"
+	set column.vbtype = "Int64"
+	set column.cstype = "int"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	
+elseif column.datatype = "smallint" or column.datatype = "smallint identity"
+	set column.vbtype = "Int16"
+	set column.cstype = "int"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	
+elseif column.datatype = "tinyint"
+	set column.vbtype = "Byte"
+	set column.cstype = "byte"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	
+elseif column.datatype = "varchar"
+	set column.vbtype = "string"
+	set column.cstype = "string"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	if column.length = -1
+		set column.sqltypefullspec = column.datatype + "(max)"
+	else
+		set column.sqltypefullspec = column.datatype + "(" + column.length + ")"
+	end
+	
+elseif column.datatype = "nvarchar"
+	set column.vbtype = "string"
+	set column.cstype = "string"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	if column.length = -1
+		set column.sqltypefullspec = column.datatype + "(max)"
+	else
+		set column.sqltypefullspec = column.datatype + "(" + column.length + ")"
+	end
+	
+elseif column.datatype = "text" or column.datatype = "ntext" or column.datatype = "xml" or column.datatype = "sysname"
+	set column.vbtype = "string"
+	set column.cstype = "string"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	
+elseif column.datatype = "char" or column.datatype = "nchar"
+	set column.vbtype = "string"
+	set column.cstype = "string"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	set column.sqltypefullspec = column.datatype + "(" + column.length + ")"
+	
+elseif column.datatype = "decimal" or column.datatype = "numeric"
+	set column.vbtype = "Double"
+	set column.cstype = "decimal"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	set column.sqltypefullspec = column.datatype + "(" + column.precision + "," + column.scale + ")"
+	
+elseif column.datatype = "float"
+	set column.vbtype = "Double"
+	set column.cstype = "double"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	
+elseif column.datatype = "real"
+	set column.vbtype = "Single"
+	set column.cstype = "float"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	
+elseif column.datatype = "money" or column.datatype = "smallmoney"
+	set column.vbtype = "Currency"
+	set column.cstype = "decimal"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	
+elseif column.datatype = "datetime" or column.datatype = "smalldatetime" or column.datatype = "timestamp"
+	set column.vbtype = "TDateTime"
+	set column.cstype = "DateTime"
+	set column.vbdefval = "System.DateTime.Now"
+	set column.csdefval = "System.DateTime.Now"
+	
+elseif column.datatype = "binary" or column.datatype = "image"
+	set column.vbtype = "TPicture"
+	set column.cstype = "byte[]"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	set column.sqltypefullspec = column.datatype + "(" + column.length + ")"
+	
+elseif column.datatype = "varbinary"
+	set column.vbtype = "TStream"
+	set column.cstype = "byte[]"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	if column.length = -1
+		set column.sqltypefullspec = column.datatype + "(max)"
+	else
+		set column.sqltypefullspec = column.datatype + "(" + column.length + ")"
+	end
+	
+elseif column.datatype = "sql_variant"
+	set column.vbtype = "Variant"
+	set column.cstype = "object"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	
+elseif column.datatype = "uniqueidentifier"
+	set column.vbtype = "TGUID"
+	set column.cstype = "Guid"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	
+else
+	set column.vbtype = column.datatype
+	set column.cstype = column.datatype
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	
+end
+
+
+
+
+//Set parameter property values
+set routine.lastpos = routine.listpos = routine.listcount
+set param.lastpos = column.listpos = column.listcount
+set param.sqltype = param.datatype
+set param.sqltypefullspec = param.datatype
+
+if param.datatype = "bit"
+	set param.vbtype = "Boolean"
+	set param.cstype = "bool"
+	set param.vbdefval = "False"
+	set param.csdefval = "false"
+	
+elseif param.datatype = "int" or param.datatype = "int identity"
+	set param.vbtype = "Integer"
+	set param.cstype = "int"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	
+elseif param.datatype = "bigint" or param.datatype = "bigint identity"
+	set param.vbtype = "Int64"
+	set param.cstype = "int"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	
+elseif param.datatype = "smallint" or param.datatype = "smallint identity"
+	set param.vbtype = "Int16"
+	set param.cstype = "int"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	
+elseif param.datatype = "tinyint"
+	set param.vbtype = "Byte"
+	set param.cstype = "byte"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	
+elseif param.datatype = "varchar"
+	set param.vbtype = "string"
+	set param.cstype = "string"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	if param.length = -1
+		set param.sqltypefullspec = param.datatype + "(max)"
+	else
+		set param.sqltypefullspec = param.datatype + "(" + param.length + ")"
+	end
+	
+elseif param.datatype = "nvarchar"
+	set param.vbtype = "string"
+	set param.cstype = "string"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	if param.length = -1
+		set param.sqltypefullspec = param.datatype + "(max)"
+	else
+		set param.sqltypefullspec = param.datatype + "(" + param.length + ")"
+	end
+	
+elseif param.datatype = "text" or param.datatype = "ntext" or param.datatype = "xml" or param.datatype = "sysname"
+	set param.vbtype = "string"
+	set param.cstype = "string"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	
+elseif param.datatype = "char" or param.datatype = "nchar"
+	set param.vbtype = "string"
+	set param.cstype = "string"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	set param.sqltypefullspec = param.datatype + "(" + param.length + ")"
+	
+elseif param.datatype = "decimal" or param.datatype = "numeric"
+	set param.vbtype = "Double"
+	set param.cstype = "decimal"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	set param.sqltypefullspec = param.datatype + "(" + param.precision + "," + param.scale + ")"
+	
+elseif param.datatype = "float"
+	set param.vbtype = "Double"
+	set param.cstype = "double"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	
+elseif param.datatype = "real"
+	set param.vbtype = "Single"
+	set param.cstype = "float"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	
+elseif param.datatype = "money" or param.datatype = "smallmoney"
+	set param.vbtype = "Currency"
+	set param.cstype = "decimal"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	
+elseif param.datatype = "datetime" or param.datatype = "smalldatetime" or param.datatype = "timestamp"
+	set param.vbtype = "TDateTime"
+	set param.cstype = "DateTime"
+	set param.vbdefval = "System.DateTime.Now"
+	set param.csdefval = "System.DateTime.Now"
+	
+elseif param.datatype = "binary" or param.datatype = "image"
+	set param.vbtype = "TPicture"
+	set param.cstype = "byte[]"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	set param.sqltypefullspec = param.datatype + "(" + param.length + ")"
+	
+elseif param.datatype = "varbinary"
+	set param.vbtype = "TStream"
+	set param.cstype = "byte[]"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	if param.length = -1
+		set param.sqltypefullspec = param.datatype + "(max)"
+	else
+		set param.sqltypefullspec = param.datatype + "(" + param.length + ")"
+	end
+	
+elseif param.datatype = "sql_variant"
+	set param.vbtype = "Variant"
+	set param.cstype = "object"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	
+elseif param.datatype = "uniqueidentifier"
+	set param.vbtype = "TGUID"
+	set param.cstype = "Guid"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	
+else
+	set param.vbtype = param.datatype
+	set param.cstype = param.datatype
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	
+end
+</Transformations>
+      <GUID>3d3125b7-837a-4ba9-b67f-f81f102833cc</GUID>
+    </Source>
+  </Sources>
+  <Packages>
+    <MDPackage>
+      <TagVal>
+        <GUID>88fb9881-115d-4f82-bd64-fe8ccd21bd63</GUID>
+      </TagVal>
+      <Name>CodeGenerator</Name>
+      <Properties>
+        <EditorGUID>6fc29b57-20fd-4363-bbbb-db2e5db30885</EditorGUID>
+        <OwnerGUID>88fb9881-115d-4f82-bd64-fe8ccd21bd63</OwnerGUID>
+        <BeginTag>&lt;&lt;!</BeginTag>
+        <EndTag>!&gt;&gt;</EndTag>
+      </Properties>
+      <Main>
+        <EditorGUID>e5030459-b980-4726-8889-7b61b08b1da8</EditorGUID>
+        <OwnerGUID>88fb9881-115d-4f82-bd64-fe8ccd21bd63</OwnerGUID>
+        <Text>//**** Preprocessors ******
+#ignorecase on  // case sensitivity of string comparisons
+#safebegin = "" // begin of safe zone
+#safeend = ""   // end of safe zone
+
+//**** Define globals ******
+set MainConn = sources.Source
+set BasePath = "C:\users\linas\dropbox\code samples\ORMGit\Docs\Models\"
+set outputpath = BasePath + "\"
+makedir(outputpath)
+set sqlitepath = outputpath + "SQLite\"
+makedir(sqlitepath)
+
+
+// Perform any file operations
+//makedir("create\directory")
+//filecopy("source file","dest file")
+
+// or any command line operations
+//command("file name","arguments")
+//command("rename ","source.file dest.file")
+
+//call DelphiCodeGenerator
+call SQLiteCodeGenerator
+</Text>
+      </Main>
+      <Folders />
+      <Templates>
+        <Template>
+          <Name>DelphiCodeGenerator</Name>
+          <EditorGUID>0bcf5651-f29d-4653-90e3-cad1b0f49dc2</EditorGUID>
+          <OwnerGUID>88fb9881-115d-4f82-bd64-fe8ccd21bd63</OwnerGUID>
+          <Text>&lt;&lt;!header
+    is DelphiCodeGenerator()
+    for table tablevar in MainConn
+    return BasePath + tablevar + "_Model.pas"
+    
+end!&gt;&gt;
+unit &lt;&lt;!tablevar!&gt;&gt;_Model;
+&lt;&lt;!set typestart = "&lt;"!&gt;&gt;
+&lt;&lt;!set typeend = "&gt;"!&gt;&gt;
+&lt;&lt;!set schema = ""!&gt;&gt;
+&lt;&lt;!set space = "  "!&gt;&gt;
+
+interface
+
+uses
+  Mapping.Attributes, Core.Types, Graphics;
+
+type
+  [Entity]   
+  [Table('&lt;&lt;!tablevar!&gt;&gt;', '&lt;&lt;!schema!&gt;&gt;')]
+  T&lt;&lt;!tablevar!&gt;&gt; = class
+&lt;&lt;!space!&gt;&gt;  private  &lt;&lt;!for column col in tablevar!&gt;&gt; 
+    F&lt;&lt;!col!&gt;&gt;: &lt;&lt;!if col.nullable!&gt;&gt;Nullable&lt;&lt;!typestart!&gt;&gt;&lt;&lt;!end!&gt;&gt;&lt;&lt;!col.vbtype!&gt;&gt;&lt;&lt;!if col.nullable!&gt;&gt;&lt;&lt;!typeend!&gt;&gt;&lt;&lt;!end!&gt;&gt;;&lt;&lt;!end!&gt;&gt; 
+  public
+  &lt;&lt;!for column col2 in tablevar!&gt;&gt;
+  &lt;&lt;!if col2.isidentity!&gt;&gt;
+    [AutoGenerated]
+  &lt;&lt;!end!&gt;&gt;
+    [Column('&lt;&lt;!col2!&gt;&gt;', [&lt;&lt;!if col2.isprimarykey!&gt;&gt;cpPrimaryKey&lt;&lt;!end!&gt;&gt;], &lt;&lt;!col2.length!&gt;&gt;, &lt;&lt;!col2.precision!&gt;&gt;, &lt;&lt;!col2.scale!&gt;&gt;, '')]
+    property &lt;&lt;!col2!&gt;&gt;: &lt;&lt;!if col2.nullable!&gt;&gt;Nullable&lt;&lt;!typestart!&gt;&gt;&lt;&lt;!end!&gt;&gt;&lt;&lt;!col2.vbtype!&gt;&gt;&lt;&lt;!if col2.nullable!&gt;&gt;&lt;&lt;!typeend!&gt;&gt;&lt;&lt;!end!&gt;&gt; read F&lt;&lt;!col2!&gt;&gt; write F&lt;&lt;!col2!&gt;&gt;; 
+  &lt;&lt;!end!&gt;&gt;  
+  end;
+  
+implementation    
+  
+end.
+
+
+</Text>
+        </Template>
+        <Template>
+          <Name>SQLiteCodeGenerator</Name>
+          <EditorGUID>95bd5328-c391-409a-ad16-602e852e388f</EditorGUID>
+          <OwnerGUID>88fb9881-115d-4f82-bd64-fe8ccd21bd63</OwnerGUID>
+          <Text>&lt;&lt;!header
+    is SQLiteCodeGenerator()
+    
+    for table tablevar in MainConn
+    return sqlitepath + tablevar + "_Model.pas"
+    
+end!&gt;&gt;
+unit &lt;&lt;!tablevar!&gt;&gt;_Model;
+&lt;&lt;!set typestart = "&lt;"!&gt;&gt;
+&lt;&lt;!set typeend = "&gt;"!&gt;&gt;
+&lt;&lt;!set schema = ""!&gt;&gt;
+&lt;&lt;!set space = "  "!&gt;&gt;
+
+interface
+
+uses
+  Mapping.Attributes, Core.Types, Graphics;
+
+type
+  [Entity]   
+  [Table('&lt;&lt;!tablevar!&gt;&gt;', '&lt;&lt;!schema!&gt;&gt;')]
+  T&lt;&lt;!tablevar!&gt;&gt; = class
+&lt;&lt;!space!&gt;&gt;  private  &lt;&lt;!for column col in tablevar!&gt;&gt; 
+    F&lt;&lt;!col!&gt;&gt;: &lt;&lt;!if not col.nullable!&gt;&gt;Nullable&lt;&lt;!typestart!&gt;&gt;&lt;&lt;!end!&gt;&gt;&lt;&lt;!col.vbtype!&gt;&gt;&lt;&lt;!if not col.nullable!&gt;&gt;&lt;&lt;!typeend!&gt;&gt;&lt;&lt;!end!&gt;&gt;;&lt;&lt;!end!&gt;&gt; 
+  public
+  &lt;&lt;!for column col2 in tablevar!&gt;&gt;
+  &lt;&lt;!if col2.isidentity!&gt;&gt;
+    [AutoGenerated]
+  &lt;&lt;!end!&gt;&gt;
+    [Column('&lt;&lt;!col2!&gt;&gt;', [&lt;&lt;!if col2.isprimarykey!&gt;&gt;cpPrimaryKey&lt;&lt;!end!&gt;&gt;], &lt;&lt;!col2.length!&gt;&gt;, &lt;&lt;!col2.precision!&gt;&gt;, &lt;&lt;!col2.scale!&gt;&gt;, '')]
+    property &lt;&lt;!col2!&gt;&gt;: &lt;&lt;!if not col2.nullable!&gt;&gt;Nullable&lt;&lt;!typestart!&gt;&gt;&lt;&lt;!end!&gt;&gt;&lt;&lt;!col2.vbtype!&gt;&gt;&lt;&lt;!if not col2.nullable!&gt;&gt;&lt;&lt;!typeend!&gt;&gt;&lt;&lt;!end!&gt;&gt; read F&lt;&lt;!col2!&gt;&gt; write F&lt;&lt;!col2!&gt;&gt;; 
+  &lt;&lt;!end!&gt;&gt;  
+  end;
+  
+implementation    
+  
+end.
+
+
+</Text>
+        </Template>
+      </Templates>
+      <VBCode />
+      <CSCode />
+    </MDPackage>
+  </Packages>
+  <Bin />
+</MDProject>

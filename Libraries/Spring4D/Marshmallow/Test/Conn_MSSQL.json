@@ -1,0 +1,6 @@
+{
+    "ADODB.TADOConnection": {
+        "LoginPrompt": "False",
+        "ConnectionString": "Provider=SQLOLEDB.1;Password=master;Persist Security Info=True;User ID=VIKARINA;Initial Catalog=dujos_demo;Data Source=FILE_SERVER"
+    }
+}

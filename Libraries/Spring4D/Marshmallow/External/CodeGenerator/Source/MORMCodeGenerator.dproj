@@ -1,0 +1,113 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{FC211F67-A158-4714-B051-E670FF78EB10}</ProjectGuid>
+			<ProjectVersion>12.3</ProjectVersion>
+			<MainSource>MORMCodeGenerator.dpr</MainSource>
+			<Base>True</Base>
+			<Config Condition="'$(Config)'==''">Debug</Config>
+			<Platform>Win32</Platform>
+			<AppType>Application</AppType>
+			<FrameworkType>VCL</FrameworkType>
+			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
+			<Cfg_1>true</Cfg_1>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
+			<Cfg_2>true</Cfg_2>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_UnitSearchPath>..\..\..\;..\..\Spring\Source\Base;..\..\Spring\Source\Base\Collections;..\..\delphi-oop\Persistence;..\..\delphi-oop\Core;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_MapFile>3</DCC_MapFile>
+			<DCC_UsePackage>rtl;vcl;dbrtl;dbvt;adortl;VirtualTreesR;pck_FindFile_XE;vcldb;pckVikDBSaverDsgnXE;JvCore;vclimg;vclx;pckVikGridEditorXE;JvRuntimeDesign;JvDlgs;JvStdCtrls;Jcl;JvXPCtrls;PngComponents;EhLib11;maControls;CodeSiteExpressVcl;vclactnband;vcldbx;bdertl;xmlrtl;dsnap;dsnapcon;dbxcds;dbexpress;DbxCommonDriver;DBXInterBaseDriver;DBXMySQLDriver;vclib;ibxpress;vclie;inet;IndyProtocols;inetdbbde;inetdbxpress;webdsnap;vclribbon;VclSmp;soaprtl;svnui;svn;vcltouch;inetdb;websnap;frxADO15;frxBDE15;frxcs15;frx15;frxDB15;frxDBX15;frxe15;frxIBX15;frxTee15;fsADO15;fs15;fsBDE15;fsDB15;fsIBX15;fsTee15;IndyCore;IndySystem;JclVcl;JvSystem;JvAppFrm;JvBands;JvDB;JvBDE;JvControls;JvCustom;JvDocking;JvDotNetCtrls;JvCrypt;JvGlobus;JvHMI;JvPascalInterpreter;JvJans;JvManagedThreads;JvCmp;JvMM;JvNet;JvPageComps;JclDeveloperTools;JvPluginSystem;JvPrintPreview;JvTimeFramework;JvWizards;mxProtector_d15;EasyListviewD15;psc_d15_runtime;Rave90VCL;SMCmpntXE;TeeUI;TeeDB;Tee;O407br;O407_r;intrawebdb_110_150;Intraweb_110_150;pckVikStruView;pckVikBar</DCC_UsePackage>
+			<DCC_ImageBase>00400000</DCC_ImageBase>
+			<DCC_DcuOutput>.\$(Config)\$(Platform)\DCU</DCC_DcuOutput>
+			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
+			<DCC_ExeOutput>.\$(Config)\$(Platform)</DCC_ExeOutput>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1)'!=''">
+			<DCC_WriteableConstants>true</DCC_WriteableConstants>
+			<DCC_DebugDCUs>true</DCC_DebugDCUs>
+			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+			<DCC_Optimize>false</DCC_Optimize>
+			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+			<DCC_DebugInformation>false</DCC_DebugInformation>
+		</PropertyGroup>
+		<ItemGroup>
+			<DelphiCompile Include="MORMCodeGenerator.dpr">
+				<MainSource>MainSource</MainSource>
+			</DelphiCompile>
+			<DCCReference Include="MainView.pas">
+				<Form>ViewMain</Form>
+			</DCCReference>
+			<DCCReference Include="MainRunner.pas"/>
+			<BuildConfiguration Include="Release">
+				<Key>Cfg_2</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Base">
+				<Key>Base</Key>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Debug">
+				<Key>Cfg_1</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+		</ItemGroup>
+		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')" Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
+		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
+		<ProjectExtensions>
+			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Delphi.Personality>
+					<Source>
+						<Source Name="MainSource">MORMCodeGenerator.dpr</Source>
+					</Source>
+					<VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">False</VersionInfo>
+						<VersionInfo Name="MajorVer">1</VersionInfo>
+						<VersionInfo Name="MinorVer">0</VersionInfo>
+						<VersionInfo Name="Release">0</VersionInfo>
+						<VersionInfo Name="Build">0</VersionInfo>
+						<VersionInfo Name="Debug">False</VersionInfo>
+						<VersionInfo Name="PreRelease">False</VersionInfo>
+						<VersionInfo Name="Special">False</VersionInfo>
+						<VersionInfo Name="Private">False</VersionInfo>
+						<VersionInfo Name="DLL">False</VersionInfo>
+						<VersionInfo Name="Locale">1063</VersionInfo>
+						<VersionInfo Name="CodePage">1257</VersionInfo>
+					</VersionInfo>
+					<VersionInfoKeys>
+						<VersionInfoKeys Name="CompanyName">&quot;Vikarina&quot;</VersionInfoKeys>
+						<VersionInfoKeys Name="FileDescription"/>
+						<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="InternalName"/>
+						<VersionInfoKeys Name="LegalCopyright"/>
+						<VersionInfoKeys Name="LegalTrademarks"/>
+						<VersionInfoKeys Name="OriginalFilename"/>
+						<VersionInfoKeys Name="ProductName"/>
+						<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="Comments"/>
+					</VersionInfoKeys>
+				</Delphi.Personality>
+				<Platforms>
+					<Platform value="Win32">True</Platform>
+				</Platforms>
+			</BorlandProject>
+			<ProjectFileVersion>12</ProjectFileVersion>
+		</ProjectExtensions>
+	</Project>

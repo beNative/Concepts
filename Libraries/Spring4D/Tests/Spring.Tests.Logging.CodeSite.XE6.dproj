@@ -1,0 +1,174 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{15133380-3E16-46FF-AAAD-8E6989FD67D9}</ProjectGuid>
+        <ProjectVersion>15.4</ProjectVersion>
+        <FrameworkType>None</FrameworkType>
+        <MainSource>Spring.Tests.Logging.CodeSite.dpr</MainSource>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <TargetedPlatforms>3</TargetedPlatforms>
+        <AppType>Console</AppType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Android' and '$(Base)'=='true') or '$(Base_Android)'!=''">
+        <Base_Android>true</Base_Android>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSDevice' and '$(Base)'=='true') or '$(Base_iOSDevice)'!=''">
+        <Base_iOSDevice>true</Base_iOSDevice>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSSimulator' and '$(Base)'=='true') or '$(Base_iOSSimulator)'!=''">
+        <Base_iOSSimulator>true</Base_iOSSimulator>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='OSX32' and '$(Base)'=='true') or '$(Base_OSX32)'!=''">
+        <Base_OSX32>true</Base_OSX32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+        <Cfg_1_Win32>true</Cfg_1_Win32>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Define>SPRING_ENABLE_GUARD;SPRING_NO_WARNING;$(DCC_Define)</DCC_Define>
+        <DCC_UnitSearchPath>..\Source\Base;..\Source\Base\Collections;..\Source\Base\Reflection;..\Source\Base\Logging;..\Source\Core\Container;..\Source\Core\Services;..\Source\Core\Logging;..\Source\Extensions\Utils;..\Source\Extensions\Cryptography;.\Source\dUnit;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <SanitizedProjectName>Spring_Tests_Logging_CodeSite_XE6</SanitizedProjectName>
+        <Manifest_File>None</Manifest_File>
+        <VerInfo_Locale>1029</VerInfo_Locale>
+        <DCC_DcuOutput>Lib\DelphiXE6\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_ExeOutput>Bin\DelphiXE6\$(Platform)\$(Config)</DCC_ExeOutput>
+        <DCC_E>false</DCC_E>
+        <DCC_N>false</DCC_N>
+        <DCC_S>false</DCC_S>
+        <DCC_F>false</DCC_F>
+        <DCC_K>false</DCC_K>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Android)'!=''">
+        <Android_LauncherIcon48>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_48x48.png</Android_LauncherIcon48>
+        <DCC_UsePackage>FireDACSqliteDriver;bindcompfmx;DBXSqliteDriver;RESTBackendComponents;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;FireDACCommon;bindcomp;tethering;DBXInterBaseDriver;xmlrtl;ibxpress;DbxCommonDriver;IndyProtocols;dbxcds;FireDACCommonDriver;bindcompdbx;soaprtl;bindengine;FMXTee;fmxFireDAC;CustomIPTransport;FireDAC;dsnap;IndyIPServer;IndyCore;IndyIPCommon;CloudService;FireDACIBDriver;FmxTeeUI;inet;soapmidas;soapserver;dsnapxml;RESTComponents;DelphiPackage;dbexpress;IndyIPClient;$(DCC_UsePackage)</DCC_UsePackage>
+        <Android_LauncherIcon96>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_96x96.png</Android_LauncherIcon96>
+        <Android_LauncherIcon144>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png</Android_LauncherIcon144>
+        <Android_LauncherIcon36>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_36x36.png</Android_LauncherIcon36>
+        <Android_LauncherIcon72>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_72x72.png</Android_LauncherIcon72>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_iOSDevice)'!=''">
+        <DCC_UsePackage>FireDACSqliteDriver;bindcompfmx;DBXSqliteDriver;RESTBackendComponents;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;FireDACCommon;bindcomp;tethering;DBXInterBaseDriver;xmlrtl;ibxpress;DbxCommonDriver;IndyProtocols;dbxcds;FireDACCommonDriver;bindcompdbx;soaprtl;bindengine;FMXTee;fmxFireDAC;CustomIPTransport;FireDAC;dsnap;IndyIPServer;fmxase;IndyCore;IndyIPCommon;CloudService;FireDACIBDriver;FmxTeeUI;inet;soapmidas;soapserver;dsnapxml;RESTComponents;dbexpress;IndyIPClient;$(DCC_UsePackage)</DCC_UsePackage>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_iOSSimulator)'!=''">
+        <DCC_UsePackage>FireDACSqliteDriver;bindcompfmx;DBXSqliteDriver;RESTBackendComponents;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;FireDACCommon;bindcomp;tethering;DBXInterBaseDriver;xmlrtl;ibxpress;DbxCommonDriver;IndyProtocols;dbxcds;FireDACCommonDriver;bindcompdbx;soaprtl;bindengine;FMXTee;fmxFireDAC;CustomIPTransport;FireDAC;dsnap;IndyIPServer;fmxase;IndyCore;IndyIPCommon;CloudService;FireDACIBDriver;FmxTeeUI;inet;soapmidas;soapserver;dsnapxml;RESTComponents;dbexpress;IndyIPClient;$(DCC_UsePackage)</DCC_UsePackage>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_OSX32)'!=''">
+        <DCC_ConsoleTarget>true</DCC_ConsoleTarget>
+        <DCC_UsePackage>FireDACASADriver;FireDACSqliteDriver;bindcompfmx;DBXSqliteDriver;FireDACPgDriver;FireDACODBCDriver;RESTBackendComponents;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;FireDACCommon;bindcomp;inetdb;tethering;DBXInterBaseDriver;xmlrtl;ibxpress;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;FireDACCommonDriver;bindcompdbx;soaprtl;bindengine;FMXTee;fmxFireDAC;FireDACADSDriver;CustomIPTransport;FireDAC;dsnap;IndyIPServer;fmxase;IndyCore;IndyIPCommon;CloudService;FireDACIBDriver;FmxTeeUI;inet;fmxobj;FireDACMySQLDriver;soapmidas;soapserver;inetdbxpress;dsnapxml;fmxdae;RESTComponents;FireDACMSAccDriver;dbexpress;IndyIPClient;$(DCC_UsePackage)</DCC_UsePackage>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <DCC_UsePackage>FireDACASADriver;FireDACSqliteDriver;bindcompfmx;DBXSqliteDriver;vcldbx;FireDACPgDriver;FireDACODBCDriver;RESTBackendComponents;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;FireDACCommon;bindcomp;inetdb;tethering;TeeDB;inetdbbde;vclib;DBXInterBaseDriver;Tee;vclFireDAC;xmlrtl;svnui;ibxpress;DbxCommonDriver;CommonControls.XE6;vclimg;IndyProtocols;DBXMySQLDriver;dbxcds;FireDACCommonDriver;MetropolisUILiveTile;bindcompdbx;soaprtl;bindengine;vclactnband;vcldb;vcldsnap;bindcompvcl;FMXTee;TeeUI;CommonVisualizers.XE6;vclie;fmxFireDAC;FireDACADSDriver;vcltouch;CustomIPTransport;vclribbon;VclSmp;FireDAC;dsnap;IndyIPServer;Intraweb;fmxase;vcl;IndyCore;VCLRESTComponents;IndyIPCommon;CloudService;CodeSiteExpressPkg;dsnapcon;FireDACIBDriver;FmxTeeUI;inet;fmxobj;FireDACMySQLDriver;soapmidas;vclx;soapserver;inetdbxpress;svn;dsnapxml;fmxdae;RESTComponents;bdertl;DelphiPackage;FireDACMSAccDriver;dbexpress;adortl;IndyIPClient;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_ConsoleTarget>true</DCC_ConsoleTarget>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <DCC_ConsoleTarget>true</DCC_ConsoleTarget>
+        <DCC_UsePackage>FireDACASADriver;FireDACSqliteDriver;bindcompfmx;DBXSqliteDriver;FireDACPgDriver;FireDACODBCDriver;RESTBackendComponents;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;FireDACCommon;bindcomp;inetdb;tethering;TeeDB;vclib;DBXInterBaseDriver;Tee;vclFireDAC;xmlrtl;ibxpress;DbxCommonDriver;vclimg;IndyProtocols;DBXMySQLDriver;dbxcds;FireDACCommonDriver;MetropolisUILiveTile;bindcompdbx;soaprtl;bindengine;vclactnband;vcldb;vcldsnap;bindcompvcl;FMXTee;TeeUI;vclie;fmxFireDAC;FireDACADSDriver;vcltouch;CustomIPTransport;vclribbon;VclSmp;FireDAC;dsnap;IndyIPServer;Intraweb;fmxase;vcl;IndyCore;VCLRESTComponents;IndyIPCommon;CloudService;dsnapcon;FireDACIBDriver;FmxTeeUI;inet;fmxobj;FireDACMySQLDriver;soapmidas;vclx;soapserver;inetdbxpress;dsnapxml;fmxdae;RESTComponents;DelphiPackage;FireDACMSAccDriver;dbexpress;adortl;IndyIPClient;$(DCC_UsePackage)</DCC_UsePackage>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_DebugDCUs>true</DCC_DebugDCUs>
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+        <DCC_RemoteDebug>true</DCC_RemoteDebug>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Manifest_File>None</Manifest_File>
+        <DCC_RemoteDebug>false</DCC_RemoteDebug>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="..\Source\Base\Logging\Spring.Logging.Appenders.CodeSite.pas"/>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k200.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp200.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k200.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp200.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
+                <Source>
+                    <Source Name="MainSource">Spring.Tests.Logging.CodeSite.dpr</Source>
+                </Source>
+            </Delphi.Personality>
+            <Deployment/>
+            <Platforms>
+                <Platform value="Android">False</Platform>
+                <Platform value="iOSDevice">False</Platform>
+                <Platform value="iOSSimulator">False</Platform>
+                <Platform value="OSX32">False</Platform>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">True</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+</Project>

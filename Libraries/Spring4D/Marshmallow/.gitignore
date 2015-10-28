@@ -1,0 +1,52 @@
+# SVN files
+.svn
+
+# history files
+__history
+
+
+# compiled unit
+*.dcu
+*.jdbg
+*.drc
+
+
+# temp files
+*.dproj.local
+*.identcache
+
+# binaries
+*.bpl
+*.exe
+*.dll
+Win32\*
+Win64\*
+DCU
+
+*.obj
+*.tds
+*.pdi
+*.res
+*.dsk
+*.~*
+*.gex
+*.map
+*.rsm  
+*.db
+*.db3 
+
+!sqlite3.dll
+!bson.dll
+!mongoc.dll
+!/Packages/Marshmallow.res
+!/Packages/ObjectDataset.res
+!/Packages/ObjectDataset_Design_XE.res
+ 
+/Demos/GettingStarted/Release/Win32/*.db3
+
+/Demos/GettingStarted/Debug/Win32/*.db3
+/Test/Debug/Win32/SvDUnit.prop
+Test/Debug/Win64/ORMTests.rsm
+*.spp
+Test/Debug/Win32/dunit.ini
+Test/Release/

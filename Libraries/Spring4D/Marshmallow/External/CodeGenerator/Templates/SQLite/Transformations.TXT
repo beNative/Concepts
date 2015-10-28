@@ -1,0 +1,282 @@
+//Set column property values
+set table.lastpos = table.listpos = table.listcount
+set column.lastpos = column.listpos = column.listcount
+set column.sqltype = column.datatype
+set column.sqltypefullspec = column.datatype
+
+if column.datatype = "bit"
+	set column.vbtype = "Boolean"
+	set column.cstype = "bool"
+	set column.vbdefval = "False"
+	set column.csdefval = "false"
+	
+elseif column.datatype = "int" or column.datatype = "int identity" or column.datatype = "integer"
+	set column.vbtype = "Integer"
+	set column.cstype = "int"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	
+elseif column.datatype = "bigint" or column.datatype = "bigint identity"
+	set column.vbtype = "Int64"
+	set column.cstype = "int"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	
+elseif column.datatype = "smallint" or column.datatype = "smallint identity"
+	set column.vbtype = "Int16"
+	set column.cstype = "int"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	
+elseif column.datatype = "tinyint"
+	set column.vbtype = "Byte"
+	set column.cstype = "byte"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	
+elseif column.datatype = "varchar"
+	set column.vbtype = "string"
+	set column.cstype = "string"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	if column.length = -1
+		set column.sqltypefullspec = column.datatype + "(max)"
+	else
+		set column.sqltypefullspec = column.datatype + "(" + column.length + ")"
+	end
+	
+elseif column.datatype = "nvarchar"
+	set column.vbtype = "string"
+	set column.cstype = "string"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	if column.length = -1
+		set column.sqltypefullspec = column.datatype + "(max)"
+	else
+		set column.sqltypefullspec = column.datatype + "(" + column.length + ")"
+	end
+	
+elseif column.datatype = "text" or column.datatype = "ntext" or column.datatype = "xml" or column.datatype = "sysname"
+	set column.vbtype = "string"
+	set column.cstype = "string"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	
+elseif column.datatype = "char" or column.datatype = "nchar"
+	set column.vbtype = "string"
+	set column.cstype = "string"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	set column.sqltypefullspec = column.datatype + "(" + column.length + ")"
+	
+elseif column.datatype = "decimal" or column.datatype = "numeric"
+	set column.vbtype = "Double"
+	set column.cstype = "decimal"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	set column.sqltypefullspec = column.datatype + "(" + column.precision + "," + column.scale + ")"
+	
+elseif column.datatype = "float"
+	set column.vbtype = "Double"
+	set column.cstype = "double"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	
+elseif column.datatype = "real"
+	set column.vbtype = "Single"
+	set column.cstype = "float"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	
+elseif column.datatype = "money" or column.datatype = "smallmoney"
+	set column.vbtype = "Currency"
+	set column.cstype = "decimal"
+	set column.vbdefval = 0
+	set column.csdefval = 0
+	
+elseif column.datatype = "datetime" or column.datatype = "smalldatetime" or column.datatype = "timestamp"
+	set column.vbtype = "TDateTime"
+	set column.cstype = "DateTime"
+	set column.vbdefval = "System.DateTime.Now"
+	set column.csdefval = "System.DateTime.Now"
+	
+elseif column.datatype = "binary" or column.datatype = "image"
+	set column.vbtype = "TPicture"
+	set column.cstype = "byte[]"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	set column.sqltypefullspec = column.datatype + "(" + column.length + ")"
+	
+elseif column.datatype = "varbinary"
+	set column.vbtype = "TStream"
+	set column.cstype = "byte[]"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	if column.length = -1
+		set column.sqltypefullspec = column.datatype + "(max)"
+	else
+		set column.sqltypefullspec = column.datatype + "(" + column.length + ")"
+	end
+	
+elseif column.datatype = "sql_variant"
+	set column.vbtype = "Variant"
+	set column.cstype = "object"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	
+elseif column.datatype = "uniqueidentifier"
+	set column.vbtype = "TGUID"
+	set column.cstype = "Guid"
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	
+else
+	set column.vbtype = column.datatype
+	set column.cstype = column.datatype
+	set column.vbdefval = "Nothing"
+	set column.csdefval = "null"
+	
+end
+
+
+
+
+//Set parameter property values
+set routine.lastpos = routine.listpos = routine.listcount
+set param.lastpos = column.listpos = column.listcount
+set param.sqltype = param.datatype
+set param.sqltypefullspec = param.datatype
+
+if param.datatype = "bit"
+	set param.vbtype = "Boolean"
+	set param.cstype = "bool"
+	set param.vbdefval = "False"
+	set param.csdefval = "false"
+	
+elseif param.datatype = "int" or param.datatype = "int identity"
+	set param.vbtype = "Integer"
+	set param.cstype = "int"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	
+elseif param.datatype = "bigint" or param.datatype = "bigint identity"
+	set param.vbtype = "Int64"
+	set param.cstype = "int"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	
+elseif param.datatype = "smallint" or param.datatype = "smallint identity"
+	set param.vbtype = "Int16"
+	set param.cstype = "int"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	
+elseif param.datatype = "tinyint"
+	set param.vbtype = "Byte"
+	set param.cstype = "byte"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	
+elseif param.datatype = "varchar"
+	set param.vbtype = "string"
+	set param.cstype = "string"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	if param.length = -1
+		set param.sqltypefullspec = param.datatype + "(max)"
+	else
+		set param.sqltypefullspec = param.datatype + "(" + param.length + ")"
+	end
+	
+elseif param.datatype = "nvarchar"
+	set param.vbtype = "string"
+	set param.cstype = "string"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	if param.length = -1
+		set param.sqltypefullspec = param.datatype + "(max)"
+	else
+		set param.sqltypefullspec = param.datatype + "(" + param.length + ")"
+	end
+	
+elseif param.datatype = "text" or param.datatype = "ntext" or param.datatype = "xml" or param.datatype = "sysname"
+	set param.vbtype = "string"
+	set param.cstype = "string"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	
+elseif param.datatype = "char" or param.datatype = "nchar"
+	set param.vbtype = "string"
+	set param.cstype = "string"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	set param.sqltypefullspec = param.datatype + "(" + param.length + ")"
+	
+elseif param.datatype = "decimal" or param.datatype = "numeric"
+	set param.vbtype = "Double"
+	set param.cstype = "decimal"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	set param.sqltypefullspec = param.datatype + "(" + param.precision + "," + param.scale + ")"
+	
+elseif param.datatype = "float"
+	set param.vbtype = "Double"
+	set param.cstype = "double"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	
+elseif param.datatype = "real"
+	set param.vbtype = "Single"
+	set param.cstype = "float"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	
+elseif param.datatype = "money" or param.datatype = "smallmoney"
+	set param.vbtype = "Currency"
+	set param.cstype = "decimal"
+	set param.vbdefval = 0
+	set param.csdefval = 0
+	
+elseif param.datatype = "datetime" or param.datatype = "smalldatetime" or param.datatype = "timestamp"
+	set param.vbtype = "TDateTime"
+	set param.cstype = "DateTime"
+	set param.vbdefval = "System.DateTime.Now"
+	set param.csdefval = "System.DateTime.Now"
+	
+elseif param.datatype = "binary" or param.datatype = "image"
+	set param.vbtype = "TPicture"
+	set param.cstype = "byte[]"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	set param.sqltypefullspec = param.datatype + "(" + param.length + ")"
+	
+elseif param.datatype = "varbinary"
+	set param.vbtype = "TStream"
+	set param.cstype = "byte[]"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	if param.length = -1
+		set param.sqltypefullspec = param.datatype + "(max)"
+	else
+		set param.sqltypefullspec = param.datatype + "(" + param.length + ")"
+	end
+	
+elseif param.datatype = "sql_variant"
+	set param.vbtype = "Variant"
+	set param.cstype = "object"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	
+elseif param.datatype = "uniqueidentifier"
+	set param.vbtype = "TGUID"
+	set param.cstype = "Guid"
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	
+else
+	set param.vbtype = param.datatype
+	set param.cstype = param.datatype
+	set param.vbdefval = "Nothing"
+	set param.csdefval = "null"
+	
+end

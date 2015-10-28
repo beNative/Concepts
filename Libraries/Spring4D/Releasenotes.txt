@@ -1,0 +1,41 @@
+Release 1.1 - 12.09.2014
+
+Fixed bugs:
+
+- interface sometimes were wrongly treated as delegate types (issue #23)
+- component registration was treated as recursive (issue #18)
+- resolving an interface as one of its parent types raised invalid cast (issue #20)
+- of a delegate type derived interface was not recognized as such
+- a type that was explicitly registered as lazy type was not resolved properly
+- a delegate type was registered twice
+- generic type argument(s) of a possibly lazy type could not be found
+- TRttiTypeHelper.GetGenericArguments was broken
+- state of some iterator classes was not set to finished correctly
+- multicast events raised an error when handler was added or removed during execution
+- adding and removing handlers was not threadsafe
+- multicast events for a delegate type did not handle reference count of the delegates properly
+
+Breaking changes:
+- changed ResolveAll to only return named registrations
+- moved container related types from Spring.Services to new unit Spring.Container.Common
+- removed the IResolver interface and the OnResolve event
+- renamed IContainerContext to IKernel
+- renamed DependencyResolver property to Resolver
+
+Improvements:
+- various improvements on Build.exe
+- implemented TVirtualInterface for Delphi XE
+- implemented automatic factory registration
+- added properties to IReflection that return only class or interface types
+- added container extension for stricter constructor detection
+- removed the use of TBuffer in enumerable extensions
+- improved ToArray for some types
+- refactored some internal classes of TContainer and combined service and dependency resolver into one
+- implemented support for registering any type into the container
+- added several methods to TCollections to work with IEnumerable
+- added more unit tests
+- added support for injecting derived types in fields and properties
+- implemented multimap
+- several small improvements and fixes to the collection types
+- implemented an easy to use Lock type that wraps a critical section
+- support for XE7

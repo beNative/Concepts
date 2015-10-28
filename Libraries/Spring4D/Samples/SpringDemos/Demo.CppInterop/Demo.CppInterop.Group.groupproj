@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{8E7ED21D-F418-475F-AD20-D64C47ADCEB3}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Demo.CppInterop.Console.cbproj">
+            <Dependencies>DelphiPackage.dproj</Dependencies>
+        </Projects>
+        <Projects Include="Demo.CppInterop.Fmx.cbproj">
+            <Dependencies>DelphiPackage.dproj</Dependencies>
+        </Projects>
+        <Projects Include="DelphiPackage.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Demo_CppInterop_Console" DependsOnTargets="DelphiPackage">
+        <MSBuild Projects="Demo.CppInterop.Console.cbproj"/>
+    </Target>
+    <Target Name="Demo_CppInterop_Console:Clean" DependsOnTargets="DelphiPackage:Clean">
+        <MSBuild Projects="Demo.CppInterop.Console.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Demo_CppInterop_Console:Make" DependsOnTargets="DelphiPackage:Make">
+        <MSBuild Projects="Demo.CppInterop.Console.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Demo_CppInterop_Fmx" DependsOnTargets="DelphiPackage">
+        <MSBuild Projects="Demo.CppInterop.Fmx.cbproj"/>
+    </Target>
+    <Target Name="Demo_CppInterop_Fmx:Clean" DependsOnTargets="DelphiPackage:Clean">
+        <MSBuild Projects="Demo.CppInterop.Fmx.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Demo_CppInterop_Fmx:Make" DependsOnTargets="DelphiPackage:Make">
+        <MSBuild Projects="Demo.CppInterop.Fmx.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="DelphiPackage">
+        <MSBuild Projects="DelphiPackage.dproj"/>
+    </Target>
+    <Target Name="DelphiPackage:Clean">
+        <MSBuild Projects="DelphiPackage.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DelphiPackage:Make">
+        <MSBuild Projects="DelphiPackage.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Demo_CppInterop_Console;Demo_CppInterop_Fmx;DelphiPackage"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Demo_CppInterop_Console:Clean;Demo_CppInterop_Fmx:Clean;DelphiPackage:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Demo_CppInterop_Console:Make;Demo_CppInterop_Fmx:Make;DelphiPackage:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
