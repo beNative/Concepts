@@ -60,7 +60,6 @@ object frmThreads: TfrmThreads
         Width = 200
       end>
     StyleElements = [seFont, seClient]
-    ExplicitWidth = 395
   end
   object btnTerminateThreads: TButton
     Left = 8

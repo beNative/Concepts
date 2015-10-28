@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Spring.Logging.Form;
 
 { Demonstrates the Spring Logging system.

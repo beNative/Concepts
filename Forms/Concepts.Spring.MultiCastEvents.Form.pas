@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Spring.MultiCastEvents.Form;
 
 { Form demonstrating Spring multicast events (IEvent<T/Event<T>. }

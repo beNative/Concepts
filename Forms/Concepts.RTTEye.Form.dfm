@@ -29,8 +29,6 @@ object frmRTTEye: TfrmRTTEye
     Font.Style = []
     ParentFont = False
     TabOrder = 0
-    ExplicitWidth = 695
-    ExplicitHeight = 439
     object splVertical: TSplitter
       Left = 317
       Top = 6
@@ -59,8 +57,6 @@ object frmRTTEye: TfrmRTTEye
       OnChange = tvRttiChange
       OnCustomDrawItem = tvRttiCustomDrawItem
       OnDblClick = tvRttiDblClick
-      ExplicitWidth = 363
-      ExplicitHeight = 427
     end
     object lvRtti: TListView
       Left = 6
@@ -88,7 +84,6 @@ object frmRTTEye: TfrmRTTEye
       ParentFont = False
       TabOrder = 1
       ViewStyle = vsReport
-      ExplicitHeight = 427
     end
   end
   object pnlBottom: TPanel
@@ -99,8 +94,6 @@ object frmRTTEye: TfrmRTTEye
     Align = alBottom
     BorderWidth = 5
     TabOrder = 1
-    ExplicitTop = 439
-    ExplicitWidth = 695
     DesignSize = (
       857
       41)

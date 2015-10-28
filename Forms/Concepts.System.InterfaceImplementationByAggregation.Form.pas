@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.System.InterfaceImplementationByAggregation.Form;
 
 { Form demonstrating how an object can implement an interface by delegating

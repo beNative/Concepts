@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Spring.Utils.Form;
 
 interface
@@ -34,12 +36,5 @@ type
 implementation
 
 {$R *.dfm}
-
-
-
-
-
-
-
 
 end.

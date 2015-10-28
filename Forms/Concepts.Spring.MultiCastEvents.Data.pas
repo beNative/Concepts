@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Spring.MultiCastEvents.Data;
 
 { Test component with multicast TNotifyEvent support. }

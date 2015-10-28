@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.System.VirtualInterface.Form;
 
 { Form demonstrating how to use the System.Rtti.TVirtualInterface class, which

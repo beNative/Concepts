@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.System.AnonymousMethods.Form;
 
 { Form demonstrating the variable (not value) capturing by anonymous methods.

@@ -31,7 +31,6 @@ object frmMulticastEvents: TfrmMulticastEvents
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Trigger TestComponent  OnChange event'
     TabOrder = 0
-    ExplicitWidth = 225
   end
   object pnlImageIndex: TPanel
     Left = 82

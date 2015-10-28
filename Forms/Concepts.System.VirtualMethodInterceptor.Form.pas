@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.System.VirtualMethodInterceptor.Form;
 
 { Form demonstrating how to use the TVirtualMethodInterceptor class. }

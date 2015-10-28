@@ -42,10 +42,9 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
           Left = 3
           Top = 3
           Width = 815
-          Height = 493
+          Height = 492
           Align = alClient
           TabOrder = 0
-          ExplicitHeight = 492
           object tvwMain: TcxGridTableView
             Navigator.Buttons.CustomButtons = <>
             DataController.Options = [dcoAssignGroupingValues, dcoAssignMasterDetailKeys, dcoSaveExpanding, dcoFocusTopRowAfterSorting]
@@ -69,6 +68,10 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
       object tsTreelist: TTabSheet
         Caption = 'DevExpress TcxVirtualTreelist'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lstMain: TcxVirtualTreeList
           AlignWithMargins = True
           Left = 3
@@ -145,6 +148,10 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
       object tsVirtualTree: TTabSheet
         Caption = 'Virtual Treeview - TVirtualStringTree'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object vstMain: TVirtualStringTree
           AlignWithMargins = True
           Left = 3

@@ -186,10 +186,6 @@
             <Form>frmThreading</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Concepts.TestForm.pas">
-            <Form>frmTest</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="Forms\Concepts.System.AnonymousMethods.Form.pas">
             <Form>frmAnonymousMethods</Form>
             <FormType>dfm</FormType>
@@ -208,10 +204,6 @@
         </DCCReference>
         <DCCReference Include="Forms\Concepts.System.VirtualInterface.Form.pas">
             <Form>frmVirtualInterfaceDemo</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Forms\Concepts.System.InterfacedComponent.Form.pas">
-            <Form>frmInterfacedComponent</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.DSharp.Bindings.Form.pas">
@@ -408,7 +400,6 @@
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.FireDAC.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.MSSQL.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.Oracle.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.SQLite.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.AbstractSession.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Base.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ConnectionFactory.pas"/>
@@ -939,13 +930,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <ModelSupport>False</ModelSupport>
         </BorlandProject>

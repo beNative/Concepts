@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.DSharp.Bindings.Form;
 
 { Form demonstrating DSharp bindings with custom validation rules. }

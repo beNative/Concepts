@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.DSharp.TreeViewPresenter.Form;
 
 { Form demonstrating the usage of the DSharp TTreeViewPresenter which simplifies

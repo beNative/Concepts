@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Spring.Collections.Form;
 
 { Demonstrates the use of Spring collections. }

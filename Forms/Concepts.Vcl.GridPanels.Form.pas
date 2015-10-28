@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Vcl.GridPanels.Form;
 
 { Form demonstrating the use of the VCL TGridPanel component and a reorganize

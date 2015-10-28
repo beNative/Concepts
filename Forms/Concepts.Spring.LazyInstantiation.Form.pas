@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Spring.LazyInstantiation.Form;
 
 { Demonstrates lazy instantiation with Spring.Lazy<T>. }

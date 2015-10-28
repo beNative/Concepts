@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Winapi.LockPaint.Form;
 
 { Form demonstrating the effect of the WM_SETREDRAW windows messages and how

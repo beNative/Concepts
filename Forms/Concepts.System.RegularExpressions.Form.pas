@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.System.RegularExpressions.Form;
 
 { Demonstrates the RTL's System.RegularExpressions unit and the use of

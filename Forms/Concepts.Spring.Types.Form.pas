@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Spring.Types.Form;
 
 interface
@@ -39,8 +41,6 @@ type
 implementation
 
 {$R *.dfm}
-
-{ TfrmSpringTypes }
 
 procedure TfrmSpringTypes.AfterConstruction;
 var

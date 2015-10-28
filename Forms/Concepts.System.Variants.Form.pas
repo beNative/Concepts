@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.System.Variants.Form;
 
 { Form demonstrating some operations and conversions on Delphi Variants }

@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Factories;
 
 { Factories for some commonly used components and objects. }

@@ -43,7 +43,6 @@ object frmLiveBindings: TfrmLiveBindings
       DropDownCount = 20
       TabOrder = 0
       OnChange = cbxControlsChange
-      ExplicitWidth = 251
     end
   end
   object pnlRight: TPanel
@@ -60,8 +59,6 @@ object frmLiveBindings: TfrmLiveBindings
     Font.Style = []
     ParentFont = False
     TabOrder = 1
-    ExplicitLeft = 263
-    ExplicitWidth = 367
     object lblLabel: TLabel
       Left = 17
       Top = 97

@@ -21,7 +21,6 @@ object frmPropertyInspector: TfrmPropertyInspector
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 680
     object splSplitter: TSplitter
       Left = 313
       Top = 0
@@ -62,7 +61,6 @@ object frmPropertyInspector: TfrmPropertyInspector
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitWidth = 359
       DesignSize = (
         517
         567)
@@ -106,7 +104,6 @@ object frmPropertyInspector: TfrmPropertyInspector
       Panels = <>
       ParentShowHint = False
       ShowHint = True
-      ExplicitWidth = 680
     end
   end
 end

@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.System.Threading.Form;
 
 { Demonstration of the new Delphi XE7 - System.Threading unit, which is also
@@ -38,14 +40,20 @@ implementation
 
 {$R *.dfm}
 
+{$IFDEF DELPHIXE7UP}
 uses
   System.Threading;
+{$ENDIF}
 
 procedure TfrmThreading.FormCreate(Sender: TObject);
+{$IFDEF DELPHIXE7UP}
 var
   T : TProc<Integer>;
+{$ENDIF}
 begin
+  {$IFDEF DELPHIXE7UP}
   TParallel.For(1, 10, T);
+  {$ENDIF}
 end;
 
 end.

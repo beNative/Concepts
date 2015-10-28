@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Spring.ObjectDataSet.Form;
 
 { Demonstrates how TObjectDataSet can represent content of a Spring collection:
@@ -33,7 +35,6 @@ uses
 
   Spring, Spring.Collections, Spring.Persistence.ObjectDataSet,
 
-//  DSharp.Bindings, DSharp.Bindings.VCLControls,
   DSharp.Windows.TreeViewPresenter,
 
   Concepts.Types.Contact, Concepts.Resources;

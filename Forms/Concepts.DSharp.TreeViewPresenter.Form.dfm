@@ -31,8 +31,6 @@ object frmTreeViewPresenter: TfrmTreeViewPresenter
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitLeft = 0
-    ExplicitWidth = 667
   end
   object pnlBottom: TPanel
     Left = 0
