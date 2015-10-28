@@ -2,8 +2,8 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Concepts'
-  ClientHeight = 636
-  ClientWidth = 1008
+  ClientHeight = 504
+  ClientWidth = 751
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,16 +17,18 @@ object frmMain: TfrmMain
   object pnlVST: TPanel
     Left = 0
     Top = 0
-    Width = 1008
-    Height = 583
+    Width = 751
+    Height = 451
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 1008
+    ExplicitHeight = 583
     object edtFilter: TEdit
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 1002
+      Width = 745
       Height = 21
       Align = alTop
       Font.Charset = DEFAULT_CHARSET
@@ -39,20 +41,23 @@ object frmMain: TfrmMain
       OnChange = edtFilterChange
       OnKeyDown = edtFilterKeyDown
       OnKeyUp = edtFilterKeyUp
+      ExplicitWidth = 1002
     end
   end
   object sbrMain: TStatusBar
     Left = 0
-    Top = 617
-    Width = 1008
+    Top = 485
+    Width = 751
     Height = 19
     Panels = <>
     SimplePanel = True
+    ExplicitTop = 617
+    ExplicitWidth = 1008
   end
   object pnlButtons: TGridPanel
     Left = 0
-    Top = 583
-    Width = 1008
+    Top = 451
+    Width = 751
     Height = 34
     Align = alBottom
     ColumnCollection = <
@@ -86,11 +91,13 @@ object frmMain: TfrmMain
         Value = 100.000000000000000000
       end>
     TabOrder = 2
+    ExplicitTop = 583
+    ExplicitWidth = 1008
     object btnExecute: TButton
       AlignWithMargins = True
-      Left = 349
+      Left = 260
       Top = 4
-      Width = 326
+      Width = 241
       Height = 26
       Action = actExecute
       Align = alClient
@@ -99,12 +106,14 @@ object frmMain: TfrmMain
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 0
+      ExplicitLeft = 349
+      ExplicitWidth = 326
     end
     object btnClose: TButton
       AlignWithMargins = True
-      Left = 681
+      Left = 507
       Top = 4
-      Width = 323
+      Width = 240
       Height = 26
       Action = actClose
       Align = alClient
@@ -113,12 +122,14 @@ object frmMain: TfrmMain
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 1
+      ExplicitLeft = 681
+      ExplicitWidth = 323
     end
     object btnExecuteModal: TButton
       AlignWithMargins = True
       Left = 4
       Top = 4
-      Width = 339
+      Width = 250
       Height = 26
       Action = actExecuteModal
       Align = alClient
@@ -128,6 +139,7 @@ object frmMain: TfrmMain
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 2
+      ExplicitWidth = 339
     end
   end
   object aclMain: TActionList

@@ -19,8 +19,8 @@
 unit Concepts.Spring.ObjectDataSet.Form;
 
 { Demonstrates how TObjectDataSet can represent content of a Spring collection:
-//    - DSharp bindings
     - Spring ObjectDataSet
+    - DSharp TreeViewPresenter
 }
 
 interface
@@ -168,29 +168,29 @@ end;
 {$REGION 'action handlers'}
 procedure TfrmObjectDataSet.actConnectDataSetExecute(Sender: TObject);
 begin
-  ConnectDataSet;
+  HourGlass(ConnectDataSet);
 end;
 
 procedure TfrmObjectDataSet.actConnectPresenterExecute(Sender: TObject);
 begin
-  ConnectPresenter;
+  HourGlass(ConnectPresenter);
 end;
 
 procedure TfrmObjectDataSet.actDisconnectDataSetExecute(Sender: TObject);
 begin
-  DisconnectDataSet;
+  HourGlass(DisconnectDataSet);
 end;
 
 procedure TfrmObjectDataSet.actDisconnectPresenterExecute(Sender: TObject);
 begin
-  DisconnectPresenter;
+  HourGlass(DisconnectPresenter);
 end;
 
 procedure TfrmObjectDataSet.actFillListExecute(Sender: TObject);
 begin
   DisconnectPresenter;
   DisconnectDataSet;
-  FillList;
+  HourGlass(FillList);
 end;
 {$ENDREGION}
 
@@ -245,8 +245,10 @@ end;
 {$REGION 'private methods'}
 procedure TfrmObjectDataSet.FillList;
 begin
-  TConceptFactories.FillListWithContacts(FList as IObjectList,
-  StrToInt(edtRecordCount.Text));
+  TConceptFactories.FillListWithContacts(
+    FList as IObjectList,
+    StrToInt(edtRecordCount.Text)
+  );
 end;
 
 procedure TfrmObjectDataSet.ConnectDataSet;
@@ -262,7 +264,7 @@ begin
   if not Assigned(FTVP) then
   begin
     FTVP := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList as IObjectList);
-    FVST.Header.AutoFitColumns;
+    FTVP.TreeView.Header.AutoFitColumns;
 //    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Firstname', edtFirstname);
 //    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Lastname', edtLastname);
 //    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Address', edtAddress);

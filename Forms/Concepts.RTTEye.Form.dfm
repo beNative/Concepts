@@ -110,7 +110,7 @@ object frmRTTEye: TfrmRTTEye
       Images = dmResources.imlMain
       TabOrder = 0
     end
-    object btnExpand1: TButton
+    object btnExpand: TButton
       Left = 6
       Top = 6
       Width = 120
@@ -123,7 +123,7 @@ object frmRTTEye: TfrmRTTEye
       Images = dmResources.imlMain
       TabOrder = 1
     end
-    object btnCollapse1: TButton
+    object btnCollapse: TButton
       Left = 132
       Top = 6
       Width = 120

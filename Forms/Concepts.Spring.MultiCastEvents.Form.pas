@@ -23,22 +23,24 @@ unit Concepts.Spring.MultiCastEvents.Form;
 interface
 
 uses
-  System.Classes,
-  Vcl.Controls, Vcl.StdCtrls, Vcl.Forms,
-
-  Concepts.Spring.MultiCastEvents.Data, Vcl.ComCtrls, Vcl.Buttons, Vcl.ExtCtrls,
-  System.Actions, Vcl.ActnList;
+  System.Classes, System.Actions,
+  Vcl.Controls, Vcl.StdCtrls, Vcl.Forms, Vcl.ComCtrls, Vcl.Buttons, Vcl.ExtCtrls,
+  Vcl.ActnList,
+  Concepts.Spring.MultiCastEvents.Data;
 
 type
   TfrmMulticastEvents = class(TForm)
-    btnTriggerChangeEvent: TButton;
-    lblImageIndex: TLabel;
-    pnlImageIndex: TPanel;
-    pbrPosition: TProgressBar;
-    aclMain: TActionList;
-    actExecute: TAction;
-    btnExecute: TButton;
+    lblImageIndex : TLabel;
+    pnlImageIndex : TPanel;
+    pbrPosition   : TProgressBar;
+    aclMain       : TActionList;
+    actExecute    : TAction;
+    btnExecute    : TButton;
+    trbImageIndex : TTrackBar;
+
     procedure actExecuteExecute(Sender: TObject);
+    procedure trbImageIndexChange(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
 
   private
     FPosition: TPosition;
@@ -49,11 +51,8 @@ type
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
 
-
-
     property Position: TPosition
       read FPosition;
-
   end;
 
 implementation
@@ -70,7 +69,8 @@ uses
 procedure TfrmMulticastEvents.AfterConstruction;
 begin
   inherited AfterConstruction;
-  pbrPosition.Max := aclMain.Images.Count;
+  pbrPosition.Max   := aclMain.Images.Count;
+  trbImageIndex.Max := aclMain.Images.Count;
   FPosition := TPosition.Create;
   FPosition.OnChange.Add(FPositionOnChange);
 end;
@@ -85,13 +85,25 @@ end;
 {$REGION 'event handlers'}
 procedure TfrmMulticastEvents.FPositionOnChange(Sender: TObject);
 begin
-  pnlImageIndex.Caption := FPosition.Position.ToString;
-  pbrPosition.Position  := FPosition.Position;
-  actExecute.ImageIndex := FPosition.Position;
+  pnlImageIndex.Caption  := FPosition.Position.ToString;
+  pbrPosition.Position   := FPosition.Position;
+  actExecute.ImageIndex  := FPosition.Position;
+  trbImageIndex.Position := FPosition.Position;
+end;
+
+procedure TfrmMulticastEvents.trbImageIndexChange(Sender: TObject);
+begin
+  FPosition.Position := trbImageIndex.Position;
+end;
+
+procedure TfrmMulticastEvents.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  Action := caFree;
 end;
 {$ENDREGION}
 
-
+{$REGION 'action handlers'}
 procedure TfrmMulticastEvents.actExecuteExecute(Sender: TObject);
 var
   F : TfrmMulticastEventsChild;
@@ -99,6 +111,7 @@ begin
   F := TfrmMulticastEventsChild.Create(Self, FPosition);
   F.Show;
 end;
+{$ENDREGION}
 
 end.
 

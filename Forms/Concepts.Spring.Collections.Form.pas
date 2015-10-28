@@ -39,7 +39,7 @@ uses
 type
   TfrmCollections = class(TForm)
     aclMain            : TActionList;
-    actCreateList      : TAction;
+    actPopulateList    : TAction;
     actEnumerate       : TAction;
     actFirstNameIs     : TAction;
     actLastNameIs      : TAction;
@@ -52,8 +52,9 @@ type
     actBoth            : TAction;
     btnBoth            : TButton;
     trbRecordCount     : TTrackBar;
+    lblRecordCount     : TLabel;
 
-    procedure actCreateListExecute(Sender: TObject);
+    procedure actPopulateListExecute(Sender: TObject);
     procedure actFirstNameIsExecute(Sender: TObject);
     procedure actLastNameIsExecute(Sender: TObject);
     procedure actBothExecute(Sender: TObject);
@@ -63,16 +64,14 @@ type
     FFirstNameIs : TPredicate<TContact>;
     FLastNameIs  : TPredicate<TContact>;
 
+    procedure PopulateList;
+    procedure DefinePredicates;
+
   protected
     procedure UpdateActions; override;
 
   public
-    procedure FillList;
-
-    procedure HourGlass(AProc: TProc);
-
     procedure AfterConstruction; override;
-    procedure DefinePredicates;
 
   end;
 
@@ -83,9 +82,9 @@ implementation
 uses
   Vcl.Dialogs,
 
-  DDuce.RandomData,
+  DDuce.RandomData, DDuce.ScopedReference,
 
-  Concepts.Factories, Concepts.Resources;
+  Concepts.Factories, Concepts.Resources, Concepts.Utils;
 
 resourcestring
   SFindContactsWithFirstName = 'Find all contacts with first name = %s';
@@ -100,82 +99,73 @@ end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
-procedure TfrmCollections.actCreateListExecute(Sender: TObject);
+procedure TfrmCollections.actPopulateListExecute(Sender: TObject);
 begin
-  Screen.Cursor := crHourGlass;
-  try
-    FList.Clear;
-    TConceptFactories.FillListWithContacts(FList as IObjectList, trbRecordCount.Position);
-    ShowMessage('Contactlist has been created.');
-  finally
-    Screen.Cursor := crDefault;
-  end;
+  HourGlass(PopulateList);
+  ShowMessage('Contactlist has been created.');
 end;
 
 procedure TfrmCollections.actFirstNameIsExecute(Sender: TObject);
-var
-  SL : TStringList;
-  C  : TContact;
 begin
-  DefinePredicates;
-  SL := TStringList.Create;
-  try
-    for C in FList.Where(FFirstNameIs) do
+  HourGlass(procedure
+    var
+      SL : Scoped<TStringList>;
+      C  : TContact;
     begin
-      SL.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
-    end;
-    mmoList.Text := SL.Text;
-  finally
-    SL.Free;
-  end;
+      DefinePredicates;
+      for C in FList.Where(FFirstNameIs) do
+      begin
+        SL.Ref.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
+      end;
+      mmoList.Lines.Assign(SL);
+    end
+  );
 end;
 
 procedure TfrmCollections.actLastNameIsExecute(Sender: TObject);
 begin
   HourGlass(procedure
     var
-      SL         : TStringList;
-      C          : TContact;
+      SL : Scoped<TStringList>;
+      C  : TContact;
     begin
       DefinePredicates;
-      SL := TStringList.Create;
-      try
-        for C in FList.Where(FLastNameIs) do
-        begin
-          SL.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
-        end;
-        mmoList.Text := SL.Text;
-      finally
-        SL.Free;
+      for C in FList.Where(FLastNameIs) do
+      begin
+        SL.Ref.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
       end;
+      mmoList.Lines.Assign(SL);
+    end
+  );
+end;
+
+procedure TfrmCollections.actBothExecute(Sender: TObject);
+begin
+  HourGlass(procedure
+    var
+      SL : Scoped<TStringList>;
+      C  : TContact;
+    begin
+      DefinePredicates;
+      for C in FList.Where(FLastNameIs).Where(FFirstNameIs) do
+      begin
+        SL.Ref.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
+      end;
+      mmoList.Lines.Assign(SL);
     end
   );
 end;
 {$ENDREGION}
 
-{$REGION 'public methods'}
-procedure TfrmCollections.FillList;
-var
-  I : Integer;
-  C : TContact;
+{$REGION 'private methods'}
+procedure TfrmCollections.PopulateList;
 begin
   FList.Clear;
-  for I := 0 to trbRecordCount.Position do
-  begin
-    C := TContact.Create;
-    with C do
-    begin
-      Firstname   := RandomData.FirstName(gnMale);
-      Lastname    := RandomData.LastName;
-      CompanyName := RandomData.CompanyName;
-      Email       := RandomData.Email(Firstname, Lastname);
-      Address     := RandomData.Address;
-      Number      := RandomData.Number(100);
-    end;
-    FList.Add(C);
-  end;
+  TConceptFactories.FillListWithContacts(
+    FList as IObjectList,
+    trbRecordCount.Position
+  );
 end;
-{$ENDREGION}
 
 procedure TfrmCollections.DefinePredicates;
 begin
@@ -183,43 +173,13 @@ begin
   begin
     Result := AC.Firstname = edtFirstName.Text;
   end;
+
   FLastNameIs := function(const AC: TContact): Boolean
   begin
     Result := AC.Lastname = edtLastName.Text;
   end;
 end;
-
-procedure TfrmCollections.actBothExecute(Sender: TObject);
-begin
-  HourGlass(procedure
-    var
-      SL : TStringList;
-      C  : TContact;
-    begin
-      DefinePredicates;
-      SL := TStringList.Create;
-      try
-        for C in FList.Where(FLastNameIs).Where(FFirstNameIs) do
-        begin
-          SL.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
-        end;
-        mmoList.Text := SL.Text;
-      finally
-        SL.Free;
-      end;
-    end
-  );
-end;
-
-procedure TfrmCollections.HourGlass(AProc: TProc);
-begin
-  Screen.Cursor := crHourGlass;
-  try
-    AProc();
-  finally
-    Screen.Cursor := crDefault;
-  end;
-end;
+{$ENDREGION}
 
 {$REGION 'protected methods'}
 procedure TfrmCollections.UpdateActions;

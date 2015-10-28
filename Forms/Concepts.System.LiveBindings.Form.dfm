@@ -147,7 +147,7 @@ object frmLiveBindings: TfrmLiveBindings
     SimpleText = 'TPanel, Width: 348, Height: 440'
   end
   object edt1: TEdit
-    Left = 269
+    Left = 320
     Top = 368
     Width = 121
     Height = 21
@@ -155,7 +155,7 @@ object frmLiveBindings: TfrmLiveBindings
     Text = 'edt1'
   end
   object edt2: TEdit
-    Left = 407
+    Left = 447
     Top = 368
     Width = 121
     Height = 21

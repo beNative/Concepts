@@ -72,7 +72,6 @@ type
     ): Boolean;
     procedure FTVPFilter(Item: TObject; var Accepted: Boolean);
     procedure FTVPDoubleClick(Sender: TObject);
-
     procedure FVSTKeyPress(Sender: TObject; var Key: Char);
 
     procedure InitializePresenter;

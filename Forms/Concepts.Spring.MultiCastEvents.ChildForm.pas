@@ -21,8 +21,9 @@ unit Concepts.Spring.MultiCastEvents.ChildForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.Actions, Vcl.ActnList,
+  Winapi.Windows, Winapi.Messages,
+  System.SysUtils, System.Variants, System.Classes, System.Actions,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList,
   Vcl.StdCtrls, Vcl.Buttons, Vcl.ComCtrls, Vcl.ExtCtrls,
 
   Concepts.Spring.MultiCastEvents.Data;
@@ -32,6 +33,7 @@ type
     aclMain       : TActionList;
     actTest       : TAction;
     trbImageIndex : TTrackBar;
+
     procedure trbImageIndexChange(Sender: TObject);
 
   private
@@ -46,7 +48,6 @@ type
     ); reintroduce; virtual;
   end;
 
-
 implementation
 
 {$R *.dfm}
@@ -54,16 +55,19 @@ implementation
 uses
   Concepts.Resources;
 
-
+{$REGION 'construction and destruction'}
 constructor TfrmMulticastEventsChild.Create(AOwner: TComponent;
   APosition: TPosition);
 begin
   inherited Create(AOwner);
-  trbImageIndex.Max := aclMain.Images.Count;
   FPosition := APosition;
   FPosition.OnChange.Add(FPositionOnChange);
+  trbImageIndex.Max      := aclMain.Images.Count;
+  trbImageIndex.Position := FPosition.Position;
 end;
+{$ENDREGION}
 
+{$REGION 'event handlers'}
 procedure TfrmMulticastEventsChild.FPositionOnChange(Sender: TObject);
 begin
   trbImageIndex.Position := FPosition.Position;
@@ -74,5 +78,6 @@ procedure TfrmMulticastEventsChild.trbImageIndexChange(Sender: TObject);
 begin
   FPosition.Position := trbImageIndex.Position;
 end;
+{$ENDREGION}
 
 end.

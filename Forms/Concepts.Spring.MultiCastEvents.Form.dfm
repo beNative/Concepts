@@ -2,8 +2,8 @@ object frmMulticastEvents: TfrmMulticastEvents
   Left = 0
   Top = 0
   Caption = 'Multicast events'
-  ClientHeight = 246
-  ClientWidth = 359
+  ClientHeight = 88
+  ClientWidth = 287
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,56 +11,66 @@ object frmMulticastEvents: TfrmMulticastEvents
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnClose = FormClose
   DesignSize = (
-    359
-    246)
+    287
+    88)
   PixelsPerInch = 96
   TextHeight = 13
   object lblImageIndex: TLabel
-    Left = 16
-    Top = 192
+    Left = 8
+    Top = 9
     Width = 62
     Height = 13
     Caption = 'ImageIndex:'
   end
-  object btnTriggerChangeEvent: TButton
-    Left = 8
-    Top = 8
-    Width = 347
-    Height = 25
-    Anchors = [akLeft, akTop, akRight]
-    Caption = 'Trigger TestComponent  OnChange event'
-    TabOrder = 0
-  end
   object pnlImageIndex: TPanel
-    Left = 82
-    Top = 180
+    Left = 76
+    Top = 4
     Width = 30
     Height = 22
-    TabOrder = 1
+    BevelOuter = bvNone
+    TabOrder = 0
   end
   object pbrPosition: TProgressBar
-    Left = 155
-    Top = 180
-    Width = 174
+    Left = 8
+    Top = 34
+    Width = 272
     Height = 21
-    TabOrder = 2
+    Anchors = [akLeft, akTop, akRight]
+    TabOrder = 1
+    ExplicitWidth = 265
   end
   object btnExecute: TButton
-    Left = 155
-    Top = 128
-    Width = 166
+    Left = 107
+    Top = 3
+    Width = 173
     Height = 25
     Action = actExecute
+    Anchors = [akLeft, akTop, akRight]
+    Default = True
+    ImageMargins.Left = 4
     Images = dmResources.imlMain
+    TabOrder = 2
+    ExplicitWidth = 166
+  end
+  object trbImageIndex: TTrackBar
+    Left = 8
+    Top = 61
+    Width = 272
+    Height = 24
+    Anchors = [akLeft, akTop, akRight]
+    ShowSelRange = False
     TabOrder = 3
+    OnChange = trbImageIndexChange
+    ExplicitWidth = 265
   end
   object aclMain: TActionList
     Images = dmResources.imlMain
-    Left = 176
-    Top = 72
+    Left = 248
+    Top = 8
     object actExecute: TAction
-      Caption = 'Execute'
+      Caption = 'Execute childform'
       OnExecute = actExecuteExecute
     end
   end

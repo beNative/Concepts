@@ -21,7 +21,7 @@ unit Concepts.Utils;
 interface
 
 uses
-  System.Classes, System.Rtti, System.TypInfo,
+  System.Classes, System.Rtti, System.TypInfo, System.SysUtils,
   Vcl.Controls, Vcl.Graphics,
 
   Data.DB;
@@ -45,6 +45,8 @@ function AsPropString(AValue: TValue): string;
 function AsFieldString(AValue: TValue): string;
 
 procedure FixControlStylesForDrag(AParent: TControl);
+
+procedure HourGlass(AProc: TProc);
 
 procedure LockPaint(AControl: TWinControl);
 
@@ -75,7 +77,8 @@ implementation
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.StrUtils, System.Variants, System.Character;
+  System.StrUtils, System.Variants, System.Character,
+  Vcl.Forms;
 
 var
   FRtti: TRttiContext;
@@ -310,6 +313,16 @@ begin
         AppendLine(Result, Format('%-*s = %s', [N, F.Name, S]));
       end;
     end;
+  end;
+end;
+
+procedure HourGlass(AProc: TProc);
+begin
+  Screen.Cursor := crHourGlass;
+  try
+    AProc();
+  finally
+    Screen.Cursor := crDefault;
   end;
 end;
 

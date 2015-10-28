@@ -179,13 +179,13 @@ class procedure TConcepts.RegisterDSharpConcepts;
 begin
   {$IFDEF DSHARP}
   FCategoryColor := $00B0FFFF;
-  ConceptManager.Register(
-    TfrmBindings,
-    'Bindings',
-    'DSharp',
-    'DSharp bindings',
-    FCategoryColor
-  );
+//  ConceptManager.Register(
+//    TfrmBindings,
+//    'Bindings',
+//    'DSharp',
+//    'DSharp bindings',
+//    FCategoryColor
+//  );
   ConceptManager.Register(
     TfrmTreeViewPresenter,
     'TreeViewPresenter',

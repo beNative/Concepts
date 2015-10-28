@@ -352,6 +352,7 @@ object frmObjectDataSet: TfrmObjectDataSet
         BevelOuter = bvNone
         FullRepaint = False
         TabOrder = 1
+        Visible = False
         object edtFirstname: TLabeledEdit
           Left = 8
           Top = 42

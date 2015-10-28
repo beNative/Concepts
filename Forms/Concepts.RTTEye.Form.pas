@@ -21,29 +21,29 @@ unit Concepts.RTTEye.Form;
 interface
 
 uses
-  System.Actions, System.Classes, System.Rtti,
   Winapi.Windows, Winapi.Messages,
+  System.Actions, System.Classes, System.Rtti,
   Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.ComCtrls, Vcl.ExtCtrls,
   Vcl.Forms;
 
 type
   TfrmRTTEye = class(TForm)
     {$REGION 'designer controls'}
-    aclMain      : TActionList;
-    actCollapse  : TAction;
-    actExpand    : TAction;
-    actRefresh: TAction;
-    actSearch    : TAction;
-    btnCollapse1 : TButton;
-    btnExpand1   : TButton;
-    btnLoad      : TButton;
-    btnSearch    : TButton;
-    EditSearch   : TEdit;
-    lvRtti       : TListView;
-    pnlBottom    : TPanel;
-    pnlMain      : TPanel;
-    splVertical  : TSplitter;
-    tvRtti       : TTreeView;
+    aclMain     : TActionList;
+    actCollapse : TAction;
+    actExpand   : TAction;
+    actRefresh  : TAction;
+    actSearch   : TAction;
+    btnCollapse : TButton;
+    btnExpand   : TButton;
+    btnLoad     : TButton;
+    btnSearch   : TButton;
+    EditSearch  : TEdit;
+    lvRtti      : TListView;
+    pnlBottom   : TPanel;
+    pnlMain     : TPanel;
+    splVertical : TSplitter;
+    tvRtti      : TTreeView;
     {$ENDREGION}
 
     procedure tvRttiCustomDrawItem(Sender: TCustomTreeView;
@@ -73,8 +73,6 @@ type
 
   end;
 
-procedure ShowRTTEye;
-
 implementation
 
 {$R *.dfm}
@@ -83,7 +81,7 @@ uses
   System.SysUtils, System.TypInfo,
   Vcl.Dialogs, Vcl.Graphics,
 
-  Concepts.Resources;
+  Concepts.Resources, Concepts.Utils;
 
 const
   LEVEL_PACKAGE = 0;
@@ -94,42 +92,28 @@ const
 resourcestring
   SNotFound = '%s Not found';
 
-{$REGION 'interfaced routines'}
-procedure ShowRTTEye;
-var
-  F: TfrmRTTEye;
-begin
-  F := TfrmRTTEye.Create(Application);
-  try
-    F.ShowModal;
-  finally
-    F.Free;
-  end;
-end;
-{$ENDREGION}
-
 {$REGION 'construction and destruction'}
 procedure TfrmRTTEye.AfterConstruction;
 begin
   inherited AfterConstruction;
-  LoadTree;
+  HourGlass(LoadTree);
 end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
 procedure TfrmRTTEye.actCollapseExecute(Sender: TObject);
 begin
-  CollapseTree;
+  HourGlass(CollapseTree);
 end;
 
 procedure TfrmRTTEye.actExpandExecute(Sender: TObject);
 begin
-  ExpandTree;
+  HourGlass(ExpandTree);
 end;
 
 procedure TfrmRTTEye.actRefreshExecute(Sender: TObject);
 begin
-  LoadTree;
+  HourGlass(LoadTree);
 end;
 
 procedure TfrmRTTEye.actSearchExecute(Sender: TObject);
