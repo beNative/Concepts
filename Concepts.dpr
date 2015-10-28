@@ -294,7 +294,15 @@ uses
   gaSQLParserHelperClasses in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLParserHelperClasses.pas',
   gaSQLSelectFieldParsers in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLSelectFieldParsers.pas',
   gaSQLTableRefParsers in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLTableRefParsers.pas',
-  gaUpdateStm in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaUpdateStm.pas';
+  gaUpdateStm in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaUpdateStm.pas',
+  ChromeTabs in 'Libraries\TChromeTabs\Lib\ChromeTabs.pas',
+  ChromeTabsClasses in 'Libraries\TChromeTabs\Lib\ChromeTabsClasses.pas',
+  ChromeTabsControls in 'Libraries\TChromeTabs\Lib\ChromeTabsControls.pas',
+  ChromeTabsGlassForm in 'Libraries\TChromeTabs\Lib\ChromeTabsGlassForm.pas',
+  ChromeTabsLog in 'Libraries\TChromeTabs\Lib\ChromeTabsLog.pas',
+  ChromeTabsThreadTimer in 'Libraries\TChromeTabs\Lib\ChromeTabsThreadTimer.pas',
+  ChromeTabsTypes in 'Libraries\TChromeTabs\Lib\ChromeTabsTypes.pas',
+  ChromeTabsUtils in 'Libraries\TChromeTabs\Lib\ChromeTabsUtils.pas';
 
 {$R *.res}
 

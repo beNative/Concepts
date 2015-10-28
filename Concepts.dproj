@@ -510,6 +510,14 @@
         <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLSelectFieldParsers.pas"/>
         <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLTableRefParsers.pas"/>
         <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaUpdateStm.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabs.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsClasses.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsControls.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsGlassForm.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsLog.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsThreadTimer.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsTypes.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsUtils.pas"/>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
         <BuildConfiguration Include="Debug">
