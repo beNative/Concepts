@@ -14,12 +14,14 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Resources;
 
 interface
 
 uses
-  System.SysUtils, System.Classes, System.ImageList,
+  System.SysUtils, System.Classes, {$IFDEF DELPHIXE8UP}System.ImageList,{$ENDIF}
   Vcl.ImgList, Vcl.Controls;
 
 type
