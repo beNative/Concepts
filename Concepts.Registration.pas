@@ -14,11 +14,11 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Registration;
 
 interface
-
-{$I Concepts.inc}
 
 uses
   Vcl.Graphics;
@@ -89,7 +89,9 @@ uses
   Concepts.System.Threads.Form,
   Concepts.System.RegularExpressions.Form,
   Concepts.System.LiveBindings.Form,
+  {$IFDEF DELPHIXE7UP}
   Concepts.System.Threading.Form,
+  {$ENDIF}
   Concepts.System.Libraries.Form,
   Concepts.System.AnonymousMethods.Form,
   Concepts.System.InterfaceImplementationByAggregation.Form,
@@ -253,6 +255,7 @@ begin
     'Demonstrates support for regular expressions in the RTL',
     FCategoryColor
   );
+  {$IFDEF DELPHIXE7UP}
   ConceptManager.Register(
     TfrmThreading,
     'Parallel library',
@@ -260,6 +263,7 @@ begin
     'Demonstrates the System.Threading library introduced in Delphi XE7',
     FCategoryColor
   );
+  {$ENDIF}
   ConceptManager.Register(
     TfrmThreads,
     'Threads',

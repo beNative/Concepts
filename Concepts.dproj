@@ -492,6 +492,24 @@
         <DCCReference Include="Libraries\VirtualTreeView\Source\VTAccessibility.pas"/>
         <DCCReference Include="Libraries\VirtualTreeView\Source\VTAccessibilityFactory.pas"/>
         <DCCReference Include="Libraries\VirtualTreeView\Source\VTHeaderPopup.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.GaSQLParser.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaAdvancedSQLParser.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaBasicSQLParser.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaDeleteStm.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaInsertStm.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaLnkList.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaParserVisitor.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaQueryParsersReg.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSelectStm.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLExpressionParsers.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLFieldRefParsers.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLParserConsts.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLParserHelperClasses.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLSelectFieldParsers.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLTableRefParsers.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaUpdateStm.pas"/>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
         <BuildConfiguration Include="Debug">
@@ -565,6 +583,12 @@
                 <Platform value="Win64">True</Platform>
             </Platforms>
             <Deployment Version="1">
+                <DeployFile LocalName="Library\Win32\Debug\Concepts.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>Concepts.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="Library\Win64\Debug\Concepts.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>Concepts.exe</RemoteName>
@@ -580,12 +604,6 @@
                 <DeployFile LocalName="Libraries\DDuce\DDuce.inc" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="Library\Win32\Debug\Concepts.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>Concepts.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -913,13 +931,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <ModelSupport>False</ModelSupport>
         </BorlandProject>

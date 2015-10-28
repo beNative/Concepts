@@ -276,7 +276,25 @@ uses
   VirtualTrees.WorkerThread in 'Libraries\VirtualTreeView\Source\VirtualTrees.WorkerThread.pas',
   VTAccessibility in 'Libraries\VirtualTreeView\Source\VTAccessibility.pas',
   VTAccessibilityFactory in 'Libraries\VirtualTreeView\Source\VTAccessibilityFactory.pas',
-  VTHeaderPopup in 'Libraries\VirtualTreeView\Source\VTHeaderPopup.pas';
+  VTHeaderPopup in 'Libraries\VirtualTreeView\Source\VTHeaderPopup.pas',
+  SQLBuilder4D.Parser.GaSQLParser in 'Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.GaSQLParser.pas',
+  SQLBuilder4D.Parser in 'Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.pas',
+  SQLBuilder4D in 'Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.pas',
+  gaAdvancedSQLParser in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaAdvancedSQLParser.pas',
+  gaBasicSQLParser in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaBasicSQLParser.pas',
+  gaDeleteStm in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaDeleteStm.pas',
+  gaInsertStm in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaInsertStm.pas',
+  gaLnkList in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaLnkList.pas',
+  gaParserVisitor in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaParserVisitor.pas',
+  gaQueryParsersReg in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaQueryParsersReg.pas',
+  gaSelectStm in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSelectStm.pas',
+  gaSQLExpressionParsers in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLExpressionParsers.pas',
+  gaSQLFieldRefParsers in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLFieldRefParsers.pas',
+  gaSQLParserConsts in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLParserConsts.pas',
+  gaSQLParserHelperClasses in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLParserHelperClasses.pas',
+  gaSQLSelectFieldParsers in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLSelectFieldParsers.pas',
+  gaSQLTableRefParsers in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLTableRefParsers.pas',
+  gaUpdateStm in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaUpdateStm.pas';
 
 {$R *.res}
 
