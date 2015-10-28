@@ -339,6 +339,7 @@ begin
   RegisterDevExpressConcepts;
   RegisterSystemConcepts;
   RegisterVclConcepts;
+  RegisterWinApiConcepts;
 
   {$IFDEF BTMEMORYMODULE}
   ConceptManager.Register(
@@ -384,14 +385,7 @@ begin
     'Reflection-like overview using the enhanced RTTI'
   );
   {$ENDIF}
- {
-    ConceptManager.Register(
-    TfrmInterfacedComponent,
-    'InterfacedComponent trick',
-    'System',
-    'Demonstrates how TComponent descendents can be reference counted'
-  ); }
-end;
+ end;
 {$ENDREGION}
 
 end.

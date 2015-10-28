@@ -161,18 +161,10 @@ begin
 end;
 
 procedure TfrmLiveBindings.btn1Click(Sender: TObject);
-var
- CBC: TContainedBindComponent;
 begin
   FreeAndNil(FContact);
   FContact := TConceptFactories.CreateRandomContact;
   FBindScope.DataObject := FContact;
-  //lstBindings.Notify(edt1, '');
-//  for CBC in lstBindings do
-//    CBC.
-
-
-
 end;
 
 procedure TfrmLiveBindings.btn2Click(Sender: TObject);

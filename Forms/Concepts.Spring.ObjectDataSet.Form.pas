@@ -149,7 +149,7 @@ uses
 procedure TfrmObjectDataSet.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FList := TConceptFactories.CreateContactList(1000);
+  FList := TConceptFactories.CreateContactList;
   FVST  := TConceptFactories.CreateVirtualStringTree(Self, pnlRight);
   FTVP  := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList as IObjectList);
   FDBG  := TConceptFactories.CreateDBGrid(Self, pnlLeft, dscMain);
@@ -227,7 +227,6 @@ end;
 
 function TfrmObjectDataSet.GetPresenterEnabled: Boolean;
 begin
-  Result := False;
   Result := Assigned(FTVP);
 end;
 

@@ -307,6 +307,7 @@ begin
   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;
   TConcepts.RegisterConcepts;
+  Application.CreateForm(TdmResources, dmResources);
   if ConceptManager.ItemList.Count = 1 then
   begin
     ConceptManager.Execute(ConceptManager.ItemList.First);
@@ -316,7 +317,6 @@ begin
     Application.Title := 'Concepts';
     Application.CreateForm(TfrmMain, frmMain);
   end;
-  Application.CreateForm(TdmResources, dmResources);
   Application.Run;
 end.
 

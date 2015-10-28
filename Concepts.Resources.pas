@@ -14,7 +14,7 @@
   limitations under the License.
 }
 
-{$I Concepts.inc}
+//{$I Concepts.inc}
 
 unit Concepts.Resources;
 
@@ -34,8 +34,6 @@ var
   dmResources: TdmResources;
 
 implementation
-
-{%CLASSGROUP 'Vcl.Controls.TControl'}
 
 {$R *.dfm}
 

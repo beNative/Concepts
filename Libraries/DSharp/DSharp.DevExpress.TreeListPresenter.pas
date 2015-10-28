@@ -32,13 +32,13 @@ unit DSharp.DevExpress.TreeListPresenter;
 interface
 
 uses
-  Classes,
+  Classes, System.UITypes,
   cxGraphics,
   cxTL,
   cxTLData,
   DSharp.DevExpress.PresenterDataSource,
   DSharp.Windows.CustomPresenter,
-  ImgList,
+  //ImgList,
   Spring.Collections;
 
 type

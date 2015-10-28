@@ -253,6 +253,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           Top = 87
           Width = 121
           Height = 21
+          DataField = 'Number'
           DataSource = dscMain
           TabOrder = 5
         end
