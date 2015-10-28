@@ -59,15 +59,16 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <Icon_MainIcon>Concepts.ico</Icon_MainIcon>
         <DCC_BplOutput>.\Library\$(Platform)\$(Config)\</DCC_BplOutput>
-        <DCC_ExeOutput>D:\development\delphi\projects\Concepts\</DCC_ExeOutput>
+        <DCC_ExeOutput>.\Library\$(Platform)\$(Config)\ </DCC_ExeOutput>
         <DCC_DcuOutput>.\Library\$(Platform)\$(Config)\</DCC_DcuOutput>
         <SanitizedProjectName>Concepts</SanitizedProjectName>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;Bde;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Locale>2067</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Tim Sinaeve;FileDescription=;FileVersion=1.0.0.0;InternalName=Concepts;LegalCopyright=(c) 2015 Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <ImageDebugInfo>true</ImageDebugInfo>
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
         <DCC_DependencyCheckOutputName>Concepts.exe</DCC_DependencyCheckOutputName>
@@ -104,7 +105,7 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <Icon_MainIcon>Concepts_Icon.ico</Icon_MainIcon>
+        <DCC_ExeOutput>.\Library\$(Platform)\$(Config)\</DCC_ExeOutput>
         <VerInfo_Keys>CompanyName=(c) Tim Sinaeve;FileDescription=Concepts;FileVersion=1.0.0.0;InternalName=Concepts;LegalCopyright=(c) Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=A collection of modules demonstrating some Delphi programming concepts and libraries</VerInfo_Keys>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
@@ -316,6 +317,10 @@
         <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.XMLTree.Editors.pas"/>
         <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.XMLTree.NodeAttributes.pas"/>
         <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.XMLTree.pas"/>
+        <DCCReference Include="Forms\Concepts.Spring.MultiCastEvents.ChildForm.pas">
+            <Form>frmMulticastEventsChild</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
         <BuildConfiguration Include="Debug">
@@ -737,13 +742,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <ModelSupport>False</ModelSupport>
         </BorlandProject>

@@ -104,13 +104,15 @@ uses
   DDuce.Components.VirtualDataSet in 'Libraries\DDuce\Components\DDuce.Components.VirtualDataSet.pas',
   DDuce.Components.XMLTree.Editors in 'Libraries\DDuce\Components\DDuce.Components.XMLTree.Editors.pas',
   DDuce.Components.XMLTree.NodeAttributes in 'Libraries\DDuce\Components\DDuce.Components.XMLTree.NodeAttributes.pas',
-  DDuce.Components.XMLTree in 'Libraries\DDuce\Components\DDuce.Components.XMLTree.pas';
+  DDuce.Components.XMLTree in 'Libraries\DDuce\Components\DDuce.Components.XMLTree.pas',
+  Concepts.Spring.MultiCastEvents.ChildForm in 'Forms\Concepts.Spring.MultiCastEvents.ChildForm.pas' {frmMulticastEventsChild};
 
 {$R *.res}
 
 begin
   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;
+  Application.CreateForm(TdmResources, dmResources);
   TConcepts.RegisterConcepts;
   if ConceptManager.ItemList.Count = 1 then
   begin
@@ -120,8 +122,6 @@ begin
   begin
     Application.Title := 'Concepts';
     Application.CreateForm(TfrmMain, frmMain);
-  Application.CreateForm(TdmResources, dmResources);
-  Application.CreateForm(TdmResources, dmResources);
   end;
   Application.Run;
 end.

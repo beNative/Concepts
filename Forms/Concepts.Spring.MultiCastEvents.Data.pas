@@ -26,13 +26,19 @@ uses
   Spring;
 
 type
-  TTestComponent = class(TComponent)
+  TPosition = class
   private
-    FOnChange: Event<TNotifyEvent>;
+    FOnChange : Event<TNotifyEvent>;
+    FPosition : Integer;
+
     function GetOnChange: IEvent<TNotifyEvent>;
+    procedure DoChange;
+    function GetPosition: Integer;
+    procedure SetPosition(const Value: Integer);
 
   public
-    procedure Change;
+    property Position: Integer
+      read GetPosition write SetPosition;
 
     property OnChange : IEvent<TNotifyEvent>
       read GetOnChange;
@@ -41,16 +47,30 @@ type
 implementation
 
 {$REGION 'property access methods'}
-function TTestComponent.GetOnChange: IEvent<TNotifyEvent>;
+function TPosition.GetOnChange: IEvent<TNotifyEvent>;
 begin
   Result := FOnChange;
 end;
+
+function TPosition.GetPosition: Integer;
+begin
+  Result := FPosition;
+end;
+
+procedure TPosition.SetPosition(const Value: Integer);
+begin
+  if Value <> Position then
+  begin
+    FPosition := Value;
+    DoChange;
+  end;
+end;
 {$ENDREGION}
 
-{$REGION 'public methods'}
+{$REGION 'event dispatch methods'}
 { Just trigger our multicast notify event. }
 
-procedure TTestComponent.Change;
+procedure TPosition.DoChange;
 begin
   FOnChange.Invoke(Self);
 end;

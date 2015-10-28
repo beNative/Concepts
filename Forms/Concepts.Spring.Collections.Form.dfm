@@ -23,7 +23,6 @@ object frmCollections: TfrmCollections
     Height = 25
     Action = actFirstNameIs
     Anchors = [akLeft, akTop, akRight]
-    Caption = 'Find all contacts with first name = '#39'?'#39' '
     ImageMargins.Left = 4
     Images = dmResources.imlMain
     TabOrder = 0
@@ -68,7 +67,6 @@ object frmCollections: TfrmCollections
     Anchors = [akTop, akRight]
     TabOrder = 4
     Text = 'John'
-    OnChange = edtFirstNameChange
   end
   object edtLastName: TEdit
     Left = 264
@@ -116,7 +114,7 @@ object frmCollections: TfrmCollections
       ImageIndex = 235
     end
     object actFirstNameIs: TAction
-      Caption = 'Execute Query: find all contacts with first name = '#39'?'#39' '
+      Caption = 'Find all contacts with first name = '#39'?'#39' '
       ImageIndex = 954
       OnExecute = actFirstNameIsExecute
     end
