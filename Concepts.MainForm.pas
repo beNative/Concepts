@@ -152,6 +152,7 @@ begin
   FTVP := TConceptFactories.CreateTreeViewPresenter(Self);
   InitializePresenter;
   sbrMain.SimpleText := Format(SConceptsLoaded, [ConceptManager.ItemList.Count]);
+  inherited AfterConstruction;
 end;
 {$ENDREGION}
 

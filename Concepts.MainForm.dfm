@@ -2,7 +2,7 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Concepts'
-  ClientHeight = 751
+  ClientHeight = 636
   ClientWidth = 1008
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -18,7 +18,7 @@ object frmMain: TfrmMain
     Left = 0
     Top = 0
     Width = 1008
-    Height = 698
+    Height = 583
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
@@ -43,7 +43,7 @@ object frmMain: TfrmMain
   end
   object sbrMain: TStatusBar
     Left = 0
-    Top = 732
+    Top = 617
     Width = 1008
     Height = 19
     Panels = <>
@@ -51,7 +51,7 @@ object frmMain: TfrmMain
   end
   object pnlButtons: TGridPanel
     Left = 0
-    Top = 698
+    Top = 583
     Width = 1008
     Height = 34
     Align = alBottom

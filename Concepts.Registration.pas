@@ -33,6 +33,7 @@ type
     class procedure RegisterDevExpressConcepts; static;
     class procedure RegisterSystemConcepts; static;
     class procedure RegisterVclConcepts; static;
+    class procedure RegisterWinApiConcepts; static;
   public
     class procedure RegisterConcepts; static;
   end;
@@ -313,6 +314,12 @@ begin
     'Demonstrates TGridPanel component',
     FCategoryColor
   );
+  {$ENDIF}
+end;
+
+class procedure TConcepts.RegisterWinApiConcepts;
+begin
+  {$IFDEF WINAPI}
   ConceptManager.Register(
     TfrmLockPaint,
     'LockPaint',

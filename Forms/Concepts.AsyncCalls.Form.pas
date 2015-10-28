@@ -21,7 +21,7 @@ unit Concepts.AsyncCalls.Form;
 interface
 
 uses
-  System.Actions, System.Classes, {$IFDEF DELPHIXE8UP}System.ImageList,{$ENDIF}
+  System.Actions, System.Classes, System.ImageList,
   Vcl.Forms, Vcl.ImgList, Vcl.Controls, Vcl.ActnList, Vcl.StdCtrls,
   Vcl.ComCtrls,
 

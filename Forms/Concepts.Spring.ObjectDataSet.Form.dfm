@@ -148,9 +148,9 @@ object frmObjectDataSet: TfrmObjectDataSet
       end
       object pnlLeftFooter: TPanel
         Left = 0
-        Top = 477
+        Top = 519
         Width = 521
-        Height = 154
+        Height = 112
         Align = alBottom
         BevelOuter = bvNone
         FullRepaint = False
@@ -195,17 +195,9 @@ object frmObjectDataSet: TfrmObjectDataSet
           Caption = 'Address:'
           FocusControl = edtAddress
         end
-        object lblCountry: TLabel
-          Left = 132
-          Top = 113
-          Width = 43
-          Height = 13
-          Caption = 'Country:'
-          FocusControl = edtDBCountry
-        end
         object lblNumber: TLabel
-          Left = 5
-          Top = 112
+          Left = 367
+          Top = 69
           Width = 41
           Height = 13
           Caption = 'Number:'
@@ -257,20 +249,12 @@ object frmObjectDataSet: TfrmObjectDataSet
           TabOrder = 4
         end
         object edtDBNumber: TDBEdit
-          Left = 5
-          Top = 127
+          Left = 367
+          Top = 87
           Width = 121
           Height = 21
           DataSource = dscMain
           TabOrder = 5
-        end
-        object edtDBCountry: TDBEdit
-          Left = 132
-          Top = 127
-          Width = 121
-          Height = 21
-          DataSource = dscMain
-          TabOrder = 6
         end
         object pnlDataAwareControls: TPanel
           AlignWithMargins = True
@@ -291,7 +275,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           Font.Style = [fsBold]
           ParentBackground = False
           ParentFont = False
-          TabOrder = 7
+          TabOrder = 6
         end
       end
     end
@@ -360,9 +344,9 @@ object frmObjectDataSet: TfrmObjectDataSet
       end
       object pnlRightFooter: TPanel
         Left = 0
-        Top = 477
+        Top = 519
         Width = 568
-        Height = 154
+        Height = 112
         Align = alBottom
         BevelOuter = bvNone
         FullRepaint = False
@@ -403,7 +387,7 @@ object frmObjectDataSet: TfrmObjectDataSet
         end
         object edtCompanyName: TLabeledEdit
           Left = 8
-          Top = 82
+          Top = 85
           Width = 121
           Height = 21
           EditLabel.Width = 76
@@ -413,7 +397,7 @@ object frmObjectDataSet: TfrmObjectDataSet
         end
         object edtAddress: TLabeledEdit
           Left = 135
-          Top = 82
+          Top = 85
           Width = 233
           Height = 21
           EditLabel.Width = 43
@@ -422,24 +406,14 @@ object frmObjectDataSet: TfrmObjectDataSet
           TabOrder = 4
         end
         object edtNumber: TLabeledEdit
-          Left = 6
-          Top = 131
+          Left = 380
+          Top = 84
           Width = 121
           Height = 21
           EditLabel.Width = 41
           EditLabel.Height = 13
           EditLabel.Caption = 'Number:'
           TabOrder = 5
-        end
-        object edtCountry: TLabeledEdit
-          Left = 133
-          Top = 130
-          Width = 121
-          Height = 21
-          EditLabel.Width = 43
-          EditLabel.Height = 13
-          EditLabel.Caption = 'Country:'
-          TabOrder = 6
         end
         object pnlVCLControls: TPanel
           AlignWithMargins = True
@@ -462,7 +436,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           Font.Style = [fsBold]
           ParentBackground = False
           ParentFont = False
-          TabOrder = 7
+          TabOrder = 6
         end
       end
     end

@@ -14,29 +14,8 @@
   limitations under the License.
 }
 
-{$I Concepts.inc}
+{$I '.\jedi.inc'}
 
-unit Concepts.Resources;
-
-interface
-
-uses
-  System.SysUtils, System.Classes, System.ImageList,
-  Vcl.ImgList, Vcl.Controls;
-
-type
-  TdmResources = class(TDataModule)
-    imlMain: TImageList;
-
-  end;
-
-var
-  dmResources: TdmResources;
-
-implementation
-
-{%CLASSGROUP 'Vcl.Controls.TControl'}
-
-{$R *.dfm}
-
-end.
+{$IFNDEF DELPHIXE8_UP}
+   System.ImageList in 'Types\System.ImageList.pas',
+{$ENDIF}

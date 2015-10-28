@@ -56,10 +56,8 @@ type
     dscMain                : TDataSource;
     edtAddress             : TLabeledEdit;
     edtCompanyName         : TLabeledEdit;
-    edtCountry             : TLabeledEdit;
     edtDBAddress           : TDBEdit;
     edtDBCompanyName       : TDBEdit;
-    edtDBCountry           : TDBEdit;
     edtDBEmail             : TDBEdit;
     edtDBFirstname         : TDBEdit;
     edtDBLastname          : TDBEdit;
@@ -90,7 +88,6 @@ type
     lblEmail               : TLabel;
     lblCompanyName         : TLabel;
     lblAddress             : TLabel;
-    lblCountry             : TLabel;
     lblNumber              : TLabel;
     {$ENDREGION}
 

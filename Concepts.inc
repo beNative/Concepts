@@ -19,38 +19,31 @@
   dependencies.
 }
 
-// Delphi RTL units ('System' prefix)
-{$DEFINE SYSTEM}
-// Delphi VCL units ('Vcl' prefix)
-{$DEFINE VCL}
-// Delphi WinApi units ('WinApi' prefix)
-{$DEFINE WINAPI}
+{$I '.\jedi.inc'}
 
-// Delphi RTL units ('System' prefix)
-{$DEFINE SYSTEM}
-// Spring4D - http://bitbucket.org/sglienke/spring4d
+{ Delphi RTL units ('System' prefix) }
+{.$DEFINE SYSTEM}
+{ Delphi VCL units ('Vcl' prefix) }
+{.$DEFINE VCL}
+{ Delphi WinApi units ('WinApi' prefix) }
+{.$DEFINE WINAPI}
+{ Spring4D - http://bitbucket.org/sglienke/spring4d }
 {$DEFINE SPRING}
-// DSharp - http://bitbucket.org/sglienke/dsharp
+{ DSharp - http://bitbucket.org/sglienke/dsharp }
 {$DEFINE DSHARP}
-// Virtual Treeview - http://github.com/Virtual-TreeView/Virtual-TreeView
+{ Virtual Treeview - http://github.com/Virtual-TreeView/Virtual-TreeView }
 {$DEFINE VIRTUALTREES}
-// DDuce - http://github.com/beNative/dduce
+{ DDuce - http://github.com/beNative/dduce }
 {$DEFINE DDUCE}
-// DevExpress - http://www.devexpress.com/Products/VCL/
+{ DevExpress - http://www.devexpress.com/Products/VCL/ }
 {$DEFINE DEVEXPRESS}
-
-
-// AsyncCalls.pas
-{$DEFINE ASYNCCALLS}
-
+{ AsyncCalls.pas }
+{.$DEFINE ASYNCCALLS}
+{ RTTEye }
 {$DEFINE RTTEYE}
-
-// BTMemoryModule.pas
-{$DEFINE BTMEMORYMODULE}
-
-// SQLBuilder4D.pas
-{$DEFINE SQLBUILDER4D}
-
-// TChromeTabs
-{$DEFINE CHROMETABS}
-
+{ BTMemoryModule.pas }
+{.$DEFINE BTMEMORYMODULE}
+{ SQLBuilder4D.pas }
+{.$DEFINE SQLBUILDER4D}
+{ TChromeTabs }
+{.$DEFINE CHROMETABS}
