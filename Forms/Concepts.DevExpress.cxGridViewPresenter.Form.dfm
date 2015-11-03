@@ -12,6 +12,9 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  DesignSize = (
+    835
+    587)
   PixelsPerInch = 96
   TextHeight = 13
   object pnlMain: TPanel
@@ -31,7 +34,7 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
       Top = 3
       Width = 829
       Height = 526
-      ActivePage = tsGridView
+      ActivePage = tsTreelist
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 0
@@ -47,18 +50,37 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
           TabOrder = 0
           object tvwMain: TcxGridTableView
             Navigator.Buttons.CustomButtons = <>
+            Navigator.Buttons.Delete.Enabled = False
+            Navigator.Buttons.Delete.Visible = False
+            Navigator.Buttons.Edit.Enabled = False
+            Navigator.Buttons.Edit.Visible = False
+            Navigator.InfoPanel.Visible = True
+            Navigator.Visible = True
+            FindPanel.UseExtendedSyntax = True
             DataController.Options = [dcoAssignGroupingValues, dcoAssignMasterDetailKeys, dcoSaveExpanding, dcoFocusTopRowAfterSorting]
             DataController.Summary.DefaultGroupSummaryItems = <>
             DataController.Summary.FooterSummaryItems = <>
             DataController.Summary.SummaryGroups = <>
+            DataController.Summary.Options = [soMultipleSelectedRecords]
+            Filtering.ColumnFilteredItemsList = True
+            FilterRow.Visible = True
             OptionsBehavior.CellHints = True
             OptionsBehavior.DragDropText = True
             OptionsBehavior.GoToNextCellOnEnter = True
             OptionsBehavior.ImmediateEditor = False
+            OptionsBehavior.NavigatorHints = True
             OptionsBehavior.EditAutoHeight = eahEditor
+            OptionsCustomize.ColumnHiding = True
+            OptionsCustomize.ColumnsQuickCustomization = True
             OptionsData.Appending = True
             OptionsSelection.MultiSelect = True
+            OptionsView.ColumnAutoWidth = True
+            OptionsView.Footer = True
+            OptionsView.FooterAutoHeight = True
+            OptionsView.FooterMultiSummaries = True
             OptionsView.GridLineColor = clSilver
+            OptionsView.GridLines = glVertical
+            OptionsView.GroupFooters = gfVisibleWhenExpanded
           end
           object grlMain: TcxGridLevel
             GridView = tvwMain
@@ -68,10 +90,6 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
       object tsTreelist: TTabSheet
         Caption = 'DevExpress TcxVirtualTreelist'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object lstMain: TcxVirtualTreeList
           AlignWithMargins = True
           Left = 3
@@ -148,10 +166,6 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
       object tsVirtualTree: TTabSheet
         Caption = 'Virtual Treeview - TVirtualStringTree'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object vstMain: TVirtualStringTree
           AlignWithMargins = True
           Left = 3
@@ -174,13 +188,14 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
       end
     end
     object btnFillList: TButton
-      Left = 712
+      Left = 675
       Top = 535
-      Width = 120
+      Width = 150
       Height = 26
       Action = actFillList
       Anchors = [akRight, akBottom]
       Default = True
+      Images = dmResources.imlMain
       TabOrder = 1
     end
   end
@@ -191,12 +206,40 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
     Height = 19
     Panels = <>
   end
+  object btnInspectGridViewPresenter: TButton
+    Left = 519
+    Top = 535
+    Width = 150
+    Height = 26
+    Action = actInspectGridViewPresenter
+    Anchors = [akTop, akRight]
+    TabOrder = 2
+  end
+  object btnInspectTreeListPresenter: TButton
+    Left = 363
+    Top = 535
+    Width = 150
+    Height = 25
+    Action = actInspectTreeListPresenter
+    Anchors = [akTop, akRight]
+    TabOrder = 3
+  end
   object aclMain: TActionList
+    Images = dmResources.imlMain
     Left = 96
     Top = 72
     object actFillList: TAction
       Caption = 'Populate contactlist'
+      ImageIndex = 518
       OnExecute = actFillListExecute
+    end
+    object actInspectGridViewPresenter: TAction
+      Caption = 'Inspect GridView presenter'
+      OnExecute = actInspectGridViewPresenterExecute
+    end
+    object actInspectTreeListPresenter: TAction
+      Caption = 'Inspect TreeList presenter'
+      OnExecute = actInspectTreeListPresenterExecute
     end
   end
 end

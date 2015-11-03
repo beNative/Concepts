@@ -21,9 +21,16 @@ unit Concepts.Spring.Collections.Form;
 { Demonstrates the use of Spring collections. }
 
 {
-References:
-  http://delphisorcery.blogspot.be/search?q=Generics+and+variance
+  References:
+    - Coding in Delphi - Nick Hodges
+    - Generics and variance
+        (http://delphisorcery.blogspot.be/search?q=Generics+and+variance)
+    - Reimplementing LINQ to Objects
+        (http://edulinq.googlecode.com/hg/posts/index.html)
 
+
+    covariance <-> contravariance
+    variance   <-> invariance
 }
 
 interface
@@ -38,21 +45,21 @@ uses
 
 type
   TfrmCollections = class(TForm)
-    aclMain            : TActionList;
-    actPopulateList    : TAction;
-    actEnumerate       : TAction;
-    actFirstNameIs     : TAction;
-    actLastNameIs      : TAction;
-    btnCreateList      : TButton;
-    btnExecuteQuery    : TButton;
-    btnLastNameRoberts : TButton;
-    mmoList            : TMemo;
-    edtFirstName       : TEdit;
-    edtLastName        : TEdit;
-    actBoth            : TAction;
-    btnBoth            : TButton;
-    trbRecordCount     : TTrackBar;
-    lblRecordCount     : TLabel;
+    aclMain         : TActionList;
+    actPopulateList : TAction;
+    actEnumerate    : TAction;
+    actFirstNameIs  : TAction;
+    actLastNameIs   : TAction;
+    btnCreateList   : TButton;
+    btnFirstNameIs  : TButton;
+    btnLastNameIs   : TButton;
+    mmoList         : TMemo;
+    edtFirstName    : TEdit;
+    edtLastName     : TEdit;
+    actBoth         : TAction;
+    btnBoth         : TButton;
+    trbRecordCount  : TTrackBar;
+    lblRecordCount  : TLabel;
 
     procedure actPopulateListExecute(Sender: TObject);
     procedure actFirstNameIsExecute(Sender: TObject);
@@ -89,6 +96,7 @@ uses
 resourcestring
   SFindContactsWithFirstName = 'Find all contacts with first name = %s';
   SFindContactsWithLastName  = 'Find all contacts with last name = %s';
+  SListPopulated             = 'Contactlist has been populated.';
 
 {$REGION 'construction and destruction'}
 procedure TfrmCollections.AfterConstruction;
@@ -102,7 +110,7 @@ end;
 procedure TfrmCollections.actPopulateListExecute(Sender: TObject);
 begin
   HourGlass(PopulateList);
-  ShowMessage('Contactlist has been created.');
+  ShowMessage(SListPopulated);
 end;
 
 procedure TfrmCollections.actFirstNameIsExecute(Sender: TObject);

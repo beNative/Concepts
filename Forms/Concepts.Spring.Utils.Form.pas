@@ -22,19 +22,40 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+  System.SysUtils, System.Variants, System.Classes, System.Actions,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList;
 
 type
   TfrmSpringUtils = class(TForm)
+    aclMain : TActionList;
   private
 
   public
+    procedure AfterConstruction; override;
 
   end;
 
 implementation
 
 {$R *.dfm}
+
+uses
+  System.Rtti;
+
+{ TfrmSpringUtils }
+
+procedure TfrmSpringUtils.AfterConstruction;
+var
+  V : TValue;
+  V2 : TValue;
+begin
+  inherited AfterConstruction;
+  V := 3;
+  V2 := 'Test';
+  V2 := V;
+
+
+
+end;
 
 end.

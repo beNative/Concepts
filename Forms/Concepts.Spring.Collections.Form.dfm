@@ -3,7 +3,7 @@ object frmCollections: TfrmCollections
   Top = 0
   Caption = 'Spring collections'
   ClientHeight = 443
-  ClientWidth = 494
+  ClientWidth = 495
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,21 +12,20 @@ object frmCollections: TfrmCollections
   Font.Style = []
   OldCreateOrder = False
   DesignSize = (
-    494
+    495
     443)
   PixelsPerInch = 96
   TextHeight = 13
   object lblRecordCount: TLabel
     Left = 265
     Top = 7
-    Width = 53
+    Width = 67
     Height = 13
     Anchors = [akLeft, akTop, akRight]
     Caption = 'RecordCount:'
     FocusControl = trbRecordCount
-    ExplicitWidth = 67
   end
-  object btnExecuteQuery: TButton
+  object btnFirstNameIs: TButton
     Left = 8
     Top = 33
     Width = 250
@@ -39,13 +38,12 @@ object frmCollections: TfrmCollections
   object mmoList: TMemo
     Left = 8
     Top = 126
-    Width = 478
+    Width = 479
     Height = 309
     Anchors = [akLeft, akTop, akRight, akBottom]
     ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 1
-    ExplicitWidth = 492
   end
   object btnCreateList: TButton
     Left = 8
@@ -57,7 +55,7 @@ object frmCollections: TfrmCollections
     Images = dmResources.imlMain
     TabOrder = 2
   end
-  object btnLastNameRoberts: TButton
+  object btnLastNameIs: TButton
     Left = 8
     Top = 64
     Width = 250
@@ -70,22 +68,20 @@ object frmCollections: TfrmCollections
   object edtFirstName: TEdit
     Left = 264
     Top = 35
-    Width = 215
+    Width = 223
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 4
     Text = 'John'
-    ExplicitWidth = 229
   end
   object edtLastName: TEdit
     Left = 264
     Top = 66
-    Width = 215
+    Width = 223
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 5
     Text = 'Roberts'
-    ExplicitWidth = 229
   end
   object btnBoth: TButton
     Left = 8
@@ -100,23 +96,24 @@ object frmCollections: TfrmCollections
   object trbRecordCount: TTrackBar
     Left = 338
     Top = 2
-    Width = 141
-    Height = 19
+    Width = 149
+    Height = 27
     Anchors = [akLeft, akTop, akRight]
-    Max = 2000000
+    Max = 6000000
     Min = 1000
-    Position = 100000
+    PageSize = 10000
+    Frequency = 500000
+    Position = 1000000
     PositionToolTip = ptTop
     ShowSelRange = False
     TabOrder = 7
-    ExplicitWidth = 157
   end
   object aclMain: TActionList
     Images = dmResources.imlMain
     Left = 288
     Top = 96
     object actPopulateList: TAction
-      Caption = 'Populate list with random contacts'
+      Caption = 'Download random American contact details'
       ImageIndex = 967
       OnExecute = actPopulateListExecute
     end

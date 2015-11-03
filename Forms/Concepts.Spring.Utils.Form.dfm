@@ -13,4 +13,8 @@ object frmSpringUtils: TfrmSpringUtils
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
+  object aclMain: TActionList
+    Left = 312
+    Top = 176
+  end
 end

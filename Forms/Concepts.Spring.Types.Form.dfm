@@ -13,12 +13,8 @@ object frmSpringTypes: TfrmSpringTypes
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
-  object btn1: TButton
-    Left = 288
-    Top = 176
-    Width = 75
-    Height = 25
-    Caption = 'btn1'
-    TabOrder = 0
+  object aclMain: TActionList
+    Left = 24
+    Top = 24
   end
 end

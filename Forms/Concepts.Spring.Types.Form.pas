@@ -22,35 +22,22 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  System.SysUtils, System.Variants, System.Classes, System.Actions,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ActnList,
 
   Spring;
 
 type
   TfrmSpringTypes = class(TForm)
-    btn1: TButton;
+    aclMain: TActionList;
   private
-    { Private declarations }
+
   public
-    procedure AfterConstruction; override;
-    { Public declarations }
 
   end;
 
 implementation
 
 {$R *.dfm}
-
-procedure TfrmSpringTypes.AfterConstruction;
-var
-  SL : SmartPointer<TStringList>;
-begin
-  inherited AfterConstruction;
-  SL := TStringList.Create;
-  SL.Value.Add('Test');
-  ShowMessage(SL.Value.Text);
-
-end;
 
 end.

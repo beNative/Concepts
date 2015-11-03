@@ -3,7 +3,7 @@ object frmMulticastEvents: TfrmMulticastEvents
   Top = 0
   Caption = 'Multicast events'
   ClientHeight = 88
-  ClientWidth = 287
+  ClientWidth = 288
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,7 +13,7 @@ object frmMulticastEvents: TfrmMulticastEvents
   OldCreateOrder = False
   OnClose = FormClose
   DesignSize = (
-    287
+    288
     88)
   PixelsPerInch = 96
   TextHeight = 13
@@ -35,16 +35,16 @@ object frmMulticastEvents: TfrmMulticastEvents
   object pbrPosition: TProgressBar
     Left = 8
     Top = 34
-    Width = 272
-    Height = 21
+    Width = 273
+    Height = 13
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 1
-    ExplicitWidth = 265
+    ExplicitWidth = 272
   end
   object btnExecute: TButton
     Left = 107
     Top = 3
-    Width = 173
+    Width = 174
     Height = 25
     Action = actExecute
     Anchors = [akLeft, akTop, akRight]
@@ -52,18 +52,21 @@ object frmMulticastEvents: TfrmMulticastEvents
     ImageMargins.Left = 4
     Images = dmResources.imlMain
     TabOrder = 2
-    ExplicitWidth = 166
+    ExplicitWidth = 173
   end
   object trbImageIndex: TTrackBar
     Left = 8
-    Top = 61
-    Width = 272
-    Height = 24
+    Top = 52
+    Width = 273
+    Height = 28
     Anchors = [akLeft, akTop, akRight]
+    Max = 500
+    Frequency = 100
     ShowSelRange = False
     TabOrder = 3
+    TickStyle = tsManual
     OnChange = trbImageIndexChange
-    ExplicitWidth = 265
+    ExplicitWidth = 272
   end
   object aclMain: TActionList
     Images = dmResources.imlMain

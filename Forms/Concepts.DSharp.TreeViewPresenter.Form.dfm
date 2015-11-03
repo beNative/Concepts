@@ -31,7 +31,6 @@ object frmTreeViewPresenter: TfrmTreeViewPresenter
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitHeight = 505
   end
   object pnlBottom: TPanel
     Left = 0
@@ -60,7 +59,6 @@ object frmTreeViewPresenter: TfrmTreeViewPresenter
       Height = 21
       Anchors = [akLeft, akBottom]
       TabOrder = 0
-      ExplicitTop = 201
     end
     object btnFilter: TButton
       Left = 135
@@ -71,7 +69,6 @@ object frmTreeViewPresenter: TfrmTreeViewPresenter
       Caption = 'Filter'
       TabOrder = 1
       OnClick = btnFilterClick
-      ExplicitTop = 197
     end
     object edtIndex: TSpinEdit
       Left = 446
@@ -83,7 +80,6 @@ object frmTreeViewPresenter: TfrmTreeViewPresenter
       MinValue = 0
       TabOrder = 2
       Value = 0
-      ExplicitTop = 200
     end
     object edtName: TEdit
       Left = 490
@@ -92,7 +88,6 @@ object frmTreeViewPresenter: TfrmTreeViewPresenter
       Height = 21
       Anchors = [akLeft, akBottom]
       TabOrder = 3
-      ExplicitTop = 201
     end
     object btnEvent: TButton
       Left = 598
@@ -103,7 +98,6 @@ object frmTreeViewPresenter: TfrmTreeViewPresenter
       Caption = 'Change'
       TabOrder = 4
       OnClick = btnEventClick
-      ExplicitTop = 197
     end
   end
   object pnlLeft: TPanel
@@ -115,6 +109,5 @@ object frmTreeViewPresenter: TfrmTreeViewPresenter
     BevelOuter = bvNone
     Caption = 'pnlLeft'
     TabOrder = 2
-    ExplicitHeight = 505
   end
 end

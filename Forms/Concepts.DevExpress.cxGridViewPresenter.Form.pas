@@ -65,9 +65,15 @@ type
     tlcMainColumn5: TcxTreeListColumn;
     tlcMainColumn6: TcxTreeListColumn;
     tlcMainColumn7: TcxTreeListColumn;
+    actInspectGridViewPresenter: TAction;
+    btnInspectGridViewPresenter: TButton;
+    actInspectTreeListPresenter: TAction;
+    btnInspectTreeListPresenter: TButton;
     {$ENDREGION}
 
     procedure actFillListExecute(Sender: TObject);
+    procedure actInspectGridViewPresenterExecute(Sender: TObject);
+    procedure actInspectTreeListPresenterExecute(Sender: TObject);
 
   private
     FList        : IList<TContact>;
@@ -89,21 +95,33 @@ uses
 
   DDuce.RandomData,
 
-  Concepts.Factories;
+  Concepts.Factories, Concepts.Resources, Concepts.ComponentInspector;
 
 {$REGION 'construction and destruction'}
+procedure TfrmcxGridViewPresenter.actInspectGridViewPresenterExecute(
+  Sender: TObject);
+begin
+  InspectComponent(FGVPresenter);
+  InspectObject(FGVPresenter.ColumnDefinitions as TColumnDefinitions);
+end;
+
+procedure TfrmcxGridViewPresenter.actInspectTreeListPresenterExecute(
+  Sender: TObject);
+begin
+  InspectComponent(FTLPresenter);
+  InspectObject(FTLPresenter.ColumnDefinitions as TColumnDefinitions);
+end;
+
 procedure TfrmcxGridViewPresenter.AfterConstruction;
 var
   OL : IObjectList;
 begin
   inherited AfterConstruction;
-
-  FList := TConceptFactories.CreateContactList(1000);
+  FList := TConceptFactories.CreateContactList(5000);
   OL := FList as IObjectList;
   FGVPresenter := TConceptFactories.CreateGridViewPresenter(Self, tvwMain, OL);
   FTLPresenter := TConceptFactories.CreateTreeListPresenter(Self, lstMain, OL);
   FTVPresenter := TConceptFactories.CreateTreeViewPresenter(Self, vstMain, OL);
-
   tvwMain.ApplyBestFit;
   lstMain.ApplyBestFit;
   vstMain.Header.AutoFitColumns(False);

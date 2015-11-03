@@ -17,22 +17,29 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   PixelsPerInch = 96
   TextHeight = 13
   object lblDescription: TLabel
-    Left = 8
-    Top = 10
-    Width = 402
-    Height = 38
-    Anchors = [akLeft, akTop, akRight]
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 412
+    Height = 41
+    Align = alTop
     AutoSize = False
     Caption = 
       'This example demonstrates lazy instantiation through the Lazy<T>' +
       ' type in the Delphi Spring library. Objects of the wrapped type ' +
       'will be created by the specified delegate when they are first re' +
       'ferenced.'
+    Color = clCream
+    ParentColor = False
+    Transparent = False
     WordWrap = True
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 418
   end
   object btnAddTextToLazyMemo: TButton
     Left = 8
-    Top = 57
+    Top = 47
     Width = 130
     Height = 25
     Action = actAddTextToLazyMemo
@@ -40,27 +47,25 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   end
   object pnlMemo: TPanel
     Left = 8
-    Top = 88
+    Top = 78
     Width = 402
     Height = 110
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
-    Caption = 'pnlMemo'
     TabOrder = 1
   end
   object pnlCheckBox: TPanel
     Left = 8
-    Top = 204
+    Top = 194
     Width = 402
-    Height = 37
+    Height = 47
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
-    Caption = 'pnlCheckBox'
     TabOrder = 2
   end
   object btnToggleLazyCheckbox: TButton
     Left = 144
-    Top = 57
+    Top = 47
     Width = 130
     Height = 25
     Action = actToggleLazyCheckbox
@@ -68,7 +73,7 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   end
   object btnShowClassName: TButton
     Left = 280
-    Top = 57
+    Top = 47
     Width = 130
     Height = 25
     Action = actShowClassName
@@ -87,6 +92,7 @@ object frmLazyInstantiation: TfrmLazyInstantiation
     end
     object actShowClassName: TAction
       Caption = 'Show classname'
+      Hint = 'Lazy creation of TMyType class.'
       OnExecute = actShowClassNameExecute
     end
   end
