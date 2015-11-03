@@ -52,6 +52,14 @@ object frmObjectDataSet: TfrmObjectDataSet
       Images = dmResources.imlMain
       TabOrder = 1
     end
+    object btnInspectObjectDataSet: TButton
+      Left = 292
+      Top = 5
+      Width = 150
+      Height = 25
+      Action = actInspectObjectDataSet
+      TabOrder = 2
+    end
   end
   object pnlClient: TPanel
     Left = 0
@@ -450,6 +458,14 @@ object frmObjectDataSet: TfrmObjectDataSet
     Height = 19
     Panels = <>
   end
+  object btnInspectPresenter: TButton
+    Left = 453
+    Top = 5
+    Width = 150
+    Height = 25
+    Action = actInspectPresenter
+    TabOrder = 3
+  end
   object dscMain: TDataSource
     OnUpdateData = dscMainUpdateData
     Left = 352
@@ -484,6 +500,14 @@ object frmObjectDataSet: TfrmObjectDataSet
       Caption = 'Disconnect presenter'
       ImageIndex = 524
       OnExecute = actDisconnectPresenterExecute
+    end
+    object actInspectObjectDataSet: TAction
+      Caption = 'Inspect ObjectDataSet'
+      OnExecute = actInspectObjectDataSetExecute
+    end
+    object actInspectPresenter: TAction
+      Caption = 'Inspect Presenter'
+      OnExecute = actInspectPresenterExecute
     end
   end
 end

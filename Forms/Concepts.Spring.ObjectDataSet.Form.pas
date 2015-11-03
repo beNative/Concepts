@@ -42,53 +42,57 @@ uses
 type
   TfrmObjectDataSet = class(TForm)
     {$REGION 'designer controls'}
-    aclMain                : TActionList;
-    actConnectDataSet      : TAction;
-    actConnectPresenter    : TAction;
-    actDisconnectDataSet   : TAction;
-    actDisconnectPresenter : TAction;
-    actFillList            : TAction;
-    btnConnectPresenter    : TButton;
-    btnDisconnectPresenter : TButton;
-    btnExecute             : TButton;
-    btnExecute1            : TButton;
-    btnExecute2            : TButton;
-    dscMain                : TDataSource;
-    edtAddress             : TLabeledEdit;
-    edtCompanyName         : TLabeledEdit;
-    edtDBAddress           : TDBEdit;
-    edtDBCompanyName       : TDBEdit;
-    edtDBEmail             : TDBEdit;
-    edtDBFirstname         : TDBEdit;
-    edtDBLastname          : TDBEdit;
-    edtDBNumber            : TDBEdit;
-    edtEmail               : TLabeledEdit;
-    edtFirstname           : TLabeledEdit;
-    edtLastname            : TLabeledEdit;
-    edtNumber              : TLabeledEdit;
-    edtRecordCount         : TEdit;
-    lblRecordCount         : TLabel;
-    navDataSet             : TDBNavigator;
-    pnlClient              : TPanel;
-    pnlDataAware           : TPanel;
-    pnlLeft                : TPanel;
-    pnlLeftFooter          : TPanel;
-    pnlLeftHeader          : TPanel;
-    pnlPresenter           : TPanel;
-    pnlRight               : TPanel;
-    pnlRightFooter         : TPanel;
-    pnlRightHeader         : TPanel;
-    pnlTop                 : TPanel;
-    sbrMain                : TStatusBar;
-    splVertical            : TSplitter;
-    pnlDataAwareControls   : TPanel;
-    pnlVCLControls         : TPanel;
-    lblFirstname           : TLabel;
-    lblLastname            : TLabel;
-    lblEmail               : TLabel;
-    lblCompanyName         : TLabel;
-    lblAddress             : TLabel;
-    lblNumber              : TLabel;
+    aclMain                 : TActionList;
+    actConnectDataSet       : TAction;
+    actConnectPresenter     : TAction;
+    actDisconnectDataSet    : TAction;
+    actDisconnectPresenter  : TAction;
+    actFillList             : TAction;
+    actInspectObjectDataSet : TAction;
+    actInspectPresenter     : TAction;
+    btnConnectPresenter     : TButton;
+    btnDisconnectPresenter  : TButton;
+    btnExecute              : TButton;
+    btnExecute1             : TButton;
+    btnExecute2             : TButton;
+    btnInspectObjectDataSet : TButton;
+    btnInspectPresenter     : TButton;
+    dscMain                 : TDataSource;
+    edtAddress              : TLabeledEdit;
+    edtCompanyName          : TLabeledEdit;
+    edtDBAddress            : TDBEdit;
+    edtDBCompanyName        : TDBEdit;
+    edtDBEmail              : TDBEdit;
+    edtDBFirstname          : TDBEdit;
+    edtDBLastname           : TDBEdit;
+    edtDBNumber             : TDBEdit;
+    edtEmail                : TLabeledEdit;
+    edtFirstname            : TLabeledEdit;
+    edtLastname             : TLabeledEdit;
+    edtNumber               : TLabeledEdit;
+    edtRecordCount          : TEdit;
+    lblAddress              : TLabel;
+    lblCompanyName          : TLabel;
+    lblEmail                : TLabel;
+    lblFirstname            : TLabel;
+    lblLastname             : TLabel;
+    lblNumber               : TLabel;
+    lblRecordCount          : TLabel;
+    navDataSet              : TDBNavigator;
+    pnlClient               : TPanel;
+    pnlDataAware            : TPanel;
+    pnlDataAwareControls    : TPanel;
+    pnlLeft                 : TPanel;
+    pnlLeftFooter           : TPanel;
+    pnlLeftHeader           : TPanel;
+    pnlPresenter            : TPanel;
+    pnlRight                : TPanel;
+    pnlRightFooter          : TPanel;
+    pnlRightHeader          : TPanel;
+    pnlTop                  : TPanel;
+    pnlVCLControls          : TPanel;
+    sbrMain                 : TStatusBar;
+    splVertical             : TSplitter;
     {$ENDREGION}
 
     procedure actFillListExecute(Sender: TObject);
@@ -96,6 +100,8 @@ type
     procedure actDisconnectDataSetExecute(Sender: TObject);
     procedure actDisconnectPresenterExecute(Sender: TObject);
     procedure actConnectPresenterExecute(Sender: TObject);
+    procedure actInspectObjectDataSetExecute(Sender: TObject);
+    procedure actInspectPresenterExecute(Sender: TObject);
 
     procedure FormResize(Sender: TObject);
     procedure dscMainUpdateData(Sender: TObject);
@@ -143,7 +149,9 @@ implementation
 uses
   System.SysUtils,
 
-  Concepts.Factories, Concepts.Utils;
+  DSharp.Windows.ColumnDefinitions,
+
+  Concepts.Factories, Concepts.Utils, Concepts.ComponentInspector;
 
 {$REGION 'construction and destruction'}
 procedure TfrmObjectDataSet.AfterConstruction;
@@ -151,7 +159,11 @@ begin
   inherited AfterConstruction;
   FList := TConceptFactories.CreateContactList;
   FVST  := TConceptFactories.CreateVirtualStringTree(Self, pnlRight);
-  FTVP  := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList as IObjectList);
+  FTVP  := TConceptFactories.CreateTreeViewPresenter(
+    Self,
+    FVST,
+    FList as IObjectList
+  );
   FDBG  := TConceptFactories.CreateDBGrid(Self, pnlLeft, dscMain);
   FObjectDataSet          := TObjectDataset.Create(Self);
   FObjectDataSet.DataList := FList as IObjectList;
@@ -191,6 +203,17 @@ begin
   DisconnectPresenter;
   DisconnectDataSet;
   HourGlass(FillList);
+end;
+
+procedure TfrmObjectDataSet.actInspectObjectDataSetExecute(Sender: TObject);
+begin
+  InspectComponents(FObjectDataSet);
+end;
+
+procedure TfrmObjectDataSet.actInspectPresenterExecute(Sender: TObject);
+begin
+  InspectComponent(FTVP);
+  InspectObject(FTVP.ColumnDefinitions as TColumnDefinitions);
 end;
 {$ENDREGION}
 
@@ -263,7 +286,11 @@ procedure TfrmObjectDataSet.ConnectPresenter;
 begin
   if not Assigned(FTVP) then
   begin
-    FTVP := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList as IObjectList);
+    FTVP := TConceptFactories.CreateTreeViewPresenter(
+      Self,
+      FVST,
+      FList as IObjectList // IObjectList = IList<TObject>
+    );
     FTVP.TreeView.Header.AutoFitColumns;
 //    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Firstname', edtFirstname);
 //    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Lastname', edtLastname);
@@ -292,10 +319,10 @@ end;
 procedure TfrmObjectDataSet.UpdateActions;
 begin
   inherited;
-  actConnectDataSet.Enabled         := not DataSetEnabled;
-  actDisconnectDataSet.Enabled      := DataSetEnabled;
-  actConnectPresenter.Enabled       := not PresenterEnabled;
-  actDisconnectPresenter.Enabled    := PresenterEnabled;
+  actConnectDataSet.Enabled      := not DataSetEnabled;
+  actDisconnectDataSet.Enabled   := DataSetEnabled;
+  actConnectPresenter.Enabled    := not PresenterEnabled;
+  actDisconnectPresenter.Enabled := PresenterEnabled;
 end;
 {$ENDREGION}
 
