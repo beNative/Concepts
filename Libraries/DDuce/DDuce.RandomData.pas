@@ -1224,7 +1224,7 @@ type
     {$ENDREGION}
 
     {$REGION 'LastNames'}
-    LastNames: array [0 .. 765] of string = (
+    LastNames: array [0 .. 768] of string = (
       'Adams',
       'Adamski',
       'Adkins',
@@ -1242,6 +1242,7 @@ type
       'Appleton',
       'Arant',
       'Arce',
+      'Armstrong',
       'Arnold',
       'Arreguin',
       'Arterburn',
@@ -1360,6 +1361,7 @@ type
       'Cleveland',
       'Cline',
       'Clingman',
+      'Clinton',
       'Cloud',
       'Clyburn',
       'Cobbins',
@@ -1830,6 +1832,7 @@ type
       'Romeo',
       'Rondeau',
       'Ross',
+      'Rossi',
       'Roughton',
       'Rouse',
       'Royster',
@@ -2891,7 +2894,7 @@ begin
     Result := EmptyStr;
 
   Result := Result + Str(StreetBeginnings) + Str(StreetEndings) + ' ' + Str
-    (StreetTypes) + ' ' + IntToStr((Random(499) + 1) div (Random(9) + 1) + 1);
+    (StreetTypes);
 end;
 
 class function RandomData.BirthDate(AMinYear, AMaxYear: Word): TDate;
@@ -2911,7 +2914,12 @@ end;
 
 class function RandomData.Address: string;
 begin
-  Result := Format('%s %d %d %s', [Street, Number(200), Number(50000), City]);
+  Result := Format('%d, %s %s, %d', [
+    ((Random(499) + 1) div (Random(9) + 1) + 1),
+    Street,
+    City,
+    Number(50000)
+  ]);
 end;
 
 class function RandomData.Adjective: string;
