@@ -62,6 +62,7 @@ uses
   Concepts.Spring.ObjectDataSet.Form,
   Concepts.Spring.Logging.Form,
   Concepts.Spring.Types.Form,
+  Concepts.Spring.Utils.Form,
   {$ENDIF}
 
   {$IFDEF ASYNCCALLS}
@@ -165,13 +166,13 @@ begin
     'Spring types',
     FCategoryColor
   );
-//  ConceptManager.Register(
-//    TfrmSpringUtils,
-//    'Utils',
-//    'Spring',
-//    'Utillity classes and routines',
-//    FCategoryColor
-//  );
+  ConceptManager.Register(
+    TfrmSpringUtils,
+    'Utils',
+    'Spring',
+    'Utillity classes and routines',
+    FCategoryColor
+  );
   {$ENDIF}
 end;
 

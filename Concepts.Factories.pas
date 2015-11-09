@@ -121,7 +121,9 @@ type
       const AName       : string = ''
     ): TDBGrid; static;
 
-    class function CreateRandomContact: TContact; static;
+    class function CreateRandomContact(
+      ASpecial: Boolean = False
+    ): TContact; static;
   end;
 
 implementation
@@ -434,6 +436,8 @@ var
 begin
   TVP := TTreeViewPresenter.Create(AOwner);
   TVP.TreeView := AVST;
+  TVP.SyncMode := True;
+  TVP.ListMode := False;
   InitializePresenter(TVP, ASource, ATemplate, AFilter);
   Result := TVP;
 end;
@@ -484,16 +488,18 @@ class procedure TConceptFactories.FillListWithContacts(AList: IObjectList;
   ACount: Integer);
 var
   I : Integer;
+  B : Boolean;
 begin
   Guard.CheckNotNull(AList, 'AList');
   AList.Clear;
+  B := ACount < 40000;
   for I := 0 to ACount - 1 do
   begin
-    AList.Add(CreateRandomContact);
+    AList.Add(CreateRandomContact(B));
   end;
 end;
 
-class function TConceptFactories.CreateRandomContact: TContact;
+class function TConceptFactories.CreateRandomContact(ASpecial: Boolean = False): TContact;
 var
   C: TContact;
 begin
@@ -502,7 +508,10 @@ begin
   begin
     FirstName   := RandomData.FirstName;
     LastName    := RandomData.LastName;
-    CompanyName := RandomData.CompanyName;
+    if ASpecial then
+      CompanyName := RandomData.AlliteratedCompanyName
+    else
+      CompanyName := RandomData.CompanyName;
     Email       := RandomData.Email(FirstName, LastName);
     Address     := RandomData.Address;
     Number      := RandomData.Number(100);
@@ -525,7 +534,9 @@ begin
     for P in C.GetType(ASource.ElementType).GetProperties do
     begin
       with APresenter.ColumnDefinitions.Add(P.Name) do
+      begin
         ValuePropertyName := P.Name;
+      end;
     end;
   end;
   APresenter.UseColumnDefinitions := True;

@@ -22,8 +22,6 @@ object frmMain: TfrmMain
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 1008
-    ExplicitHeight = 583
     object edtFilter: TEdit
       AlignWithMargins = True
       Left = 3
@@ -41,7 +39,6 @@ object frmMain: TfrmMain
       OnChange = edtFilterChange
       OnKeyDown = edtFilterKeyDown
       OnKeyUp = edtFilterKeyUp
-      ExplicitWidth = 1002
     end
   end
   object sbrMain: TStatusBar
@@ -51,8 +48,6 @@ object frmMain: TfrmMain
     Height = 19
     Panels = <>
     SimplePanel = True
-    ExplicitTop = 617
-    ExplicitWidth = 1008
   end
   object pnlButtons: TGridPanel
     Left = 0
@@ -91,8 +86,6 @@ object frmMain: TfrmMain
         Value = 100.000000000000000000
       end>
     TabOrder = 2
-    ExplicitTop = 583
-    ExplicitWidth = 1008
     object btnExecute: TButton
       AlignWithMargins = True
       Left = 260
@@ -106,8 +99,6 @@ object frmMain: TfrmMain
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 0
-      ExplicitLeft = 349
-      ExplicitWidth = 326
     end
     object btnClose: TButton
       AlignWithMargins = True
@@ -122,8 +113,6 @@ object frmMain: TfrmMain
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 1
-      ExplicitLeft = 681
-      ExplicitWidth = 323
     end
     object btnExecuteModal: TButton
       AlignWithMargins = True
@@ -139,7 +128,6 @@ object frmMain: TfrmMain
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 2
-      ExplicitWidth = 339
     end
   end
   object aclMain: TActionList
