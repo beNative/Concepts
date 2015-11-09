@@ -5,5 +5,5 @@ Concepts is a modular Delphi application which illustrates some language feature
 * [Spring4D](http://bitbucket.org/sglienke/spring4d)
 * [DSharp](http://bitbucket.org/sglienke/dsharp)
 * [Virtual treeview](http://github.com/Virtual-TreeView/Virtual-TreeView)
-* TChromeTabs component
+* [TChromeTabs](http://github.com/norgepaul/TChromeTabs) component
 
