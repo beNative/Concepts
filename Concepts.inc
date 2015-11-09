@@ -22,11 +22,11 @@
 {$I '.\jedi.inc'}
 
 { Delphi RTL units ('System' prefix) }
-{.$DEFINE SYSTEM}
+{$DEFINE SYSTEM}
 { Delphi VCL units ('Vcl' prefix) }
-{.$DEFINE VCL}
+{$DEFINE VCL}
 { Delphi WinApi units ('WinApi' prefix) }
-{.$DEFINE WINAPI}
+{$DEFINE WINAPI}
 { Spring4D - http://bitbucket.org/sglienke/spring4d }
 {$DEFINE SPRING}
 { DSharp - http://bitbucket.org/sglienke/dsharp }
@@ -36,12 +36,12 @@
 { DDuce - http://github.com/beNative/dduce }
 {$DEFINE DDUCE}
 { DevExpress - http://www.devexpress.com/Products/VCL/ }
-{$DEFINE DEVEXPRESS}
+{.$DEFINE DEVEXPRESS}
 { RTTEye }
 {$DEFINE RTTEYE}
 { BTMemoryModule.pas }
 {.$DEFINE BTMEMORYMODULE}
 { SQLBuilder4D.pas }
-{.$DEFINE SQLBUILDER4D}
+{$DEFINE SQLBUILDER4D}
 { TChromeTabs }
-{.$DEFINE CHROMETABS}
+{$DEFINE CHROMETABS}

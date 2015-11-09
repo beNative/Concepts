@@ -190,6 +190,7 @@ begin
     'DSharp TreeViewPresenter',
     FCategoryColor
   );
+  {$IFDEF DEVEXPRESS}
   ConceptManager.Register(
     TfrmcxGridViewPresenter,
     'Presenters',
@@ -197,6 +198,7 @@ begin
     'Specialized presenters',
     FCategoryColor
   );
+  {$ENDIF}
   {$ENDIF}
 end;
 
