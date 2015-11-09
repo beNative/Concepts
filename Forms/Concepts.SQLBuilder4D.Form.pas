@@ -47,7 +47,6 @@ const
   PERSON      = 'Person';
   FIRSTNAME   = 'FirstName';
 
-
 {$REGION 'construction and destruction'}
 procedure TfrmSQLBuilder4D.AfterConstruction;
 var

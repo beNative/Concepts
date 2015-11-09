@@ -190,6 +190,7 @@ begin
     'DSharp TreeViewPresenter',
     FCategoryColor
   );
+  {$IFDEF DEVEXPRESS}
   ConceptManager.Register(
     TfrmcxGridViewPresenter,
     'Presenters',
@@ -197,6 +198,7 @@ begin
     'Specialized presenters',
     FCategoryColor
   );
+  {$ENDIF}
   {$ENDIF}
 end;
 
@@ -344,15 +346,6 @@ begin
     'BTMemoryModule',
     'BTMemoryModule',
     'Demonstrates how to load a DLL direct from memory.'
-  );
-  {$ENDIF}
-
-  {$IFDEF ASYNCCALLS}
-  ConceptManager.Register(
-    TfrmAsyncCalls,
-    'AsyncCalls',
-    'AsyncCalls',
-    'Demonstrates how to use AsyncCalls.pas'
   );
   {$ENDIF}
 

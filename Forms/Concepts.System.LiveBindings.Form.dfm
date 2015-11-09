@@ -1,8 +1,8 @@
 object frmLiveBindings: TfrmLiveBindings
   Left = 177
   Top = 140
-  ClientHeight = 451
-  ClientWidth = 630
+  ClientHeight = 532
+  ClientWidth = 894
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -19,7 +19,7 @@ object frmLiveBindings: TfrmLiveBindings
     Left = 274
     Top = 0
     Width = 6
-    Height = 432
+    Height = 513
     ExplicitLeft = 251
     ExplicitHeight = 459
   end
@@ -27,10 +27,11 @@ object frmLiveBindings: TfrmLiveBindings
     Left = 0
     Top = 0
     Width = 274
-    Height = 432
+    Height = 513
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitHeight = 432
     object cbxControls: TComboBox
       AlignWithMargins = True
       Left = 3
@@ -48,8 +49,8 @@ object frmLiveBindings: TfrmLiveBindings
   object pnlRight: TPanel
     Left = 280
     Top = 0
-    Width = 350
-    Height = 432
+    Width = 614
+    Height = 513
     Align = alClient
     BevelOuter = bvNone
     Font.Charset = DEFAULT_CHARSET
@@ -59,9 +60,11 @@ object frmLiveBindings: TfrmLiveBindings
     Font.Style = []
     ParentFont = False
     TabOrder = 1
+    ExplicitWidth = 350
+    ExplicitHeight = 432
     object lblLabel: TLabel
-      Left = 17
-      Top = 97
+      Left = 6
+      Top = 57
       Width = 104
       Height = 132
       Alignment = taCenter
@@ -114,15 +117,15 @@ object frmLiveBindings: TfrmLiveBindings
     end
   end
   object edtButtonCaption: TEdit
-    Left = 280
+    Left = 286
     Top = 8
     Width = 121
     Height = 21
     TabOrder = 2
   end
   object btnButton: TButton
-    Left = 407
-    Top = 6
+    Left = 413
+    Top = 5
     Width = 179
     Height = 25
     TabOrder = 3
@@ -139,12 +142,14 @@ object frmLiveBindings: TfrmLiveBindings
   end
   object sbrMain: TStatusBar
     Left = 0
-    Top = 432
-    Width = 630
+    Top = 513
+    Width = 894
     Height = 19
     Panels = <>
     SimplePanel = True
     SimpleText = 'TPanel, Width: 348, Height: 440'
+    ExplicitTop = 432
+    ExplicitWidth = 630
   end
   object edt1: TEdit
     Left = 320

@@ -53,10 +53,10 @@ type
     pbMulti2           : TProgressBar;
     sbrMain            : TStatusBar;
     bxpStatusbar       : TBindExpression;
-    edt1: TEdit;
-    edt2: TEdit;
-    btn1: TButton;
-    btn2: TButton;
+    edt1               : TEdit;
+    edt2               : TEdit;
+    btn1               : TButton;
+    btn2               : TButton;
 
     procedure cbxControlsChange(Sender: TObject);
     procedure trbTrackBarChange(Sender: TObject);
@@ -154,10 +154,10 @@ begin
   BE := TBindExpression.Create(Self);
   BE.ControlComponent  := edt1;
   BE.ControlExpression := 'Text';
-  BE.SourceComponent := FBindScope;
-  BE.SourceExpression := 'FirstName';
-  BE.Direction       := TExpressionDirection.dirBidirectional;
-  BE.BindingsList := lstBindings;
+  BE.SourceComponent   := FBindScope;
+  BE.SourceExpression  := 'FirstName';
+  BE.Direction         := TExpressionDirection.dirBidirectional;
+  BE.BindingsList      := lstBindings;
 end;
 
 procedure TfrmLiveBindings.btn1Click(Sender: TObject);
