@@ -14,7 +14,7 @@
   limitations under the License.
 }
 
-//{$I Concepts.inc}
+{$I Concepts.inc}
 
 unit Concepts.Resources;
 

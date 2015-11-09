@@ -6,7 +6,6 @@ uses
   Forms,
   Vcl.Themes,
   Vcl.Styles,
-  System.ImageList in 'Types\System.ImageList.pas',
   AsyncCalls in 'Libraries\AsyncCalls\AsyncCalls.pas',
   BTMemoryModule in 'Libraries\BTMemoryModule\BTMemoryModule.pas',
   ChromeTabs in 'Libraries\TChromeTabs\Lib\ChromeTabs.pas',
@@ -299,7 +298,8 @@ uses
   VirtualTrees.WorkerThread in 'Libraries\VirtualTreeView\Source\VirtualTrees.WorkerThread.pas',
   VTAccessibility in 'Libraries\VirtualTreeView\Source\VTAccessibility.pas',
   VTAccessibilityFactory in 'Libraries\VirtualTreeView\Source\VTAccessibilityFactory.pas',
-  VTHeaderPopup in 'Libraries\VirtualTreeView\Source\VTHeaderPopup.pas';
+  VTHeaderPopup in 'Libraries\VirtualTreeView\Source\VTHeaderPopup.pas',
+  Concepts.ComponentInspector in 'Concepts.ComponentInspector.pas' {frmComponentInspector};
 
 {$R *.res}
 
