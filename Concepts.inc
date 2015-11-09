@@ -37,8 +37,6 @@
 {$DEFINE DDUCE}
 { DevExpress - http://www.devexpress.com/Products/VCL/ }
 {$DEFINE DEVEXPRESS}
-{ AsyncCalls.pas }
-{.$DEFINE ASYNCCALLS}
 { RTTEye }
 {$DEFINE RTTEYE}
 { BTMemoryModule.pas }
