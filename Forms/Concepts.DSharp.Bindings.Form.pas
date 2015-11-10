@@ -28,8 +28,6 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.ActnList,
 
-  cxGraphics, cxControls,
-
   Spring,
 
   DSharp.Bindings.VCLControls, DSharp.Bindings, DSharp.Core.Validations,

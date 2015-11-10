@@ -32,14 +32,18 @@ uses
   Spring, Spring.Collections,
 
   DSharp.Windows.TreeViewPresenter, DSharp.Bindings.Collections,
-  DSharp.Core.DataTemplates, DSharp.DevExpress.GridViewPresenter,
-  DSharp.DevExpress.PresenterDataSource, DSharp.DevExpress.TreeListPresenter,
-  DSharp.Windows.CustomPresenter,
+  DSharp.Core.DataTemplates, DSharp.Windows.CustomPresenter,
+  {$IFDEF DEVEXPRESS}
+  DSharp.DevExpress.GridViewPresenter, DSharp.DevExpress.PresenterDataSource,
+  DSharp.DevExpress.TreeListPresenter,
+  {$ENDIF}
 
   DDuce.Components.PropertyInspector, DDuce.Components.LogTree,
   DDuce.Components.GridView, DDuce.Components.DBGridView,
 
+  {$IFDEF DEVEXPRESS}
   cxGridCustomView, cxTL, cxTLData,
+  {$ENDIF}
 
   Concepts.Types.Contact;
 
@@ -89,6 +93,7 @@ type
       const AName     : string = ''
     ): TTreeViewPresenter; static;
 
+    {$IFDEF DEVEXPRESS}
     class function CreateGridViewPresenter(
             AOwner    : TComponent;
             AGridView : TcxCustomGridView = nil;
@@ -106,6 +111,7 @@ type
             AFilter   : TFilterEvent = nil;
       const AName     : string = ''
     ): TTreeListPresenter; static;
+    {$ENDIF}
 
     class function CreateDBGridView(
             AOwner      : TComponent;
@@ -428,6 +434,32 @@ begin
   Result := VLT;
 end;
 
+{$IFDEF DEVEXPRESS}
+class function TConceptFactories.CreateGridViewPresenter(AOwner: TComponent;
+  AGridView: TcxCustomGridView; ASource: IObjectList; ATemplate: IDataTemplate;
+  AFilter: TFilterEvent; const AName: string): TGridViewPresenter;
+var
+  GVP: TGridViewPresenter;
+begin
+  GVP := TGridViewPresenter.Create(AOwner);
+  GVP.GridView := AGridView;
+  InitializePresenter(GVP, ASource, ATemplate, AFilter);
+  Result := GVP;
+end;
+
+class function TConceptFactories.CreateTreeListPresenter(AOwner: TComponent;
+  ATreeList: TcxVirtualTreeList; ASource: IObjectList; ATemplate: IDataTemplate;
+  AFilter: TFilterEvent; const AName: string): TTreeListPresenter;
+var
+  TLP: TTreeListPresenter;
+begin
+  TLP := TTreeListPresenter.Create(AOwner);
+  TLP.TreeList := ATreeList;
+  InitializePresenter(TLP, ASource, ATemplate, AFilter);
+  Result := TLP;
+end;
+{$ENDIF}
+
 class function TConceptFactories.CreateTreeViewPresenter(AOwner: TComponent;
   AVST: TVirtualStringTree; ASource: IObjectList; ATemplate: IDataTemplate;
   AFilter: TFilterEvent; const AName: string): TTreeViewPresenter;
@@ -440,18 +472,6 @@ begin
   TVP.ListMode := False;
   InitializePresenter(TVP, ASource, ATemplate, AFilter);
   Result := TVP;
-end;
-
-class function TConceptFactories.CreateGridViewPresenter(AOwner: TComponent;
-  AGridView: TcxCustomGridView; ASource: IObjectList; ATemplate: IDataTemplate;
-  AFilter: TFilterEvent; const AName: string): TGridViewPresenter;
-var
-  GVP: TGridViewPresenter;
-begin
-  GVP := TGridViewPresenter.Create(AOwner);
-  GVP.GridView := AGridView;
-  InitializePresenter(GVP, ASource, ATemplate, AFilter);
-  Result := GVP;
 end;
 
 class function TConceptFactories.CreateVirtualStringTree(AOwner: TComponent;
@@ -546,18 +566,6 @@ begin
       TColumnDefinitionsControlTemplate.Create(APresenter.ColumnDefinitions);
   if Assigned(AFilter) then
     APresenter.View.Filter.Add(AFilter);
-end;
-
-class function TConceptFactories.CreateTreeListPresenter(AOwner: TComponent;
-  ATreeList: TcxVirtualTreeList; ASource: IObjectList; ATemplate: IDataTemplate;
-  AFilter: TFilterEvent; const AName: string): TTreeListPresenter;
-var
-  TLP: TTreeListPresenter;
-begin
-  TLP := TTreeListPresenter.Create(AOwner);
-  TLP.TreeList := ATreeList;
-  InitializePresenter(TLP, ASource, ATemplate, AFilter);
-  Result := TLP;
 end;
 {$ENDREGION}
 

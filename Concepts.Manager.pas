@@ -68,7 +68,6 @@ type
     ); static;
 
     class constructor Create;
-    class destructor Destroy;
 
     class function Register(
             AFormClass   : TComponentClass;
@@ -94,11 +93,6 @@ uses
 class constructor TConceptManager.Create;
 begin
   FList := TCollections.CreateObjectList<TConcept>;
-end;
-
-class destructor TConceptManager.Destroy;
-begin
-  FreeAndNil(FList);
 end;
 {$ENDREGION}
 

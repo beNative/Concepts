@@ -1392,7 +1392,6 @@ var
   B  : Boolean;
   NT : TNodeType;
 begin
-//  Logger.EnterMethod(Self, 'AddChild');
   Result := False;
   repeat
     B := ANewXMLNode.ElementType in [xeElement, xeAttribute, xeComment];
