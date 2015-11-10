@@ -1,0 +1,930 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{08B0BBF6-9865-47D8-B7FD-7BE56E3904B5}</ProjectGuid>
+        <MainSource>Concepts.dpr</MainSource>
+        <Config Condition="'$(Config)'==''">Release</Config>
+        <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+        <ProjectVersion>17.2</ProjectVersion>
+        <FrameworkType>VCL</FrameworkType>
+        <Base>True</Base>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <TargetedPlatforms>3</TargetedPlatforms>
+        <AppType>Application</AppType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+        <Cfg_1_Win32>true</Cfg_1_Win32>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
+        <Cfg_1_Win64>true</Cfg_1_Win64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+        <Cfg_2_Win64>true</Cfg_2_Win64>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
+        <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
+        <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_Optimize>false</DCC_Optimize>
+        <Icon_MainIcon>Concepts.ico</Icon_MainIcon>
+        <DCC_BplOutput>.\Library\$(Platform)\$(Config)</DCC_BplOutput>
+        <DCC_ExeOutput>.\Library\$(Platform)\$(Config)</DCC_ExeOutput>
+        <DCC_DcuOutput>.\Library\$(Platform)\$(Config)</DCC_DcuOutput>
+        <SanitizedProjectName>Concepts</SanitizedProjectName>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Locale>2067</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=Tim Sinaeve;FileDescription=;FileVersion=1.0.0.0;InternalName=Concepts;LegalCopyright=(c) 2015 Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <DCC_DependencyCheckOutputName>Concepts.exe</DCC_DependencyCheckOutputName>
+        <DCC_ImageBase>00400000</DCC_ImageBase>
+        <DCC_Platform>x86</DCC_Platform>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <VerInfo_Build>2</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Tim Sinaeve;FileDescription=;FileVersion=1.0.0.2;InternalName=Concepts;LegalCopyright=(c) 2015 Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <DCC_ImportedDataReferences>false</DCC_ImportedDataReferences>
+        <DCC_DebugInfoInExe>false</DCC_DebugInfoInExe>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
+        <DCC_RangeChecking>true</DCC_RangeChecking>
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_MapFile>3</DCC_MapFile>
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <DCC_IntegerOverflowCheck>false</DCC_IntegerOverflowCheck>
+        <DCC_ImportedDataReferences>false</DCC_ImportedDataReferences>
+        <DCC_RangeChecking>false</DCC_RangeChecking>
+        <DCC_MapFile>1</DCC_MapFile>
+        <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
+        <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
+        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+        <DCC_DebugInformation>2</DCC_DebugInformation>
+        <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
+        <VerInfo_Build>6</VerInfo_Build>
+        <DCC_ExeOutput>.\Library\$(Platform)\$(Config)\</DCC_ExeOutput>
+        <VerInfo_Keys>CompanyName=(c) Tim Sinaeve;FileDescription=Concepts;FileVersion=1.0.0.6;InternalName=Concepts;LegalCopyright=(c) Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=A collection of modules demonstrating some Delphi programming concepts and libraries</VerInfo_Keys>
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="Types\System.ImageList.pas"/>
+        <DCCReference Include="Libraries\BTMemoryModule\BTMemoryModule.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabs.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsClasses.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsControls.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsGlassForm.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsLog.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsThreadTimer.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsTypes.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsUtils.pas"/>
+        <DCCReference Include="Forms\Concepts.BTMemoryModule.Form.pas">
+            <Form>frmBTMemoryModule</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.ChromeTabs.Form.pas">
+            <Form>frmChromeTabs</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.ComponentInspectorTemplate.Form.pas">
+            <Form>frmPropertyInspector</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.DevExpress.cxEditors.Form.pas">
+            <Form>frmcxEditors</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas">
+            <Form>frmcxGridViewPresenter</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.DSharp.Bindings.Form.pas">
+            <Form>frmBindings</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.DSharp.TreeViewPresenter.Form.pas">
+            <Form>frmTreeViewPresenter</Form>
+        </DCCReference>
+        <DCCReference Include="Concepts.Factories.pas"/>
+        <DCCReference Include="Concepts.MainForm.pas">
+            <Form>frmMain</Form>
+        </DCCReference>
+        <DCCReference Include="Concepts.Manager.pas"/>
+        <DCCReference Include="Concepts.Registration.pas"/>
+        <DCCReference Include="Concepts.Resources.pas">
+            <Form>dmResources</Form>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.RTTEye.Form.pas">
+            <Form>frmRTTEye</Form>
+        </DCCReference>
+        <DCCReference Include="Types\Concepts.RTTEye.Templates.pas"/>
+        <DCCReference Include="Forms\Concepts.Spring.Collections.Form.pas">
+            <Form>frmCollections</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.Spring.Interception.Form.pas">
+            <Form>frmSpringInterception</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.Spring.LazyInstantiation.Form.pas">
+            <Form>frmLazyInstantiation</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.Spring.Logging.Form.pas">
+            <Form>frmSpringLogging</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.Spring.MultiCastEvents.ChildForm.pas">
+            <Form>frmMulticastEventsChild</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.Spring.MultiCastEvents.Data.pas"/>
+        <DCCReference Include="Forms\Concepts.Spring.MultiCastEvents.Form.pas">
+            <Form>frmMulticastEvents</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.Spring.ObjectDataSet.Form.pas">
+            <Form>frmObjectDataSet</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.Spring.Types.Form.pas">
+            <Form>frmSpringTypes</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.Spring.Utils.Form.pas">
+            <Form>frmSpringUtils</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.SQLBuilder4D.Form.pas">
+            <Form>frmSQLBuilder4D</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.AnonymousMethods.Form.pas">
+            <Form>frmAnonymousMethods</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.InterfaceImplementationByAggregation.Form.pas">
+            <Form>frmIterFaceImplementationByAggregation</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.Libraries.Form.pas">
+            <Form>frmLibraries</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.LiveBindings.Form.pas">
+            <Form>frmLiveBindings</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.RegularExpressions.Form.pas">
+            <Form>frmRegularExpressions</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.RTTI.Form.pas">
+            <Form>frmRTTI</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.Threading.Form.pas">
+            <Form>frmThreading</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.Threads.Form.pas">
+            <Form>frmThreads</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.Variants.Form.pas">
+            <Form>frmVariants</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.VirtualInterface.Form.pas">
+            <Form>frmVirtualInterfaceDemo</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.VirtualMethodInterceptor.Form.pas">
+            <Form>frmVirtualMethodInterceptor</Form>
+        </DCCReference>
+        <DCCReference Include="Types\Concepts.Types.Contact.pas"/>
+        <DCCReference Include="Types\Concepts.Types.ValidationRules.pas"/>
+        <DCCReference Include="Concepts.Utils.pas"/>
+        <DCCReference Include="Forms\Concepts.Vcl.GridPanels.Form.pas">
+            <Form>frmGridPanels</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.WinApi.LockPaint.Form.pas">
+            <Form>frmLockPaint</Form>
+        </DCCReference>
+        <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.DBGridView.pas"/>
+        <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.GridView.pas"/>
+        <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.Inspector.pas"/>
+        <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.LogTree.pas"/>
+        <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.PropertyInspector.pas"/>
+        <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.PropertyInspector.CollectionEditor.pas">
+            <Form>frmCollectionEditor</Form>
+        </DCCReference>
+        <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.PropertyInspector.StringsEditor.pas">
+            <Form>StringsEditorDialog</Form>
+        </DCCReference>
+        <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.XMLTree.pas"/>
+        <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.XMLTree.Editors.pas"/>
+        <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.XMLTree.NodeAttributes.pas"/>
+        <DCCReference Include="Libraries\DDuce\DDuce.DynamicRecord.pas"/>
+        <DCCReference Include="Libraries\DDuce\DDuce.Logger.pas"/>
+        <DCCReference Include="Libraries\DDuce\DDuce.RandomData.pas"/>
+        <DCCReference Include="Libraries\DDuce\DDuce.Reflect.pas"/>
+        <DCCReference Include="Libraries\DDuce\DDuce.ScopedReference.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.Collections.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.CollectionView.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.CollectionView.Adapters.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.CollectionView.VCLAdapters.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.Exceptions.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.Notifications.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.Validations.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.VCLControls.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Bindings.VCLControls.Extensions.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Collections.ObservableCollection.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.ComponentModel.DataAnnotations.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Collections.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.CopyOperator.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.DataConversion.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.DataTemplates.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.DataTemplates.Default.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.DependencyProperty.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Editable.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Expressions.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Framework.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Properties.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.PropertyChangedBase.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Reflection.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Utils.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.Validations.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Core.XNode.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.PresenterDataSource.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.TreeListPresenter.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.ControlTemplate.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.RttiDataTemplate.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.XmlDataTemplate.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.ControlTemplates.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.CustomPresenter.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.CustomPresenter.Types.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.Windows.TreeViewPresenter.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaAdvancedSQLParser.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaBasicSQLParser.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaDeleteStm.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaInsertStm.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaLnkList.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaParserVisitor.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaQueryParsersReg.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSelectStm.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLExpressionParsers.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLFieldRefParsers.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLParserConsts.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLParserHelperClasses.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLSelectFieldParsers.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLTableRefParsers.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaUpdateStm.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Adapters.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Base.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Dictionaries.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Enumerable.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Events.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Extensions.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.LinkedLists.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Lists.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.MultiMaps.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Queues.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Sets.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Stacks.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.ActivatorExtension.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.AutoMockExtension.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.Builder.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.Common.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.ComponentActivator.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.Core.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.CreationContext.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.DecoratorExtension.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.Extensions.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.Injection.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.LifetimeManager.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.Pool.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.ProxyFactory.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.Registration.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.Resolvers.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.ResourceStrings.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Extensions\Cryptography\Spring.Cryptography.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Extensions\Cryptography\Spring.Cryptography.Base.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Extensions\Cryptography\Spring.Cryptography.CRC.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Extensions\Cryptography\Spring.Cryptography.DES.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Extensions\Cryptography\Spring.Cryptography.MD5.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Extensions\Cryptography\Spring.Cryptography.SHA.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Extensions\Cryptography\Spring.Cryptography.Utils.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.DesignPatterns.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.Events.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.Events.Base.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.Helpers.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Interception\Spring.Interception.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Interception\Spring.Interception.AbstractInvocation.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Interception\Spring.Interception.ClassProxy.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Interception\Spring.Interception.CustomProxy.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Interception\Spring.Interception.InterfaceProxy.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Interception\Spring.Interception.ResourceStrings.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Logging\Spring.Logging.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Logging\Spring.Logging.Appenders.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Logging\Spring.Logging.Appenders.Base.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Logging\Spring.Logging.Configuration.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Logging\Spring.Logging.Configuration.Builder.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Logging\Spring.Logging.Container.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Logging\Spring.Logging.Controller.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Logging\Spring.Logging.Extensions.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Logging\Spring.Logging.Loggers.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Logging\Spring.Logging.NullLogger.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Logging\Spring.Logging.ResourceStrings.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Logging\Spring.Logging.Serializers.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.MethodIntercept.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Mocking\Spring.Mocking.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Mocking\Spring.Mocking.Core.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Mocking\Spring.Mocking.Interceptor.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Patches\Spring.Patches.GetInvokeInfo.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Patches\Spring.Patches.QC107219.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Patches\Spring.Patches.QC93646.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Patches\Spring.Patches.QC98671.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.ADO.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.ASA.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.DBX.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.FieldCache.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.FireDAC.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.MSSQL.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.Oracle.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.AbstractSession.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Base.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ConnectionFactory.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Consts.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.DatabaseManager.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.DetachedSession.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EmbeddedEntity.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EntityCache.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EntityMap.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EntityWrapper.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Exceptions.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Graphics.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Interfaces.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ListSession.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Repository.Proxy.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Repository.Simple.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Session.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ValueConverters.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Abstract.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.BetweenExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Conjunction.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Disjunction.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.InExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Junction.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.LikeExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.LogicalExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.NullExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.PropertyExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.SimpleExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Interfaces.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.OrderBy.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Properties.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Restrictions.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.Attributes.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.Abstract.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.DB.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Abstract.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ActiveX.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Algorithms.Sort.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Blobs.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Designtime.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ExprParser.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ExprParser.Functions.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.IndexList.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Abstract.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateForeignKey.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateSequence.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateTable.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Delete.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Insert.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Page.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Select.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Update.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Abstract.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Ansi.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.ASA.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Firebird.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.MSSQL.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.MySQL.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.NoSQL.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Oracle.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.PostgreSQL.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Register.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.SQLite3.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Interfaces.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Params.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Register.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Types.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Reflection\Spring.Reflection.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.ResourceStrings.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Services\Spring.Services.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Services\Spring.Services.Logging.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.SystemUtils.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.Times.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Extensions\Utils\Spring.Utils.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Extensions\Utils\Spring.Utils.IO.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Extensions\Utils\Spring.Utils.WinApi.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.ValueConverters.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.VirtualClass.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.VirtualInterface.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.GaSQLParser.pas"/>
+        <DCCReference Include="Libraries\VirtualTreeView\Source\VirtualTrees.pas"/>
+        <DCCReference Include="Libraries\VirtualTreeView\Source\VirtualTrees.Actions.pas"/>
+        <DCCReference Include="Libraries\VirtualTreeView\Source\VirtualTrees.Classes.pas"/>
+        <DCCReference Include="Libraries\VirtualTreeView\Source\VirtualTrees.ClipBoard.pas"/>
+        <DCCReference Include="Libraries\VirtualTreeView\Source\VirtualTrees.Export.pas"/>
+        <DCCReference Include="Libraries\VirtualTreeView\Source\VirtualTrees.StyleHooks.pas"/>
+        <DCCReference Include="Libraries\VirtualTreeView\Source\VirtualTrees.Utils.pas"/>
+        <DCCReference Include="Libraries\VirtualTreeView\Source\VirtualTrees.WorkerThread.pas"/>
+        <DCCReference Include="Libraries\VirtualTreeView\Source\VTAccessibility.pas"/>
+        <DCCReference Include="Libraries\VirtualTreeView\Source\VTAccessibilityFactory.pas"/>
+        <DCCReference Include="Libraries\VirtualTreeView\Source\VTHeaderPopup.pas"/>
+        <DCCReference Include="Concepts.ComponentInspector.pas">
+            <Form>frmComponentInspector</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <None Include="Libraries\DDuce\DDuce.inc"/>
+        <None Include="Libraries\DDuce\jedi.inc"/>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType>VCLApplication</Borland.ProjectType>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Source>
+                    <Source Name="MainSource">Concepts.DelphiXE5.dpr</Source>
+                </Source>
+                <Parameters>
+                    <Parameters Name="UseLauncher">False</Parameters>
+                    <Parameters Name="LoadAllSymbols">True</Parameters>
+                    <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+                </Parameters>
+                <VersionInfo>
+                    <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+                    <VersionInfo Name="AutoIncBuild">False</VersionInfo>
+                    <VersionInfo Name="MajorVer">1</VersionInfo>
+                    <VersionInfo Name="MinorVer">0</VersionInfo>
+                    <VersionInfo Name="Release">0</VersionInfo>
+                    <VersionInfo Name="Build">0</VersionInfo>
+                    <VersionInfo Name="Debug">False</VersionInfo>
+                    <VersionInfo Name="PreRelease">False</VersionInfo>
+                    <VersionInfo Name="Special">False</VersionInfo>
+                    <VersionInfo Name="Private">False</VersionInfo>
+                    <VersionInfo Name="DLL">False</VersionInfo>
+                    <VersionInfo Name="Locale">2067</VersionInfo>
+                    <VersionInfo Name="CodePage">1252</VersionInfo>
+                </VersionInfo>
+                <VersionInfoKeys>
+                    <VersionInfoKeys Name="CompanyName"/>
+                    <VersionInfoKeys Name="FileDescription"/>
+                    <VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+                    <VersionInfoKeys Name="InternalName"/>
+                    <VersionInfoKeys Name="LegalCopyright"/>
+                    <VersionInfoKeys Name="LegalTrademarks"/>
+                    <VersionInfoKeys Name="OriginalFilename"/>
+                    <VersionInfoKeys Name="ProductName"/>
+                    <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+                    <VersionInfoKeys Name="Comments"/>
+                </VersionInfoKeys>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dclcxSpreadSheetRS19.bpl">File C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dclcxSpreadSheetRS19.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPScxSSLnkRS19.bpl">File C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPScxSSLnkRS19.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPSTeeChartRS19.bpl">File C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPSTeeChartRS19.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dclcxSchedulerRibbonStyleEventEditorRS19.bpl">ExpressScheduler Ribbon Event Window by Developer Express Inc.</Excluded_Packages>
+                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPSPrVwRibbonRS19.bpl">ExpressPrinting System Ribbon Preview Window by Developer Express Inc.</Excluded_Packages>
+                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\ReportBuilder\Win32\dclRBE1519.bpl">ReportBuilder Components</Excluded_Packages>
+                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\ReportBuilder\Win32\dclDAD1519.bpl">ReportBuilder Data Access Environment</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k190.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp190.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPSDBTeeChartRS19.bpl">File C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPSDBTeeChartRS19.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\ReportBuilder\Win32\dclRBC1519.bpl">ReportBuilder TeeChart 9 Components</Excluded_Packages>
+                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\RemObjects\Win32\RemObjects_Everwood_D19.bpl">File C:\CIMDevelopment\CIMConfig\DelphiXE5\RemObjects\Win32\RemObjects_Everwood_D19.bpl not found</Excluded_Packages>
+                </Excluded_Packages>
+            </Delphi.Personality>
+            <Platforms>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">True</Platform>
+            </Platforms>
+            <Deployment Version="1">
+                <DeployFile LocalName="Library\Win32\Release\Concepts.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>Concepts.exe</RemoteName>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Library\Win64\Debug\Concepts.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>Concepts.exe</RemoteName>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Libraries\DDuce\DDuce.inc" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Library\Win32\Debug\Concepts.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>Concepts.exe</RemoteName>
+                    </Platform>
+                </DeployFile>
+                <DeployClass Required="true" Name="DependencyPackage">
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_Launch2048">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectOSXInfoPList"/>
+                <DeployClass Name="ProjectiOSDeviceDebug">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_SplashImage470">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-normal</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidLibnativeX86File">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\x86</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSResource">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectOSXEntitlements"/>
+                <DeployClass Name="AndroidGDBServer">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\armeabi-v7a</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Launch640">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_SplashImage960">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-xlarge</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_LauncherIcon96">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-xhdpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Launch320">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_LauncherIcon144">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-xxhdpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidLibnativeMipsFile">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\mips</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidSplashImageDef">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="DebugSymbols">
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="DependencyFramework">
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.framework</Extensions>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_SplashImage426">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-small</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSEntitlements"/>
+                <DeployClass Name="AdditionalDebugSymbols">
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidClassesDexFile">
+                    <Platform Name="Android">
+                        <RemoteDir>classes</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSInfoPList"/>
+                <DeployClass Name="iPad_Launch1024">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_DefaultAppIcon">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectOSXResource">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\Resources</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
+                <DeployClass Name="iPad_Launch768">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Required="true" Name="ProjectOutput">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\armeabi-v7a</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidLibnativeArmeabiFile">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\armeabi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_SplashImage640">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-large</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="File">
+                    <Platform Name="Android">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Launch640x1136">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_LauncherIcon36">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-ldpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidSplashStyles">
+                    <Platform Name="Android">
+                        <RemoteDir>res\values</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_Launch1536">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_LauncherIcon48">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-mdpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_LauncherIcon72">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-hdpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectAndroidManifest">
+                    <Platform Name="Android">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+            </Deployment>
+            <ModelSupport>False</ModelSupport>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+    <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
+</Project>
