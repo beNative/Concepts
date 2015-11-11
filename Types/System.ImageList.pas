@@ -5,6 +5,3 @@ interface
 implementation
 
 end.
-
-
-

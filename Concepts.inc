@@ -21,6 +21,10 @@
 
 {$I '.\jedi.inc'}
 
+{$IFDEF DELPHIXE8_UP}
+  {$DEFINE HAS_UNIT_SYSTEM_IMAGELIST}
+{$ENDIF}
+
 { Delphi RTL units ('System' prefix) }
 {$DEFINE SYSTEM}
 { Delphi VCL units ('Vcl' prefix) }

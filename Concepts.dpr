@@ -6,6 +6,9 @@ uses
   Forms,
   Vcl.Themes,
   Vcl.Styles,
+  {$IFNDEF HAS_UNIT_SYSTEM_IMAGELIST}
+  System.ImageList in 'Types\System.ImageList.pas',
+  {$ENDIF}
   BTMemoryModule in 'Libraries\BTMemoryModule\BTMemoryModule.pas',
   ChromeTabs in 'Libraries\TChromeTabs\Lib\ChromeTabs.pas',
   ChromeTabsClasses in 'Libraries\TChromeTabs\Lib\ChromeTabsClasses.pas',
@@ -20,7 +23,6 @@ uses
   Concepts.ComponentInspectorTemplate.Form in 'Forms\Concepts.ComponentInspectorTemplate.Form.pas' {frmPropertyInspector},
   {$IFDEF DEVEXPRESS}
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
-  Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter},
   {$ENDIF}
   Concepts.DSharp.Bindings.Form in 'Forms\Concepts.DSharp.Bindings.Form.pas' {frmBindings},
   Concepts.DSharp.TreeViewPresenter.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.Form.pas' {frmTreeViewPresenter},
@@ -102,8 +104,6 @@ uses
   DSharp.Core.XNode in 'Libraries\DSharp\DSharp.Core.XNode.pas',
   {$IFDEF DEVEXPRESS}
   DSharp.DevExpress.GridViewPresenter in 'Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas',
-  DSharp.DevExpress.PresenterDataSource in 'Libraries\DSharp\DSharp.DevExpress.PresenterDataSource.pas',
-  DSharp.DevExpress.TreeListPresenter in 'Libraries\DSharp\DSharp.DevExpress.TreeListPresenter.pas',
   {$ENDIF}
   DSharp.Windows.ColumnDefinitions in 'Libraries\DSharp\DSharp.Windows.ColumnDefinitions.pas',
   DSharp.Windows.ColumnDefinitions.ControlTemplate in 'Libraries\DSharp\DSharp.Windows.ColumnDefinitions.ControlTemplate.pas',
