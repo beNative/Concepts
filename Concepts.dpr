@@ -3,12 +3,12 @@ program Concepts;
 {$I Concepts.inc}
 
 uses
-  Forms,
   Vcl.Themes,
   Vcl.Styles,
+  Forms,
   {$IFNDEF HAS_UNIT_SYSTEM_IMAGELIST}
   System.ImageList in 'Types\System.ImageList.pas',
-  {$ENDIF}
+  {$ENDIF }
   BTMemoryModule in 'Libraries\BTMemoryModule\BTMemoryModule.pas',
   ChromeTabs in 'Libraries\TChromeTabs\Lib\ChromeTabs.pas',
   ChromeTabsClasses in 'Libraries\TChromeTabs\Lib\ChromeTabsClasses.pas',
@@ -22,8 +22,8 @@ uses
   Concepts.ChromeTabs.Form in 'Forms\Concepts.ChromeTabs.Form.pas' {frmChromeTabs},
   Concepts.ComponentInspectorTemplate.Form in 'Forms\Concepts.ComponentInspectorTemplate.Form.pas' {frmPropertyInspector},
   {$IFDEF DEVEXPRESS}
-  Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
-  {$ENDIF}
+  Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas',
+  {$ENDIF }
   Concepts.DSharp.Bindings.Form in 'Forms\Concepts.DSharp.Bindings.Form.pas' {frmBindings},
   Concepts.DSharp.TreeViewPresenter.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.Form.pas' {frmTreeViewPresenter},
   Concepts.Factories in 'Concepts.Factories.pas',
@@ -104,7 +104,7 @@ uses
   DSharp.Core.XNode in 'Libraries\DSharp\DSharp.Core.XNode.pas',
   {$IFDEF DEVEXPRESS}
   DSharp.DevExpress.GridViewPresenter in 'Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas',
-  {$ENDIF}
+  {$ENDIF }
   DSharp.Windows.ColumnDefinitions in 'Libraries\DSharp\DSharp.Windows.ColumnDefinitions.pas',
   DSharp.Windows.ColumnDefinitions.ControlTemplate in 'Libraries\DSharp\DSharp.Windows.ColumnDefinitions.ControlTemplate.pas',
   DSharp.Windows.ColumnDefinitions.RttiDataTemplate in 'Libraries\DSharp\DSharp.Windows.ColumnDefinitions.RttiDataTemplate.pas',
@@ -301,12 +301,14 @@ uses
   VTAccessibility in 'Libraries\VirtualTreeView\Source\VTAccessibility.pas',
   VTAccessibilityFactory in 'Libraries\VirtualTreeView\Source\VTAccessibilityFactory.pas',
   VTHeaderPopup in 'Libraries\VirtualTreeView\Source\VTHeaderPopup.pas',
-  Concepts.ComponentInspector in 'Concepts.ComponentInspector.pas' {frmComponentInspector};
+  Concepts.ComponentInspector in 'Concepts.ComponentInspector.pas' {frmComponentInspector},
+  DDuce.Logging.Appenders.WinIPC in 'Libraries\DDuce\Logging\DDuce.Logging.Appenders.WinIPC.pas',
+  DDuce.Logging.Appenders.LogTree in 'Libraries\DDuce\Logging\DDuce.Logging.Appenders.LogTree.pas';
 
 {$R *.res}
 
 begin
-  ReportMemoryLeaksOnShutdown := True;
+  ReportMemoryLeaksOnShutdown := DebugHook > 0;
   Application.Initialize;
   TConcepts.RegisterConcepts;
   Application.CreateForm(TdmResources, dmResources);

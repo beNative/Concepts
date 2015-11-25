@@ -46,18 +46,18 @@ type
   public
     constructor Create(
       AOwner  : TComponent;
-      AObject : TPersistent
+      AObject : TObject
     ); reintroduce;
 
     procedure CreatePropertyInspector;
 
-    procedure AddComponentToInspector(AComponent: TPersistent); virtual;
-    procedure FocusComponentInInspector(AComponent: TPersistent); virtual;
+    procedure AddComponentToInspector(AComponent: TObject); virtual;
+    procedure FocusComponentInInspector(AComponent: TObject); virtual;
   end;
 
 procedure InspectComponent(AComponent : TComponent);
 
-procedure InspectObject(AObject : TPersistent);
+procedure InspectObject(AObject : TObject);
 
 procedure InspectComponents(AComponent : TComponent); overload;
 
@@ -85,7 +85,7 @@ begin
     raise Exception.Create('No component Assigned');
 end;
 
-procedure InspectObject(AObject : TPersistent);
+procedure InspectObject(AObject : TObject);
 var
   InspectorForm : TfrmComponentInspector;
 begin
@@ -173,7 +173,7 @@ end;
 {$ENDREGION}
 
 {$REGION 'construction and destruction'}
-constructor TfrmComponentInspector.Create(AOwner: TComponent; AObject: TPersistent);
+constructor TfrmComponentInspector.Create(AOwner: TComponent; AObject: TObject);
 begin
   inherited Create(AOwner);
   CreatePropertyInspector;
@@ -220,7 +220,7 @@ end;
 
 {$REGION 'public methods'}
 procedure TfrmComponentInspector.AddComponentToInspector(
-  AComponent: TPersistent);
+  AComponent: TObject);
 var
   S     : string;
   sName : string;
@@ -252,7 +252,7 @@ begin
 end;
 
 procedure TfrmComponentInspector.FocusComponentInInspector(
-  AComponent: TPersistent);
+  AComponent: TObject);
 begin
   cbxInspector.ItemIndex := cbxInspector.Items.IndexOfObject(AComponent);
   cbxInspectorChange(nil);
@@ -268,7 +268,7 @@ begin
     if (cbxInspector.ItemIndex >= 0) and
      Assigned(cbxInspector.Items.Objects[cbxInspector.ItemIndex]) then
       FInspector.Add(cbxInspector.Items.Objects[cbxInspector.ItemIndex] as
-        TPersistent);
+        TObject);
   finally
     FInspector.EndUpdate;
   end;

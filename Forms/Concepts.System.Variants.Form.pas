@@ -30,17 +30,17 @@ uses
 
 type
   TfrmVariants = class(TForm)
-    chkNullStrictConvert       : TCheckBox;
-    btnUnassigned              : TButton;
-    btnShowAsString            : TButton;
-    btnNull                    : TButton;
-    btnEmptyParam              : TButton;
     aclMain                    : TActionList;
-    actAssignUnassigned        : TAction;
-    actAssignNull              : TAction;
     actAssignEmptyParam        : TAction;
+    actAssignNull              : TAction;
+    actAssignUnassigned        : TAction;
     actShowAsString            : TAction;
     actToggleNullStrictConvert : TAction;
+    btnEmptyParam              : TButton;
+    btnNull                    : TButton;
+    btnShowAsString            : TButton;
+    btnUnassigned              : TButton;
+    chkNullStrictConvert       : TCheckBox;
 
     procedure actToggleNullStrictConvertExecute(Sender: TObject);
     procedure actAssignUnassignedExecute(Sender: TObject);

@@ -41,22 +41,12 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ImgList,
 
-{$IFDEF FPC}
-  Editors, LMessages,
-{$ENDIF}
   NativeXML,
 
   VirtualTrees,
 
   DDuce.Logger,
-
   DDuce.Components.XMLTree.NodeAttributes;
-
-{$IFDEF FPC}
-type
-  TMessage   = TLMessage;
-  NativeUint = PtrInt;
-{$ENDIF}
 
 const
   // Helper message to decouple node change handling from edit handling.
@@ -1392,6 +1382,7 @@ var
   B  : Boolean;
   NT : TNodeType;
 begin
+//  Logger.EnterMethod(Self, 'AddChild');
   Result := False;
   repeat
     B := ANewXMLNode.ElementType in [xeElement, xeAttribute, xeComment];
@@ -1680,10 +1671,11 @@ end;
 procedure TXMLTree.NewNode(ANode: PVirtualNode; ANewNodeType: TNodeType;
   AValue: string = ''; AName: string = ''; ABefore: Boolean = False;
   AAddBreak: Boolean = False; AXmlNode: TXmlNode = nil);
-var
-  N : TXmlNode;
+//var
+//  N : TXmlNode;
 begin
   Logger.EnterMethod(Self, 'NewNode');
+
 
   if not Assigned(ANode) then
     AXmlNode := GetXMLNode(FocusedNode);
@@ -1714,7 +1706,7 @@ begin
 //        xeElement
 //      );
       //AXmlNode.NodeAdd(N);
-      AXmlNode.NodeAdd(N);
+//      AXmlNode.NodeAdd(N);
       //Parent.NodeNew(AName).Value := AValue;
         //N := AXmlNode.Document.NodeNewType(Name, xeElement);
         //if Value <> '' then
@@ -1733,13 +1725,13 @@ begin
           //AppendChild(Document.NodeNewType(Value, xeComment));
       //N :=  XMLDocument.NodeNewType(UTF8String(AValue), xeComment);
       //AXmlNode.NodeAdd(N);
-      AXmlNode.NodeAdd(N);
+//      AXmlNode.NodeAdd(N);
     end;
     ntText:
     begin
       //N :=  XMLDocument.NodeNewType(UTF8String(AValue), xeQuotedText);
       //AXmlNode.NodeAdd(N);
-      AXmlNode.NodeAdd(N);
+  //    AXmlNode.NodeAdd(N);
     end;
   end;
 //    if AAddBreak then

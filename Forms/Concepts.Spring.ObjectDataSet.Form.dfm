@@ -317,7 +317,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           BevelKind = bkFlat
           BevelOuter = bvNone
           Caption = 
-            'TVirtualStringTree -> TTreeViewPresenter -> TObjectList<TContact' +
+            'TVirtualStringTree -> TTreeViewPresenter -> IObjectList<TContact' +
             '>'
           Color = clAppWorkSpace
           FullRepaint = False
@@ -360,7 +360,6 @@ object frmObjectDataSet: TfrmObjectDataSet
         BevelOuter = bvNone
         FullRepaint = False
         TabOrder = 1
-        Visible = False
         object edtFirstname: TLabeledEdit
           Left = 8
           Top = 42

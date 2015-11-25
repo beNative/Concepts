@@ -23,12 +23,11 @@ interface
 uses
   System.Classes, System.Actions,
   Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms,
-  Vcl.Graphics,
+  Vcl.Graphics, Vcl.Menus,
 
   cxGraphics, cxEdit, cxContainer, cxRichEdit, cxCheckBox, cxMemo, cxMaskEdit,
   cxControls, cxTextEdit, cxInplaceContainer, cxVGrid, cxOI, cxClasses,
-  cxButtons, dxStatusBar, cxLookAndFeels, cxLookAndFeelPainters, cxStyles,
-  Vcl.Menus;
+  cxButtons, dxStatusBar, cxLookAndFeels, cxLookAndFeelPainters, cxStyles;
 
 type
   TfrmcxEditors = class(TForm)
@@ -124,10 +123,11 @@ type
     procedure AssignText(AEdit: TcxCustomTextEdit; const AValue: string);
 
   public
-    procedure LogText(const AText: string; AColor: TColor = clBlack);
-    procedure ClearLog;
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
+
+    procedure LogText(const AText: string; AColor: TColor = clBlack);
+    procedure ClearLog;
   end;
 
 implementation

@@ -21,13 +21,9 @@ unit DDuce.Components.XMLTree.Editors;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.Types,
   WinApi.Messages,
+  System.SysUtils, System.Classes, System.Types,
   Vcl.Controls, Vcl.Forms, Vcl.StdCtrls,
-
-{$IFDEF FPC}
-  EditBtn, LCLIntf, LCLType,
-{$ENDIF}
 
   VirtualTrees;
 

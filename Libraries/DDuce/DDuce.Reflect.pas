@@ -14,7 +14,7 @@
   limitations under the License.
 }
 
-unit DDuce.Reflect experimental;
+unit DDuce.Reflect;
 
 {$I DDuce.inc}
 

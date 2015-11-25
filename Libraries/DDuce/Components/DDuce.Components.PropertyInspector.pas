@@ -62,9 +62,11 @@ type
   private
     FItems        : TList;
     FChangingCount: Boolean;
+
     function GetItems(AIndex: Integer): TObject;
     function GetCount: Integer;
     procedure SetCount(const Value: Integer);
+
   protected
     function CreateItem: TObject; virtual;
     procedure ValidateAddition; virtual;
@@ -75,6 +77,7 @@ type
     function DoItemBy(AData: Pointer; AItemByProc: TItemByProc): TObject;
     function DoFind(AData: Pointer; AItemByProc: TItemByProc): TObject;
     function DoSearch(AData: Pointer; AItemByProc: TItemByProc): TObject;
+
   public
     constructor Create;
     destructor Destroy; override;
@@ -114,10 +117,19 @@ type
   private
     FChangingBounds: Boolean;
     FReadOnlyStyle : Boolean;
-    procedure PickListMeasureItem(Control: TWinControl; Index: Integer;
-      var Height: Integer);
-    procedure PickListDrawItem(Control: TWinControl; Index: Integer;
-      Rect: TRect; State: TOwnerDrawState);
+
+    procedure PickListMeasureItem(
+      Control    : TWinControl;
+      Index      : Integer;
+      var Height : Integer
+    );
+    procedure PickListDrawItem(
+      Control : TWinControl;
+      Index   : Integer;
+      Rect    : TRect;
+      State   : TOwnerDrawState
+    );
+
     procedure WMLButtonDblClk(var Message: TWMMouse); message WM_LBUTTONDBLCLK;
 
   protected
@@ -416,7 +428,7 @@ type
   TPropertyAttributes = set of TPropertyAttribute;
 
   TGetEditorClassProc = function(
-    AInstance : TPersistent;
+    AInstance : TObject;
     APropInfo : PPropInfo
   ) : TPropertyEditorClass of object;
 
@@ -439,7 +451,7 @@ type
   ) of object;
 
   TPropEditorPropListItem = packed record
-    Instance: TPersistent;
+    Instance: TObject;
     PropInfo: PPropInfo;
   end;
 
@@ -461,7 +473,7 @@ type
     function DoGetValue: string;
 
   protected
-    procedure SetPropEntry(AIndex: Integer; AInstance: TPersistent;
+    procedure SetPropEntry(AIndex: Integer; AInstance: TObject;
       APropInfo: PPropInfo);
     function GetComponent(const AComponentName: string): TComponent;
     procedure GetComponentNames(AClass: TComponentClass; AResult: TStrings);
@@ -484,7 +496,7 @@ type
 
   protected
     function GetPropInfo(AIndex: Integer): PPropInfo;
-    function GetInstance(AIndex: Integer): TPersistent;
+    function GetInstance(AIndex: Integer): TObject;
     function GetFloatValue(AIndex: Integer): Extended;
     function GetInt64Value(AIndex: Integer): Int64;
     function GetOrdValue(AIndex: Integer): Longint;
@@ -883,15 +895,24 @@ type
     EditorClass: TPropertyEditorClass;
   end;
 
-  TPropertyInspectorOnFilterProp = procedure(Sender: TObject;
-    AInstance: TPersistent; APropInfo: PPropInfo; var AIncludeProp: Boolean)
-    of object;
-  TPropertyInspectorOnGetCaptionColor = procedure(Sender: TObject;
-    APropTypeInfo: PTypeInfo;
-    const APropName: string; var AColor: TColor) of object;
-  TPropertyInspectorOnGetEditorClass = procedure(Sender: TObject;
-    AInstance: TPersistent; APropInfo: PPropInfo;
-    var AEditorClass: TPropertyEditorClass) of object;
+  TPropertyInspectorOnFilterProp = procedure(
+    Sender           : TObject;
+    AInstance        : TObject;
+    APropInfo        : PPropInfo;
+    var AIncludeProp : Boolean
+  )  of object;
+  TPropertyInspectorOnGetCaptionColor = procedure(
+    Sender          : TObject;
+    APropTypeInfo   : PTypeInfo;
+    const APropName : string;
+    var AColor      : TColor
+  ) of object;
+  TPropertyInspectorOnGetEditorClass = procedure(
+    Sender           : TObject;
+    AInstance        : TObject;
+    APropInfo        : PPropInfo;
+    var AEditorClass : TPropertyEditorClass
+  ) of object;
 
   TPropertyInspectorPropKind  = (
     pkProperties,
@@ -924,8 +945,8 @@ type
     function IndexOfEditor(ATypeInfo: PTypeInfo; AObjectClass: TClass;
       const APropName: string; AEditorClass: TPropertyEditorClass): Integer;
     procedure CheckObjectsLock;
-    function GetObjects(AIndex: Integer): TPersistent;
-    procedure SetObjects(AIndex: Integer; const Value: TPersistent);
+    function GetObjects(AIndex: Integer): TObject;
+    procedure SetObjects(AIndex: Integer; const Value: TObject);
     function GetObjectCount: Integer;
     procedure SetPropKinds(const Value: TPropertyInspectorPropKinds);
     procedure SetComponentRefColor(const Value: TColor);
@@ -939,7 +960,7 @@ type
     procedure ItemExpanded(AItem: TPropsPageItem); override;
     procedure ItemCollapsed(AItem: TPropsPageItem); override;
     function GetItemCaptionColor(AItem: TPropsPageItem): TColor; override;
-    function GetEditorClass(AInstance: TPersistent; APropInfo: PPropInfo)
+    function GetEditorClass(AInstance: TObject; APropInfo: PPropInfo)
       : TPropertyEditorClass; virtual;
     procedure GetComponent(const AComponentName: string;
       var AComponent: TComponent); virtual;
@@ -947,7 +968,7 @@ type
       AResult: TStrings); virtual;
     procedure GetComponentName(AComponent: TComponent;
       var AName: string); virtual;
-    procedure FilterProp(AInstance: TPersistent; APropInfo: PPropInfo;
+    procedure FilterProp(AInstance: TObject; APropInfo: PPropInfo;
       var AIncludeProp: Boolean); virtual;
     procedure GetCaptionColor(APropTypeInfo: PTypeInfo; const APropName: string;
       var AColor: TColor); virtual;
@@ -995,13 +1016,13 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Add(AObject: TPersistent);
+    procedure Add(AObject: TObject);
     procedure Delete(AIndex: Integer);
-    procedure Remove(AObject: TPersistent);
+    procedure Remove(AObject: TObject);
     procedure Clear;
     procedure UpdateItems;
     procedure AssignObjects(AObjects: TList);
-    function IndexOf(AObject: TPersistent): Integer;
+    function IndexOf(AObject: TObject): Integer;
     procedure Modified;
     procedure RegisterPropEditor(ATypeInfo: PTypeInfo; AObjectClass: TClass;
       const APropName: string; AEditorClass: TPropertyEditorClass);
@@ -1010,7 +1031,7 @@ type
 
     property Items;
 
-    property Objects[AIndex: Integer]: TPersistent
+    property Objects[AIndex: Integer]: TObject
       read GetObjects write SetObjects;
 
     property ObjectCount: Integer
@@ -1263,7 +1284,7 @@ var
   EditorClass              : TPropertyEditorClass;
   Editor                   : TPropertyEditor;
   Attrs                    : TPropertyAttributes;
-  Obj                      : TPersistent;
+  Obj                      : TObject;
 
 begin
   ObjCount := AObjList.Count;
@@ -1316,10 +1337,10 @@ begin
     for I := 0 to High(Intersection) do
     begin
                 { Determine editor class }
-      EditorClass := AGetEditorClassProc(TPersistent(AObjList[0]),
+      EditorClass := AGetEditorClassProc(TObject(AObjList[0]),
         Intersection[I][0]);
       for J := 0 to ObjCount - 1 do
-        if AGetEditorClassProc(TPersistent(AObjList[J]), Intersection[I][J])
+        if AGetEditorClassProc(TObject(AObjList[J]), Intersection[I][J])
           <> EditorClass then
         begin
           EditorClass := nil;
@@ -1331,7 +1352,7 @@ begin
         Editor := EditorClass.Create(ADesigner, AObjList.Count);
         try
           for J := 0 to AObjList.Count - 1 do
-            Editor.SetPropEntry(J, TPersistent(AObjList[J]),
+            Editor.SetPropEntry(J, TObject(AObjList[J]),
               Intersection[I][J]);
           Attrs := Editor.GetAttrs;
           if ((ObjCount = 1) or (praMultiSelect in Attrs)) and
@@ -2897,7 +2918,7 @@ end;
 
 { TCustomPropertyInspector }
 
-procedure TCustomPropertyInspector.Add(AObject: TPersistent);
+procedure TCustomPropertyInspector.Add(AObject: TObject);
 begin
   CheckObjectsLock;
   FObjects.Add(AObject);
@@ -2938,12 +2959,12 @@ begin
   Result := FObjects.Count;
 end;
 
-function TCustomPropertyInspector.GetObjects(AIndex: Integer): TPersistent;
+function TCustomPropertyInspector.GetObjects(AIndex: Integer): TObject;
 begin
   Result := FObjects[AIndex];
 end;
 
-function TCustomPropertyInspector.IndexOf(AObject: TPersistent): Integer;
+function TCustomPropertyInspector.IndexOf(AObject: TObject): Integer;
 var
   I: Integer;
 begin
@@ -2982,7 +3003,7 @@ begin
   end;
 end;
 
-procedure TCustomPropertyInspector.Remove(AObject: TPersistent);
+procedure TCustomPropertyInspector.Remove(AObject: TObject);
 var
   I: Integer;
 begin
@@ -2992,7 +3013,7 @@ begin
 end;
 
 procedure TCustomPropertyInspector.SetObjects(AIndex: Integer;
-  const Value: TPersistent);
+  const Value: TObject);
 begin
   FObjects[AIndex] := Value;
   Change;
@@ -3003,7 +3024,7 @@ begin
   UpdateItems;
 end;
 
-function TCustomPropertyInspector.GetEditorClass(AInstance: TPersistent;
+function TCustomPropertyInspector.GetEditorClass(AInstance: TObject;
   APropInfo: PPropInfo): TPropertyEditorClass;
 var
   I         : Integer;
@@ -3282,7 +3303,7 @@ begin
   end;
 end;
 
-procedure TCustomPropertyInspector.FilterProp(AInstance: TPersistent;
+procedure TCustomPropertyInspector.FilterProp(AInstance: TObject;
   APropInfo: PPropInfo; var AIncludeProp: Boolean);
 begin
   if Assigned(OnFilterProp) then
@@ -3477,7 +3498,7 @@ begin
     Result := GetFloatProp(Instance, PropInfo);
 end;
 
-function TPropertyEditor.GetInstance(AIndex: Integer): TPersistent;
+function TPropertyEditor.GetInstance(AIndex: Integer): TObject;
 begin
   Result := FPropList[AIndex].Instance;
 end;
@@ -3573,7 +3594,7 @@ begin
   Modified;
 end;
 
-procedure TPropertyEditor.SetPropEntry(AIndex: Integer; AInstance: TPersistent;
+procedure TPropertyEditor.SetPropEntry(AIndex: Integer; AInstance: TObject;
   APropInfo: PPropInfo);
 begin
   with FPropList[AIndex] do

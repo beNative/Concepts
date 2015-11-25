@@ -27,8 +27,8 @@ unit DDuce.Components.LogTree;
 interface
 
 uses
-  System.Classes, System.SysUtils, System.Types,
   WinApi.Windows,
+  System.Classes, System.SysUtils, System.Types,
   Vcl.Graphics, Vcl.ImgList, Vcl.Menus,
 
   VirtualTrees;
@@ -55,10 +55,16 @@ type
 
   PLogNodeData = ^TLogNodeData;
 
-  TOnLog = procedure(Sender: TObject; var LogText: string; var
-    CancelEntry: Boolean; LogLevel: TLogLevel) of object;
-  TOnPopupMenuItemClick = procedure(Sender: TObject; MenuItem:
-    TMenuItem) of object;
+  TOnLog = procedure(
+    Sender          : TObject;
+    var LogText     : string;
+    var CancelEntry : Boolean;
+    LogLevel        : TLogLevel
+  ) of object;
+  TOnPopupMenuItemClick = procedure(
+    Sender   : TObject;
+    MenuItem : TMenuItem
+  ) of object;
 
   TLogPopupmenu = class(TPopupMenu)
   private

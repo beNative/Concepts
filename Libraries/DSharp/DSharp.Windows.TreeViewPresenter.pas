@@ -1287,7 +1287,7 @@ begin
   begin
     FTreeView.GetHitTestInfoAt(X, Y, True, LHitInfo);
 
-    if Assigned(FHitInfo.HitNode) and Assigned(FHitInfo.HitNode)
+    if Assigned(LHitInfo.HitNode) and Assigned(FHitInfo.HitNode)
       and (FHitInfo.HitNode <> LHitInfo.HitNode) then
     begin
       FTreeView.RepaintNode(FHitInfo.HitNode);

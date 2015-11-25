@@ -35,13 +35,9 @@ unit DDuce.Components.Inspector;
 interface
 
 uses
-  System.Classes, System.Math,
   Winapi.Windows, Winapi.Messages,
+  System.Classes, System.Math,
   Vcl.Controls, Vcl.Graphics, Vcl.Forms, Vcl.StdCtrls,
-
-{$IFDEF HAS_UNIT_SYSTEM_UITYPES}
-  System.UITypes,
-{$ENDIF}
 
   DDuce.Components.GridView;
 
@@ -86,18 +82,20 @@ type
 
   TCustomInspector = class(TCustomGridView)
   private
-    FNameFont: TFont;
-    FValueFont: TFont;
-    FCategoryFont: TFont;
-    FHitTest: TPoint;
-    FColUpdate: Integer;
-    FOnGetCategoryRow: TInspectorCategoryRowEvent;
+    FNameFont         : TFont;
+    FValueFont        : TFont;
+    FCategoryFont     : TFont;
+    FHitTest          : TPoint;
+    FColUpdate        : Integer;
+    FOnGetCategoryRow : TInspectorCategoryRowEvent;
+
     procedure FontChanged(Sender: TObject);
     procedure SetCategoryFont(Value: TFont);
     procedure SetNameFont(Value: TFont);
     procedure SetValueFont(Value: TFont);
     procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
     procedure WMSetCursor(var Message: TWMSetCursor); message WM_SETCURSOR;
+
   protected
     procedure ChangeColumns; override;
     function ColResizeAllowed(X, Y: Integer): Boolean;
@@ -119,6 +117,7 @@ type
     procedure Resize; override;
     procedure ShowCursor; override;
     procedure ShowFocus; override;
+
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -132,10 +131,13 @@ type
 
     property CategoryFont: TFont
       read FCategoryFont write SetCategoryFont;
+
     property NameFont: TFont
       read FNameFont write SetNameFont;
+
     property ValueFont: TFont
       read FValueFont write SetValueFont;
+
     property OnGetCategoryRow: TInspectorCategoryRowEvent
       read FOnGetCategoryRow write FOnGetCategoryRow;
   end;
@@ -225,20 +227,20 @@ uses
 
 procedure TInspectorEdit.UpdateBounds(ScrollCaret: Boolean);
 begin
-  inherited;
+  inherited UpdateBounds(ScrollCaret);
   ButtonWidth := Height;
 end;
 
 procedure TInspectorEdit.UpdateColors;
 begin
-  inherited;
+  inherited UpdateColors;
   Color := clWindow;
   Font.Color := clBtnText;
 end;
 
 procedure TInspectorEdit.Invalidate;
 begin
-  inherited;
+  inherited Invalidate;
   if Grid <> nil then
     Grid.InvalidateFocus;
 end;
@@ -247,7 +249,7 @@ end;
 
 constructor TCustomInspector.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   Color := clBtnFace;
   RowSelect := False;
   AllowEdit := True;
@@ -304,7 +306,7 @@ begin
   FCategoryFont.Free;
   FValueFont.Free;
   FNameFont.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TCustomInspector.FontChanged(Sender: TObject);
@@ -652,7 +654,7 @@ end;
 
 procedure TCustomInspector.UpdateScrollBars;
 begin
-  inherited;
+  inherited UpdateScrollBars;
   UpdateColumnsSize;
 end;
 

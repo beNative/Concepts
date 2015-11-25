@@ -23,11 +23,12 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList, Vcl.StdCtrls;
 
 type
   TfrmSpringUtils = class(TForm)
     aclMain : TActionList;
+    mmo1: TMemo;
   private
 
   public
@@ -40,19 +41,31 @@ implementation
 {$R *.dfm}
 
 uses
-  System.Rtti;
+  System.Rtti,
+
+  Spring.Utils,
+
+  DDuce.DynamicRecord;
 
 { TfrmSpringUtils }
 
 procedure TfrmSpringUtils.AfterConstruction;
+//var
+//  V : TValue;
+//  V2 : TValue;
 var
-  V : TValue;
-  V2 : TValue;
+  R : TRecord;
+  OS : TOperatingSystem;
+  V : TFileVersionInfo;
 begin
-  inherited AfterConstruction;
-  V := 3;
-  V2 := 'Test';
-  V2 := V;
+//  inherited AfterConstruction;
+//  V := 3;
+//  V2 := 'Test';
+//  V2 := V;
+  //R.AssignProperty();
+  OS := TOperatingSystem.Create;
+  mmo1.Lines.Text := R.ToString;
+  OS.Free;
 
 
 

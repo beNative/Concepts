@@ -22,11 +22,13 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes, System.Rtti,
-  System.Bindings.Outputs,
+  System.SysUtils, System.Variants, System.Classes, System.Rtti, System.Actions,
+  System.Bindings.Outputs, System.Bindings.Manager, System.Bindings.Helper,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ComCtrls, Vcl.Bind.DBEngExt, Vcl.Bind.Editors, Vcl.ExtCtrls,
-  Data.Bind.EngExt, Data.Bind.Components,
+  Vcl.ComCtrls, Vcl.Bind.DBEngExt, Vcl.Bind.Editors, Vcl.ExtCtrls, Vcl.ActnList,
+  Vcl.Bind.Grid, Data.Bind.Grid, Vcl.Grids, Vcl.Buttons, Vcl.Bind.Navigator,
+  Data.Bind.EngExt, Data.Bind.Components, Data.Bind.GenData,
+  Data.Bind.ObjectScope, Data.Bind.Controls, Data.Bind.DBScope,
 
   DDuce.Components.PropertyInspector,
 
@@ -34,35 +36,46 @@ uses
 
 type
   TfrmLiveBindings = class(TForm)
-    pnlLeft            : TPanel;
-    pnlRight           : TPanel;
-    splVertical        : TSplitter;
-    cbxControls        : TComboBox;
-    lstBindings        : TBindingsList;
-    edtButtonCaption   : TEdit;
-    btnButton          : TButton;
-    lnkCaption         : TLinkControlToProperty;
-    trbTrackBar        : TTrackBar;
-    lblLabel           : TLabel;
-    bxpLabel           : TBindExpression;
-    pbProgressBar      : TProgressBar;
-    bxpProgressBar     : TBindExpression;
-    bxiExpressionItems : TBindExprItems;
-    trbMulti           : TTrackBar;
-    pbMulti1           : TProgressBar;
-    pbMulti2           : TProgressBar;
-    sbrMain            : TStatusBar;
-    bxpStatusbar       : TBindExpression;
-    edt1               : TEdit;
-    edt2               : TEdit;
-    btn1               : TButton;
-    btn2               : TButton;
+    absMain1                  : TAdapterBindSource;
+    aclMain                   : TActionList;
+    actAlterContactCompany    : TAction;
+    actGenerateContact        : TAction;
+    bndnvgtrNavigatorabsMain1 : TBindNavigator;
+    btnAlterContactCompany    : TButton;
+    btnButton                 : TButton;
+    btnGenerateContact        : TButton;
+    bxiExpressionItems        : TBindExprItems;
+    bxpLabel                  : TBindExpression;
+    bxpProgressBar            : TBindExpression;
+    bxpStatusbar              : TBindExpression;
+    cbxControls               : TComboBox;
+    dgaMain1                  : TDataGeneratorAdapter;
+    edtButtonCaption          : TEdit;
+    edtCompanyName            : TEdit;
+    edtFirstName              : TEdit;
+    edtLastName               : TEdit;
+    grdMain                   : TStringGrid;
+    hntMain                   : TBalloonHint;
+    lblButtonCaption          : TLabel;
+    lblCompanyName            : TLabel;
+    lblFirstName              : TLabel;
+    lblLabel                  : TLabel;
+    lblLastName               : TLabel;
+    lnkCaption                : TLinkControlToProperty;
+    lnkgrdtdtsrcabsMain       : TLinkGridToDataSource;
+    lstBindings               : TBindingsList;
+    pbProgressBar             : TProgressBar;
+    pnlLeft                   : TPanel;
+    pnlRight                  : TPanel;
+    sbrMain                   : TStatusBar;
+    splVertical               : TSplitter;
+    trbTrackBar               : TTrackBar;
 
     procedure cbxControlsChange(Sender: TObject);
     procedure trbTrackBarChange(Sender: TObject);
     procedure FormResize(Sender: TObject);
-    procedure btn1Click(Sender: TObject);
-    procedure btn2Click(Sender: TObject);
+    procedure actGenerateContactExecute(Sender: TObject);
+    procedure actAlterContactCompanyExecute(Sender: TObject);
 
   private
     FPropertyInspector : TPropertyInspector;
@@ -73,10 +86,9 @@ type
 
   public
     procedure AfterConstruction; override;
-
+    procedure BeforeDestruction; override;
 
     procedure CreateObjectBindings;
-    procedure BeforeDestruction; override;
 
   end;
 
@@ -85,7 +97,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Concepts.Factories, Concepts.Utils;
+  Concepts.Factories, Concepts.Resources;
 
 {$REGION 'construction and destruction'}
 procedure TfrmLiveBindings.AfterConstruction;
@@ -110,7 +122,25 @@ end;
 {$ENDREGION}
 
 {$REGION 'private methods'}
-{ Add all components of the form. }
+procedure TfrmLiveBindings.CreateObjectBindings;
+begin
+  FBindScope := TBindingsFactory.CreateBindScope(FContact, Self);
+  TBindingsFactory.CreateEditBinding(
+    FBindScope,
+    'CompanyName',
+    edtCompanyName
+  );
+  TBindingsFactory.CreateEditBinding(
+    FBindScope,
+    'FirstName',
+    edtFirstName
+  );
+  TBindingsFactory.CreateEditBinding(
+    FBindScope,
+    'LastName',
+    edtLastName
+  );
+end;
 
 procedure TfrmLiveBindings.AddComponents;
 var
@@ -147,29 +177,19 @@ begin
 end;
 {$ENDREGION}
 
-procedure TfrmLiveBindings.CreateObjectBindings;
-var
-  BE : TBindExpression;
+{$REGION 'action handlers'}
+procedure TfrmLiveBindings.actAlterContactCompanyExecute(Sender: TObject);
 begin
-  BE := TBindExpression.Create(Self);
-  BE.ControlComponent  := edt1;
-  BE.ControlExpression := 'Text';
-  BE.SourceComponent   := FBindScope;
-  BE.SourceExpression  := 'FirstName';
-  BE.Direction         := TExpressionDirection.dirBidirectional;
-  BE.BindingsList      := lstBindings;
+  FContact.CompanyName := '';
+  TBindings.Notify(FContact);
 end;
 
-procedure TfrmLiveBindings.btn1Click(Sender: TObject);
+procedure TfrmLiveBindings.actGenerateContactExecute(Sender: TObject);
 begin
   FreeAndNil(FContact);
   FContact := TConceptFactories.CreateRandomContact;
   FBindScope.DataObject := FContact;
 end;
-
-procedure TfrmLiveBindings.btn2Click(Sender: TObject);
-begin
-  ShowMessage(AsPropString(FContact));
-end;
+{$ENDREGION}
 
 end.

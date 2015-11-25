@@ -24,8 +24,8 @@ interface
 
 uses
   System.Classes,
-  Vcl.Controls, Vcl.DBGrids,
-  Data.DB,
+  Vcl.Controls, Vcl.StdCtrls, Vcl.DBGrids,
+  Data.DB, Data.Bind.Components,
 
   VirtualTrees,
 
@@ -69,47 +69,48 @@ type
 
     class function CreateLogTree(
       AOwner  : TComponent;
-      AParent : TWinControl
+      AParent : TWinControl;
+      AImages : TImageList = nil
     ): TLogTree; static;
 
     class function CreatePropertyInspector(
       AOwner  : TComponent;
       AParent : TWinControl;
-      AObject : TPersistent = nil
+      AObject : TObject = nil
     ): TPropertyInspector; static;
 
     class function CreateVirtualStringTree(
-            AOwner  : TComponent;
-            AParent : TWinControl;
-      const AName   : string = ''
+      AOwner      : TComponent;
+      AParent     : TWinControl;
+      const AName : string = ''
     ): TVirtualStringTree; static;
 
     class function CreateTreeViewPresenter(
-            AOwner    : TComponent;
-            AVST      : TVirtualStringTree = nil;
-            ASource   : IObjectList = nil;
-            ATemplate : IDataTemplate = nil;
-            AFilter   : TFilterEvent = nil;
-      const AName     : string = ''
+      AOwner      : TComponent;
+      AVST        : TVirtualStringTree = nil;
+      ASource     : IObjectList = nil;
+      ATemplate   : IDataTemplate = nil;
+      AFilter     : TFilterEvent = nil;
+      const AName : string = ''
     ): TTreeViewPresenter; static;
 
     {$IFDEF DEVEXPRESS}
     class function CreateGridViewPresenter(
-            AOwner    : TComponent;
-            AGridView : TcxCustomGridView = nil;
-            ASource   : IObjectList = nil;
-            ATemplate : IDataTemplate = nil;
-            AFilter   : TFilterEvent = nil;
-      const AName     : string = ''
+      AOwner      : TComponent;
+      AGridView   : TcxCustomGridView = nil;
+      ASource     : IObjectList = nil;
+      ATemplate   : IDataTemplate = nil;
+      AFilter     : TFilterEvent = nil;
+      const AName : string = ''
     ): TGridViewPresenter; static;
 
     class function CreateTreeListPresenter(
-            AOwner    : TComponent;
-            ATreeList : TcxVirtualTreeList = nil;
-            ASource   : IObjectList = nil;
-            ATemplate : IDataTemplate = nil;
-            AFilter   : TFilterEvent = nil;
-      const AName     : string = ''
+      AOwner      : TComponent;
+      ATreeList   : TcxVirtualTreeList = nil;
+      ASource     : IObjectList = nil;
+      ATemplate   : IDataTemplate = nil;
+      AFilter     : TFilterEvent = nil;
+      const AName : string = ''
     ): TTreeListPresenter; static;
     {$ENDIF}
 
@@ -121,15 +122,42 @@ type
     ): TDBGridView; static;
 
     class function CreateDBGrid(
-            AOwner      : TComponent;
-            AParent     : TWinControl;
-            ADataSource : TDataSource = nil;
-      const AName       : string = ''
-    ): TDBGrid; static;
+      AOwner      : TComponent;
+      AParent     : TWinControl;
+      ADataSource : TDataSource = nil;
+      const AName : string = ''
+      ): TDBGrid; static;
 
     class function CreateRandomContact(
       ASpecial: Boolean = False
     ): TContact; static;
+
+  end;
+
+type
+  TBindingsFactory = record
+    class function CreateBindScope(
+      ASource       : TObject;
+      AOwner        : TComponent;
+      AAutoActivate : Boolean = True
+    ): TBindScope; static;
+
+    class function CreateBindExpression(
+      ASourceComponent         : TComponent;  // bindscope
+      const ASourceExpression  : string;
+      AControlComponent        : TComponent;
+      const AControlExpression : string;
+      ADirection               : TExpressionDirection = dirBidirectional;
+      AOwner                   : TComponent = nil // take sourcecomponent as owner
+    ): TBindExpression; static;
+
+    class function CreateEditBinding(
+      ASourceComponent        : TComponent;
+      const ASourceExpression : string;
+      AEdit                   : TCustomEdit;
+      ADirection              : TExpressionDirection = dirBidirectional;
+      AOwner                  : TComponent = nil
+    ): TBindExpression; static;
   end;
 
 implementation
@@ -365,6 +393,7 @@ class function TConceptFactories.CreateDBGrid(AOwner: TComponent;
 var
   DBG: TDBGrid;
 begin
+  Guard.CheckNotNull(AParent, 'AParent');
   DBG                  := TDBGrid.Create(AOwner);
   DBG.AlignWithMargins := True;
   DBG.Parent           := AParent;
@@ -379,6 +408,7 @@ class function TConceptFactories.CreateDBGridView(AOwner: TComponent;
 var
   GV: TDBGridView;
 begin
+  Guard.CheckNotNull(AParent, 'AParent');
   GV                  := TDBGridView.Create(AOwner);
   GV.Header.Flat      := False;
   GV.AlignWithMargins := True;
@@ -399,10 +429,11 @@ begin
 end;
 
 class function TConceptFactories.CreatePropertyInspector(AOwner: TComponent;
-  AParent: TWinControl; AObject: TPersistent): TPropertyInspector;
+  AParent: TWinControl; AObject: TObject): TPropertyInspector;
 var
   PI : TPropertyInspector;
 begin
+  Guard.CheckNotNull(AParent, 'AParent');
   PI                  := TPropertyInspector.Create(AOwner);
   PI.AlignWithMargins := True;
   PI.Parent           := AParent;
@@ -420,10 +451,11 @@ begin
 end;
 
 class function TConceptFactories.CreateLogTree(AOwner: TComponent;
-  AParent: TWinControl): TLogTree;
+  AParent: TWinControl; AImages : TImageList): TLogTree;
 var
   VLT : TLogTree;
 begin
+  Guard.CheckNotNull(AParent, 'AParent');
   VLT                    := TLogTree.Create(AOwner);
   VLT.AlignWithMargins   := True;
   VLT.BorderStyle        := bsNone;
@@ -431,6 +463,8 @@ begin
   VLT.Align              := alClient;
   VLT.ShowImages         := True;
   VLT.Header.Options     := VLT.Header.Options + [hoAutoSpring];
+  if Assigned(AImages) then
+    VLT.Images := AImages;
   Result := VLT;
 end;
 
@@ -479,6 +513,7 @@ class function TConceptFactories.CreateVirtualStringTree(AOwner: TComponent;
 var
   VST : TVirtualStringTree;
 begin
+  Guard.CheckNotNull(AParent, 'AParent');
   VST          := TVirtualStringTree.Create(AOwner);
   VST.AlignWithMargins := True;
   VST.Parent   := AParent;
@@ -519,7 +554,8 @@ begin
   end;
 end;
 
-class function TConceptFactories.CreateRandomContact(ASpecial: Boolean = False): TContact;
+class function TConceptFactories.CreateRandomContact(ASpecial: Boolean)
+  : TContact;
 var
   C: TContact;
 begin
@@ -566,6 +602,53 @@ begin
       TColumnDefinitionsControlTemplate.Create(APresenter.ColumnDefinitions);
   if Assigned(AFilter) then
     APresenter.View.Filter.Add(AFilter);
+end;
+{$ENDREGION}
+
+{$REGION 'TBindingsFactory'}
+{ Wraps an object in a TBindScope component. }
+
+class function TBindingsFactory.CreateBindScope(ASource: TObject; AOwner: TComponent;
+  AAutoActivate: Boolean): TBindScope;
+var
+  BS : TBindScope;
+begin
+  BS := TBindScope.Create(AOwner);
+  BS.AutoActivate := AAutoActivate;
+  BS.DataObject   := ASource;
+  Result := BS;
+end;
+
+class function TBindingsFactory.CreateBindExpression(
+  ASourceComponent: TComponent; const ASourceExpression: string;
+  AControlComponent: TComponent; const AControlExpression: string;
+  ADirection: TExpressionDirection; AOwner: TComponent): TBindExpression;
+var
+  BE : TBindExpression;
+begin
+  if not Assigned(AOwner) then
+    AOwner := ASourceComponent;
+  BE := TBindExpression.Create(AOwner);
+  BE.NotifyOutputs     := True;
+  BE.SourceComponent   := ASourceComponent;
+  BE.SourceExpression  := ASourceExpression;
+  BE.ControlComponent  := AControlComponent;
+  BE.ControlExpression := AControlExpression;
+  BE.Direction         := ADirection;
+end;
+
+class function TBindingsFactory.CreateEditBinding(ASourceComponent: TComponent;
+  const ASourceExpression: string; AEdit: TCustomEdit; ADirection:
+  TExpressionDirection; AOwner: TComponent): TBindExpression;
+begin
+  Result := TBindingsFactory.CreateBindExpression(
+    ASourceComponent,
+    ASourceExpression,
+    AEdit,
+    'Text',
+    ADirection,
+    AOwner
+  );
 end;
 {$ENDREGION}
 

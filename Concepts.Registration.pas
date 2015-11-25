@@ -108,11 +108,20 @@ uses
 
   Concepts.Manager;
 
+const
+  SPRING_CATEGORY_COLOR     = $00DDFFDD;
+  DSHARP_CATEGORY_COLOR     = $00B0FFFF;
+  DEVEXPRESS_CATEGORY_COLOR = $00C1E0FF;
+  SYSTEM_CATEGORY_COLOR     = $00E1E1FF;
+  VCL_CATEGORY_COLOR        = $00FFD9D9;
+  WINAPI_CATEGORY_COLOR     = clWhite;
+
+
 {$REGION 'private methods'}
 class procedure TConcepts.RegisterSpringConcepts;
 begin
   {$IFDEF SPRING}
-  FCategoryColor := $00DDFFDD;
+  FCategoryColor := SPRING_CATEGORY_COLOR;
   ConceptManager.Register(
     TfrmCollections,
     'Collections',
@@ -175,7 +184,7 @@ end;
 class procedure TConcepts.RegisterDSharpConcepts;
 begin
   {$IFDEF DSHARP}
-  FCategoryColor := $00B0FFFF;
+  FCategoryColor := DSHARP_CATEGORY_COLOR;
 //  ConceptManager.Register(
 //    TfrmBindings,
 //    'Bindings',
@@ -205,7 +214,7 @@ end;
 class procedure TConcepts.RegisterDevExpressConcepts;
 begin
   {$IFDEF DEVEXPRESS}
-  FCategoryColor := $00C1E0FF;
+  FCategoryColor := DEVEXPRESS_CATEGORY_COLOR;
   ConceptManager.Register(
     TfrmcxEditors,
     'cxEditors',
@@ -219,7 +228,7 @@ end;
 class procedure TConcepts.RegisterSystemConcepts;
 begin
   {$IFDEF SYSTEM}
-  FCategoryColor := $00E1E1FF;
+  FCategoryColor := SYSTEM_CATEGORY_COLOR;
   ConceptManager.Register(
     TfrmLibraries,
     'Libraries',
@@ -305,7 +314,7 @@ end;
 class procedure TConcepts.RegisterVclConcepts;
 begin
   {$IFDEF VCL}
-  FCategoryColor := $00FFD9D9;
+  FCategoryColor := VCL_CATEGORY_COLOR;
   ConceptManager.Register(
     TfrmGridPanels,
     'Grid panels',
@@ -319,6 +328,7 @@ end;
 class procedure TConcepts.RegisterWinApiConcepts;
 begin
   {$IFDEF WINAPI}
+  FCategoryColor := WINAPI_CATEGORY_COLOR;
   ConceptManager.Register(
     TfrmLockPaint,
     'LockPaint',

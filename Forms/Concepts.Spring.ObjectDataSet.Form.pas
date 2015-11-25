@@ -29,7 +29,7 @@ uses
   System.Actions, System.Classes,
   Vcl.ActnList, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Mask, Vcl.DBCtrls, Vcl.StdCtrls,
   Vcl.Controls, Vcl.DBGrids, Vcl.Forms,
-  Data.DB,
+  Data.DB, Data.Bind.Components,
 
   VirtualTrees,
 
@@ -105,6 +105,7 @@ type
 
     procedure FormResize(Sender: TObject);
     procedure dscMainUpdateData(Sender: TObject);
+    procedure FTVPSelectionChanged(Sender: TObject);
 
   private
     FList          : IList<TContact>;
@@ -112,6 +113,7 @@ type
     FDBG           : TDBGrid;
     FTVP           : TTreeViewPresenter;
     FObjectDataSet : TObjectDataset;
+    FBindScope     : TBindScope;
 
     function GetDataSet: TDataSet;
     function GetDataSetEnabled: Boolean;
@@ -147,7 +149,7 @@ implementation
 {$R *.dfm}
 
 uses
-  System.SysUtils,
+  System.SysUtils, System.Bindings.Helper,
 
   DSharp.Windows.ColumnDefinitions,
 
@@ -164,9 +166,28 @@ begin
     FVST,
     FList as IObjectList
   );
+  FTVP.OnSelectionChanged := FTVPSelectionChanged;
   FDBG  := TConceptFactories.CreateDBGrid(Self, pnlLeft, dscMain);
   FObjectDataSet          := TObjectDataset.Create(Self);
   FObjectDataSet.DataList := FList as IObjectList;
+
+  FBindScope := TBindingsFactory.CreateBindScope(FTVP.SelectedItem, Self);
+  TBindingsFactory.CreateEditBinding(
+    FBindScope,
+    'FirstName',
+    edtFirstname
+  );
+  TBindingsFactory.CreateEditBinding(
+    FBindScope,
+    'LastName',
+    edtLastname
+  );
+  TBindingsFactory.CreateEditBinding(
+    FBindScope,
+    'CompanyName',
+    edtCompanyName
+  );
+
 end;
 
 procedure TfrmObjectDataSet.BeforeDestruction;
@@ -221,6 +242,11 @@ end;
 procedure TfrmObjectDataSet.FormResize(Sender: TObject);
 begin
   pnlLeft.Width := ClientWidth div 2;
+end;
+
+procedure TfrmObjectDataSet.FTVPSelectionChanged(Sender: TObject);
+begin
+  TBindings.Notify(FTVP);
 end;
 
 procedure TfrmObjectDataSet.dscMainUpdateData(Sender: TObject);
@@ -292,6 +318,24 @@ begin
       FList as IObjectList // IObjectList = IList<TObject>
     );
     FTVP.TreeView.Header.AutoFitColumns;
+    FreeAndNil(FBindScope);
+    FBindScope := TBindingsFactory.CreateBindScope(FTVP.SelectedItem, Self);
+    TBindingsFactory.CreateEditBinding(
+      FBindScope,
+      'FirstName',
+      edtFirstname
+    );
+    TBindingsFactory.CreateEditBinding(
+      FBindScope,
+      'LastName',
+      edtLastname
+    );
+    TBindingsFactory.CreateEditBinding(
+      FBindScope,
+      'CompanyName',
+      edtCompanyName
+    );
+    FTVP.OnSelectionChanged := FTVPSelectionChanged;
 //    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Firstname', edtFirstname);
 //    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Lastname', edtLastname);
 //    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Address', edtAddress);

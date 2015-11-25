@@ -46,20 +46,20 @@ uses
 type
   TfrmCollections = class(TForm)
     aclMain         : TActionList;
-    actPopulateList : TAction;
+    actBoth         : TAction;
     actEnumerate    : TAction;
     actFirstNameIs  : TAction;
     actLastNameIs   : TAction;
+    actPopulateList : TAction;
+    btnBoth         : TButton;
     btnCreateList   : TButton;
     btnFirstNameIs  : TButton;
     btnLastNameIs   : TButton;
-    mmoList         : TMemo;
     edtFirstName    : TEdit;
     edtLastName     : TEdit;
-    actBoth         : TAction;
-    btnBoth         : TButton;
-    trbRecordCount  : TTrackBar;
     lblRecordCount  : TLabel;
+    mmoList         : TMemo;
+    trbRecordCount  : TTrackBar;
 
     procedure actPopulateListExecute(Sender: TObject);
     procedure actFirstNameIsExecute(Sender: TObject);

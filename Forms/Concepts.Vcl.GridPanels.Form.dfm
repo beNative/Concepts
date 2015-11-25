@@ -19,7 +19,8 @@ object frmGridPanels: TfrmGridPanels
     Top = 8
     Width = 273
     Height = 137
-    BevelOuter = bvLowered
+    BevelKind = bkFlat
+    BevelOuter = bvNone
     ColumnCollection = <
       item
         Value = 50.000000000000000000
@@ -83,75 +84,91 @@ object frmGridPanels: TfrmGridPanels
       end>
     TabOrder = 0
     object pnl1: TPanel
-      Left = 1
-      Top = 1
-      Width = 135
+      Left = 0
+      Top = 0
+      Width = 134
       Height = 33
       Align = alClient
-      Caption = 'pnl1'
+      BevelKind = bkFlat
+      BevelOuter = bvNone
+      Caption = '1'
       TabOrder = 0
     end
     object pnl2: TPanel
-      Left = 136
-      Top = 1
-      Width = 136
+      Left = 134
+      Top = 0
+      Width = 135
       Height = 33
       Align = alClient
-      Caption = 'pnl2'
+      BevelKind = bkFlat
+      BevelOuter = bvNone
+      Caption = '2'
       TabOrder = 1
     end
     object pnl3: TPanel
-      Left = 1
-      Top = 34
-      Width = 135
+      Left = 0
+      Top = 33
+      Width = 134
       Height = 33
       Align = alClient
-      Caption = 'pnl3'
+      BevelKind = bkFlat
+      BevelOuter = bvNone
+      Caption = '3'
       TabOrder = 2
     end
     object pnl4: TPanel
-      Left = 136
-      Top = 34
-      Width = 136
+      Left = 134
+      Top = 33
+      Width = 135
       Height = 33
       Align = alClient
-      Caption = 'pnl4'
+      BevelKind = bkFlat
+      BevelOuter = bvNone
+      Caption = '4'
       TabOrder = 3
     end
     object pnl5: TPanel
-      Left = 1
-      Top = 67
-      Width = 135
+      Left = 0
+      Top = 66
+      Width = 134
       Height = 33
       Align = alClient
-      Caption = 'pnl5'
+      BevelKind = bkFlat
+      BevelOuter = bvNone
+      Caption = '5'
       TabOrder = 4
     end
     object pnl6: TPanel
-      Left = 136
-      Top = 67
-      Width = 136
+      Left = 134
+      Top = 66
+      Width = 135
       Height = 33
       Align = alClient
-      Caption = 'pnl6'
+      BevelKind = bkFlat
+      BevelOuter = bvNone
+      Caption = '6'
       TabOrder = 5
     end
     object pnl7: TPanel
-      Left = 1
-      Top = 100
-      Width = 135
-      Height = 36
+      Left = 0
+      Top = 99
+      Width = 134
+      Height = 34
       Align = alClient
-      Caption = 'pnl7'
+      BevelKind = bkFlat
+      BevelOuter = bvNone
+      Caption = '7'
       TabOrder = 6
     end
     object pnl8: TPanel
-      Left = 136
-      Top = 100
-      Width = 136
-      Height = 36
+      Left = 134
+      Top = 99
+      Width = 135
+      Height = 34
       Align = alClient
-      Caption = 'pnl8'
+      BevelKind = bkFlat
+      BevelOuter = bvNone
+      Caption = '8'
       TabOrder = 7
     end
   end
@@ -160,7 +177,7 @@ object frmGridPanels: TfrmGridPanels
     Top = 9
     Width = 97
     Height = 17
-    Caption = 'chk1'
+    Caption = '1'
     Checked = True
     State = cbChecked
     TabOrder = 1
@@ -170,7 +187,7 @@ object frmGridPanels: TfrmGridPanels
     Top = 9
     Width = 97
     Height = 17
-    Caption = 'chk2'
+    Caption = '2'
     Checked = True
     State = cbChecked
     TabOrder = 2
@@ -180,7 +197,7 @@ object frmGridPanels: TfrmGridPanels
     Top = 32
     Width = 97
     Height = 17
-    Caption = 'chk3'
+    Caption = '3'
     Checked = True
     State = cbChecked
     TabOrder = 3
@@ -190,7 +207,7 @@ object frmGridPanels: TfrmGridPanels
     Top = 32
     Width = 97
     Height = 17
-    Caption = 'chk4'
+    Caption = '4'
     Checked = True
     State = cbChecked
     TabOrder = 4
@@ -200,7 +217,7 @@ object frmGridPanels: TfrmGridPanels
     Top = 57
     Width = 97
     Height = 13
-    Caption = 'chk5'
+    Caption = '5'
     Checked = True
     State = cbChecked
     TabOrder = 5
@@ -210,7 +227,7 @@ object frmGridPanels: TfrmGridPanels
     Top = 55
     Width = 97
     Height = 17
-    Caption = 'chk6'
+    Caption = '6'
     Checked = True
     State = cbChecked
     TabOrder = 6
@@ -220,7 +237,7 @@ object frmGridPanels: TfrmGridPanels
     Top = 78
     Width = 97
     Height = 17
-    Caption = 'chk7'
+    Caption = '7'
     Checked = True
     State = cbChecked
     TabOrder = 7
@@ -230,7 +247,7 @@ object frmGridPanels: TfrmGridPanels
     Top = 78
     Width = 97
     Height = 17
-    Caption = 'chk8'
+    Caption = '8'
     Checked = True
     State = cbChecked
     TabOrder = 8

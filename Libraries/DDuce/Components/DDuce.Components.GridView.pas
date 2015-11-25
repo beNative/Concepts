@@ -278,12 +278,16 @@ type
 
     property Header: TCustomGridHeader
       read FHeader;
+
     property MaxColumn: Integer
       read GetMaxColumn;
+
     property MaxLevel: Integer
       read GetMaxLevel;
+
     property OwnerSection: TGridHeaderSection
       read FOwnerSection;
+
     property Sections[Index: Integer]: TGridHeaderSection
       read GetSection write SetSection; default;
   end;
@@ -391,38 +395,55 @@ type
 
     property Grid: TCustomGridView
       read FGrid;
+
     property Height: Integer
       read GetHeight;
+
     property MaxColumn: Integer
       read GetMaxColumn;
+
     property MaxLevel: Integer
       read GetMaxLevel;
+
     property Width: Integer
       read GetWidth;
+
     property OnChange: TNotifyEvent
       read FOnChange write FOnChange;
+
     property AutoHeight: Boolean
       read FAutoHeight write SetAutoHeight default False;
+
     property AutoSynchronize: Boolean
       read FAutoSynchronize write SetAutoSynchronize default True;
+
     property Color: TColor
       read FColor write SetColor stored IsColorStored default clBtnFace;
+
     property Images: TImageList
       read FImages write SetImages;
+
     property Flat: Boolean
       read FFlat write SetFlat default True;
+
     property Font: TFont
       read FFont write SetFont stored IsFontStored;
+
     property FullSynchronizing: Boolean
       read FFullSynchronizing write SetFullSynchronizing default False;
+
     property GridColor: Boolean
       read FGridColor write SetGridColor default False;
+
     property GridFont: Boolean
       read FGridFont write SetGridFont default True;
+
     property Sections: TGridHeaderSections
       read FSections write SetSections stored IsSectionsStored;
+
     property SectionHeight: Integer
       read FSectionHeight write SetSectionHeight default 17;
+
     property Synchronized: Boolean
       read FSynchronized write SetSynchronized stored True;
   end;
@@ -532,6 +553,7 @@ type
     procedure SetTabStop(Value: Boolean);
     procedure SetWantReturns(Value: Boolean);
     procedure SetWordWrap(Value: Boolean);
+
   protected
     procedure DefineProperties(Filer: TFiler); override;
     function GetDisplayName: string; override;
@@ -552,58 +574,85 @@ type
 
     property AlignEdit: Boolean
       read FAlignEdit write SetAlignEdit default False;
+
     property Alignment: TAlignment
       read FAlignment write SetAlignment default taLeftJustify;
+
     property AllowClick: Boolean
       read FAllowClick write FAllowClick default True;
+
     property AllowEdit: Boolean
       read FAllowEdit write SetAllowEdit default True;
+
     property Caption: string
       read FCaption write SetCaption;
+
     property CheckAlignment: TAlignment
       read FCheckAlignment write SetCheckAlignment default taLeftJustify;
+
     property CheckKind: TGridCheckKind
       read FCheckKind write SetCheckKind default gcNone;
+
     property Columns: TGridColumns
       read FColumns;
+
     property DefWidth: Integer
       read FWidth write SetWidth default 64;
+
     property EditAlignment: TAlignment
       read GetEditAlignment;
+
     property EditMask: string
       read FEditMask write SetEditMask;
+
     property EditStyle: TGridEditStyle
       read FEditStyle write SetEditStyle default geSimple;
+
     property EditWordWrap: TGridEditWordWrap
       read FEditWordWrap write SetEditWordWrap default ewAuto;
+
     property FixedSize: Boolean
       read FFixedSize write FFixedSize default False;
+
     property Grid: TCustomGridView
       read GetGrid;
+
     property MaxLength: Integer read
       FMaxLength write SetMaxLength default 0;
+
     property MaxWidth: Integer
       read FMaxWidth write SetMaxWidth default 10000;
+
     property MinWidth: Integer
       read FMinWidth write SetMinWidth default 0;
+
     property PickList: TStrings
       read GetPickList write SetPickList stored IsPickListStored;
+
     property PickListCount: Integer
       read GetPickListCount;
+
     property ReadOnly: Boolean read
       FReadOnly write SetReadOnly default False;
+
     property TabStop: Boolean
       read FTabStop write SetTabStop default True;
+
     property Tag: Integer
       read FTag write FTag default 0;
+
     property Title: TGridHeaderSection
       read GetTitle;
+
     property Visible: Boolean
       read FVisible write SetVisible default True;
+
     property WantReturns: Boolean
       read FWantReturns write SetWantReturns default False;
+
     property Width: Integer
       read GetWidth write SetWidth stored False default 64;
+
     property WordWrap: Boolean
       read FWordWrap write SetWordWrap default False;
   end;
@@ -660,13 +709,17 @@ type
     function GetLayout: string;
     procedure SetColumn(Index: Integer; Value: TGridColumn);
     procedure SetLayout(const Value: string);
+
   protected
     function GetOwner: TPersistent; override;
     procedure Update(Item: TCollectionItem); override;
+
     property OnChange: TNotifyEvent
       read FOnChange write FOnChange;
+
   public
     constructor Create(AGrid: TCustomGridView); virtual;
+
     function Add: TGridColumn;
     property Columns[Index: Integer]: TGridColumn
       read GetColumn write SetColumn; default;
@@ -810,20 +863,28 @@ type
 
     property Color: TColor read
       FColor write SetColor stored IsColorStored default clBtnFace;
+
     property Count: Integer
       read FCount write SetCount default 0;
+
     property Flat: Boolean
       read FFlat write SetFlat default True;
+
     property Font: TFont
       read FFont write SetFont stored IsFontStored;
+
     property Grid: TCustomGridView
       read FGrid;
+
     property GridColor: Boolean
       read FGridColor write SetGridColor default False;
+
     property GridFont: Boolean
       read FGridFont write SetGridFont default True;
+
     property ShowDivider: Boolean
       read FShowDivider write SetShowDivider default True;
+
     property OnChange: TNotifyEvent
       read FOnChange write FOnChange;
   end;
@@ -921,34 +982,47 @@ type
 
     property Grid: TCustomGridView
       read FGrid;
+
     property Kind: TScrollBarKind
       read FKind;
+
     property LineStep: Integer
       read FLineStep write SetLineStep;
+
     property LineSize: Integer
       read FLineStep write SetLineSize;
+
     property Max: Integer
       read FMax write SetMax;
+
     property Min: Integer
       read FMin write SetMin;
+
     property PageStep: Integer
-     read FPageStep write SetPageStep;
+      read FPageStep write SetPageStep;
+
     property Position: Integer
-    read FPosition write SetPosition;
+      read FPosition write SetPosition;
+
     property Range: Integer
       read GetRange;
+
     property UpdateLock: Integer
       read FUpdateLock;
+
     property OnChange: TNotifyEvent
       read FOnChange write FOnChange;
+
     property OnChangeParams: TNotifyEvent
       read FOnChangeParams write FOnChangeParams;
+
     property OnScroll: TGridScrollEvent
       read FOnScroll write FOnScroll;
 
   published
     property Tracking: Boolean
       read FTracking write FTracking default True;
+
     property Visible: Boolean
       read FVisible write SetVisible default True;
 
@@ -1060,6 +1134,7 @@ type
     procedure SetDropListVisible(Value: Boolean);
     procedure SetEditStyle(Value: TGridEditStyle);
     procedure SetWordWrap(Value: Boolean);
+
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
     procedure WMPaste(var Message); message WM_PASTE;
     procedure WMCut(var Message); message WM_CUT;
@@ -1123,33 +1198,49 @@ type
 
     property ActiveList: TWinControl
       read FActiveList write FActiveList;
+
     property Alignment: TAlignment
       read FAlignment write SetAlignment default taLeftJustify;
+
     property ButtonRect: TRect
       read GetButtonRect;
+
     property ButtonWidth: Integer
       read FButtonWidth write SetButtonWidth;
+
     property Color;
+
     property DropDownCount: Integer
       read FDropDownCount write FDropDownCount;
+
     property DropListVisible: Boolean
       read FDropListVisible write SetDropListVisible;
+
     property EditStyle: TGridEditStyle
       read FEditStyle write SetEditStyle;
+
     property Font;
+
     property Grid: TCustomGridView
       read FGrid;
+
     property LineCount: Integer
       read GetLineCount;
+
     property MaxLength;
+
     property PickList: TGridListBox
       read FPickList;
+
     property Visible: Boolean
       read GetVisible;
+
     property WantReturns: Boolean
       read FWantReturns write FWantReturns;
+
     property WordWrap: Boolean
       read FWordWrap write SetWordWrap;
+
   end;
 
   TGridEdit = class(TCustomGridEdit);
@@ -1762,54 +1853,217 @@ type
                            should be caused exception.
   }
 
-  TGridStyle = (gsHorzLine, gsVertLine, gsFullHorzLine, gsFullVertLine,
-    gsListViewLike, gsDotLines, gsFullRowPaint);
+  TGridStyle = (
+    gsHorzLine,
+    gsVertLine,
+    gsFullHorzLine,
+    gsFullVertLine,
+    gsListViewLike,
+    gsDotLines,
+    gsFullRowPaint
+  );
   TGridStyles = set of TGridStyle;
 
-  TGridCursorKey = (gkArrows, gkTabs, gkReturn, gkMouse, gkMouseMove,
-    gkMouseWheel);
+  TGridCursorKey = (
+    gkArrows,
+    gkTabs,
+    gkReturn,
+    gkMouse,
+    gkMouseMove,
+    gkMouseWheel
+  );
   TGridCursorKeys = set of TGridCursorKey;
 
-  TGridCursorOffset = (goLeft, goRight, goUp, goDown, goPageUp, goPageDown,
-    goMouseWheelUp, goMouseWheelDown,
-    goHome, goEnd, goGridHome, goGridEnd, goSelect, goFirst, goNext, goPrev);
+  TGridCursorOffset = (
+    goLeft,
+    goRight,
+    goUp,
+    goDown,
+    goPageUp,
+    goPageDown,
+    goMouseWheelUp,
+    goMouseWheelDown,
+    goHome,
+    goEnd,
+    goGridHome,
+    goGridEnd,
+    goSelect,
+    goFirst,
+    goNext,
+    goPrev
+  );
 
-  TGridSortDirection = (gsNone, gsAscending, gsDescending);
+  TGridSortDirection = (
+    gsNone,
+    gsAscending,
+    gsDescending
+  );
 
-  TGridAppendRowEvent = procedure(Sender: TObject; var Append: Boolean) of object;
-
-  TGridTextEvent = procedure(Sender: TObject; Cell: TGridCell; var Value: string) of object;
-  TGridRectEvent = procedure(Sender: TObject; Cell: TGridCell; var Rect: TRect) of object;
-  TGridCellColorsEvent = procedure(Sender: TObject; Cell: TGridCell; Canvas: TCanvas) of object;
-  TGridCellImageEvent = procedure(Sender: TObject; Cell: TGridCell; var ImageIndex: Integer) of object;
-  TGridCellClickEvent = procedure(Sender: TObject; Cell: TGridCell; Shift: TShiftState; X, Y: Integer) of object;
-  TGridCellAcceptCursorEvent = procedure(Sender: TObject; Cell: TGridCell; var Accept: Boolean) of object;
-  TGridCellNotifyEvent = procedure(Sender: TObject; Cell: TGridCell) of object;
-  TGridCellIndentEvent = procedure(Sender: TObject; Cell: TGridCell; var Indent: TPoint) of object;
-  TGridCellTipsEvent = procedure(Sender: TObject; Cell: TGridCell; var AllowTips: Boolean) of object;
-  TGridCellReadOnlyEvent = procedure(Sender: TObject; Cell: TGridCell; var CellReadOnly: Boolean) of object;
-  TGridHeaderColorsEvent = procedure(Sender: TObject; Section: TGridHeaderSection; Canvas: TCanvas) of object;
-  TGridHeaderImageEvent = procedure(Sender: TObject; Section: TGridHeaderSection; var ImageIndex: Integer) of object;
-  TGridDrawEvent = procedure(Sender: TObject; var DefaultDrawing: Boolean) of object;
-  TGridDrawCellEvent = procedure(Sender: TObject; Cell: TGridCell; var Rect: TRect; var DefaultDrawing: Boolean) of object;
-  TGridDrawHeaderEvent = procedure(Sender: TObject; Section: TGridHeaderSection; Rect: TRect; var DefaultDrawing: Boolean) of object;
-  TGridColumnResizeEvent = procedure(Sender: TObject; Column: Integer; var Width: Integer) of object;
-  TGridHeaderClickEvent = procedure(Sender: TObject; Section: TGridHeaderSection) of object;
-  TGridHeaderClickingEvent = procedure(Sender: TObject; Section: TGridHeaderSection; var AllowClick: Boolean) of object;
-  TGridChangingEvent = procedure(Sender: TObject; var Cell: TGridCell; var Selected: Boolean) of object;
-  TGridChangedEvent = procedure(Sender: TObject; Cell: TGridCell; Selected: Boolean) of object;
-  TGridEditStyleEvent = procedure(Sender: TObject; Cell: TGridCell; var Style: TGridEditStyle) of object;
-  TGridEditListEvent = procedure(Sender: TObject; Cell: TGridCell; Items: TStrings) of object;
-  TGridEditCloseUpEvent = procedure(Sender: TObject; Cell: TGridCell; ItemIndex: Integer; var Accept: Boolean) of object;
-  TGridEditCanModifyEvent = procedure(Sender: TObject; Cell: TGridCell; var CanModify: Boolean) of object;
-  TGridEditCanShowEvent = procedure(Sender: TObject; Cell: TGridCell; var CanShow: Boolean) of object;
-  TGridAcceptKeyEvent = procedure(Sender: TObject; Cell: TGridCell; Key: Char; var Accept: Boolean) of object;
-  TGridCheckKindEvent = procedure(Sender: TObject; Cell: TGridCell; var CheckKind: TGridCheckKind) of object;
-  TGridCheckStateEvent = procedure(Sender: TObject; Cell: TGridCell; var CheckState: TCheckBoxState) of object;
-  TGridCheckImageEvent = procedure(Sender: TObject; Cell: TGridCell; CheckImage: TBitmap) of object;
-  TGridCheckAlignmentEvent = procedure(Sender: TObject; Cell: TGridCell; var CheckAlignment: TAlignment) of object;
-  TGridSortDirectionEvent = procedure(Sender: TObject; Section: TGridHeaderSection; var SortDirection: TGridSortDirection) of object;
-  TGridSortImageEvent = procedure(Sender: TObject; Section: TGridHeaderSection; SortImage: TBitmap) of object;
+  TGridAppendRowEvent = procedure(
+    Sender     : TObject;
+    var Append : Boolean
+  ) of object;
+  TGridTextEvent = procedure(
+    Sender    : TObject;
+    Cell      : TGridCell;
+    var Value : string
+  ) of object;
+  TGridRectEvent = procedure(
+    Sender   : TObject;
+    Cell     : TGridCell;
+    var Rect : TRect
+  ) of object;
+  TGridCellColorsEvent = procedure(
+    Sender : TObject;
+    Cell   : TGridCell;
+    Canvas : TCanvas
+  ) of object;
+  TGridCellImageEvent = procedure(
+    Sender         : TObject;
+    Cell           : TGridCell;
+    var ImageIndex : Integer
+  ) of object;
+  TGridCellClickEvent = procedure(
+    Sender : TObject;
+    Cell   : TGridCell;
+    Shift  : TShiftState;
+    X, Y   : Integer
+  ) of object;
+  TGridCellAcceptCursorEvent = procedure(
+    Sender     : TObject;
+    Cell       : TGridCell;
+    var Accept : Boolean
+  ) of object;
+  TGridCellNotifyEvent = procedure(
+    Sender : TObject;
+    Cell   : TGridCell
+  ) of object;
+  TGridCellIndentEvent = procedure(
+    Sender     : TObject;
+    Cell       : TGridCell;
+    var Indent : TPoint
+  ) of object;
+  TGridCellTipsEvent = procedure(
+    Sender        : TObject;
+    Cell          : TGridCell;
+    var AllowTips : Boolean
+  ) of object;
+  TGridCellReadOnlyEvent = procedure(
+    Sender           : TObject;
+    Cell             : TGridCell;
+    var CellReadOnly : Boolean
+  ) of object;
+  TGridHeaderColorsEvent = procedure(
+    Sender  : TObject;
+    Section : TGridHeaderSection;
+    Canvas  : TCanvas
+  ) of object;
+  TGridHeaderImageEvent = procedure(
+    Sender         : TObject;
+    Section        : TGridHeaderSection;
+    var ImageIndex : Integer) of object;
+  TGridDrawEvent = procedure(
+    Sender             : TObject;
+    var DefaultDrawing : Boolean
+  ) of object;
+  TGridDrawCellEvent = procedure(
+    Sender             : TObject;
+    Cell               : TGridCell;
+    var Rect           : TRect;
+    var DefaultDrawing : Boolean
+  ) of object;
+  TGridDrawHeaderEvent = procedure(
+    Sender             : TObject;
+    Section            : TGridHeaderSection;
+    Rect               : TRect;
+    var DefaultDrawing : Boolean
+  ) of object;
+  TGridColumnResizeEvent = procedure(
+    Sender    : TObject;
+    Column    : Integer;
+    var Width : Integer
+  ) of object;
+  TGridHeaderClickEvent = procedure(
+    Sender  : TObject;
+    Section : TGridHeaderSection
+  ) of object;
+  TGridHeaderClickingEvent = procedure(
+    Sender         : TObject;
+    Section        : TGridHeaderSection;
+    var AllowClick : Boolean
+  ) of object;
+  TGridChangingEvent = procedure(
+    Sender       : TObject;
+    var Cell     : TGridCell;
+    var Selected : Boolean
+  ) of object;
+  TGridChangedEvent = procedure(
+    Sender   : TObject;
+    Cell     : TGridCell;
+    Selected : Boolean
+  ) of object;
+  TGridEditStyleEvent = procedure(
+    Sender    : TObject;
+    Cell      : TGridCell;
+    var Style : TGridEditStyle
+  ) of object;
+  TGridEditListEvent = procedure(
+    Sender : TObject;
+    Cell   : TGridCell;
+    Items  : TStrings
+  ) of object;
+  TGridEditCloseUpEvent = procedure(
+    Sender     : TObject;
+    Cell       : TGridCell;
+    ItemIndex  : Integer;
+    var Accept : Boolean
+  ) of object;
+  TGridEditCanModifyEvent = procedure(
+    Sender        : TObject;
+    Cell          : TGridCell;
+    var CanModify : Boolean
+  ) of object;
+  TGridEditCanShowEvent = procedure(
+    Sender      : TObject;
+    Cell        : TGridCell;
+    var CanShow : Boolean
+  ) of object;
+  TGridAcceptKeyEvent = procedure(
+    Sender     : TObject;
+    Cell       : TGridCell;
+    Key        : Char;
+    var Accept : Boolean
+  ) of object;
+  TGridCheckKindEvent = procedure(
+    Sender        : TObject;
+    Cell          : TGridCell;
+    var CheckKind : TGridCheckKind
+  ) of object;
+  TGridCheckStateEvent = procedure(
+    Sender         : TObject;
+    Cell           : TGridCell;
+    var CheckState : TCheckBoxState
+  ) of object;
+  TGridCheckImageEvent = procedure(
+    Sender     : TObject;
+    Cell       : TGridCell;
+    CheckImage : TBitmap
+  ) of object;
+  TGridCheckAlignmentEvent = procedure(
+    Sender             : TObject;
+    Cell               : TGridCell;
+    var CheckAlignment : TAlignment
+  ) of object;
+  TGridSortDirectionEvent = procedure(
+    Sender            : TObject;
+    Section           : TGridHeaderSection;
+    var SortDirection : TGridSortDirection
+  ) of object;
+  TGridSortImageEvent = procedure(
+    Sender    : TObject;
+    Section   : TGridHeaderSection;
+    SortImage : TBitmap
+  ) of object;
 
   TCustomGridView = class(TCustomControl)
   private
@@ -2283,252 +2537,375 @@ type
 
     property AllowEdit: Boolean
       read FAllowEdit write SetAllowEdit default False;
+
     property AllowSelect: Boolean
       read FAllowSelect write SetAllowSelect default True;
+
     property AlwaysEdit: Boolean
       read FAlwaysEdit write SetAlwaysEdit default False;
+
     property AlwaysSelected: Boolean
       read FAlwaysSelected write SetAlwaysSelected default False;
+
     property BorderStyle: TBorderStyle
       read FBorderStyle write SetBorderStyle default bsSingle;
+
     property CancelOnExit: Boolean
       read FCancelOnExit write FCancelOnExit default True;
+
     property Canvas;
+
     property CellFocused: TGridCell
       read FCellFocused write SetCellFocused;
+
     property Cells[Col, Row: Integer]: string
       read GetCell write SetCell;
+
     property CellSelected: Boolean
       read FCellSelected write SetCellSelected;
+
     property CheckBoxes: Boolean
       read FCheckBoxes write SetCheckBoxes default False;
+
     property Checked[Col, Row: Integer]: Boolean
       read GetChecked;
+
     property CheckState[Col, Row: Longint]: TCheckBoxState
       read GetCheckBoxState;
+
     property CheckHeight: Integer
       read FCheckHeight;
+
     property CheckLeftIndent: Integer
       read FCheckLeftIndent write SetCheckLeftIndent default 0;
+
     property CheckStyle: TGridCheckStyle
       read FCheckStyle write SetCheckStyle default csWin95;
+
     property CheckTopIndent: Integer
       read FCheckTopIndent write SetCheckTopIndent default 0;
+
     property CheckWidth: Integer
       read FCheckWidth;
+
     property Col: Integer
       read GetCol write SetCol;
+
     property ColResizing: Boolean
       read FColResizing;
+
     property ColumnClick: Boolean
       read FColumnClick write FColumnClick default True;
+
     property Columns: TGridColumns
       read FColumns write SetColumns;
+
     property ColumnsFullDrag: Boolean
       read FColumnsFullDrag write FColumnsFullDrag default False;
+
     property ColumnsSizing: Boolean
       read FColumnsSizing write FColumnsSizing default True;
+
     property CursorKeys: TGridCursorKeys
       read FCursorKeys write SetCursorKeys default [gkArrows, gkMouse, gkMouseWheel];
+
     property DefaultEditMenu: Boolean
       read FDefaultEditMenu write FDefaultEditMenu default False;
+
     property DoubleBuffered: Boolean
       read FDoubleBuffered write FDoubleBuffered default False;
+
     property Edit: TGridEdit
       read GetEdit;
+
     property EditCell: TGridCell
       read FEditCell;
+
     property EditColumn: TGridColumn
       read GetEditColumn;
+
     property EditDropDown: Boolean
       read GetEditDropDown write SetEditDropDown;
+
     property Editing: Boolean
       read GetEditing write SetEditing;
+
     property EndEllipsis: Boolean
       read FEndEllipsis write SetEndEllipsis default True;
+
     property Fixed: TGridFixed
       read GetFixed write SetFixed;
+
     property FitColsToClient: Boolean
       read FFitColsToClient write SetFitColsToClient;
+
     property FlatBorder: Boolean
       read FFlatBorder write SetFlatBorder default False;
+
     property FocusOnScroll: Boolean
       read FFocusOnScroll write FFocusOnScroll default False;
+
     property GridColor: TColor
       read FGridColor write SetGridColor default clSilver;
+
     property GridLines: Boolean
       read FGridLines write SetGridLines default True;
+
     property GridLineWidth: Integer
       read FGridLineWidth;
+
     property GridStyle: TGridStyles
       read FGridStyle write SetGridStyle default [gsHorzLine, gsVertLine];
+
     property Header: TGridHeader
       read GetHeader write SetHeader;
+
     property HideSelection: Boolean
       read FHideSelection write SetHideSelection default False;
+
     property HorzScrollBar: TGridScrollBar
       read FHorzScrollBar write SetHorzScrollBar;
+
     property ImageHighlight: Boolean
       read FImageHighlight write SetImageHighlight default True;
+
     property ImageIndexDef: Integer
       read FImageIndexDef write SetImageIndexDef default 0;
+
     property ImageLeftIndent: Integer
       read FImageLeftIndent write SetImageLeftIndent default 2;
+
     property Images: TImageList
       read FImages write SetImages;
+
     property ImageTopIndent: Integer
       read FImageTopIndent write SetImageTopIndent default 1;
+
     property LeftCol: Integer
       read GetLeftCol write SetLeftCol;
+
     property ReadOnly: Boolean
       read FReadOnly write SetReadOnly default False;
+
     property RightClickSelect: Boolean
       read FRightClickSelect write FRightClickSelect default True;
+
     property Row: Integer
       read GetRow write SetRow;
+
     property Rows: TGridRows
       read GetRows write SetRows;
+
     property RowSelect: Boolean
       read FRowSelect write SetRowSelect default False;
+
     property ShowCellTips: Boolean
       read FShowCellTips write SetShowCellTips;
+
     property ShowFocusRect: Boolean
       read FShowFocusRect write SetShowFocusRect default True;
+
     property ShowHeader: Boolean
       read FShowHeader write SetShowHeader default True;
+
     property SortLeftIndent: Integer
       read FSortLeftIndent write SetSortLeftIndent default 0;  // was 5
+
     property SortTopIndent: Integer
       read FSortTopIndent write SetSortTopIndent default 0;
+
     property TextLeftIndent: Integer
       read FTextLeftIndent write SetTextLeftIndent default 6;
+
     property TextRightIndent: Integer
       read FTextRightIndent write SetTextRightIndent default 6;
+
     property TextTopIndent: Integer
       read FTextTopIndent write SetTextTopIndent default 2;
+
     property ThemeXPEnabled: Boolean
       read FThemeXPEnabled write SetThemeXPEnabled default True;
+
     property TipsCell: TGridCell
       read FTipsCell;
+
     property TipsText: string
       read FTipsText;
+
     property TopRow: Integer
       read GetTopRow write SetTopRow;
+
     property UpdateLock: Integer
       read FUpdateLock;
+
     property VertScrollBar: TGridScrollBar
       read FVertScrollBar write SetVertScrollBar;
+
     property VisibleColCount: Integer
       read GetVisibleColCount;
+
     property VisibleRowCount: Integer
       read GetVisibleRowCount;
+
     property VisOrigin: TGridCell
       read FVisOrigin write SetVisOrigin;
+
     property VisSize: TGridCell
       read FVisSize;
 
     property OnAppendRow: TGridAppendRowEvent
       read FOnAppendRow write FOnAppendRow;
+
     property OnCellAcceptCursor: TGridCellAcceptCursorEvent
       read FOnCellAcceptCursor write FOnCellAcceptCursor;
+
     property OnCellClick: TGridCellClickEvent
       read FOnCellClick write FOnCellClick;
+
     property OnCellTips: TGridCellTipsEvent
       read FOnCellTips write FOnCellTips;
+
     property OnChange: TGridChangedEvent
       read FOnChange write FOnChange;
+
     property OnChangeColumns: TNotifyEvent
       read FOnChangeColumns write FOnChangeColumns;
+
     property OnChangeEditing: TNotifyEvent
       read FOnChangeEditing write FOnChangeEditing;
+
     property OnChangeEditMode: TNotifyEvent
       read FOnChangeEditMode write FOnChangeEditMode;
+
     property OnChangeFixed: TNotifyEvent
       read FOnChangeFixed write FOnChangeFixed;
+
     property OnChangeRows: TNotifyEvent
       read FOnChangeRows write FOnChangeRows;
+
     property OnChanging: TGridChangingEvent
       read FOnChanging write FOnChanging;
+
     property OnCheckClick: TGridCellNotifyEvent
       read FOnCheckClick write FOnCheckClick;
+
     property OnColumnAutoSize: TGridColumnResizeEvent
       read FOnColumnAutoSize write FOnColumnAutoSize;
+
     property OnColumnResize: TGridColumnResizeEvent
       read FOnColumnResize write FOnColumnResize;
+
     property OnColumnResizing: TGridColumnResizeEvent
       read FOnColumnResizing write FOnColumnResizing;
+
     property OnDraw: TGridDrawEvent
       read FOnDraw write FOnDraw;
+
     property OnDrawCell: TGridDrawCellEvent
       read FOnDrawCell write FOnDrawCell;
+
     property OnDrawHeader: TGridDrawHeaderEvent
       read FOnDrawHeader write FOnDrawHeader;
+
     property OnEditAcceptKey: TGridAcceptKeyEvent
       read FOnEditAcceptKey write FOnEditAcceptKey;
+
     property OnEditButtonPress: TGridCellNotifyEvent
       read FOnEditButtonPress write FOnEditButtonPress;
+
     property OnEditCanceled: TGridCellNotifyEvent
       read FOnEditCanceled write FOnEditCanceled;
+
     property OnEditCanModify: TGridEditCanModifyEvent
       read FOnEditCanModify write FOnEditCanModify;
+
     property OnEditCanShow: TGridEditCanShowEvent
       read FOnEditCanShow write FOnEditCanShow;
+
     property OnEditChange: TGridCellNotifyEvent
       read FOnEditChange write FOnEditChange;
+
     property OnEditCloseUp: TGridEditCloseUpEvent
       read FOnEditCloseUp write FOnEditCloseUp;
+
     property OnEditSelectNext: TGridTextEvent
       read FOnEditSelectNext write FOnEditSelectNext;
+
     property OnGetCellColors: TGridCellColorsEvent
       read FOnGetCellColors write FOnGetCellColors;
+
     property OnGetCellHintRect: TGridRectEvent
       read FOnGetCellHintRect write FOnGetCellHintRect;
+
     property OnGetCellImage: TGridCellImageEvent
       read FOnGetCellImage write FOnGetCellImage;
+
     property OnGetCellImageIndent: TGridCellIndentEvent
       read FOnGetCellImageIndent write FOnGetCellImageIndent;
+
     property OnGetCellReadOnly: TGridCellreadOnlyEvent
       read FOnGetCellReadOnly write FOnGetCellReadOnly;
+
     property OnGetCellText: TGridTextEvent
       read FOnGetCellText write FOnGetCellText;
+
     property OnGetCellTextIndent: TGridCellIndentEvent
       read FOnGetCellTextIndent write FOnGetCellTextIndent;
+
     property OnGetCheckAlignment: TGridCheckAlignmentEvent
       read FOnGetCheckAlignment write FOnGetCheckAlignment;
+
     property OnGetCheckImage: TGridCheckImageEvent
       read FOnGetCheckImage write FOnGetCheckImage;
+
     property OnGetCheckIndent: TGridCellIndentEvent
       read FOnGetCheckIndent write FOnGetCheckIndent;
+
     property OnGetCheckKind: TGridCheckKindEvent
       read FOnGetCheckKind write FOnGetCheckKind;
+
     property OnGetCheckState: TGridCheckStateEvent
       read FOnGetCheckState write FOnGetCheckState;
+
     property OnGetEditList: TGridEditListEvent
       read FOnGetEditList write FOnGetEditList;
+
     property OnGetEditListBounds: TGridRectEvent
       read FOnGetEditListBounds write FOnGetEditListBounds;
+
     property OnGetEditMask: TGridTextEvent
       read FOnGetEditMask write FOnGetEditMask;
+
     property OnGetEditStyle: TGridEditStyleEvent
       read FOnGetEditStyle write FOnGetEditStyle;
+
     property OnGetEditText: TGridTextEvent
       read FOnGetEditText write FOnGetEditText;
+
     property OnGetHeaderColors: TGridHeaderColorsEvent
       read FOnGetHeaderColors write FOnGetHeaderColors;
+
     property OnGetHeaderImage: TGridHeaderImageEvent
       read FOnGetHeaderImage write FOnGetHeaderImage;
+
     property OnGetSortDirection: TGridSortDirectionEvent
       read FOnGetSortDirection write FOnGetSortDirection;
+
     property OnGetSortImage: TGridSortImageEvent
       read FOnGetSortImage write FOnGetSortImage;
+
     property OnGetTipsRect: TGridRectEvent
       read FOnGetTipsRect write FOnGetTipsRect;
+
     property OnGetTipsText: TGridTextEvent
       read FOnGetTipsText write FOnGetTipsText;
+
     property OnHeaderClick: TGridHeaderClickEvent
       read FOnHeaderClick write FOnHeaderClick;
+
     property OnHeaderClicking: TGridHeaderClickingEvent
       read FOnHeaderClicking write FOnHeaderClicking;
+
     property OnSetEditText: TGridTextEvent
       read FOnSetEditText write FOnSetEditText;
   end;
@@ -2680,6 +3057,7 @@ type
       FScrollBarVertical: Boolean;
       FScrollBarVisible: Boolean;
       FScrollBarEnabled: Boolean;
+
       procedure WMNCHitTest(var Msg: TWMNCHitTest); message WM_NCHITTEST;
       procedure WMEraseBkgnd(var Msg: TMessage); message WM_ERASEBKGND;
       procedure WMPaint(var Msg: TWMPaint); message WM_PAINT;
@@ -2689,12 +3067,16 @@ type
 
     public
       constructor Create(AOwner: TComponent); override;
+
       property ScrollBarWindowOwner: TGridViewVclStyleScrollBarsHook
         read FScrollBarWindowOwner write FScrollBarWindowOwner;
+
       property ScrollBarVertical: Boolean
         read FScrollBarVertical write FScrollBarVertical;
+
       property ScrollBarVisible: Boolean
         read FScrollBarVisible write FScrollBarVisible;
+
       property ScrollBarEnabled: Boolean
         read FScrollBarEnabled write FScrollBarEnabled;
     end;

@@ -944,18 +944,26 @@ begin
 end;
 
 function TDBGridColumn.GetField: TField;
+var
+  DS : TDataSet;
 begin
   if (FField = nil) and (Length(FFieldName) > 0) then
+  begin
     if Assigned(Grid) and Assigned(Grid.DataLink.DataSet) then
-      with Grid.DataLink.DataSet do
-        if Active or (not DefaultFields) then
-          SetField(FindField(FFieldName));
+    begin
+      DS := Grid.DataLink.DataSet;
+      if DS.Active or not (lcAutomatic in DS.Fields.LifeCycles) then
+      begin
+        SetField(DS.FindField(FFieldName));
+      end;
+    end;
+  end;
   Result := FField;
 end;
 
 function TDBGridColumn.GetGrid: TCustomDBGridView;
 begin
-  Result := TCustomDBGridView( inherited Grid);
+  Result := TCustomDBGridView(inherited Grid);
 end;
 
 procedure TDBGridColumn.SetDefaultColumn(Value: Boolean);

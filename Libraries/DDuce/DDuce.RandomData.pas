@@ -2914,12 +2914,10 @@ end;
 
 class function RandomData.Address: string;
 begin
-  Result := Format('%d, %s %s, %d', [
-    ((Random(499) + 1) div (Random(9) + 1) + 1),
-    Street,
-    City,
-    Number(50000)
-  ]);
+  Result := Format(
+    '%s %d %d %s',
+    [Street, Number(200) + 1, Number(50000) + 1, City]
+  );
 end;
 
 class function RandomData.Adjective: string;
@@ -2937,25 +2935,25 @@ var
   J     : Integer;
   List2 : IEnumerable<string>;
 begin
-//  A := Adjective;
-//  C := A[1];
-//  List :=  TCollections.CreateList<string>;
-//  for S in CompanySuffixes do
-//    List.Add(S);
-//  List2 := List.Where(
-//    function(const Arg: string): Boolean
-//    begin
-//      Result := StartsText(C, Arg);
-//    end
-//  );
-//  I := List2.Count;
-//  if I > 0 then
-//  begin
-//    J := Random(I);
-//    Result := A + ' ' + List2.ToArray[J] + ' ' + Str(CompanyTypes);
-//  end
-//  else
-//    Result := A + ' ' + Str(CompanyTypes);
+  A := Adjective;
+  C := A[1];
+  List :=  TCollections.CreateList<string>;
+  for S in CompanySuffixes do
+    List.Add(S);
+  List2 := List.Where(
+    function(const Arg: string): Boolean
+    begin
+      Result := StartsText(C, Arg);
+    end
+  );
+  I := List2.Count;
+  if I > 0 then
+  begin
+    J := Random(I);
+    Result := A + ' ' + List2.ToArray[J] + ' ' + Str(CompanyTypes);
+  end
+  else
+    Result := A + ' ' + Str(CompanyTypes);
 end;
 
 class function RandomData.State: string;

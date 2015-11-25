@@ -113,7 +113,7 @@ object frmCollections: TfrmCollections
     Left = 288
     Top = 96
     object actPopulateList: TAction
-      Caption = 'Download random American contact details'
+      Caption = 'Populate contactlist'
       ImageIndex = 967
       OnExecute = actPopulateListExecute
     end

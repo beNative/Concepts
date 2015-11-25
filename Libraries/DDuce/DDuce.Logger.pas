@@ -1228,7 +1228,7 @@ begin
   FStreamWriter.Write(Space(FRelativeIndent));
   if ShowPrefix then
     FStreamWriter.Write(LOG_PREFIXES[TLogMessageType(AMsg.MsgType)] + ': ');
-  FStreamWriter.WriteLine(AMsg.MsgText);
+  FStreamWriter.WriteLine(string(AMsg.MsgText));
   if FShowStrings and (AMsg.Data <> nil) then
   begin
     case TLogMessageType(AMsg.MsgType) of

@@ -44,18 +44,7 @@ type
   TfrmTreeViewPresenter = class(TForm)
     pnlTop    : TPanel;
     pnlBottom : TPanel;
-    edtFilter : TEdit;
-    btnFilter : TButton;
-    lblChange : TLabel;
-    edtIndex  : TSpinEdit;
-    edtName   : TEdit;
-    btnEvent  : TButton;
-    spl1      : TSplitter;
     pnlLeft   : TPanel;
-
-    procedure tvpMainSelectionChanged(Sender: TObject);
-    procedure btnFilterClick(Sender: TObject);
-    procedure btnEventClick(Sender: TObject);
 
   private
     FList      : IList<TContact>;
@@ -74,8 +63,6 @@ implementation
 {$R *.dfm}
 
 uses
-  DSharp.Windows.ColumnDefinitions.RttiDataTemplate,
-
   Concepts.Factories,
 
   DDuce.RandomData;
@@ -88,58 +75,6 @@ begin
   FVST  := TConceptFactories.CreateVirtualStringTree(Self, pnlTop);
   FTVP  := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList as IObjectList);
   FPI   := TConceptFactories.CreatePropertyInspector(Self, pnlLeft, FTVP);
-
-//  with FTVP.ColumnDefinitions.Add('Firstname') do
-//  begin
-//    ValuePropertyName := 'Firstname';
-//    AutoSize          := True;
-//    Alignment         := taCenter;
-//  end;
-//  with FTVP.ColumnDefinitions.Add('Lastname') do
-//  begin
-//    ValuePropertyName := 'Lastname';
-//    AutoSize          := True;
-//    Alignment         := taLeftJustify;
-//  end;
-//  with FTVP.ColumnDefinitions.Add('Email') do
-//  begin
-//    ValuePropertyName := 'Email';
-//    AutoSize          := True;
-//  end;
-//  with FTVP.ColumnDefinitions.Add('CompanyName') do
-//  begin
-//    ValuePropertyName := 'CompanyName';
-//    AutoSize          := True;
-//  end;
-  //FTVP.UseColumnDefinitions := True;
-  //FTVP.View.ItemsSource := FList as IObjectList;
-  //FTVP.TreeView := grdMain;
-  //FTVP.View.ItemTemplate := TRttiDataTemplate.Create(FTVP.ColumnDefinitions);
-   //FList3 := TObjectList<TObject>.Create(False);
-   //FSelection := TObservableCollection<TObject>.Create(False);
-
-  //tvpMainDetail.View.ItemsSource := FSelection;
-  //grdMain.Header.AutoFitColumns(False);
-end;
-{$ENDREGION}
-
-{$REGION 'event handlers'}
-procedure TfrmTreeViewPresenter.btnEventClick(Sender: TObject);
-begin
-  (FList[edtIndex.Value] as TContact).Firstname := edtName.Text;
-end;
-
-procedure TfrmTreeViewPresenter.btnFilterClick(Sender: TObject);
-begin
- //tvpMain.ColumnDefinitions[0].CustomFilter := edtFilter.Text;
-end;
-
-procedure TfrmTreeViewPresenter.tvpMainSelectionChanged(Sender: TObject);
-begin
-  //grdMainDetail.BeginUpdate;
-//  FSelection.Clear;
-//  FSelection.AddRange(tvpMain.SelectedItems);
-  //grdMainDetail.EndUpdate;
 end;
 {$ENDREGION}
 

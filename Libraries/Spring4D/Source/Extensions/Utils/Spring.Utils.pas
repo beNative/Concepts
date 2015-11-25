@@ -53,7 +53,6 @@ uses
 type
   TEnum = Spring.SystemUtils.TEnum;
 
-
   {$REGION 'TVersion'}
 
   /// <summary>

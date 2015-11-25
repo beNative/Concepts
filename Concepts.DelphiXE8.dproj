@@ -69,7 +69,7 @@
         <DCC_BplOutput>.\Library\$(Platform)\$(Config)</DCC_BplOutput>
         <DCC_ExeOutput>.\Library\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_DcuOutput>.\Library\$(Platform)\$(Config)</DCC_DcuOutput>
-        <SanitizedProjectName>Concepts</SanitizedProjectName>
+        <SanitizedProjectName>Concepts_DelphiXE8</SanitizedProjectName>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;Bde;$(DCC_Namespace)</DCC_Namespace>
@@ -111,6 +111,7 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <Manifest_File>None</Manifest_File>
         <DCC_IntegerOverflowCheck>false</DCC_IntegerOverflowCheck>
         <DCC_ImportedDataReferences>false</DCC_ImportedDataReferences>
         <DCC_RangeChecking>false</DCC_RangeChecking>
@@ -133,6 +134,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="Types\System.ImageList.pas"/>
         <DCCReference Include="Libraries\BTMemoryModule\BTMemoryModule.pas"/>
         <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabs.pas"/>
         <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsClasses.pas"/>
@@ -153,9 +155,6 @@
         </DCCReference>
         <DCCReference Include="Forms\Concepts.DevExpress.cxEditors.Form.pas">
             <Form>frmcxEditors</Form>
-        </DCCReference>
-        <DCCReference Include="Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas">
-            <Form>frmcxGridViewPresenter</Form>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.DSharp.Bindings.Form.pas">
             <Form>frmBindings</Form>
@@ -219,6 +218,9 @@
         </DCCReference>
         <DCCReference Include="Forms\Concepts.System.LiveBindings.Form.pas">
             <Form>frmLiveBindings</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.MemoryManagerUsageTracker.Form.pas">
+            <Form>frmMemoryManagerUsageTracker</Form>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.System.RegularExpressions.Form.pas">
             <Form>frmRegularExpressions</Form>
@@ -297,8 +299,6 @@
         <DCCReference Include="Libraries\DSharp\DSharp.Core.Validations.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Core.XNode.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas"/>
-        <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.PresenterDataSource.pas"/>
-        <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.TreeListPresenter.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.ControlTemplate.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.RttiDataTemplate.pas"/>
@@ -520,7 +520,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">Concepts.DelphiXE8.dpr</Source>
+                    <Source Name="MainSource">Concepts.dpr</Source>
                 </Source>
                 <Parameters>
                     <Parameters Name="UseLauncher">False</Parameters>
@@ -555,18 +555,16 @@
                     <VersionInfoKeys Name="Comments"/>
                 </VersionInfoKeys>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dclcxSpreadSheetRS19.bpl">File C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dclcxSpreadSheetRS19.bpl not found</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPScxSSLnkRS19.bpl">File C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPScxSSLnkRS19.bpl not found</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPSTeeChartRS19.bpl">File C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPSTeeChartRS19.bpl not found</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dclcxSchedulerRibbonStyleEventEditorRS19.bpl">ExpressScheduler Ribbon Event Window by Developer Express Inc.</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPSPrVwRibbonRS19.bpl">ExpressPrinting System Ribbon Preview Window by Developer Express Inc.</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\ReportBuilder\Win32\dclRBE1519.bpl">ReportBuilder Components</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\ReportBuilder\Win32\dclDAD1519.bpl">ReportBuilder Data Access Environment</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k190.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp190.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPSDBTeeChartRS19.bpl">File C:\CIMDevelopment\CIMConfig\DelphiXE5\DevExpress\Win32\dcldxPSDBTeeChartRS19.bpl not found</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\ReportBuilder\Win32\dclRBC1519.bpl">ReportBuilder TeeChart 9 Components</Excluded_Packages>
-                    <Excluded_Packages Name="C:\CIMDevelopment\CIMConfig\DelphiXE5\RemObjects\Win32\RemObjects_Everwood_D19.bpl">File C:\CIMDevelopment\CIMConfig\DelphiXE5\RemObjects\Win32\RemObjects_Everwood_D19.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\Castalia220.bpl">(untitled)</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\16.0\bpl\VirtualTreesDD.bpl">File C:\Users\Public\Documents\Embarcadero\Studio\16.0\bpl\VirtualTreesDD.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\16.0\Bpl\dclDataBindings220.bpl">DSharp data binding designtime package</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\16.0\Bpl\dclTreeViewPresenter220.bpl">DSharp treeview presenter designtime package</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\16.0\Bpl\dclDataBindingsVCL220.bpl">DSharp data binding designtime package for VCL</Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\16.0\Bpl\DebugVisualizers.bpl">(untitled)</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k220.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp220.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k220.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp220.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>
@@ -574,23 +572,6 @@
                 <Platform value="Win64">True</Platform>
             </Platforms>
             <Deployment Version="1">
-                <DeployFile LocalName="Library\Win32\Release\Concepts.exe" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>Concepts.exe</RemoteName>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="Libraries\DDuce\jedi.inc" Configuration="Release" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="Libraries\DDuce\DDuce.inc" Configuration="Release" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="Library\Win32\Debug\Concepts.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>Concepts.exe</RemoteName>
@@ -603,7 +584,25 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="Library\Win32\Release\Concepts.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>Concepts.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Libraries\DDuce\jedi.inc" Configuration="Release" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="Libraries\DDuce\jedi.inc" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Libraries\DDuce\DDuce.inc" Configuration="Release" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -927,13 +926,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <ModelSupport>False</ModelSupport>
         </BorlandProject>
