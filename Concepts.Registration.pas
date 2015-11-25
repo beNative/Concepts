@@ -104,6 +104,10 @@ uses
   {$IFDEF CHROMETABS}
   Concepts.ChromeTabs.Form,
   {$ENDIF}
+
+  {$IFDEF BCEDITOR}
+  Concepts.BCEditor.Form,
+  {$ENDIF}
   {$ENDREGION}
 
   Concepts.Manager;
@@ -349,6 +353,15 @@ begin
   RegisterSystemConcepts;
   RegisterVclConcepts;
   RegisterWinApiConcepts;
+
+  {$IFDEF BCEDITOR}
+  ConceptManager.Register(
+    TfrmBCEditor,
+    'BCEditor',
+    'BCEditor',
+    'TBCEditor component demo'
+  );
+  {$ENDIF}
 
   {$IFDEF BTMEMORYMODULE}
   ConceptManager.Register(

@@ -20,7 +20,7 @@ uses
   ChromeTabsUtils in 'Libraries\TChromeTabs\Lib\ChromeTabsUtils.pas',
   Concepts.BTMemoryModule.Form in 'Forms\Concepts.BTMemoryModule.Form.pas' {frmBTMemoryModule},
   Concepts.ChromeTabs.Form in 'Forms\Concepts.ChromeTabs.Form.pas' {frmChromeTabs},
-  Concepts.ComponentInspectorTemplate.Form in 'Forms\Concepts.ComponentInspectorTemplate.Form.pas' {frmPropertyInspector},
+  Concepts.BCEditor.Form in 'Forms\Concepts.BCEditor.Form.pas' {frmBCEditor},
   {$IFDEF DEVEXPRESS}
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas',
   {$ENDIF }
