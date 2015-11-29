@@ -21,10 +21,8 @@
   Copyright (C) 1997-2007. All Rights Reserved. You may obtain a copy of the
   original code at http://www.tersy.ru/~roman/download/
 
-  Changes by Tim Sinaeve:
-   - The original comments were translated from Russian to English using
-     machine translation.
-   - Code ported to support unicode and later versions of Delphi
+  Changes and improvements by Tim Sinaeve:
+   - Code ported and refactored to support unicode and later versions of Delphi
    - OnGetCellColors was not triggered anymore
 }
 
@@ -42,43 +40,21 @@ uses
   DDuce.Components.GridView;
 
 type
-
-{ TInspectorEdit }
-
   TInspectorEdit = class(TGridEdit)
   protected
     procedure UpdateBounds(ScrollCaret: Boolean); override;
     procedure UpdateColors; override;
+
   public
     procedure Invalidate; override;
+
   end;
 
-{ TCustomInspector }
-  {
-    Base class for creating the inspectors of properties on the means
-    ObjectInspector in Delphi.
-    Overlap the methods of class TCustomGridView for creating the exterior view
-    (color of the text of columns, the "embedded" focus and t.p.). It always contains two
-    column - column of the names of properties and the column of values. It is always located in
-    the state of editing.
-    Dopolnitel'nyem the methods:
-    IsCategoryRow - is the line indicated line with the name
-                    category. It is not sketched for the lines with the name of category
-                    the separating strip of columns (as into Delphi 5.0),
-                    text is sketched to entire width of table by color clPurple.
-                    ATTENTION! The text of the line of category determines the text
-                    the cell of left (index 0) column.
-    Additional properties:
-    NameFont -      type of the names properties.
-    ValueFont -     type of values.
-    CategoryFont  - type of text in the cells of category.
-  }
-
   TInspectorCategoryRowEvent = procedure(
-        Sender   : TObject;
-        Row      : Longint;
+    Sender       : TObject;
+    Row          : Longint;
     var Category : Boolean
-  ) of object;
+    ) of object;
 
   TCustomInspector = class(TCustomGridView)
   private
@@ -89,12 +65,14 @@ type
     FColUpdate        : Integer;
     FOnGetCategoryRow : TInspectorCategoryRowEvent;
 
-    procedure FontChanged(Sender: TObject);
+    procedure HandleFontChange(Sender: TObject);
+
     procedure SetCategoryFont(Value: TFont);
     procedure SetNameFont(Value: TFont);
     procedure SetValueFont(Value: TFont);
-    procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
-    procedure WMSetCursor(var Message: TWMSetCursor); message WM_SETCURSOR;
+
+    procedure WMNCHitTest(var AMessage: TWMNCHitTest); message WM_NCHITTEST;
+    procedure WMSetCursor(var AMessage: TWMSetCursor); message WM_SETCURSOR;
 
   protected
     procedure ChangeColumns; override;
@@ -110,7 +88,8 @@ type
     function GetTipsRect(Cell: TGridCell): TRect; override;
     procedure HideCursor; override;
     procedure HideFocus; override;
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+      override;
     procedure Paint; override;
     procedure PaintCell(Cell: TGridCell; Rect: TRect); override;
     procedure PaintFocus; override;
@@ -119,8 +98,9 @@ type
     procedure ShowFocus; override;
 
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
+
     function GetColumnAt(X, Y: Integer): Integer; override;
     function GetEditRect(Cell: TGridCell): TRect; override;
     function GetFocusRect: TRect; override;
@@ -142,8 +122,6 @@ type
       read FOnGetCategoryRow write FOnGetCategoryRow;
   end;
 
-{ TInspector }
-
   TInspector = class(TCustomInspector)
   published
     property Align;
@@ -156,7 +134,6 @@ type
     property CategoryFont;
     property Color default clBtnFace;
     property Constraints;
-    property Ctl3D;
     property ColumnsFullDrag default True;
     property DoubleBuffered default True;
     property Enabled;
@@ -165,7 +142,6 @@ type
     property Font;
     property NameFont;
     property ParentColor default False;
-    property ParentCtl3D;
     property ParentFont;
     property ParentShowHint;
     property PopupMenu;
@@ -176,6 +152,7 @@ type
     property TabStop default True;
     property ValueFont;
     property Visible;
+
     property OnCellClick;
     property OnChange;
     property OnChanging;
@@ -221,10 +198,9 @@ type
 implementation
 
 uses
-  Types;
+  System.Types, System.UITypes;
 
-{ TInspectorEdit }
-
+{$REGION 'TInspectorEdit'}
 procedure TInspectorEdit.UpdateBounds(ScrollCaret: Boolean);
 begin
   inherited UpdateBounds(ScrollCaret);
@@ -241,79 +217,101 @@ end;
 procedure TInspectorEdit.Invalidate;
 begin
   inherited Invalidate;
-  if Grid <> nil then
+  if Assigned(Grid) then
     Grid.InvalidateFocus;
 end;
+{$ENDREGION}
 
-{ TCustomInspector }
-
-constructor TCustomInspector.Create(AOwner: TComponent);
+{$REGION 'TCustomInspector'}
+{$REGION 'construction and destruction'}
+procedure TCustomInspector.AfterConstruction;
 begin
-  inherited Create(AOwner);
-  Color := clBtnFace;
-  RowSelect := False;
-  AllowEdit := True;
+  inherited AfterConstruction;
+  Color      := clBtnFace;
+  RowSelect  := False;
+  AllowEdit  := True;
   AlwaysEdit := True;
-  with Columns do
+  with Columns.Add do
   begin
-    with Add do
-    begin
-      Caption := 'Property';
-      FixedSize := True;
-      WordWrap := False;
-      WantReturns := False;
-      ReadOnly := True;
-      TabStop := False;
-    end;
-    with Add do
-    begin
-      Caption := 'Value';
-      WordWrap := False;
-      WantReturns := False;
-      FixedSize := True;
-    end;
+    Caption := 'Property';
+    FixedSize := True;
+    WordWrap := False;
+    WantReturns := False;
+    ReadOnly := True;
+    TabStop := False;
   end;
-  Header.Synchronized := True;
-  ShowHeader := False;
-  Rows.AutoHeight := False;
-  Rows.Height := 16;
+  with Columns.Add do
+  begin
+    Caption := 'Value';
+    WordWrap := False;
+    WantReturns := False;
+    FixedSize := True;
+  end;
+  Header.Synchronized   := True;
+  ShowHeader            := False;
+  Rows.AutoHeight       := False;
+  Rows.Height           := 16;
   HorzScrollBar.Visible := False;
-  ColumnsFullDrag := True;
-  DoubleBuffered := True;
-  CheckBoxes := True;
-  EndEllipsis := False;
-  GridLines := False;
-  TextTopIndent := 1;
-  TextRightIndent := 1;
-  CursorKeys := CursorKeys + [gkMouseMove];
-  FNameFont := TFont.Create;
+  ColumnsFullDrag       := True;
+  CheckBoxes            := True;
+  EndEllipsis           := False;
+  GridLines             := False;
+  TextTopIndent         := 1;
+  TextRightIndent       := 1;
+  CursorKeys            := CursorKeys + [gkMouseMove];
+  FNameFont             := TFont.Create;
   FNameFont.Assign(Font);
-  FNameFont.Color := clBtnText;
-  FNameFont.OnChange := FontChanged;
-  FValueFont := TFont.Create;
+  FNameFont.Color    := clBtnText;
+  FNameFont.OnChange := HandleFontChange;
+  FValueFont         := TFont.Create;
   FValueFont.Assign(Font);
-  FValueFont.Color := clNavy;
-  FValueFont.OnChange := FontChanged;
-  FCategoryFont := TFont.Create;
+  FValueFont.Color    := clNavy;
+  FValueFont.OnChange := HandleFontChange;
+  FCategoryFont       := TFont.Create;
   FCategoryFont.Assign(Font);
-  FCategoryFont.Color := clPurple;
-  FCategoryFont.Style := FValueFont.Style + [fsBold];
-  FCategoryFont.OnChange := FontChanged;
+  FCategoryFont.Color    := clPurple;
+  FCategoryFont.Style    := FValueFont.Style + [fsBold];
+  FCategoryFont.OnChange := HandleFontChange;
 end;
 
-destructor TCustomInspector.Destroy;
+procedure TCustomInspector.BeforeDestruction;
 begin
   FCategoryFont.Free;
   FValueFont.Free;
   FNameFont.Free;
-  inherited Destroy;
+  inherited BeforeDestruction;
 end;
+{$ENDREGION}
 
-procedure TCustomInspector.FontChanged(Sender: TObject);
+{$REGION 'event handlers'}
+procedure TCustomInspector.HandleFontChange(Sender: TObject);
 begin
   InvalidateGrid;
 end;
+{$ENDREGION}
 
+{$REGION 'message handlers'}
+procedure TCustomInspector.WMNCHitTest(var AMessage: TWMNCHitTest);
+begin
+  inherited;
+  FHitTest := ScreenToClient(SmallPointToPoint(AMessage.Pos));
+end;
+
+procedure TCustomInspector.WMSetCursor(var AMessage: TWMSetCursor);
+begin
+  if (AMessage.HitTest = HTCLIENT) and not (csDesigning in ComponentState) then
+  begin
+    if ColResizeAllowed(FHitTest.X, FHitTest.Y) then
+    begin
+      Winapi.Windows.SetCursor(Screen.Cursors[crHSplit]);
+      Exit;
+    end;
+  end;
+  inherited;
+end;
+{$ENDREGION}
+
+{$REGION 'property access methods'}
 procedure TCustomInspector.SetCategoryFont(Value: TFont);
 begin
   FCategoryFont.Assign(Value);
@@ -328,28 +326,12 @@ procedure TCustomInspector.SetValueFont(Value: TFont);
 begin
   FValueFont.Assign(Value);
 end;
+{$ENDREGION}
 
-procedure TCustomInspector.WMNCHitTest(var Message: TWMNCHitTest);
-begin
-  inherited;
-  FHitTest := ScreenToClient(SmallPointToPoint(Message.Pos));
-end;
-
-procedure TCustomInspector.WMSetCursor(var Message: TWMSetCursor);
-begin
-  with Message, FHitTest do
-    if (HitTest = HTCLIENT) and not (csDesigning in ComponentState) then
-      if ColResizeAllowed(X, Y) then
-      begin
-        Winapi.Windows.SetCursor(Screen.Cursors[crHSplit]);
-        Exit;
-      end;
-  inherited;
-end;
-
+{$REGION 'protected methods'}
 procedure TCustomInspector.ChangeColumns;
 begin
-  inherited;
+  inherited ChangeColumns;
   UpdateColumnsSize;
 end;
 
@@ -400,7 +382,8 @@ end;
 
 function TCustomInspector.GetCellText(Cell: TGridCell): string;
 begin
-  if (Cell.Col <> 0) and IsCategoryRow(Cell.Row) then Cell.Col := 0;
+  if (Cell.Col <> 0) and IsCategoryRow(Cell.Row) then
+    Cell.Col := 0;
   Result := inherited GetCellText(Cell);
 end;
 
@@ -418,7 +401,7 @@ end;
 procedure TCustomInspector.GetEditListBounds(Cell: TGridCell; var Rect: TRect);
 begin
   Dec(Rect.Left, 2);
-  inherited;
+  inherited GetEditListBounds(Cell, Rect);
 end;
 
 function TCustomInspector.GetTipsRect(Cell: TGridCell): TRect;
@@ -426,7 +409,6 @@ var
   DX: Integer;
 begin
   Result := inherited GetTipsRect(Cell);
-  {for 2 columns of the line of category we displace prompt on beginning 1 of column}
   if (Cell.Col <> 0) and IsCategoryRow(Cell.Row) then
   begin
     DX := GetColumnRect(0).Left - Result.Left;
@@ -436,24 +418,17 @@ end;
 
 procedure TCustomInspector.HideCursor;
 begin
-  {for the cells of category the line of introduction does not show; therefore
-    dissipated the framework of focus must be to very}
   if IsCategoryRow(CellFocused.Row) then
   begin
     InvalidateFocus;
     Exit;
   end;
-  inherited;
+  inherited HideCursor;
 end;
 
 procedure TCustomInspector.HideFocus;
 begin
-  {on silence TCustomGridView sketches the rectangle of the focus by the function
-    DrawFocusRect. In the consequence of the special feature of funktsiii DrawFocusRect,
-    the broken rectangle of focus must be dissipated (to sketch repeatedly)
-    everyone with the least copying, a change in the dimensions of column and t.p.,
-    otherwise will remain "rubbish". Since in the inspector focus is sketched by the framework,
-    that the procedure of the extinction of focus can be ignored}
+  { suppress inherited call }
 end;
 
 procedure TCustomInspector.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -471,7 +446,7 @@ begin
       Exit;
     end;
   end;
-  inherited;
+  inherited MouseDown(Button, Shift, X, Y);
 end;
 
 procedure TCustomInspector.Paint;
@@ -490,7 +465,7 @@ begin
     Rect.Right := GetGridRect.Right;
     if Cell.Col <> 0 then Exit;
   end;
-  inherited;
+  inherited PaintCell(Cell, Rect);
   if Cell.Row <> CellFocused.Row then
   begin
     R := Rect;
@@ -503,8 +478,6 @@ begin
       PaintResizeRectDC(Handle, R);
     end;
   end;
-  {for the cells without the name category we sketch the dual separating
-    strip to the right}
   if (Cell.Col = 0) and (not IsCategoryRow(Cell.Row)) then
     with Canvas do
     begin
@@ -516,35 +489,27 @@ begin
       MoveTo(Rect.Right - 1, Rect.Bottom - 1);
       LineTo(Rect.Right - 1, Rect.Top - 1);
     end;
-  {we sketch the framework of focus}
   if Cell.Row = CellFocused.Row then
-    {the lower line of the framework only for the cells with the focus}
-    with Canvas do
-      DrawEdge(Handle, Rect, BDR_SUNKENOUTER, BF_BOTTOM)
-  else
-    { the upper line of the framework of focus only for the cells above the focus}
-    if Cell.Row = CellFocused.Row - 1 then
-    begin
-      R := Rect;
-      R.Top := R.Bottom - 2;
-      with Canvas do
-      begin
-        DrawEdge(Handle, R, BDR_SUNKENOUTER, BF_TOP);
-        InflateRect(R, 0, -1);
-        DrawEdge(Handle, R, BDR_SUNKENINNER, BF_TOP);
-      end;
-    end;
+    DrawEdge(Canvas.Handle, Rect, BDR_SUNKENOUTER, BF_BOTTOM)
+  else if Cell.Row = CellFocused.Row - 1 then
+  begin
+    R := Rect;
+    R.Top := R.Bottom - 2;
+    DrawEdge(Canvas.Handle, R, BDR_SUNKENOUTER, BF_TOP);
+    InflateRect(R, 0, -1);
+    DrawEdge(Canvas.Handle, R, BDR_SUNKENINNER, BF_TOP);
+  end;
 end;
 
 procedure TCustomInspector.PaintFocus;
 begin
-  {the framework focus it is sketched with otrisovke of cell}
+  { suppress inherited call }
 end;
 
 procedure TCustomInspector.Resize;
 begin
   UpdateColumnsSize;
-  inherited;
+  inherited Resize;
 end;
 
 procedure TCustomInspector.ShowCursor;
@@ -554,23 +519,23 @@ begin
     InvalidateFocus;
     Exit;
   end;
-  inherited;
+  inherited ShowCursor;
 end;
 
 procedure TCustomInspector.ShowFocus;
 begin
-  {}
+  { suppress inherited call }
 end;
+{$ENDREGION}
 
+{$REGION 'public methods'}
 function TCustomInspector.GetColumnAt(X, Y: Integer): Integer;
 var
   C1, C2: TGridCell;
   R: TRect;
 begin
-  { we obtain the visible cells}
   C1 := GridCell(0, VisOrigin.Row);
   C2 := GridCell(1, VisOrigin.Row + VisSize.Row - 1);
-  { we obtain the rectangle of the visible cells}
   R := GetCellsRect(C1, C2);
   if X < R.Left then
   begin
@@ -587,15 +552,12 @@ end;
 
 function TCustomInspector.GetEditRect(Cell: TGridCell): TRect;
 begin
-  { we obtain the rectangle of line}
   Result := inherited GetEditRect(Cell);
-  { we consider border}
   Dec(Result.Bottom, 1);
 end;
 
 function TCustomInspector.GetFocusRect: TRect;
 begin
-  { we obtain the rectangle of line, we consider border}
   Result := GetRowRect(CellFocused.Row);
   Dec(Result.Top, 2);
 end;
@@ -605,10 +567,8 @@ var
   C1, C2: TGridCell;
   R: TRect;
 begin
-  { we obtain the visible cells}
   C1 := GridCell(0, VisOrigin.Row);
   C2 := GridCell(1, VisOrigin.Row + VisSize.Row - 1);
-  { we obtain the rectangle of the visible cells}
   R := GetCellsRect(C1, C2);
   if Y < R.Top then
   begin
@@ -657,5 +617,7 @@ begin
   inherited UpdateScrollBars;
   UpdateColumnsSize;
 end;
+{$ENDREGION}
+{$ENDREGION}
 
 end.

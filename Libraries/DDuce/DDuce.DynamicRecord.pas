@@ -194,16 +194,16 @@ type
 
     class function CreateDynamicRecord: IDynamicRecord; static;
 
-    function AsVarArray(const AFieldNames : string = '') : Variant;
-    function AsCommaText(const AFieldNames : string) : string; overload;
-    function AsCommaText : string; overload;
-    function AsDelimitedText(
+    function ToVarArray(const AFieldNames : string = '') : Variant;
+    function ToCommaText(const AFieldNames : string) : string; overload;
+    function ToCommaText : string; overload;
+    function ToDelimitedText(
       const AFieldNames  : string;
       const ADelimiter   : string;
             AQuoteValues : Boolean = False;
             AQuoteChar   : Char = '"'
     ): string; overload;
-    function AsDelimitedText(
+    function ToDelimitedText(
       const ADelimiter   : string;
             AQuoteValues : Boolean = False;
             AQuoteChar   : Char = '"'
@@ -215,10 +215,20 @@ type
       const ANames  : array of string
     ); overload;
 
+    procedure AssignTo<T>(AInstance: T); overload;
     procedure AssignTo(AInstance: TValue); overload;
     procedure AssignTo(
-      const AInstance : TValue;
-      const ANames    : array of string
+      const AValue            : TValue;
+      const AAssignProperties : Boolean;
+      const AAssignFields     : Boolean;
+      const AAssignNulls      : Boolean;
+      const ANames            : array of string
+    ); overload;
+    procedure AssignTo(
+      const AValue            : TValue;
+      const AAssignProperties : Boolean = True;
+      const AAssignFields     : Boolean = False;
+      const AAssignNulls      : Boolean = False
     ); overload;
 
     procedure AssignProperty(
@@ -233,7 +243,19 @@ type
       const AAssignNulls  : Boolean
     ); overload;
 
-    procedure From<T>(const Value: T); overload;
+    procedure From<T>(
+      const AValue            : T;
+      const AAssignProperties : Boolean = True;
+      const AAssignFields     : Boolean = False;
+      const AAssignNulls      : Boolean = False
+    ); overload;
+    procedure From<T>(
+      const AValue            : T;
+      const AAssignProperties : Boolean;
+      const AAssignFields     : Boolean;
+      const AAssignNulls      : Boolean;
+      const ANames            : array of string
+    ); overload;
     procedure From(
       const AInstance         : TValue;
       const AAssignProperties : Boolean;
@@ -317,6 +339,8 @@ type
   { TRecord<T> manages a IDynamicRecord<T> instance. The data is stored in the
     provided class type. }
 
+    { TODO: Items property }
+
   TRecord<T: class, constructor> = record
   private
     FDynamicRecord : IDynamicRecord<T>;
@@ -365,16 +389,16 @@ type
       const ADataFactory: TFunc<T>
     ): IDynamicRecord<T>; overload; static;
 
-    function AsVarArray(const AFieldNames : string = '') : Variant;
-    function AsCommaText(const AFieldNames : string) : string; overload;
-    function AsCommaText : string; overload;
-    function AsDelimitedText(
+    function ToVarArray(const AFieldNames : string = '') : Variant;
+    function ToCommaText(const AFieldNames : string) : string; overload;
+    function ToCommaText : string; overload;
+    function ToDelimitedText(
       const AFieldNames  : string;
       const ADelimiter   : string;
             AQuoteValues : Boolean = False;
             AQuoteChar   : Char = '"'
     ): string; overload;
-    function AsDelimitedText(
+    function ToDelimitedText(
       const ADelimiter   : string;
             AQuoteValues : Boolean = False;
             AQuoteChar   : Char = '"'
@@ -499,10 +523,24 @@ type
 
     procedure AssignTo(AInstance: TValue); overload;
     procedure AssignTo(
+      const AInstance         : TValue;
+      const AAssignProperties : Boolean;
+      const AAssignFields     : Boolean;
+      const AAssignNulls      : Boolean;
+      const ANames            : array of string
+    ); overload;
+    procedure AssignTo(
       const AInstance : TValue;
       const ANames    : array of string
     ); overload;
 
+//    procedure From<T>(
+//      const AInstance         : T;
+//      const AAssignProperties : Boolean;
+//      const AAssignFields     : Boolean;
+//      const AAssignNulls      : Boolean;
+//      const ANames            : array of string
+//    );
     procedure From(
       const AInstance         : TValue;
       const AAssignProperties : Boolean;
@@ -523,20 +561,20 @@ type
       const AAssignNulls  : Boolean
     ); overload;
 
-    function AsCommaText : string; overload;
-    function AsCommaText(const AFieldNames : string) : string; overload;
-    function AsDelimitedText(
+    function ToCommaText : string; overload;
+    function ToCommaText(const AFieldNames : string) : string; overload;
+    function ToDelimitedText(
       const AFieldNames  : string;
       const ADelimiter   : string;
             AQuoteValues : Boolean = False;
             AQuoteChar   : Char = '"'
     ): string; overload;
-    function AsDelimitedText(
+    function ToDelimitedText(
       const ADelimiter   : string;
             AQuoteValues : Boolean = False;
             AQuoteChar   : Char = '"'
     ): string; overload;
-    function AsVarArray(const AFieldNames : string = '') : Variant;
+    function ToVarArray(const AFieldNames : string = '') : Variant;
 
     procedure FromDataSet(
             ADataSet     : TDataSet;
@@ -706,6 +744,13 @@ type
       const AInstance : TValue;
       const ANames    : array of string
     ); reintroduce; overload;
+    procedure AssignTo(
+      const AInstance         : TValue;
+      const AAssignProperties : Boolean;
+      const AAssignFields     : Boolean;
+      const AAssignNulls      : Boolean;
+      const ANames            : array of string
+    ); reintroduce; overload;
 
     procedure From(
       const AInstance         : TValue;
@@ -743,16 +788,16 @@ type
     function FindItemID(ID: Integer): IDynamicField;
     function Find(const AName: string): IDynamicField;
 
-    function AsVarArray(const AFieldNames : string = '') : Variant;
-    function AsCommaText(const AFieldNames : string) : string; overload;
-    function AsCommaText : string; overload;
-    function AsDelimitedText(
+    function ToVarArray(const AFieldNames : string = '') : Variant;
+    function ToCommaText(const AFieldNames : string) : string; overload;
+    function ToCommaText : string; overload;
+    function ToDelimitedText(
       const AFieldNames  : string;
       const ADelimiter   : string;
             AQuoteValues : Boolean = False;
             AQuoteChar   : Char = '"'
     ): string; overload;
-    function AsDelimitedText(
+    function ToDelimitedText(
       const ADelimiter   : string;
             AQuoteValues : Boolean = False;
             AQuoteChar   : Char = '"'
@@ -799,7 +844,6 @@ type
 
     property Count: Integer
       read GetCount;
-  private
 
     //procedure From<T>(const Value: T);
   protected
@@ -1547,6 +1591,13 @@ begin
   end;
 end;
 
+procedure TDynamicRecord.AssignTo(const AInstance: TValue;
+  const AAssignProperties, AAssignFields, AAssignNulls: Boolean;
+  const ANames: array of string);
+begin
+// TODO
+end;
+
 { Assigns the record values to the corresponding (writable) properties of the
   given instance (record or object). }
 
@@ -1644,7 +1695,7 @@ begin
   Result := inherited FindItemID(ID) as TDynamicField;
 end;
 
-{ Creates an instance with information extracted using RTTI from the given TValue
+{ Creates an instance with data extracted using RTTI from the given TValue
   argument.  }
 procedure TDynamicRecord.From(const AInstance: TValue; const AAssignProperties,
   AAssignFields, AAssignNulls: Boolean; const ANames: array of string);
@@ -1664,8 +1715,8 @@ begin
       tkDynArray, tkClass, tkProcedure
     ];
     List := TList<string>.Create;
-    List.AddRange(ANames);
     try
+      List.AddRange(ANames);
       if AAssignProperties then
       begin
         for P in FRttiContext.GetType(AInstance.TypeInfo).GetProperties do
@@ -1816,7 +1867,7 @@ end;
 { Returns a comma seperated string of values for the given list of comma
   seperated fieldnames. }
 
-function TDynamicRecord.AsCommaText(const AFieldNames: string): string;
+function TDynamicRecord.ToCommaText(const AFieldNames: string): string;
 var
   I : Integer;
   N : Integer;
@@ -1835,7 +1886,7 @@ end;
 
 { Returns a comma seperated string of all fieldvalues. }
 
-function TDynamicRecord.AsCommaText: string;
+function TDynamicRecord.ToCommaText: string;
 var
   I : Integer;
   S : string;
@@ -1850,7 +1901,7 @@ begin
   end;
 end;
 
-function TDynamicRecord.AsDelimitedText(const AFieldNames, ADelimiter: string;
+function TDynamicRecord.ToDelimitedText(const AFieldNames, ADelimiter: string;
   AQuoteValues: Boolean; AQuoteChar: Char): string;
 var
   I : Integer;
@@ -1870,7 +1921,7 @@ begin
   end;
 end;
 
-function TDynamicRecord.AsDelimitedText(const ADelimiter: string;
+function TDynamicRecord.ToDelimitedText(const ADelimiter: string;
   AQuoteValues: Boolean; AQuoteChar: Char): string;
 var
   I : Integer;
@@ -1898,7 +1949,7 @@ end;
     Variant array with the corresponding values.
 }
 
-function TDynamicRecord.AsVarArray(const AFieldNames: string): Variant;
+function TDynamicRecord.ToVarArray(const AFieldNames: string): Variant;
 var
   VA : array of Variant;
   I  : Integer;
@@ -2166,28 +2217,28 @@ begin
   );
 end;
 
-function TRecord.AsCommaText: string;
+function TRecord.ToCommaText: string;
 begin
-  Result := DynamicRecord.AsCommaText;
+  Result := DynamicRecord.ToCommaText;
 end;
 
-function TRecord.AsCommaText(const AFieldNames: string): string;
+function TRecord.ToCommaText(const AFieldNames: string): string;
 begin
-  Result := DynamicRecord.AsCommaText(AFieldNames);
+  Result := DynamicRecord.ToCommaText(AFieldNames);
 end;
 
-function TRecord.AsDelimitedText(const AFieldNames, ADelimiter: string;
+function TRecord.ToDelimitedText(const AFieldNames, ADelimiter: string;
   AQuoteValues: Boolean; AQuoteChar: Char): string;
 begin
-  Result := DynamicRecord.AsDelimitedText(
+  Result := DynamicRecord.ToDelimitedText(
     AFieldNames, ADelimiter, AQuoteValues, AQuoteChar
   );
 end;
 
-function TRecord.AsDelimitedText(const ADelimiter: string;
+function TRecord.ToDelimitedText(const ADelimiter: string;
   AQuoteValues: Boolean; AQuoteChar: Char): string;
 begin
-  Result := DynamicRecord.AsDelimitedText(ADelimiter, AQuoteValues, AQuoteChar);
+  Result := DynamicRecord.ToDelimitedText(ADelimiter, AQuoteValues, AQuoteChar);
 end;
 
 procedure TRecord.Assign(const ARecord: TRecord; const ANames: array of string);
@@ -2223,10 +2274,39 @@ begin
   AssignProperty(AInstance, APropertyName, '', AAssignNulls);
 end;
 
-procedure TRecord.AssignTo(const AInstance: TValue;
-  const ANames: array of string);
+//procedure TRecord.AssignTo(const AInstance: TValue;
+//  const ANames: array of string);
+//begin
+//  DynamicRecord.AssignTo(AInstance, ANames);
+//end;
+
+procedure TRecord.AssignTo(const AValue: TValue; const AAssignProperties,
+  AAssignFields, AAssignNulls: Boolean; const ANames: array of string);
 begin
-  DynamicRecord.AssignTo(AInstance, ANames);
+  DynamicRecord.AssignTo(
+    AValue,
+    AAssignProperties,
+    AAssignFields,
+    AAssignNulls,
+    ANames
+  );
+end;
+
+procedure TRecord.AssignTo(const AValue: TValue; const AAssignProperties,
+  AAssignFields, AAssignNulls: Boolean);
+begin
+  DynamicRecord.AssignTo(
+    AValue,
+    AAssignProperties,
+    AAssignFields,
+    AAssignNulls,
+    []
+  );
+end;
+
+procedure TRecord.AssignTo<T>(AInstance: T);
+begin
+  DynamicRecord.AssignTo(TValue.From<T>(AInstance));
 end;
 
 procedure TRecord.AssignTo(AInstance: TValue);
@@ -2234,9 +2314,9 @@ begin
   DynamicRecord.AssignTo(AInstance);
 end;
 
-function TRecord.AsVarArray(const AFieldNames: string): Variant;
+function TRecord.ToVarArray(const AFieldNames: string): Variant;
 begin
-  Result := DynamicRecord.AsVarArray(AFieldNames);
+  Result := DynamicRecord.ToVarArray(AFieldNames);
 end;
 
 procedure TRecord.Clear;
@@ -2260,9 +2340,28 @@ begin
   DynamicRecord.From(AInstance, AAssignProperties, AAssignFields, AAssignNulls, ANames);
 end;
 
-procedure TRecord.From<T>(const Value: T);
+procedure TRecord.From<T>(const AValue: T; const AAssignProperties,
+  AAssignFields, AAssignNulls: Boolean);
 begin
-  DynamicRecord.From(TValue.From<T>(Value), True, False, False, []);
+  DynamicRecord.From(
+    TValue.From<T>(AValue),
+    AAssignProperties,
+    AAssignFields,
+    AAssignNulls,
+    []
+  );
+end;
+
+procedure TRecord.From<T>(const AValue: T; const AAssignProperties,
+  AAssignFields, AAssignNulls: Boolean; const ANames: array of string);
+begin
+  DynamicRecord.From(
+    TValue.From<T>(AValue),
+    AAssignProperties,
+    AAssignFields,
+    AAssignNulls,
+    ANames
+  );
 end;
 
 { Makes a copy of the current record of a given dataset by assigning each field
@@ -2771,26 +2870,26 @@ end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
-function TRecord<T>.AsCommaText: string;
+function TRecord<T>.ToCommaText: string;
 begin
-  Result := DynamicRecord.AsCommaText;
+  Result := DynamicRecord.ToCommaText;
 end;
 
-function TRecord<T>.AsCommaText(const AFieldNames: string): string;
+function TRecord<T>.ToCommaText(const AFieldNames: string): string;
 begin
-  Result := DynamicRecord.AsCommaText(AFieldNames);
+  Result := DynamicRecord.ToCommaText(AFieldNames);
 end;
 
-function TRecord<T>.AsDelimitedText(const ADelimiter: string;
+function TRecord<T>.ToDelimitedText(const ADelimiter: string;
   AQuoteValues: Boolean; AQuoteChar: Char): string;
 begin
-  Result := DynamicRecord.AsDelimitedText(ADelimiter, AQuoteValues, AQuoteChar);
+  Result := DynamicRecord.ToDelimitedText(ADelimiter, AQuoteValues, AQuoteChar);
 end;
 
-function TRecord<T>.AsDelimitedText(const AFieldNames, ADelimiter: string;
+function TRecord<T>.ToDelimitedText(const AFieldNames, ADelimiter: string;
   AQuoteValues: Boolean; AQuoteChar: Char): string;
 begin
-  Result := DynamicRecord.AsDelimitedText(
+  Result := DynamicRecord.ToDelimitedText(
     AFieldNames, ADelimiter, AQuoteValues, AQuoteChar
   );
 end;
@@ -2830,9 +2929,9 @@ begin
   DynamicRecord.AssignTo(AInstance);
 end;
 
-function TRecord<T>.AsVarArray(const AFieldNames: string): Variant;
+function TRecord<T>.ToVarArray(const AFieldNames: string): Variant;
 begin
-  Result := DynamicRecord.AsVarArray(AFieldNames);
+  Result := DynamicRecord.ToVarArray(AFieldNames);
 end;
 
 procedure TRecord<T>.Clear;

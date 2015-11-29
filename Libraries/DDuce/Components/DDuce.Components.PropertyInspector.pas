@@ -52,9 +52,17 @@ uses
 type
   EBaseObjectList = class(Exception);
 
+  TBitmap = Vcl.Graphics.TBitmap;
+
+  TPropsPageItemExpandable = (
+    mieAuto,
+    mieYes,
+    mieNo
+  );
+
   TItemByProc = procedure(
-        AItem   : TObject;
-        AData   : Pointer;
+    AItem       : TObject;
+    AData       : Pointer;
     var AResult : Boolean
   ) of object;
 
@@ -74,6 +82,7 @@ type
     procedure Change; virtual;
     procedure Added; virtual;
     procedure Deleted; virtual;
+
     function DoItemBy(AData: Pointer; AItemByProc: TItemByProc): TObject;
     function DoFind(AData: Pointer; AItemByProc: TItemByProc): TObject;
     function DoSearch(AData: Pointer; AItemByProc: TItemByProc): TObject;
@@ -149,12 +158,6 @@ type
     property ReadOnlyStyle: Boolean
       read FReadOnlyStyle;
   end;
-
-  TPropsPageItemExpandable = (
-    mieAuto,
-    mieYes,
-    mieNo
-  );
 
   TPropsPageItem = class(TBaseObjectList)
   private
@@ -245,9 +248,9 @@ type
   TPropsPageItems = class(TBaseObjectList)
   private
     FOwner: TCustomPropsPage;
-    function GetItems(AIndex: Integer): TPropsPageItem;
 
   protected
+    function GetItems(AIndex: Integer): TPropsPageItem;
     function CreateItem: TObject; override;
     procedure Change; override;
 
@@ -261,14 +264,15 @@ type
       read GetItems; default;
   end;
 
-  TPropsPageState = set of (
-    ppsMovingSplitter,
-    ppsChanged,
-    ppsDestroying,
-    ppsUpdatingEditorContent
-  );
-
   TCustomPropsPage = class(TCustomGrid)
+  private type
+    TPropsPageState = set of (
+      ppsMovingSplitter,
+      ppsChanged,
+      ppsDestroying,
+      ppsUpdatingEditorContent
+    );
+
   private
     FState          : TPropsPageState;
     FOldRow         : Integer;
@@ -278,19 +282,11 @@ type
     FRows           : array of TPropsPageItem;
     FUpdateCount    : Integer;
     FValuesColor    : TColor;
-    FBitmap         : Vcl.Graphics.TBitmap;
+    FBitmap         : TBitmap;
     FBitmapBkColor  : TColor;
     FBrush          : HBRUSH;
-    FCellBitmap     : Vcl.Graphics.TBitmap;
+    FCellBitmap     : TBitmap;
 
-    procedure ItemsChange;
-    function IsOnSplitter(AX: Integer): Boolean;
-    procedure UpdateColWidths;
-    procedure UpdateScrollBar;
-    procedure AdjustTopRow;
-    function ItemByRow(ARow: Integer): TPropsPageItem;
-    procedure UpdateData(ARow: Integer);
-    procedure UpdatePattern;
     procedure WMVScroll(var Message: TWMVScroll); message WM_VSCROLL;
     procedure WMSize(var Message: TWMSize); message WM_SIZE;
     procedure WMLButtonDblClk(var Message: TWMLButtonDblClk);
@@ -300,6 +296,16 @@ type
       message CM_DESIGNHITTEST;
     procedure CMFontChanged(var Message: TMessage); message CM_FONTCHANGED;
     procedure CMExit(var Message: TMessage); message CM_EXIT;
+
+    procedure ItemsChange;
+    function IsOnSplitter(AX: Integer): Boolean;
+    procedure UpdateColWidths;
+    procedure UpdateScrollBar;
+    procedure AdjustTopRow;
+    function ItemByRow(ARow: Integer): TPropsPageItem;
+    procedure UpdateData(ARow: Integer);
+    procedure UpdatePattern;
+
     function GetActiveItem: TPropsPageItem;
     function GetSplitter: Integer;
     procedure SetSplitter(const Value: Integer);
@@ -347,6 +353,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+
     procedure BeginUpdate;
     procedure EndUpdate;
 
@@ -383,6 +390,7 @@ type
     property ShowHint;
     property TabOrder;
     property Visible;
+
     property OnClick;
     property OnContextPopup;
     property OnDblClick;
@@ -889,10 +897,10 @@ type
   end;
 
   TPropertyInspectorEditorDescr = record
-    TypeInfo: PTypeInfo;
-    ObjectClass: TClass;
-    PropName: string;
-    EditorClass: TPropertyEditorClass;
+    TypeInfo    : PTypeInfo;
+    ObjectClass : TClass;
+    PropName    : string;
+    EditorClass : TPropertyEditorClass;
   end;
 
   TPropertyInspectorOnFilterProp = procedure(
@@ -900,7 +908,7 @@ type
     AInstance        : TObject;
     APropInfo        : PPropInfo;
     var AIncludeProp : Boolean
-  )  of object;
+  ) of object;
   TPropertyInspectorOnGetCaptionColor = procedure(
     Sender          : TObject;
     APropTypeInfo   : PTypeInfo;
@@ -960,18 +968,32 @@ type
     procedure ItemExpanded(AItem: TPropsPageItem); override;
     procedure ItemCollapsed(AItem: TPropsPageItem); override;
     function GetItemCaptionColor(AItem: TPropsPageItem): TColor; override;
-    function GetEditorClass(AInstance: TObject; APropInfo: PPropInfo)
-      : TPropertyEditorClass; virtual;
-    procedure GetComponent(const AComponentName: string;
-      var AComponent: TComponent); virtual;
-    procedure GetComponentNames(AClass: TComponentClass;
-      AResult: TStrings); virtual;
-    procedure GetComponentName(AComponent: TComponent;
-      var AName: string); virtual;
-    procedure FilterProp(AInstance: TObject; APropInfo: PPropInfo;
-      var AIncludeProp: Boolean); virtual;
-    procedure GetCaptionColor(APropTypeInfo: PTypeInfo; const APropName: string;
-      var AColor: TColor); virtual;
+    function GetEditorClass(
+      AInstance : TObject;
+      APropInfo : PPropInfo
+    ) : TPropertyEditorClass; virtual;
+    procedure GetComponent(
+      const AComponentName : string;
+      var AComponent       : TComponent
+    ); virtual;
+    procedure GetComponentNames(
+      AClass  : TComponentClass;
+      AResult : TStrings
+    ); virtual;
+    procedure GetComponentName(
+      AComponent : TComponent;
+      var AName  : string
+    ); virtual;
+    procedure FilterProp(
+      AInstance        : TObject;
+      APropInfo        : PPropInfo;
+      var AIncludeProp : Boolean
+    ); virtual;
+    procedure GetCaptionColor(
+      APropTypeInfo   : PTypeInfo;
+      const APropName : string;
+      var AColor      : TColor
+    ); virtual;
 
     property Designer: Pointer
       read FDesigner write SetDesigner;
@@ -1016,18 +1038,28 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+
     procedure Add(AObject: TObject);
     procedure Delete(AIndex: Integer);
     procedure Remove(AObject: TObject);
     procedure Clear;
     procedure UpdateItems;
+
     procedure AssignObjects(AObjects: TList);
     function IndexOf(AObject: TObject): Integer;
     procedure Modified;
-    procedure RegisterPropEditor(ATypeInfo: PTypeInfo; AObjectClass: TClass;
-      const APropName: string; AEditorClass: TPropertyEditorClass);
-    procedure UnregisterPropEditor(ATypeInfo: PTypeInfo; AObjectClass: TClass;
-      const APropName: string; AEditorClass: TPropertyEditorClass);
+    procedure RegisterPropEditor(
+      ATypeInfo       : PTypeInfo;
+      AObjectClass    : TClass;
+      const APropName : string;
+      AEditorClass    : TPropertyEditorClass
+    );
+    procedure UnregisterPropEditor(
+      ATypeInfo       : PTypeInfo;
+      AObjectClass    : TClass;
+      const APropName : string;
+      AEditorClass    : TPropertyEditorClass
+    );
 
     property Items;
 
@@ -1070,6 +1102,7 @@ type
     property ShowHint;
     property TabOrder;
     property Visible;
+
     property OnGetComponent;
     property OnGetComponentNames;
     property OnGetComponentName;
@@ -1414,8 +1447,8 @@ begin
   inherited;
 end;
 
-function TBaseObjectList.DoFind(AData: Pointer;
-  AItemByProc: TItemByProc): TObject;
+function TBaseObjectList.DoFind(AData: Pointer; AItemByProc: TItemByProc)
+  : TObject;
 var
   LI     : Integer;
   LResult: Boolean;
@@ -1588,9 +1621,9 @@ begin
   DefaultDrawing := False;
   FItems := TPropsPageItems.Create(Self);
   FValuesColor := clNavy;
-  FBitmap := Vcl.Graphics.TBitmap.Create;
+  FBitmap := TBitmap.Create;
   UpdatePattern;
-  FCellBitmap := Vcl.Graphics.TBitmap.Create;
+  FCellBitmap := TBitmap.Create;
 end;
 
 function TCustomPropsPage.CreateEditor: TInplaceEdit;
@@ -4231,7 +4264,7 @@ begin
     try
       VarCast(V, V, NewType);
     except
-                { If it cannot cast, clear it and then cast again. }
+      { If it cannot cast, clear it and then cast again. }
       VarClear(V);
       VarCast(V, V, NewType);
     end;

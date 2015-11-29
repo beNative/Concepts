@@ -66,6 +66,7 @@ procedure TLogTreeAppender.DoSend(const entry: TLogEntry);
 var
   LL : TLogLevel;
 begin
+  LL := llNone;
   case entry.EntryType of
     TLogEntryType.Text:
     begin

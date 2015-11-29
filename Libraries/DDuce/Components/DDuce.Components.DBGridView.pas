@@ -157,9 +157,14 @@ type
 
   public
     constructor Create(Collection: TCollection); override;
+
     procedure RestoreDefaults; virtual;
-    property Field: TField read GetField write SetField;
-    property Grid: TCustomDBGridView read GetGrid;
+
+    property Field: TField
+      read GetField write SetField;
+
+    property Grid: TCustomDBGridView
+      read GetGrid;
 
   published
     property AlignEdit;
@@ -169,6 +174,7 @@ type
     property Caption stored IsNondefaultColumn;
     property CheckKind;
     property CheckAlignment;
+    property EditAlignment;
     property EditMask stored IsNondefaultColumn;
     property EditStyle stored IsNondefaultColumn;
     property EditWordWrap;
@@ -238,6 +244,7 @@ type
   published
     property AutoHeight;
     property Height;
+    property OnChange;
   end;
 
 { TDBGridFixed }
@@ -295,7 +302,9 @@ type
     procedure Update; override;
 
   public
-    property Grid: TCustomDBGridView read GetGrid;
+    property Grid: TCustomDBGridView
+      read GetGrid;
+
   end;
 
 { TDBGridEdit }
@@ -368,6 +377,7 @@ type
     constructor Create(AGrid: TCustomDBGridView);
     procedure Modified;
     procedure Reset;
+
   end;
 
 { TCustomDBGridView }
@@ -502,8 +512,6 @@ type
     function GetHeader: TDBGridHeader;
     function GetRows: TDBGridRows;
     function GetSelectedField: TField;
-    procedure IndicatorsChange(Sender: TObject);
-    function IsColumnsStored: Boolean;
     procedure SetCol(Value: Longint);
     procedure SetColumns(Value: TDBGridColumns);
     procedure SetDataSource(Value: TDataSource);
@@ -515,14 +523,18 @@ type
     procedure SetRows(Value: TDBGridRows);
     procedure SetSelectedField(Value: TField);
     procedure SetShowIndicator(Value: Boolean);
-    procedure ReadColumns(Reader: TReader);
-    procedure WriteColumns(Writer: TWriter);
-    procedure CMExit(var Message: TMessage); message CM_EXIT;
-    procedure WMContextMenu(var Message: TMessage); message WM_CONTEXTMENU;
     function GetMultiSelect: Boolean;
     function GetRowSelected(ARow: Integer): Boolean;
     procedure SetMultiSelect(const Value: Boolean);
     procedure SetRowSelected(ARow: Integer; const Value: Boolean);
+
+    procedure IndicatorsChange(Sender: TObject);
+    function IsColumnsStored: Boolean;
+    procedure ReadColumns(Reader: TReader);
+    procedure WriteColumns(Writer: TWriter);
+
+    procedure CMExit(var Message: TMessage); message CM_EXIT;
+    procedure WMContextMenu(var Message: TMessage); message WM_CONTEXTMENU;
 
   protected
     function AcquireLockLayout: Boolean;
@@ -533,8 +545,7 @@ type
     function CreateHeader: TCustomGridHeader; override;
     function CreateRows: TCustomGridRows; override;
     function CreateScrollBar(Kind: TScrollBarKind): TGridScrollBar; override;
-    procedure DataEditError(E: Exception;
-      var Action: TDBGridDataAction); virtual;
+    procedure DataEditError(E: Exception; var Action: TDBGridDataAction); virtual;
     procedure DataFieldUpdated(Field: TField); virtual;
     procedure DataLayoutChanged; virtual;
     procedure DataLinkActivate(Active: Boolean); virtual;
@@ -545,8 +556,10 @@ type
     procedure DataSetScrolled(Distance: Integer); virtual;
     procedure DataUpdateError(E: Exception;
       var Action: TDBGridDataAction); virtual;
+
     procedure DefineProperties(Filer: TFiler); override;
     procedure ClearSelection;
+
     function DoMouseWheelDown(Shift: TShiftState; MousePos: TPoint)
       : Boolean; override;
     function DoMouseWheelUp(Shift: TShiftState; MousePos: TPoint)
@@ -591,14 +604,17 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+
     procedure CancelEdit; override;
     procedure ChangeEditText(const S: string); virtual;
+
     function IsCellReadOnly(Cell: TGridCell): Boolean; override;
     function IsRowMultiSelected: Boolean; overload;
     function IsRowMultiSelected(ARow : Integer): Boolean; overload;
+    function IsFixedVisible: Boolean;
+
     procedure SelectAll; virtual;
     procedure DeselectAll; virtual;
-    function IsFixedVisible: Boolean;
     function GetClientRect: TRect; override;
     function GetIndicatorHeaderRect: TRect; virtual;
     function GetIndicatorFixedRect: TRect; virtual;
@@ -621,49 +637,72 @@ type
 
     property AllowDeleteRecord: Boolean
       read FAllowDeleteRecord write FAllowDeleteRecord default True;
+
     property AllowEdit
       default True;
+
     property AllowInsertRecord: Boolean
       read FAllowInsertRecord write FAllowInsertRecord default True;
+
     property Col: Longint
       read GetCol write SetCol;
+
     property ColumnClick
       default False;
+
     property Columns: TDBGridColumns
       read GetColumns write SetColumns stored IsColumnsStored;
+
     property CursorKeys default [gkArrows, gkMouse, gkTabs, gkMouseWheel];
+
     property CursorLock: Integer
       read FScrollLock;
+
     property DataLink: TDBGridDataLink
       read FDataLink;
+
     property DataSource: TDataSource
       read GetDataSource write SetDataSource;
+
     property DefaultLayout: Boolean
       read FDefaultLayout write SetDefaultLayout default True;
+
     property Header: TDBGridHeader
       read GetHeader write SetHeader;
+
     property Fixed: TDBGridFixed
       read GetFixed write SetFixed;
+
     property LayoutLock: Integer
       read FLayoutLock;
+
     property EditColumn: TDBGridColumn
       read GetEditColumn;
+
     property EditField: TField
       read GetEditField;
+
     property IndicatorImages: TImageList
       read FIndicatorImages write SetIndicatorImages;
+
     property IndicatorWidth: Integer
       read FIndicatorWidth write SetIndicatorWidth default 12;
+
     property Rows: TDBGridRows
       read GetRows write SetRows;
+
     property SelectedField: TField read
       GetSelectedField write SetSelectedField;
+
     property ShowIndicator: Boolean
       read FShowIndicator write SetShowIndicator default True;
+
     property SelectedRows: TBookmarkList
       read FBookmarks;
+
     property MultiSelect: Boolean
       read GetMultiSelect write SetMultiSelect;
+
     { Alters the selection status for a given row when goMultiselect is enabled
       in Options. When MultiSelect is not enabled RowSelected will ALWAYS return
       False. }
@@ -673,18 +712,25 @@ type
     // TDataLink related events
     property OnDataActiveChanged: TNotifyEvent
       read FOnDataActiveChanged write FOnDataActiveChanged;
+
     property OnDataChanged: TNotifyEvent
       read FOnDataChanged write FOnDataChanged;
+
     property OnDataDeleteRecord: TDBGridDataDeleteEvent
       read FOnDataDeleteRecord write FOnDataDeleteRecord;
+
     property OnDataInsertRecord: TDBGridDataInsertEvent
       read FOnDataInsertRecord write FOnDataInsertRecord;
+
     property OnDataEditError: TDBGridDataErrorEvent
       read FOnDataEditError write FOnDataEditError;
+
     property OnDataUpdateError: TDBGridDataErrorEvent
       read FOnDataUpdateError write FOnDataUpdateError;
+
     property OnDataUpdateField: TDBGridDataUpdateEvent
       read FOnDataUpdateField write FOnDataUpdateField;
+
     property OnDataLayoutChanged: TNotifyEvent
       read FOnDataLayoutChanged write FOnDataLayoutChanged;
 
@@ -694,6 +740,7 @@ type
     // MultiSelect support
     property OnRowMultiSelect: TDBGridRowMultiSelectEvent
       read FOnRowMultiSelect write FOnRowMultiSelect;
+
     property OnClearMultiSelect: TDBGridClearMultiSelectEvent
       read FOnClearMultiSelect write FOnClearMultiSelect;
   end;
@@ -717,7 +764,6 @@ type
     property Columns;
     property ColumnsFullDrag;
     property Constraints;
-    property Ctl3D;
     property CursorKeys;
     property DataSource;
     property DefaultEditMenu;
@@ -727,6 +773,7 @@ type
     property DoubleBuffered;
     property Enabled;
     property EndEllipsis;
+    property FitColsToClient;
     property Fixed;
     property FlatBorder;
     property FocusOnScroll;
@@ -742,8 +789,8 @@ type
     property Images;
     property IndicatorImages;
     property IndicatorWidth;
+    property MultiSelect;
     property ParentColor default False;
-    property ParentCtl3D;
     property ParentFont;
     property ParentShowHint;
     property PopupMenu;
@@ -758,10 +805,10 @@ type
     property ShowHint;
     property TabOrder;
     property TabStop default True;
+    property ThemingEnabled;
     property VertScrollBar;
     property Visible;
-    property FitColsToClient;
-    property MultiSelect;
+
     property OnCellAcceptCursor;
     property OnCellClick;
     property OnCellTips;
@@ -773,19 +820,20 @@ type
     property OnChangeRows;
     property OnChanging;
     property OnCheckClick;
+    property OnClearMultiSelect;
     property OnClick;
     property OnColumnAutoSize;
-    property OnColumnResizing;
     property OnColumnResize;
-    property OnDblClick;
+    property OnColumnResizing;
     property OnDataActiveChanged;
     property OnDataChanged;
     property OnDataDeleteRecord;
     property OnDataEditError;
     property OnDataInsertRecord;
-    property OnDataUpdateField;
     property OnDataLayoutChanged;
     property OnDataUpdateError;
+    property OnDataUpdateField;
+    property OnDblClick;
     property OnDragDrop;
     property OnDragOver;
     property OnDraw;
@@ -803,9 +851,9 @@ type
     property OnEnter;
     property OnExit;
     property OnGetCellColors;
+    property OnGetCellHintRect;
     property OnGetCellImage;
     property OnGetCellImageIndent;
-    property OnGetCellHintRect;
     property OnGetCellReadOnly;
     property OnGetCellText;
     property OnGetCellTextIndent;
@@ -828,19 +876,19 @@ type
     property OnGetTipsText;
     property OnHeaderClick;
     property OnHeaderClicking;
+    property OnKeyDown;
+    property OnKeyPress;
+    property OnKeyUp;
     property OnMouseDown;
     property OnMouseMove;
     property OnMouseUp;
     property OnMouseWheelDown;
     property OnMouseWheelUp;
-    property OnKeyDown;
-    property OnKeyPress;
-    property OnKeyUp;
     property OnResize;
+    property OnRowMultiSelect;
     property OnSetEditText;
     property OnStartDrag;
-    property OnRowMultiSelect;
-    property OnClearMultiSelect;
+
   end;
 
   TBookmarkList = class
@@ -856,8 +904,12 @@ type
     function GetCurrentRowSelected: Boolean;
     function GetItem(Index: Integer): TBookmark;
     procedure SetCurrentRowSelected(Value: Boolean);
-    procedure BookmarksChanged(Sender: TObject; const Item: TBookmark;
-      Action: TCollectionNotification);
+
+    procedure BookmarksChanged(
+      Sender     : TObject;
+      const Item : TBookmark;
+      Action     : TCollectionNotification
+    );
 
   protected
     function CurrentRow: TBookmark;
