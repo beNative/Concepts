@@ -25,9 +25,9 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes,
+  System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.Samples.Spin, Vcl.ExtCtrls,
+  Vcl.Samples.Spin, Vcl.ExtCtrls, Vcl.ActnList,
 
   VirtualTrees,
 
@@ -36,7 +36,7 @@ uses
 
   Spring.Collections,
 
-  DDuce.Components.PropertyInspector,
+  DDuce.Components.PropertyInspector, DDuce.Components.GridView,
 
   Concepts.Types.Contact;
 
@@ -45,16 +45,28 @@ type
     pnlTop    : TPanel;
     pnlBottom : TPanel;
     pnlLeft   : TPanel;
+    aclMain   : TActionList;
+    splVertical: TSplitter;
+    pnlTreeviewPresenter: TPanel;
+    pnlLeftTop: TPanel;
+    pnlLeftBottom: TPanel;
+    splHorizontal: TSplitter;
 
   private
-    FList      : IList<TContact>;
-    FPI        : TPropertyInspector;
-    FSelection : IList;
-    FVST       : TVirtualStringTree;
-    FTVP       : TTreeViewPresenter;
+    FList       : IList<TContact>;
+    FPI         : TPropertyInspector;
+    FVST        : TVirtualStringTree;
+    FTVP        : TTreeViewPresenter;
+    FVSTColumns : TVirtualStringTree;
+    FTVPColumns : TTreeViewPresenter;
+
+    procedure FTVPColumnsSelectionChanged(Sender: TObject);
+    procedure FTVPSelectionChanged(Sender: TObject);
 
   public
     procedure AfterConstruction; override;
+
+    procedure CreateColumnDefinitionsView;
 
   end;
 
@@ -63,20 +75,62 @@ implementation
 {$R *.dfm}
 
 uses
+  Concepts.ComponentInspector, DSharp.Windows.ColumnDefinitions.ControlTemplate,
   Concepts.Factories,
 
   DDuce.RandomData;
 
 {$REGION 'construction and destruction'}
 procedure TfrmTreeViewPresenter.AfterConstruction;
+var
+  C : TColumnDefinition;
+  I : Integer;
 begin
   inherited AfterConstruction;
   FList := TConceptFactories.CreateContactList(10000);
   FVST  := TConceptFactories.CreateVirtualStringTree(Self, pnlTop);
   FTVP  := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList as IObjectList);
-  FPI   := TConceptFactories.CreatePropertyInspector(Self, pnlLeft, FTVP);
+  FPI   := TConceptFactories.CreatePropertyInspector(Self, pnlLeftTop, FTVP);
+
+  FTVP.View.ItemTemplate := TColumnDefinitionsControlTemplate.Create(FTVP.ColumnDefinitions);
+  FTVP.OnSelectionChanged := FTVPSelectionChanged;
+
+  CreateColumnDefinitionsView;
+//  InspectComponent(FTVP);
 end;
 {$ENDREGION}
+
+procedure TfrmTreeViewPresenter.CreateColumnDefinitionsView;
+var
+  CDList : IList<TColumnDefinition>;
+  C      : TColumnDefinition;
+  I      : Integer;
+begin
+  CDList := TCollections.CreateObjectList<TColumnDefinition>;
+  for I := 0 to FTVP.ColumnDefinitions.Count - 1 do
+  begin
+    C := FTVP.ColumnDefinitions[I];
+    CDList.Add(C);
+    //FPI.Add(C);
+  end;
+  FVSTColumns := TConceptFactories.CreateVirtualStringTree(Self, pnlLeftBottom);
+  FTVPColumns := TConceptFactories.CreateTreeViewPresenter(Self, FVSTColumns, CDList as IObjectList);
+  //FTVPColumns.ListMode := True;
+  FTVPColumns.SelectionMode := smSingle;
+
+  FTVPColumns.OnSelectionChanged := FTVPColumnsSelectionChanged;
+end;
+
+procedure TfrmTreeViewPresenter.FTVPColumnsSelectionChanged(Sender: TObject);
+begin
+  if Assigned(FTVPColumns.SelectedItem) then
+    FPI.Objects[0] := FTVPColumns.SelectedItem;
+end;
+
+procedure TfrmTreeViewPresenter.FTVPSelectionChanged(Sender: TObject);
+begin
+  FPI.Objects[0] := FTVP;
+end;
 
 end.
 

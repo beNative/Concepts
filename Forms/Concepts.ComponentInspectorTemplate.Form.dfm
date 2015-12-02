@@ -1,8 +1,8 @@
 object frmPropertyInspector: TfrmPropertyInspector
   Left = 0
   Top = 0
-  ClientHeight = 586
-  ClientWidth = 838
+  ClientHeight = 767
+  ClientWidth = 1057
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,16 +16,18 @@ object frmPropertyInspector: TfrmPropertyInspector
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 838
-    Height = 586
+    Width = 1057
+    Height = 767
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 838
+    ExplicitHeight = 586
     object splSplitter: TSplitter
       Left = 313
       Top = 0
       Width = 8
-      Height = 567
+      Height = 748
       ResizeStyle = rsUpdate
       ExplicitLeft = 273
       ExplicitTop = 1
@@ -35,10 +37,11 @@ object frmPropertyInspector: TfrmPropertyInspector
       Left = 0
       Top = 0
       Width = 313
-      Height = 567
+      Height = 748
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 567
       object cbxControls: TComboBox
         AlignWithMargins = True
         Left = 3
@@ -56,54 +59,58 @@ object frmPropertyInspector: TfrmPropertyInspector
     object pnlRight: TPanel
       Left = 321
       Top = 0
-      Width = 517
-      Height = 567
+      Width = 736
+      Height = 748
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      DesignSize = (
-        517
-        567)
-      object lblLabel: TLabel
-        Left = 6
-        Top = 3
-        Width = 506
-        Height = 62
-        Alignment = taCenter
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Caption = 
-          'This form demonstrates the TPropertyInspector control. '#13#10'You can' +
-          ' adjust properties of any control shown on this form.'
-        EllipsisPosition = epWordEllipsis
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentFont = False
-        Layout = tlCenter
-        WordWrap = True
-        ExplicitWidth = 245
+      ExplicitWidth = 517
+      ExplicitHeight = 567
+      object splHorizontal: TSplitter
+        Left = 0
+        Top = 417
+        Width = 736
+        Height = 8
+        Cursor = crVSplit
+        Align = alTop
       end
-      object chkCheckBox: TCheckBox
-        Left = 6
-        Top = 83
-        Width = 506
-        Height = 17
-        Anchors = [akLeft, akTop, akRight]
-        Caption = 'CheckBox'
+      object pnlRightTop: TPanel
+        Left = 0
+        Top = 0
+        Width = 736
+        Height = 417
+        Align = alTop
+        BevelOuter = bvNone
         TabOrder = 0
+      end
+      object pnlRightBottom: TPanel
+        Left = 0
+        Top = 425
+        Width = 736
+        Height = 323
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 1
+        ExplicitLeft = 240
+        ExplicitTop = 560
+        ExplicitWidth = 185
+        ExplicitHeight = 41
       end
     end
     object sbrStatusBar: TStatusBar
       Left = 0
-      Top = 567
-      Width = 838
+      Top = 748
+      Width = 1057
       Height = 19
       Panels = <>
       ParentShowHint = False
       ShowHint = True
+      ExplicitTop = 567
+      ExplicitWidth = 838
     end
+  end
+  object aclMain: TActionList
+    Left = 608
+    Top = 456
   end
 end

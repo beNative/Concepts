@@ -21,8 +21,8 @@ unit Concepts.ComponentInspectorTemplate.Form;
 interface
 
 uses
-  System.Classes,
-  Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls,
+  System.Classes, System.Actions,
+  Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.ActnList,
   Vcl.Forms,
 
   DDuce.Components.PropertyInspector;
@@ -30,14 +30,16 @@ uses
 type
   TfrmPropertyInspector = class(TForm)
     {$REGION 'designer controls'}
-    pnlMain       : TPanel;
-    pnlLeft       : TPanel;
-    pnlRight      : TPanel;
-    chkCheckBox   : TCheckBox;
-    cbxControls   : TComboBox;
-    sbrStatusBar  : TStatusBar;
-    splSplitter   : TSplitter;
-    lblLabel      : TLabel;
+    pnlMain        : TPanel;
+    pnlLeft        : TPanel;
+    pnlRight       : TPanel;
+    cbxControls    : TComboBox;
+    sbrStatusBar   : TStatusBar;
+    splSplitter    : TSplitter;
+    pnlRightTop    : TPanel;
+    pnlRightBottom : TPanel;
+    splHorizontal  : TSplitter;
+    aclMain        : TActionList;
     {$ENDREGION}
 
     procedure cbxControlsChange(Sender: TObject);
@@ -60,14 +62,14 @@ uses
 {$REGION 'construction and destruction'}
 procedure TfrmPropertyInspector.AfterConstruction;
 var
-  I: Integer;
-  C: TWinControl;
+  I : Integer;
+  C : TWinControl;
+  S : string;
 begin
-  inherited;
+  inherited AfterConstruction;
   FPropertyInspector := TConceptFactories.CreatePropertyInspector(
     Self,
-    pnlLeft,
-    chkCheckBox
+    pnlLeft
   );
   FPropertyInspector.Name := 'PropertyInspector';
   for I := 0 to ComponentCount - 1 do
@@ -75,7 +77,11 @@ begin
     if Components[I] is TWinControl then
     begin
       C := TWinControl(Components[I]);
-      cbxControls.AddItem(C.Name, C);
+      if C.Name = '' then
+        S := C.ClassName
+      else
+        S := C.Name;
+      cbxControls.AddItem(S, C);
     end;
   end;
   cbxControls.ItemIndex := 0;
@@ -85,7 +91,7 @@ end;
 {$REGION 'event handlers'}
 procedure TfrmPropertyInspector.cbxControlsChange(Sender: TObject);
 var
-  C: TWinControl;
+  C : TWinControl;
 begin
   C := cbxControls.Items.Objects[cbxControls.ItemIndex] as TWinControl;
   FPropertyInspector.Objects[0] := C;

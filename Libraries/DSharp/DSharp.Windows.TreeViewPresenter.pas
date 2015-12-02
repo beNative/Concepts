@@ -511,7 +511,11 @@ begin
     DoPropertyChanged('SelectedItems');
     DoPropertyChanged('SelectedItemPath');
 
-    if Assigned(OnSelectionChanged) then
+
+    if Assigned(OnSelectionChanged)
+     and Assigned(Node) // added TS
+
+    then
     begin
       OnSelectionChanged(Self);
     end;

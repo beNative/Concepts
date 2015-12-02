@@ -8,7 +8,7 @@ uses
   Forms,
   {$IFNDEF HAS_UNIT_SYSTEM_IMAGELIST}
   System.ImageList in 'Types\System.ImageList.pas',
-  {$ENDIF }
+  {$ENDIF}
   BTMemoryModule in 'Libraries\BTMemoryModule\BTMemoryModule.pas',
   ChromeTabs in 'Libraries\TChromeTabs\Lib\ChromeTabs.pas',
   ChromeTabsClasses in 'Libraries\TChromeTabs\Lib\ChromeTabsClasses.pas',
@@ -23,7 +23,7 @@ uses
   Concepts.ComponentInspectorTemplate.Form in 'Forms\Concepts.ComponentInspectorTemplate.Form.pas' {frmPropertyInspector},
   {$IFDEF DEVEXPRESS}
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas',
-  {$ENDIF }
+  {$ENDIF}
   Concepts.DSharp.Bindings.Form in 'Forms\Concepts.DSharp.Bindings.Form.pas' {frmBindings},
   Concepts.DSharp.TreeViewPresenter.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.Form.pas' {frmTreeViewPresenter},
   Concepts.Factories in 'Concepts.Factories.pas',
