@@ -71,18 +71,6 @@ type
       ACount : Integer
     ); static;
 
-    class function CreateLogTree(
-      AOwner  : TComponent;
-      AParent : TWinControl;
-      AImages : TImageList = nil
-    ): TLogTree; static;
-
-    class function CreatePropertyInspector(
-      AOwner  : TComponent;
-      AParent : TWinControl;
-      AObject : TObject = nil
-    ): TPropertyInspector; static;
-
     class function CreateVirtualStringTree(
       AOwner      : TComponent;
       AParent     : TWinControl;
@@ -117,13 +105,6 @@ type
       const AName : string = ''
     ): TTreeListPresenter; static;
     {$ENDIF}
-
-    class function CreateDBGridView(
-      AOwner      : TComponent;
-      AParent     : TWinControl;
-      ADataSource : TDataSource = nil;
-      const AName : string = ''
-    ): TDBGridView; static;
 
     class function CreateDBGrid(
       AOwner      : TComponent;
@@ -416,72 +397,6 @@ begin
   Result := DBG;
 end;
 
-class function TConceptFactories.CreateDBGridView(AOwner: TComponent;
-  AParent: TWinControl; ADataSource: TDataSource;
-  const AName: string): TDBGridView;
-var
-  GV: TDBGridView;
-begin
-  Guard.CheckNotNull(AParent, 'AParent');
-  GV                  := TDBGridView.Create(AOwner);
-  GV.Header.Flat      := False;
-  GV.AlignWithMargins := True;
-  GV.Parent           := AParent;
-  GV.Align            := alClient;
-  GV.CursorKeys       := GV.CursorKeys + [gkReturn];
-  GV.GridStyle        := GV.GridStyle + [gsDotLines];
-  GV.ColumnsFullDrag  := True;
-  GV.DoubleBuffered   := True;
-  GV.CheckBoxes       := True;
-  GV.ShowFocusRect    := False;
-  GV.CheckStyle       := csFlat;
-  GV.ColumnClick      := True;
-  GV.ShowIndicator    := False;
-  GV.DataSource       := ADataSource;
-  GV.AutoSizeCols;
-  Result := GV;
-end;
-
-class function TConceptFactories.CreatePropertyInspector(AOwner: TComponent;
-  AParent: TWinControl; AObject: TObject): TPropertyInspector;
-var
-  PI : TPropertyInspector;
-begin
-  Guard.CheckNotNull(AParent, 'AParent');
-  PI                  := TPropertyInspector.Create(AOwner);
-  PI.AlignWithMargins := True;
-  PI.Parent           := AParent;
-  PI.BorderStyle      := bsSingle;
-  PI.PropKinds        := PI.PropKinds + [pkReadOnly];
-  PI.Align            := alClient;
-  PI.Splitter         := PI.Width div 2;
-  PI.Color            := clWhite;
-  if Assigned(AObject) then
-  begin
-    PI.Add(AObject);
-    PI.UpdateItems;
-  end;
-  Result := PI;
-end;
-
-class function TConceptFactories.CreateLogTree(AOwner: TComponent;
-  AParent: TWinControl; AImages : TImageList): TLogTree;
-var
-  VLT : TLogTree;
-begin
-  Guard.CheckNotNull(AParent, 'AParent');
-  VLT                    := TLogTree.Create(AOwner);
-  VLT.AlignWithMargins   := True;
-  VLT.BorderStyle        := bsNone;
-  VLT.Parent             := AParent;
-  VLT.Align              := alClient;
-  VLT.ShowImages         := True;
-  VLT.Header.Options     := VLT.Header.Options + [hoAutoSpring];
-  if Assigned(AImages) then
-    VLT.Images := AImages;
-  Result := VLT;
-end;
-
 {$IFDEF DEVEXPRESS}
 class function TConceptFactories.CreateGridViewPresenter(AOwner: TComponent;
   AGridView: TcxCustomGridView; ASource: IObjectList; ATemplate: IDataTemplate;
@@ -567,10 +482,6 @@ begin
 
   BCE.CodeFolding.Visible := True;
   BCE.Font.Name := 'Consolas';
-
-
-
-
   Result := BCE;
 end;
 {$ENDIF}

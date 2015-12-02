@@ -108,9 +108,10 @@ implementation
 
 uses
   System.Rtti,
+
   Spring.Logging.Loggers, Spring.Logging.Serializers,
 
-  DDuce.Reflect,
+  DDuce.Reflect, DDuce.Components.Factories,
 
   Concepts.Factories, Concepts.Resources;
 
@@ -125,7 +126,7 @@ var
 begin
   inherited AfterConstruction;
 
-  FLogTree := TConceptFactories.CreateLogTree(Self, pnlRight);
+  FLogTree := TDDuceComponents.CreateLogTree(Self, pnlRight);
   FLogTree.Images := imlMain;
 
   FController := TLoggerController.Create;
@@ -173,7 +174,7 @@ begin
   LP.EntryTypes := LOG_ALL_ENTRY_TYPES;
   LP.Levels     := LOG_ALL_LEVELS;
 
-  FPropertyInspector := TConceptFactories.CreatePropertyInspector(Self, pnlLoggerInspector, FLogger as TObject);
+  FPropertyInspector := TDDuceComponents.CreatePropertyInspector(Self, pnlLoggerInspector, FLogger as TObject);
 
   InitializeControls;
 end;

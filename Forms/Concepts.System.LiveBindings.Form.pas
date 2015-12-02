@@ -97,6 +97,8 @@ implementation
 {$R *.dfm}
 
 uses
+  DDuce.Components.Factories,
+
   Concepts.Factories, Concepts.Resources;
 
 {$REGION 'construction and destruction'}
@@ -105,7 +107,7 @@ begin
   inherited AfterConstruction;
   AddComponents;
   FPropertyInspector :=
-    TConceptFactories.CreatePropertyInspector(Self, pnlLeft, Self);
+    TDDuceComponents.CreatePropertyInspector(Self, pnlLeft, Self);
   FPropertyInspector.UpdateItems;
   FBindScope := TBindScope.Create(Self);
   FContact   := TConceptFactories.CreateRandomContact;

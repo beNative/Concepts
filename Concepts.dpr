@@ -8,7 +8,7 @@ uses
   Forms,
   {$IFNDEF HAS_UNIT_SYSTEM_IMAGELIST}
   System.ImageList in 'Types\System.ImageList.pas',
-  {$ENDIF}
+  {$ENDIF }
   BTMemoryModule in 'Libraries\BTMemoryModule\BTMemoryModule.pas',
   ChromeTabs in 'Libraries\TChromeTabs\Lib\ChromeTabs.pas',
   ChromeTabsClasses in 'Libraries\TChromeTabs\Lib\ChromeTabsClasses.pas',
@@ -23,7 +23,7 @@ uses
   Concepts.BCEditor.Form in 'Forms\Concepts.BCEditor.Form.pas' {frmBCEditor},
   {$IFDEF DEVEXPRESS}
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas',
-  {$ENDIF}
+  {$ENDIF }
   Concepts.DSharp.Bindings.Form in 'Forms\Concepts.DSharp.Bindings.Form.pas' {frmBindings},
   Concepts.DSharp.TreeViewPresenter.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.Form.pas' {frmTreeViewPresenter},
   Concepts.Factories in 'Concepts.Factories.pas',
@@ -303,7 +303,8 @@ uses
   VTHeaderPopup in 'Libraries\VirtualTreeView\Source\VTHeaderPopup.pas',
   Concepts.ComponentInspector in 'Concepts.ComponentInspector.pas' {frmComponentInspector},
   DDuce.Logging.Appenders.WinIPC in 'Libraries\DDuce\Logging\DDuce.Logging.Appenders.WinIPC.pas',
-  DDuce.Logging.Appenders.LogTree in 'Libraries\DDuce\Logging\DDuce.Logging.Appenders.LogTree.pas';
+  DDuce.Logging.Appenders.LogTree in 'Libraries\DDuce\Logging\DDuce.Logging.Appenders.LogTree.pas',
+  DDuce.Components.Factories in 'Libraries\DDuce\Components\DDuce.Components.Factories.pas';
 
 {$R *.res}
 

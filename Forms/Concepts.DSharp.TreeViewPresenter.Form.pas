@@ -42,15 +42,15 @@ uses
 
 type
   TfrmTreeViewPresenter = class(TForm)
-    pnlTop    : TPanel;
-    pnlBottom : TPanel;
-    pnlLeft   : TPanel;
-    aclMain   : TActionList;
-    splVertical: TSplitter;
-    pnlTreeviewPresenter: TPanel;
-    pnlLeftTop: TPanel;
-    pnlLeftBottom: TPanel;
-    splHorizontal: TSplitter;
+    pnlTop               : TPanel;
+    pnlBottom            : TPanel;
+    pnlLeft              : TPanel;
+    aclMain              : TActionList;
+    splVertical          : TSplitter;
+    pnlTreeviewPresenter : TPanel;
+    pnlLeftTop           : TPanel;
+    pnlLeftBottom        : TPanel;
+    splHorizontal        : TSplitter;
 
   private
     FList       : IList<TContact>;
@@ -75,10 +75,11 @@ implementation
 {$R *.dfm}
 
 uses
-  Concepts.ComponentInspector, DSharp.Windows.ColumnDefinitions.ControlTemplate,
-  Concepts.Factories,
+  DSharp.Windows.ColumnDefinitions.ControlTemplate,
 
-  DDuce.RandomData;
+  DDuce.RandomData, DDuce.Components.Factories,
+
+  Concepts.Factories, Concepts.ComponentInspector;
 
 {$REGION 'construction and destruction'}
 procedure TfrmTreeViewPresenter.AfterConstruction;
@@ -90,7 +91,7 @@ begin
   FList := TConceptFactories.CreateContactList(10000);
   FVST  := TConceptFactories.CreateVirtualStringTree(Self, pnlTop);
   FTVP  := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList as IObjectList);
-  FPI   := TConceptFactories.CreatePropertyInspector(Self, pnlLeftTop, FTVP);
+  FPI   := TDDuceComponents.CreatePropertyInspector(Self, pnlLeftTop, FTVP);
 
   FTVP.View.ItemTemplate := TColumnDefinitionsControlTemplate.Create(FTVP.ColumnDefinitions);
   FTVP.OnSelectionChanged := FTVPSelectionChanged;

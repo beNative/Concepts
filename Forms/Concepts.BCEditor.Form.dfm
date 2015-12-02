@@ -89,13 +89,8 @@ object frmBCEditor: TfrmBCEditor
           Align = alRight
           Anchors = [akLeft, akTop, akRight, akBottom]
           TabOrder = 0
-          ExplicitLeft = 168
-          ExplicitWidth = 497
-          ExplicitHeight = 280
           object tsHighlighter: TTabSheet
             Caption = 'tsHighlighter'
-            ExplicitWidth = 281
-            ExplicitHeight = 165
             object tlbHighlighter: TToolBar
               Left = 0
               Top = 0
@@ -103,9 +98,6 @@ object frmBCEditor: TfrmBCEditor
               Height = 29
               Caption = 'tlbHighlighter'
               TabOrder = 0
-              ExplicitLeft = 168
-              ExplicitTop = 112
-              ExplicitWidth = 150
               object btnSaveHighlighter: TToolButton
                 Left = 0
                 Top = 0
@@ -120,17 +112,15 @@ object frmBCEditor: TfrmBCEditor
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 1
-              ExplicitLeft = 152
-              ExplicitTop = 104
-              ExplicitWidth = 185
-              ExplicitHeight = 41
             end
           end
           object tsColors: TTabSheet
             Caption = 'tsColors'
             ImageIndex = 1
-            ExplicitWidth = 281
-            ExplicitHeight = 165
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object tlbColors: TToolBar
               Left = 0
               Top = 0
@@ -138,9 +128,6 @@ object frmBCEditor: TfrmBCEditor
               Height = 29
               Caption = 'tlbColors'
               TabOrder = 0
-              ExplicitLeft = 168
-              ExplicitTop = 112
-              ExplicitWidth = 150
               object btnSaveColorMap: TToolButton
                 Left = 0
                 Top = 0
@@ -155,10 +142,6 @@ object frmBCEditor: TfrmBCEditor
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 1
-              ExplicitLeft = 152
-              ExplicitTop = 104
-              ExplicitWidth = 185
-              ExplicitHeight = 41
             end
           end
         end
@@ -171,10 +154,6 @@ object frmBCEditor: TfrmBCEditor
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitLeft = 240
-        ExplicitTop = 376
-        ExplicitWidth = 185
-        ExplicitHeight = 41
       end
     end
     object sbrStatusBar: TStatusBar

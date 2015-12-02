@@ -37,8 +37,6 @@ type
     cbxControls   : TComboBox;
     sbrStatusBar  : TStatusBar;
     splSplitter   : TSplitter;
-    ctTop         : TChromeTabs;
-    ctBottom      : TChromeTabs;
     pnlDrag       : TPanel;
     {$ENDREGION}
 
@@ -68,7 +66,8 @@ type
 implementation
 
 uses
-  Concepts.Factories;
+  DDuce.Components.Factories;
+  //Concepts.Factories;
 
 {$R *.dfm}
 
@@ -79,9 +78,8 @@ var
   C: TWinControl;
 begin
   inherited;
-  FPropertyInspector :=
-    TConceptFactories.CreatePropertyInspector(Self, pnlLeft, ctTop);
-  FPropertyInspector.Name := 'FPropertyInspector';
+  //FPropertyInspector :=
+    //TDDuceComponents.CreatePropertyInspector(Self, pnlLeft, ctTop);
   for I := 0 to ComponentCount - 1 do
   begin
     if Components[I] is TWinControl then

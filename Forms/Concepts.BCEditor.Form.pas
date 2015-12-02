@@ -21,12 +21,13 @@ unit Concepts.BCEditor.Form;
 interface
 
 uses
-  System.Classes,
+  System.Classes, System.Actions,
   Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls,
-  Vcl.Forms,
+  Vcl.Forms, Vcl.ActnList, Vcl.ToolWin,
 
-  DDuce.Components.PropertyInspector, BCEditor.Editor.Base, BCEditor.Editor,
-  System.Actions, Vcl.ActnList, Vcl.ToolWin;
+  DDuce.Components.PropertyInspector,
+
+  BCEditor.Editor.Base, BCEditor.Editor;
 
 type
   TfrmBCEditor = class(TForm)
@@ -72,6 +73,8 @@ type
 implementation
 
 uses
+  DDuce.Components.Factories,
+
   Concepts.Factories;
 
 {$R *.dfm}
@@ -123,7 +126,7 @@ begin
     'JSON',
     'Default'
   );
-  FPropertyInspector := TConceptFactories.CreatePropertyInspector(
+  FPropertyInspector := TDDuceComponents.CreatePropertyInspector(
     Self,
     pnlLeft,
     FBCEditor
