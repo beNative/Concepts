@@ -213,19 +213,20 @@ type
 
     procedure Send(const AName: string; AArgs: array of const); overload;
     procedure Send(const AName: string; const AValue: string = ''); overload;
-    procedure Send(const AName: string; AValue: Integer); overload;
-    procedure Send(const AName: string; AValue: Cardinal); overload;
-    procedure Send(const AName: string; AValue: Double); overload;
-    procedure Send(const AName: string; AValue: Int64); overload;
-    procedure Send(const AName: string; AValue: Boolean); overload;
-    procedure Send(const AName: string; const AValue: TRect); overload;
-    procedure Send(const AName: string; const AValue: TPoint); overload;
+
     procedure Send(const AName: string; AValue: TStrings); overload;
-    procedure Send(const AName: string; AValue: TObject); overload;
-    procedure Send(const AName: string; AValue: TDateTime); overload;
-    procedure Send(const AName: string; AValue: TDate); overload;
-    procedure Send(const AName: string; AValue: TTime); overload;
+
+    { All primary types that are are implicitely ba cast to TValue will be
+      handled through this call. }
     procedure Send(const AName: string; AValue: TValue); overload;
+
+    { Send methods for types that do not have an implicit cast to TValue
+      These are equivalent to Send(AName, TValue.From(AValue)); }
+    procedure SendDateTime(const AName: string; AValue: TDateTime);
+    procedure SendDate(const AName: string; AValue: TDate);
+    procedure SendTime(const AName: string; AValue: TTime);
+    { Send methods for types that need a custom representation. }
+    procedure SendRect(const AName: string; const AValue: TRect);
 
     procedure IncCounter(const AName: string);
     procedure DecCounter(const AName: string);
@@ -283,23 +284,22 @@ type
 
     // Helper functions
     function RectToStr(const ARect: TRect): string;
-    function PointToStr(const APoint: TPoint): string;
 
   strict protected
     procedure InternalSend(
-            AMsgType : TLogMessageType;
-      const AText    : string = ''
+      AMsgType    : TLogMessageType;
+      const AText : string = ''
     );
     procedure InternalSendStream(
-            AMsgType : TLogMessageType;
-      const AText    : string;
-            AStream  : TStream
+      AMsgType    : TLogMessageType;
+      const AText : string;
+      AStream     : TStream
     );
     procedure InternalSendBuffer(
-            AMsgType : TLogMessageType;
-      const AText    : string;
-        var ABuffer;
-            ACount   : LongWord
+      AMsgType    : TLogMessageType;
+      const AText : string;
+      var ABuffer;
+      ACount : LongWord
     );
 
     function CalledBy(const AName: string): Boolean;
@@ -309,18 +309,16 @@ type
     // Send functions
     procedure Send(const AName: string; AArgs: array of const); overload;
     procedure Send(const AName: string; const AValue: string = ''); overload;
-    procedure Send(const AName: string; AValue: Integer); overload;
-    procedure Send(const AName: string; AValue: Cardinal); overload;
-    procedure Send(const AName: string; AValue: Double); overload;
-    procedure Send(const AName: string; AValue: Int64); overload;
-    procedure Send(const AName: string; AValue: Boolean); overload;
-    procedure Send(const AName: string; const AValue: TRect); overload;
-    procedure Send(const AName: string; const AValue: TPoint); overload;
+
     procedure Send(const AName: string; AValue: TStrings); overload;
     procedure Send(const AName: string; AValue: TObject); overload;
-    procedure Send(const AName: string; AValue: TDateTime); overload;
-    procedure Send(const AName: string; AValue: TDate); overload;
-    procedure Send(const AName: string; AValue: TTime); overload;
+
+    procedure SendDateTime(const AName: string; AValue: TDateTime);
+    procedure SendDate(const AName: string; AValue: TDate);
+    procedure SendTime(const AName: string; AValue: TTime);
+    procedure SendRect(const AName: string; const AValue: TRect);
+
+    // no need to define overloads which have an implicit cast to TValue
     procedure Send(const AName: string; AValue: TValue); overload;
 
     procedure SendPointer(const AName: string; APointer: Pointer);
@@ -348,13 +346,13 @@ type
     procedure SendCustomData(
       const AName : string;
       const AData : TValue;
-            AFunc : TCustomDataCallbackMethod
-    ); overload;
+      AFunc       : TCustomDataCallbackMethod
+      ); overload;
     procedure SendCustomData(
       const AName : string;
       const AData : TValue;
-            AFunc : TCustomDataCallbackFunction
-    ); overload;
+      AFunc       : TCustomDataCallbackFunction
+      ); overload;
 
     procedure AddCheckPoint(const AName: string = '');
     procedure ResetCheckPoint(const AName: string = '');
@@ -400,7 +398,9 @@ implementation
 uses
   System.TypInfo, System.StrUtils,
   WinApi.Messages,
-  Vcl.Forms;
+  Vcl.Forms,
+
+  DDuce.Reflect;
 
 resourcestring
   SErrServerNotActive = 'Server with ID %s is not active.';
@@ -477,11 +477,6 @@ begin
   Result := Format('(Left: %d; Top: %d; Right: %d; Bottom: %d)',
     [ARect.Left, ARect.Top, ARect.Right, ARect.Bottom]);
 end;
-
-function TLogger.PointToStr(const APoint: TPoint): string;
-begin
-  Result := Format('(X: %d; Y: %d)', [APoint.X, APoint.Y]);
-end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
@@ -550,39 +545,9 @@ begin
   InternalSend(lmtValue, AName + ' = ' + AValue);
 end;
 
-procedure TLogger.Send(const AName: string; AValue: Integer);
-begin
-  InternalSend(lmtValue, AName + ' = ' + IntToStr(AValue));
-end;
-
-procedure TLogger.Send(const AName: string; AValue: Cardinal);
-begin
-  InternalSend(lmtValue, AName + ' = ' + IntToStr(AValue));
-end;
-
-procedure TLogger.Send(const AName: string; AValue: Double);
-begin
-  InternalSend(lmtValue, AName + ' = ' + FloatToStr(AValue));
-end;
-
-procedure TLogger.Send(const AName: string; AValue: Int64);
-begin
-  InternalSend(lmtValue, AName + ' = ' + IntToStr(AValue));
-end;
-
-procedure TLogger.Send(const AName: string; AValue: Boolean);
-begin
-  InternalSend(lmtValue, AName + ' = ' + BoolToStr(AValue, True));
-end;
-
-procedure TLogger.Send(const AName: string; const AValue: TRect);
+procedure TLogger.SendRect(const AName: string; const AValue: TRect);
 begin
   InternalSend(lmtValue, AName + ' = ' + RectToStr(AValue));
-end;
-
-procedure TLogger.Send(const AName: string; const AValue: TPoint);
-begin
-  InternalSend(lmtValue, AName + ' = ' + PointToStr(AValue));
 end;
 
 procedure TLogger.Send(const AName: string; AValue: TStrings);
@@ -618,62 +583,62 @@ begin
   InternalSendStream(lmtObject, S, Stream);
 end;
 
-procedure TLogger.Send(const AName: string; AValue: TDateTime);
+procedure TLogger.SendDateTime(const AName: string; AValue: TDateTime);
 begin
-  Send(AName, DateTimeToStr(AValue));
+  Send(AName, TValue.From(AValue));
 end;
 
-procedure TLogger.Send(const AName: string; AValue: TDate);
+procedure TLogger.SendDate(const AName: string; AValue: TDate);
 begin
-  Send(AName, DateToStr(AValue));
+  Send(AName, TValue.From(AValue));
 end;
 
-procedure TLogger.Send(const AName: string; AValue: TTime);
+procedure TLogger.SendTime(const AName: string; AValue: TTime);
 begin
-  Send(AName, TimeToStr(AValue));
+  Send(AName, TValue.From(AValue));
 end;
 
 procedure TLogger.Send(const AName: string; AValue: TValue);
 begin
   case AValue.Kind of
     tkInteger:
-      Send(AName, AValue.AsInteger);
+      InternalSend(lmtValue, AName + ' = ' + IntToStr(AValue.AsInteger));
     tkEnumeration:
     begin
       if AValue.TypeInfo = TypeInfo(Boolean) then
       begin
-        Send(AName, AValue.AsBoolean);
+        InternalSend(lmtValue, AName + ' = ' + BoolToStr(AValue.AsBoolean, True));
       end;
     end;
     tkFloat:
     begin
-      if AValue.TypeInfo.Name = 'TDate' then
+      if AValue.TypeInfo = TypeInfo(TDate) then
       begin
-        Send(AName, AValue.AsType<TDate>);
+        InternalSend(lmtValue, AName + ' = ' + DateToStr(AValue.AsType<TDate>));
       end
       else
-      if AValue.TypeInfo.Name = 'TDateTime' then
+      if AValue.TypeInfo = TypeInfo(TDateTime) then
       begin
-        Send(AName, AValue.AsType<TDateTime>);
+        InternalSend(lmtValue, AName + ' = ' + DateTimeToStr(AValue.AsType<TDateTime>));
       end
       else
       if AValue.TypeInfo = TypeInfo(TTime) then
       begin
-        Send(AName, AValue.AsType<TTime>);
+        InternalSend(lmtValue, AName + ' = ' + TimeToStr(AValue.AsType<TTime>));
       end
       else
       begin
-        Send(AName, AValue.AsExtended);
+        InternalSend(lmtValue, AName + ' = ' + FloatToStr(AValue.AsExtended));
       end;
     end;
     tkClass:
       Send(AName, AValue.AsObject);
-//    tkVariant:
-//      Send(AName, AValue.AsVariant);
     tkInt64:
-      Send(AName, AValue.AsInt64);
+      InternalSend(lmtValue, AName + ' = ' + IntToStr(AValue.AsInt64));
+    tkRecord:
+      InternalSend(lmtValue, AName + ' = ' + Reflect.Fields(AValue).ToString);
   else
-    Send(AName, AValue.ToString);
+    InternalSend(lmtValue, AName + ' = ' + AValue.ToString);
   end;
 end;
 
@@ -1101,11 +1066,9 @@ begin
     if AMsg.Data <> nil then
     begin
       DataSize := AMsg.Data.Size;
-      // WriteLn('[IPCChannel] Size Of Stream: ',DataSize);
       WriteBuffer(DataSize, SizeOf(Integer));
       AMsg.Data.Position := 0;
       CopyFrom(AMsg.Data, DataSize);
-      // WriteLn('DataCopied: ',CopyFrom(AMsg.Data,DataSize));
     end
     else
       WriteBuffer(ZeroBuf, SizeOf(Integer)); // necessary?
@@ -1250,4 +1213,3 @@ initialization
   Logger.Channels.Add(TIPCChannel.Create);
 
 end.
-

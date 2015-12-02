@@ -58,3 +58,6 @@ __history/
 /Library/Win32/Debug/*.log
 /Library/Win32/Release/*.log
 /*.gex
+/Library/Win32/Debug
+/Library/Win32/Release/Colors
+/Library/Win32/Release/Highlighters

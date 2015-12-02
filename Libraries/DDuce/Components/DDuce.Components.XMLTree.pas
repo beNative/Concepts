@@ -38,8 +38,9 @@ unit DDuce.Components.XMLTree;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ImgList,
+  Winapi.Windows, Winapi.Messages,
+  System.SysUtils, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ImgList,
 
   NativeXML,
 
@@ -53,7 +54,7 @@ const
   WM_STARTEDITING = 1000 + 778;
 
 const
-  DEFAULT_BGCOLOR_UNKNOWN   = clRed;
+//  DEFAULT_BGCOLOR_UNKNOWN   = clRed;
   DEFAULT_BGCOLOR_ROOT      = $00E8E8E8; // DOCUMENT_NODE light grey
   DEFAULT_BGCOLOR_COMMENT   = $00C1FFFF; // COMMENT_NODE   yellow
   DEFAULT_BGCOLOR_TEXT      = $00FFD7D7; // TEXT_NODE, CDATA_SECTION_NODE light blue navy
@@ -263,19 +264,19 @@ type
   TXMLTree = class;
 
   TCheckNodeEvent = procedure(
-        ASender      : TXMLTree;
-        ANode        : PVirtualNode;
+    ASender          : TXMLTree;
+    ANode            : PVirtualNode;
     var ANewXMLNode  : TXmlNode;
     var ANewNodeType : TNodeType;
     var AAdd         : Boolean
   ) of object;
 
   TGetBackColorEvent = procedure(
-        ASender     : TXMLTree;
-        AParentNode : PVirtualNode;
-        AXMLNode    : TXmlNode;
-        ANodeType   : TNodeType;
-    var ABackColor  : TColor
+    ASender        : TXMLTree;
+    AParentNode    : PVirtualNode;
+    AXMLNode       : TXmlNode;
+    ANodeType      : TNodeType;
+    var ABackColor : TColor
   ) of object;
 
   TExpandedState = class
@@ -340,10 +341,10 @@ type
     ): Boolean; reintroduce;
 
     procedure IterateCallback(
-          ASender : TBaseVirtualTree;
-          ANode   : PVirtualNode;
-          AData   : Pointer;
-      var AAbort  : Boolean
+      ASender    : TBaseVirtualTree;
+      ANode      : PVirtualNode;
+      AData      : Pointer;
+      var AAbort : Boolean
     );
 
     function GetDefaultNodeType(AXMLNode: TXmlNode): TNodeType;
@@ -351,44 +352,80 @@ type
   protected
     {$REGION 'TVirtualStringTree overrides' /fold}
     function GetOptionsClass: TTreeOptionsClass; override;
-    procedure DoInitNode(Parent, ANode: PVirtualNode;
-      var InitStates: TVirtualNodeInitStates); override;
+    procedure DoInitNode(
+      Parent, ANode  : PVirtualNode;
+      var InitStates : TVirtualNodeInitStates
+    ); override;
     procedure DoFreeNode(ANode: PVirtualNode); override;
-
-//    procedure DoGetText(ANode: PVirtualNode; Column: TColumnIndex;
-//      TextType: TVSTTextType; var Text: string); override;
     procedure DoGetText(var pEventArgs: TVSTGetCellTextEventArgs); override;
-    function DoCreateEditor(Node: PVirtualNode; Column: TColumnIndex): IVTEditLink; override;
-    function DoGetImageIndex(ANode: PVirtualNode; Kind: TVTImageKind;
-      Column: TColumnIndex; var Ghosted: Boolean;
-      var Index: Integer): TCustomImageList; override;
-    procedure DoPaintText(ANode: PVirtualNode; const Canvas: TCanvas;
-      Column: TColumnIndex; TextType: TVSTTextType); override;
+    function DoCreateEditor(
+      Node   : PVirtualNode;
+      Column : TColumnIndex
+    ): IVTEditLink; override;
+    function DoGetImageIndex(
+      ANode       : PVirtualNode;
+      Kind        : TVTImageKind;
+      Column      : TColumnIndex;
+      var Ghosted : Boolean;
+      var Index   : Integer
+    ): TCustomImageList; override;
+    procedure DoPaintText(
+      ANode        : PVirtualNode;
+      const Canvas : TCanvas;
+      Column       : TColumnIndex;
+      TextType     : TVSTTextType
+    ); override;
     procedure DoBeforeItemErase(
-      Canvas: TCanvas;
-      ANode: PVirtualNode;
-      {$IFDEF FPC}const{$ENDIF} ItemRect: TRect;
-      var Color: TColor;
-      var EraseAction: TItemEraseAction); override;
-
-    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
-    procedure DoBeforeCellPaint(Canvas: TCanvas; ANode: PVirtualNode;
-      Column: TColumnIndex;
-      CellPaintMode: TVTCellPaintMode; CellRect: TRect;
-      var ContentRect: TRect); override;
-    procedure DoCanEdit(ANode: PVirtualNode; Column: TColumnIndex;
-      var Allowed: Boolean); override;
-    procedure DoNewText(ANode: PVirtualNode; Column: TColumnIndex;
-      const Text: string); override;
-    function DoGetNodeHint(ANode: PVirtualNode; Column: TColumnIndex;
-      var LineBreakStyle: TVTTooltipLineBreakStyle): string; override;
-    procedure DoMeasureItem(TargetCanvas: TCanvas; Node: PVirtualNode;
-      var NodeHeight: Integer); override;
+      Canvas          : TCanvas;
+      Node            : PVirtualNode;
+      ItemRect        : TRect;
+      var Color       : TColor;
+      var EraseAction : TItemEraseAction
+    ); override;
+    procedure KeyDown(
+      var Key : Word;
+      Shift   : TShiftState
+    ); override;
+    procedure DoBeforeCellPaint(
+      Canvas          : TCanvas;
+      ANode           : PVirtualNode;
+      Column          : TColumnIndex;
+      CellPaintMode   : TVTCellPaintMode;
+      CellRect        : TRect;
+      var ContentRect : TRect
+    ); override;
+    procedure DoCanEdit(
+      ANode       : PVirtualNode;
+      Column      : TColumnIndex;
+      var Allowed : Boolean
+    ); override;
+    procedure DoNewText(
+      ANode      : PVirtualNode;
+      Column     : TColumnIndex;
+      const Text : string
+    ); override;
+    function DoGetNodeHint(
+      ANode              : PVirtualNode;
+      Column             : TColumnIndex;
+      var LineBreakStyle : TVTTooltipLineBreakStyle
+    ): string; override;
+    procedure DoMeasureItem(
+      TargetCanvas   : TCanvas;
+      Node           : PVirtualNode;
+      var NodeHeight : Integer
+    ); override;
     {$ENDREGION}
 
-    procedure DoCheckNode(Parent: PVirtualNode; var ANewXMLNode: TXmlNode;
-      var ANewNodeType: TNodeType; var AAdd: Boolean); virtual;
-    procedure DoGetBackColor(ANode: PVirtualNode; var ABackColor: TColor); virtual;
+    procedure DoCheckNode(
+      Parent           : PVirtualNode;
+      var ANewXMLNode  : TXmlNode;
+      var ANewNodeType : TNodeType;
+      var AAdd         : Boolean
+    ); virtual;
+    procedure DoGetBackColor(
+      ANode          : PVirtualNode;
+      var ABackColor : TColor
+    ); virtual;
 
     procedure InitializeNodeAttributes;
     procedure InitializeHeader;
@@ -415,9 +452,9 @@ type
     ): PVirtualNode; overload;
 
     function FindNode(
-      const AXPath    : string;
-            ADoInit   : Boolean = False;
-            ADoExpand : Boolean = False
+      const AXPath : string;
+      ADoInit      : Boolean = False;
+      ADoExpand    : Boolean = False
     ): PVirtualNode; overload;
 
     procedure ExpandedStateClear;
@@ -533,7 +570,6 @@ type
     property Visible;
     property WantTabs;
 
-    {$ifndef FPC}
     property BevelEdges;
     property BevelInner;
     property BevelOuter;
@@ -542,7 +578,6 @@ type
     property Ctl3D;
     property HintAnimation;
     property ParentCtl3D;
-    {$ENDIF}
 
     property OnAdvancedHeaderDraw;
     property OnAfterAutoFitColumn;
@@ -989,7 +1024,8 @@ begin
     if not WasCleared then
       ExpandedStateSave;
 
-    AddChildren(nil, FXMLDocument.Root);
+    //AddChildren(nil, FXMLDocument.Root);
+    AddChildren(RootNode, FXMLDocument.Root);
     Logger.Send('XML', XMLDocument.WriteToString);
 
     if not WasCleared then
@@ -1043,9 +1079,9 @@ begin
   Include(ANode.States, vsHeightMeasured);
   if not Assigned(Parent) then
     Include(InitStates, ivsExpanded);
-  if AddChildren(ANode, ND.XMLNode) > 0 then
+  if Assigned(ND.XMLNode) and (AddChildren(ANode, ND.XMLNode) > 0) then
     Include(InitStates, ivsHasChildren);
-  inherited;
+  inherited DoInitNode(Parent, ANode, InitStates);
 end;
 
 procedure TXMLTree.DoMeasureItem(TargetCanvas: TCanvas; Node: PVirtualNode;
@@ -1053,8 +1089,8 @@ procedure TXMLTree.DoMeasureItem(TargetCanvas: TCanvas; Node: PVirtualNode;
 var
   N: Cardinal;
 begin
-  inherited;
   Logger.EnterMethod('DoMeasureItem');
+  inherited DoMeasureItem(TargetCanvas, Node, NodeHeight);
   N := ComputeNodeHeight(TargetCanvas, Node, 0);
   if N > (DefaultNodeHeight + 5) then
   begin
@@ -1192,16 +1228,15 @@ begin
     FOnGetBackColor(Self, ANode, ND.XMLNode, ND.NodeType, ABackColor);
 end;
 
-procedure TXMLTree.DoBeforeItemErase(Canvas: TCanvas; ANode: PVirtualNode;
-{$IFDEF FPC}const {$ENDIF} ItemRect: TRect; var Color: TColor;
-  var EraseAction: TItemEraseAction);
+procedure TXMLTree.DoBeforeItemErase(Canvas: TCanvas; Node: PVirtualNode;
+  ItemRect: TRect; var Color: TColor; var EraseAction: TItemEraseAction);
 var
   C : TColor;
 begin
   C := clNone;
   if LineMode <> lmBands then
   begin
-    DoGetBackColor(ANode, C);
+    DoGetBackColor(Node, C);
     if C <> Self.Color then
     begin
       Color       := C;
@@ -1209,7 +1244,7 @@ begin
     end;
   end;
   Color := clRed;
-  inherited DoBeforeItemErase(Canvas, ANode, ItemRect, Color, EraseAction);
+  inherited DoBeforeItemErase(Canvas, Node, ItemRect, Color, EraseAction);
 end;
 
 procedure TXMLTree.KeyDown(var Key: Word; Shift: TShiftState);
@@ -1470,7 +1505,8 @@ begin
   NAI := FNodeAttributes.Add;
   NAI.Name     := 'Unknown';
   NAI.NodeType := ntUnknown;
-  NAI.BackGroundColor := DEFAULT_BGCOLOR_UNKNOWN;
+  NAI.BackGroundColor := DEFAULT_BGCOLOR_ELEMENT;
+  //NAI.BackGroundColor := DEFAULT_BGCOLOR_UNKNOWN;
   NAI.Font.Name := 'Consolas';
 
   NAI := FNodeAttributes.Add;
@@ -1884,4 +1920,3 @@ end;
 {$ENDREGION}
 
 end.
-

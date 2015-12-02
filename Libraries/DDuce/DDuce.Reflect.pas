@@ -19,8 +19,10 @@ unit DDuce.Reflect;
 {$I DDuce.inc}
 
 {
-  Reflect provides some static routines to expose the contents of a type
-  using the RTTI.
+  Reflect provides some static routines to expose the contents and type
+  information of a type using the extended RTTI.
+  As the compiler features type inference for arguments passed by value, the
+  generic parameters can be omitted when calling these methods.
 }
 
 interface
@@ -43,10 +45,15 @@ type
     class function OrdValue<T>(const AArg: T): Integer; static;
     class function EnumNamesFromSet<T>(const AArg: T): string; static;
 
-    class function Fields<T>(const AArg: T): IDynamicRecord; static;
-    class function Properties<T: class, constructor>(
-      const AArg: T
-    ): IDynamicRecord; overload; static;
+    class function TypeName<T>(const AArg: T): string; static;
+    class function TypeKind<T>(const AArg: T): TTypeKind; static;
+
+    class function Fields(const AArg: TValue): IDynamicRecord; overload; static;
+    class function Fields<T>(const AArg: T): IDynamicRecord; overload; static;
+
+    class function Properties(const AArg: TValue): IDynamicRecord; overload; static;
+    class function Properties<T: class, constructor>(const AArg: T)
+      : IDynamicRecord; overload; static;
   end;
 
 implementation
@@ -153,9 +160,13 @@ begin
   Result := GetEnumName(TypeInfo(T), OrdValue(AArg));
 end;
 
-// fields are read-only for the moment.
+{ Returns a copy of the fields of the given instance (record or object). }
 
-{ Returns the fields of the given instance (record or object). }
+class function Reflect.Fields(const AArg: TValue): IDynamicRecord;
+begin
+  Result := TRecord.CreateDynamicRecord;
+  Result.From(AArg, False, True, True, []);
+end;
 
 class function Reflect.Fields<T>(const AArg: T): IDynamicRecord;
 begin
@@ -172,12 +183,48 @@ begin
   Result := V.AsOrdinal;
 end;
 
-{ Returns the properties of the given instance (record or object). }
+{ Returns a copy the property values of the given instance. The instance needs
+  to be a class type, as the compiler does not generate RTTI for properties
+  declared in record types. }
+
+class function Reflect.Properties(const AArg: TValue): IDynamicRecord;
+begin
+  Result := TRecord.CreateDynamicRecord;
+  Result.From(AArg, True, False, True, []);
+end;
+
+{ Returns the properties of the given instance. The instance needs to be a
+  class or interface type, as the compiler does not generate RTTI for properties
+  declared in record types. }
 
 class function Reflect.Properties<T>(const AArg: T): IDynamicRecord;
 begin
   Result := TRecord.CreateDynamicRecord;
   Result.From(TValue.From(AArg), True, False, True, []);
+end;
+
+{ Returns the type kind of the given value.
+  (tkUnknown, tkInteger, tkChar, tkEnumeration, tkFloat, tkString, tkSet,
+   tkClass, tkMethod, tkWChar, tkLString, tkWString, tkVariant, tkArray,
+   tkRecord, tkInterface, tkInt64, tkDynArray, tkUString, tkClassRef, tkPointer,
+   tkProcedure) }
+
+class function Reflect.TypeKind<T>(const AArg: T): TTypeKind;
+var
+  TI : PTypeInfo;
+begin
+  TI := TypeInfo(T);
+  Result := TI.Kind;
+end;
+
+{ Returns the type name of the given value. }
+
+class function Reflect.TypeName<T>(const AArg: T): string;
+var
+  TI : PTypeInfo;
+begin
+  TI := TypeInfo(T);
+  Result := string(TI.Name);
 end;
 
 class function Reflect.EnumNamesFromSet<T>(const AArg: T): string;
