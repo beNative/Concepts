@@ -156,8 +156,8 @@
         <DCCReference Include="Forms\Concepts.ChromeTabs.Form.pas">
             <Form>frmChromeTabs</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Concepts.ComponentInspectorTemplate.Form.pas">
-            <Form>frmPropertyInspector</Form>
+        <DCCReference Include="Forms\Concepts.BCEditor.Form.pas">
+            <Form>frmBCEditor</Form>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.DevExpress.cxEditors.Form.pas"/>
         <DCCReference Include="Forms\Concepts.DSharp.Bindings.Form.pas">

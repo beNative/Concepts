@@ -45,6 +45,10 @@ uses
   cxGridCustomView, cxTL, cxTLData,
   {$ENDIF}
 
+  {$IFDEF BCEDITOR}
+  BCEditor.Editor.Base, BCEditor.Editor,
+  {$ENDIF}
+
   Concepts.Types.Contact;
 
 type
@@ -115,10 +119,10 @@ type
     {$ENDIF}
 
     class function CreateDBGridView(
-            AOwner      : TComponent;
-            AParent     : TWinControl;
-            ADataSource : TDataSource = nil;
-      const AName       : string = ''
+      AOwner      : TComponent;
+      AParent     : TWinControl;
+      ADataSource : TDataSource = nil;
+      const AName : string = ''
     ): TDBGridView; static;
 
     class function CreateDBGrid(
@@ -131,6 +135,16 @@ type
     class function CreateRandomContact(
       ASpecial: Boolean = False
     ): TContact; static;
+
+    {$IFDEF BCEDITOR}
+    class function CreateBCEditor(
+      AOwner             : TComponent;
+      AParent            : TWinControl;
+      const AFileName    : string = '';
+      const AHighlighter : string = '';
+      const AColorMap    : string = ''
+    ): TBCEditor; static;
+    {$ENDIF}
 
   end;
 
@@ -530,6 +544,36 @@ begin
   VST.TreeOptions.AutoOptions      := DEFAULT_VST_AUTOOPTIONS;
   Result := VST;
 end;
+
+{$IFDEF BCEDITOR}
+class function TConceptFactories.CreateBCEditor(AOwner: TComponent;
+  AParent: TWinControl; const AFileName : string; const AHighlighter: string;
+  const AColorMap: string): TBCEditor;
+var
+  BCE : TBCEditor;
+begin
+  BCE := TBCEditor.Create(AOwner);
+  BCE.Parent := AParent;
+  BCE.Align := alClient;
+  BCE.AlignWithMargins := True;
+  BCE.Directories.Colors := '';
+  BCE.Directories.Highlighters := '';
+  if AFileName <> '' then
+    BCE.LoadFromFile(AFileName);
+  if AHighlighter <> '' then
+    BCE.Highlighter.LoadFromFile(AHighlighter + '.json');
+  if AColorMap <> '' then
+    BCE.Highlighter.Colors.LoadFromFile(AColorMap + '.json');
+
+  BCE.CodeFolding.Visible := True;
+  BCE.Font.Name := 'Consolas';
+
+
+
+
+  Result := BCE;
+end;
+{$ENDIF}
 
 class function TConceptFactories.CreateContactList(
   const ACount: Integer): IList<TContact>;
