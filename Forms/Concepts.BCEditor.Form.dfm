@@ -81,23 +81,24 @@ object frmBCEditor: TfrmBCEditor
         TabOrder = 0
         object pgcMain: TPageControl
           AlignWithMargins = True
-          Left = 175
+          Left = 3
           Top = 3
-          Width = 491
+          Width = 663
           Height = 283
           ActivePage = tsHighlighter
-          Align = alRight
-          Anchors = [akLeft, akTop, akRight, akBottom]
+          Align = alClient
           TabOrder = 0
           object tsHighlighter: TTabSheet
-            Caption = 'tsHighlighter'
+            Caption = 'Highlighter definition'
+            ExplicitWidth = 483
             object tlbHighlighter: TToolBar
               Left = 0
               Top = 0
-              Width = 483
+              Width = 655
               Height = 29
               Caption = 'tlbHighlighter'
               TabOrder = 0
+              ExplicitWidth = 483
               object btnSaveHighlighter: TToolButton
                 Left = 0
                 Top = 0
@@ -107,27 +108,26 @@ object frmBCEditor: TfrmBCEditor
             object pnlHighlighter: TPanel
               Left = 0
               Top = 29
-              Width = 483
+              Width = 655
               Height = 226
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 1
+              ExplicitWidth = 483
             end
           end
           object tsColors: TTabSheet
-            Caption = 'tsColors'
+            Caption = 'Color mappings'
             ImageIndex = 1
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
+            ExplicitWidth = 483
             object tlbColors: TToolBar
               Left = 0
               Top = 0
-              Width = 483
+              Width = 655
               Height = 29
               Caption = 'tlbColors'
               TabOrder = 0
+              ExplicitWidth = 483
               object btnSaveColorMap: TToolButton
                 Left = 0
                 Top = 0
@@ -137,11 +137,12 @@ object frmBCEditor: TfrmBCEditor
             object pnlColors: TPanel
               Left = 0
               Top = 29
-              Width = 483
+              Width = 655
               Height = 226
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 1
+              ExplicitWidth = 483
             end
           end
         end

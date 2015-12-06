@@ -1,7 +1,7 @@
-object frmTreeViewPresenter: TfrmTreeViewPresenter
+object frmTreeViewPresenterList: TfrmTreeViewPresenterList
   Left = 441
   Top = 465
-  Caption = 'Virtual treeview presenter'
+  Caption = 'Virtual treeview presenter list'
   ClientHeight = 694
   ClientWidth = 1111
   Color = clBtnFace

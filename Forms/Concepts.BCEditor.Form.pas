@@ -80,24 +80,6 @@ uses
 {$R *.dfm}
 
 {$REGION 'construction and destruction'}
-procedure TfrmBCEditor.actSaveColorMapExecute(Sender: TObject);
-var
-  S : string;
-begin
-  S := FBCEditor.Highlighter.Colors.FileName;
-  FColorSchemeEditor.SaveToFile(S);
-  FBCEditor.Highlighter.Colors.LoadFromFile(S);
-end;
-
-procedure TfrmBCEditor.actSaveHighlighterExecute(Sender: TObject);
-var
-  S : string;
-begin
-  S := FBCEditor.Highlighter.FileName;
-  FHighlighterEditor.SaveToFile(S);
-  FBCEditor.Highlighter.LoadFromFile(S);
-end;
-
 procedure TfrmBCEditor.AfterConstruction;
 var
   I: Integer;
@@ -150,6 +132,26 @@ begin
   cbxControls.AddItem(FBCEditor.Highlighter.FileName, FBCEditor.Highlighter);
   cbxControls.ItemIndex := 0;
 
+end;
+{$ENDREGION}
+
+{$REGION 'action handlers'}
+procedure TfrmBCEditor.actSaveColorMapExecute(Sender: TObject);
+var
+  S : string;
+begin
+  S := FBCEditor.Highlighter.Colors.FileName;
+  FColorSchemeEditor.SaveToFile(S);
+  FBCEditor.Highlighter.Colors.LoadFromFile(S);
+end;
+
+procedure TfrmBCEditor.actSaveHighlighterExecute(Sender: TObject);
+var
+  S : string;
+begin
+  S := FBCEditor.Highlighter.FileName;
+  FHighlighterEditor.SaveToFile(S);
+  FBCEditor.Highlighter.LoadFromFile(S);
 end;
 {$ENDREGION}
 

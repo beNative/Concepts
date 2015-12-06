@@ -16,7 +16,7 @@
 
 {$I Concepts.inc}
 
-unit Concepts.DSharp.TreeViewPresenter.Form;
+unit Concepts.DSharp.TreeViewPresenter.Tree.Form;
 
 { Form demonstrating the usage of the DSharp TTreeViewPresenter which simplifies
   the process of representing data in a TVirtualStringTree control. }
@@ -38,10 +38,12 @@ uses
 
   DDuce.Components.PropertyInspector, DDuce.Components.GridView,
 
+  Concepts.RTTEye.Data,
+
   Concepts.Types.Contact;
 
 type
-  TfrmTreeViewPresenter = class(TForm)
+  TfrmTreeViewPresenterTree = class(TForm)
     pnlTop               : TPanel;
     pnlBottom            : TPanel;
     pnlLeft              : TPanel;
@@ -59,6 +61,7 @@ type
     FTVP        : TTreeViewPresenter;
     FVSTColumns : TVirtualStringTree;
     FTVPColumns : TTreeViewPresenter;
+    FObjectList : IList<TReflectionData>;
 
     procedure FTVPColumnsSelectionChanged(Sender: TObject);
     procedure FTVPSelectionChanged(Sender: TObject);
@@ -79,29 +82,72 @@ uses
 
   DDuce.RandomData, DDuce.Components.Factories,
 
-  Concepts.Factories, Concepts.ComponentInspector;
+  Concepts.Factories, Concepts.ComponentInspector,
+  Concepts.RTTEye.Templates;
 
 {$REGION 'construction and destruction'}
-procedure TfrmTreeViewPresenter.AfterConstruction;
+procedure TfrmTreeViewPresenterTree.AfterConstruction;
 var
   C : TColumnDefinition;
   I : Integer;
 begin
   inherited AfterConstruction;
-  FList := TConceptFactories.CreateContactList(10000);
+
+  //FList := TConceptFactories.CreateContactList(10000);
   FVST  := TConceptFactories.CreateVirtualStringTree(Self, pnlTop);
-  FTVP  := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList as IObjectList);
+  //FTVP  := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList as IObjectList);
+
+  FObjectList := TCollections.CreateObjectList<TReflectionData>;
+  FObjectList.Add(TReflectionData.Create);
+   FTVP := TTreeViewPresenter.Create(Self);
+
+   with FTVP.ColumnDefinitions.Add('Name') do
+  begin
+    ValuePropertyName := 'Name';
+    Alignment         := taLeftJustify;
+    //OnCustomDraw      := FTVPColumnDefinitionsCustomDrawColumn;
+    AutoSize          := True;
+  end;
+
+  //FTVP  := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FObjectList as IObjectList);
+  //FTVP.View.ItemTemplate := TReflectionTemplate.Create(FTVP.ColumnDefinitions);
+  FTVP.View.ItemTemplate := TReflectionTemplate.Create(FTVP.ColumnDefinitions);
+  //FTVP.View.ItemsSource :=
+
+   FTVP.UseColumnDefinitions := True;
+   FTVP.View.ItemsSource := FObjectList as IObjectList;
+   FTVP.View.ItemTemplate := TReflectionTemplate.Create(FTVP.ColumnDefinitions);
+   FTVP.TreeView := FVST;
+
+
+
+
+
+
+//  APresenter.UseColumnDefinitions := True;
+//  APresenter.View.ItemsSource     := ASource;
+//  if not Assigned(ATemplate) then
+//    APresenter.View.ItemTemplate :=
+//      TColumnDefinitionsControlTemplate.Create(APresenter.ColumnDefinitions)
+//  else
+//    APresenter.View.ItemTemplate := ATemplate;
+//  if Assigned(AFilter) then
+//    APresenter.View.Filter.Add(AFilter);
+
+
+
+  //
   FPI   := TDDuceComponents.CreatePropertyInspector(Self, pnlLeftTop, FTVP);
 
-  FTVP.View.ItemTemplate := TColumnDefinitionsControlTemplate.Create(FTVP.ColumnDefinitions);
-  FTVP.OnSelectionChanged := FTVPSelectionChanged;
+  //FTVP.View.ItemTemplate := TColumnDefinitionsControlTemplate.Create(FTVP.ColumnDefinitions);
+  //FTVP.OnSelectionChanged := FTVPSelectionChanged;
 
   CreateColumnDefinitionsView;
 //  InspectComponent(FTVP);
 end;
 {$ENDREGION}
 
-procedure TfrmTreeViewPresenter.CreateColumnDefinitionsView;
+procedure TfrmTreeViewPresenterTree.CreateColumnDefinitionsView;
 var
   CDList : IList<TColumnDefinition>;
   C      : TColumnDefinition;
@@ -112,23 +158,20 @@ begin
   begin
     C := FTVP.ColumnDefinitions[I];
     CDList.Add(C);
-    //FPI.Add(C);
   end;
   FVSTColumns := TConceptFactories.CreateVirtualStringTree(Self, pnlLeftBottom);
   FTVPColumns := TConceptFactories.CreateTreeViewPresenter(Self, FVSTColumns, CDList as IObjectList);
-  //FTVPColumns.ListMode := True;
   FTVPColumns.SelectionMode := smSingle;
-
   FTVPColumns.OnSelectionChanged := FTVPColumnsSelectionChanged;
 end;
 
-procedure TfrmTreeViewPresenter.FTVPColumnsSelectionChanged(Sender: TObject);
+procedure TfrmTreeViewPresenterTree.FTVPColumnsSelectionChanged(Sender: TObject);
 begin
   if Assigned(FTVPColumns.SelectedItem) then
     FPI.Objects[0] := FTVPColumns.SelectedItem;
 end;
 
-procedure TfrmTreeViewPresenter.FTVPSelectionChanged(Sender: TObject);
+procedure TfrmTreeViewPresenterTree.FTVPSelectionChanged(Sender: TObject);
 begin
   FPI.Objects[0] := FTVP;
 end;
