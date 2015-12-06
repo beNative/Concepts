@@ -23,16 +23,38 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList, Vcl.StdCtrls;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList, Vcl.StdCtrls,
+  Vcl.ExtCtrls,
+
+  Spring.Utils;
 
 type
   TfrmSpringUtils = class(TForm)
-    aclMain : TActionList;
-    mmo1: TMemo;
-  private
+    aclMain                    : TActionList;
+    mmoMain                    : TMemo;
+    pnlTop                     : TGridPanel;
+    actApplicationVersionInfo  : TAction;
+    actOperatingSystem         : TAction;
+    btnFileVersionInfo         : TButton;
+    btnOperatingSystem         : TButton;
+    actApplicationVersion      : TAction;
+    btnApplicationVersion      : TButton;
+    actEnvironment             : TAction;
+    btnEnvironment             : TButton;
+    actGetCommandLineArgs      : TAction;
+    actGetEnvironmentVariables : TAction;
+    btnGetCommandLineArgs      : TButton;
+    btnGetEnvironmentVariables : TButton;
+    actGetLogicalDrives        : TAction;
+    btnGetLogicalDrives        : TButton;
 
-  public
-    procedure AfterConstruction; override;
+    procedure actOperatingSystemExecute(Sender: TObject);
+    procedure actApplicationVersionInfoExecute(Sender: TObject);
+    procedure actApplicationVersionExecute(Sender: TObject);
+    procedure actEnvironmentExecute(Sender: TObject);
+    procedure actGetEnvironmentVariablesExecute(Sender: TObject);
+    procedure actGetCommandLineArgsExecute(Sender: TObject);
+    procedure actGetLogicalDrivesExecute(Sender: TObject);
 
   end;
 
@@ -41,34 +63,75 @@ implementation
 {$R *.dfm}
 
 uses
-  System.Rtti,
+  DDuce.Reflect, DDuce.DynamicRecord, DDuce.ScopedReference;
 
-  Spring.Utils,
+{$REGION 'action handlers'}
+procedure TfrmSpringUtils.actApplicationVersionExecute(Sender: TObject);
+begin
+  mmoMain.Text := Reflect.Fields(TEnvironment.ApplicationVersion).ToString;
+end;
 
-  DDuce.DynamicRecord;
-
-{ TfrmSpringUtils }
-
-procedure TfrmSpringUtils.AfterConstruction;
-//var
-//  V : TValue;
-//  V2 : TValue;
+procedure TfrmSpringUtils.actEnvironmentExecute(Sender: TObject);
 var
   R : TRecord;
-  OS : TOperatingSystem;
-  V : TFileVersionInfo;
 begin
-//  inherited AfterConstruction;
-//  V := 3;
-//  V2 := 'Test';
-//  V2 := V;
-  //R.AssignProperty();
-  OS := TOperatingSystem.Create;
-  mmo1.Lines.Text := R.ToString;
-  OS.Free;
-
-
-
+  R.Data.ApplicationPath          := TEnvironment.ApplicationPath;
+  R.Data.ApplicationVersionString := TEnvironment.ApplicationVersionString;
+  R.Data.CommandLine              := TEnvironment.CommandLine;
+  R.Data.CurrentDirectory         := TEnvironment.CurrentDirectory;
+  R.Data.IsAdmin                  := TEnvironment.IsAdmin;
+  R.Data.MachineName              := TEnvironment.MachineName;
+  R.Data.ProcessorCount           := TEnvironment.ProcessorCount;
+  R.Data.RegisteredOrganization   := TEnvironment.RegisteredOrganization;
+  R.Data.RegisteredOwner          := TEnvironment.RegisteredOwner;
+  R.Data.SystemDirectory          := TEnvironment.SystemDirectory;
+  R.Data.TickCount                := TEnvironment.TickCount;
+  R.Data.UserDomainName           := TEnvironment.UserDomainName;
+  R.Data.UserName                 := TEnvironment.UserName;
+  R.Data.UserInteractive          := TEnvironment.UserInteractive;
+  R.Data.ProcessorArchitecture    :=
+    Reflect.EnumName(TEnvironment.ProcessorArchitecture);
+  R.Data.NewLine                  := TEnvironment.NewLine;
+  mmoMain.Text := R.ToString;
 end;
+
+procedure TfrmSpringUtils.actGetCommandLineArgsExecute(Sender: TObject);
+var
+  S  : string;
+begin
+  mmoMain.Clear;
+  for S in TEnvironment.GetCommandLineArgs do
+    mmoMain.Lines.Add(S);
+end;
+
+procedure TfrmSpringUtils.actGetEnvironmentVariablesExecute(Sender: TObject);
+var
+  SL : Scoped<TStringList>;
+  R  : TRecord;
+begin
+  TEnvironment.GetEnvironmentVariables(SL);
+  R.FromStrings(SL);
+  mmoMain.Text := R.ToString;
+end;
+
+procedure TfrmSpringUtils.actGetLogicalDrivesExecute(Sender: TObject);
+var
+  S  : string;
+begin
+  mmoMain.Clear;
+  for S in TEnvironment.GetLogicalDrives do
+    mmoMain.Lines.Add(S);
+end;
+
+procedure TfrmSpringUtils.actApplicationVersionInfoExecute(Sender: TObject);
+begin
+  mmoMain.Text := Reflect.Fields(TEnvironment.ApplicationVersionInfo).ToString;
+end;
+
+procedure TfrmSpringUtils.actOperatingSystemExecute(Sender: TObject);
+begin
+  mmoMain.Text := Reflect.Properties(TEnvironment.OperatingSystem).ToString;
+end;
+{$ENDREGION}
 
 end.
