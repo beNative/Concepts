@@ -552,9 +552,11 @@ begin
   end;
   APresenter.UseColumnDefinitions := True;
   APresenter.View.ItemsSource     := ASource;
-  if Assigned(ATemplate) then
+  if not Assigned(ATemplate) then
     APresenter.View.ItemTemplate :=
-      TColumnDefinitionsControlTemplate.Create(APresenter.ColumnDefinitions);
+      TColumnDefinitionsControlTemplate.Create(APresenter.ColumnDefinitions)
+  else
+    APresenter.View.ItemTemplate := ATemplate;
   if Assigned(AFilter) then
     APresenter.View.Filter.Add(AFilter);
 end;
