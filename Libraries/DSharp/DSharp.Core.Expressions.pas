@@ -1739,7 +1739,7 @@ begin
       LeftValue := LeftDelegate();
       RightValue := RightDelegate();
 
-      Result := SameValue(LeftValue, RightValue);
+      Result := LeftValue.Equals(RightValue);
     end;
 end;
 

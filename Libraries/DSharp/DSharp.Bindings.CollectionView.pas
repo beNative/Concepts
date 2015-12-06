@@ -165,14 +165,14 @@ end;
 function TCollectionView.GetCanMoveCurrentToNext: Boolean;
 begin
   // TODO: Implement filter support
-  Result := (FFilter.Count = 0) and Assigned(FItemsSource)
+  Result := (not FFilter.CanInvoke) and Assigned(FItemsSource)
     and (FItemIndex < Pred(FItemsSource.Count));
 end;
 
 function TCollectionView.GetCanMoveCurrentToPrevious: Boolean;
 begin
   // TODO: Implement filter support
-  Result := (FFilter.Count = 0) and Assigned(FItemsSource)
+  Result := (not FFilter.CanInvoke) and Assigned(FItemsSource)
     and (FItemIndex > 0);
 end;
 
@@ -226,7 +226,7 @@ end;
 
 procedure TCollectionView.MoveCurrentToFirst;
 begin
-  if FFilter.Count = 0 then
+  if not FFilter.CanInvoke then
   begin
     if CanMoveCurrentToPrevious xor (FItemIndex = -1)
       and Assigned(FItemsSource) and (FItemsSource.Count > 0) then
@@ -238,7 +238,7 @@ end;
 
 procedure TCollectionView.MoveCurrentToLast;
 begin
-  if FFilter.Count = 0 then
+  if not FFilter.CanInvoke then
   begin
     if CanMoveCurrentToNext then
     begin
@@ -249,7 +249,7 @@ end;
 
 procedure TCollectionView.MoveCurrentToNext;
 begin
-  if FFilter.Count = 0 then
+  if not FFilter.CanInvoke then
   begin
     if CanMoveCurrentToNext then
     begin
@@ -260,7 +260,7 @@ end;
 
 procedure TCollectionView.MoveCurrentToPrevious;
 begin
-  if FFilter.Count = 0 then
+  if not FFilter.CanInvoke then
   begin
     if CanMoveCurrentToPrevious then
     begin
