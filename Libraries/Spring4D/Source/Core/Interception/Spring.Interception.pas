@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -106,6 +106,12 @@ type
     property Hook: IProxyGenerationHook read fHook write fHook;
     property Mixins: IList<TObject> read fMixins;
     property Selector: IInterceptorSelector read fSelector write fSelector;
+  end;
+
+  IDynamicProxy = interface
+    ['{7DDA3562-3F82-4FA0-9869-9FB27E0CF89D}']
+    procedure AddAdditionalInterface(typeInfo: PTypeInfo;
+      const options: TProxyGenerationOptions);
   end;
 
   TProxyGenerator = record

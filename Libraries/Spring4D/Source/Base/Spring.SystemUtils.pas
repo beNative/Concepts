@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -216,7 +216,7 @@ var
   typeInfo: PTypeInfo;
 begin
   typeInfo := TEnum.GetEnumTypeInfo<T>;
-  Result := GetTypeData(typeInfo);
+  Result := typeInfo.TypeData;
 end;
 
 class function TEnum.ConvertToInteger<T>(const value: T): Integer;

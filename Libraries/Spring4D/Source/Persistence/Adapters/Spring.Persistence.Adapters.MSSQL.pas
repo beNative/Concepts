@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -43,8 +43,6 @@ uses
 }
 
 type
-  EMSSQLStatementAdapterException = class(EORMAdapterException);
-
   /// <summary>
   ///   Represents Miscrosoft SQL Server resultset.
   /// </summary>
@@ -95,13 +93,15 @@ end;
 function TMSSQLConnectionAdapter.BeginTransaction: IDBTransaction;
 begin
   if Assigned(Connection) then
-  begin
+  try
     Connection.Connected := True;
     GenerateNewID;
     Connection.Execute(SQL_BEGIN_TRAN + GetTransactionName);
 
-    Result := TMSSQLTransactionAdapter.Create(Connection);
+    Result := TMSSQLTransactionAdapter.Create(Connection, ExceptionHandler);
     Result.TransactionName := GetTransactionName;
+  except
+    raise HandleException;
   end
   else
     Result := nil;
@@ -115,13 +115,21 @@ end;
 procedure TMSSQLTransactionAdapter.Commit;
 begin
   if Assigned(Transaction) then
+  try
     Transaction.Execute(SQL_COMMIT_TRAN + TransactionName);
+  except
+    raise HandleException;
+  end;
 end;
 
 procedure TMSSQLTransactionAdapter.Rollback;
 begin
   if Assigned(Transaction) then
+  try
     Transaction.Execute(SQL_ROLLBACK_TRAN + TransactionName);
+  except
+    raise HandleException;
+  end;
 end;
 
 {$ENDREGION}

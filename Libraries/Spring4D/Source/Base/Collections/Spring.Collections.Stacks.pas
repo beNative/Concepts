@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -99,11 +99,11 @@ end;
 
 constructor TStack<T>.Create(const values: array of T);
 var
-  item: T;
+  i: Integer;
 begin
   Create;
-  for item in values do
-    Push(item);
+  for i := Low(values) to High(values) do
+    Push(values[i]);
 end;
 
 constructor TStack<T>.Create(const collection: IEnumerable<T>);
@@ -163,7 +163,7 @@ end;
 
 procedure TStack<T>.Changed(const item: T; action: TCollectionChangedAction);
 begin
-  if fOnChanged.IsInvokable then
+  if fOnChanged.CanInvoke then
     fOnChanged.Invoke(Self, item, action);
 end;
 

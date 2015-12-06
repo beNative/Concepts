@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -482,10 +482,12 @@ type
   private
     function GetIsGetter: Boolean;
     function GetIsSetter: Boolean;
+    function GetParameterCount: Integer;
     function InternalGetParameters: IEnumerable<TRttiParameter>;
   public
     property IsGetter: Boolean read GetIsGetter;
     property IsSetter: Boolean read GetIsSetter;
+    property ParameterCount: Integer read GetParameterCount;
     property Parameters: IEnumerable<TRttiParameter> read InternalGetParameters;
   end;
 
@@ -928,7 +930,7 @@ var
 begin
   while Assigned(typeInfo) and (typeInfo.Kind = tkInterface) do
   begin
-    name := GetTypeName(typeInfo);
+    name := typeInfo.TypeName;
     for prefix in DelegatePrefixNonGenericStrings do
       if SameText(prefix, name) then
         Exit(True);
@@ -957,12 +959,9 @@ begin
   Guard.CheckNotNull(instance, 'instance');
 {$ENDIF}
 
-  if TryGetType(instance.ClassInfo, rttiType) then
-  begin
-    field := rttiType.GetField(fieldName);
-    if Assigned(field) then
-      field.SetValue(instance, value);
-  end;
+  if TryGetType(instance.ClassInfo, rttiType)
+    and rttiType.TryGetField(fieldName, field) then
+    field.SetValue(instance, value);
 end;
 
 class procedure TType.SetMemberValue(const instance: TObject;
@@ -973,7 +972,7 @@ var
   prop: TRttiProperty;
 begin
   // TODO: TValue conversion ?
-  if TType.TryGetType(instance.ClassInfo, rttiType) then
+  if TryGetType(instance.ClassInfo, rttiType) then
     if rttiType.TryGetField(name, field) then
       field.SetValue(instance, value)
     else if rttiType.TryGetProperty(name, prop) then
@@ -990,12 +989,9 @@ begin
   Guard.CheckNotNull(instance, 'instance');
 {$ENDIF}
 
-  if TryGetType(instance.ClassInfo, rttiType) then
-  begin
-    prop := rttiType.GetProperty(propertyName);
-    if Assigned(prop) then
-      prop.SetValue(instance, value);
-  end;
+  if TryGetType(instance.ClassInfo, rttiType)
+    and rttiType.TryGetProperty(propertyName, prop) then
+    prop.SetValue(instance, value);
 end;
 
 class function TType.TryGetInterfaceType(const guid: TGUID;
@@ -1012,13 +1008,9 @@ begin
       begin
         fInterfaceTypes := TCollections.CreateDictionary<TGuid, TRttiInterfaceType>;
         for item in fContext.GetTypes do
-        begin
-          if (item is TRttiInterfaceType) and (ifHasGuid in TRttiInterfaceType(item).IntfFlags)
+          if item.IsInterface and TRttiInterfaceType(item).HasGuid
             and not fInterfaceTypes.ContainsKey(TRttiInterfaceType(item).GUID) then
-          begin
             fInterfaceTypes.Add(TRttiInterfaceType(item).GUID, TRttiInterfaceType(item));
-          end;
-        end;
       end;
     finally
       fSection.Leave;
@@ -1323,15 +1315,10 @@ begin
 end;
 
 function TRttiTypeHelper.GetGenericTypeDefinition: string;
-var
-  i: Integer;
 begin
   if not IsGenericType then
     raise EInvalidOperationException.CreateResFmt(@SNotGenericType, [Name]);
-  Result := Copy(Name, 0, Pos('<', Name));
-  for i := 1 to High(GetGenericArguments) do
-    Result := Result + ',';
-  Result := Result + '>';
+  Result := Copy(Name, 0, Pos('<', Name)) + DupeString(',', High(GetGenericArguments)) + '>';
 end;
 
 function TRttiTypeHelper.GetAncestorCount: Integer;
@@ -1366,7 +1353,7 @@ function TRttiTypeHelper.GetBaseTypes: IReadOnlyList<TRttiType>;
 var
   count: Integer;
   t: TRttiType;
-  baseTypes: TArray<TRttiType>;
+  types: TArray<TRttiType>;
 begin
   count := 0;
   t := Self;
@@ -1376,17 +1363,17 @@ begin
     t := t.BaseType;
   end;
 
-  SetLength(baseTypes, count);
+  SetLength(types, count);
   count := 0;
   t := Self;
   while Assigned(t) do
   begin
-    baseTypes[count] := t;
+    types[count] := t;
     Inc(count);
     t := t.BaseType;
   end;
 
-  Result := TArrayIterator<TRttiType>.Create(baseTypes);
+  Result := TArrayIterator<TRttiType>.Create(types);
 end;
 
 function TRttiTypeHelper.GetInterfaces: IEnumerable<TRttiInterfaceType>;
@@ -1726,6 +1713,11 @@ begin
         Exit(True);
     end;
   Result := False;
+end;
+
+function TRttiMethodHelper.GetParameterCount: Integer;
+begin
+  Result := Length(GetParameters);
 end;
 
 function TRttiMethodHelper.InternalGetParameters: IEnumerable<TRttiParameter>;

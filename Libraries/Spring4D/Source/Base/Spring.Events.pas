@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -103,8 +103,6 @@ type
     procedure InternalInvoke(Params: Pointer; StackSize: Integer);
     procedure Invoke;
   protected
-    procedure EventsChanged(const item: TMethodPointer;
-      action: TEventsChangedAction); override;
     procedure Notify(Sender: TObject; const Item: TMethodPointer;
       Action: TCollectionNotification); override;
   public
@@ -547,7 +545,7 @@ begin
 
   if typeInfo.Kind = tkMethod then
   begin
-    typeData := GetTypeData(typeInfo);
+    typeData := typeInfo.TypeData;
     fInvocations := TMethodInvocations.Create(typeData, InternalInvoke);
   end
   else if typeInfo.Kind = tkInterface then
@@ -573,18 +571,6 @@ destructor TEvent.Destroy;
 begin
   fInvocations.Free;
   inherited Destroy;
-end;
-
-procedure TEvent.EventsChanged(const item: TMethodPointer;
-  action: TEventsChangedAction);
-begin
-  case fTypeInfo.Kind of
-    tkMethod: inherited;
-    tkInterface:
-      if Assigned(OnChanged) then
-        TEventsChangedEvent<IInterface>(OnChanged)(Self,
-          MethodPointerToMethodReference(item), action);
-  end;
 end;
 
 procedure TEvent.InternalInvoke(Params: Pointer; StackSize: Integer);

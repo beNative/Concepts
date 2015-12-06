@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -1456,10 +1456,10 @@ end;
 
 procedure TCollectionBase<T>.AddRange(const values: array of T);
 var
-  item: T;
+  i: Integer;
 begin
-  for item in values do
-    Add(item);
+  for i := Low(values) to High(values) do
+    Add(values[i]);
 end;
 
 procedure TCollectionBase<T>.AddRange(const collection: IEnumerable<T>);
@@ -1476,7 +1476,7 @@ end;
 
 procedure TCollectionBase<T>.Changed(const item: T; action: TCollectionChangedAction);
 begin
-  if fOnChanged.IsInvokable then
+  if fOnChanged.CanInvoke then
     fOnChanged.Invoke(Self, item, action);
 end;
 
@@ -1502,10 +1502,10 @@ end;
 
 procedure TCollectionBase<T>.ExtractRange(const values: array of T);
 var
-  item: T;
+  i: Integer;
 begin
-  for item in values do
-    Extract(item);
+  for i := Low(values) to High(values) do
+    Extract(values[i]);
 end;
 
 procedure TCollectionBase<T>.ExtractRange(const collection: IEnumerable<T>);
@@ -1532,25 +1532,27 @@ end;
 
 procedure TCollectionBase<T>.MoveTo(const collection: ICollection<T>);
 var
-  item: T;
+  values: TArray<T>;
+  i: Integer;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckNotNull(Assigned(collection), 'collection');
 {$ENDIF}
 
-  for item in ToArray do
+  values := ToArray;
+  for i := Low(values) to High(values) do
   begin
-    Extract(item);
-    collection.Add(item);
+    Extract(values[i]);
+    collection.Add(values[i]);
   end;
 end;
 
 procedure TCollectionBase<T>.RemoveRange(const values: array of T);
 var
-  item: T;
+  i: Integer;
 begin
-  for item in values do
-    Remove(item);
+  for i := Low(values) to High(values) do
+    Remove(values[i]);
 end;
 
 procedure TCollectionBase<T>.RemoveAll(const predicate: TPredicate<T>);
@@ -1698,8 +1700,8 @@ end;
 procedure TMapBase<TKey, T>.KeyChanged(const Item: TKey;
   Action: TCollectionChangedAction);
 begin
-  if Assigned(fOnKeyChanged) and fOnKeyChanged.IsInvokable then
-      fOnKeyChanged.Invoke(Self, Item, Action)
+  if Assigned(fOnKeyChanged) and fOnKeyChanged.CanInvoke then
+    fOnKeyChanged.Invoke(Self, Item, Action)
 end;
 
 function TMapBase<TKey, T>.Remove(const item: TGenericPair): Boolean;
@@ -1710,7 +1712,7 @@ end;
 procedure TMapBase<TKey, T>.ValueChanged(const Item: T;
   Action: TCollectionChangedAction);
 begin
-  if Assigned(fOnValueChanged) and fOnValueChanged.IsInvokable then
+  if Assigned(fOnValueChanged) and fOnValueChanged.CanInvoke then
     fOnValueChanged.Invoke(Self, Item, Action)
 end;
 
@@ -1845,15 +1847,15 @@ end;
 
 procedure TListBase<T>.InsertRange(index: Integer; const values: array of T);
 var
-  item: T;
+  i: Integer;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckRange((index >= 0) and (index <= Count), 'index');
 {$ENDIF}
 
-  for item in values do
+  for i := Low(values) to High(values) do
   begin
-    Insert(index, item);
+    Insert(index, values[i]);
     Inc(index);
   end;
 end;

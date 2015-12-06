@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -536,7 +536,7 @@ end;
 
 
 procedure DummyRegister(const classes: array of TClass);
-begin
+begin //FI:W519
   //Does nothing but the classes are already referenced which forces RTTI
   //generation (linker doesn't strip them)
 end;

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -287,7 +287,7 @@ begin
 end;
 
 procedure TSingletonPerThreadLifetimeManager.Release(const instance: TValue);
-begin
+begin //FI:W519
 end;
 
 {$ENDREGION}

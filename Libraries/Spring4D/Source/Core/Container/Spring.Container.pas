@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -146,7 +146,7 @@ type
     {$IFDEF WEAKREF}[Weak]{$ENDIF}
     fContainer: TContainer;
     class var GlobalInstance: IServiceLocator;
-    class constructor Create;
+    class procedure Init; static;
   public
     constructor Create(const container: TContainer);
 
@@ -281,6 +281,7 @@ begin
   fResolver.AddSubResolver(TLazyResolver.Create(Self));
   fResolver.AddSubResolver(TDynamicArrayResolver.Create(Self));
   fResolver.AddSubResolver(TListResolver.Create(Self));
+  fResolver.AddSubResolver(TComponentOwnerResolver.Create(Self));
 end;
 
 destructor TContainer.Destroy;
@@ -604,7 +605,7 @@ end;
 
 {$REGION 'TServiceLocatorAdapter'}
 
-class constructor TServiceLocatorAdapter.Create;
+class procedure TServiceLocatorAdapter.Init;
 begin
   GlobalInstance := TServiceLocatorAdapter.Create(GlobalContainer);
   ServiceLocator.Initialize(
@@ -665,5 +666,8 @@ begin
   TServiceLocatorAdapter.GlobalInstance := nil;
   FreeAndNil(TContainer.GlobalInstance);
 end;
+
+initialization
+  TServiceLocatorAdapter.Init;
 
 end.

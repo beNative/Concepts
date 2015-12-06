@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -384,7 +384,6 @@ function TAbstractSession.ResolveLazyInterface(const id: TValue;
 var
   entityClass: TClass;
   capturedId: TValue;
-  capturedSelf: Pointer;
   factory: TFunc<IInterface>;
 begin
   if not interfaceType.IsGenericTypeOf('IEnumerable<>') then
@@ -392,13 +391,15 @@ begin
   entityClass := interfaceType.GetGenericArguments[0].AsInstance.MetaclassType;
 
   capturedId := id;
-  capturedSelf := Self; // Capture as unsafe pointer to break cycle
   factory :=
     function: IInterface
     begin
-      Result := TAbstractSession(capturedSelf).GetLazyValueAsInterface(
-        capturedId, entity, column, entityClass);
+      Result := GetLazyValueAsInterface(capturedId, entity, column, entityClass);
     end;
+{$IFDEF AUTOREFCOUNT}
+  // Release reference held by the anonymous function closure (RSP-10176)
+  __ObjRelease;
+{$ENDIF}
   Result := TValue.From<Lazy<IInterface>>(TLazy<IInterface>.Create(factory));
 end;
 
@@ -407,17 +408,18 @@ function TAbstractSession.ResolveLazyObject(const id: TValue;
   const column: ColumnAttribute): TValue;
 var
   capturedId: TValue;
-  capturedSelf: Pointer;
   factory: TFunc<TObject>;
 begin
   capturedId := id;
-  capturedSelf := Self; // Capture as unsafe pointer to break cycle
   factory :=
     function: TObject
     begin
-      Result := TAbstractSession(capturedSelf).GetLazyValueAsObject(
-        capturedId, entity, column, entityClass);
+      Result := GetLazyValueAsObject(capturedId, entity, column, entityClass);
     end;
+{$IFDEF AUTOREFCOUNT}
+  // Release reference held by the anonymous function closure (RSP-10176)
+  __ObjRelease;
+{$ENDIF}
   Result := TValue.From<Lazy<TObject>>(TLazy<TObject>.Create(factory, True));
 end;
 

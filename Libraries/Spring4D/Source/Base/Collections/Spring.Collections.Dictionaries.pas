@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -54,6 +54,7 @@ type
 
       TKeyCollection = class(TContainedReadOnlyCollection<TKey>)
       private
+        {$IFDEF WEAKREF}[Weak]{$ENDIF}
         fDictionary: TGenericDictionary;
       protected
       {$REGION 'Property Accessors'}
@@ -73,6 +74,7 @@ type
 
       TValueCollection = class(TContainedReadOnlyCollection<TValue>)
       private
+        {$IFDEF WEAKREF}[Weak]{$ENDIF}
         fDictionary: TGenericDictionary;
       protected
       {$REGION 'Property Accessors'}
@@ -92,6 +94,7 @@ type
 
       TOrderedEnumerable = class(TContainedIterator<TGenericPair>)
       private
+        {$IFDEF WEAKREF}[Weak]{$ENDIF}
         fDictionary: TGenericDictionary;
         fComparer: IComparer<TKey>;
         fSortedKeys: TArray<TKey>;

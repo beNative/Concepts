@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -221,10 +221,10 @@ end;
 
 procedure TCollectionAdapter<T>.AddRange(const values: array of TValue);
 var
-  item: TValue;
+  i: Integer;
 begin
-  for item in values do
-    fSource.Add(item.AsType<T>);
+  for i := Low(values) to High(values) do
+    fSource.Add(values[i].AsType<T>);
 end;
 
 procedure TCollectionAdapter<T>.AddRange(const collection: IEnumerable);
@@ -247,10 +247,10 @@ end;
 
 procedure TCollectionAdapter<T>.ExtractRange(const values: array of TValue);
 var
-  item: TValue;
+  i: Integer;
 begin
-  for item in values do
-    fSource.Extract(item.AsType<T>);
+  for i := Low(values) to High(values) do
+    fSource.Extract(values[i].AsType<T>);
 end;
 
 procedure TCollectionAdapter<T>.ExtractRange(const collection: IEnumerable);
@@ -305,10 +305,10 @@ end;
 
 procedure TCollectionAdapter<T>.RemoveRange(const values: array of TValue);
 var
-  item: TValue;
+  i: Integer;
 begin
-  for item in values do
-    fSource.Remove(item.AsType<T>);
+  for i := Low(values) to High(values) do
+    fSource.Remove(values[i].AsType<T>);
 end;
 
 procedure TCollectionAdapter<T>.RemoveRange(
@@ -390,15 +390,15 @@ end;
 procedure TListAdapter<T>.InsertRange(index: Integer;
   const values: array of TValue);
 var
-  item: TValue;
+  i: Integer;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckRange((index >= 0) and (index <= Count), 'index');
 {$ENDIF}
 
-  for item in values do
+  for i := Low(values) to High(values) do
   begin
-    fSource.Insert(index, item.AsType<T>);
+    fSource.Insert(index, values[i].AsType<T>);
     Inc(index);
   end;
 end;

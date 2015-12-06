@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,11 +29,11 @@ unit Spring.Persistence.Adapters.UIB;
 interface
 
 uses
+  SysUtils,
   uib,
   uibdataset,
   uiblib,
   Spring.Collections,
-  Spring.Persistence.Adapters.FieldCache,
   Spring.Persistence.Core.Base,
   Spring.Persistence.Core.Exceptions,
   Spring.Persistence.Core.Interfaces,
@@ -48,19 +48,11 @@ type
   /// </summary>
   TUIBResultSetAdapter = class(TDriverResultSetAdapter<TUIBDataSet>)
   private
-    fFieldCache: IFieldCache;
     fIsNewTransaction: Boolean;
   public
-    constructor Create(const dataSet: TUIBDataSet); override;
+    constructor Create(const dataSet: TUIBDataSet;
+      const exceptionHandler: IORMExceptionHandler);
     destructor Destroy; override;
-
-    function IsEmpty: Boolean; override;
-    function Next: Boolean; override;
-    function FieldExists(const fieldName: string): Boolean; override;
-    function GetFieldValue(index: Integer): Variant; overload; override;
-    function GetFieldValue(const fieldname: string): Variant; overload; override;
-    function GetFieldCount: Integer; override;
-    function GetFieldName(index: Integer): string; override;
 
     property IsNewTransaction: Boolean read fIsNewTransaction write fIsNewTransaction;
   end;
@@ -86,6 +78,7 @@ type
   /// </summary>
   TUIBConnectionAdapter = class(TDriverConnectionAdapter<TUIBDataBase>)
   public
+    constructor Create(const connection: TUIBDataBase); override;
     destructor Destroy; override;
 
     procedure AfterConstruction; override;
@@ -103,11 +96,18 @@ type
   protected
     function InTransaction: Boolean; override;
   public
-    constructor Create(const transaction: TUIBTransaction); override;
+    constructor Create(const transaction: TUIBTransaction;
+      const exceptionHandler: IORMExceptionHandler); override;
     destructor Destroy; override;
 
     procedure Commit; override;
     procedure Rollback; override;
+  end;
+
+  TUIBExceptionHandler = class(TORMExceptionHandler)
+  protected
+    function GetAdapterException(const exc: Exception;
+      const defaultMsg: string): Exception; override;
   end;
 
 implementation
@@ -115,7 +115,6 @@ implementation
 uses
   DB,
   StrUtils,
-  SysUtils,
   Spring.Persistence.Core.ConnectionFactory,
   Spring.Persistence.Core.Consts,
   Spring.Persistence.SQL.Generators.Firebird,
@@ -124,55 +123,18 @@ uses
 
 {$REGION 'TUIBResultSetAdapter'}
 
-constructor TUIBResultSetAdapter.Create(const dataSet: TUIBDataSet);
+constructor TUIBResultSetAdapter.Create(const dataSet: TUIBDataSet;
+  const exceptionHandler: IORMExceptionHandler);
 begin
-  inherited Create(dataSet);
   Dataset.OnClose := etmStayIn;
-  fFieldCache := TFieldCache.Create(dataSet);
+  inherited Create(dataSet, exceptionHandler);
 end;
 
 destructor TUIBResultSetAdapter.Destroy;
 begin
   if fIsNewTransaction then
     DataSet.Transaction.Free;
-  DataSet.Free;
   inherited;
-end;
-
-function TUIBResultSetAdapter.FieldExists(const fieldName: string): Boolean;
-begin
-  Result := fFieldCache.FieldExists(fieldName);
-end;
-
-function TUIBResultSetAdapter.GetFieldCount: Integer;
-begin
-  Result := DataSet.FieldCount;
-end;
-
-function TUIBResultSetAdapter.GetFieldName(index: Integer): string;
-begin
-  Result := DataSet.Fields[index].FieldName;
-end;
-
-function TUIBResultSetAdapter.GetFieldValue(index: Integer): Variant;
-begin
-  Result := DataSet.Fields[index].Value;
-end;
-
-function TUIBResultSetAdapter.GetFieldValue(const fieldname: string): Variant;
-begin
-  Result := fFieldCache.GetFieldValue(fieldname);
-end;
-
-function TUIBResultSetAdapter.IsEmpty: Boolean;
-begin
-  Result := DataSet.Eof;
-end;
-
-function TUIBResultSetAdapter.Next: Boolean;
-begin
-  DataSet.Next;
-  Result := not DataSet.Eof;
 end;
 
 {$ENDREGION}
@@ -197,10 +159,14 @@ end;
 function TUIBStatementAdapter.Execute: NativeUInt;
 begin
   inherited;
-  Statement.Prepare;
-  Statement.ExecSQL;
-  Result := Statement.RowsAffected;
-  Statement.Close(etmStayIn);
+  try
+    Statement.Prepare;
+    Statement.ExecSQL;
+    Result := Statement.RowsAffected;
+    Statement.Close(etmStayIn);
+  except
+    raise HandleException;
+  end;
 end;
 
 function TUIBStatementAdapter.ExecuteQuery(serverSideCursor: Boolean): IDBResultSet;
@@ -230,12 +196,17 @@ begin
   AssignParams(Statement.Params, query.Params);
   try
     query.Open;
-    adapter := TUIBResultSetAdapter.Create(query);
+    adapter := TUIBResultSetAdapter.Create(query, ExceptionHandler);
     adapter.IsNewTransaction := isNewTransaction;
     Result := adapter;
   except
     on E: Exception do
-      raise EUIBAdapterException.CreateFmt(EXCEPTION_CANNOT_OPEN_QUERY, [E.Message]);
+    begin
+      query.Free;
+      if isNewTransaction then
+        transaction.Free;
+      raise HandleException(Format(EXCEPTION_CANNOT_OPEN_QUERY, [E.Message]));
+    end;
   end;
 end;
 
@@ -271,8 +242,11 @@ destructor TUIBConnectionAdapter.Destroy;
 var
   i: Integer;
 begin
-  for i := 0 to Connection.TransactionsCount - 1 do
-    Connection.Transactions[i].Free;
+  if Assigned(Connection) then
+  begin
+    for i := 0 to Connection.TransactionsCount - 1 do
+      Connection.Transactions[i].Free;
+  end;
   inherited Destroy;
 end;
 
@@ -287,7 +261,7 @@ var
   transaction: TUIBTransaction;
 begin
   if Assigned(Connection) then
-  begin
+  try
     Connection.Connected := True;
 
     transaction := TUIBTransaction.Create(nil);
@@ -295,7 +269,9 @@ begin
     transaction.DefaultAction := etmRollback;
     transaction.StartTransaction;
 
-    Result := TUIBTransactionAdapter.Create(transaction);
+    Result := TUIBTransactionAdapter.Create(transaction, ExceptionHandler);
+  except
+    raise HandleException;
   end
   else
     Result := nil;
@@ -304,7 +280,16 @@ end;
 procedure TUIBConnectionAdapter.Connect;
 begin
   if Assigned(Connection) then
+  try
     Connection.Connected := True;
+  except
+    raise HandleException;
+  end;
+end;
+
+constructor TUIBConnectionAdapter.Create(const connection: TUIBDataBase);
+begin
+  Create(connection, TUIBExceptionHandler.Create);
 end;
 
 function TUIBConnectionAdapter.CreateStatement: IDBStatement;
@@ -328,7 +313,7 @@ begin
     statement.DataBase := Connection;
     statement.Transaction := transaction;
 
-    adapter := TUIBStatementAdapter.Create(statement);
+    adapter := TUIBStatementAdapter.Create(statement, ExceptionHandler);
     adapter.ExecutionListeners := ExecutionListeners;
     Result := adapter;
   end
@@ -339,7 +324,11 @@ end;
 procedure TUIBConnectionAdapter.Disconnect;
 begin
   if Assigned(Connection) then
+  try
     Connection.Connected := False;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TUIBConnectionAdapter.IsConnected: Boolean;
@@ -355,15 +344,24 @@ end;
 procedure TUIBTransactionAdapter.Commit;
 begin
   if Assigned(fTransaction) then
+  try
     fTransaction.Commit;
+  except
+    raise HandleException;
+  end;
 end;
 
-constructor TUIBTransactionAdapter.Create(const transaction: TUIBTransaction);
+constructor TUIBTransactionAdapter.Create(const transaction: TUIBTransaction;
+  const exceptionHandler: IORMExceptionHandler);
 begin
-  inherited Create(transaction);
+  inherited Create(transaction, exceptionHandler);
   fTransaction.DefaultAction := etmRollback;
   if not InTransaction then
+  try
     fTransaction.StartTransaction;
+  except
+    raise HandleException;
+  end;
 end;
 
 destructor TUIBTransactionAdapter.Destroy;
@@ -380,7 +378,25 @@ end;
 procedure TUIBTransactionAdapter.Rollback;
 begin
   if Assigned(fTransaction) then
+  try
     fTransaction.RollBack;
+  except
+    raise HandleException;
+  end;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TUIBExceptionHandler'}
+
+function TUIBExceptionHandler.GetAdapterException(const exc: Exception;
+  const defaultMsg: string): Exception;
+begin
+  if exc is EUIBError then
+    Result := EUIBAdapterException.Create(defaultMsg, EUIBError(exc).ErrorCode)
+  else
+    Result := nil;
 end;
 
 {$ENDREGION}

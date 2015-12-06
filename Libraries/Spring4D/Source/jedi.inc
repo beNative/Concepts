@@ -156,7 +156,7 @@
   DELPHIXE7           Alias for DELPHI21
   DELPHI22            Defined when compiling with Delphi XE8 for Win32 (Codename ELBRUS)
   DELPHIXE8           Alias for DELPHI22
-  DELPHI23            Defined when compiling with Delphi 10 for Win32 (Codename SEATTLE)
+  DELPHI23            Defined when compiling with Delphi 10 for Win32 (Codename AITANA)
   DELPHIX_SEATTLE     Alias for DELPHI23
   DELPHI1_UP          Defined when compiling with Delphi 1 or higher
   DELPHI2_UP          Defined when compiling with Delphi 2 or higher
@@ -234,6 +234,10 @@
   DELPHICOMPILER17     Defined when compiling with Delphi Personality of BDS 10.0
   DELPHICOMPILER18     Defined when compiling with Delphi Personality of BDS 11.0
   DELPHICOMPILER19     Defined when compiling with Delphi Personality of BDS 12.0
+  DELPHICOMPILER20     Defined when compiling with Delphi Personality of BDS 14.0
+  DELPHICOMPILER21     Defined when compiling with Delphi Personality of BDS 15.0
+  DELPHICOMPILER22     Defined when compiling with Delphi Personality of BDS 16.0
+  DELPHICOMPILER23     Defined when compiling with Delphi Personality of BDS 17.0
   DELPHICOMPILER1_UP   Defined when compiling with Delphi 1 or higher
   DELPHICOMPILER2_UP   Defined when compiling with Delphi 2 or higher
   DELPHICOMPILER3_UP   Defined when compiling with Delphi 3 or higher
@@ -281,7 +285,9 @@
   BCB18        Defined when compiling with C++Builder Personality of RAD Studio XE4 (also known as C++Builder XE4) (Codename QUINTESSENCE)
   BCB19        Defined when compiling with C++Builder Personality of RAD Studio XE5 (also known as C++Builder XE5) (Codename ZEPHYR)
   BCB20        Defined when compiling with C++Builder Personality of RAD Studio XE6 (also known as C++Builder XE6) (Codename PROTEUS)
-  BCB21        Defined when compiling with C++Builder Personality of RAD Studio XE7 (also known as C++Builder XE7) (Codename ???)
+  BCB21        Defined when compiling with C++Builder Personality of RAD Studio XE7 (also known as C++Builder XE7) (Codename CARPATHIA)
+  BCB22        Defined when compiling with C++Builder Personality of RAD Studio XE8 (also known as C++Builder XE8) (Codename ELBRUS)
+  BCB23        Defined when compiling with C++Builder Personality of RAD Studio 10 Seattle (also known as C++Builder 10 Seattle) (Codename AITANA)
   BCB1_UP      Defined when compiling with C++Builder 1 or higher
   BCB3_UP      Defined when compiling with C++Builder 3 or higher
   BCB4_UP      Defined when compiling with C++Builder 4 or higher
@@ -328,7 +334,7 @@
   BDS14        Defined when compiling with BDS 14.0 (Embarcadero RAD Studio XE6) (Codename PROTEUS)
   BDS15        Defined when compiling with BDS 15.0 (Embarcadero RAD Studio XE7) (Codename CARPATHIA)
   BDS16        Defined when compiling with BDS 16.0 (Embarcadero RAD Studio XE8) (Codename ELBRUS)
-  BDS17        Defined when compiling with BDS 17.0 (Embarcadero RAD Studio 10) (Codename SEATTLE)
+  BDS17        Defined when compiling with BDS 17.0 (Embarcadero RAD Studio 10) (Codename AITANA)
   BDS2_UP      Defined when compiling with BDS 2.0 or higher
   BDS3_UP      Defined when compiling with BDS 3.0 or higher
   BDS4_UP      Defined when compiling with BDS 4.0 or higher
@@ -482,7 +488,7 @@
   SUPPORTS_NODEFINE              Compiler supports the $NODEFINE directive (D4+/BCB3+)
   SUPPORTS_LONGWORD              Compiler supports the LongWord type (unsigned 32 bit) (D4+/BCB4+)
   SUPPORTS_INT64                 Compiler supports the Int64 type (D4+/BCB4+)
-  SUPPORTS_UINT64                Compiler supports the UInt64 type (D XE+ ?)
+  SUPPORTS_UINT64                Compiler supports the UInt64 type (D7+)
   SUPPORTS_DYNAMICARRAYS         Compiler supports dynamic arrays (D4+/BCB4+)
   SUPPORTS_DEFAULTPARAMS         Compiler supports default parameters (D4+/BCB4+)
   SUPPORTS_OVERLOAD              Compiler supports overloading (D4+/BCB4+)
@@ -959,7 +965,7 @@
       {$ENDIF BCB}
       {$DEFINE RTL300_UP}
       {$UNDEF UNKNOWN_COMPILER_VERSION}
-    {$ENDIF VER290}
+    {$ENDIF VER300}
 
     {$IFDEF UNKNOWN_COMPILER_VERSION} // adjust for newer version (always use latest version)
       {$DEFINE BDS}
@@ -1517,6 +1523,7 @@
 
 {$IFDEF COMPILER7_UP}
   {$DEFINE SUPPORTS_UNSAFE_WARNINGS}
+  {$DEFINE SUPPORTS_UINT64}
 {$ENDIF COMPILER7_UP}
 
 {$IFDEF COMPILER9_UP}
@@ -1615,7 +1622,6 @@
 {$ENDIF RTL210_UP} 
 
 {$IFDEF RTL220_UP}
-  {$DEFINE SUPPORTS_UINT64}
   {$DEFINE HAS_UNIT_REGULAREXPRESSIONSAPI}
   {$DEFINE HAS_ENOTIMPLEMENTED}
 {$ENDIF RTL220_UP}

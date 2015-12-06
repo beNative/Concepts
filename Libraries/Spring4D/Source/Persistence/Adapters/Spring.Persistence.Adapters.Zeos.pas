@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,6 +29,7 @@ unit Spring.Persistence.Adapters.Zeos;
 interface
 
 uses
+  SysUtils,
   ZAbstractConnection,
   ZAbstractDataset,
   ZDataset,
@@ -44,21 +45,7 @@ type
   /// <summary>
   ///   Represents Zeos resultset.
   /// </summary>
-  TZeosResultSetAdapter = class(TDriverResultSetAdapter<TZAbstractDataset>)
-  private
-    fFieldCache: IFieldCache;
-  public
-    constructor Create(const dataSet: TZAbstractDataset); override;
-    destructor Destroy; override;
-
-    function IsEmpty: Boolean; override;
-    function Next: Boolean; override;
-    function FieldExists(const fieldName: string): Boolean; override;
-    function GetFieldValue(index: Integer): Variant; overload; override;
-    function GetFieldValue(const fieldname: string): Variant; overload; override;
-    function GetFieldCount: Integer; override;
-    function GetFieldName(index: Integer): string; override;
-  end;
+  TZeosResultSetAdapter = class(TDriverResultSetAdapter<TZAbstractDataset>);
 
   /// <summary>
   ///   Represents Zeos statement.
@@ -78,8 +65,11 @@ type
   ///   Represents Zeos connection.
   /// </summary>
   TZeosConnectionAdapter = class(TDriverConnectionAdapter<TZAbstractConnection>)
+  protected
+    constructor Create(const connection: TZAbstractConnection;
+      const exceptionHandler: IORMExceptionHandler); override;
   public
-    constructor Create(const AConnection: TZAbstractConnection); override;
+    constructor Create(const connection: TZAbstractConnection); override;
 
     procedure Connect; override;
     procedure Disconnect; override;
@@ -99,69 +89,19 @@ type
     procedure Rollback; override;
   end;
 
+  TZeosExceptionHandler = class(TORMExceptionHandler)
+  protected
+    function GetAdapterException(const exc: Exception;
+      const defaultMsg: string): Exception; override;
+  end;
+
 implementation
 
 uses
   DB,
   StrUtils,
-  SysUtils,
-  Spring.Persistence.Adapters.FieldCache,
   Spring.Persistence.Core.ConnectionFactory,
   Spring.Persistence.Core.Consts;
-
-
-{$REGION 'TZeosResultSetAdapter'}
-
-constructor TZeosResultSetAdapter.Create(const dataSet: TZAbstractDataset);
-begin
-  inherited Create(DataSet);
-  Dataset.DisableControls;
-  fFieldCache := TFieldCache.Create(dataSet);
-end;
-
-destructor TZeosResultSetAdapter.Destroy;
-begin
-  DataSet.Free;
-  inherited;
-end;
-
-function TZeosResultSetAdapter.FieldExists(const fieldName: string): Boolean;
-begin
-  Result := fFieldCache.FieldExists(fieldName);
-end;
-
-function TZeosResultSetAdapter.GetFieldCount: Integer;
-begin
-  Result := DataSet.FieldCount;
-end;
-
-function TZeosResultSetAdapter.GetFieldName(index: Integer): string;
-begin
-  Result := DataSet.Fields[index].FieldName;
-end;
-
-function TZeosResultSetAdapter.GetFieldValue(index: Integer): Variant;
-begin
-  Result := DataSet.Fields[index].Value;
-end;
-
-function TZeosResultSetAdapter.GetFieldValue(const fieldname: string): Variant;
-begin
-  Result := fFieldCache.GetFieldValue(fieldname);
-end;
-
-function TZeosResultSetAdapter.IsEmpty: Boolean;
-begin
-  Result := DataSet.Eof;
-end;
-
-function TZeosResultSetAdapter.Next: Boolean;
-begin
-  DataSet.Next;
-  Result := not DataSet.Eof;
-end;
-
-{$ENDREGION}
 
 
 {$REGION 'TZeosStatementAdapter' }
@@ -175,8 +115,12 @@ end;
 function TZeosStatementAdapter.Execute: NativeUInt;
 begin
   inherited;
-  Statement.ExecSQL;
-  Result := Statement.RowsAffected;
+  try
+    Statement.ExecSQL;
+    Result := Statement.RowsAffected;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TZeosStatementAdapter.ExecuteQuery(
@@ -192,12 +136,12 @@ begin
   query.DisableControls;
   try
     query.Open;
-    Result := TZeosResultSetAdapter.Create(query);
+    Result := TZeosResultSetAdapter.Create(query, ExceptionHandler);
   except
     on E: Exception do
     begin
-      Result := TZeosResultSetAdapter.Create(query);
-      raise EZeosAdapterException.CreateFmt(EXCEPTION_CANNOT_OPEN_QUERY, [E.Message]);
+      query.Free;
+      raise HandleException(Format(EXCEPTION_CANNOT_OPEN_QUERY, [E.Message]));
     end;
   end;
 end;
@@ -232,13 +176,15 @@ end;
 function TZeosConnectionAdapter.BeginTransaction: IDBTransaction;
 begin
   if Assigned(Connection) then
-  begin
+  try
     Connection.Connected := True;
 
     if not Connection.InTransaction then
       Connection.StartTransaction;
 
-    Result := TZeosTransactionAdapter.Create(Connection);
+    Result := TZeosTransactionAdapter.Create(Connection, ExceptionHandler);
+  except
+    raise HandleException;
   end
   else
     Result := nil;
@@ -247,13 +193,24 @@ end;
 procedure TZeosConnectionAdapter.Connect;
 begin
   if Assigned(Connection) then
+  try
     Connection.Connected := True;
+  except
+    raise HandleException;
+  end;
 end;
 
 constructor TZeosConnectionAdapter.Create(
-  const AConnection: TZAbstractConnection);
+  const connection: TZAbstractConnection);
 begin
-  inherited Create(AConnection);
+  Create(connection, TZeosExceptionHandler.Create);
+end;
+
+constructor TZeosConnectionAdapter.Create(
+  const connection: TZAbstractConnection;
+  const exceptionHandler: IORMExceptionHandler);
+begin
+  inherited Create(connection, exceptionHandler);
   Connection.LoginPrompt := False;
 end;
 
@@ -267,7 +224,7 @@ begin
     statement := TZQuery.Create(nil);
     statement.Connection := Connection;
 
-    adapter := TZeosStatementAdapter.Create(statement);
+    adapter := TZeosStatementAdapter.Create(statement, ExceptionHandler);
     adapter.ExecutionListeners := ExecutionListeners;
     Result := adapter;
   end
@@ -278,7 +235,11 @@ end;
 procedure TZeosConnectionAdapter.Disconnect;
 begin
   if Assigned(Connection) then
+  try
     Connection.Connected := False;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TZeosConnectionAdapter.IsConnected: Boolean;
@@ -294,7 +255,11 @@ end;
 procedure TZeosTransactionAdapter.Commit;
 begin
   if Assigned(Transaction) then
+  try
     Transaction.Commit;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TZeosTransactionAdapter.InTransaction: Boolean;
@@ -305,7 +270,25 @@ end;
 procedure TZeosTransactionAdapter.Rollback;
 begin
   if Assigned(Transaction) then
+  try
     Transaction.Rollback;
+  except
+    raise HandleException;
+  end;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TZeosExceptionHandler'}
+
+function TZeosExceptionHandler.GetAdapterException(const exc: Exception;
+  const defaultMsg: string): Exception;
+begin
+  if exc is EDatabaseError then
+    Result := EZeosAdapterException.Create(defaultMsg)
+  else
+    Result := nil;
 end;
 
 {$ENDREGION}

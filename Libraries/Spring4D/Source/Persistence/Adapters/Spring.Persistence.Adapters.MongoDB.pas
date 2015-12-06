@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -33,6 +33,7 @@ unit Spring.Persistence.Adapters.MongoDB;
 interface
 
 uses
+  SysUtils,
   MongoDB,
   MongoBson,
   Spring.Collections,
@@ -81,20 +82,23 @@ type
   /// <summary>
   ///   Represents MongoDB resultset.
   /// </summary>
-  TMongoResultSetAdapter = class(TDriverResultSetAdapter<TMongoDBQuery>)
+  TMongoResultSetAdapter = class(TDriverAdapterBase, IDBResultSet)
   private
+    fDataSet: TMongoDBQuery;
     fDoc: IBSONDocument;
     fIsInjected: Boolean;
   public
+    constructor Create(const dataSet: TMongoDBQuery;
+      const exceptionHandler: IORMExceptionHandler);
     destructor Destroy; override;
 
-    function IsEmpty: Boolean; override;
-    function Next: Boolean; override;
-    function GetFieldValue(index: Integer): Variant; overload; override;
-    function GetFieldValue(const fieldName: string): Variant; overload; override;
-    function GetFieldCount: Integer; override;
-    function GetFieldName(index: Integer): string; override;
-    function FieldExists(const fieldName: string): Boolean; override;
+    function IsEmpty: Boolean;
+    function Next: Boolean;
+    function GetFieldValue(index: Integer): Variant; overload;
+    function GetFieldValue(const fieldName: string): Variant; overload;
+    function GetFieldCount: Integer;
+    function GetFieldName(index: Integer): string;
+    function FieldExists(const fieldName: string): Boolean;
 
     property Document: IBSONDocument read fDoc write fDoc;
     property IsInjected: Boolean read fIsInjected write fIsInjected;
@@ -114,12 +118,13 @@ type
     function IsObjectId(const value: string): Boolean; virtual;
     function GetJsonPartFromStatementText(const tagName: string): string; virtual;
   public
-    constructor Create(const statement: TMongoDBQuery); override;
+    constructor Create(const statement: TMongoDBQuery;
+      const exceptionHandler: IORMExceptionHandler); override;
     destructor Destroy; override;
     procedure SetSQLCommand(const commandText: string); override;
     procedure SetQuery(const metadata: TQueryMetadata; const query: Variant); override;
     procedure SetParam(const param: TDBParam);
-    procedure SetParams(const params: IEnumerable<TDBParam>); overload; override;
+    procedure SetParams(const params: IEnumerable<TDBParam>); override;
     function Execute: NativeUInt; override;
     function ExecuteQuery(serverSideCursor: Boolean = True): IDBResultSet; override;
     function GetQueryText: string;
@@ -131,6 +136,7 @@ type
   /// </summary>
   TMongoConnectionAdapter = class(TDriverConnectionAdapter<TMongoDBConnection>, IDBConnection)
   public
+    constructor Create(const connection: TMongoDBConnection); override;
     procedure AfterConstruction; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -155,11 +161,16 @@ type
     procedure Rollback;
   end;
 
+  TMongoDBExceptionHandler = class(TORMExceptionHandler)
+  protected
+    function GetAdapterException(const exc: Exception;
+      const defaultMsg: string): Exception; override;
+  end;
+
 implementation
 
 uses
   StrUtils,
-  SysUtils,
   Variants,
   Spring.Persistence.Core.ConnectionFactory,
   Spring.Persistence.SQL.Commands,
@@ -221,9 +232,16 @@ end;
 
 {$REGION 'TMongoResultSetAdapter'}
 
+constructor TMongoResultSetAdapter.Create(const dataSet: TMongoDBQuery;
+  const exceptionHandler: IORMExceptionHandler);
+begin
+  inherited Create(exceptionHandler);
+  fDataSet := dataSet;
+end;
+
 destructor TMongoResultSetAdapter.Destroy;
 begin
-  DataSet.Free;
+  fDataSet.Free;
   inherited Destroy;
 end;
 
@@ -287,9 +305,9 @@ end;
 
 function TMongoResultSetAdapter.IsEmpty: Boolean;
 begin
-  Result := not IsInjected and not DataSet.next;
+  Result := not IsInjected and not fDataSet.next;
   if not Result and not IsInjected then
-    fDoc := DataSet.value;
+    fDoc := fDataSet.value;
 end;
 
 function TMongoResultSetAdapter.Next: Boolean;
@@ -302,9 +320,10 @@ end;
 
 {$REGION 'TMongoStatementAdapter'}
 
-constructor TMongoStatementAdapter.Create(const statement: TMongoDBQuery);
+constructor TMongoStatementAdapter.Create(const statement: TMongoDBQuery;
+  const exceptionHandler: IORMExceptionHandler);
 begin
-  inherited Create(statement);
+  inherited Create(statement, ExceptionHandler);
   fStatementText := '';
   fStatementType := mstSelect;
 end;
@@ -384,7 +403,7 @@ begin
     dbQuery.sort := JsonToBson(GetJsonPartFromStatementText(MONGO_STATEMENT_TYPES[mstSelectOrder]));
   end;
 
-  resultSet := TMongoResultSetAdapter.Create(dbQuery);
+  resultSet := TMongoResultSetAdapter.Create(dbQuery, ExceptionHandler);
   resultSet.Document := JsonToBson(fStatementText);
   case fStatementType of
     mstInsert:
@@ -559,6 +578,12 @@ begin
     Connection.Connected := True;
 end;
 
+constructor TMongoConnectionAdapter.Create(
+  const connection: TMongoDBConnection);
+begin
+  Create(connection, TMongoDBExceptionHandler.Create);
+end;
+
 function TMongoConnectionAdapter.CreateStatement: IDBStatement;
 var
   statement: TMongoDBQuery;
@@ -567,7 +592,7 @@ begin
   if Assigned(Connection) then
   begin
     statement := TMongoDBQuery.Create(Connection);
-    adapter := TMongoStatementAdapter.Create(statement);
+    adapter := TMongoStatementAdapter.Create(statement, ExceptionHandler);
     adapter.ExecutionListeners := ExecutionListeners;
     Result := adapter;
   end
@@ -612,6 +637,17 @@ end;
 
 procedure TMongoTransactionAdapter.SetTransactionName(const value: string);
 begin
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TMongoDBExceptionHandler'}
+
+function TMongoDBExceptionHandler.GetAdapterException(const exc: Exception;
+  const defaultMsg: string): Exception;
+begin
+  Result := nil;
 end;
 
 {$ENDREGION}

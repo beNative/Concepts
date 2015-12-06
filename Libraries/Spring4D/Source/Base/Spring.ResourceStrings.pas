@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -48,6 +48,7 @@ resourcestring
   SUnexpectedTypeKindArgument  = 'Unexpected type kind %s for the argument %s.';
   SInvalidOperationBufferSizeShouldBeSame = 'Buffer size should be the same.';
   SInvalidArgumentFormat = 'Invalid format for argument "%s".';
+  SInvalidTypeCast             = 'Invalid cast: %s to %s.';
 
   SCannotAccessRegistryKey     = 'Cannot access the registry key: %s.';
 
@@ -55,8 +56,7 @@ resourcestring
 
   SFileNotFoundException          = 'File not found: %s';
   SDirectoryNotFoundException     = 'Directory not found: %s';
-  SNullableTypeHasNoValue         = 'Nullable type has no value.';
-  SCannotAssignPointerToNullable  = 'Cannot assigned non-null pointer to nullable type.';
+  SNullableHasNoValue             = 'Nullable must have a value.';
   STypeNotRegistered              = '%s was not registered.';
   SServiceNotExists               = 'The service "%s" does not exist.';
   STimeoutException               = 'Timeout';

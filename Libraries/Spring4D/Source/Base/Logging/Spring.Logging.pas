@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -210,6 +210,7 @@ type
 
   {$REGION 'ILoggerBase'}
   ILoggerBase = interface
+    ['{2CACEE4B-631D-4B31-970C-7B82F49311B4}']
     function GetLevels: TLogLevels;
     function GetEntryTypes: TLogEntryTypes;
     function GetEnabled: Boolean;

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -67,6 +67,7 @@ type
 
       TValueCollection = class(TContainedReadOnlyCollection<TValue>)
       private
+        {$IFDEF WEAKREF}[Weak]{$ENDIF}
         fOwner: TMultiMapBase<TKey, TValue>;
       protected
       {$REGION 'Property Accessors'}
@@ -226,10 +227,10 @@ end;
 procedure TMultiMapBase<TKey, TValue>.AddRange(const key: TKey;
   const values: array of TValue);
 var
-  item: TValue;
+  i: Integer;
 begin
-  for item in values do
-    Add(key, item);
+  for i := Low(values) to High(values) do
+    Add(key, values[i]);
 end;
 
 procedure TMultiMapBase<TKey, TValue>.AddRange(const key: TKey;

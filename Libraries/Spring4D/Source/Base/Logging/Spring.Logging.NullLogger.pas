@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -154,83 +154,83 @@ begin
 end;
 
 procedure TNullLogger.Log(const entry: TLogEntry);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Log(level: TLogLevel; const msg: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Log(level: TLogLevel; const fmt: string;
   const args: array of const);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Log(level: TLogLevel; const msg: string;
   const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Debug(const fmt: string; const args: array of const);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Debug(const fmt: string; const args: array of const;
   const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Debug(const msg: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Debug(const msg: string; const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Error(const fmt: string; const args: array of const);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Enter(level: TLogLevel; const classType: TClass;
   const methodName: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Enter(const methodName: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Enter(const classType: TClass;
   const methodName: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Enter(const instance: TObject;
   const methodName: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Error(const fmt: string; const args: array of const;
   const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Error(const msg: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Error(const msg: string; const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Fatal(const fmt: string; const args: array of const);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Fatal(const fmt: string; const args: array of const;
   const e: Exception);
-begin
+begin //FI:W519
 end;
 
 function TNullLogger.GetEnabled: Boolean;
@@ -249,24 +249,24 @@ begin
 end;
 
 procedure TNullLogger.Fatal(const msg: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Fatal(const msg: string; const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Info(const msg: string; const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Info(const msg: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Info(const fmt: string; const args: array of const;
   const e: Exception);
-begin
+begin //FI:W519
 end;
 
 function TNullLogger.IsDebugEnabled: Boolean;
@@ -310,66 +310,66 @@ begin
 end;
 
 procedure TNullLogger.Info(const fmt: string; const args: array of const);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Leave(level: TLogLevel; const classType: TClass;
   const methodName: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Leave(const methodName: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Log(const msg: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Log(const msg: string; const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Log(const fmt: string; const args: array of const);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Log(const fmt: string; const args: array of const;
   const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Leave(const instance: TObject;
   const methodName: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Leave(const classType: TClass;
   const methodName: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Log(level: TLogLevel; const fmt: string;
   const args: array of const; const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.LogValue(level: TLogLevel; const name: string;
   const value: TValue);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.LogValue(const name: string; const value: TValue);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Text(const fmt: string; const args: array of const);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Text(const fmt: string; const args: array of const;
   const e: Exception);
-begin
+begin //FI:W519
 end;
 
 function TNullLogger.Track(const instance: TObject;
@@ -391,45 +391,45 @@ begin
 end;
 
 procedure TNullLogger.Text(const msg: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Text(const msg: string; const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Trace(const fmt: string; const args: array of const);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Trace(const fmt: string; const args: array of const;
   const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Trace(const msg: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Trace(const msg: string; const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Warn(const fmt: string; const args: array of const);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Warn(const fmt: string; const args: array of const;
   const e: Exception);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Warn(const msg: string);
-begin
+begin //FI:W519
 end;
 
 procedure TNullLogger.Warn(const msg: string; const e: Exception);
-begin
+begin //FI:W519
 end;
 
 {$ENDREGION}

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -123,9 +123,24 @@ type
       const argument: TValue): TValue; override;
   end;
 
+  TComponentOwnerResolver = class(TSubDependencyResolverBase)
+  private
+    fVirtualIndex: SmallInt;
+  public
+    constructor Create(const kernel: IKernel);
+
+    function CanResolve(const context: ICreationContext;
+      const dependency: TDependencyModel;
+      const argument: TValue): Boolean; override;
+    function Resolve(const context: ICreationContext;
+      const dependency: TDependencyModel;
+      const argument: TValue): TValue; override;
+  end;
+
 implementation
 
 uses
+  Classes,
   StrUtils,
   SysUtils,
   TypInfo,
@@ -192,7 +207,7 @@ begin
   if dependency.TypeInfo.Kind = tkInterface then
   begin
     if instance.IsObject then
-      instance.AsObject.GetInterface(GetTypeData(dependency.TypeInfo).Guid, intf)
+      instance.AsObject.GetInterface(dependency.TypeInfo.TypeData.Guid, intf)
     else
     begin
       if TType.IsDelegate(dependency.TypeInfo) then
@@ -201,7 +216,7 @@ begin
         IInterface(intf) := instance.AsInterface;
       end
       else
-        instance.AsInterface.QueryInterface(GetTypeData(dependency.TypeInfo).Guid, intf);
+        instance.AsInterface.QueryInterface(dependency.TypeInfo.TypeData.Guid, intf);
     end;
     TValue.MakeWithoutCopy(@intf, dependency.TypeInfo, Result);
     Result := Kernel.ProxyFactory.CreateInstance(context, Result, model, []);
@@ -556,6 +571,42 @@ begin
     raise EResolveException.CreateResFmt(@SCannotResolveType, [dependency.Name]);
   end;
   Result := Result.Cast(dependency.TypeInfo);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TComponentOwnerResolver'}
+
+constructor TComponentOwnerResolver.Create(const kernel: IKernel);
+begin
+  inherited Create(kernel);
+  fVirtualIndex := TType.GetType(TComponent).Constructors.First.VirtualIndex;
+end;
+
+function TComponentOwnerResolver.CanResolve(const context: ICreationContext;
+  const dependency: TDependencyModel; const argument: TValue): Boolean;
+var
+  method: TRttiMethod;
+begin
+  if dependency.TypeInfo <> TypeInfo(TComponent) then
+    Exit(False);
+  if Kernel.Registry.HasService(dependency.TypeInfo) then
+    Exit(False);
+  if not argument.IsEmpty then
+    Exit(False);
+  if not (dependency.Target is TRttiParameter) then
+    Exit(False);
+
+  method := TRttiMethod(dependency.Target.Parent);
+  Result := (method.VirtualIndex = fVirtualIndex)
+    and (method.Parent.AsInstance.MetaclassType.InheritsFrom(TComponent));
+end;
+
+function TComponentOwnerResolver.Resolve(const context: ICreationContext;
+  const dependency: TDependencyModel; const argument: TValue): TValue;
+begin
+  TValue.Make(nil, TComponent.ClassInfo, Result);
 end;
 
 {$ENDREGION}

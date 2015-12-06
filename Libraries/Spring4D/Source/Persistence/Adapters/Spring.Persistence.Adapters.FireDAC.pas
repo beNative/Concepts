@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -36,6 +36,7 @@ uses
   FireDAC.Stan.Def,
   FireDAC.Stan.Option,
   FireDAC.Stan.Param,
+  FireDAC.Stan.Error,
   SysUtils,
   Spring.Collections,
   Spring.Persistence.Core.Base,
@@ -48,33 +49,22 @@ uses
 type
   EFireDACAdapterException = class(EORMAdapterException);
 
-  TFireDACResultSetAdapter = class(TDriverResultSetAdapter<TFDQuery>)
-  private
-    fFieldCache: IFieldCache;
-  public
-    constructor Create(const dataSet: TFDQuery); override;
-    destructor Destroy; override;
-
-    function IsEmpty: Boolean; override;
-    function Next: Boolean; override;
-    function FieldExists(const fieldName: string): Boolean; override;
-    function GetFieldValue(index: Integer): Variant; overload; override;
-    function GetFieldValue(const fieldName: string): Variant; overload; override;
-    function GetFieldCount: Integer; override;
-    function GetFieldName(index: Integer): string; override;
-  end;
+  TFireDACResultSetAdapter = class(TDriverResultSetAdapter<TFDQuery>);
 
   TFireDACStatementAdapter = class(TDriverStatementAdapter<TFDQuery>)
   public
     destructor Destroy; override;
     procedure SetSQLCommand(const commandText: string); override;
     procedure SetParam(const param: TDBParam); virtual;
-    procedure SetParams(const params: IEnumerable<TDBParam>); overload; override;
+    procedure SetParams(const params: IEnumerable<TDBParam>); override;
     function Execute: NativeUInt; override;
     function ExecuteQuery(serverSideCursor: Boolean = True): IDBResultSet; override;
   end;
 
   TFireDACConnectionAdapter = class(TDriverConnectionAdapter<TFDConnection>)
+  protected
+    constructor Create(const connection: TFDConnection;
+      const exceptionHandler: IORMExceptionHandler); override;
   public
     constructor Create(const connection: TFDConnection); override;
 
@@ -92,10 +82,17 @@ type
     function InTransaction: Boolean; override;
   public
     constructor Create(const transaction: TFDTransaction;
+      const exceptionHandler: IORMExceptionHandler;
       ownsObject: Boolean = False); reintroduce;
-    destructor Destroy; overload; override;
+    destructor Destroy; override;
     procedure Commit; override;
     procedure Rollback; override;
+  end;
+
+  TFireDACExceptionHandler = class(TORMExceptionHandler)
+  protected
+    function GetAdapterException(const exc: Exception;
+      const defaultMsg: string): Exception; override;
   end;
 
 implementation
@@ -103,69 +100,8 @@ implementation
 uses
   StrUtils,
   Variants,
-  Spring.Persistence.Adapters.FieldCache,
   Spring.Persistence.Core.ConnectionFactory,
   Spring.Persistence.Core.Consts;
-
-
-{$REGION 'TFireDACResultSetAdapter'}
-
-constructor TFireDACResultSetAdapter.Create(const dataSet: TFDQuery);
-begin
-  inherited Create(DataSet);
-  dataSet.DisableControls;
-  fFieldCache := TFieldCache.Create(dataSet);
-end;
-
-destructor TFireDACResultSetAdapter.Destroy;
-begin
-{$IFNDEF AUTOREFCOUNT}
-  DataSet.Free;
-{$ELSE}
-  Dataset.DisposeOf;
-{$ENDIF}
-  inherited Destroy;
-end;
-
-function TFireDACResultSetAdapter.FieldExists(
-  const fieldName: string): Boolean;
-begin
-  Result := fFieldCache.FieldExists(fieldName);
-end;
-
-function TFireDACResultSetAdapter.GetFieldCount: Integer;
-begin
-  Result := DataSet.FieldCount;
-end;
-
-function TFireDACResultSetAdapter.GetFieldName(index: Integer): string;
-begin
-  Result := DataSet.Fields[index].FieldName;
-end;
-
-function TFireDACResultSetAdapter.GetFieldValue(index: Integer): Variant;
-begin
-  Result := DataSet.Fields[index].Value;
-end;
-
-function TFireDACResultSetAdapter.GetFieldValue(
-  const fieldName: string): Variant;
-begin
-  Result := fFieldCache.GetFieldValue(fieldName);
-end;
-
-function TFireDACResultSetAdapter.IsEmpty: Boolean;
-begin
-  Result := DataSet.Eof;
-end;
-
-function TFireDACResultSetAdapter.Next: Boolean;
-begin
-  DataSet.Next;
-  Result := not DataSet.Eof;
-end;
-
-{$ENDREGION}
 
 
 {$REGION 'TFireDACStatementAdapter'}
@@ -183,8 +119,12 @@ end;
 function TFireDACStatementAdapter.Execute: NativeUInt;
 begin
   inherited;
-  Statement.ExecSQL;
-  Result := Statement.RowsAffected;
+  try
+    Statement.ExecSQL;
+    Result := Statement.RowsAffected;
+  except
+    raise HandleException;
+  end
 end;
 
 function TFireDACStatementAdapter.ExecuteQuery(
@@ -202,13 +142,12 @@ begin
     query.FetchOptions.CursorKind := ckForwardOnly;
   try
     query.OpenOrExecute;
-    Result := TFireDACResultSetAdapter.Create(query);
+    Result := TFireDACResultSetAdapter.Create(query, ExceptionHandler);
   except
     on E:Exception do
     begin
-      //make sure that resultset is always created to avoid memory leak
-      Result := TFireDACResultSetAdapter.Create(query);
-      raise EFireDACAdapterException.CreateFmt(EXCEPTION_CANNOT_OPEN_QUERY, [E.Message]);
+      query.Free;
+      raise HandleException(Format(EXCEPTION_CANNOT_OPEN_QUERY, [E.Message]));
     end;
   end;
 end;
@@ -243,7 +182,13 @@ end;
 
 constructor TFireDACConnectionAdapter.Create(const connection: TFDConnection);
 begin
-  inherited Create(connection);
+  Create(connection, TFireDACExceptionHandler.Create);
+end;
+
+constructor TFireDACConnectionAdapter.Create(const connection: TFDConnection;
+  const exceptionHandler: IORMExceptionHandler);
+begin
+  inherited Create(connection, exceptionHandler);
   Connection.LoginPrompt := False;
 end;
 
@@ -252,17 +197,20 @@ var
   transaction: TFDTransaction;
 begin
   if Assigned(Connection) then
-  begin
+  try
     Connection.Connected := True;
     if not Connection.InTransaction or Connection.TxOptions.EnableNested then
     begin
       transaction := TFDTransaction.Create(nil);
       transaction.Connection := Connection;
       transaction.StartTransaction;
-      Result := TFireDACTransactionAdapter.Create(transaction, True);
+      Result := TFireDACTransactionAdapter.Create(transaction, ExceptionHandler,
+        True);
     end
     else
       raise EFireDACAdapterException.Create('Transaction already started, and EnableNested transaction is false');
+  except
+    raise HandleException;
   end
   else
     Result := nil;
@@ -271,7 +219,11 @@ end;
 procedure TFireDACConnectionAdapter.Connect;
 begin
   if Assigned(Connection) then
+  try
     Connection.Connected := True;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TFireDACConnectionAdapter.CreateStatement: IDBStatement;
@@ -284,7 +236,7 @@ begin
     statement := TFDQuery.Create(nil);
     statement.Connection := Connection;
 
-    adapter := TFireDACStatementAdapter.Create(statement);
+    adapter := TFireDACStatementAdapter.Create(statement, ExceptionHandler);
     adapter.ExecutionListeners := ExecutionListeners;
     adapter.AllowServerSideCursor := AllowServerSideCursor;
     Result := adapter;
@@ -296,7 +248,11 @@ end;
 procedure TFireDACConnectionAdapter.Disconnect;
 begin
   if Assigned(Connection) then
+  try
     Connection.Connected := False;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TFireDACConnectionAdapter.IsConnected: Boolean;
@@ -310,23 +266,30 @@ end;
 {$REGION 'TFireDACTransactionAdapter'}
 
 constructor TFireDACTransactionAdapter.Create(const transaction: TFDTransaction;
-  ownsObject: Boolean);
+  const exceptionHandler: IORMExceptionHandler; ownsObject: Boolean);
 begin
-  inherited Create(transaction);
+  inherited Create(transaction, exceptionHandler);
   fOwnsObject := ownsObject
 end;
 
 destructor TFireDACTransactionAdapter.Destroy;
 begin
-  inherited Destroy;
-  if fOwnsObject then
-    fTransaction.Free;
+  try
+    inherited Destroy;
+  finally
+    if fOwnsObject then
+      fTransaction.Free;
+  end;
 end;
 
 procedure TFireDACTransactionAdapter.Commit;
 begin
   if Assigned(Transaction) then
+  try
     Transaction.Commit;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TFireDACTransactionAdapter.InTransaction: Boolean;
@@ -337,7 +300,36 @@ end;
 procedure TFireDACTransactionAdapter.Rollback;
 begin
   if Assigned(Transaction) then
+  try
     Transaction.Rollback;
+  except
+    raise HandleException;
+  end;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TFireDACExceptionHandler'}
+
+function TFireDACExceptionHandler.GetAdapterException(const exc: Exception;
+  const defaultMsg: string): Exception;
+begin
+  if exc is EFDDBEngineException then
+    with EFDDBEngineException(exc) do
+  begin
+    case Kind of
+      ekUKViolated,
+      ekFKViolated :
+        Result := EORMConstraintException.Create(defaultMsg, ErrorCode);
+      else
+        Result := EFireDACAdapterException.Create(defaultMsg, ErrorCode);
+    end;
+  end
+  else if exc is EDatabaseError then
+    Result := EFireDACAdapterException.Create(defaultMsg)
+  else
+    Result := nil;
 end;
 
 {$ENDREGION}

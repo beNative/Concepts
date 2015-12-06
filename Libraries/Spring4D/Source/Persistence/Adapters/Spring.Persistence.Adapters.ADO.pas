@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -31,6 +31,8 @@ interface
 {$IFDEF MSWINDOWS}
 uses
   ADODB,
+  ComObj,
+  SysUtils,
   Spring.Collections,
   Spring.Persistence.Core.Base,
   Spring.Persistence.Core.Exceptions,
@@ -45,32 +47,17 @@ type
   /// <summary>
   ///   Represent ADO resultset.
   /// </summary>
-  TADOResultSetAdapter = class(TDriverResultSetAdapter<TADODataSet>)
-  private
-    fFieldCache: IFieldCache;
-  public
-    constructor Create(const dataSet: TADODataSet); override;
-    destructor Destroy; override;
-
-    function IsEmpty: Boolean; override;
-    function Next: Boolean; override;
-    function FieldExists(const fieldName: string): Boolean; override;
-    function GetFieldValue(index: Integer): Variant; overload; override;
-    function GetFieldValue(const fieldName: string): Variant; overload; override;
-    function GetFieldCount: Integer; override;
-    function GetFieldName(index: Integer): string; override;
-  end;
+  TADOResultSetAdapter = class(TDriverResultSetAdapter<TADODataSet>);
 
   /// <summary>
   ///   Represent ADO statement.
   /// </summary>
   TADOStatementAdapter = class(TDriverStatementAdapter<TADOQuery>)
   public
-    constructor Create(const statement: TADOQuery); override;
     destructor Destroy; override;
     procedure SetSQLCommand(const commandText: string); override;
     procedure SetParam(const param: TDBParam); virtual;
-    procedure SetParams(const params: IEnumerable<TDBParam>); overload; override;
+    procedure SetParams(const params: IEnumerable<TDBParam>); override;
     function Execute: NativeUInt; override;
     function ExecuteQuery(serverSideCursor: Boolean = True): IDBResultSet; override;
   end;
@@ -79,6 +66,9 @@ type
   ///   Represent ADO connection.
   /// </summary>
   TADOConnectionAdapter = class(TDriverConnectionAdapter<TADOConnection>)
+  protected
+    constructor Create(const connection: TADOConnection;
+      const exceptionHandler: IORMExceptionHandler); override;
   public
     constructor Create(const connection: TADOConnection); override;
 
@@ -107,6 +97,15 @@ type
   public
     function GenerateGetLastInsertId(const identityColumn: ColumnAttribute): string; override;
   end;
+
+  TADOExceptionHandler = class(TORMExceptionHandler)
+  protected
+    function GetAdapterException(const exc: Exception;
+      const defaultMsg: string): Exception; override;
+    function GetDriverException(const exc: EOleSysError;
+      const defaultMsg: string): Exception; virtual;
+  end;
+
 {$ENDIF}
 
 implementation
@@ -114,76 +113,13 @@ implementation
 {$IFDEF MSWINDOWS}
 uses
   DB,
-  SysUtils,
   Variants,
   Spring,
-  Spring.Persistence.Adapters.FieldCache,
   Spring.Persistence.Core.ConnectionFactory,
   Spring.Persistence.Core.Consts;
 
 
-{$REGION 'TADOResultSetAdapter'}
-
-constructor TADOResultSetAdapter.Create(const dataSet: TADODataSet);
-begin
-  inherited Create(DataSet);
-  DataSet.DisableControls;
-//  DataSet.CursorLocation := clUseServer;
-//  DataSet.CursorType := ctOpenForwardOnly;
-  fFieldCache := TFieldCache.Create(dataSet);
-end;
-
-destructor TADOResultSetAdapter.Destroy;
-begin
-  DataSet.Free;
-  inherited Destroy;
-end;
-
-function TADOResultSetAdapter.FieldExists(const fieldName: string): Boolean;
-begin
-  Result := fFieldCache.FieldExists(fieldName);
-end;
-
-function TADOResultSetAdapter.GetFieldCount: Integer;
-begin
-  Result := DataSet.FieldCount;
-end;
-
-function TADOResultSetAdapter.GetFieldName(index: Integer): string;
-begin
-  Result := DataSet.Fields[index].FieldName;
-end;
-
-function TADOResultSetAdapter.GetFieldValue(index: Integer): Variant;
-begin
-  Result := DataSet.Fields[index].Value;
-end;
-
-function TADOResultSetAdapter.GetFieldValue(const fieldName: string): Variant;
-begin
-  Result := fFieldCache.GetFieldValue(fieldName);
-end;
-
-function TADOResultSetAdapter.IsEmpty: Boolean;
-begin
-  Result := DataSet.Eof;
-end;
-
-function TADOResultSetAdapter.Next: Boolean;
-begin
-  DataSet.Next;
-  Result := not DataSet.Eof;
-end;
-
-{$ENDREGION}
-
-
 {$REGION 'TADOStatementAdapter'}
-
-constructor TADOStatementAdapter.Create(const statement: TADOQuery);
-begin
-  inherited Create(statement);
-end;
 
 destructor TADOStatementAdapter.Destroy;
 begin
@@ -194,32 +130,35 @@ end;
 function TADOStatementAdapter.Execute: NativeUInt;
 begin
   inherited;
-  Result := Statement.ExecSQL;
+  try
+    Result := Statement.ExecSQL;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TADOStatementAdapter.ExecuteQuery(serverSideCursor: Boolean): IDBResultSet;
 var
-  LStmt: TADODataSet;
+  dataSet: TADODataSet;
 begin
   inherited;
-  LStmt := TADODataSet.Create(nil);
+  dataSet := TADODataSet.Create(nil);
 //  if AServerSideCursor then
 //    LStmt.CursorLocation := clUseServer;
-  LStmt.CursorType := ctOpenForwardOnly;
-  LStmt.CacheSize := 50;
-  LStmt.Connection := Statement.Connection;
-  LStmt.CommandText := Statement.SQL.Text;
-  LStmt.Parameters.AssignValues(Statement.Parameters);
-  LStmt.DisableControls;
+  dataSet.CursorType := ctOpenForwardOnly;
+  dataSet.CacheSize := 50;
+  dataSet.Connection := Statement.Connection;
+  dataSet.CommandText := Statement.SQL.Text;
+  dataSet.Parameters.AssignValues(Statement.Parameters);
+  dataSet.DisableControls;
   try
-    LStmt.Open;
-    Result := TADOResultSetAdapter.Create(LStmt);
+    dataSet.Open;
+    Result := TADOResultSetAdapter.Create(dataSet, ExceptionHandler);
   except
     on E: Exception do
     begin
-      //make sure that resultset is always created to avoid memory leak
-      Result := TADOResultSetAdapter.Create(LStmt);
-      raise EADOAdapterException.CreateFmt(EXCEPTION_CANNOT_OPEN_QUERY, [E.Message]);
+      dataSet.Free;
+      raise HandleException(Format(EXCEPTION_CANNOT_OPEN_QUERY, [E.Message]));
     end;
   end;
 end;
@@ -256,11 +195,13 @@ end;
 function TADOConnectionAdapter.BeginTransaction: IDBTransaction;
 begin
   if Assigned(Connection) then
-  begin
+  try
     Connection.Connected := True;
     if not Connection.InTransaction then
       Connection.BeginTrans;
-    Result := TADOTransactionAdapter.Create(Connection);
+    Result := TADOTransactionAdapter.Create(Connection, ExceptionHandler);
+  except
+    raise HandleException;
   end
   else
     Result := nil;
@@ -269,12 +210,22 @@ end;
 procedure TADOConnectionAdapter.Connect;
 begin
   if Assigned(Connection) then
+  try
     Connection.Connected := True;
+  except
+    raise HandleException;
+  end;
 end;
 
 constructor TADOConnectionAdapter.Create(const connection: TADOConnection);
 begin
-  inherited Create(connection);
+  Create(connection, TADOExceptionHandler.Create);
+end;
+
+constructor TADOConnectionAdapter.Create(const connection: TADOConnection;
+  const exceptionHandler: IORMExceptionHandler);
+begin
+  inherited Create(connection, exceptionHandler);
   Connection.LoginPrompt := False;
 end;
 
@@ -288,7 +239,7 @@ begin
     statement := TADOQuery.Create(nil);
     statement.Connection := Connection;
 
-    adapter := TADOStatementAdapter.Create(statement);
+    adapter := TADOStatementAdapter.Create(statement, ExceptionHandler);
     adapter.ExecutionListeners := ExecutionListeners;
     Result := adapter;
   end
@@ -299,13 +250,21 @@ end;
 procedure TADOConnectionAdapter.Disconnect;
 begin
   if Assigned(Connection) then
+  try
     Connection.Connected := False;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TADOConnectionAdapter.IsConnected: Boolean;
 begin
   if Assigned(Connection) then
+  try
     Result := Connection.Connected
+  except
+    raise HandleException;
+  end
   else
     Result := False;
 end;
@@ -318,18 +277,29 @@ end;
 procedure TADOTransactionAdapter.Commit;
 begin
   if Assigned(Transaction) then
+  try
     Transaction.CommitTrans;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TADOTransactionAdapter.InTransaction: Boolean;
 begin
-  Result := Transaction.InTransaction;
+  if Assigned(Transaction) then
+    Result := Transaction.InTransaction
+  else
+    Result := False;
 end;
 
 procedure TADOTransactionAdapter.Rollback;
 begin
   if Assigned(Transaction) then
+  try
     Transaction.RollbackTrans;
+  except
+    raise HandleException;
+  end;
 end;
 
 {$ENDREGION}
@@ -341,6 +311,38 @@ function TADOSQLGenerator.GenerateGetLastInsertId(
   const identityColumn: ColumnAttribute): string;
 begin
   Result := '';
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TADOExceptionHandler'}
+
+function TADOExceptionHandler.GetAdapterException(const exc: Exception;
+  const defaultMsg: string): Exception;
+begin
+  // All ADO calls should be safecalls which means we can solely rely on OLE
+  // exception handling.
+  if exc is EOleSysError then
+  begin
+    // OLE specific exception
+    Result := GetDriverException(EOleSysError(exc), defaultMsg);
+    if not Assigned(Result) then
+      Result := EADOAdapterException.Create(defaultMsg,
+        EOleSysError(exc).ErrorCode);
+  end
+  else if exc is EDatabaseError then
+    Result := EADOAdapterException.Create(defaultMsg)
+  else if exc is ESafecallException then // Safecall excpetion handler is not set
+    Result := EADOAdapterException.Create(defaultMsg)
+  else
+    Result := nil;
+end;
+
+function TADOExceptionHandler.GetDriverException(
+  const exc: EOleSysError; const defaultMsg: string): Exception;
+begin
+  Result := nil;
 end;
 
 {$ENDREGION}

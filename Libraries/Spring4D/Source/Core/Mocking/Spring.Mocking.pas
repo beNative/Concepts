@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -33,7 +33,10 @@ uses
   SysUtils,
   TypInfo,
   Spring,
+  Spring.Collections,
+  Spring.DesignPatterns,
   Spring.Interception,
+  Spring.Mocking.Matching,
   Spring.Times;
 
 {$SCOPEDENUMS ON}
@@ -45,6 +48,9 @@ type
 
   TValue = Rtti.TValue;
 
+  Arg = Spring.Mocking.Matching.Arg;
+  Args = Spring.Mocking.Matching.Args;
+
 const
   DefaultMockBehavior = TMockBehavior.Dynamic;
 
@@ -53,11 +59,14 @@ type
   private
     fInvocation: IInvocation;
     fCallCount: Integer;
-    function GetMethod: TRttiMethod;
+    function GetArg(index: Integer): TValue;
     function GetArguments: TArray<TValue>;
     function GetCallCount: Integer;
+    function GetMethod: TRttiMethod;
+    procedure SetArg(index: Integer; const value: TValue);
   public
     constructor Create(const invocation: IInvocation; callCount: Integer);
+    property Args[index: Integer]: TValue read GetArg write SetArg; default;
     property Arguments: TArray<TValue> read GetArguments;
     property CallCount: Integer read GetCallCount;
     property Method: TRttiMethod read GetMethod;
@@ -67,8 +76,8 @@ type
 
   IWhen = interface(IInvokable)
     ['{DAD0B65B-8CEF-4513-ADE8-38E8F9AAFA9A}']
-    procedure When;
-    procedure WhenForAnyArgs;
+    procedure When; overload;
+    procedure When(const match: TArgMatch); overload;
   end;
 
   ISetup = interface(IInvokable)
@@ -90,12 +99,14 @@ type
     function GetInstance: TValue;
     function GetTypeInfo: PTypeInfo;
 
+    procedure Reset;
+
     function Setup: ISetup;
 
     procedure Received; overload;
     procedure Received(const times: Times); overload;
-    procedure ReceivedWithAnyArgs; overload;
-    procedure ReceivedWithAnyArgs(const times: Times); overload;
+    procedure Received(const match: TArgMatch); overload;
+    procedure Received(const times: Times; const match: TArgMatch); overload;
 
     property Instance: TValue read GetInstance;
     property TypeInfo: PTypeInfo read GetTypeInfo;
@@ -103,8 +114,8 @@ type
 
   IWhen<T> = interface(IInvokable)
     ['{4162918E-4DE6-47D6-B609-D5A17F3FBE2B}']
-    function When: T;
-    function WhenForAnyArgs: T;
+    function When: T; overload;
+    function When(const match: TArgMatch): T; overload;
   end;
 
   ISetup<T> = interface(IInvokable)
@@ -124,19 +135,24 @@ type
   IMock<T> = interface(IInvokable)
     ['{67AD5AD2-1C23-41BA-8F5D-5C28B3C7ABF7}']
   {$REGION 'Property Accessors'}
+    function GetBehavior: TMockBehavior;
     function GetCallBase: Boolean;
     function GetInstance: T;
     function GetTypeInfo: PTypeInfo;
+    procedure SetBehavior(const value: TMockBehavior);
     procedure SetCallBase(const value: Boolean);
   {$ENDREGION}
+
+    procedure Reset;
 
     function Setup: ISetup<T>;
 
     function Received: T; overload;
     function Received(const times: Times): T; overload;
-    function ReceivedWithAnyArgs: T; overload;
-    function ReceivedWithAnyArgs(const times: Times): T; overload;
+    function Received(const match: TArgMatch): T; overload;
+    function Received(const times: Times; const match: TArgMatch): T; overload;
 
+    property Behavior: TMockBehavior read GetBehavior write SetBehavior;
     property CallBase: Boolean read GetCallBase write SetCallBase;
     property Instance: T read GetInstance;
     property TypeInfo: PTypeInfo read GetTypeInfo;
@@ -157,15 +173,22 @@ type
       const msg: string; const args: array of const): IWhen<T>; overload;
 
     function Returns<TResult>(const value: TResult): IWhen<T>; overload;
-    function Returns(const values: array of TValue): IWhen<T>; overload;
+    function Returns<TResult>(const values: array of TResult): IWhen<T>; overload;
   end;
 
   Mock<T> = record
   private
     fMock: IMock<T>;
+  {$HINTS OFF}
+    // cause record to be passed as reference on const parameter
+    // because it does not fit in a register
+    fDummy: Pointer;
+  {$HINTS OFF}
     procedure EnsureInitialized; inline;
     function GetInstance: T;
+    function GetBehavior: TMockBehavior;
     function GetCallBase: Boolean;
+    procedure SetBehavior(const value: TMockBehavior);
     procedure SetCallBase(const value: Boolean);
   public
     class function Create(
@@ -176,6 +199,7 @@ type
       behavior: TMockBehavior = DefaultMockBehavior): Mock<T>; overload; static;
 
     procedure Free;
+    procedure Reset;
 
     class operator Implicit(const value: IMock): Mock<T>;
     class operator Implicit(const value: Mock<T>): IMock;
@@ -186,9 +210,12 @@ type
 
     function Received: T; overload;
     function Received(const times: Times): T; overload;
-    function ReceivedWithAnyArgs: T; overload;
-    function ReceivedWithAnyArgs(const times: Times): T; overload;
+    function Received(const match: TArgMatch): T; overload;
+    function Received(const times: Times; const match: TArgMatch): T; overload;
 
+    function AsType<TInterface: IInterface>: Mock<TInterface>;
+
+    property Behavior: TMockBehavior read GetBehavior write SetBehavior;
     property CallBase: Boolean read GetCallBase write SetCallBase;
     property Instance: T read GetInstance;
   end;
@@ -201,6 +228,7 @@ type
 implementation
 
 uses
+  Spring.Helpers,
   Spring.Mocking.Core,
   Spring.Mocking.Interceptor;
 
@@ -211,6 +239,11 @@ constructor TCallInfo.Create(const invocation: IInvocation; callCount: Integer);
 begin
   fInvocation := invocation;
   fCallCount := callCount;
+end;
+
+function TCallInfo.GetArg(index: Integer): TValue;
+begin
+  Result := fInvocation.Arguments[index];
 end;
 
 function TCallInfo.GetArguments: TArray<TValue>;
@@ -226,6 +259,11 @@ end;
 function TCallInfo.GetMethod: TRttiMethod;
 begin
   Result := fInvocation.Method;
+end;
+
+procedure TCallInfo.SetArg(index: Integer; const value: TValue);
+begin
+  fInvocation.Arguments[index] := value;
 end;
 
 {$ENDREGION}
@@ -259,9 +297,15 @@ begin
   Result := fSetup.Returns(TValue.From<TResult>(value));
 end;
 
-function Setup<T>.Returns(const values: array of TValue): IWhen<T>;
+function Setup<T>.Returns<TResult>(const values: array of TResult): IWhen<T>;
+var
+  i: Integer;
+  tempValues: TArray<TValue>;
 begin
-  Result := fSetup.Returns(values);
+  SetLength(tempValues, Length(values));
+  for i := 0 to High(values) do
+    tempValues[i] := TValue.From<TResult>(values[i]);
+  Result := fSetup.Returns(tempValues);
 end;
 
 {$ENDREGION}
@@ -284,6 +328,25 @@ class function Mock<T>.Create(const args: array of TValue;
   behavior: TMockBehavior): Mock<T>;
 begin
   Result.fMock := TMock<T>.Create(behavior, args);
+end;
+
+function Mock<T>.AsType<TInterface>: Mock<TInterface>;
+var
+  typeData: PTypeData;
+  source: T;
+  proxy: IDynamicProxy;
+  target: TInterface;
+begin
+  EnsureInitialized;
+  typeData := GetTypeData(TypeInfo(TInterface));
+  if not (ifHasGuid in typeData.IntfFlags) then
+    raise EMockException.Create('interface without guid not supported');
+  source := fMock.Instance;
+  if not Supports(PInterface(@source)^, IDynamicProxy, proxy) then
+    raise EMockException.Create('fatal error');
+  proxy.AddAdditionalInterface(TypeInfo(TInterface), TProxyGenerationOptions.Default);
+  PInterface(@source)^.QueryInterface(typeData.Guid, target);
+  Result.fMock := Mock.From<TInterface>(target).fMock;
 end;
 
 procedure Mock<T>.EnsureInitialized;
@@ -322,6 +385,12 @@ begin
   Result := value.fMock.Instance;
 end;
 
+function Mock<T>.GetBehavior: TMockBehavior;
+begin
+  EnsureInitialized;
+  Result := fMock.Behavior;
+end;
+
 function Mock<T>.GetCallBase: Boolean;
 begin
   EnsureInitialized;
@@ -332,6 +401,12 @@ function Mock<T>.GetInstance: T;
 begin
   EnsureInitialized;
   Result := fMock.Instance;
+end;
+
+procedure Mock<T>.SetBehavior(const value: TMockBehavior);
+begin
+  EnsureInitialized;
+  fMock.Behavior := value;
 end;
 
 procedure Mock<T>.SetCallBase(const value: Boolean);
@@ -358,16 +433,21 @@ begin
   Result := fMock.Received(times);
 end;
 
-function Mock<T>.ReceivedWithAnyArgs: T;
+function Mock<T>.Received(const match: TArgMatch): T;
 begin
   EnsureInitialized;
-  Result := fMock.ReceivedWithAnyArgs;
+  Result := fMock.Received(match);
 end;
 
-function Mock<T>.ReceivedWithAnyArgs(const times: Times): T;
+function Mock<T>.Received(const times: Times; const match: TArgMatch): T;
 begin
   EnsureInitialized;
-  Result := fMock.ReceivedWithAnyArgs(times);
+  Result := fMock.Received(times, match);
+end;
+
+procedure Mock<T>.Reset;
+begin
+  fMock.Reset;
 end;
 
 {$ENDREGION}

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -323,18 +323,18 @@ end;
 procedure TSelectCommand.SetFromForeignColumn(const entityData: TEntityData;
   foreignTableClass: TClass);
 var
-  primaryKeyColumn: ColumnAttribute;
+  primaryKeyColumnAttribute: ColumnAttribute;
   whereField: TSQLWhereField;
   foreignEntityData: TEntityData;
 begin
   fForeignColumn := nil;
   foreignEntityData := TEntityCache.Get(foreignTableClass);
-  primaryKeyColumn := foreignEntityData.PrimaryKeyColumn;
-  if not Assigned(primaryKeyColumn) then
+  primaryKeyColumnAttribute := foreignEntityData.PrimaryKeyColumn;
+  if not Assigned(primaryKeyColumnAttribute) then
     Exit;
 
   fForeignColumn := entityData.GetForeignKeyColumn(
-    foreignEntityData.EntityTable, primaryKeyColumn);
+    foreignEntityData.EntityTable, primaryKeyColumnAttribute);
   if not Assigned(fForeignColumn) then
     Exit;
 

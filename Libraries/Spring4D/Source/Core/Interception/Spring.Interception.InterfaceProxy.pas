@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -37,7 +37,7 @@ uses
   Spring.VirtualInterface;
 
 type
-  TInterfaceProxy = class(TVirtualInterface, IProxyTargetAccessor)
+  TInterfaceProxy = class(TVirtualInterface, IProxyTargetAccessor, IDynamicProxy)
   private
     type
       TInvocation = class(TAbstractInvocation, IChangeProxyTarget)
@@ -50,6 +50,9 @@ type
     fInterceptorSelector: IInterceptorSelector;
     fAdditionalInterfaces: IList<TInterfaceProxy>;
     fTarget: TValue;
+    fTypeInfo: PTypeInfo;
+    procedure AddAdditionalInterface(typeInfo: PTypeInfo;
+      const options: TProxyGenerationOptions);
     function GetInterceptors: IEnumerable<IInterceptor>;
     function GetTarget: TValue;
   protected
@@ -103,11 +106,30 @@ begin
       @STypeParameterContainsNoRtti, [proxyType.Name]);
 
   inherited Create(proxyType, HandleInvoke);
+{$IFDEF AUTOREFCOUNT}
+  // Release reference held by ancestor (bypass RSP-10177)
+  __ObjRelease;
+  // Release reference created by passing closure to HandleInvoke (RSP-10176)
+  __ObjRelease;
+{$ENDIF}
   fInterceptors := TCollections.CreateInterfaceList<IInterceptor>(interceptors);
   fInterceptorSelector := options.Selector;
   fTarget := TValue.From(target);
+  fTypeInfo := proxyType;
   fAdditionalInterfaces := TCollections.CreateObjectList<TInterfaceProxy>;
   GenerateInterfaces(additionalInterfaces, options);
+end;
+
+procedure TInterfaceProxy.AddAdditionalInterface(typeInfo: PTypeInfo;
+  const options: TProxyGenerationOptions);
+begin
+  if not fAdditionalInterfaces.Any(
+    function(const proxy: TInterfaceProxy): Boolean
+    begin
+      Result := proxy.fTypeInfo = typeInfo;
+    end) then
+    fAdditionalInterfaces.Add(TAggregatedInterfaceProxy.Create(
+      typeInfo, [], options, nil, fInterceptors.ToArray, Self));
 end;
 
 procedure TInterfaceProxy.GenerateInterfaces(

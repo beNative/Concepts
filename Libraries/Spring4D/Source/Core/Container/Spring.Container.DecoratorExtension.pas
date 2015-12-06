@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -140,7 +140,7 @@ function TDecoratorComponentActivator.CreateInstance(
   var
     intf: Pointer;
   begin
-    if AObject.GetInterface(GetTypeData(ATarget).Guid, intf) then
+    if AObject.GetInterface(ATarget.TypeData.Guid, intf) then
       TValue.MakeWithoutCopy(@intf, ATarget, Result);
   end;
 {$ENDIF}

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -63,7 +63,8 @@ begin
   if not entities.Any then
     Exit;
   LConn := (Connection as TMongoConnectionAdapter).Connection;
-  LStatement := TMongoStatementAdapter.Create(nil);
+  LStatement := TMongoStatementAdapter.Create(nil,
+    TMongoDBExceptionHandler.Create);
   try
     SetLength(LDocs, entities.Count);
     i := 0;

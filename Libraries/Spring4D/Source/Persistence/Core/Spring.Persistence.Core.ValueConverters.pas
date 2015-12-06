@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -135,7 +135,10 @@ begin
   if TryLoadFromStreamSmart(stream, pic) then
     Result := pic
   else
+  begin
     pic.Free;
+    Result := TValue.Empty;
+  end;
 end;
 
 {$ENDREGION}

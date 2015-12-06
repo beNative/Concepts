@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -171,7 +171,7 @@ var
 begin
   if not fMinPoolsize.HasValue then
     Exit;
-  for i := 0 to fMinPoolsize.Value - 1 do
+  for i := 0 to fMinPoolsize.Value - 1 do //FI:W528
   begin
     instance := AddNewInstance(context);
     fAvailableList.Enqueue(instance);

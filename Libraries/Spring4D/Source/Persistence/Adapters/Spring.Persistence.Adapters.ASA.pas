@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -34,8 +34,6 @@ uses
   Spring.Persistence.Core.Interfaces;
 
 type
-  EASAAdapterException = class(EORMAdapterException);
-
   /// <summary>
   ///   Represents Sybase ASA resultset.
   /// </summary>
@@ -84,13 +82,15 @@ end;
 function TASAConnectionAdapter.BeginTransaction: IDBTransaction;
 begin
   if Assigned(Connection) then
-  begin
+  try
     Connection.Connected := True;
     GenerateNewID;
     Connection.Execute(SQL_BEGIN_TRAN + GetTransactionName);
 
-    Result := TASATransactionAdapter.Create(Connection);
+    Result := TASATransactionAdapter.Create(Connection, ExceptionHandler);
     Result.TransactionName := GetTransactionName;
+  except
+    raise HandleException;
   end
   else
     Result := nil;
@@ -104,13 +104,21 @@ end;
 procedure TASATransactionAdapter.Commit;
 begin
   if Assigned(Transaction) then
+  try
     Transaction.Execute(SQL_COMMIT_TRAN + TransactionName);
+  except
+    raise HandleException;
+  end;
 end;
 
 procedure TASATransactionAdapter.Rollback;
 begin
   if Assigned(Transaction) then
+  try
     Transaction.Execute(SQL_ROLLBACK_TRAN + TransactionName);
+  except
+    raise HandleException;
+  end;
 end;
 
 {$ENDREGION}

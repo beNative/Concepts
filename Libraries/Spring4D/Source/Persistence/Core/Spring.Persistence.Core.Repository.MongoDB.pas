@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -40,7 +40,7 @@ type
     {$IFDEF WEAKREF}[Weak]{$ENDIF}
     fSession: TMongoDBSession;
   public
-    procedure Insert(const entities: IEnumerable<T>); overload; override;
+    procedure Insert(const entities: IEnumerable<T>); override;
     function Query(const query: string;
       const params: array of const): IList<T>; override;
   public

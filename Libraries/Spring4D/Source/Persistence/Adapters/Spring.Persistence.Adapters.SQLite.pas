@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,6 +29,7 @@ unit Spring.Persistence.Adapters.SQLite;
 interface
 
 uses
+  SysUtils,
   SQLiteTable3,
   Spring.Collections,
   Spring.Persistence.Core.Base,
@@ -37,20 +38,25 @@ uses
   Spring.Persistence.SQL.Params;
 
 type
-  ESQLiteStatementAdapterException = class(EORMAdapterException);
+  ESQLiteAdapterException = class(EORMAdapterException);
 
   /// <summary>
   ///   Represents SQLite3 resultset.
   /// </summary>
-  TSQLiteResultSetAdapter = class(TDriverResultSetAdapter<ISQLiteTable>)
+  TSQLiteResultSetAdapter = class(TDriverAdapterBase, IDBResultSet)
+  private
+    fDataSet: ISQLiteTable;
   public
-    function IsEmpty: Boolean; override;
-    function Next: Boolean; override;
-    function FieldExists(const fieldName: string): Boolean; override;
-    function GetFieldValue(index: Integer): Variant; overload; override;
-    function GetFieldValue(const fieldName: string): Variant; overload; override;
-    function GetFieldCount: Integer; override;
-    function GetFieldName(index: Integer): string; override;
+    constructor Create(const dataSet: ISQLiteTable;
+      const exceptionHandler: IORMExceptionHandler);
+
+    function IsEmpty: Boolean;
+    function Next: Boolean;
+    function FieldExists(const fieldName: string): Boolean;
+    function GetFieldValue(index: Integer): Variant; overload;
+    function GetFieldValue(const fieldName: string): Variant; overload;
+    function GetFieldCount: Integer;
+    function GetFieldName(index: Integer): string;
   end;
 
   /// <summary>
@@ -60,7 +66,7 @@ type
   public
     procedure SetSQLCommand(const commandText: string); override;
     procedure SetParam(const param: TDBParam); virtual;
-    procedure SetParams(const params: IEnumerable<TDBParam>); overload; override;
+    procedure SetParams(const params: IEnumerable<TDBParam>); override;
     function Execute: NativeUInt; override;
     function ExecuteQuery(serverSideCursor: Boolean = True): IDBResultSet; override;
   end;
@@ -70,6 +76,7 @@ type
   /// </summary>
   TSQLiteConnectionAdapter = class(TDriverConnectionAdapter<TSQLiteDatabase>)
   public
+    constructor Create(const connection: TSQLiteDatabase); override;
     procedure AfterConstruction; override;
     procedure Connect; override;
     procedure Disconnect; override;
@@ -89,6 +96,12 @@ type
     procedure Rollback; override;
   end;
 
+  TSQLiteExceptionHandler = class(TORMExceptionHandler)
+  protected
+    function GetAdapterException(const exc: Exception;
+      const defaultMsg: string): Exception; override;
+  end;
+
 implementation
 
 uses
@@ -100,39 +113,58 @@ uses
 
 {$REGION 'TSQLiteResultSetAdapter'}
 
+constructor TSQLiteResultSetAdapter.Create(const dataSet: ISQLiteTable;
+  const exceptionHandler: IORMExceptionHandler);
+begin
+  inherited Create(exceptionHandler);
+  fDataSet := dataSet;
+end;
+
 function TSQLiteResultSetAdapter.GetFieldValue(index: Integer): Variant;
 begin
-  Result := DataSet.Fields[index].Value;
+  try
+    Result := fDataSet.Fields[index].Value;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TSQLiteResultSetAdapter.FieldExists(const fieldName: string): Boolean;
 begin
-  Result := DataSet.FindField(fieldName) <> nil;
+  Result := fDataSet.FindField(fieldName) <> nil;
 end;
 
 function TSQLiteResultSetAdapter.GetFieldCount: Integer;
 begin
-  Result := DataSet.FieldCount;
+  Result := fDataSet.FieldCount;
 end;
 
 function TSQLiteResultSetAdapter.GetFieldName(index: Integer): string;
 begin
-  Result := DataSet.Fields[index].Name;
+  Result := fDataSet.Fields[index].Name;
 end;
 
 function TSQLiteResultSetAdapter.GetFieldValue(const fieldName: string): Variant;
 begin
-  Result := DataSet.FieldByName[fieldName].Value;
+  try
+    Result := fDataSet.FieldByName[fieldName].Value;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TSQLiteResultSetAdapter.IsEmpty: Boolean;
 begin
-  Result := DataSet.EOF;
+  Result := fDataSet.EOF;
 end;
 
 function TSQLiteResultSetAdapter.Next: Boolean;
 begin
-  Result := DataSet.Next;
+  try
+    Result := fDataSet.Next;
+  except
+    raise HandleException;
+  end;
 end;
 
 {$ENDREGION}
@@ -145,10 +177,14 @@ var
   affectedRows: Integer;
 begin
   inherited;
-  if Statement.ExecSQL(affectedRows) then
-    Result := affectedRows
-  else
-    Result := 0;
+  try
+    if Statement.ExecSQL(affectedRows) then
+      Result := affectedRows
+    else
+      Result := 0;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TSQLiteStatementAdapter.ExecuteQuery(serverSideCursor: Boolean): IDBResultSet;
@@ -156,8 +192,12 @@ var
   query: ISQLiteTable;
 begin
   inherited;
-  query := Statement.ExecQueryIntf;
-  Result := TSQLiteResultSetAdapter.Create(query);
+  try
+    query := Statement.ExecQueryIntf;
+  except
+    raise HandleException;
+  end;
+  Result := TSQLiteResultSetAdapter.Create(query, ExceptionHandler);
 end;
 
 procedure TSQLiteStatementAdapter.SetParam(const param: TDBParam);
@@ -174,7 +214,11 @@ end;
 procedure TSQLiteStatementAdapter.SetSQLCommand(const commandText: string);
 begin
   inherited;
-  Statement.PrepareStatement(commandText);
+  try
+    Statement.PrepareStatement(commandText);
+  except
+    raise HandleException;
+  end;
 end;
 
 {$ENDREGION}
@@ -191,20 +235,33 @@ end;
 function TSQLiteConnectionAdapter.BeginTransaction: IDBTransaction;
 begin
   if Assigned(Connection) then
-  begin
+  try
     Connection.Connected := true;
     inherited;
     Connection.ExecSQL(SQL_BEGIN_SAVEPOINT + GetTransactionName);
 
-    Result := TSQLiteTransactionAdapter.Create(Connection);
+    Result := TSQLiteTransactionAdapter.Create(Connection, ExceptionHandler);
     Result.TransactionName := GetTransactionName;
-  end;
+  except
+    raise HandleException;
+  end
+  else
+    Result := nil;
 end;
 
 procedure TSQLiteConnectionAdapter.Connect;
 begin
   if Assigned(Connection) then
+  try
     Connection.Connected := True;
+  except
+    raise HandleException;
+  end;
+end;
+
+constructor TSQLiteConnectionAdapter.Create(const connection: TSQLiteDatabase);
+begin
+  Create(connection, TSQLiteExceptionHandler.Create);
 end;
 
 function TSQLiteConnectionAdapter.CreateStatement: IDBStatement;
@@ -215,7 +272,7 @@ begin
   if Assigned(Connection) then
   begin
     statement := TSQLitePreparedStatement.Create(Connection);
-    adapter := TSQLiteStatementAdapter.Create(statement);
+    adapter := TSQLiteStatementAdapter.Create(statement, ExceptionHandler);
     adapter.ExecutionListeners := ExecutionListeners;
     Result := adapter;
   end
@@ -226,7 +283,11 @@ end;
 procedure TSQLiteConnectionAdapter.Disconnect;
 begin
   if Assigned(Connection) then
+  try
     Connection.Connected := False;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TSQLiteConnectionAdapter.IsConnected: Boolean;
@@ -242,7 +303,11 @@ end;
 procedure TSQLiteTransactionAdapter.Commit;
 begin
   if Assigned(Transaction) then
+  try
     Transaction.ExecSQL('RELEASE SAVEPOINT ' + TransactionName);
+  except
+    raise HandleException;
+  end;
 end;
 
 function TSQLiteTransactionAdapter.InTransaction: Boolean;
@@ -253,7 +318,29 @@ end;
 procedure TSQLiteTransactionAdapter.Rollback;
 begin
   if Assigned(Transaction) then
+  try
     Transaction.ExecSQL('ROLLBACK TRANSACTION TO SAVEPOINT ' + TransactionName);
+  except
+    raise HandleException;
+  end;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TSQLiteExceptionHandler'}
+
+function TSQLiteExceptionHandler.GetAdapterException(const exc: Exception;
+  const defaultMsg: string): Exception;
+begin
+  if exc is ESQLiteConstraintException then
+    Result := EORMConstraintException.Create(defaultMsg,
+      ESQLiteException(exc).ErrorCode)
+  else if exc is ESQLiteException then
+    Result := ESQLiteAdapterException.Create(defaultMsg,
+      ESQLiteException(exc).ErrorCode)
+  else
+    Result := nil;
 end;
 
 {$ENDREGION}

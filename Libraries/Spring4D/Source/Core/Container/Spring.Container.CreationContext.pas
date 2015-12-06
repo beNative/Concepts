@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -105,7 +105,7 @@ var
   interfacedObject: TInterfacedObject;
 begin
   for instance in fPerResolveInstances.Values do
-    if instance.TryAsType<TInterfacedObject>(interfacedObject) then
+    if instance.TryAsType<TInterfacedObject>(interfacedObject) and Assigned(interfacedObject) then
       TInterlocked.Decrement(TInterfacedObjectAccess(interfacedObject).fRefCount);
   inherited;
 end;
@@ -130,7 +130,7 @@ var
 begin
   fPerResolveInstances.Add(model, instance);
 {$IFNDEF AUTOREFCOUNT}
-  if instance.TryAsType<TInterfacedObject>(interfacedObject) then
+  if instance.TryAsType<TInterfacedObject>(interfacedObject) and Assigned(interfacedObject) then
     TInterlocked.Increment(TInterfacedObjectAccess(interfacedObject).fRefCount);
 {$ENDIF}
 end;

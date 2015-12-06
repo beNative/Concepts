@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,9 +29,6 @@ unit Spring.Container.AutoMockExtension;
 interface
 
 uses
-  Rtti,
-  TypInfo,
-  Spring.Container.Core,
   Spring.Container.Extensions;
 
 type
@@ -40,10 +37,25 @@ type
     procedure Initialize; override;
   end;
 
+implementation
+
+uses
+  Rtti,
+  SysUtils,
+  TypInfo,
+  Spring.Container.Common,
+  Spring.Container.Core,
+  Spring.Reflection,
+  Spring.Mocking,
+  Spring.Mocking.Core;
+
+type
   TAutoMockResolver = class(TInterfacedObject, ISubDependencyResolver)
   private
     fKernel: IKernel;
     procedure EnsureMockRegistered(const mockedType: TRttiType);
+    class function TryGetMockedType(const targetType: TRttiType;
+      out mockedType: TRttiType): Boolean; static;
   public
     constructor Create(const kernel: IKernel);
 
@@ -52,16 +64,6 @@ type
     function Resolve(const context: ICreationContext;
       const dependency: TDependencyModel; const argument: TValue): TValue;
   end;
-
-implementation
-
-uses
-  SysUtils,
-  Spring,
-  Spring.Container.Common,
-  Spring.Reflection,
-  Spring.Mocking,
-  Spring.Mocking.Core;
 
 
 {$REGION 'TAutoMockExtension'}
@@ -89,12 +91,9 @@ var
   mockedType: TRttiType;
 begin
   if dependency.TargetType.IsGenericType
-    and SameText(dependency.TargetType.GetGenericTypeDefinition, 'IMock<>') then
-  begin
-    mockedType := dependency.TargetType.GetGenericArguments[0];
-    if mockedType.IsInterface and not mockedType.IsType<IInterface> then
-      Exit(True);
-  end;
+    and TryGetMockedType(dependency.TargetType, mockedType)
+    and mockedType.IsInterface and not mockedType.IsType<IInterface> then
+    Exit(True);
 
   if dependency.TargetType.IsInterface
     and not fKernel.Registry.HasService(dependency.TypeInfo) then
@@ -132,22 +131,15 @@ function TAutoMockResolver.Resolve(const context: ICreationContext;
   const dependency: TDependencyModel; const argument: TValue): TValue;
 var
   mockDirectly: Boolean;
-  mockType: TRttiType;
+  mockedType: TRttiType;
   mockName: string;
 begin
   mockDirectly := dependency.TargetType.IsGenericType
-    and SameText(dependency.TargetType.GetGenericTypeDefinition, 'IMock<>');
-  if mockDirectly then
-  begin
-    mockType := dependency.TargetType.GetGenericArguments[0];
-    mockName := dependency.Name;
-  end
-  else
-  begin
-    mockType := dependency.TargetType;
-    mockName := 'IMock<' + dependency.TargetType.DefaultName + '>';
-  end;
-  EnsureMockRegistered(mockType);
+    and TryGetMockedType(dependency.TargetType, mockedType);
+  if not mockDirectly then
+    mockedType := dependency.TargetType;
+  mockName := 'IMock<' + mockedType.DefaultName + '>';
+  EnsureMockRegistered(mockedType);
   Result := (fKernel as IKernelInternal).Resolve(mockName);
   if mockDirectly then
   begin
@@ -156,6 +148,18 @@ begin
   end
   else
     Result := (Result.AsType<IMock<IInterface>> as IMock).Instance;
+end;
+
+class function TAutoMockResolver.TryGetMockedType(const targetType: TRttiType;
+  out mockedType: TRttiType): Boolean;
+begin
+  if SameText(targetType.GetGenericTypeDefinition, 'IMock<>') then
+    mockedType := targetType.GetMethod('GetInstance').ReturnType
+  else if SameText(targetType.GetGenericTypeDefinition, 'Mock<>') then
+    mockedType := targetType.GetField('fMock').FieldType.GetMethod('GetInstance').ReturnType
+  else
+    Exit(False);
+  Result := True;
 end;
 
 {$ENDREGION}

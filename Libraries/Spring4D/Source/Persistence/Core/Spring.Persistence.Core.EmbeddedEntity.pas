@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -64,8 +64,8 @@ type
 
     function IsEmpty: Boolean; override;
     function FieldExists(const fieldName: string): Boolean; override;
-    function GetFieldValue(index: Integer): Variant; overload; override;
-    function GetFieldValue(const fieldName: string): Variant; overload; override;
+    function GetFieldValue(index: Integer): Variant; override;
+    function GetFieldValue(const fieldName: string): Variant; override;
     function GetFieldCount: Integer; override;
     function GetFieldName(index: Integer): string; override;
   public
@@ -85,8 +85,8 @@ type
   protected
     function IsEmpty: Boolean; override;
     function FieldExists(const fieldName: string): Boolean; override;
-    function GetFieldValue(index: Integer): Variant; overload; override;
-    function GetFieldValue(const fieldname: string): Variant; overload; override;
+    function GetFieldValue(index: Integer): Variant; override;
+    function GetFieldValue(const fieldname: string): Variant; override;
     function GetFieldCount: Integer; override;
     function GetFieldName(index: Integer): string; override;
   public

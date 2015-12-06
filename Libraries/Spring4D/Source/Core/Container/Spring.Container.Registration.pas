@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -415,7 +415,7 @@ begin
         if maxVirtualIndex > 3 then
           TVirtualInterfaceHack(factory).VTable[3] :=
             TVirtualInterfaceHack(factory).VTable[maxVirtualIndex];
-      factory.QueryInterface(GetTypeData(model.ComponentTypeInfo).Guid, intf);
+      factory.QueryInterface(model.ComponentTypeInfo.TypeData.Guid, intf);
       TValue.Make(@intf, model.ComponentTypeInfo, Result);
     end;
 end;

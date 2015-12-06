@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -1083,7 +1083,14 @@ type
   TLinkedListNode<T> = class sealed
   protected
     fList: Pointer;
+    {$IFDEF WEAKREF}
+    // Indicates whether some list already incremented the refcount
+    fOwned: Boolean;
+    {$ENDIF}
+    // Linked list keeps references locally
+    {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fNext: TLinkedListNode<T>;
+    {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fPrev: TLinkedListNode<T>;
     fItem: T;
     function GetList: ILinkedList<T>;

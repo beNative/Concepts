@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -194,6 +194,11 @@ begin
     fIntercepts[method.VirtualIndex] := intercept;
     PVirtualMethodTable(ClassProxy)[method.VirtualIndex] := intercept.CodeAddress;
   end;
+{$IFDEF AUTOREFCOUNT}
+  // Release reference created by passing closure to HandleInvoke (RSP-10176)
+  if virtualMethodCount > 0 then
+    __ObjRelease;
+{$ENDIF}
 end;
 
 procedure TClassProxy.GenerateInterfaces(
@@ -235,8 +240,8 @@ begin
   begin
     TInterfaceProxy.Create(additionalInterfaces[i - 1], [], options, nil,
       fInterceptors.ToArray).QueryInterface(
-      GetTypeData(additionalInterfaces[i - 1]).Guid, fAdditionalInterfaces[i - 1]);
-    table.Entries[i].IID := GetTypeData(additionalInterfaces[i - 1]).Guid;
+      additionalInterfaces[i - 1].TypeData.Guid, fAdditionalInterfaces[i - 1]);
+    table.Entries[i].IID := additionalInterfaces[i - 1].TypeData.Guid;
     table.Entries[i].VTable := nil;
     table.Entries[i].IOffset := 0;
 {$IFDEF CPU64BITS}

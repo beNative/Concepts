@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -99,11 +99,11 @@ end;
 
 constructor TQueue<T>.Create(const values: array of T);
 var
-  item: T;
+  i: Integer;
 begin
   Create;
-  for item in values do
-    Enqueue(item);
+  for i := Low(values) to High(values) do
+    Enqueue(values[i]);
 end;
 
 constructor TQueue<T>.Create(const collection: IEnumerable<T>);
@@ -221,7 +221,7 @@ end;
 
 procedure TQueue<T>.Changed(const item: T; action: TCollectionChangedAction);
 begin
-  if fOnChanged.IsInvokable then
+  if fOnChanged.CanInvoke then
     fOnChanged.Invoke(Self, item, action);
 end;
 

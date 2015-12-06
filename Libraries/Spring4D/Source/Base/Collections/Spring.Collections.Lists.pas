@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -48,12 +48,14 @@ type
 
 {$IFDEF SPRING_ARRAYMANAGERS}
   TArrayManager<T> = class abstract
+  public
     procedure Move(var AArray: array of T; FromIndex, ToIndex, Count: Integer); overload; virtual; abstract;
     procedure Move(var FromArray, ToArray: array of T; FromIndex, ToIndex, Count: Integer); overload; virtual; abstract;
     procedure Finalize(var AArray: array of T; Index, Count: Integer); overload; virtual; abstract;
   end;
 
   TMoveArrayManager<T> = class(TArrayManager<T>)
+  public
     procedure Move(var AArray: array of T; FromIndex, ToIndex, Count: Integer); overload; override;
     procedure Move(var FromArray, ToArray: array of T; FromIndex, ToIndex, Count: Integer); overload; override;
     procedure Finalize(var AArray: array of T; Index, Count: Integer); override;
@@ -786,7 +788,6 @@ procedure TList<T>.DeleteAllInternal(const predicate: TPredicate<T>;
   notification: TCollectionChangedAction);
 var
   i, n: Integer;
-  items: TArray<T>;
   item: T;
 begin
   n := 0;
@@ -829,10 +830,10 @@ end;
 function TList<T>.Contains(const value: T;
   const comparer: IEqualityComparer<T>): Boolean;
 var
-  index: Integer;
+  i: Integer;
 begin
-  for index := 0 to fCount - 1 do
-    if comparer.Equals(value, fItems[index]) then
+  for i := 0 to fCount - 1 do
+    if comparer.Equals(value, fItems[i]) then
       Exit(True);
   Result := False;
 end;
@@ -989,10 +990,10 @@ end;
 
 procedure TSortedList<T>.AddRange(const values: array of T);
 var
-  item: T;
+  i: Integer;
 begin
-  for item in values do
-    Add(item);
+  for i := Low(values) to High(values) do
+    Add(values[i]);
 end;
 
 function TSortedList<T>.Contains(const value: T): Boolean;
@@ -1062,7 +1063,7 @@ begin
   fCollection := collection;
 end;
 
-destructor TCollectionList<T>.Destroy;
+destructor TCollectionList<T>.Destroy; //FI:W504
 begin
   // not calling inherited because we don't want to call Clear
 end;

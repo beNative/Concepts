@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -45,24 +45,21 @@ type
     fEnabled: Boolean;
     fHandlers: TList<TMethodPointer>;
     fLock: TCriticalSection;
-    fOnChanged: TEventsChangedEvent;
+    fOnChanged: TNotifyEvent;
     fNotificationHandler: TNotificationHandler;
 
     {$REGION 'Property Accessors'}
-    function GetCount: Integer;
+    function GetCanInvoke: Boolean;
     function GetEnabled: Boolean;
     function GetHandlers: TArray<TMethodPointer>;
     function GetInvoke: TMethodPointer;
-    function GetIsEmpty: Boolean;
-    function GetIsInvokable: Boolean;
-    function GetOnChanged: TEventsChangedEvent;
+    function GetOnChanged: TNotifyEvent;
     procedure SetEnabled(const value: Boolean);
-    procedure SetOnChanged(const value: TEventsChangedEvent);
+    procedure SetOnChanged(const value: TNotifyEvent);
   {$ENDREGION}
   protected
     fInvoke: TMethodPointer;
-    procedure EventsChanged(const item: TMethodPointer;
-      action: TEventsChangedAction); virtual;
+    procedure EventsChanged; virtual;
     procedure HandleNotification(Component: TComponent;
       Operation: TOperation);
     procedure Notify(Sender: TObject; const Item: TMethodPointer;
@@ -77,14 +74,12 @@ type
     procedure Remove(const handler: TMethodPointer);
     procedure RemoveAll(instance: Pointer);
     procedure Clear;
-    procedure ForEach(const action: TAction<TMethodPointer>);
     {$ENDREGION}
 
-    property Count: Integer read GetCount;
+    property CanInvoke: Boolean read GetCanInvoke;
     property Enabled: Boolean read GetEnabled write SetEnabled;
     property Invoke: TMethodPointer read GetInvoke;
-    property IsEmpty: Boolean read GetIsEmpty;
-    property OnChanged: TEventsChangedEvent read GetOnChanged write SetOnChanged;
+    property OnChanged: TNotifyEvent read GetOnChanged write SetOnChanged;
   end;
 
   TEventBase<T> = class(TEventBase, IEvent<T>)
@@ -114,7 +109,7 @@ begin
     if PNativeInt(AObject)^ > $FFFF then
       Result := PNativeInt(AObject)^ = PNativeInt(PNativeInt(AObject)^ + vmtSelfPtr)^;
   except
-  end;
+  end; //FI:W501
 end;
 
 
@@ -194,11 +189,10 @@ begin
   inherited;
 end;
 
-procedure TEventBase.EventsChanged(const item: TMethodPointer;
-  action: TEventsChangedAction);
+procedure TEventBase.EventsChanged;
 begin
   if Assigned(fOnChanged) then
-    fOnChanged(Self, item, action);
+    fOnChanged(Self);
 end;
 
 procedure TEventBase.Add(const handler: TMethodPointer);
@@ -221,17 +215,9 @@ begin
   end;
 end;
 
-procedure TEventBase.ForEach(const action: TAction<TMethodPointer>);
-var
-  handler: TMethodPointer;
+function TEventBase.GetCanInvoke: Boolean;
 begin
-  for handler in Handlers do
-    action(handler);
-end;
-
-function TEventBase.GetCount: Integer;
-begin
-  Result := fHandlers.Count;
+  Result := fEnabled and (fHandlers.Count <> 0);
 end;
 
 function TEventBase.GetEnabled: Boolean;
@@ -258,17 +244,7 @@ begin
   Result := fInvoke;
 end;
 
-function TEventBase.GetIsEmpty: Boolean;
-begin
-  Result := fHandlers.Count = 0;
-end;
-
-function TEventBase.GetIsInvokable: Boolean;
-begin
-  Result := fEnabled and (fHandlers.Count <> 0);
-end;
-
-function TEventBase.GetOnChanged: TEventsChangedEvent;
+function TEventBase.GetOnChanged: TNotifyEvent;
 begin
   Result := fOnChanged;
 end;
@@ -309,7 +285,7 @@ begin
     end;
   end;
 
-  EventsChanged(Item, TEventsChangedAction(Action));
+  EventsChanged;
 end;
 
 procedure TEventBase.Remove(const handler: TMethodPointer);
@@ -341,7 +317,7 @@ begin
   fEnabled := value;
 end;
 
-procedure TEventBase.SetOnChanged(const value: TEventsChangedEvent);
+procedure TEventBase.SetOnChanged(const value: TNotifyEvent);
 begin
   fOnChanged := value;
 end;

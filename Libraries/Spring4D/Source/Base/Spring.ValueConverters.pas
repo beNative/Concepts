@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2015 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -1265,7 +1265,7 @@ var
 begin
   if targetTypeInfo.Kind = tkFloat then
   begin
-    targetTypeData := GetTypeData(targetTypeInfo);
+    targetTypeData := targetTypeInfo.TypeData;
     case targetTypeData.FloatType of
       ftExtended:
         Result := TValue.From<Extended>(StrToFloat(value.AsString));
@@ -1560,7 +1560,7 @@ var
   guid: TGUID;
   p: Pointer;
 begin
-  guid := GetTypeData(targetTypeInfo)^.Guid;
+  guid := targetTypeInfo.TypeData.Guid;
   if value.AsObject.GetInterface(guid, p) then
     TValue.MakeWithoutCopy(@p, targetTypeInfo, Result)
   else
@@ -1656,7 +1656,7 @@ function TInterfaceToInterfaceConverter.DoConvertTo(const value: TValue;
 var
   intf: IInterface;
 begin
-  TryGetInterface(value, GetTypeData(targetTypeInfo).Guid, intf);
+  TryGetInterface(value, targetTypeInfo.TypeData.Guid, intf);
   TValue.Make(@intf, targetTypeInfo, Result);
 end;
 
