@@ -41,21 +41,29 @@ type
     {$ENDREGION}
 
     procedure cbxControlsChange(Sender: TObject);
-    procedure ctTopNeedDragImageControl(Sender: TObject; ATab: TChromeTab;
-      var DragControl: TWinControl);
-    procedure ctTopTabDragDrop(Sender: TObject; X, Y: Integer;
-      DragTabObject: IDragTabObject; Cancelled: Boolean;
-      var TabDropOptions: TTabDropOptions);
+    procedure FCTTopNeedDragImageControl(
+      Sender          : TObject;
+      ATab            : TChromeTab;
+      var DragControl : TWinControl
+    );
+    procedure FCTTopTabDragDrop(
+      Sender             : TObject;
+      X, Y               : Integer;
+      DragTabObject      : IDragTabObject;
+      Cancelled          : Boolean;
+      var TabDropOptions : TTabDropOptions
+    );
 
   private
-    FPropertyInspector: TPropertyInspector;
+    FPropertyInspector : TPropertyInspector;
+    FCTTop             : TChromeTabs;
 
   protected
     procedure ProcessDroppedTab(
-          Sender         : TObject;
-          X, Y           : Integer;
-          DragTabObject  : IDragTabObject;
-          Cancelled      : Boolean;
+      Sender             : TObject;
+      X, Y               : Integer;
+      DragTabObject      : IDragTabObject;
+      Cancelled          : Boolean;
       var TabDropOptions : TTabDropOptions
     );
   public
@@ -67,19 +75,24 @@ implementation
 
 uses
   DDuce.Components.Factories;
-  //Concepts.Factories;
 
 {$R *.dfm}
 
 {$REGION 'construction and destruction'}
 procedure TfrmChromeTabs.AfterConstruction;
 var
-  I: Integer;
-  C: TWinControl;
+  I : Integer;
+  C : TWinControl;
 begin
   inherited;
-  //FPropertyInspector :=
-    //TDDuceComponents.CreatePropertyInspector(Self, pnlLeft, ctTop);
+  FCTTop                        := TChromeTabs.Create(Self);
+  FCTTop.Parent                 := pnlRight;
+  FCTTop.Align                  := alTop;
+  FCTTop.OnTabDragDrop          := FCTTopTabDragDrop;
+  FCTTop.OnNeedDragImageControl := FCTTopNeedDragImageControl;
+
+  FPropertyInspector :=
+    TDDuceComponents.CreatePropertyInspector(Self, pnlLeft, FCTTop);
   for I := 0 to ComponentCount - 1 do
   begin
     if Components[I] is TWinControl then
@@ -101,13 +114,13 @@ begin
   FPropertyInspector.Objects[0] := C;
 end;
 
-procedure TfrmChromeTabs.ctTopNeedDragImageControl(Sender: TObject;
+procedure TfrmChromeTabs.FCTTopNeedDragImageControl(Sender: TObject;
   ATab: TChromeTab; var DragControl: TWinControl);
 begin
   DragControl := pnlDrag;
 end;
 
-procedure TfrmChromeTabs.ctTopTabDragDrop(Sender: TObject; X, Y: Integer;
+procedure TfrmChromeTabs.FCTTopTabDragDrop(Sender: TObject; X, Y: Integer;
   DragTabObject: IDragTabObject; Cancelled: Boolean;
   var TabDropOptions: TTabDropOptions);
 begin
