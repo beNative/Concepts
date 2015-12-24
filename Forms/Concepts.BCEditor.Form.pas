@@ -81,9 +81,6 @@ uses
 
 {$REGION 'construction and destruction'}
 procedure TfrmBCEditor.AfterConstruction;
-var
-  I: Integer;
-  C: TWinControl;
 begin
   inherited;
   FBCEditor := TConceptFactories.CreateBCEditor(
@@ -114,24 +111,9 @@ begin
     FBCEditor
   );
   FPropertyInspector.Name := 'PropertyInspector';
-//  for I := 0 to ComponentCount - 1 do
-//  begin
-//    if Components[I] is TWinControl then
-//    begin
-//      C := TWinControl(Components[I]);
-//      cbxControls.AddItem(C.Name, C);
-//    end;
-//  end;
-
-   //FBCEditor.Highlighter.FileName
-
-
-
-
   cbxControls.AddItem(FBCEditor.Name, FBCEditor);
   cbxControls.AddItem(FBCEditor.Highlighter.FileName, FBCEditor.Highlighter);
   cbxControls.ItemIndex := 0;
-
 end;
 {$ENDREGION}
 
