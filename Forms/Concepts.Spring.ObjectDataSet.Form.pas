@@ -23,6 +23,11 @@ unit Concepts.Spring.ObjectDataSet.Form;
     - DSharp TreeViewPresenter
 }
 
+{
+  REMARKS:
+    - TObjectDataSet issues an overflow error when compiled with overflow checks.
+}
+
 interface
 
 uses
