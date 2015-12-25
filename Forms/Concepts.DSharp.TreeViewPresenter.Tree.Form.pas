@@ -34,13 +34,11 @@ uses
   DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter,
   DSharp.Bindings, DSharp.Windows.CustomPresenter,
 
-  Spring.Collections,
+  Spring.Collections, Spring.Reflection,
 
   DDuce.Components.PropertyInspector, DDuce.Components.GridView,
 
-  Concepts.RTTEye.Data,
-
-  Concepts.Types.Contact;
+  Concepts.RTTEye.Data, Concepts.Resources;
 
 type
   TfrmTreeViewPresenterTree = class(TForm)
@@ -53,23 +51,34 @@ type
     pnlLeftTop           : TPanel;
     pnlLeftBottom        : TPanel;
     splHorizontal        : TSplitter;
+    pnlTreeView          : TPanel;
+    edtFilter            : TLabeledEdit;
+    actExecute           : TAction;
+    btnExecute           : TButton;
+    mmoDetails           : TMemo;
+    pnlType              : TPanel;
+
+    procedure actExecuteExecute(Sender: TObject);
 
   private
-    FList       : IList<TContact>;
-    FPI         : TPropertyInspector;
-    FVST        : TVirtualStringTree;
-    FTVP        : TTreeViewPresenter;
-    FVSTColumns : TVirtualStringTree;
-    FTVPColumns : TTreeViewPresenter;
-    FObjectList : IList<TReflectionData>;
+    FPI          : TPropertyInspector;
+    FVST         : TVirtualStringTree;
+    FTVP         : TTreeViewPresenter;
+    FVSTColumns  : TVirtualStringTree;
+    FObjectList  : IList<TReflectionData>;
+    FData        : TReflectionData;
+    FObjectList2 : IObjectList;
+    FReflection  : IReflection;
 
-    procedure FTVPColumnsSelectionChanged(Sender: TObject);
     procedure FTVPSelectionChanged(Sender: TObject);
 
   public
     procedure AfterConstruction; override;
+    procedure CreateFirstAttemptTreeView;
 
-    procedure CreateColumnDefinitionsView;
+    procedure CreateRttiTreeview;
+
+    procedure BeforeDestruction; override;
 
   end;
 
@@ -78,165 +87,143 @@ implementation
 {$R *.dfm}
 
 uses
+  System.Rtti,
+
   DSharp.Windows.ColumnDefinitions.ControlTemplate,
 
-  DDuce.RandomData, DDuce.Components.Factories,
+  Spring.Collections.Adapters, Spring.Collections.Enumerable,
 
-  Concepts.Factories, Concepts.ComponentInspector,
-  Concepts.RTTEye.Templates;
+  DDuce.RandomData, DDuce.Components.Factories, DDuce.Reflect,
+
+  Concepts.RTTEye.RttiTemplates, Concepts.Factories, Concepts.RTTEye.Templates,
+  Concepts.Utils;
 
 {$REGION 'construction and destruction'}
 procedure TfrmTreeViewPresenterTree.AfterConstruction;
-var
-  C : TColumnDefinition;
-  I : Integer;
 begin
   inherited AfterConstruction;
 
-  //FList := TConceptFactories.CreateContactList(10000);
-  FVST  := TConceptFactories.CreateVirtualStringTree(Self, pnlTop);
-  //FTVP  := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList as IObjectList);
+  FVST  := TConceptFactories.CreateVirtualStringTree(Self, pnlTreeView);
+  CreateRttiTreeview;
 
-  FObjectList := TCollections.CreateObjectList<TReflectionData>;
-  FObjectList.Add(TReflectionData.Create);
-   FTVP := TTreeViewPresenter.Create(Self);
+  FTVP.OnSelectionChanged := FTVPSelectionChanged;
+  FTVP.UseColumnDefinitions := True;
+  FTVP.TreeView := FVST;
+  //FPI   := TDDuceComponents.CreatePropertyInspector(Self, pnlLeftTop, FTVP);
+end;
 
-   with FTVP.ColumnDefinitions.Add('Name') do
+procedure TfrmTreeViewPresenterTree.BeforeDestruction;
+begin
+  FObjectList := nil;
+  FObjectList2 := nil;
+  inherited BeforeDestruction;
+end;
+
+{$ENDREGION}
+
+procedure TfrmTreeViewPresenterTree.CreateFirstAttemptTreeView;
+begin
+  FData.Filter := edtFilter.Text;
+  FTVP := TTreeViewPresenter.Create(Self);
+  with FTVP.ColumnDefinitions.Add('Name') do
   begin
     ValuePropertyName := 'Name';
     Alignment         := taLeftJustify;
-    //OnCustomDraw      := FTVPColumnDefinitionsCustomDrawColumn;
     AutoSize          := True;
   end;
+  FTVP.View.ItemsSource := FData.Types as IObjectList;
+  FTVP.View.ItemTemplate := TTypeTemplate.Create(FTVP.ColumnDefinitions);
 
-  //FTVP  := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FObjectList as IObjectList);
-  //FTVP.View.ItemTemplate := TReflectionTemplate.Create(FTVP.ColumnDefinitions);
-  FTVP.View.ItemTemplate := TReflectionTemplate.Create(FTVP.ColumnDefinitions);
-  //FTVP.View.ItemsSource :=
+end;
 
-   FTVP.UseColumnDefinitions := True;
-   FTVP.View.ItemsSource := FObjectList as IObjectList;
-   FTVP.View.ItemTemplate := TReflectionTemplate.Create(FTVP.ColumnDefinitions);
-   FTVP.TreeView := FVST;
+procedure TfrmTreeViewPresenterTree.CreateRttiTreeview;
+var
+  OL : IObjectList;
+  EI  : Enumerable<TRttiInterfaceType>;
+  EC : Enumerable<TRttiInstanceType>;
 
-
-
-
-
-
-//  APresenter.UseColumnDefinitions := True;
-//  APresenter.View.ItemsSource     := ASource;
-//  if not Assigned(ATemplate) then
-//    APresenter.View.ItemTemplate :=
-//      TColumnDefinitionsControlTemplate.Create(APresenter.ColumnDefinitions)
-//  else
-//    APresenter.View.ItemTemplate := ATemplate;
-//  if Assigned(AFilter) then
-//    APresenter.View.Filter.Add(AFilter);
+begin
+  FReflection := TReflection.Create;
+  FTVP := TTreeViewPresenter.Create(Self);
+  FObjectList2 := TCollections.CreateObjectList<TObject>(True) as IObjectList;
+  FTVP.View.ItemsSource := FObjectList2;
 
 
 
-  //
-  FPI   := TDDuceComponents.CreatePropertyInspector(Self, pnlLeftTop, FTVP);
 
-  //FTVP.View.ItemTemplate := TColumnDefinitionsControlTemplate.Create(FTVP.ColumnDefinitions);
-  //FTVP.OnSelectionChanged := FTVPSelectionChanged;
+  //FTVP.View.ItemsSource := EI.ToList as IObjectList;
+  FTVP.OnSelectionChanged := FTVPSelectionChanged;
 
-  CreateColumnDefinitionsView;
-//  InspectComponent(FTVP);
+//  with FTVP.ColumnDefinitions.Add('Name') do
+//  begin
+//    ValuePropertyName := 'Name';
+//    Alignment         := taLeftJustify;
+//    AutoSize          := True;
+//  end;
+  FTVP.View.ItemTemplate := TRttiTypeTemplate.Create;
+end;
+
+{$REGION 'action handlers'}
+
+{ REMARK: When wrapping the body of thiss method in a HourGlass call this
+  seems to introduce a memory leak.
+}
+procedure TfrmTreeViewPresenterTree.actExecuteExecute(Sender: TObject);
+var
+  ET : Enumerable<TRttiType>;
+begin
+  Screen.Cursor := crHourGlass;
+  FTVP.BeginUpdate;
+  try
+    FObjectList2.Clear;
+    ET := TType.Types.Where( function(const AArg: TRttiType): Boolean
+    begin
+       Result := AArg.QualifiedName.Contains(edtFilter.Text);
+    end
+    );
+    FObjectList2.AddRange(ET.ToList as IObjectList);
+  finally
+    Screen.Cursor := crDefault;
+    FTVP.EndUpdate;
+  end;
 end;
 {$ENDREGION}
 
-procedure TfrmTreeViewPresenterTree.CreateColumnDefinitionsView;
-var
-  CDList : IList<TColumnDefinition>;
-  C      : TColumnDefinition;
-  I      : Integer;
-begin
-  CDList := TCollections.CreateObjectList<TColumnDefinition>;
-  for I := 0 to FTVP.ColumnDefinitions.Count - 1 do
-  begin
-    C := FTVP.ColumnDefinitions[I];
-    CDList.Add(C);
-  end;
-  FVSTColumns := TConceptFactories.CreateVirtualStringTree(Self, pnlLeftBottom);
-  FTVPColumns := TConceptFactories.CreateTreeViewPresenter(Self, FVSTColumns, CDList as IObjectList);
-  FTVPColumns.SelectionMode := smSingle;
-  FTVPColumns.OnSelectionChanged := FTVPColumnsSelectionChanged;
-end;
-
-procedure TfrmTreeViewPresenterTree.FTVPColumnsSelectionChanged(Sender: TObject);
-begin
-  if Assigned(FTVPColumns.SelectedItem) then
-    FPI.Objects[0] := FTVPColumns.SelectedItem;
-end;
-
+{$REGION 'event handlers'}
 procedure TfrmTreeViewPresenterTree.FTVPSelectionChanged(Sender: TObject);
+var
+  SI : TObject;
+  S  : string;
 begin
-  FPI.Objects[0] := FTVP;
+  //FPI.Objects[0] := FTVP.SelectedItem;
+  if Assigned(FTVP.SelectedItem) then
+  begin
+//    SI := FTVP.SelectedItem;
+//    if SI is TMemberData then
+//    begin
+//      mmoDetails.Lines.Text := Reflect.Properties(TMemberData(SI).RttiMember).ToString;
+//      S := TMemberData(SI).RttiMember.ClassName;
+//    end
+//    else if SI is TTypeData then
+//    begin
+//      mmoDetails.Lines.Text := Reflect.Properties(TTypeData(SI).RttiType).ToString;
+//      S := TTypeData(SI).RttiType.ClassName;
+//    end
+//    else if SI is TParameter then
+//    begin
+//      mmoDetails.Lines.Text := Reflect.Properties(TParameter(SI).RttiParameter).ToString;
+//      S := TParameter(SI).RttiParameter.ClassName;
+//    end;
+
+    pnlType.Caption := FTVP.SelectedItem.ClassName;
+    mmoDetails.Lines.Text := Reflect.Properties(FTVP.SelectedItem).ToString;
+
+  end;
+
 end;
+
+{$ENDREGION}
 
 end.
 
-(*
-type
-  TFolderTemplate = class(TDataTemplate)
-  public
-    function GetItem(const Item: TObject; const Index: Integer): TObject; override;
-    function GetItemCount(const Item: TObject): Integer; override;
-    function GetText(const Item: TObject; const ColumnIndex: Integer): string; override;
-    function GetTemplateDataClass: TClass; override;
-  end;
 
-  TFileTemplate = class(TDataTemplate)
-  public
-    function GetText(const Item: TObject; const ColumnIndex: Integer): string; override;
-    function GetTemplateDataClass: TClass; override;
-  end;
-
-implementation
-
-{ TFolderTemplate }
-
-function TFolderTemplate.GetItem(const Item: TObject;
-  const Index: Integer): TObject;
-begin
-  Result := TFolder(Item).Files[Index];
-end;
-
-function TFolderTemplate.GetItemCount(const Item: TObject): Integer;
-begin
-  Result := TFolder(Item).Files.Count; // containing subfolders in that list as well
-end;
-
-function TFolderTemplate.GetTemplateDataClass: TClass;
-begin
-  Result := TFolder;
-end;
-
-function TFolderTemplate.GetText(const Item: TObject;
-  const ColumnIndex: Integer): string;
-begin
-  case ColumnIndex of
-    0: Result := TFolder(Item).Name;
-  end;
-end;
-
-{ TFileTemplate }
-
-function TFileTemplate.GetTemplateDataClass: TClass;
-begin
-  Result := TFile;
-end;
-
-function TFileTemplate.GetText(const Item: TObject;
-  const ColumnIndex: Integer): string;
-begin
-  case ColumnIndex of
-    0: Result := TFile(Item).Name;
-    1: Result := DateTimeToStr(TFile(Item).ChangeDate);
-    2: Result := IntToStr(TFile(Item).Size);
-  end;
-end;
-
-*)

@@ -47,10 +47,10 @@ type
     pnlLeft              : TPanel;
     aclMain              : TActionList;
     splVertical          : TSplitter;
-    pnlTreeviewPresenter : TPanel;
     pnlLeftTop           : TPanel;
     pnlLeftBottom        : TPanel;
     splHorizontal        : TSplitter;
+    pnlTreeviewPresenter: TPanel;
 
   private
     FList       : IList<TContact>;
@@ -79,13 +79,10 @@ uses
 
   DDuce.RandomData, DDuce.Components.Factories,
 
-  Concepts.Factories, Concepts.ComponentInspector;
+  Concepts.Factories;
 
 {$REGION 'construction and destruction'}
 procedure TfrmTreeViewPresenterList.AfterConstruction;
-var
-  C : TColumnDefinition;
-  I : Integer;
 begin
   inherited AfterConstruction;
   FList := TConceptFactories.CreateContactList(10000);
@@ -97,7 +94,6 @@ begin
   FTVP.OnSelectionChanged := FTVPSelectionChanged;
 
   CreateColumnDefinitionsView;
-//  InspectComponent(FTVP);
 end;
 {$ENDREGION}
 
@@ -112,13 +108,10 @@ begin
   begin
     C := FTVP.ColumnDefinitions[I];
     CDList.Add(C);
-    //FPI.Add(C);
   end;
   FVSTColumns := TConceptFactories.CreateVirtualStringTree(Self, pnlLeftBottom);
   FTVPColumns := TConceptFactories.CreateTreeViewPresenter(Self, FVSTColumns, CDList as IObjectList);
-  //FTVPColumns.ListMode := True;
   FTVPColumns.SelectionMode := smSingle;
-
   FTVPColumns.OnSelectionChanged := FTVPColumnsSelectionChanged;
 end;
 

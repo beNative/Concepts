@@ -18,7 +18,7 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
     Left = 361
     Top = 0
     Width = 8
-    Height = 632
+    Height = 688
     ExplicitLeft = 289
     ExplicitHeight = 661
   end
@@ -26,16 +26,16 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
     Left = 369
     Top = 0
     Width = 742
-    Height = 632
+    Height = 688
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 632
+    Top = 688
     Width = 1111
-    Height = 62
+    Height = 6
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
@@ -44,44 +44,55 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
     Left = 0
     Top = 0
     Width = 361
-    Height = 632
+    Height = 688
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 2
     object splHorizontal: TSplitter
       Left = 0
-      Top = 345
+      Top = 346
       Width = 361
       Height = 8
       Cursor = crVSplit
       Align = alTop
-    end
-    object pnlTreeviewPresenter: TPanel
-      Left = 0
-      Top = 0
-      Width = 361
-      Height = 25
-      Align = alTop
-      BevelOuter = bvNone
-      Caption = 'TTreeviewPresenter'
-      TabOrder = 0
+      ExplicitTop = 345
     end
     object pnlLeftTop: TPanel
       Left = 0
-      Top = 25
+      Top = 26
       Width = 361
       Height = 320
       Align = alTop
       BevelOuter = bvNone
-      TabOrder = 1
+      TabOrder = 0
     end
     object pnlLeftBottom: TPanel
       Left = 0
-      Top = 353
+      Top = 354
       Width = 361
-      Height = 279
+      Height = 334
       Align = alClient
       BevelOuter = bvNone
+      TabOrder = 1
+    end
+    object pnlTreeviewPresenter: TPanel
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 355
+      Height = 20
+      Align = alTop
+      BevelKind = bkFlat
+      BevelOuter = bvNone
+      Caption = 'TTreeviewPresenter'
+      Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
       TabOrder = 2
     end
   end

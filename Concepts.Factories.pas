@@ -592,6 +592,7 @@ begin
   BE.ControlComponent  := AControlComponent;
   BE.ControlExpression := AControlExpression;
   BE.Direction         := ADirection;
+  Result := BE;
 end;
 
 class function TBindingsFactory.CreateEditBinding(ASourceComponent: TComponent;

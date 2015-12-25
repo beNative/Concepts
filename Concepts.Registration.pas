@@ -50,7 +50,8 @@ uses
   {$ENDIF}
 
   {$IFDEF DSHARP}
-  Concepts.DSharp.TreeViewPresenter.Form,
+  Concepts.DSharp.TreeViewPresenter.Tree.Form,
+  Concepts.DSharp.TreeViewPresenter.List.Form,
   Concepts.DSharp.Bindings.Form,
   {$ENDIF}
 
@@ -107,6 +108,18 @@ uses
 
   {$IFDEF BCEDITOR}
   Concepts.BCEditor.Form,
+  {$ENDIF}
+
+  {$IFDEF DDETOURS}
+  Concepts.DDetours.Form,
+  {$ENDIF}
+  
+  {$IFDEF DELPHIZMQ}
+  Concepts.ZeroMQ.Form,
+  {$ENDIF}
+
+  {$IFDEF ZOBJECTINSPECTOR}
+  Concepts.zObjectInspector.Form,
   {$ENDIF}
   {$ENDREGION}
 
@@ -197,10 +210,17 @@ begin
 //    FCategoryColor
 //  );
   ConceptManager.Register(
-    TfrmTreeViewPresenter,
-    'TreeViewPresenter',
+    TfrmTreeViewPresenterList,
+    'TreeViewPresenter list',
     'DSharp',
-    'DSharp TreeViewPresenter',
+    'TreeViewPresenter list',
+    FCategoryColor
+  );
+  ConceptManager.Register(
+    TfrmTreeViewPresenterTree,
+    'TreeViewPresenter tree',
+    'DSharp',
+    'TreeViewPresenter tree',
     FCategoryColor
   );
   {$IFDEF DEVEXPRESS}
@@ -347,12 +367,34 @@ end;
 {$REGION 'public methods'}
 class procedure TConcepts.RegisterConcepts;
 begin
-  RegisterSpringConcepts;
-  RegisterDSharpConcepts;
-  RegisterDevExpressConcepts;
-  RegisterSystemConcepts;
-  RegisterVclConcepts;
-  RegisterWinApiConcepts;
+  {$IFDEF ZOBJECTINSPECTOR}
+  ConceptManager.Register(
+    TfrmzObjectInspector,
+    'TzObjectInspector',
+    'TzObjectInspector',
+    'TzObjectInspector demo'
+  );
+  {$ENDIF}
+
+  {$IFDEF DELPHIZMQ}
+  ConceptManager.Register(
+    TfrmZMQConcept,
+    'ZeroMQ',
+    'ZeroMQ',
+    'ZeroMQ demo'
+  );
+  {$ENDIF}
+
+  {$IFDEF DDETOURS}
+  ConceptManager.Register(
+    TfrmDDetours,
+    'DDetours',
+    'DDetours',
+    'DDetours library demo'
+  );
+  {$ENDIF}
+
+  //Exit;
 
   {$IFDEF BCEDITOR}
   ConceptManager.Register(
@@ -398,6 +440,13 @@ begin
     'Reflection-like overview using the enhanced RTTI'
   );
   {$ENDIF}
+
+  RegisterSpringConcepts;
+  RegisterDSharpConcepts;
+  RegisterDevExpressConcepts;
+  RegisterSystemConcepts;
+  RegisterVclConcepts;
+  RegisterWinApiConcepts;
  end;
 {$ENDREGION}
 

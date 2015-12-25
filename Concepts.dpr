@@ -3,6 +3,7 @@ program Concepts;
 {$I Concepts.inc}
 
 uses
+  FastMM4 in 'Libraries\fastmm\FastMM4.pas',
   Vcl.Themes,
   Vcl.Styles,
   Forms,
@@ -25,7 +26,7 @@ uses
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas',
   {$ENDIF }
   Concepts.DSharp.Bindings.Form in 'Forms\Concepts.DSharp.Bindings.Form.pas' {frmBindings},
-  Concepts.DSharp.TreeViewPresenter.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.Form.pas' {frmTreeViewPresenter},
+  Concepts.DSharp.TreeViewPresenter.Tree.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.Tree.Form.pas' {frmTreeViewPresenterTree},
   Concepts.Factories in 'Concepts.Factories.pas',
   Concepts.MainForm in 'Concepts.MainForm.pas' {frmMain},
   Concepts.Manager in 'Concepts.Manager.pas',
@@ -101,14 +102,12 @@ uses
   DSharp.Core.Reflection in 'Libraries\DSharp\DSharp.Core.Reflection.pas',
   DSharp.Core.Utils in 'Libraries\DSharp\DSharp.Core.Utils.pas',
   DSharp.Core.Validations in 'Libraries\DSharp\DSharp.Core.Validations.pas',
-  DSharp.Core.XNode in 'Libraries\DSharp\DSharp.Core.XNode.pas',
   {$IFDEF DEVEXPRESS}
   DSharp.DevExpress.GridViewPresenter in 'Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas',
   {$ENDIF }
   DSharp.Windows.ColumnDefinitions in 'Libraries\DSharp\DSharp.Windows.ColumnDefinitions.pas',
   DSharp.Windows.ColumnDefinitions.ControlTemplate in 'Libraries\DSharp\DSharp.Windows.ColumnDefinitions.ControlTemplate.pas',
   DSharp.Windows.ColumnDefinitions.RttiDataTemplate in 'Libraries\DSharp\DSharp.Windows.ColumnDefinitions.RttiDataTemplate.pas',
-  DSharp.Windows.ColumnDefinitions.XmlDataTemplate in 'Libraries\DSharp\DSharp.Windows.ColumnDefinitions.XmlDataTemplate.pas',
   DSharp.Windows.ControlTemplates in 'Libraries\DSharp\DSharp.Windows.ControlTemplates.pas',
   DSharp.Windows.CustomPresenter in 'Libraries\DSharp\DSharp.Windows.CustomPresenter.pas',
   DSharp.Windows.CustomPresenter.Types in 'Libraries\DSharp\DSharp.Windows.CustomPresenter.Types.pas',
@@ -275,7 +274,6 @@ uses
   Spring.Persistence.SQL.Params in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Params.pas',
   Spring.Persistence.SQL.Register in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Register.pas',
   Spring.Persistence.SQL.Types in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Types.pas',
-  Spring.Reflection in 'Libraries\Spring4D\Source\Base\Reflection\Spring.Reflection.pas',
   Spring.ResourceStrings in 'Libraries\Spring4D\Source\Base\Spring.ResourceStrings.pas',
   Spring.Services in 'Libraries\Spring4D\Source\Core\Services\Spring.Services.pas',
   Spring.Services.Logging in 'Libraries\Spring4D\Source\Core\Services\Spring.Services.Logging.pas',
@@ -304,24 +302,143 @@ uses
   Concepts.ComponentInspector in 'Concepts.ComponentInspector.pas' {frmComponentInspector},
   DDuce.Logging.Appenders.WinIPC in 'Libraries\DDuce\Logging\DDuce.Logging.Appenders.WinIPC.pas',
   DDuce.Logging.Appenders.LogTree in 'Libraries\DDuce\Logging\DDuce.Logging.Appenders.LogTree.pas',
-  DDuce.Components.Factories in 'Libraries\DDuce\Components\DDuce.Components.Factories.pas';
+  DDuce.Components.Factories in 'Libraries\DDuce\Components\DDuce.Components.Factories.pas',
+  Concepts.RTTEye.Data in 'Types\Concepts.RTTEye.Data.pas',
+  Spring.Reflection in 'Libraries\Spring4D\Source\Base\Spring.Reflection.pas',
+  Spring.Mocking.Matching in 'Libraries\Spring4D\Source\Core\Mocking\Spring.Mocking.Matching.pas',
+  Concepts.DSharp.TreeViewPresenter.List.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.List.Form.pas' {frmTreeViewPresenterList},
+  BCEditor.Consts in 'Libraries\TBCEditor\Source\BCEditor.Consts.pas',
+  BCEditor.Editor.ActiveLine in 'Libraries\TBCEditor\Source\BCEditor.Editor.ActiveLine.pas',
+  BCEditor.Editor.Base in 'Libraries\TBCEditor\Source\BCEditor.Editor.Base.pas',
+  BCEditor.Editor.Bookmarks in 'Libraries\TBCEditor\Source\BCEditor.Editor.Bookmarks.pas',
+  BCEditor.Editor.Caret.NonBlinking.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.Caret.NonBlinking.Colors.pas',
+  BCEditor.Editor.Caret.NonBlinking in 'Libraries\TBCEditor\Source\BCEditor.Editor.Caret.NonBlinking.pas',
+  BCEditor.Editor.Caret.Offsets in 'Libraries\TBCEditor\Source\BCEditor.Editor.Caret.Offsets.pas',
+  BCEditor.Editor.Caret in 'Libraries\TBCEditor\Source\BCEditor.Editor.Caret.pas',
+  BCEditor.Editor.Caret.Styles in 'Libraries\TBCEditor\Source\BCEditor.Editor.Caret.Styles.pas',
+  BCEditor.Editor.CodeFolding.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Colors.pas',
+  BCEditor.Editor.CodeFolding.Hint.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.Colors.pas',
+  BCEditor.Editor.CodeFolding.Hint.Form in 'Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.Form.pas',
+  BCEditor.Editor.CodeFolding.Hint in 'Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.pas',
+  BCEditor.Editor.CodeFolding in 'Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.pas',
+  BCEditor.Editor.CodeFolding.Ranges in 'Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Ranges.pas',
+  BCEditor.Editor.CodeFolding.Regions in 'Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Regions.pas',
+  BCEditor.Editor.CompletionProposal.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.Colors.pas',
+  BCEditor.Editor.CompletionProposal.Columns in 'Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.Columns.pas',
+  BCEditor.Editor.CompletionProposal in 'Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.pas',
+  BCEditor.Editor.CompletionProposal.PopupWindow in 'Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.PopupWindow.pas',
+  BCEditor.Editor.CompletionProposal.Trigger in 'Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.Trigger.pas',
+  BCEditor.Editor.DB in 'Libraries\TBCEditor\Source\BCEditor.Editor.DB.pas',
+  BCEditor.Editor.Directories in 'Libraries\TBCEditor\Source\BCEditor.Editor.Directories.pas',
+  BCEditor.Editor.Glyph in 'Libraries\TBCEditor\Source\BCEditor.Editor.Glyph.pas',
+  BCEditor.Editor.InternalImage in 'Libraries\TBCEditor\Source\BCEditor.Editor.InternalImage.pas',
+  BCEditor.Editor.KeyCommands in 'Libraries\TBCEditor\Source\BCEditor.Editor.KeyCommands.pas',
+  BCEditor.Editor.LeftMargin.Bookmarks.Panel in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Bookmarks.Panel.pas',
+  BCEditor.Editor.LeftMargin.Bookmarks in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Bookmarks.pas',
+  BCEditor.Editor.LeftMargin.Border in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Border.pas',
+  BCEditor.Editor.LeftMargin.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Colors.pas',
+  BCEditor.Editor.LeftMargin.LineNumbers in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.LineNumbers.pas',
+  BCEditor.Editor.LeftMargin.LineState in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.LineState.pas',
+  BCEditor.Editor.LeftMargin in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.pas',
+  BCEditor.Editor.LineSpacing in 'Libraries\TBCEditor\Source\BCEditor.Editor.LineSpacing.pas',
+  BCEditor.Editor.MatchingPair.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.MatchingPair.Colors.pas',
+  BCEditor.Editor.MatchingPair in 'Libraries\TBCEditor\Source\BCEditor.Editor.MatchingPair.pas',
+  BCEditor.Editor.Minimap.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.Colors.pas',
+  BCEditor.Editor.Minimap in 'Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.pas',
+  BCEditor.Editor in 'Libraries\TBCEditor\Source\BCEditor.Editor.pas',
+  BCEditor.Editor.PopupWindow in 'Libraries\TBCEditor\Source\BCEditor.Editor.PopupWindow.pas',
+  BCEditor.Editor.Replace in 'Libraries\TBCEditor\Source\BCEditor.Editor.Replace.pas',
+  BCEditor.Editor.RightMargin.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.RightMargin.Colors.pas',
+  BCEditor.Editor.RightMargin in 'Libraries\TBCEditor\Source\BCEditor.Editor.RightMargin.pas',
+  BCEditor.Editor.Scroll.Hint in 'Libraries\TBCEditor\Source\BCEditor.Editor.Scroll.Hint.pas',
+  BCEditor.Editor.Scroll in 'Libraries\TBCEditor\Source\BCEditor.Editor.Scroll.pas',
+  BCEditor.Editor.Search.Highlighter.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.Search.Highlighter.Colors.pas',
+  BCEditor.Editor.Search.Highlighter in 'Libraries\TBCEditor\Source\BCEditor.Editor.Search.Highlighter.pas',
+  BCEditor.Editor.Search.Map.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.Search.Map.Colors.pas',
+  BCEditor.Editor.Search.Map in 'Libraries\TBCEditor\Source\BCEditor.Editor.Search.Map.pas',
+  BCEditor.Editor.Search in 'Libraries\TBCEditor\Source\BCEditor.Editor.Search.pas',
+  BCEditor.Editor.Selection.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.Selection.Colors.pas',
+  BCEditor.Editor.Selection in 'Libraries\TBCEditor\Source\BCEditor.Editor.Selection.pas',
+  BCEditor.Editor.SkipRegions in 'Libraries\TBCEditor\Source\BCEditor.Editor.SkipRegions.pas',
+  BCEditor.Editor.SpecialChars.EndOfLine in 'Libraries\TBCEditor\Source\BCEditor.Editor.SpecialChars.EndOfLine.pas',
+  BCEditor.Editor.SpecialChars in 'Libraries\TBCEditor\Source\BCEditor.Editor.SpecialChars.pas',
+  BCEditor.Editor.SpecialChars.Selection in 'Libraries\TBCEditor\Source\BCEditor.Editor.SpecialChars.Selection.pas',
+  BCEditor.Editor.Tabs in 'Libraries\TBCEditor\Source\BCEditor.Editor.Tabs.pas',
+  BCEditor.Editor.Undo.Item in 'Libraries\TBCEditor\Source\BCEditor.Editor.Undo.Item.pas',
+  BCEditor.Editor.Undo.List in 'Libraries\TBCEditor\Source\BCEditor.Editor.Undo.List.pas',
+  BCEditor.Editor.Undo in 'Libraries\TBCEditor\Source\BCEditor.Editor.Undo.pas',
+  BCEditor.Editor.Utils in 'Libraries\TBCEditor\Source\BCEditor.Editor.Utils.pas',
+  BCEditor.Editor.WordWrap.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.WordWrap.Colors.pas',
+  BCEditor.Editor.WordWrap in 'Libraries\TBCEditor\Source\BCEditor.Editor.WordWrap.pas',
+  BCEditor.Encoding in 'Libraries\TBCEditor\Source\BCEditor.Encoding.pas',
+  BCEditor.Highlighter.Attributes in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.Attributes.pas',
+  BCEditor.Highlighter.Colors in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.Colors.pas',
+  BCEditor.Highlighter.Info in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.Info.pas',
+  BCEditor.Highlighter.JSONImporter in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.JSONImporter.pas',
+  BCEditor.Highlighter in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.pas',
+  BCEditor.Highlighter.Rules in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.Rules.pas',
+  BCEditor.Highlighter.Token in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.Token.pas',
+  BCEditor.JsonDataObjects in 'Libraries\TBCEditor\Source\BCEditor.JsonDataObjects.pas',
+  BCEditor.KeyboardHandler in 'Libraries\TBCEditor\Source\BCEditor.KeyboardHandler.pas',
+  BCEditor.Language in 'Libraries\TBCEditor\Source\BCEditor.Language.pas',
+  BCEditor.Lines in 'Libraries\TBCEditor\Source\BCEditor.Lines.pas',
+  BCEditor.MacroRecorder in 'Libraries\TBCEditor\Source\BCEditor.MacroRecorder.pas',
+  BCEditor.Print.HeaderFooter in 'Libraries\TBCEditor\Source\BCEditor.Print.HeaderFooter.pas',
+  BCEditor.Print.Margins in 'Libraries\TBCEditor\Source\BCEditor.Print.Margins.pas',
+  BCEditor.Print in 'Libraries\TBCEditor\Source\BCEditor.Print.pas',
+  BCEditor.Print.Preview in 'Libraries\TBCEditor\Source\BCEditor.Print.Preview.pas',
+  BCEditor.Print.PrinterInfo in 'Libraries\TBCEditor\Source\BCEditor.Print.PrinterInfo.pas',
+  BCEditor.Print.Types in 'Libraries\TBCEditor\Source\BCEditor.Print.Types.pas',
+  BCEditor.Search in 'Libraries\TBCEditor\Source\BCEditor.Search.pas',
+  BCEditor.Search.RegularExpressions in 'Libraries\TBCEditor\Source\BCEditor.Search.RegularExpressions.pas',
+  BCEditor.Search.Wildcard in 'Libraries\TBCEditor\Source\BCEditor.Search.Wildcard.pas',
+  BCEditor.StyleHooks in 'Libraries\TBCEditor\Source\BCEditor.StyleHooks.pas',
+  BCEditor.TextDrawer in 'Libraries\TBCEditor\Source\BCEditor.TextDrawer.pas',
+  BCEditor.Types in 'Libraries\TBCEditor\Source\BCEditor.Types.pas',
+  BCEditor.Utils in 'Libraries\TBCEditor\Source\BCEditor.Utils.pas',
+  Concepts.RTTEye.RttiTemplates in 'Types\Concepts.RTTEye.RttiTemplates.pas',
+  FastMM4Messages in 'Libraries\fastmm\FastMM4Messages.pas',
+  Concepts.ZeroMQ.Form in 'Forms\Concepts.ZeroMQ.Form.pas' {frmZMQConcept},
+  ZeroMQ.API in 'Libraries\ZeroMQ\ZeroMQ.API.pas',
+  ZeroMQ in 'Libraries\ZeroMQ\ZeroMQ.pas',
+  Concepts.DDetours.Form in 'Forms\Concepts.DDetours.Form.pas' {frmDDetours},
+  Concepts.Spring.ClassProxy in 'Forms\Concepts.Spring.ClassProxy.pas' {frmClassProxy},
+  CPUID in 'Libraries\DDetours\CPUID.pas',
+  DDetours in 'Libraries\DDetours\DDetours.pas',
+  InstDecode in 'Libraries\DDetours\InstDecode.pas',
+  zBase in 'Libraries\TzObjectInspector\zBase.pas',
+  zCanvasStack in 'Libraries\TzObjectInspector\zCanvasStack.pas',
+  zGraphicDialog in 'Libraries\TzObjectInspector\zGraphicDialog.pas' {GraphicDialog},
+  zObjInspDialogs in 'Libraries\TzObjectInspector\zObjInspDialogs.pas',
+  zObjInspector in 'Libraries\TzObjectInspector\zObjInspector.pas',
+  zObjInspList in 'Libraries\TzObjectInspector\zObjInspList.pas',
+  zRecList in 'Libraries\TzObjectInspector\zRecList.pas',
+  zStringsDialog in 'Libraries\TzObjectInspector\zStringsDialog.pas' {StringsDialog},
+  zUtils in 'Libraries\TzObjectInspector\zUtils.pas',
+  Concepts.zObjectInspector.Form in 'Forms\Concepts.zObjectInspector.Form.pas' {frmzObjectInspector};
 
 {$R *.res}
 
 begin
+  {$WARNINGS OFF}
   ReportMemoryLeaksOnShutdown := DebugHook > 0;
+  {$WARNINGS ON}
   Application.Initialize;
   TConcepts.RegisterConcepts;
+
   Application.CreateForm(TdmResources, dmResources);
   if ConceptManager.ItemList.Count = 1 then
   begin
+
     ConceptManager.Execute(ConceptManager.ItemList.First);
   end
   else
   begin
     Application.Title := 'Concepts';
+    //TStyleManager.TrySetStyle('Windows10');
     Application.CreateForm(TfrmMain, frmMain);
   end;
   Application.Run;
+
 end.
 

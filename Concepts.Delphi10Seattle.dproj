@@ -59,6 +59,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <Custom_Styles>Amakrits|VCLSTYLE|$(PUBLIC)\Documents\Embarcadero\Studio\17.0\Styles\Amakrits.vsf;&quot;Metropolis UI Black|VCLSTYLE|$(PUBLIC)\Documents\Embarcadero\Studio\17.0\Styles\MetropolisUIBlack.vsf&quot;;&quot;Metropolis UI Blue|VCLSTYLE|$(PUBLIC)\Documents\Embarcadero\Studio\17.0\Styles\MetropolisUIBlue.vsf&quot;;&quot;Metropolis UI Dark|VCLSTYLE|$(PUBLIC)\Documents\Embarcadero\Studio\17.0\Styles\MetropolisUIDark.vsf&quot;;Windows10|VCLSTYLE|$(PUBLIC)\Documents\Embarcadero\Studio\17.0\Styles\Windows10.vsf</Custom_Styles>
         <DCC_DebugInformation>0</DCC_DebugInformation>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
@@ -112,11 +113,11 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <AppEnableHighDPI>true</AppEnableHighDPI>
-        <AppEnableAdministrator>true</AppEnableAdministrator>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <DCC_DebugDCUs>true</DCC_DebugDCUs>
+        <DCC_IOChecking>false</DCC_IOChecking>
+        <DCC_IntegerOverflowCheck>false</DCC_IntegerOverflowCheck>
         <DCC_RangeChecking>false</DCC_RangeChecking>
+        <DCC_DebugDCUs>true</DCC_DebugDCUs>
         <DCC_ImportedDataReferences>false</DCC_ImportedDataReferences>
         <DCC_MapFile>1</DCC_MapFile>
         <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
@@ -124,9 +125,9 @@
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
         <DCC_DebugInformation>2</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
-        <VerInfo_Build>12</VerInfo_Build>
+        <VerInfo_Build>27</VerInfo_Build>
         <DCC_ExeOutput>.\Library\$(Platform)\$(Config)\</DCC_ExeOutput>
-        <VerInfo_Keys>CompanyName=(c) Tim Sinaeve;FileDescription=Concepts;FileVersion=1.0.0.12;InternalName=Concepts;LegalCopyright=(c) Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=A collection of modules demonstrating some Delphi programming concepts and libraries</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=(c) Tim Sinaeve;FileDescription=Concepts;FileVersion=1.0.0.27;InternalName=Concepts;LegalCopyright=(c) Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=A collection of modules demonstrating some Delphi programming concepts and libraries</VerInfo_Keys>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
@@ -140,6 +141,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="Libraries\fastmm\FastMM4.pas"/>
         <DCCReference Include="Types\System.ImageList.pas"/>
         <DCCReference Include="Libraries\BTMemoryModule\BTMemoryModule.pas"/>
         <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabs.pas"/>
@@ -163,8 +165,8 @@
         <DCCReference Include="Forms\Concepts.DSharp.Bindings.Form.pas">
             <Form>frmBindings</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Concepts.DSharp.TreeViewPresenter.Form.pas">
-            <Form>frmTreeViewPresenter</Form>
+        <DCCReference Include="Forms\Concepts.DSharp.TreeViewPresenter.Tree.Form.pas">
+            <Form>frmTreeViewPresenterTree</Form>
         </DCCReference>
         <DCCReference Include="Concepts.Factories.pas"/>
         <DCCReference Include="Concepts.MainForm.pas">
@@ -298,12 +300,10 @@
         <DCCReference Include="Libraries\DSharp\DSharp.Core.Reflection.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Core.Utils.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Core.Validations.pas"/>
-        <DCCReference Include="Libraries\DSharp\DSharp.Core.XNode.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.ControlTemplate.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.RttiDataTemplate.pas"/>
-        <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.XmlDataTemplate.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Windows.ControlTemplates.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Windows.CustomPresenter.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Windows.CustomPresenter.Types.pas"/>
@@ -470,7 +470,6 @@
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Params.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Register.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Types.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Base\Reflection\Spring.Reflection.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.ResourceStrings.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Core\Services\Spring.Services.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Core\Services\Spring.Services.Logging.pas"/>
@@ -502,6 +501,133 @@
         <DCCReference Include="Libraries\DDuce\Logging\DDuce.Logging.Appenders.WinIPC.pas"/>
         <DCCReference Include="Libraries\DDuce\Logging\DDuce.Logging.Appenders.LogTree.pas"/>
         <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.Factories.pas"/>
+        <DCCReference Include="Types\Concepts.RTTEye.Data.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.Reflection.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Core\Mocking\Spring.Mocking.Matching.pas"/>
+        <DCCReference Include="Forms\Concepts.DSharp.TreeViewPresenter.List.Form.pas">
+            <Form>frmTreeViewPresenterList</Form>
+        </DCCReference>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Consts.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.ActiveLine.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Base.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Bookmarks.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.NonBlinking.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.NonBlinking.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.Offsets.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.Styles.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.Form.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Ranges.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Regions.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.Columns.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.PopupWindow.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.Trigger.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.DB.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Directories.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Glyph.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.InternalImage.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.KeyCommands.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Bookmarks.Panel.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Bookmarks.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Border.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.LineNumbers.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.LineState.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LineSpacing.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.MatchingPair.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.MatchingPair.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.PopupWindow.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Replace.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.RightMargin.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.RightMargin.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Scroll.Hint.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Scroll.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Search.Highlighter.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Search.Highlighter.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Search.Map.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Search.Map.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Search.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Selection.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Selection.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.SkipRegions.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.SpecialChars.EndOfLine.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.SpecialChars.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.SpecialChars.Selection.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Tabs.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Undo.Item.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Undo.List.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Undo.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Utils.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.WordWrap.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.WordWrap.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Encoding.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.Attributes.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.Info.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.JSONImporter.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.Rules.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.Token.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.JsonDataObjects.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.KeyboardHandler.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Language.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Lines.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.MacroRecorder.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Print.HeaderFooter.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Print.Margins.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Print.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Print.Preview.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Print.PrinterInfo.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Print.Types.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Search.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Search.RegularExpressions.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Search.Wildcard.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.StyleHooks.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.TextDrawer.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Types.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Utils.pas"/>
+        <DCCReference Include="Types\Concepts.RTTEye.RttiTemplates.pas"/>
+        <DCCReference Include="Libraries\fastmm\FastMM4Messages.pas"/>
+        <DCCReference Include="Forms\Concepts.ZeroMQ.Form.pas">
+            <Form>frmZMQConcept</Form>
+        </DCCReference>
+        <DCCReference Include="Libraries\ZeroMQ\ZeroMQ.API.pas"/>
+        <DCCReference Include="Libraries\ZeroMQ\ZeroMQ.pas"/>
+        <DCCReference Include="Forms\Concepts.DDetours.Form.pas">
+            <Form>frmDDetours</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.Spring.ClassProxy.pas">
+            <Form>frmClassProxy</Form>
+        </DCCReference>
+        <DCCReference Include="Libraries\DDetours\CPUID.pas"/>
+        <DCCReference Include="Libraries\DDetours\DDetours.pas"/>
+        <DCCReference Include="Libraries\DDetours\InstDecode.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\zBase.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\zCanvasStack.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\zGraphicDialog.pas">
+            <Form>GraphicDialog</Form>
+        </DCCReference>
+        <DCCReference Include="Libraries\TzObjectInspector\zObjInspDialogs.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\zObjInspector.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\zObjInspList.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\zRecList.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\zStringsDialog.pas">
+            <Form>StringsDialog</Form>
+        </DCCReference>
+        <DCCReference Include="Libraries\TzObjectInspector\zUtils.pas"/>
+        <DCCReference Include="Forms\Concepts.zObjectInspector.Form.pas">
+            <Form>frmzObjectInspector</Form>
+        </DCCReference>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
         <BuildConfiguration Include="Debug">
@@ -575,6 +701,18 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="Library\Win64\Debug\Concepts.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>Concepts_Delphi10Seattle.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Libraries\DDuce\DDuce.inc" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="Libraries\DDuce\jedi.inc" Configuration="Release" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
@@ -593,12 +731,6 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Library\Win64\Debug\Concepts_DelphiXE8.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win64">
-                        <RemoteName>Concepts.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="Libraries\DDuce\jedi.inc" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
@@ -611,7 +743,22 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
+                <DeployFile LocalName="Libraries\DDuce\jedi.inc" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
                         <RemoteDir>Contents\Resources</RemoteDir>
@@ -925,16 +1072,7 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="DependencyModule">
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.dll;.bpl</Extensions>
-                    </Platform>
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>

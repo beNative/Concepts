@@ -233,10 +233,10 @@ type
     procedure ResetCounter(const AName: string);
     function GetCounter(const AName: string): Integer;
 
-    procedure EnterMethod(const AName: string); overload;
-    procedure EnterMethod(ASender: TObject; const AName: string); overload;
-    procedure ExitMethod(const AName: string); overload;
-    procedure ExitMethod(ASender: TObject; const AName: string); overload;
+    procedure Enter(const AName: string); overload;
+    procedure Enter(ASender: TObject; const AName: string); overload;
+    procedure Leave(const AName: string); overload;
+    procedure Leave(ASender: TObject; const AName: string); overload;
 
     procedure AddCheckPoint(const AName: string = '');
     procedure ResetCheckPoint(const AName: string = '');
@@ -362,10 +362,10 @@ type
     procedure ResetCounter(const AName: string);
     function GetCounter(const AName: string): Integer;
 
-    procedure EnterMethod(const AName: string); overload;
-    procedure EnterMethod(ASender: TObject; const AName: string); overload;
-    procedure ExitMethod(const AName: string); overload;
-    procedure ExitMethod(ASender: TObject; const AName: string); overload;
+    procedure Enter(const AName: string); overload;
+    procedure Enter(ASender: TObject; const AName: string); overload;
+    procedure Leave(const AName: string); overload;
+    procedure Leave(ASender: TObject; const AName: string); overload;
 
     procedure Watch(const AName: string; const AValue: string); overload;
     procedure Watch(const AName: string; AValue: Integer); overload;
@@ -829,12 +829,12 @@ begin
   end;
 end;
 
-procedure TLogger.EnterMethod(const AName: string);
+procedure TLogger.Enter(const AName: string);
 begin
-  EnterMethod(nil, AName);
+  Enter(nil, AName);
 end;
 
-procedure TLogger.EnterMethod(ASender: TObject; const AName: string);
+procedure TLogger.Enter(ASender: TObject; const AName: string);
 begin
   FLogStack.Insert(0, UpperCase(AName));
   if ASender <> nil then
@@ -848,16 +848,16 @@ begin
     InternalSend(lmtEnterMethod, AName);
 end;
 
-procedure TLogger.ExitMethod(const AName: string);
+procedure TLogger.Leave(const AName: string);
 begin
-  ExitMethod(nil, AName);
+  Leave(nil, AName);
 end;
 
-procedure TLogger.ExitMethod(ASender: TObject; const AName: string);
+procedure TLogger.Leave(ASender: TObject; const AName: string);
 var
   I: Integer;
 begin
-  // ensure that ExitMethod will be called allways if there's a unpaired Entermethod
+  // ensure that Leave will be called allways if there's a unpaired Enter
   // even if Classes is not Active
   if FLogStack.Count = 0 then
     Exit;
