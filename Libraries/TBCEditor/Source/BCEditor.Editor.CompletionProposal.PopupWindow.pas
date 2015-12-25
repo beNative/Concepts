@@ -65,7 +65,7 @@ type
     procedure AfterConstruction; override;
 {$ENDIF}
     function GetCurrentInput: string;
-    procedure Execute(ACurrentString: string; X, Y: Integer);
+    procedure Execute(const ACurrentString: string; X, Y: Integer);
     procedure Assign(ASource: TPersistent); override;
     procedure WndProc(var AMessage: TMessage); override;
     property CurrentString: string read FCurrentString write SetCurrentString;
@@ -335,7 +335,7 @@ begin
   with FBitmapBuffer do
   begin
     Canvas.Brush.Color := FCompletionProposal.Colors.Background;
-    Canvas.FillRect(ClientRect);
+    PatBlt(Canvas.Handle, ClientRect.Left, ClientRect.Top, ClientRect.Width, ClientRect.Height, PATCOPY);
     for i := 0 to Min(FCompletionProposal.VisibleLines, Length(FItemIndexArray) - 1) do
     begin
       if i + TopLine >= Length(FItemIndexArray) then
@@ -494,7 +494,7 @@ begin
   TopLine := TopLine - (Delta * WheelClicks);
 end;
 
-procedure TBCEditorCompletionProposalPopupWindow.Execute(ACurrentString: string; X, Y: Integer);
+procedure TBCEditorCompletionProposalPopupWindow.Execute(const ACurrentString: string; X, Y: Integer);
 
   procedure CalculateFormPlacement;
   var

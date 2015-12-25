@@ -11,7 +11,7 @@ type
     FChar: Integer;
     FData: Pointer;
     FEditor: TCustomControl;
-    FImage: Integer;
+    FImageIndex: Integer;
     FIndex: Integer;
     FInternalImage: Boolean;
     FLine: Integer;
@@ -19,7 +19,7 @@ type
     function GetIsBookmark: Boolean;
     procedure Invalidate;
     procedure SetChar(const AValue: Integer); virtual;
-    procedure SetImage(const AValue: Integer); virtual;
+    procedure SetImageIndex(const AValue: Integer); virtual;
     procedure SetInternalImage(const AValue: Boolean);
     procedure SetLine(const AValue: Integer); virtual;
     procedure SetVisible(const AValue: Boolean);
@@ -28,7 +28,7 @@ type
 
     property Char: Integer read FChar write SetChar;
     property Data: Pointer read FData write FData;
-    property ImageIndex: Integer read FImage write SetImage;
+    property ImageIndex: Integer read FImageIndex write SetImageIndex;
     property Index: Integer read FIndex write FIndex;
     property InternalImage: Boolean read FInternalImage write SetInternalImage;
     property IsBookmark: Boolean read GetIsBookmark;
@@ -93,9 +93,9 @@ begin
      (FEditor as TBCBaseEditor).InvalidateLeftMarginLines(FLine, FLine);
 end;
 
-procedure TBCEditorBookmark.SetImage(const AValue: Integer);
+procedure TBCEditorBookmark.SetImageIndex(const AValue: Integer);
 begin
-  FImage := AValue;
+  FImageIndex := AValue;
   Invalidate;
 end;
 
@@ -170,24 +170,30 @@ end;
 procedure TBCEditorBookmarkList.ClearLine(ALine: Integer);
 var
   i: Integer;
+  LMark: TBCEditorBookmark;
 begin
   for i := Count - 1 downto 0 do
-    if not Items[i].IsBookmark and (Items[i].Line = ALine) then
+  begin
+    LMark := Items[i];
+    if not LMark.IsBookmark and (LMark.Line = ALine) then
       Delete(i);
+  end;
 end;
 
 procedure TBCEditorBookmarkList.GetMarksForLine(ALine: Integer; var AMarks: TBCEditorBookmarks);
 var
   i, j: Integer;
+  LMark: TBCEditorBookmark;
 begin
   FillChar(AMarks, SizeOf(AMarks), 0);
   j := 0;
   for i := 0 to Count - 1 do
   begin
-    if Items[i].Line = ALine then
+    LMark := Items[i];
+    if LMark.Line = ALine then
     begin
       Inc(j);
-      AMarks[j] := Items[i];
+      AMarks[j] := LMark;
       if j = BCEDITOR_MAX_BOOKMARKS then
         Break;
     end;

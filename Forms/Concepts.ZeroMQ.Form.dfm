@@ -21,11 +21,11 @@ object frmZMQConcept: TfrmZMQConcept
     Left = 8
     Top = 8
     Width = 420
-    Height = 521
+    Height = 637
     BevelOuter = bvNone
     TabOrder = 0
     object edtAddress: TLabeledEdit
-      Left = 56
+      Left = 168
       Top = 32
       Width = 89
       Height = 21
@@ -39,17 +39,17 @@ object frmZMQConcept: TfrmZMQConcept
     end
     object mmoSend: TMemo
       Left = 127
-      Top = 199
-      Width = 249
-      Height = 89
+      Top = 336
+      Width = 285
+      Height = 124
       Lines.Strings = (
         'Test')
       TabOrder = 1
     end
     object edtPort: TLabeledEdit
-      Left = 186
-      Top = 32
-      Width = 71
+      Left = 170
+      Top = 63
+      Width = 88
       Height = 21
       Alignment = taCenter
       EditLabel.Width = 24
@@ -68,16 +68,16 @@ object frmZMQConcept: TfrmZMQConcept
       TabOrder = 3
     end
     object btnSend: TButton
-      Left = 124
-      Top = 168
+      Left = 127
+      Top = 305
       Width = 75
       Height = 25
       Action = actSend
       TabOrder = 4
     end
     object btnReceive: TButton
-      Left = 124
-      Top = 294
+      Left = 127
+      Top = 466
       Width = 75
       Height = 25
       Action = actReceive
@@ -92,20 +92,20 @@ object frmZMQConcept: TfrmZMQConcept
       TabOrder = 6
     end
     object pnlZMQSocket: TPanel
-      Left = 7
-      Top = 148
-      Width = 98
+      Left = 3
+      Top = 32
+      Width = 118
       Height = 374
       BevelOuter = bvNone
       TabOrder = 7
       DesignSize = (
-        98
+        118
         374)
       object shpRequesterResponder: TShape
         AlignWithMargins = True
         Left = 3
         Top = 104
-        Width = 90
+        Width = 110
         Height = 54
         Margins.Top = 1
         Margins.Right = 5
@@ -122,7 +122,7 @@ object frmZMQConcept: TfrmZMQConcept
         AlignWithMargins = True
         Left = 3
         Top = 328
-        Width = 90
+        Width = 110
         Height = 36
         Margins.Top = 1
         Margins.Right = 5
@@ -133,12 +133,13 @@ object frmZMQConcept: TfrmZMQConcept
         Pen.Style = psClear
         ExplicitLeft = 4
         ExplicitTop = 329
+        ExplicitWidth = 90
       end
       object shpPullPush: TShape
         AlignWithMargins = True
         Left = 3
         Top = 216
-        Width = 90
+        Width = 110
         Height = 54
         Margins.Top = 1
         Margins.Right = 5
@@ -155,7 +156,7 @@ object frmZMQConcept: TfrmZMQConcept
         AlignWithMargins = True
         Left = 3
         Top = 48
-        Width = 90
+        Width = 110
         Height = 54
         Margins.Top = 1
         Margins.Right = 5
@@ -172,7 +173,7 @@ object frmZMQConcept: TfrmZMQConcept
         AlignWithMargins = True
         Left = 3
         Top = 160
-        Width = 90
+        Width = 110
         Height = 54
         Margins.Top = 1
         Margins.Right = 5
@@ -188,7 +189,7 @@ object frmZMQConcept: TfrmZMQConcept
         AlignWithMargins = True
         Left = 3
         Top = 272
-        Width = 90
+        Width = 110
         Height = 54
         Margins.Top = 1
         Margins.Right = 5
@@ -205,7 +206,7 @@ object frmZMQConcept: TfrmZMQConcept
         AlignWithMargins = True
         Left = 3
         Top = 19
-        Width = 90
+        Width = 110
         Height = 27
         Margins.Top = 1
         Margins.Right = 5
@@ -216,12 +217,13 @@ object frmZMQConcept: TfrmZMQConcept
         Pen.Style = psClear
         ExplicitLeft = 4
         ExplicitTop = 27
+        ExplicitWidth = 90
       end
       object shpSpacer: TShape
         AlignWithMargins = True
         Left = 3
         Top = 1
-        Width = 90
+        Width = 110
         Height = 16
         Margins.Top = 1
         Margins.Right = 5
@@ -231,11 +233,12 @@ object frmZMQConcept: TfrmZMQConcept
         Pen.Color = clWhite
         Pen.Style = psClear
         ExplicitLeft = 6
+        ExplicitWidth = 90
       end
       object rgpZMQSocket: TRadioGroup
         Left = 4
-        Top = 3
-        Width = 91
+        Top = 9
+        Width = 113
         Height = 365
         Anchors = [akLeft, akTop, akRight]
         Ctl3D = True
@@ -255,11 +258,12 @@ object frmZMQConcept: TfrmZMQConcept
           'Stream')
         ParentCtl3D = False
         TabOrder = 0
+        ExplicitWidth = 93
       end
     end
     object edtFilter: TLabeledEdit
-      Left = 56
-      Top = 59
+      Left = 169
+      Top = 90
       Width = 89
       Height = 21
       Alignment = taCenter
@@ -270,16 +274,16 @@ object frmZMQConcept: TfrmZMQConcept
       TabOrder = 8
     end
     object mmoReceive: TMemo
-      Left = 124
-      Top = 325
-      Width = 249
-      Height = 89
+      Left = 127
+      Top = 497
+      Width = 285
+      Height = 122
       ReadOnly = True
       TabOrder = 9
     end
     object lbxEvents: TCheckListBox
-      Left = 145
-      Top = 117
+      Left = 303
+      Top = 165
       Width = 117
       Height = 153
       ItemHeight = 13
@@ -313,23 +317,21 @@ object frmZMQConcept: TfrmZMQConcept
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 11
-      ExplicitLeft = 6
-      ExplicitTop = 0
-      ExplicitWidth = 406
+      ExplicitTop = 2
     end
     object btnSubscribe: TButton
-      Left = 182
-      Top = 72
-      Width = 75
+      Left = 127
+      Top = 117
+      Width = 131
       Height = 25
       Action = actSubscribe
       TabOrder = 12
     end
     object rgpTransport: TRadioGroup
-      Left = 263
-      Top = 56
+      Left = 264
+      Top = 63
       Width = 156
-      Height = 65
+      Height = 96
       Caption = 'Transport'
       Columns = 2
       ItemIndex = 0
@@ -342,8 +344,8 @@ object frmZMQConcept: TfrmZMQConcept
       TabOrder = 13
     end
     object btnCreateNew: TButton
-      Left = 268
-      Top = 127
+      Left = 114
+      Top = 148
       Width = 144
       Height = 25
       Action = actCreateNew
@@ -359,8 +361,8 @@ object frmZMQConcept: TfrmZMQConcept
     TabOrder = 1
   end
   object aclMain: TActionList
-    Left = 344
-    Top = 176
+    Left = 168
+    Top = 184
     object actConnect: TAction
       Caption = 'Connect'
       OnExecute = actConnectExecute

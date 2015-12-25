@@ -63,6 +63,8 @@ type
     FCategoryFont     : TFont;
     FHitTest          : TPoint;
     FColUpdate        : Integer;
+    FBitmap           : TBitmap;
+    FBrush            : HBRUSH;
     FOnGetCategoryRow : TInspectorCategoryRowEvent;
 
     procedure HandleFontChange(Sender: TObject);
@@ -75,6 +77,7 @@ type
     procedure WMSetCursor(var AMessage: TWMSetCursor); message WM_SETCURSOR;
 
   protected
+    procedure UpdatePattern; virtual;
     procedure ChangeColumns; override;
     function ColResizeAllowed(X, Y: Integer): Boolean;
     procedure ColumnResizing(Column: Integer; var Width: Integer); override;
@@ -91,7 +94,7 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
       override;
     procedure Paint; override;
-    procedure PaintCell(Cell: TGridCell; Rect: TRect); override;
+    procedure PaintCell(ACell: TGridCell; ARect: TRect); override;
     procedure PaintFocus; override;
     procedure Resize; override;
     procedure ShowCursor; override;
@@ -135,10 +138,13 @@ type
     property Color default clBtnFace;
     property Constraints;
     property ColumnsFullDrag default True;
-    property DoubleBuffered default True;
+    property DoubleBuffered;
     property Enabled;
     property EndEllipsis default False;
     property FlatBorder;
+    property GridColor;
+    property GridLines;
+    property GridStyle;   // TODO!!!
     property Font;
     property NameFont;
     property ParentColor default False;
@@ -247,6 +253,7 @@ begin
     WantReturns := False;
     FixedSize := True;
   end;
+  FBitmap               := TBitmap.Create;
   Header.Synchronized   := True;
   ShowHeader            := False;
   Rows.AutoHeight       := False;
@@ -276,9 +283,12 @@ end;
 
 procedure TCustomInspector.BeforeDestruction;
 begin
+  FBitmap.Free;
   FCategoryFont.Free;
   FValueFont.Free;
   FNameFont.Free;
+  if FBrush <> 0 then
+    DeleteObject(FBrush);
   inherited BeforeDestruction;
 end;
 {$ENDREGION}
@@ -455,45 +465,45 @@ begin
   PaintFocus;
 end;
 
-procedure TCustomInspector.PaintCell(Cell: TGridCell; Rect: TRect);
+procedure TCustomInspector.PaintCell(ACell: TGridCell; ARect: TRect);
 var
   R: TRect;
 begin
-  if IsCategoryRow(Cell.Row) then
+  if IsCategoryRow(ACell.Row) then
   begin
-    Rect.Left := GetGridRect.Left;
-    Rect.Right := GetGridRect.Right;
-    if Cell.Col <> 0 then Exit;
+    ARect.Left := GetGridRect.Left;
+    ARect.Right := GetGridRect.Right;
+    if ACell.Col <> 0 then Exit;
   end;
-  inherited PaintCell(Cell, Rect);
-  if Cell.Row <> CellFocused.Row then
+  inherited PaintCell(ACell, ARect);
+  if ACell.Row <> CellFocused.Row then
   begin
-    R := Rect;
-    R.Top := R.Bottom - 1;
-    with Canvas do
-    begin
-      Brush.Color := clGray xor clSilver;
-      Font.Color := clBlack;
-      Refresh;
-      PaintResizeRectDC(Handle, R);
-    end;
+//    R := ARect;
+//    R.Top := R.Bottom - 1;
+//    with Canvas do
+//    begin
+//      Brush.Color := clGray xor clSilver;
+//      Font.Color := clBlack;
+//      UpdatePattern;
+//      Winapi.Windows.FillRect(Handle, R, FBrush);
+//    end;
   end;
-  if (Cell.Col = 0) and (not IsCategoryRow(Cell.Row)) then
+  if (ACell.Col = 0) and (not IsCategoryRow(ACell.Row)) then
     with Canvas do
     begin
       Pen.Color := clBtnShadow;
       Pen.Width := 1;
-      MoveTo(Rect.Right - 2, Rect.Top - 1);
-      LineTo(Rect.Right - 2, Rect.Bottom);
+      MoveTo(ARect.Right - 2, ARect.Top - 1);
+      LineTo(ARect.Right - 2, ARect.Bottom);
       Pen.Color := clBtnHighlight;
-      MoveTo(Rect.Right - 1, Rect.Bottom - 1);
-      LineTo(Rect.Right - 1, Rect.Top - 1);
+      MoveTo(ARect.Right - 1, ARect.Bottom - 1);
+      LineTo(ARect.Right - 1, ARect.Top - 1);
     end;
-  if Cell.Row = CellFocused.Row then
-    DrawEdge(Canvas.Handle, Rect, BDR_SUNKENOUTER, BF_BOTTOM)
-  else if Cell.Row = CellFocused.Row - 1 then
+  if ACell.Row = CellFocused.Row then
+    DrawEdge(Canvas.Handle, ARect, BDR_SUNKENOUTER, BF_BOTTOM)
+  else if ACell.Row = CellFocused.Row - 1 then
   begin
-    R := Rect;
+    R := ARect;
     R.Top := R.Bottom - 2;
     DrawEdge(Canvas.Handle, R, BDR_SUNKENOUTER, BF_TOP);
     InflateRect(R, 0, -1);
@@ -611,6 +621,30 @@ begin
     end;
   end;
 end;
+
+procedure TCustomInspector.UpdatePattern;
+var
+  I: Integer;
+begin
+  with FBitmap do
+  begin
+    Width := 8;
+    Height := 1;
+    Canvas.Brush.Color := Color;
+    Canvas.Brush.Style := bsSolid;
+    Canvas.FillRect(Rect(0, 0, FBitmap.Width, FBitmap.Height));
+    I := 0;
+    while I < Width do
+    begin
+      Canvas.Pixels[I, 0] := clBtnShadow;
+      Inc(I, 2);
+    end;
+  end;
+  if FBrush <> 0 then
+    DeleteObject(FBrush);
+  FBrush := CreatePatternBrush(FBitmap.Handle);
+end;
+
 
 procedure TCustomInspector.UpdateScrollBars;
 begin

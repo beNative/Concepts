@@ -40,7 +40,7 @@ type
     constructor Create(AOwner: TComponent); overload; override;
     destructor Destroy; override;
 
-    procedure Execute(ACurrentString: string; X, Y: Integer);
+    procedure Execute(const ACurrentString: string; X, Y: Integer);
 
     property BackgroundColor: TColor read FBackgroundColor write FBackgroundColor default clWindow;
     property BorderColor: TColor read FBorderColor write FBorderColor default clBtnFace;
@@ -185,7 +185,7 @@ var
 begin
   ResetCanvas;
   TmpRect := ClientRect;
-  FBufferBitmap.Canvas.FillRect(TmpRect);
+  PatBlt(FBufferBitmap.Canvas.Handle, TmpRect.Left, TmpRect.Top, TmpRect.Width, TmpRect.Height, PATCOPY);
   FBufferBitmap.Canvas.Pen.Color := FBorderColor;
   FBufferBitmap.Canvas.Rectangle(TmpRect);
 
@@ -243,7 +243,7 @@ begin
   AdjustMetrics;
 end;
 
-procedure TBCEditorCodeFoldingHintForm.Execute(ACurrentString: string; X, Y: Integer);
+procedure TBCEditorCodeFoldingHintForm.Execute(const ACurrentString: string; X, Y: Integer);
 
   function GetWorkAreaWidth: Integer;
   begin

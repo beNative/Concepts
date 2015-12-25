@@ -497,9 +497,6 @@ type
       message WM_WINDOWPOSCHANGED;
     procedure WMERASEBKGND(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
     function IndexToVirtualIndex(Index: Integer): Integer;
-
-
-
     function GetFirstItemIndex: Integer;
     function GetLastItemIndex: Integer;
     function GetMaxItemCount: Integer;
@@ -512,8 +509,6 @@ type
     function GetVisiblePropCount: Integer;
     procedure PaintItem(Index: Integer); virtual;
     procedure CreateParams(var Params: TCreateParams); override;
-
-
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -570,13 +565,10 @@ type
     procedure WMLButtonUp(var Message: TWMLButtonUp); message WM_LBUTTONUP;
     procedure WMLBUTTONDBLCLK(var Message: TWMLBUTTONDBLCLK);
       message WM_LBUTTONDBLCLK;
-    // TS
     function DoMouseWheelDown(Shift: TShiftState; MousePos: TPoint): Boolean;
       override;
-    // TS
     function DoMouseWheelUp(Shift: TShiftState; MousePos: TPoint): Boolean;
       override;
-
     function GetPlusMinBtnRect(Index: Integer): TRect;
     function GetItemRect(Index: Integer): TRect;
     function GetValueRect(Index: Integer): TRect;
@@ -710,14 +702,14 @@ type
     property ShowGridLines;
     property GridColor;
     property SplitterColor;
-    property ReadOnlyColor; // TS
+    property ReadOnlyColor; 
     property FixedSplitter;
     property ReadOnly;
     property TrackChange;
     property GutterWidth;
     property ShowItemHint;
     property SortByCategory;
-    property SplitterPos;  // TS
+    property SplitterPos; 
     property HeaderPropText;
     property HeaderValueText;
     property OnClick;
@@ -1260,8 +1252,6 @@ begin
 end;
 
 destructor TzObjInspectorBase.Destroy;
-var
-  O : TPair<string, TObject>;
 begin
   CanvasStack.Free;
   if Assigned(FExpandedList) then
@@ -2530,14 +2520,13 @@ function TzCustomObjInspector.DoMouseWheelDown(Shift: TShiftState;
 var
   M : TWMVScroll;
 begin
-  if Assigned(FPropInspEdit.FList) then
-  begin
-    if IsWindowVisible(FPropInspEdit.FList.Handle) then
-      Exit(False);
-  end;
+  if Assigned(FPropInspEdit.FList)
+    and IsWindowVisible(FPropInspEdit.FList.Handle) then
+    Exit(False);
+  M := Default(TWMVScroll);
   M.ScrollCode :=  SB_LINEDOWN;
   WMVScroll(M);
-  inherited;
+  inherited DoMouseWheelDown(Shift, MousePos);
 end;
 
 function TzCustomObjInspector.DoMouseWheelUp(Shift: TShiftState;
@@ -2545,14 +2534,13 @@ function TzCustomObjInspector.DoMouseWheelUp(Shift: TShiftState;
 var
   M : TWMVScroll;
 begin
-  if Assigned(FPropInspEdit.FList) then
-  begin
-    if IsWindowVisible(FPropInspEdit.FList.Handle) then
-      Exit(False);
-  end;
+  if Assigned(FPropInspEdit.FList)
+    and IsWindowVisible(FPropInspEdit.FList.Handle) then
+    Exit(False);
+    M := Default(TWMVScroll);
   M.ScrollCode :=  SB_LINEUP;
   WMVScroll(M);
-  inherited;
+  inherited DoMouseWheelUp(Shift, MousePos);
 end;
 
 function TzCustomObjInspector.DoSelectCaret(Index: Integer): Boolean;
@@ -4373,7 +4361,6 @@ var
 begin
 
   Value := PItem.Value;
-  // TS
   if Assigned(PItem.Prop) then
   begin
     case PItem.Prop.PropertyType.TypeKind of

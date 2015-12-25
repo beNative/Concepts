@@ -56,20 +56,20 @@ type
     function GetCurrentRange: TBCEditorRange;
     function GetCurrentRangeAttribute: TBCEditorHighlighterAttribute;
     function GetEndOfLine: Boolean;
-    function GetToken: string;
     function GetTokenAttribute: TBCEditorHighlighterAttribute;
-    function GetTokenKind: Integer;
+    function GetTokenKind: TBCEditorRangeType;
     function GetTokenLength: Integer;
     function GetTokenPosition: Integer;
     procedure AddKeyChar(AKeyCharType: TBCEditorKeyCharType; AChar: Char);
     procedure AddKeywords(var AStringList: TStringList);
     procedure Clear;
-    procedure LoadFromFile(AFileName: string);
+    procedure GetToken(var AResult: string);
+    procedure LoadFromFile(const AFileName: string);
     procedure LoadFromStream(AStream: TStream);
     procedure Next;
     procedure NextToEndOfLine;
     procedure ResetCurrentRange;
-    procedure SetCurrentLine(ANewValue: string);
+    procedure SetCurrentLine(const ANewValue: string);
     procedure SetCurrentRange(AValue: Pointer);
     procedure UpdateColors;
     property Attribute[AIndex: Integer]: TBCEditorHighlighterAttribute read GetAttribute;
@@ -180,7 +180,7 @@ begin
     AddAllAttributes(ARange.Ranges[i]);
 end;
 
-procedure TBCEditorHighlighter.SetCurrentLine(ANewValue: string);
+procedure TBCEditorHighlighter.SetCurrentLine(const ANewValue: string);
 begin
   if Assigned(FCurrentRange) then
     if not FCurrentRange.Prepared then
@@ -315,14 +315,6 @@ begin
   Result := FCurrentRange;
 end;
 
-function TBCEditorHighlighter.GetToken: string;
-var
-  LLength: LongInt;
-begin
-  LLength := FRunPosition - FTokenPosition;
-  SetString(Result, FCurrentLine + FTokenPosition, LLength);
-end;
-
 function TBCEditorHighlighter.GetTokenAttribute: TBCEditorHighlighterAttribute;
 begin
   if Assigned(FCurrentToken) then
@@ -366,32 +358,43 @@ begin
       AStringList.Add(FMainRules.KeyList[i].KeyList[j]);
 end;
 
+procedure TBCEditorHighlighter.GetToken(var AResult: string);
+var
+  LLength: LongInt;
+begin
+  LLength := FRunPosition - FTokenPosition;
+  SetString(AResult, FCurrentLine + FTokenPosition, LLength);
+end;
+
 procedure TBCEditorHighlighter.Reset;
 begin
   MainRules.Reset;
 end;
 
-function TBCEditorHighlighter.GetTokenKind: Integer;
+function TBCEditorHighlighter.GetTokenKind: TBCEditorRangeType;
 var
-  i, j: Integer;
+  i: Integer;
   LToken: string;
   LTokenType: TBCEditorRangeType;
+  LCurrentRangeKeyList: TBCEditorKeyList;
 begin
   LTokenType := FCurrentRange.TokenType;
   if LTokenType <> ttUnspecified then
-    Result := Integer(LTokenType)
+    Result := LTokenType
   else
   { keyword token type }
   begin
-    LToken := GetToken;
+    GetToken(LToken);
     for i := 0 to FCurrentRange.KeyListCount - 1 do
-      for j := 0 to FCurrentRange.KeyList[i].KeyList.Count - 1 do
-      if FCurrentRange.KeyList[i].KeyList[j].Equals(LToken) then
+    begin
+      LCurrentRangeKeyList := FCurrentRange.KeyList[i];
+      if LCurrentRangeKeyList.KeyList.IndexOf(LToken) <> -1 then
       begin
-        Result := Integer(FCurrentRange.KeyList[i].TokenType);
+        Result := LCurrentRangeKeyList.TokenType;
         Exit;
       end;
-    Result := 0; { ttUnspecified }
+    end;
+    Result := ttUnspecified
   end;
 end;
 
@@ -432,22 +435,22 @@ var
 
   procedure SetAttributes(AAttribute: TBCEditorHighlighterAttribute; AParentRange: TBCEditorRange);
   var
-    Element: PBCEditorHighlighterElement;
+    LElement: PBCEditorHighlighterElement;
   begin
-    Element := FColors.GetElement(AAttribute.Element);
+    LElement := FColors.GetElement(AAttribute.Element);
 
     if AAttribute.ParentBackground and Assigned(AParentRange) then
       AAttribute.Background := AParentRange.Attribute.Background
     else
-    if Assigned(Element) then
-      AAttribute.Background := Element.Background;
+    if Assigned(LElement) then
+      AAttribute.Background := LElement.Background;
     if AAttribute.ParentForeground and Assigned(AParentRange) then
       AAttribute.Foreground := AParentRange.Attribute.Foreground
     else
-    if Assigned(Element) then
-      AAttribute.Foreground := Element.Foreground;
-    if Assigned(Element) then
-      AAttribute.Style := Element.Style;
+    if Assigned(LElement) then
+      AAttribute.Foreground := LElement.Foreground;
+    if Assigned(LElement) then
+      AAttribute.Style := LElement.Style;
   end;
 
 begin
@@ -483,7 +486,7 @@ begin
   end;
 end;
 
-procedure TBCEditorHighlighter.LoadFromFile(AFileName: string);
+procedure TBCEditorHighlighter.LoadFromFile(const AFileName: string);
 var
   LStream: TStream;
   LEditor: TBCBaseEditor;

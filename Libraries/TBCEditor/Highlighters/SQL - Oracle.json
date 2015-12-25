@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "28.10.2015",
+            "Date": "04.12.2015",
             "Sample": [
                "SELECT \"Hello world!\" FROM dual;"
             ]
@@ -201,7 +201,6 @@
                      "archive",
                      "archivelog",
                      "authorization",
-                     "avg",
                      "backup",
                      "become",
                      "before",
@@ -223,7 +222,6 @@
                      "contents",
                      "continue",
                      "controlfile",
-                     "count",
                      "cursor",
                      "cycle",
                      "database",
@@ -272,7 +270,6 @@
                      "logfile",
                      "manage",
                      "manual",
-                     "max",
                      "maxdatafiles",
                      "maxinstances",
                      "maxlogfiles",
@@ -280,7 +277,6 @@
                      "maxlogmembers",
                      "maxtrans",
                      "maxvalue",
-                     "min",
                      "minextents",
                      "minvalue",
                      "module",
@@ -345,7 +341,6 @@
                      "statistics",
                      "stop",
                      "storage",
-                     "sum",
                      "switch",
                      "system",
                      "tables",
@@ -468,8 +463,6 @@
                      "like",
                      "limited",
                      "loop",
-                     "max",
-                     "min",
                      "minus",
                      "mlslabel",
                      "modrange",
@@ -530,7 +523,6 @@
                      "statement",
                      "stddev",
                      "subtyp",
-                     "sum",
                      "tabauth",
                      "table",
                      "tables",
@@ -559,6 +551,19 @@
                   ],
                   "Attributes": {
                      "Element": "ReservedWord"
+                  }
+               },
+               {
+                  "Type": "Method",
+                  "Words": [
+									   "avg",
+									   "count",
+									   "max",
+									   "min",
+									   "sum"
+                  ],
+                  "Attributes": {
+                     "Element": "Method"
                   }
                },
                {

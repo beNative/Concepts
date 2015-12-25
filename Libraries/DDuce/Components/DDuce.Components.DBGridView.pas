@@ -1554,7 +1554,7 @@ end;
 procedure TDBGridDataLink.LayoutChanged;
 begin
   FGrid.DataLayoutChanged;
-  inherited;
+  inherited LayoutChanged;
 end;
 
 {  Responds to changes in the editing state of the data source. }
@@ -1641,7 +1641,7 @@ begin
   FIndicatorsDef           := TImageList.CreateSize(16, 16);
   FIndicatorsDef.BkColor   := clFuchsia;
   FIndicatorsDef.ResInstLoad(HInstance, rtBitmap, 'BM_GRIDVIEW_DB', clFuchsia);
-  inherited;
+  inherited Create(AOwner);
   AllowEdit := True;
   ColumnClick := False;
   CursorKeys := [gkArrows, gkMouse, gkTabs, gkMouseWheel];
@@ -1654,7 +1654,7 @@ end;
 
 destructor TCustomDBGridView.Destroy;
 begin
-  inherited;
+  inherited Destroy;
   FreeAndNil(FIndicatorsLink);
   FreeAndNil(FIndicatorsDef);
   FreeAndNil(FDataLink);

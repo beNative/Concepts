@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "28.10.2015",
+            "Date": "11.12.2015",
             "Sample": [
                "object Form1: TForm1\r\n",
                "  Left = 0\r\n",
@@ -195,6 +195,18 @@
          {
             "OpenToken": "inherited",
             "CloseToken": "end"
+         },
+         {
+					  "OpenToken": "(",
+            "CloseToken": ")"
+         },
+         {
+					  "OpenToken": "[",
+            "CloseToken": "]"
+         },
+         {
+					  "OpenToken": "<",
+            "CloseToken": ">"
          }
       ]
    }

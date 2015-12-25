@@ -131,6 +131,7 @@ type
   TBCEditorSearchMapOptions = set of TBCEditorSearchMapOption;
 
   TBCEditorCompletionProposalOption = (
+    cpoAutoInvoke,
     cpoCaseSensitive,
     cpoFiltered,
     cpoParseItemsFromText,
@@ -272,6 +273,8 @@ type
     moShowBookmarks
   );
   TBCEditorMinimapOptions = set of TBCEditorMinimapOption;
+
+  TBCEditorMinimapAlign = (maLeft, maRight);
 
   TBCEditorUndoOption = (
     uoGroupUndo
