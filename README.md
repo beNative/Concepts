@@ -7,7 +7,7 @@
 * [Virtual treeview](http://github.com/Virtual-TreeView/Virtual-TreeView)
 * [TChromeTabs](http://github.com/norgepaul/TChromeTabs) component
 * [SQLBuilder4Delphi](http://github.com/ezequieljuliano/SQLBuilder4Delphi) 
-* [ZeroMQ]
+* [ZeroMQ](http://github.com/zedalaye/Delphi-ZeroMQ)
 * [DDetours](http://github.com/MahdiSafsafi/delphi-detours-library)
 * [TBCEditor](http://github.com/bonecode/TBCEditor)
 * [TzObjectInspector](http://github.com/MahdiSafsafi/zcontrols)
