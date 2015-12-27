@@ -1681,11 +1681,10 @@ begin
     begin
       FCellBitmap.Canvas.Brush.Color := cl3DLight;
       FCellBitmap.Canvas.FillRect(Rect(0, 0, FCellBitmap.Width, FCellBitmap.Height));
-    end;
-    //else
+    end
+    else
     begin
       { Row line }  {TS : flat}
-      Color := clSilver;
       if FBitmapBkColor <> Color then
         UpdatePattern;
       Winapi.Windows.FillRect(
