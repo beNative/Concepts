@@ -125,9 +125,9 @@
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
         <DCC_DebugInformation>2</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
-        <VerInfo_Build>27</VerInfo_Build>
+        <VerInfo_Build>28</VerInfo_Build>
         <DCC_ExeOutput>.\Library\$(Platform)\$(Config)\</DCC_ExeOutput>
-        <VerInfo_Keys>CompanyName=(c) Tim Sinaeve;FileDescription=Concepts;FileVersion=1.0.0.27;InternalName=Concepts;LegalCopyright=(c) Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=A collection of modules demonstrating some Delphi programming concepts and libraries</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=(c) Tim Sinaeve;FileDescription=Concepts;FileVersion=1.0.0.28;InternalName=Concepts;LegalCopyright=(c) Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=A collection of modules demonstrating some Delphi programming concepts and libraries</VerInfo_Keys>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
@@ -249,8 +249,8 @@
         <DCCReference Include="Types\Concepts.Types.Contact.pas"/>
         <DCCReference Include="Types\Concepts.Types.ValidationRules.pas"/>
         <DCCReference Include="Concepts.Utils.pas"/>
-        <DCCReference Include="Forms\Concepts.Vcl.GridPanels.Form.pas">
-            <Form>frmGridPanels</Form>
+        <DCCReference Include="Forms\Concepts.Vcl.GridPanel.Form.pas">
+            <Form>frmGridPanel</Form>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.WinApi.LockPaint.Form.pas">
             <Form>frmLockPaint</Form>
@@ -300,7 +300,6 @@
         <DCCReference Include="Libraries\DSharp\DSharp.Core.Reflection.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Core.Utils.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Core.Validations.pas"/>
-        <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.ControlTemplate.pas"/>
         <DCCReference Include="Libraries\DSharp\DSharp.Windows.ColumnDefinitions.RttiDataTemplate.pas"/>
@@ -606,7 +605,7 @@
         <DCCReference Include="Forms\Concepts.DDetours.Form.pas">
             <Form>frmDDetours</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Concepts.Spring.ClassProxy.pas">
+        <DCCReference Include="Forms\Concepts.Spring.ClassProxy.Form.pas">
             <Form>frmClassProxy</Form>
         </DCCReference>
         <DCCReference Include="Libraries\DDetours\CPUID.pas"/>
@@ -627,6 +626,10 @@
         <DCCReference Include="Libraries\TzObjectInspector\zUtils.pas"/>
         <DCCReference Include="Forms\Concepts.zObjectInspector.Form.pas">
             <Form>frmzObjectInspector</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.Vcl.RelativePanel.Form.pas">
+            <Form>frmRelativePanel</Form>
+            <FormType>dfm</FormType>
         </DCCReference>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>

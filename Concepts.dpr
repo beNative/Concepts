@@ -6,7 +6,7 @@ uses
   FastMM4 in 'Libraries\fastmm\FastMM4.pas',
   Vcl.Themes,
   Vcl.Styles,
-  Forms,
+  Vcl.Forms,
   {$IFNDEF HAS_UNIT_SYSTEM_IMAGELIST}
   System.ImageList in 'Types\System.ImageList.pas',
   {$ENDIF }
@@ -59,7 +59,7 @@ uses
   Concepts.Types.Contact in 'Types\Concepts.Types.Contact.pas',
   Concepts.Types.ValidationRules in 'Types\Concepts.Types.ValidationRules.pas',
   Concepts.Utils in 'Concepts.Utils.pas',
-  Concepts.Vcl.GridPanels.Form in 'Forms\Concepts.Vcl.GridPanels.Form.pas' {frmGridPanels},
+  Concepts.Vcl.GridPanel.Form in 'Forms\Concepts.Vcl.GridPanel.Form.pas' {frmGridPanel},
   Concepts.WinApi.LockPaint.Form in 'Forms\Concepts.WinApi.LockPaint.Form.pas' {frmLockPaint},
   DDuce.Components.DBGridView in 'Libraries\DDuce\Components\DDuce.Components.DBGridView.pas',
   DDuce.Components.GridView in 'Libraries\DDuce\Components\DDuce.Components.GridView.pas',
@@ -102,9 +102,6 @@ uses
   DSharp.Core.Reflection in 'Libraries\DSharp\DSharp.Core.Reflection.pas',
   DSharp.Core.Utils in 'Libraries\DSharp\DSharp.Core.Utils.pas',
   DSharp.Core.Validations in 'Libraries\DSharp\DSharp.Core.Validations.pas',
-  {$IFDEF DEVEXPRESS}
-  DSharp.DevExpress.GridViewPresenter in 'Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas',
-  {$ENDIF }
   DSharp.Windows.ColumnDefinitions in 'Libraries\DSharp\DSharp.Windows.ColumnDefinitions.pas',
   DSharp.Windows.ColumnDefinitions.ControlTemplate in 'Libraries\DSharp\DSharp.Windows.ColumnDefinitions.ControlTemplate.pas',
   DSharp.Windows.ColumnDefinitions.RttiDataTemplate in 'Libraries\DSharp\DSharp.Windows.ColumnDefinitions.RttiDataTemplate.pas',
@@ -402,7 +399,7 @@ uses
   ZeroMQ.API in 'Libraries\ZeroMQ\ZeroMQ.API.pas',
   ZeroMQ in 'Libraries\ZeroMQ\ZeroMQ.pas',
   Concepts.DDetours.Form in 'Forms\Concepts.DDetours.Form.pas' {frmDDetours},
-  Concepts.Spring.ClassProxy in 'Forms\Concepts.Spring.ClassProxy.pas' {frmClassProxy},
+  Concepts.Spring.ClassProxy.Form in 'Forms\Concepts.Spring.ClassProxy.Form.pas' {frmClassProxy},
   CPUID in 'Libraries\DDetours\CPUID.pas',
   DDetours in 'Libraries\DDetours\DDetours.pas',
   InstDecode in 'Libraries\DDetours\InstDecode.pas',
@@ -415,7 +412,8 @@ uses
   zRecList in 'Libraries\TzObjectInspector\zRecList.pas',
   zStringsDialog in 'Libraries\TzObjectInspector\zStringsDialog.pas' {StringsDialog},
   zUtils in 'Libraries\TzObjectInspector\zUtils.pas',
-  Concepts.zObjectInspector.Form in 'Forms\Concepts.zObjectInspector.Form.pas' {frmzObjectInspector};
+  Concepts.zObjectInspector.Form in 'Forms\Concepts.zObjectInspector.Form.pas' {frmzObjectInspector},
+  Concepts.Vcl.RelativePanel.Form in 'Forms\Concepts.Vcl.RelativePanel.Form.pas' {frmRelativePanel};
 
 {$R *.res}
 
@@ -425,17 +423,14 @@ begin
   {$WARNINGS ON}
   Application.Initialize;
   TConcepts.RegisterConcepts;
-
   Application.CreateForm(TdmResources, dmResources);
   if ConceptManager.ItemList.Count = 1 then
   begin
-
     ConceptManager.Execute(ConceptManager.ItemList.First);
   end
   else
   begin
     Application.Title := 'Concepts';
-    //TStyleManager.TrySetStyle('Windows10');
     Application.CreateForm(TfrmMain, frmMain);
   end;
   Application.Run;

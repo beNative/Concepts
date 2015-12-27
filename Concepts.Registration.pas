@@ -44,42 +44,15 @@ uses
   System.SysUtils,
 
   {$REGION 'Concept form units'}
-  {$IFDEF DEVEXPRESS}
-  Concepts.DevExpress.cxEditors.Form,
-  Concepts.DevExpress.cxGridViewPresenter.Form,
-  {$ENDIF}
-
-  {$IFDEF DSHARP}
-  Concepts.DSharp.TreeViewPresenter.Tree.Form,
-  Concepts.DSharp.TreeViewPresenter.List.Form,
-  Concepts.DSharp.Bindings.Form,
-  {$ENDIF}
-
-  {$IFDEF SPRING}
-  Concepts.Spring.Interception.Form,
-  Concepts.Spring.Collections.Form,
-  Concepts.Spring.LazyInstantiation.Form,
-  Concepts.Spring.MulticastEvents.Form,
-  Concepts.Spring.ObjectDataSet.Form,
-  Concepts.Spring.Logging.Form,
-  Concepts.Spring.Types.Form,
-  Concepts.Spring.Utils.Form,
-  {$ENDIF}
-
-  {$IFDEF BTMEMORYMODULE}
-  Concepts.BTMemoryModule.Form,
-  {$ENDIF}
-
-  {$IFDEF RTTEYE}
-  Concepts.RTTEye.Form,
-  {$ENDIF}
-
   {$IFDEF WINAPI}
   Concepts.Winapi.LockPaint.Form,
   {$ENDIF}
 
   {$IFDEF VCL}
-  Concepts.Vcl.GridPanels.Form,
+  Concepts.Vcl.GridPanel.Form,
+  {$IFDEF DELPHIX_SEATTLE_UP}
+  Concepts.Vcl.RelativePanel.Form,
+  {$ENDIF}
   {$ENDIF}
 
   {$IFDEF SYSTEM}
@@ -96,6 +69,37 @@ uses
   Concepts.System.InterfaceImplementationByAggregation.Form,
   Concepts.System.VirtualMethodInterceptor.Form,
   Concepts.System.VirtualInterface.Form,
+  {$ENDIF}
+
+  {$IFDEF DEVEXPRESS}
+  Concepts.DevExpress.cxEditors.Form,
+  Concepts.DevExpress.cxGridViewPresenter.Form,
+  {$ENDIF}
+
+  {$IFDEF DSHARP}
+  Concepts.DSharp.TreeViewPresenter.Tree.Form,
+  Concepts.DSharp.TreeViewPresenter.List.Form,
+  Concepts.DSharp.Bindings.Form,
+  {$ENDIF}
+
+  {$IFDEF SPRING}
+  Concepts.Spring.ClassProxy.Form,
+  Concepts.Spring.Interception.Form,
+  Concepts.Spring.Collections.Form,
+  Concepts.Spring.LazyInstantiation.Form,
+  Concepts.Spring.MulticastEvents.Form,
+  Concepts.Spring.ObjectDataSet.Form,
+  Concepts.Spring.Logging.Form,
+  Concepts.Spring.Types.Form,
+  Concepts.Spring.Utils.Form,
+  {$ENDIF}
+
+  {$IFDEF BTMEMORYMODULE}
+  Concepts.BTMemoryModule.Form,
+  {$ENDIF}
+
+  {$IFDEF RTTEYE}
+  Concepts.RTTEye.Form,
   {$ENDIF}
 
   {$IFDEF SQLBUILDER4D}
@@ -132,7 +136,6 @@ const
   SYSTEM_CATEGORY_COLOR     = $00E1E1FF;
   VCL_CATEGORY_COLOR        = $00FFD9D9;
   WINAPI_CATEGORY_COLOR     = clWhite;
-
 
 {$REGION 'private methods'}
 class procedure TConcepts.RegisterSpringConcepts;
@@ -193,6 +196,13 @@ begin
     'Utils',
     'Spring',
     'Utillity classes and routines',
+    FCategoryColor
+  );
+  ConceptManager.Register(
+    TfrmClassProxy,
+    'ClassProxy',
+    'Spring',
+    'Interception',
     FCategoryColor
   );
   {$ENDIF}
@@ -340,12 +350,22 @@ begin
   {$IFDEF VCL}
   FCategoryColor := VCL_CATEGORY_COLOR;
   ConceptManager.Register(
-    TfrmGridPanels,
-    'Grid panels',
+    TfrmGridPanel,
+    'Grid panel',
     'Vcl',
     'Demonstrates TGridPanel component',
     FCategoryColor
   );
+  {$IFDEF DELPHIX_SEATTLE_UP}
+  ConceptManager.Register(
+    TfrmRelativePanel,
+    'Relative panel',
+    'Vcl',
+    'Demonstrates TRelativePanel component',
+    FCategoryColor
+  );
+  {$ENDIF}
+
   {$ENDIF}
 end;
 
@@ -356,7 +376,7 @@ begin
   ConceptManager.Register(
     TfrmLockPaint,
     'LockPaint',
-    'Vcl',
+    'WinApi',
     'Demonstrates LockPaint/UnlockPaint routines',
     FCategoryColor
   );

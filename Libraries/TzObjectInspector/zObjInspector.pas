@@ -885,7 +885,8 @@ begin
   LType := LCtx.GetType(Obj.ClassInfo);
   LPropList := TzRttiType(LType).GetUsedProperties;
   for LProp in LPropList do
-    if LProp.Visibility = mvPublished then
+  // TS
+//    if LProp.Visibility = mvPublished then
       Exit(True);
 end;
 
@@ -1494,7 +1495,7 @@ var
       Exit(False);
     LPropList := TzRttiType(LType).GetUsedProperties;
     for LProp in LPropList do
-      if LProp.Visibility = mvPublished then
+      //if LProp.Visibility = mvPublished then
         if (LProp.PropertyType.TypeKind = tkClass) then
         begin
           s := LProp.PropertyType.ToString;
@@ -1563,7 +1564,7 @@ var
     FRttiType := FContext.GetType(AInstance.ClassInfo);
     LPropList := TzRttiType(FRttiType).GetUsedProperties;
     for LProp in LPropList do
-      if LProp.Visibility = mvPublished then
+      //if LProp.Visibility = mvPublished then
       begin
         Allow := True;
         LQName := QualifiedName + '.' + LProp.Name;
