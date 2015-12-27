@@ -237,7 +237,7 @@ object frmZMQConcept: TfrmZMQConcept
       end
       object rgpZMQSocket: TRadioGroup
         Left = 4
-        Top = 9
+        Top = 5
         Width = 113
         Height = 365
         Anchors = [akLeft, akTop, akRight]
@@ -258,7 +258,6 @@ object frmZMQConcept: TfrmZMQConcept
           'Stream')
         ParentCtl3D = False
         TabOrder = 0
-        ExplicitWidth = 93
       end
     end
     object edtFilter: TLabeledEdit
@@ -317,7 +316,6 @@ object frmZMQConcept: TfrmZMQConcept
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 11
-      ExplicitTop = 2
     end
     object btnSubscribe: TButton
       Left = 127

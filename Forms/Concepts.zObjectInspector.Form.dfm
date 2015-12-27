@@ -49,7 +49,15 @@ object frmzObjectInspector: TfrmzObjectInspector
         Align = alTop
         Style = csDropDownList
         DropDownCount = 20
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
         TabOrder = 0
+        TextHint = 'Select a component on this form'
+        OnChange = cbxControlsChange
       end
     end
     object pnlRight: TPanel
@@ -59,6 +67,8 @@ object frmzObjectInspector: TfrmzObjectInspector
       Height = 697
       Align = alClient
       BevelOuter = bvNone
+      DoubleBuffered = True
+      ParentDoubleBuffered = False
       TabOrder = 1
       DesignSize = (
         478
@@ -126,6 +136,7 @@ object frmzObjectInspector: TfrmzObjectInspector
         BevelKind = bkFlat
         BorderStyle = bsNone
         ButtonOptions = [gboAllowReorder, gboShowCaptions]
+        Images = dmResources.imlMain
         Items = <>
         TabOrder = 3
       end

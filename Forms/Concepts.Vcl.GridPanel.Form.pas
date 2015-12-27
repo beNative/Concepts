@@ -16,7 +16,7 @@
 
 {$I Concepts.inc}
 
-unit Concepts.Vcl.GridPanels.Form;
+unit Concepts.Vcl.GridPanel.Form;
 
 { Form demonstrating the use of the VCL TGridPanel component and a reorganize
   algorithm used when visibility of one or more child controls changes at
@@ -29,7 +29,7 @@ uses
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Controls, Vcl.Forms;
 
 type
-  TfrmGridPanels = class(TForm)
+  TfrmGridPanel = class(TForm)
     pnlGrid         : TGridPanel;
     pnl1            : TPanel;
     pnl2            : TPanel;
@@ -62,14 +62,14 @@ implementation
 {$R *.dfm}
 
 {$REGION 'event handlers'}
-procedure TfrmGridPanels.btnUpdateLayoutClick(Sender: TObject);
+procedure TfrmGridPanel.btnUpdateLayoutClick(Sender: TObject);
 begin
   UpdatePanels(pnlGrid);
 end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
-procedure TfrmGridPanels.UpdateActions;
+procedure TfrmGridPanel.UpdateActions;
 begin
   inherited UpdateActions;
   pnl1.Visible := chk1.Checked;
@@ -82,7 +82,7 @@ begin
   pnl8.Visible := chk8.Checked;
 end;
 
-procedure TfrmGridPanels.UpdatePanels(AGridPanel: TGridPanel);
+procedure TfrmGridPanel.UpdatePanels(AGridPanel: TGridPanel);
 var
   Row      : Integer;
   Col      : Integer;
