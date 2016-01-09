@@ -123,9 +123,17 @@ begin
 end;
 
 procedure TBCEditorCodeFolding.SetOptions(AValue: TBCEditorCodeFoldingOptions);
+var
+  LRescan: Boolean;
 begin
+  LRescan := not (cfoFoldMultilineComments in FOptions) and (cfoFoldMultilineComments in AValue) or
+    (cfoFoldMultilineComments in FOptions) and not (cfoFoldMultilineComments in AValue);
+
   FOptions := AValue;
-  DoChange;
+  if LRescan then
+    FOnChange(fcRescan)
+  else
+    DoChange;
 end;
 
 procedure TBCEditorCodeFolding.SetColors(const AValue: TBCEditorCodeFoldingColors);

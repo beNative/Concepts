@@ -1,8 +1,8 @@
-object frmGridPanels: TfrmGridPanels
+object frmGridPanel: TfrmGridPanel
   Left = 0
   Top = 0
   BorderStyle = bsDialog
-  Caption = 'Gridpanels'
+  Caption = 'Gridpanel'
   ClientHeight = 153
   ClientWidth = 536
   Color = clBtnFace

@@ -1,19 +1,23 @@
-unit TBCEditorDemo.Forms.Main;
+﻿unit TBCEditorDemo.Forms.Main;
 
 interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics, Vcl.Controls,
   BCCommon.Forms.Base, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls, BCEditor.Editor, BCEditor.Highlighter,
-  BCEditor.Editor.Base, BCCommon.Frames.Search, Vcl.Buttons, Vcl.AppEvnts, System.Actions, Vcl.ActnList, BCEditor.Print,
+  BCEditor.Editor.Base, Vcl.Buttons, Vcl.AppEvnts, System.Actions, Vcl.ActnList, BCEditor.Print,
   BCCommon.Images, BCComponents.SkinProvider, BCComponents.SkinManager, BCControls.Panel, BCControls.StatusBar,
   BCComponents.TitleBar, Vcl.Menus, ToolCtrlsEh, DBGridEhToolCtrls, EhLibVCL, DBAxisGridsEh, ObjectInspectorEh,
   BCControls.Splitter, GridsEh, BCCommon.Frames.Base, sPanel, BCComponents.MultiStringHolder, sSkinManager, sStatusBar,
   sSplitter, acTitleBar, sSkinProvider, System.Win.TaskbarCore, Vcl.Taskbar, sDialogs, Vcl.StdCtrls, sButton,
-  BCControls.Button, System.Diagnostics;
+  BCControls.Button, System.Diagnostics, BCCommon.Dialog.Popup.Highlighter, BCCommon.Dialog.Popup.Highlighter.Color,
+  sSpeedButton, BCControls.SpeedButton, sComboBox, BCControls.ComboBox, sLabel;
 
 const
-  BCEDITORDEMO_CAPTION = 'TBCEditor Control Demo v1.0b';
+  BCEDITORDEMO_CAPTION = 'TBCEditor Control Demo v1.2';
+  TITLE_BAR_CAPTION = 1;
+  TITLE_BAR_HIGHLIGHTER = 2;
+  TITLE_BAR_COLORS = 4;
 
 type
   TMainForm = class(TBCBaseForm)
@@ -30,33 +34,58 @@ type
     ObjectInspectorEh: TObjectInspectorEh;
     PanelLeft: TBCPanel;
     PanelProperty: TBCPanel;
-    PopupMenuColors: TPopupMenu;
     PopupMenuFile: TPopupMenu;
-    PopupMenuHighlighters: TPopupMenu;
+    PopupMenuDummy: TPopupMenu;
     Splitter: TBCSplitter;
     OpenDialog: TsOpenDialog;
-    SearchFrame: TBCSearchFrame;
     MenuItemSkins: TMenuItem;
     ActionSkins: TAction;
+    PanelSearch: TBCPanel;
+    ComboBoxSearchText: TBCComboBox;
+    BCSplitter1: TBCSplitter;
+    SpeedButtonFindPrevious: TBCSpeedButton;
+    SpeedButtonFindNext: TBCSpeedButton;
+    SpeedButtonDivider: TBCSpeedButton;
+    SpeedButtonOptions: TBCSpeedButton;
+    SpeedButtonClose: TBCSpeedButton;
+    PanelRight: TBCPanel;
+    ActionFindNext: TAction;
+    ActionFindPrevious: TAction;
+    ActionOptions: TAction;
+    ActionClose: TAction;
+    LabelSearchResultCount: TsLabel;
     procedure ActionFileOpenExecute(Sender: TObject);
     procedure ActionPreviewExecute(Sender: TObject);
     procedure ActionSearchExecute(Sender: TObject);
-    procedure ActionSelectHighlighterColorExecute(Sender: TObject);
-    procedure ActionSelectHighlighterExecute(Sender: TObject);
     procedure ApplicationEventsMessage(var Msg: tagMSG; var Handled: Boolean);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure SkinManagerGetMenuExtraLineData(FirstItem: TMenuItem; var SkinSection, Caption: string;
-      var Glyph: TBitmap; var LineVisible: Boolean);
     procedure EditorCaretChanged(Sender: TObject; X, Y: Integer);
     procedure ActionSkinsExecute(Sender: TObject);
-    procedure TitleBarItems2MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure SelectedHighlighterClick(AHighlighterName: string);
+    procedure SelectedHighlighterColorClick(AHighlighterColorName: string);
+    procedure TitleBarItems2Click(Sender: TObject);
+    procedure TitleBarItems4Click(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure ActionFindNextExecute(Sender: TObject);
+    procedure ActionFindPreviousExecute(Sender: TObject);
+    procedure ActionOptionsExecute(Sender: TObject);
+    procedure ActionCloseExecute(Sender: TObject);
+    procedure ComboBoxSearchTextChange(Sender: TObject);
+    procedure ComboBoxSearchTextKeyPress(Sender: TObject; var Key: Char);
   private
     FStopWatch: TStopWatch;
+    FPopupHighlighterDialog: TPopupHighlighterDialog;
+    FPopupHighlighterColorDialog: TPopupHighlighterColorDialog;
+    FHighlighterStrings: TStringList;
+    FHighlighterColorStrings: TStringList;
+    function GetTitleBarItemLeftBottom(AIndex: Integer): TPoint;
+    procedure ClearText;
     procedure InitializeEditorPrint(EditorPrint: TBCEditorPrint);
+    procedure LockFormPaint;
     procedure PrintPreview;
-    procedure SetHighlighterColors;
-    procedure SetHighlighters;
+    procedure SetMatchesFound;
+    procedure UnlockFormPaint;
   end;
 
 var
@@ -68,22 +97,7 @@ implementation
 
 uses
   BCCommon.Language.Strings, BCCommon.Forms.Print.Preview, BCEditor.Print.Types, BCCommon.StringUtils,
-  BCCommon.Dialogs.SkinSelect, BCCommon.FileUtils;
-
-procedure TMainForm.ActionSelectHighlighterExecute(Sender: TObject);
-begin
-  with Editor do
-  begin
-    Highlighter.LoadFromFile(Format('%s.json', [TAction(Sender).Caption]));
-    Lines.Text := Highlighter.Info.General.Sample;
-    CaretZero;
-    SetFocus;
-  end;
-  StatusBar.Panels[3].Text := '';
-  TitleBar.Items[2].Caption := TAction(Sender).Caption;
-  Caption := BCEDITORDEMO_CAPTION;
-  SearchFrame.ClearText;
-end;
+  BCCommon.Dialogs.SkinSelect, BCCommon.FileUtils, BCEditor.Types, BCCommon.Dialogs.Options.Search;
 
 procedure TMainForm.ActionSkinsExecute(Sender: TObject);
 begin
@@ -91,20 +105,13 @@ begin
   TSkinSelectDialog.ClassShowModal(SkinManager);
 end;
 
-procedure TMainForm.ActionSelectHighlighterColorExecute(Sender: TObject);
-begin
-  Editor.Highlighter.Colors.LoadFromFile(Format('%s.json', [TAction(Sender).Caption]));
-  TitleBar.Items[4].Caption := TAction(Sender).Caption;
-  Editor.SetFocus;
-end;
-
 procedure TMainForm.ApplicationEventsMessage(var Msg: tagMSG; var Handled: Boolean);
 var
   InfoText: string;
   KeyState: TKeyboardState;
 begin
-  SearchFrame.Visible := Editor.Search.Enabled;
-  if SearchFrame.Visible then
+  PanelSearch.Visible := Editor.Search.Enabled;
+  if PanelSearch.Visible then
     Editor.Margins.Bottom := 0
   else
     Editor.Margins.Bottom := 5;
@@ -121,6 +128,53 @@ begin
   if KeyState[VK_INSERT] = 1 then
     if StatusBar.Panels[1].Text <> LanguageDataModule.GetConstant('Overwrite') then
       StatusBar.Panels[1].Text := LanguageDataModule.GetConstant('Overwrite');
+end;
+
+procedure TMainForm.ComboBoxSearchTextChange(Sender: TObject);
+begin
+  inherited;
+  if soSearchOnTyping in Editor.Search.Options then
+  begin
+    if Assigned(Editor) then
+      Editor.Search.SearchText := ComboBoxSearchText.Text;
+    SetMatchesFound;
+  end;
+end;
+
+procedure TMainForm.ComboBoxSearchTextKeyPress(Sender: TObject; var Key: Char);
+begin
+  inherited;
+  if (Key = #13) or (Key = #10) then
+  begin
+    if Assigned(Editor) then
+      if Editor.CanFocus then
+        Editor.SetFocus;
+    if ComboBoxSearchText.Items.IndexOf(ComboBoxSearchText.Text) = -1 then
+      ComboBoxSearchText.Items.Add(ComboBoxSearchText.Text);
+    Key := #0;
+  end;
+end;
+
+procedure TMainForm.SetMatchesFound;
+var
+  s: string;
+begin
+  s := '';
+
+  if Assigned(Editor) and (Editor.SearchResultCount > 1) then
+    s := LanguageDataModule.GetConstant('MatchFoundPluralExtension');
+  if Assigned(Editor) and (Editor.SearchResultCount > 0) then
+    s := Format(LanguageDataModule.GetConstant('MatchFound'), [Editor.SearchResultCount, s]);
+
+  LabelSearchResultCount.Caption := s;
+end;
+
+procedure TMainForm.ClearText;
+begin
+  ComboBoxSearchText.Text := '';
+  if Assigned(Editor) then
+    Editor.Search.SearchText := '';
+  SetMatchesFound;
 end;
 
 procedure TMainForm.EditorCaretChanged(Sender: TObject; X, Y: Integer);
@@ -185,6 +239,27 @@ begin
   EditorPrint.Title := Editor.DocumentName;
 end;
 
+procedure TMainForm.ActionFindNextExecute(Sender: TObject);
+begin
+  inherited;
+  if Assigned(Editor) then
+    Editor.FindNext;
+end;
+
+procedure TMainForm.ActionFindPreviousExecute(Sender: TObject);
+begin
+  inherited;
+  if Assigned(Editor) then
+    Editor.FindPrevious;
+end;
+
+procedure TMainForm.ActionOptionsExecute(Sender: TObject);
+begin
+  inherited;
+  if Assigned(Editor) then
+    TSearchOptionsDialog.ClassShowModal(Editor);
+end;
+
 procedure TMainForm.ActionPreviewExecute(Sender: TObject);
 begin
   PrintPreview
@@ -199,36 +274,25 @@ begin
   end;
 end;
 
+procedure TMainForm.ActionCloseExecute(Sender: TObject);
+begin
+  inherited;
+  if Assigned(Editor) then
+    Editor.Search.Enabled := False;
+end;
+
 procedure TMainForm.ActionFileOpenExecute(Sender: TObject);
 var
-  i: Integer;
-  FileName, Ext, ItemString, Token, LFileType: string;
+  LFileName: string;
 begin
   OpenDialog.Title := 'Open';
   if OpenDialog.Execute(Handle) then
   begin
     FStopWatch.Reset;
     FStopWatch.Start;
-    FileName := OpenDialog.Files[0];
-    Ext := LowerCase(ExtractFileExt(FileName));
-
-    for i := 0 to MultiStringHolderFileTypes.MultipleStrings.Count - 1 do
-    begin
-      ItemString := MultiStringHolderFileTypes.MultipleStrings.Items[i].Strings.Text;
-      while ItemString <> '' do
-      begin
-        Token := GetNextToken(';', ItemString);
-        ItemString := RemoveTokenFromStart(';', ItemString);
-        if Ext = Token then
-        begin
-          LFileType := MultiStringHolderFileTypes.MultipleStrings.Items[i].Name;
-          PopupMenuHighlighters.Items.Find(LFileType[1]).Find(LFileType).Action.Execute;
-          Break;
-        end;
-      end;
-    end;
-    TitleBar.Items[1].Caption := Format('%s - %s', [BCEDITORDEMO_CAPTION, FileName]);
-    Editor.LoadFromFile(FileName);
+    LFileName := OpenDialog.Files[0];
+    TitleBar.Items[TITLE_BAR_CAPTION].Caption := Format('%s - %s', [BCEDITORDEMO_CAPTION, LFileName]);
+    Editor.LoadFromFile(LFileName);
     FStopWatch.Stop;
     StatusBar.Panels[3].Text := 'Load: ' + FormatDateTime('s.zzz "s"', FStopWatch.ElapsedMilliseconds / MSecsPerDay);
   end;
@@ -237,122 +301,111 @@ end;
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
   inherited;
-
+  TitleBar.Items[TITLE_BAR_CAPTION].Caption := BCEDITORDEMO_CAPTION;
+  SkinManager.ExtendedBorders := True;
   { IDE can lose these properties }
-  SearchFrame.SpeedButtonFindPrevious.Images := ImagesDataModule.ImageListSmall;
-  SearchFrame.SpeedButtonFindNext.Images := ImagesDataModule.ImageListSmall;
-  SearchFrame.SpeedButtonOptions.Images := ImagesDataModule.ImageListSmall;
   PopupMenuFile.Images := ImagesDataModule.ImageList;
   TitleBar.Images := ImagesDataModule.ImageListSmall;
+
+  FHighlighterStrings := GetHighlighters;
+  FHighlighterColorStrings := GetHighlighterColors;
+
+  SelectedHighlighterClick('Object Pascal');
+  SelectedHighlighterColorClick('Default');
+end;
+
+procedure TMainForm.FormDestroy(Sender: TObject);
+begin
+  FHighlighterStrings.Free;
+  FHighlighterColorStrings.Free;
+
+  inherited;
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
 begin
   ObjectInspectorEh.Component := Editor;
   ObjectInspectorEh.LabelColWidth := 145;
-
-  SearchFrame.Editor := Editor;
-  SetHighlighters;
-  SetHighlighterColors;
 end;
 
-procedure TMainForm.SetHighlighters;
+function TMainForm.GetTitleBarItemLeftBottom(AIndex: Integer): TPoint;
 var
-  LFileName, LName: string;
-  LMenuItem, LSubMenuItem: TMenuItem;
-  LAction: TAction;
+  LRect: TRect;
 begin
-  PopupMenuHighlighters.Items.Clear;
+  Result.X := TitleBar.Items[AIndex].Rect.Left;
+  Result.Y := TitleBar.Items[AIndex].Rect.Bottom;
 
-  for LFileName in BCCommon.FileUtils.GetFiles(ExtractFilePath(Application.ExeName) + '\Highlighters\', '*.json', False) do
+  if Assigned(TitleBar.Items[AIndex].ExtForm) then
   begin
-    LName := ChangeFileExt(ExtractFileName(LFileName), '');
-
-    LMenuItem := PopupMenuHighlighters.Items.Find(LName[1]);
-    if not Assigned(LMenuItem) then
-    begin
-      LMenuItem := TMenuItem.Create(PopupMenuHighlighters);
-      LMenuItem.Caption := LName[1];
-      LMenuItem.RadioItem := True;
-      PopupMenuHighlighters.Items.Add(LMenuItem);
-    end;
-
-    LAction := TAction.Create(Self);
-    LAction.Caption := LName;
-    LAction.OnExecute := ActionSelectHighlighterExecute;
-    LSubMenuItem := TMenuItem.Create(PopupMenuHighlighters);
-    LSubMenuItem.Action := LAction;
-    LSubMenuItem.RadioItem := True;
-    LSubMenuItem.AutoCheck := True;
-    LMenuItem.Add(LSubMenuItem);
-    if LAction.Caption = 'Object Pascal' then
-    begin
-      LAction.Checked := True;
-      LAction.Execute;
-    end;
+    Inc(Result.X, TitleBar.Items[AIndex].ExtForm.Left);
+    Inc(Result.Y, TitleBar.Items[AIndex].ExtForm.Top);
+  end
+  else
+  begin
+    GetWindowRect(Handle, LRect);
+    Inc(Result.Y, LRect.Top);
+    Inc(Result.X, LRect.Left);
   end;
 end;
 
-procedure TMainForm.SetHighlighterColors;
+procedure TMainForm.TitleBarItems2Click(Sender: TObject);
 var
-  LFileName, LName: string;
-  LMenuItem: TMenuItem;
-  LAction: TAction;
-begin
-  PopupMenuColors.Items.Clear;
-  for LFileName in BCCommon.FileUtils.GetFiles(ExtractFilePath(Application.ExeName) + '\Colors\', '*.json', False) do
-  begin
-    LName := ChangeFileExt(ExtractFileName(LFileName), '');
-
-    LAction := TAction.Create(Self);
-    LAction.Caption := LName;
-    LAction.OnExecute := ActionSelectHighlighterColorExecute;
-    LMenuItem := TMenuItem.Create(PopupMenuColors);
-    LMenuItem.Action := LAction;
-    LMenuItem.RadioItem := True;
-    LMenuItem.AutoCheck := True;
-    PopupMenuColors.Items.Add(LMenuItem);
-    if LAction.Caption = 'Default' then
-    begin
-      LAction.Checked := True;
-      LAction.Execute;
-    end;
-  end;
-end;
-
-procedure TMainForm.SkinManagerGetMenuExtraLineData(FirstItem: TMenuItem; var SkinSection, Caption: string;
-  var Glyph: TBitmap; var LineVisible: Boolean);
+  LPoint: TPoint;
 begin
   inherited;
 
-  if FirstItem = PopupMenuHighlighters.Items[0] then
-  begin
-    LineVisible := True;
-    Caption := 'Highlighter';
-  end
-  else if FirstItem = PopupMenuColors.Items[0] then
-  begin
-    LineVisible := True;
-    Caption := 'Color';
-  end
+  if Assigned(FPopupHighlighterDialog) then
+    FPopupHighlighterDialog := nil
   else
-    LineVisible := False;
+  begin
+    FPopupHighlighterDialog := TPopupHighlighterDialog.Create(Self);
+    FPopupHighlighterDialog.PopupParent := Self;
+    FPopupHighlighterDialog.OnSelectHighlighter := SelectedHighlighterClick;
+
+    LPoint := GetTitleBarItemLeftBottom(TITLE_BAR_HIGHLIGHTER);
+
+    FPopupHighlighterDialog.Left := LPoint.X;
+    FPopupHighlighterDialog.Top := LPoint.Y;
+
+    LockFormPaint;
+
+    FPopupHighlighterDialog.Execute(FHighlighterStrings, TitleBar.Items[TITLE_BAR_HIGHLIGHTER].Caption);
+
+    UnlockFormPaint;
+
+    while Assigned(FPopupHighlighterDialog) and FPopupHighlighterDialog.Visible do
+      Application.HandleMessage;
+    FPopupHighlighterDialog := nil;
+  end;
 end;
 
-procedure TMainForm.TitleBarItems2MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMainForm.TitleBarItems4Click(Sender: TObject);
 var
-  LMenuItem: TMenuItem;
-  LTitleCaption: string;
+  LPoint: TPoint;
 begin
-  LTitleCaption := TitleBar.Items[2].Caption;
-  LMenuItem := PopupMenuHighlighters.Items.Find(LTitleCaption[1]);
-  if Assigned(LMenuItem) then
+  inherited;
+  if Assigned(FPopupHighlighterColorDialog) then
+    FPopupHighlighterColorDialog := nil
+  else
   begin
-    LMenuItem.Checked := True;
+    FPopupHighlighterColorDialog := TPopupHighlighterColorDialog.Create(Self);
+    FPopupHighlighterColorDialog.PopupParent := Self;
+    FPopupHighlighterColorDialog.OnSelectHighlighterColor := SelectedHighlighterColorClick;
 
-    LMenuItem := LMenuItem.Find(LTitleCaption);
-    if Assigned(LMenuItem) then
-      LMenuItem.Checked := True;
+    LPoint := GetTitleBarItemLeftBottom(TITLE_BAR_COLORS);
+
+    FPopupHighlighterColorDialog.Left := LPoint.X;
+    FPopupHighlighterColorDialog.Top := LPoint.Y;
+
+    LockFormPaint;
+
+    FPopupHighlighterColorDialog.Execute(FHighlighterColorStrings, TitleBar.Items[TITLE_BAR_COLORS].Caption);
+
+    UnlockFormPaint;
+
+    while Assigned(FPopupHighlighterColorDialog) and FPopupHighlighterColorDialog.Visible do
+      Application.HandleMessage;
+    FPopupHighlighterColorDialog := nil;
   end;
 end;
 
@@ -360,7 +413,56 @@ procedure TMainForm.ActionSearchExecute(Sender: TObject);
 begin
   Editor.Search.Enabled := True;
   Application.ProcessMessages; { search frame visible }
-  SearchFrame.ComboBoxSearchText.SetFocus;
+  ComboBoxSearchText.SetFocus;
+end;
+
+procedure TMainForm.SelectedHighlighterClick(AHighlighterName: string);
+begin
+  with Editor do
+  begin
+    Highlighter.LoadFromFile(Format('%s.json', [AHighlighterName]));
+    CodeFolding.Visible := Highlighter.CodeFoldingRangeCount > 0;
+  end;
+  TitleBar.Items[TITLE_BAR_HIGHLIGHTER].Caption := Editor.Highlighter.Name;
+
+  Editor.Lines.Text := Editor.Highlighter.Info.General.Sample;
+  Editor.CaretZero;
+  StatusBar.Panels[3].Text := '';
+  Caption := BCEDITORDEMO_CAPTION;
+  ClearText;
+
+  if Assigned(FPopupHighlighterDialog) then
+  begin
+    FPopupHighlighterDialog.Visible := False;
+    FPopupHighlighterDialog := nil;
+  end;
+end;
+
+procedure TMainForm.SelectedHighlighterColorClick(AHighlighterColorName: string);
+begin
+  with Editor do
+  begin
+    Highlighter.Colors.LoadFromFile(Format('%s.json', [AHighlighterColorName]));
+    Invalidate;
+  end;
+  TitleBar.Items[TITLE_BAR_COLORS].Caption := Editor.Highlighter.Colors.Name;
+  if Assigned(FPopupHighlighterColorDialog) then
+  begin
+    FPopupHighlighterColorDialog.Visible := False;
+    FPopupHighlighterColorDialog := nil;
+  end;
+end;
+
+procedure TMainForm.LockFormPaint;
+begin
+  SkinProvider.SkinData.BeginUpdate;
+  SkinProvider.Form.Perform(WM_SETREDRAW, 0, 0);
+end;
+
+procedure TMainForm.UnlockFormPaint;
+begin
+  SkinProvider.SkinData.EndUpdate;
+  SkinProvider.Form.Perform(WM_SETREDRAW, 1, 0);
 end;
 
 end.

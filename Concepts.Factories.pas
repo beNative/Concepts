@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2015 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -592,6 +592,7 @@ begin
   BE.ControlComponent  := AControlComponent;
   BE.ControlExpression := AControlExpression;
   BE.Direction         := ADirection;
+  Result := BE;
 end;
 
 class function TBindingsFactory.CreateEditBinding(ASourceComponent: TComponent;

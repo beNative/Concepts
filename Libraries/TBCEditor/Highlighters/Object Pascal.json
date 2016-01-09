@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "28.10.2015",
+            "Date": "22.12.2015",
             "Sample": [
                "// Hello World in Pascal\r\n",
                "\r\n",
@@ -489,7 +489,8 @@
                      "asm"
                   ],
                   "Attributes": {
-                     "Element": "AssemblerReservedWord"
+                     "Element": "AssemblerReservedWord",
+                     "ParentBackground": false
                   }
                }
             ],

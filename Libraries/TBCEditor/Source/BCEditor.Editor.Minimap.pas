@@ -8,6 +8,7 @@ uses
 type
   TBCEditorMinimap = class(TPersistent)
   strict private
+    FAlign: TBCEditorMinimapAlign;
     FCharHeight: Integer;
     FClicked: Boolean;
     FColors: TBCEditorMinimapColors;
@@ -21,6 +22,7 @@ type
     FVisibleLines: Integer;
     FWidth: Integer;
     procedure DoChange;
+    procedure SetAlign(const AValue: TBCEditorMinimapAlign);
     procedure SetColors(const AValue: TBCEditorMinimapColors);
     procedure SetFont(AValue: TFont);
     procedure SetOnChange(AValue: TNotifyEvent);
@@ -38,6 +40,7 @@ type
     property TopLine: Integer read FTopLine write FTopLine default 1;
     property VisibleLines: Integer read FVisibleLines write FVisibleLines;
   published
+    property Align: TBCEditorMinimapAlign read FAlign write SetAlign default maRight;
     property Colors: TBCEditorMinimapColors read FColors write SetColors;
     property Cursor: TCursor read FCursor write FCursor default crArrow;
     property Font: TFont read FFont write SetFont;
@@ -57,6 +60,8 @@ uses
 constructor TBCEditorMinimap.Create;
 begin
   inherited;
+
+  FAlign := maRight;
 
   FFont := TFont.Create;
   FFont.Name := 'Courier New';
@@ -110,6 +115,15 @@ procedure TBCEditorMinimap.DoChange;
 begin
   if Assigned(FOnChange) then
     FOnChange(Self);
+end;
+
+procedure TBCEditorMinimap.SetAlign(const AValue: TBCEditorMinimapAlign);
+begin
+  if FAlign <> AValue then
+  begin
+    FAlign := AValue;
+    DoChange;
+  end;
 end;
 
 procedure TBCEditorMinimap.SetColors(const AValue: TBCEditorMinimapColors);

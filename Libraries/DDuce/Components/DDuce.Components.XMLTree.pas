@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2015 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -971,7 +971,7 @@ var
   NX : TNativeXml;
   P  : PNodeData;
 begin
-  Logger.EnterMethod(Self, 'SetNodeXML');
+  Logger.Enter(Self, 'SetNodeXML');
   NX := TNativeXml.Create(Self);
   try
     NX.ReadFromString(UTF8String(Value));
@@ -984,7 +984,7 @@ begin
   finally
     NX.Free;
   end;
-  Logger.ExitMethod(Self, 'SetNodeXML');
+  Logger.Leave(Self, 'SetNodeXML');
 end;
 
 function TXMLTree.GetOptions: TStringTreeOptions;
@@ -1089,7 +1089,7 @@ procedure TXMLTree.DoMeasureItem(TargetCanvas: TCanvas; Node: PVirtualNode;
 var
   N: Cardinal;
 begin
-  Logger.EnterMethod('DoMeasureItem');
+  Logger.Enter('DoMeasureItem');
   inherited DoMeasureItem(TargetCanvas, Node, NodeHeight);
   N := ComputeNodeHeight(TargetCanvas, Node, 0);
   if N > (DefaultNodeHeight + 5) then
@@ -1097,7 +1097,7 @@ begin
     NodeHeight := N;
   end;
   Logger.Watch('NodeHeight', NodeHeight);
-  Logger.ExitMethod('DoMeasureItem');
+  Logger.Leave('DoMeasureItem');
 end;
 
 procedure TXMLTree.DoFreeNode(ANode: PVirtualNode);
@@ -1449,7 +1449,7 @@ var
   ParentPath : string;
   I          : Integer;
 begin
-  Logger.EnterMethod(Self, 'AddChildren');
+  Logger.Enter(Self, 'AddChildren');
   Result := 0;
   if AXMLNode.ElementType in [xeElement, xeAttribute] then
   begin
@@ -1473,7 +1473,7 @@ begin
       EndUpdate;
     end;
   end;
-  Logger.ExitMethod(Self, 'AddChildren');
+  Logger.Leave(Self, 'AddChildren');
 end;
 {$ENDREGION}
 
@@ -1710,7 +1710,7 @@ procedure TXMLTree.NewNode(ANode: PVirtualNode; ANewNodeType: TNodeType;
 //var
 //  N : TXmlNode;
 begin
-  Logger.EnterMethod(Self, 'NewNode');
+  Logger.Enter(Self, 'NewNode');
 
 
   if not Assigned(ANode) then
@@ -1779,7 +1779,7 @@ begin
   if not ABefore then
     Expanded[ANode] := True;
   RefreshNode(ANode, True);
-  Logger.ExitMethod(Self, 'NewNode');
+  Logger.Leave(Self, 'NewNode');
 end;
 
 procedure TXMLTree.DeleteNode(Node: PVirtualNode; Reindex: Boolean);

@@ -141,7 +141,7 @@ const
   ecCollapseCurrent = ecUserFirst + 109;
 
 type
-  TBCEditorCommand = Word;
+  TBCEditorCommand = type Word;
 
   TBCEditorHookedCommandEvent = procedure(Sender: TObject; AfterProcessing: Boolean; var AHandled: Boolean;
     var ACommand: TBCEditorCommand; var AChar: Char; Data: Pointer; AHandlerData: Pointer) of object;
@@ -517,14 +517,14 @@ end;
 procedure TBCEditorKeyCommands.Assign(ASource: TPersistent);
 var
   i: Integer;
+  LKeyCommands: TBCEditorKeyCommands;
 begin
   if Assigned(ASource) and (ASource is TBCEditorKeyCommands) then
-  with ASource as TBCEditorKeyCommands do
   begin
+    LKeyCommands := ASource as TBCEditorKeyCommands;
     Self.Clear;
-    for i := 0 to Count - 1 do
-      with NewItem do
-        Assign((ASource as TBCEditorKeyCommands)[i]);
+    for i := 0 to LKeyCommands.Count - 1 do
+      NewItem.Assign(LKeyCommands[i]);
   end
   else
     inherited Assign(ASource);

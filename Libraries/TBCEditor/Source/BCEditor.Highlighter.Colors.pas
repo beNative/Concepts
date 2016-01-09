@@ -25,9 +25,9 @@ type
     constructor Create(AOwner: TObject);
     destructor Destroy; override;
 
-    function GetElement(Name: string): PBCEditorHighlighterElement;
+    function GetElement(const Name: string): PBCEditorHighlighterElement;
     procedure Clear;
-    procedure LoadFromFile(AFileName: string);
+    procedure LoadFromFile(const AFileName: string);
     procedure LoadFromStream(AStream: TStream);
     property FileName: string read FFileName write FFileName;
     property Info: TBCEditorHighlighterInfo read FInfo write FInfo;
@@ -68,7 +68,7 @@ begin
   FElements.Clear;
 end;
 
-function TBCEditorHighlighterColors.GetElement(Name: string): PBCEditorHighlighterElement;
+function TBCEditorHighlighterColors.GetElement(const Name: string): PBCEditorHighlighterElement;
 var
   i: Integer;
 begin
@@ -81,7 +81,7 @@ begin
     end;
 end;
 
-procedure TBCEditorHighlighterColors.LoadFromFile(AFileName: string);
+procedure TBCEditorHighlighterColors.LoadFromFile(const AFileName: string);
 var
   LStream: TStream;
   LHighlighter: TBCEditorHighlighter;

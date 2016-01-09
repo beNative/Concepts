@@ -11,7 +11,7 @@ type
     FPattern: string;
   protected
     function GetPattern: string; override;
-    function WildCardToRegExpr(AWildCard: string): string;
+    function WildCardToRegExpr(const AWildCard: string): string;
     procedure SetPattern(const AValue: string); override;
   public
     constructor Create;
@@ -39,7 +39,7 @@ begin
   inherited SetPattern(WildCardToRegExpr(AValue));
 end;
 
-function TBCEditorWildcardSearch.WildCardToRegExpr(AWildCard: string): string;
+function TBCEditorWildcardSearch.WildCardToRegExpr(const AWildCard: string): string;
 var
   i: Integer;
 begin

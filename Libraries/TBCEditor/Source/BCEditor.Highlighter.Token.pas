@@ -33,14 +33,14 @@ type
   strict private
     FSymbols: TStringList;
     function GetSymbol(AIndex: Integer): string;
-    procedure SetSymbol(AIndex: Integer; ASymbol: string);
+    procedure SetSymbol(AIndex: Integer; const ASymbol: string);
   public
     constructor Create; reintroduce; overload;
     constructor Create(AHighlighterAttribute: TBCEditorHighlighterAttribute); reintroduce; overload;
     constructor Create(AMultiToken: TBCEditorMultiToken); reintroduce; overload;
     destructor Destroy; override;
 
-    function AddSymbol(ASymbol: string): Integer;
+    function AddSymbol(const ASymbol: string): Integer;
     function SymbolCount: Integer;
     procedure Clear;
     procedure DeleteSymbol(AIndex: Integer);
@@ -165,7 +165,7 @@ begin
   inherited;
 end;
 
-function TBCEditorMultiToken.AddSymbol(ASymbol: string): Integer;
+function TBCEditorMultiToken.AddSymbol(const ASymbol: string): Integer;
 begin
   Result := FSymbols.Add(ASymbol);
 end;
@@ -183,11 +183,12 @@ end;
 
 function TBCEditorMultiToken.GetSymbol(AIndex: Integer): string;
 begin
+  Result := '';
   if (AIndex > -1) and (AIndex < FSymbols.Count) then
     Result := FSymbols[AIndex]
 end;
 
-procedure TBCEditorMultiToken.SetSymbol(AIndex: Integer; ASymbol: string);
+procedure TBCEditorMultiToken.SetSymbol(AIndex: Integer; const ASymbol: string);
 begin
   if (AIndex > -1) and (AIndex < FSymbols.Count) then
     FSymbols[AIndex] := ASymbol

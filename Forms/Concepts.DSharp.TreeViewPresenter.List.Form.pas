@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2015 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -47,10 +47,10 @@ type
     pnlLeft              : TPanel;
     aclMain              : TActionList;
     splVertical          : TSplitter;
-    pnlTreeviewPresenter : TPanel;
     pnlLeftTop           : TPanel;
     pnlLeftBottom        : TPanel;
     splHorizontal        : TSplitter;
+    pnlTreeviewPresenter: TPanel;
 
   private
     FList       : IList<TContact>;
@@ -63,10 +63,10 @@ type
     procedure FTVPColumnsSelectionChanged(Sender: TObject);
     procedure FTVPSelectionChanged(Sender: TObject);
 
+    procedure CreateColumnDefinitionsView;
+
   public
     procedure AfterConstruction; override;
-
-    procedure CreateColumnDefinitionsView;
 
   end;
 
@@ -79,13 +79,10 @@ uses
 
   DDuce.RandomData, DDuce.Components.Factories,
 
-  Concepts.Factories, Concepts.ComponentInspector;
+  Concepts.Factories;
 
 {$REGION 'construction and destruction'}
 procedure TfrmTreeViewPresenterList.AfterConstruction;
-var
-  C : TColumnDefinition;
-  I : Integer;
 begin
   inherited AfterConstruction;
   FList := TConceptFactories.CreateContactList(10000);
@@ -97,10 +94,23 @@ begin
   FTVP.OnSelectionChanged := FTVPSelectionChanged;
 
   CreateColumnDefinitionsView;
-//  InspectComponent(FTVP);
 end;
 {$ENDREGION}
 
+{$REGION 'event handlers'}
+procedure TfrmTreeViewPresenterList.FTVPColumnsSelectionChanged(Sender: TObject);
+begin
+  if Assigned(FTVPColumns.SelectedItem) then
+    FPI.Objects[0] := FTVPColumns.SelectedItem;
+end;
+
+procedure TfrmTreeViewPresenterList.FTVPSelectionChanged(Sender: TObject);
+begin
+  FPI.Objects[0] := FTVP;
+end;
+{$ENDREGION}
+
+{$REGION 'private methods'}
 procedure TfrmTreeViewPresenterList.CreateColumnDefinitionsView;
 var
   CDList : IList<TColumnDefinition>;
@@ -112,26 +122,14 @@ begin
   begin
     C := FTVP.ColumnDefinitions[I];
     CDList.Add(C);
-    //FPI.Add(C);
   end;
   FVSTColumns := TConceptFactories.CreateVirtualStringTree(Self, pnlLeftBottom);
   FTVPColumns := TConceptFactories.CreateTreeViewPresenter(Self, FVSTColumns, CDList as IObjectList);
-  //FTVPColumns.ListMode := True;
   FTVPColumns.SelectionMode := smSingle;
-
   FTVPColumns.OnSelectionChanged := FTVPColumnsSelectionChanged;
 end;
+{$ENDREGION}
 
-procedure TfrmTreeViewPresenterList.FTVPColumnsSelectionChanged(Sender: TObject);
-begin
-  if Assigned(FTVPColumns.SelectedItem) then
-    FPI.Objects[0] := FTVPColumns.SelectedItem;
-end;
-
-procedure TfrmTreeViewPresenterList.FTVPSelectionChanged(Sender: TObject);
-begin
-  FPI.Objects[0] := FTVP;
-end;
 
 end.
 

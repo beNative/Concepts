@@ -61,7 +61,7 @@ type
   public
     constructor Create(AItemClass: TCollectionItemClass);
     destructor Destroy; override;
-    function Add(AOpenToken: string; ACloseToken: string): TBCEditorCodeFoldingRegionItem;
+    function Add(const AOpenToken: string; const ACloseToken: string): TBCEditorCodeFoldingRegionItem;
     property CloseToken: string read FCloseToken write FCloseToken;
     function Contains(const AOpenToken, ACloseToken: string): Boolean;
     property Items[AIndex: Integer]: TBCEditorCodeFoldingRegionItem read GetItem; default;
@@ -91,7 +91,7 @@ end;
 
 { TBCEditorCodeFoldingRegions }
 
-function TBCEditorCodeFoldingRegion.Add(AOpenToken: string; ACloseToken: string): TBCEditorCodeFoldingRegionItem;
+function TBCEditorCodeFoldingRegion.Add(const AOpenToken: string; const ACloseToken: string): TBCEditorCodeFoldingRegionItem;
 begin
   Result := TBCEditorCodeFoldingRegionItem(inherited Add);
   with Result do

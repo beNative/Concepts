@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2015 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -44,41 +44,15 @@ uses
   System.SysUtils,
 
   {$REGION 'Concept form units'}
-  {$IFDEF DEVEXPRESS}
-  Concepts.DevExpress.cxEditors.Form,
-  Concepts.DevExpress.cxGridViewPresenter.Form,
-  {$ENDIF}
-
-  {$IFDEF DSHARP}
-  Concepts.DSharp.TreeViewPresenter.Form,
-  Concepts.DSharp.Bindings.Form,
-  {$ENDIF}
-
-  {$IFDEF SPRING}
-  Concepts.Spring.Interception.Form,
-  Concepts.Spring.Collections.Form,
-  Concepts.Spring.LazyInstantiation.Form,
-  Concepts.Spring.MulticastEvents.Form,
-  Concepts.Spring.ObjectDataSet.Form,
-  Concepts.Spring.Logging.Form,
-  Concepts.Spring.Types.Form,
-  Concepts.Spring.Utils.Form,
-  {$ENDIF}
-
-  {$IFDEF BTMEMORYMODULE}
-  Concepts.BTMemoryModule.Form,
-  {$ENDIF}
-
-  {$IFDEF RTTEYE}
-  Concepts.RTTEye.Form,
-  {$ENDIF}
-
   {$IFDEF WINAPI}
   Concepts.Winapi.LockPaint.Form,
   {$ENDIF}
 
   {$IFDEF VCL}
-  Concepts.Vcl.GridPanels.Form,
+  Concepts.Vcl.GridPanel.Form,
+  {$IFDEF DELPHIX_SEATTLE_UP}
+  Concepts.Vcl.RelativePanel.Form,
+  {$ENDIF}
   {$ENDIF}
 
   {$IFDEF SYSTEM}
@@ -97,6 +71,37 @@ uses
   Concepts.System.VirtualInterface.Form,
   {$ENDIF}
 
+  {$IFDEF DEVEXPRESS}
+  Concepts.DevExpress.cxEditors.Form,
+  Concepts.DevExpress.cxGridViewPresenter.Form,
+  {$ENDIF}
+
+  {$IFDEF DSHARP}
+  Concepts.DSharp.TreeViewPresenter.Tree.Form,
+  Concepts.DSharp.TreeViewPresenter.List.Form,
+  Concepts.DSharp.Bindings.Form,
+  {$ENDIF}
+
+  {$IFDEF SPRING}
+  Concepts.Spring.ClassProxy.Form,
+  Concepts.Spring.Interception.Form,
+  Concepts.Spring.Collections.Form,
+  Concepts.Spring.LazyInstantiation.Form,
+  Concepts.Spring.MulticastEvents.Form,
+  Concepts.Spring.ObjectDataSet.Form,
+  Concepts.Spring.Logging.Form,
+  Concepts.Spring.Types.Form,
+  Concepts.Spring.Utils.Form,
+  {$ENDIF}
+
+  {$IFDEF BTMEMORYMODULE}
+  Concepts.BTMemoryModule.Form,
+  {$ENDIF}
+
+  {$IFDEF RTTEYE}
+  Concepts.RTTEye.Form,
+  {$ENDIF}
+
   {$IFDEF SQLBUILDER4D}
   Concepts.SQLBuilder4D.Form,
   {$ENDIF}
@@ -107,6 +112,18 @@ uses
 
   {$IFDEF BCEDITOR}
   Concepts.BCEditor.Form,
+  {$ENDIF}
+
+  {$IFDEF DDETOURS}
+  Concepts.DDetours.Form,
+  {$ENDIF}
+  
+  {$IFDEF DELPHIZMQ}
+  Concepts.ZeroMQ.Form,
+  {$ENDIF}
+
+  {$IFDEF ZOBJECTINSPECTOR}
+  Concepts.zObjectInspector.Form,
   {$ENDIF}
   {$ENDREGION}
 
@@ -119,7 +136,6 @@ const
   SYSTEM_CATEGORY_COLOR     = $00E1E1FF;
   VCL_CATEGORY_COLOR        = $00FFD9D9;
   WINAPI_CATEGORY_COLOR     = clWhite;
-
 
 {$REGION 'private methods'}
 class procedure TConcepts.RegisterSpringConcepts;
@@ -182,6 +198,13 @@ begin
     'Utillity classes and routines',
     FCategoryColor
   );
+  ConceptManager.Register(
+    TfrmClassProxy,
+    'ClassProxy',
+    'Spring',
+    'Interception',
+    FCategoryColor
+  );
   {$ENDIF}
 end;
 
@@ -197,10 +220,17 @@ begin
 //    FCategoryColor
 //  );
   ConceptManager.Register(
-    TfrmTreeViewPresenter,
-    'TreeViewPresenter',
+    TfrmTreeViewPresenterList,
+    'TreeViewPresenter list',
     'DSharp',
-    'DSharp TreeViewPresenter',
+    'TreeViewPresenter list',
+    FCategoryColor
+  );
+  ConceptManager.Register(
+    TfrmTreeViewPresenterTree,
+    'TreeViewPresenter tree',
+    'DSharp',
+    'TreeViewPresenter tree',
     FCategoryColor
   );
   {$IFDEF DEVEXPRESS}
@@ -320,12 +350,22 @@ begin
   {$IFDEF VCL}
   FCategoryColor := VCL_CATEGORY_COLOR;
   ConceptManager.Register(
-    TfrmGridPanels,
-    'Grid panels',
+    TfrmGridPanel,
+    'Grid panel',
     'Vcl',
     'Demonstrates TGridPanel component',
     FCategoryColor
   );
+  {$IFDEF DELPHIX_SEATTLE_UP}
+  ConceptManager.Register(
+    TfrmRelativePanel,
+    'Relative panel',
+    'Vcl',
+    'Demonstrates TRelativePanel component',
+    FCategoryColor
+  );
+  {$ENDIF}
+
   {$ENDIF}
 end;
 
@@ -336,7 +376,7 @@ begin
   ConceptManager.Register(
     TfrmLockPaint,
     'LockPaint',
-    'Vcl',
+    'WinApi',
     'Demonstrates LockPaint/UnlockPaint routines',
     FCategoryColor
   );
@@ -347,12 +387,34 @@ end;
 {$REGION 'public methods'}
 class procedure TConcepts.RegisterConcepts;
 begin
-  RegisterSpringConcepts;
-  RegisterDSharpConcepts;
-  RegisterDevExpressConcepts;
-  RegisterSystemConcepts;
-  RegisterVclConcepts;
-  RegisterWinApiConcepts;
+  {$IFDEF ZOBJECTINSPECTOR}
+  ConceptManager.Register(
+    TfrmzObjectInspector,
+    'TzObjectInspector',
+    'TzObjectInspector',
+    'TzObjectInspector demo'
+  );
+  {$ENDIF}
+
+  {$IFDEF DELPHIZMQ}
+  ConceptManager.Register(
+    TfrmZMQConcept,
+    'ZeroMQ',
+    'ZeroMQ',
+    'ZeroMQ demo'
+  );
+  {$ENDIF}
+
+  {$IFDEF DDETOURS}
+  ConceptManager.Register(
+    TfrmDDetours,
+    'DDetours',
+    'DDetours',
+    'DDetours library demo'
+  );
+  {$ENDIF}
+
+  //Exit;
 
   {$IFDEF BCEDITOR}
   ConceptManager.Register(
@@ -398,6 +460,13 @@ begin
     'Reflection-like overview using the enhanced RTTI'
   );
   {$ENDIF}
+
+  RegisterSpringConcepts;
+  RegisterDSharpConcepts;
+  RegisterDevExpressConcepts;
+  RegisterSystemConcepts;
+  RegisterVclConcepts;
+  RegisterWinApiConcepts;
  end;
 {$ENDREGION}
 

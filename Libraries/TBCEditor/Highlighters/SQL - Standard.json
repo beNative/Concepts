@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "28.10.2015",
+            "Date": "04.12.2015",
             "Sample": [
                "CREATE TABLE DUAL\r\n",
                "(\r\n",
@@ -98,7 +98,6 @@
                      "at",
                      "atomic",
                      "authorization",
-                     "avg",
                      "before",
                      "begin",
                      "between",
@@ -140,7 +139,6 @@
                      "continue",
                      "convert",
                      "corresponding",
-                     "count",
                      "create",
                      "cross",
                      "cube",
@@ -198,7 +196,6 @@
                      "false",
                      "fetch",
                      "filter",
-                     "first",
                      "float",
                      "for",
                      "foreign",
@@ -242,7 +239,6 @@
                      "key",
                      "language",
                      "large",
-                     "last",
                      "lateral",
                      "leading",
                      "leave",
@@ -257,11 +253,9 @@
                      "lower",
                      "map",
                      "match",
-                     "max",
                      "member",
                      "merge",
                      "method",
-                     "min",
                      "minute",
                      "modifies",
                      "module",
@@ -366,7 +360,6 @@
                      "static",
                      "submultiset",
                      "substring",
-                     "sum",
                      "symmetric",
                      "system",
                      "system_user",
@@ -385,7 +378,6 @@
                      "translation",
                      "treat",
                      "trigger",
-                     "trim",
                      "true",
                      "under",
                      "undo",
@@ -419,6 +411,22 @@
                   ],
                   "Attributes": {
                      "Element": "ReservedWord"
+                  }
+               },
+               {
+                  "Type": "Method",
+                  "Words": [
+									   "avg",
+									   "count",
+									   "first",
+									   "last",
+									   "max",
+									   "min",
+									   "sum",
+									   "trim"
+                  ],
+                  "Attributes": {
+                     "Element": "Method"
                   }
                },
                {

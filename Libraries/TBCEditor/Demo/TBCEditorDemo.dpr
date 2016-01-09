@@ -3,7 +3,7 @@ program TBCEditorDemo;
 uses
   {$ifdef DEBUG}
   FastMM4,
-  {$endif }
+  {$endif}
   Vcl.Forms,
   TBCEditorDemo.Forms.Main in 'Forms\TBCEditorDemo.Forms.Main.pas' {MainForm};
 

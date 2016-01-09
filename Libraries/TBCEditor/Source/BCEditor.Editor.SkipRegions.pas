@@ -29,7 +29,7 @@ type
   public
     function Add(const AOpenToken, ACloseToken: string): TBCEditorSkipRegionItem;
     function Contains(const AOpenToken, ACloseToken: string): Boolean;
-    property SkipRegions[AIndex: Integer]: TBCEditorSkipRegionItem read GetSkipRegionItem; default;
+    property SkipRegionItems[AIndex: Integer]: TBCEditorSkipRegionItem read GetSkipRegionItem; default;
   end;
 
 implementation
@@ -55,7 +55,7 @@ var
 begin
   Result := False;
   for i := 0 to Count - 1 do
-    if (SkipRegions[i].OpenToken = AOpenToken) and (SkipRegions[i].CloseToken = ACloseToken) then
+    if (SkipRegionItems[i].OpenToken = AOpenToken) and (SkipRegionItems[i].CloseToken = ACloseToken) then
       Exit(True);
 end;
 

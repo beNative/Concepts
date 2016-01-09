@@ -19,7 +19,7 @@ type
   published
     property Colors: TBCEditorMatchingPairColors read FColors write SetColors;
     property Enabled: Boolean read FEnabled write FEnabled;
-    property Options: TBCEditorMatchingPairOptions read FOptions write FOptions default [mpoHighlightAfterToken, mpoUseMatchedColor];
+    property Options: TBCEditorMatchingPairOptions read FOptions write FOptions default [mpoUseMatchedColor];
   end;
 
 implementation
@@ -32,7 +32,7 @@ begin
 
   FColors := TBCEditorMatchingPairColors.Create;
   FEnabled := True;
-  FOptions := [mpoHighlightAfterToken, mpoUseMatchedColor];
+  FOptions := [mpoUseMatchedColor];
 end;
 
 destructor TBCEditorMatchingPair.Destroy;

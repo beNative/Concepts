@@ -56,8 +56,6 @@ type
 
 implementation
 
-
-
 { TBCEditorPrinterInfo }
 
 function TBCEditorPrinterInfo.PixFromBottom(mmValue: Double): Integer;
@@ -89,8 +87,6 @@ begin
 end;
 
 procedure TBCEditorPrinterInfo.FillDefault;
-{ In case of no printers installed this information is used
-  (I think it's taken from a HP LaserJet III with A4 paper) }
 begin
   FPhysicalWidth := 2481;
   FPhysicalHeight := 3507;

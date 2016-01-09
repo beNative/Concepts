@@ -27,7 +27,7 @@ type
 
     function GetToken(ACurrentRange: TBCEditorRange; APLine: PChar; var ARun: Integer; var AToken: TBCEditorToken): Boolean; override;
     procedure AddSet(ASet: TBCEditorSet);
-    procedure AddTokenNode(AString: string; AToken: TBCEditorToken; ABreakType: TBCEditorBreakType);
+    procedure AddTokenNode(const AString: string; AToken: TBCEditorToken; ABreakType: TBCEditorBreakType);
     property HeadNode: TBCEditorTokenNode read FHeadNode;
     property Sets: TList read FSets;
   end;
@@ -127,15 +127,15 @@ type
     procedure SetAlternativeCloseArrayCount(const AValue: Integer);
     procedure SetCaseSensitive(const AValue: Boolean);
   public
-    constructor Create(AOpenToken: string = ''; ACloseToken: string = ''); virtual;
+    constructor Create(const AOpenToken: string = ''; const ACloseToken: string = ''); virtual;
     destructor Destroy; override;
 
-    function FindToken(AString: string): TBCEditorToken;
+    function FindToken(const AString: string): TBCEditorToken;
     procedure AddKeyList(NewKeyList: TBCEditorKeyList);
     procedure AddRange(NewRange: TBCEditorRange);
     procedure AddSet(NewSet: TBCEditorSet);
     procedure AddToken(AToken: TBCEditorToken);
-    procedure AddTokenRange(AOpenToken: string; AOpenTokenBreakType: TBCEditorBreakType; ACloseToken: string;
+    procedure AddTokenRange(const AOpenToken: string; AOpenTokenBreakType: TBCEditorBreakType; const ACloseToken: string;
       ACloseTokenBreakType: TBCEditorBreakType);
     procedure Clear;
     procedure Prepare(AParent: TBCEditorRange);
@@ -213,7 +213,7 @@ begin
   inherited;
 end;
 
-procedure TBCEditorParser.AddTokenNode(AString: string; AToken: TBCEditorToken; ABreakType: TBCEditorBreakType);
+procedure TBCEditorParser.AddTokenNode(const AString: string; AToken: TBCEditorToken; ABreakType: TBCEditorBreakType);
 var
   i: Integer;
   LLength: Integer;
@@ -402,7 +402,7 @@ end;
 
 { TBCEditorRange }
 
-constructor TBCEditorRange.Create(AOpenToken: string; ACloseToken: string);
+constructor TBCEditorRange.Create(const AOpenToken: string; const ACloseToken: string);
 begin
   inherited Create;
 
@@ -457,7 +457,7 @@ begin
     FTokens.Add(AToken);
 end;
 
-function TBCEditorRange.FindToken(AString: string): TBCEditorToken;
+function TBCEditorRange.FindToken(const AString: string): TBCEditorToken;
 var
   i: Integer;
 begin
@@ -524,7 +524,7 @@ begin
   Result := TBCEditorSet(FSets[AIndex]);
 end;
 
-procedure TBCEditorRange.AddTokenRange(AOpenToken: string; AOpenTokenBreakType: TBCEditorBreakType; ACloseToken: string;
+procedure TBCEditorRange.AddTokenRange(const AOpenToken: string; AOpenTokenBreakType: TBCEditorBreakType; const ACloseToken: string;
   ACloseTokenBreakType: TBCEditorBreakType);
 begin
   FOpenToken.AddSymbol(AOpenToken);
@@ -795,6 +795,7 @@ begin
   inherited;
 
   FKeyList := TStringList.Create;
+  FKeyList.Sorted := True;
   FAttribute.Foreground := clWindowText;
   FAttribute.Background := clWindow;
 end;

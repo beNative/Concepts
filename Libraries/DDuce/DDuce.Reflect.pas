@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2015 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ type
     class function Fields<T>(const AArg: T): IDynamicRecord; overload; static;
 
     class function Properties(const AArg: TValue): IDynamicRecord; overload; static;
-    class function Properties<T: class, constructor>(const AArg: T)
+    class function Properties<T{: class, constructor}>(const AArg: T)
       : IDynamicRecord; overload; static;
   end;
 

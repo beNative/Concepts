@@ -11,25 +11,21 @@ type
   TBCEditorStringFlag = (sfHasTabs, sfHasNoTabs, sfExpandedLengthUnknown);
   TBCEditorStringFlags = set of TBCEditorStringFlag;
 
-  TBCEditorLineAttributeMask = (amBackground, amForeground);
-  TBCEditorLineAttributeMasks = set of TBCEditorLineAttributeMask;
-
   TBCEditorLineState = (lsNone, lsNormal, lsModified);
-  PBCEditorLineAttribute = ^TBCEditorLineAttribute;
 
-  TBCEditorLineAttribute = record
-    Foreground: TColor;
+  TBCEditorLineAttribute = packed record
     Background: TColor;
-    Mask: TBCEditorLineAttributeMasks;
+    Foreground: TColor;
     LineState: TBCEditorLineState;
   end;
+  PBCEditorLineAttribute = ^TBCEditorLineAttribute;
 
-  TBCEditorStringRecord = record
-    Value: string;
-    Range: TBCEditorLinesRange;
-    ExpandedLength: Integer;
+  TBCEditorStringRecord = packed record
+    Attribute: PBCEditorLineAttribute;
     Flags: TBCEditorStringFlags;
-    Attribute: TBCEditorLineAttribute;
+    ExpandedLength: Integer;
+    Range: TBCEditorLinesRange;
+    Value: string;
   end;
   PBCEditorStringRecord = ^TBCEditorStringRecord;
 
@@ -66,7 +62,7 @@ type
     FTabConvertProc: TBCEditorTabConvertProc;
     FTabWidth: Integer;
     FUpdateCount: Integer;
-    function ExpandString(AIndex: integer): string;
+    function ExpandString(AIndex: Integer): string;
     function GetAttributes(AIndex: Integer): PBCEditorLineAttribute;
     function GetExpandedString(AIndex: Integer): string;
     function GetExpandedStringLength(AIndex: Integer): Integer;
@@ -80,7 +76,6 @@ type
     function GetCount: Integer; override;
     function GetTextStr: string; override;
     procedure Put(AIndex: Integer; const AValue: string); override;
-    procedure PutObject(AIndex: Integer; AObject: TObject); override;
     procedure SetCapacity(AValue: Integer); override;
     procedure SetTabWidth(AValue: Integer);
     procedure SetTextStr(const AValue: string); override;
@@ -89,7 +84,6 @@ type
   public
     constructor Create(AOwner: TObject);
     destructor Destroy; override;
-
     function StringLength(AIndex: Integer): Integer;
     function Add(const AValue: string): Integer; override;
     function GetLengthOfLongestLine: Integer; overload;
@@ -99,9 +93,10 @@ type
     procedure Insert(AIndex: Integer; const AValue: string); override;
     procedure InsertLines(AIndex, ACount: Integer; AStrings: TStrings = nil);
     procedure InsertStrings(AIndex: Integer; AStrings: TStrings);
-    procedure InsertText(AIndex: Integer; AText: string);
+    procedure InsertText(AIndex: Integer; const AText: string);
     procedure LoadFromStream(AStream: TStream; AEncoding: TEncoding = nil); override;
     procedure SaveToStream(AStream: TStream; AEncoding: TEncoding = nil); override;
+    procedure TrimTrailingSpaces(AIndex: Integer);
     property Attributes[AIndex: Integer]: PBCEditorLineAttribute read GetAttributes write PutAttributes;
     property Count: Integer read FCount;
     property ExpandedStrings[AIndex: Integer]: string read GetExpandedString;
@@ -153,11 +148,17 @@ begin
 end;
 
 destructor TBCEditorLines.Destroy;
+var
+  i: Integer;
 begin
   FOnChange := nil;
   FOnChanging := nil;
   if FCount > 0 then
+  begin
+    for i := 0 to FCount - 1 do
+      Dispose(FList^[i].Attribute);
     Finalize(FList^[0], FCount);
+  end;
   FCount := 0;
   SetCapacity(0);
 
@@ -197,7 +198,7 @@ begin
     end;
   end;
   if (fIndexOfLongestLine >= 0) and (FIndexOfLongestLine < FCount) then
-    Result := FList^[fIndexOfLongestLine].ExpandedLength
+    Result := FList^[FIndexOfLongestLine].ExpandedLength
   else
     Result := 0;
 end;
@@ -211,9 +212,13 @@ begin
 end;
 
 procedure TBCEditorLines.Clear;
+var
+  i: Integer;
 begin
   if FCount <> 0 then
   begin
+    for i := 0 to FCount - 1 do
+      Dispose(FList^[i].Attribute);
     Finalize(FList^[0], FCount);
     FCount := 0;
     SetCapacity(0);
@@ -231,6 +236,7 @@ begin
     ListIndexOutOfBounds(AIndex);
   BeginUpdate;
   try
+    Dispose(FList^[AIndex].Attribute);
     Finalize(FList^[AIndex]);
     Dec(FCount);
     if AIndex < FCount then
@@ -245,7 +251,7 @@ end;
 
 procedure TBCEditorLines.DeleteLines(AIndex, ACount: Integer);
 var
-  LLinesAfter: Integer;
+  i, LLinesAfter: Integer;
 begin
   if ACount > 0 then
   begin
@@ -254,6 +260,8 @@ begin
     LLinesAfter := FCount - (AIndex + ACount);
     if LLinesAfter < 0 then
       ACount := FCount - AIndex - 1;
+    for i := AIndex to AIndex + ACount - 1 do
+      Dispose(FList^[i].Attribute);
     Finalize(FList^[AIndex], ACount);
     if LLinesAfter > 0 then
     begin
@@ -275,7 +283,7 @@ end;
 function TBCEditorLines.GetAttributes(AIndex: Integer): PBCEditorLineAttribute;
 begin
   if (AIndex >= 0) and (AIndex < FCount) then
-    Result := @(FList^[AIndex].Attribute)
+    Result := FList^[AIndex].Attribute
   else
     Result := nil;
 end;
@@ -285,16 +293,13 @@ begin
   if (AIndex < 0) or (AIndex >= FCount) then
     ListIndexOutOfBounds(AIndex);
   BeginUpdate;
-  FList^[AIndex].Attribute.Background := AValue.Background;
-  FList^[AIndex].Attribute.Foreground := AValue.Foreground;
-  FList^[AIndex].Attribute.Mask := AValue.Mask;
-  FList^[AIndex].Attribute.LineState := AValue.LineState;
+  FList^[AIndex].Attribute := AValue;
   EndUpdate;
 end;
 
-function TBCEditorLines.ExpandString(AIndex: integer): string;
+function TBCEditorLines.ExpandString(AIndex: Integer): string;
 var
-  LHasTabs: boolean;
+  LHasTabs: Boolean;
 begin
   with FList^[AIndex] do
   begin
@@ -440,10 +445,10 @@ begin
     Range := CNULLRANGE;
     ExpandedLength := -1;
     Flags := [sfExpandedLengthUnknown];
-    Attribute.Foreground := clNone;
-    Attribute.Background := clNone;
-    Attribute.Mask := [];
-    Attribute.LineState := lsNone;
+    New(Attribute);
+    Attribute^.Foreground := clNone;
+    Attribute^.Background := clNone;
+    Attribute^.LineState := lsNone;
   end;
   Inc(FCount);
 end;
@@ -473,10 +478,10 @@ begin
         Range := CNULLRANGE;
         ExpandedLength := -1;
         Flags := [sfExpandedLengthUnknown];
-        Attribute.Mask := [];
-        Attribute.Foreground := clNone;
-        Attribute.Background := clNone;
-        Attribute.LineState := lsModified;
+        New(Attribute);
+        Attribute^.Foreground := clNone;
+        Attribute^.Background := clNone;
+        Attribute^.LineState := lsModified;
       end;
       Inc(FCount, ACount);
     finally
@@ -504,7 +509,7 @@ begin
   end;
 end;
 
-procedure TBCEditorLines.InsertText(AIndex: Integer; AText: string);
+procedure TBCEditorLines.InsertText(AIndex: Integer; const AText: string);
 var
   LStringList: TStringList;
 begin
@@ -576,7 +581,7 @@ begin
   if ((AIndex = 0) and (FCount = 0)) or (FCount = AIndex) then
   begin
     Add(AValue);
-    FList^[AIndex].Attribute.LineState := lsModified;
+    FList^[AIndex].Attribute^.LineState := lsModified;
   end
   else
   begin
@@ -590,7 +595,7 @@ begin
       Exclude(Flags, sfHasTabs);
       Exclude(Flags, sfHasNoTabs);
       Value := AValue;
-      Attribute.LineState := lsModified;
+      Attribute^.LineState := lsModified;
     end;
 
     if Assigned(FOnPutted) then
@@ -598,9 +603,11 @@ begin
   end;
 end;
 
-procedure TBCEditorLines.PutObject(AIndex: Integer; AObject: TObject);
+procedure TBCEditorLines.TrimTrailingSpaces(AIndex: Integer);
 begin
-  { Do nothing }
+  if (AIndex < 0) or (AIndex >= FCount) then
+    ListIndexOutOfBounds(AIndex);
+  FList^[AIndex].Value := TrimRight(FList^[AIndex].Value);
 end;
 
 procedure TBCEditorLines.PutRange(AIndex: Integer; ARange: TBCEditorLinesRange);
@@ -614,8 +621,11 @@ procedure TBCEditorLines.SetCapacity(AValue: Integer);
 begin
   if AValue < Count then
     EListError.Create(SBCEditorInvalidCapacity);
-  ReallocMem(FList, AValue * CSTRINGRECORDSIZE);
-  FCapacity := AValue;
+  if AValue <> FCapacity then
+  begin
+    ReallocMem(FList, AValue * CSTRINGRECORDSIZE);
+    FCapacity := AValue;
+  end;
 end;
 
 procedure TBCEditorLines.SetTabWidth(AValue: Integer);
