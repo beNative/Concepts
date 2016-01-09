@@ -85,12 +85,11 @@ object frmBCEditor: TfrmBCEditor
           Top = 3
           Width = 663
           Height = 283
-          ActivePage = tsHighlighter
+          ActivePage = tsHighlighters
           Align = alClient
           TabOrder = 0
           object tsHighlighter: TTabSheet
             Caption = 'Highlighter definition'
-            ExplicitWidth = 483
             object tlbHighlighter: TToolBar
               Left = 0
               Top = 0
@@ -98,7 +97,6 @@ object frmBCEditor: TfrmBCEditor
               Height = 29
               Caption = 'tlbHighlighter'
               TabOrder = 0
-              ExplicitWidth = 483
               object btnSaveHighlighter: TToolButton
                 Left = 0
                 Top = 0
@@ -113,13 +111,11 @@ object frmBCEditor: TfrmBCEditor
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 1
-              ExplicitWidth = 483
             end
           end
           object tsColors: TTabSheet
             Caption = 'Color mappings'
             ImageIndex = 1
-            ExplicitWidth = 483
             object tlbColors: TToolBar
               Left = 0
               Top = 0
@@ -127,7 +123,6 @@ object frmBCEditor: TfrmBCEditor
               Height = 29
               Caption = 'tlbColors'
               TabOrder = 0
-              ExplicitWidth = 483
               object btnSaveColorMap: TToolButton
                 Left = 0
                 Top = 0
@@ -142,8 +137,11 @@ object frmBCEditor: TfrmBCEditor
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 1
-              ExplicitWidth = 483
             end
+          end
+          object tsHighlighters: TTabSheet
+            Caption = 'tsHighlighters'
+            ImageIndex = 2
           end
         end
       end

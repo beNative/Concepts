@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2015 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -20,6 +20,14 @@ unit Concepts.Spring.ClassProxy.Form;
 
 interface
 
+{
+  REMARKS:
+    - only virtual methods can be intercepted with a classprocy. Even dynamic
+      methods are not supported.
+    - an interfaceproxy supports interception on all implemented methods. The
+      interface needs to descend from IInvokable or be compiled with $M+.
+}
+
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
@@ -28,23 +36,38 @@ uses
   Spring.Interception.ClassProxy, Spring.Interception;
 
 type
-  TfrmClassProxy = class(TForm)
-    aclMain             : TActionList;
-    actAddFormProxy     : TAction;
-    actReleaseFormProxy : TAction;
-    lblHooked: TLabel;
-    btnAddFormProxy: TButton;
-    btnReleaseFormProxy: TButton;
-    actShowMessage: TAction;
-    btnShowMessage: TButton;
+  INumber = interface(IInvokable)
+  ['{E9BC5C76-59FC-434B-B792-3495D36395C9}']
+    function One: Integer;
+    function Two: Integer;
+    function Three: Integer;
+  end;
 
-    procedure actAddFormProxyExecute(Sender: TObject);
-    procedure actReleaseFormProxyExecute(Sender: TObject);
-    procedure actShowMessageExecute(Sender: TObject);
+  TNumber = class(TInterfacedObject, INumber)
+    function One: Integer; virtual;
+    function Two: Integer; dynamic;
+    function Three: Integer;
+  end;
+
+  TInterceptor = class(TInterfacedObject, IInterceptor)
+  public
+    procedure Intercept(const invocation: IInvocation);
+  end;
+
+  TfrmClassProxy = class(TForm)
+    aclMain                      : TActionList;
+    btnAddFormProxy              : TButton;
+    btnReleaseFormProxy          : TButton;
+    actCallClassProxyMethods     : TAction;
+    actCallInterfaceProxyMethods : TAction;
+
+    procedure actCallClassProxyMethodsExecute(Sender: TObject);
+    procedure actCallInterfaceProxyMethodsExecute(Sender: TObject);
+
   private
-    FProxy : TObject;
-  protected
-    procedure UpdateActions; override;
+    FInterfaceProxy : INumber;
+    FClassProxy     : TNumber;
+    FNumber         : INumber;
 
   public
     procedure AfterConstruction; override;
@@ -52,119 +75,81 @@ type
 
   end;
 
-type
-  { Represents the method of the type we want to intercept }
-  IDoCreate = interface(IInvokable)
-  ['{B9D91F15-A83E-4FB4-B0A7-706975A5985B}']
-    procedure DoCreate;
-  end;
-
-  TDoCreateInterceptor = class(TInterfacedObject, IInterceptor, IDoCreate)
-  public
-    procedure Intercept(const invocation: IInvocation);
-    procedure DoCreate;
-  end;
-
-  TDoCreateObject = class(TInterfacedObject, IDoCreate)
-    procedure DoCreate; virtual;
-  end;
-
 implementation
 
-{$R *.dfm}
+uses
+  System.Rtti,
 
-var
-  GString : string =  'not hooked';
+  DDuce.Logger;
+
+{$R *.dfm}
 
 {$REGION 'construction and destruction'}
 procedure TfrmClassProxy.AfterConstruction;
 begin
   inherited AfterConstruction;
-//  FProxy := TProxyGenerator.CreateClassProxy(TDoCreateObject,
-//    [TypeInfo(IDoCreate)],
-//    [TDoCreateInterceptor.Create]
-//  );
 
-  FProxy := TProxyGenerator.CreateClassProxy<TDoCreateObject>(
-    [TDoCreateInterceptor.Create]
+  { Only virtual methods can be intercepted }
+  FClassProxy := TProxyGenerator.CreateClassProxy<TNumber>(
+    [TInterceptor.Create]
   );
 
-//  var
-//  proxy: TObject;
-//begin
-//  proxy := TProxyGenerator.CreateClassProxy(
-//    TEnsurePartnerStatusRule,
-//    [TypeInfo(ISupportsInvalidation)],
-//    [TInvalidationInterceptor.Create]);
-//  try
-//    CheckTrue(Supports(proxy, ISupportsInvalidation));
-//  finally
-//    proxy.Free;
-//  end;
+  { All implemented methods of INumber can be intercepted }
+  FNumber := TNumber.Create;
+  FInterfaceProxy := TProxyGenerator.CreateInterfaceProxyWithTarget<INumber>(
+    FNumber,
+    [TInterceptor.Create]
+  )
 
 end;
+
 procedure TfrmClassProxy.BeforeDestruction;
 begin
-  FreeAndNil(FProxy);
+  FreeAndNil(FClassProxy);
   inherited BeforeDestruction;
 end;
-
-procedure TfrmClassProxy.UpdateActions;
-begin
-  inherited UpdateActions;
-  lblHooked.Caption := GString;
-end;
-
 {$ENDREGION}
-
 
 {$REGION 'action handlers'}
-procedure TfrmClassProxy.actAddFormProxyExecute(Sender: TObject);
+procedure TfrmClassProxy.actCallClassProxyMethodsExecute(Sender: TObject);
 begin
-  //
+   FClassProxy.One;
+   FClassProxy.Two;
+   FClassProxy.Three;
 end;
 
-procedure TfrmClassProxy.actReleaseFormProxyExecute(Sender: TObject);
+procedure TfrmClassProxy.actCallInterfaceProxyMethodsExecute(Sender: TObject);
 begin
-//
+  FInterfaceProxy.One;
+  FInterfaceProxy.Two;
+  FInterfaceProxy.Three;
 end;
-
-procedure TfrmClassProxy.actShowMessageExecute(Sender: TObject);
-//var
-//  F : TForm;
-var
-  DCO: TDoCreateObject;
-begin
-//  F := TForm.Create(Self);
-//  F.Show;
-  DCO := TDoCreateObject.Create;
-  DCO.DoCreate;
-  DCO.Free;
-
-end;
-
 {$ENDREGION}
 
-
-
-{ TDoCreateInterceptor }
-
-procedure TDoCreateInterceptor.DoCreate;
+{$REGION 'TInterceptor'}
+procedure TInterceptor.Intercept(const invocation: IInvocation);
 begin
-  GString := 'Hooked';
-end;
-
-procedure TDoCreateInterceptor.Intercept(const invocation: IInvocation);
-begin
-  GString := 'Hooked';
   invocation.Proceed;
+  ShowMessage(invocation.Result.ToString);
+  Logger.Send('method', invocation.Method.Name);
 end;
+{$ENDREGION}
 
-{ TDoCreateObject }
-
-procedure TDoCreateObject.DoCreate;
+{$REGION 'TNumber'}
+function TNumber.One: Integer;
 begin
-  //
+  Result := 1;
 end;
+
+function TNumber.Two: Integer;
+begin
+  Result := 2;
+end;
+
+function TNumber.Three: Integer;
+begin
+  Result := 3;
+end;
+{$ENDREGION}
 
 end.

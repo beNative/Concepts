@@ -1,5 +1,5 @@
 inherited MainForm: TMainForm
-  Caption = 'TBCEditor Control Version 1.0b - Property Demo'
+  Caption = ''
   ClientHeight = 644
   ClientWidth = 1100
   Color = clWhite
@@ -112,6 +112,7 @@ inherited MainForm: TMainForm
       CompletionProposal.ShortCut = 16416
       CompletionProposal.Trigger.Chars = '.'
       CompletionProposal.Trigger.Enabled = False
+      Ctl3D = True
       Directories.Colors = 'Colors'
       Directories.Highlighters = 'Highlighters'
       Font.Charset = DEFAULT_CHARSET
@@ -135,6 +136,7 @@ inherited MainForm: TMainForm
       Minimap.Font.Style = []
       Minimap.Width = 140
       OnCaretChanged = EditorCaretChanged
+      ParentCtl3D = False
       RightMargin.Position = 80
       RightMargin.Visible = True
       Search.Enabled = False
@@ -175,69 +177,201 @@ inherited MainForm: TMainForm
       WordWrap.Position = 80
       WordWrap.Style = wwsClientWidth
     end
-    object PanelSearchFrame: TBCPanel
+    object PanelSearch: TBCPanel
+      AlignWithMargins = True
       Left = 0
-      Top = 598
+      Top = 601
       Width = 748
-      Height = 27
+      Height = 21
+      Margins.Left = 0
+      Margins.Right = 0
       Align = alBottom
-      AutoSize = True
       BevelOuter = bvNone
-      Padding.Top = 3
-      Padding.Bottom = 3
       TabOrder = 1
       SkinData.SkinSection = 'CHECKBOX'
-      inline SearchFrame: TBCSearchFrame
-        Left = 0
-        Top = 3
-        Width = 748
+      object BCSplitter1: TBCSplitter
+        Left = 200
+        Top = 0
         Height = 21
-        Align = alBottom
-        Color = clWindow
+        SkinData.SkinSection = 'SPLITTER'
+      end
+      object SpeedButtonFindPrevious: TBCSpeedButton
+        Left = 206
+        Top = 0
+        Width = 21
+        Height = 21
+        Action = ActionFindPrevious
+        Align = alLeft
+        Flat = True
+        SkinData.SkinSection = 'TOOLBUTTON'
+        Images = ImagesDataModule.ImageListSmall
+        ImageIndex = 38
+      end
+      object SpeedButtonFindNext: TBCSpeedButton
+        Left = 227
+        Top = 0
+        Width = 21
+        Height = 21
+        Action = ActionFindNext
+        Align = alLeft
+        Flat = True
+        SkinData.SkinSection = 'TOOLBUTTON'
+        Images = ImagesDataModule.ImageListSmall
+        ImageIndex = 37
+      end
+      object SpeedButtonDivider: TBCSpeedButton
+        AlignWithMargins = True
+        Left = 248
+        Top = 1
+        Width = 10
+        Height = 19
+        Margins.Left = 0
+        Margins.Top = 1
+        Margins.Right = 0
+        Margins.Bottom = 1
+        Align = alLeft
+        Flat = True
+        ButtonStyle = tbsDivider
+        SkinData.SkinSection = 'TOOLBUTTON'
+        ImageIndex = 3
+      end
+      object SpeedButtonOptions: TBCSpeedButton
+        Left = 258
+        Top = 0
+        Width = 21
+        Height = 21
+        Action = ActionOptions
+        Align = alLeft
+        Flat = True
+        SkinData.SkinSection = 'TOOLBUTTON'
+        Images = ImagesDataModule.ImageListSmall
+        ImageIndex = 78
+      end
+      object SpeedButtonClose: TBCSpeedButton
+        Left = 727
+        Top = 0
+        Width = 21
+        Height = 21
+        Action = ActionClose
+        Align = alRight
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000FF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FF5B5B5B5B5B5BFF00FFFF00FFFF00FF5B5B5B5B5B5BFF00FFFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF717171717171FF00FFFF
+          00FFFF00FF717171717171FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FF5B5B5B5B5B5B5B5B5B5B5B5BFF00FF5B5B5B5B5B5B5B5B5B5B5B5BFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF717171FFFFFFFFFFFF717171FF
+          00FF717171FFFFFFFFFFFF717171FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FF5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5BFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF717171FFFFFFFFFFFFFFFFFF71
+          7171FFFFFFFFFFFFFFFFFF717171FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FF5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5BFF00FFFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF717171FFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFF787878FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FF5B5B5B5B5B5B5B5B5B5B5B5B5B5B5BFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF717171FFFFFFFF
+          FFFFFFFFFF717171FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FF5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5BFF00FFFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF717171FFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFF717171FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FF5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5B5BFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF717171FFFFFFFFFFFFFFFFFF71
+          7171FFFFFFFFFFFFFFFFFF717171FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FF5B5B5B5B5B5B5B5B5B5B5B5BFF00FF5B5B5B5B5B5B5B5B5B5B5B5BFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF717171FFFFFFFFFFFF717171FF
+          00FF717171FFFFFFFFFFFF717171FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FF5B5B5B5B5B5BFF00FFFF00FFFF00FF5B5B5B5B5B5BFF00FFFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF717171717171FF00FFFF
+          00FFFF00FF717171717171FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+          FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+          FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF
+          00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
+        Margin = 0
+        NumGlyphs = 2
+        SkinData.SkinSection = 'CHECKBOX'
+        Images = ImagesDataModule.ImageListSmall
+      end
+      object ComboBoxSearchText: TBCComboBox
+        Left = 0
+        Top = 0
+        Width = 200
+        Height = 21
+        Hint = 'Search text'
+        Align = alLeft
+        Alignment = taLeftJustify
+        BoundLabel.Indent = 4
+        BoundLabel.Layout = sclTopLeft
+        SkinData.SkinSection = 'COMBOBOX'
+        VerticalAlignment = taAlignTop
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = []
-        ParentBackground = False
-        ParentColor = False
+        ItemIndex = -1
         ParentFont = False
         TabOrder = 0
-        inherited SearchPanel: TBCPanel
-          Width = 748
-          inherited SpeedButtonSearchClose: TBCSpeedButton
-            Left = 727
-            Images = nil
-          end
-          inherited PanelRight: TBCPanel
-            Width = 394
-            inherited LabelSearchResultCount: TBCLabelFX
-              Left = 382
-              Height = 21
-            end
-          end
-          inherited PanelToolbar: TBCPanel
-            inherited SpeedButtonFindPrevious: TBCSpeedButton
-              Images = nil
-            end
-            inherited SpeedButtonFindNext: TBCSpeedButton
-              Images = nil
-            end
-            inherited SpeedButtonOptions: TBCSpeedButton
-              Images = nil
-            end
-          end
-        end
-        inherited ActionList: TActionList
-          Images = nil
+        OnChange = ComboBoxSearchTextChange
+        OnKeyPress = ComboBoxSearchTextKeyPress
+        UseMouseWheel = False
+      end
+      object PanelRight: TBCPanel
+        Left = 279
+        Top = 0
+        Width = 448
+        Height = 21
+        Align = alClient
+        BevelOuter = bvNone
+        ParentColor = True
+        TabOrder = 1
+        SkinData.SkinSection = 'CHECKBOX'
+        object LabelSearchResultCount: TsLabel
+          AlignWithMargins = True
+          Left = 441
+          Top = 0
+          Width = 4
+          Height = 21
+          Margins.Left = 0
+          Margins.Top = 0
+          Margins.Bottom = 0
+          Align = alRight
+          ParentFont = False
+          Layout = tlCenter
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = []
         end
       end
     end
   end
   inherited SkinManager: TBCSkinManager
-    ExtendedBorders = True
+    Effects.AllowGlowing = False
+    IsDefault = True
+    MenuSupport.UseExtraLine = False
     ThirdParty.ThirdEdits = ' '#13#10'TBCEditorPrintPreview'#13#10
-    OnGetMenuExtraLineData = SkinManagerGetMenuExtraLineData
+    ThirdParty.ThirdVirtualTrees = 'TVirtualDrawTree'#13#10
     Left = 166
     Top = 26
   end
@@ -251,44 +385,44 @@ inherited MainForm: TMainForm
         FontData.Font.Height = -11
         FontData.Font.Name = 'Tahoma'
         FontData.Font.Style = []
-        Height = 21
+        Height = 22
         Index = 0
         Name = 'TitleBarItemFile'
         ShowHint = True
         Style = bsMenu
-        Width = 47
+        Width = 48
       end
       item
         Align = tbaCenterInSpace
-        Caption = 'TBCEditor Control Demo v1.0b'
-        FontData.Font.Charset = DEFAULT_CHARSET
-        FontData.Font.Color = clWindowText
-        FontData.Font.Height = -11
-        FontData.Font.Name = 'Tahoma'
-        FontData.Font.Style = []
-        Height = 20
-        Index = 1
-        Name = 'TitleBarItemCaption'
-        ShowHint = False
-        Style = bsInfo
-        Width = 174
-      end
-      item
-        Align = tbaRight
-        Caption = 'Object Pascal'
-        DropdownMenu = PopupMenuHighlighters
+        Caption = 'TBCEditor Control Demo v1.1'
         FontData.Font.Charset = DEFAULT_CHARSET
         FontData.Font.Color = clWindowText
         FontData.Font.Height = -11
         FontData.Font.Name = 'Tahoma'
         FontData.Font.Style = []
         Height = 21
+        Index = 1
+        Name = 'TitleBarItemCaption'
+        ShowHint = False
+        Style = bsInfo
+        Width = 161
+      end
+      item
+        Align = tbaRight
+        Caption = 'Object Pascal'
+        DropdownMenu = PopupMenuDummy
+        FontData.Font.Charset = DEFAULT_CHARSET
+        FontData.Font.Color = clWindowText
+        FontData.Font.Height = -11
+        FontData.Font.Name = 'Tahoma'
+        FontData.Font.Style = []
+        Height = 22
         Index = 2
         Name = 'TitleBarItemHighlighter'
         ShowHint = False
         Style = bsMenu
-        Width = 103
-        OnMouseDown = TitleBarItems2MouseDown
+        Width = 101
+        OnClick = TitleBarItems2Click
       end
       item
         Align = tbaRight
@@ -306,18 +440,19 @@ inherited MainForm: TMainForm
       item
         Align = tbaRight
         Caption = 'Default'
-        DropdownMenu = PopupMenuColors
+        DropdownMenu = PopupMenuDummy
         FontData.Font.Charset = DEFAULT_CHARSET
         FontData.Font.Color = clWindowText
         FontData.Font.Height = -11
         FontData.Font.Name = 'Tahoma'
         FontData.Font.Style = []
-        Height = 21
+        Height = 22
         Index = 4
         Name = 'TitleBarItemColors'
         ShowHint = False
         Style = bsMenu
-        Width = 69
+        Width = 68
+        OnClick = TitleBarItems4Click
       end
       item
         Align = tbaRight
@@ -337,7 +472,7 @@ inherited MainForm: TMainForm
   end
   inherited SkinProvider: TBCSkinProvider
     Left = 250
-    Top = 26
+    Top = 30
   end
   inherited ApplicationEvents: TApplicationEvents
     OnMessage = ApplicationEventsMessage
@@ -345,6 +480,7 @@ inherited MainForm: TMainForm
     Top = 88
   end
   inherited ActionList: TActionList
+    Images = ImagesDataModule.ImageListSmall
     Left = 178
     Top = 92
     object ActionSearch: TAction
@@ -367,6 +503,27 @@ inherited MainForm: TMainForm
       Caption = 'Skins...'
       ImageIndex = 76
       OnExecute = ActionSkinsExecute
+    end
+    object ActionFindNext: TAction
+      Hint = 'Find next'
+      ImageIndex = 37
+      ShortCut = 114
+      OnExecute = ActionFindNextExecute
+    end
+    object ActionFindPrevious: TAction
+      Hint = 'Find previous'
+      ImageIndex = 38
+      ShortCut = 8306
+      OnExecute = ActionFindPreviousExecute
+    end
+    object ActionOptions: TAction
+      Hint = 'Options'
+      ImageIndex = 78
+      OnExecute = ActionOptionsExecute
+    end
+    object ActionClose: TAction
+      Hint = 'Close'
+      OnExecute = ActionCloseExecute
     end
   end
   object PopupMenuFile: TPopupMenu
@@ -394,13 +551,9 @@ inherited MainForm: TMainForm
       Action = ActionFileExit
     end
   end
-  object PopupMenuHighlighters: TPopupMenu
+  object PopupMenuDummy: TPopupMenu
     Left = 84
     Top = 220
-  end
-  object PopupMenuColors: TPopupMenu
-    Left = 84
-    Top = 276
   end
   object MultiStringHolderFileTypes: TBCMultiStringHolder
     MultipleStrings = <

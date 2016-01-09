@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2015 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList,
-  Vcl.StdCtrls,
+  Vcl.StdCtrls, Vcl.ExtCtrls,
 
-  DDetours, Vcl.ExtCtrls;
+  DDetours;
 
 type
   TModifiedForm = class(TForm)
@@ -172,6 +172,8 @@ end;
 
 procedure TfrmDDetours.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  TModifiedForm.Detour1.Disable;
+  TModifiedForm.Detour2.Disable;
   Action := caFree;
 end;
 {$ENDREGION}

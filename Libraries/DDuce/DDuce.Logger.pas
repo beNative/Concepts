@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2015 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -636,6 +636,8 @@ begin
     tkInt64:
       InternalSend(lmtValue, AName + ' = ' + IntToStr(AValue.AsInt64));
     tkRecord:
+      InternalSend(lmtValue, AName + ' = ' + Reflect.Fields(AValue).ToString);
+    tkInterface:
       InternalSend(lmtValue, AName + ' = ' + Reflect.Fields(AValue).ToString);
   else
     InternalSend(lmtValue, AName + ' = ' + AValue.ToString);
