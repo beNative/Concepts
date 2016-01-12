@@ -132,7 +132,7 @@ begin
 //  Logger.Send(PItem.Name, PItem.Value.ToString);
 
   //Result := not PItem.IsSet;
-  Result := PItem.Prop.PropertyType.TypeKind <> tkMethod;
+  //{$IFDEF DELPHIX_SEATTLE_UP}Result := PItem.Prop.PropertyType.TypeKind <> tkMethod;
 end;
 
 procedure TfrmzObjectInspector.cbxControlsChange(Sender: TObject);

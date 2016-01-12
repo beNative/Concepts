@@ -201,7 +201,7 @@ var
   a: TArray<TValue>;
 begin
   TS := TStringList.Create;
-  a := ['een', 'twee', 'drie', 'vier', 'vijf'];
+  //a := ['een', 'twee', 'drie', 'vier', 'vijf'];
 
   FLogger.LogValue('Form', TS);
   //FLogger.LogValue('array', TValue.From(a));
