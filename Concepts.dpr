@@ -5,6 +5,7 @@ program Concepts;
 uses
   {$IFDEF FASTMM}
   FastMM4 in 'Libraries\fastmm\FastMM4.pas',
+  FastMM4Messages in 'Libraries\fastmm\FastMM4Messages.pas',
   {$ENDIF }
   Vcl.Themes,
   Vcl.Styles,
@@ -12,7 +13,11 @@ uses
   {$IFNDEF HAS_UNIT_SYSTEM_IMAGELIST}
   System.ImageList in 'Types\System.ImageList.pas',
   {$ENDIF }
+  {$IFDEF BTMEMORYMODULE}
   BTMemoryModule in 'Libraries\BTMemoryModule\BTMemoryModule.pas',
+  Concepts.BTMemoryModule.Form in 'Forms\Concepts.BTMemoryModule.Form.pas' {frmBTMemoryModule},
+  {$ENDIF }
+  {$IFDEF CHROMETABS}
   ChromeTabs in 'Libraries\TChromeTabs\Lib\ChromeTabs.pas',
   ChromeTabsClasses in 'Libraries\TChromeTabs\Lib\ChromeTabsClasses.pas',
   ChromeTabsControls in 'Libraries\TChromeTabs\Lib\ChromeTabsControls.pas',
@@ -21,9 +26,8 @@ uses
   ChromeTabsThreadTimer in 'Libraries\TChromeTabs\Lib\ChromeTabsThreadTimer.pas',
   ChromeTabsTypes in 'Libraries\TChromeTabs\Lib\ChromeTabsTypes.pas',
   ChromeTabsUtils in 'Libraries\TChromeTabs\Lib\ChromeTabsUtils.pas',
-  Concepts.BTMemoryModule.Form in 'Forms\Concepts.BTMemoryModule.Form.pas' {frmBTMemoryModule},
   Concepts.ChromeTabs.Form in 'Forms\Concepts.ChromeTabs.Form.pas' {frmChromeTabs},
-  Concepts.BCEditor.Form in 'Forms\Concepts.BCEditor.Form.pas' {frmBCEditor},
+  {$ENDIF }
   {$IFDEF DEVEXPRESS}
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas',
   {$ENDIF }
@@ -46,7 +50,6 @@ uses
   Concepts.Spring.ObjectDataSet.Form in 'Forms\Concepts.Spring.ObjectDataSet.Form.pas' {frmObjectDataSet},
   Concepts.Spring.Types.Form in 'Forms\Concepts.Spring.Types.Form.pas' {frmSpringTypes},
   Concepts.Spring.Utils.Form in 'Forms\Concepts.Spring.Utils.Form.pas' {frmSpringUtils},
-  Concepts.SQLBuilder4D.Form in 'Forms\Concepts.SQLBuilder4D.Form.pas' {frmSQLBuilder4D},
   Concepts.System.AnonymousMethods.Form in 'Forms\Concepts.System.AnonymousMethods.Form.pas' {frmAnonymousMethods},
   Concepts.System.InterfaceImplementationByAggregation.Form in 'Forms\Concepts.System.InterfaceImplementationByAggregation.Form.pas' {frmIterFaceImplementationByAggregation},
   Concepts.System.Libraries.Form in 'Forms\Concepts.System.Libraries.Form.pas' {frmLibraries},
@@ -62,6 +65,9 @@ uses
   Concepts.Types.ValidationRules in 'Types\Concepts.Types.ValidationRules.pas',
   Concepts.Utils in 'Concepts.Utils.pas',
   Concepts.Vcl.GridPanel.Form in 'Forms\Concepts.Vcl.GridPanel.Form.pas' {frmGridPanel},
+  {$IFDEF DELPHIX_SEATTLE_UP}
+  Concepts.Vcl.RelativePanel.Form in 'Forms\Concepts.Vcl.RelativePanel.Form.pas' {frmRelativePanel},
+  {$ENDIF }
   Concepts.WinApi.LockPaint.Form in 'Forms\Concepts.WinApi.LockPaint.Form.pas' {frmLockPaint},
   DDuce.Components.DBGridView in 'Libraries\DDuce\Components\DDuce.Components.DBGridView.pas',
   DDuce.Components.GridView in 'Libraries\DDuce\Components\DDuce.Components.GridView.pas',
@@ -111,6 +117,11 @@ uses
   DSharp.Windows.CustomPresenter in 'Libraries\DSharp\DSharp.Windows.CustomPresenter.pas',
   DSharp.Windows.CustomPresenter.Types in 'Libraries\DSharp\DSharp.Windows.CustomPresenter.Types.pas',
   DSharp.Windows.TreeViewPresenter in 'Libraries\DSharp\DSharp.Windows.TreeViewPresenter.pas',
+  {$IFDEF SQLBUILDER4D}
+  Concepts.SQLBuilder4D.Form in 'Forms\Concepts.SQLBuilder4D.Form.pas' {frmSQLBuilder4D},
+  SQLBuilder4D in 'Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.pas',
+  SQLBuilder4D.Parser in 'Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.pas',
+  SQLBuilder4D.Parser.GaSQLParser in 'Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.GaSQLParser.pas',
   gaAdvancedSQLParser in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaAdvancedSQLParser.pas',
   gaBasicSQLParser in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaBasicSQLParser.pas',
   gaDeleteStm in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaDeleteStm.pas',
@@ -126,6 +137,7 @@ uses
   gaSQLSelectFieldParsers in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLSelectFieldParsers.pas',
   gaSQLTableRefParsers in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLTableRefParsers.pas',
   gaUpdateStm in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaUpdateStm.pas',
+  {$ENDIF }
   Spring in 'Libraries\Spring4D\Source\Base\Spring.pas',
   Spring.Collections in 'Libraries\Spring4D\Source\Base\Collections\Spring.Collections.pas',
   Spring.Collections.Adapters in 'Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Adapters.pas',
@@ -284,9 +296,6 @@ uses
   Spring.ValueConverters in 'Libraries\Spring4D\Source\Base\Spring.ValueConverters.pas',
   Spring.VirtualClass in 'Libraries\Spring4D\Source\Base\Spring.VirtualClass.pas',
   Spring.VirtualInterface in 'Libraries\Spring4D\Source\Base\Spring.VirtualInterface.pas',
-  SQLBuilder4D in 'Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.pas',
-  SQLBuilder4D.Parser in 'Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.pas',
-  SQLBuilder4D.Parser.GaSQLParser in 'Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.GaSQLParser.pas',
   VirtualTrees in 'Libraries\VirtualTreeView\Source\VirtualTrees.pas',
   VirtualTrees.Actions in 'Libraries\VirtualTreeView\Source\VirtualTrees.Actions.pas',
   VirtualTrees.Classes in 'Libraries\VirtualTreeView\Source\VirtualTrees.Classes.pas',
@@ -298,7 +307,6 @@ uses
   VTAccessibility in 'Libraries\VirtualTreeView\Source\VTAccessibility.pas',
   VTAccessibilityFactory in 'Libraries\VirtualTreeView\Source\VTAccessibilityFactory.pas',
   VTHeaderPopup in 'Libraries\VirtualTreeView\Source\VTHeaderPopup.pas',
-  Concepts.ComponentInspector in 'Concepts.ComponentInspector.pas' {frmComponentInspector},
   DDuce.Logging.Appenders.WinIPC in 'Libraries\DDuce\Logging\DDuce.Logging.Appenders.WinIPC.pas',
   DDuce.Logging.Appenders.LogTree in 'Libraries\DDuce\Logging\DDuce.Logging.Appenders.LogTree.pas',
   DDuce.Components.Factories in 'Libraries\DDuce\Components\DDuce.Components.Factories.pas',
@@ -306,6 +314,7 @@ uses
   Spring.Reflection in 'Libraries\Spring4D\Source\Base\Spring.Reflection.pas',
   Spring.Mocking.Matching in 'Libraries\Spring4D\Source\Core\Mocking\Spring.Mocking.Matching.pas',
   Concepts.DSharp.TreeViewPresenter.List.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.List.Form.pas' {frmTreeViewPresenterList},
+  {$IFDEF BCEDITOR}
   BCEditor.Consts in 'Libraries\TBCEditor\Source\BCEditor.Consts.pas',
   BCEditor.Editor.ActiveLine in 'Libraries\TBCEditor\Source\BCEditor.Editor.ActiveLine.pas',
   BCEditor.Editor.Base in 'Libraries\TBCEditor\Source\BCEditor.Editor.Base.pas',
@@ -395,16 +404,22 @@ uses
   BCEditor.TextDrawer in 'Libraries\TBCEditor\Source\BCEditor.TextDrawer.pas',
   BCEditor.Types in 'Libraries\TBCEditor\Source\BCEditor.Types.pas',
   BCEditor.Utils in 'Libraries\TBCEditor\Source\BCEditor.Utils.pas',
+  Concepts.BCEditor.Form in 'Forms\Concepts.BCEditor.Form.pas' {frmBCEditor},
+  {$ENDIF }
   Concepts.RTTEye.RttiTemplates in 'Types\Concepts.RTTEye.RttiTemplates.pas',
-  FastMM4Messages in 'Libraries\fastmm\FastMM4Messages.pas',
+  {$IFDEF DELPHIZMQ}
   Concepts.ZeroMQ.Form in 'Forms\Concepts.ZeroMQ.Form.pas' {frmZMQConcept},
   ZeroMQ.API in 'Libraries\ZeroMQ\ZeroMQ.API.pas',
   ZeroMQ in 'Libraries\ZeroMQ\ZeroMQ.pas',
-  Concepts.DDetours.Form in 'Forms\Concepts.DDetours.Form.pas' {frmDDetours},
+  {$ENDIF }
   Concepts.Spring.ClassProxy.Form in 'Forms\Concepts.Spring.ClassProxy.Form.pas' {frmClassProxy},
+  {$IFDEF DDETOURS}
   CPUID in 'Libraries\DDetours\CPUID.pas',
   DDetours in 'Libraries\DDetours\DDetours.pas',
   InstDecode in 'Libraries\DDetours\InstDecode.pas',
+  Concepts.DDetours.Form in 'Forms\Concepts.DDetours.Form.pas' {frmDDetours},
+  {$ENDIF }
+  {$IFDEF ZOBJECTINSPECTOR}
   zBase in 'Libraries\TzObjectInspector\zBase.pas',
   zCanvasStack in 'Libraries\TzObjectInspector\zCanvasStack.pas',
   zGraphicDialog in 'Libraries\TzObjectInspector\zGraphicDialog.pas' {GraphicDialog},
@@ -414,10 +429,9 @@ uses
   zRecList in 'Libraries\TzObjectInspector\zRecList.pas',
   zStringsDialog in 'Libraries\TzObjectInspector\zStringsDialog.pas' {StringsDialog},
   zUtils in 'Libraries\TzObjectInspector\zUtils.pas',
-  {$IFDEF DELPHIX_SEATTLE_UP}
-  Concepts.Vcl.RelativePanel.Form in 'Forms\Concepts.Vcl.RelativePanel.Form.pas' {frmRelativePanel},
+  Concepts.zObjectInspector.Form in 'Forms\Concepts.zObjectInspector.Form.pas' {frmzObjectInspector},
   {$ENDIF }
-  Concepts.zObjectInspector.Form in 'Forms\Concepts.zObjectInspector.Form.pas' {frmzObjectInspector};
+  Concepts.ComponentInspector in 'Concepts.ComponentInspector.pas' {frmComponentInspector};
 
 
 {$R *.res}
