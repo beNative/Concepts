@@ -3,7 +3,9 @@ program Concepts;
 {$I Concepts.inc}
 
 uses
+  {$IFDEF FASTMM}
   FastMM4 in 'Libraries\fastmm\FastMM4.pas',
+  {$ENDIF }
   Vcl.Themes,
   Vcl.Styles,
   Vcl.Forms,
@@ -412,8 +414,11 @@ uses
   zRecList in 'Libraries\TzObjectInspector\zRecList.pas',
   zStringsDialog in 'Libraries\TzObjectInspector\zStringsDialog.pas' {StringsDialog},
   zUtils in 'Libraries\TzObjectInspector\zUtils.pas',
-  Concepts.zObjectInspector.Form in 'Forms\Concepts.zObjectInspector.Form.pas' {frmzObjectInspector},
-  Concepts.Vcl.RelativePanel.Form in 'Forms\Concepts.Vcl.RelativePanel.Form.pas' {frmRelativePanel};
+  {$IFDEF DELPHIX_SEATTLE_UP}
+  Concepts.Vcl.RelativePanel.Form in 'Forms\Concepts.Vcl.RelativePanel.Form.pas' {frmRelativePanel},
+  {$ENDIF }
+  Concepts.zObjectInspector.Form in 'Forms\Concepts.zObjectInspector.Form.pas' {frmzObjectInspector};
+
 
 {$R *.res}
 
