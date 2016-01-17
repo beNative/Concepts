@@ -5,13 +5,15 @@
             "Version": "1.0",
             "Date": "09.01.2016",
             "Sample": [
-               "// Hello World in D\r\n",
+               "// Hello World in UnrealScript\r\n",
                "\r\n",
-               "import std.stdio\r\n",
+               "class HelloWorldGame extends GameInfo;\r\n",
                "\r\n",
-               "void main()\r\n",
+               "event InitGame( string Options, out string Error )\r\n",
                "{\r\n",
-               "    writeln(\"Hello, world!\");\r\n",
+               "    super.InitGame( Options, Error );\r\n",
+               "\r\n",
+               "    `log( \"Hello, world!\" );\r\n",
                "}"
             ]
          },
@@ -139,15 +141,92 @@
                   }
                },
                {
-                  "Type": "Directive",
+                  "Type": "Method",
                   "Attributes": {
-                     "Element": "Directive"
-                  },
-                  "Properties": {
-                     "CloseOnEndOfLine": true
+                     "Element": "MethodName"
                   },
                   "TokenRange": {
-                     "Open": "#"
+                     "Open": "function",
+                     "Close": "("
+                  },
+                  "SubRules": {
+                     "KeyList": [
+                        {
+                           "Type": "Symbol",
+                           "Words": [
+                              "("
+                           ],
+                           "Attributes": {
+                              "Element": "Symbol"
+                           }
+                        }
+                     ]
+                  }
+               },
+               {
+                  "Type": "Method",
+                  "Attributes": {
+                     "Element": "MethodName"
+                  },
+                  "TokenRange": {
+                     "Open": "event",
+                     "Close": "("
+                  },
+                  "SubRules": {
+                     "KeyList": [
+                        {
+                           "Type": "Symbol",
+                           "Words": [
+                              "("
+                           ],
+                           "Attributes": {
+                              "Element": "Symbol"
+                           }
+                        }
+                     ]
+                  }
+               },
+               {
+                  "Type": "Method",
+                  "Attributes": {
+                     "Element": "MethodName"
+                  },
+                  "Properties": {
+                     "AlternativeClose": [
+                        ".",
+                        ";",
+                        " ",
+                        "["
+                     ]
+                  },
+                  "TokenRange": {
+                     "Open": ".",
+                     "Close": "("
+                  },
+                  "SubRules": {
+                     "KeyList": [
+                        {
+                           "Type": "ReservedWord",
+                           "Words": [
+                              "static"
+                           ],
+                           "Attributes": {
+                              "Element": "ReservedWord"
+                           }
+                        },
+                        {
+                           "Type": "Symbol",
+                           "Words": [
+                              ".",
+                              "(",
+                              ";",
+                              "["
+                           ],
+                           "Attributes": {
+                              "Element": "Symbol"
+                           }
+                        }
+                     ]
                   }
                },
                {
@@ -171,119 +250,204 @@
                   "Type": "ReservedWord",
                   "Words": [
                      "abstract",
-                     "alias",
-                     "align",
-                     "asm",
+                     "add",
+                     "additem",
+                     "always",
+                     "archetype",
+                     "array",
+                     "arraycount",
                      "assert",
+                     "atomic",
+                     "atomicwhencooked",
                      "auto",
-                     "body",
+                     "autocollapsecategories",
+                     "autoexpandcategories",
+                     "automated",
+                     "begin",
                      "bool",
                      "break",
+                     "button",
                      "byte",
                      "case",
-                     "cast",
-                     "catch",
-                     "cdouble",
-                     "cent",
-                     "cfloat",
-                     "char",
+                     "cacheexempt",
+                     "cache",
                      "class",
+                     "classgroup",
+                     "client",
+                     "coerce",
+                     "collapsecategories",
+                     "config",
                      "const",
                      "continue",
-                     "creal",
-                     "dchar",
-                     "debug",
+                     "cppstruct",
+                     "cpptext",
+                     "crosslevelactive",
+                     "crosslevelpassive",
+                     "databinding",
                      "default",
+                     "defaultproperties",
                      "delegate",
-                     "delete",
+                     "demorecording",
+                     "dependson",
                      "deprecated",
+                     "depreciated",
                      "do",
-                     "double",
+                     "dontautocollapsecategories",
+                     "dontcollapsecategories",
+                     "dontsortcategories",
+                     "dllbind",
+                     "dllimport",
+                     "duplicatetransient",
+                     "edfindable",
+                     "editconst",
+                     "editconstarray",
+                     "editfixedsize",
+                     "edithide",
+                     "editoronly",
+                     "editinline",
+                     "editinlinenew",
+                     "editinlinenotify",
+                     "editinlineuse",
+                     "edittextbox",
                      "else",
+                     "empty",
+                     "end",
                      "enum",
+                     "enumcount",
+                     "exec",
+                     "expands",
                      "export",
-                     "extern",
+                     "exportstructs",
+                     "extends",
                      "false",
+                     "filtereditoronly",
                      "final",
-                     "finally",
+                     "find",
                      "float",
                      "for",
+                     "forcescriptorder",
                      "foreach",
-                     "foreach_reverse",
-                     "function",
+                     "from",
+                     "global",
+                     "globalconfig",
                      "goto",
-                     "idouble",
+                     "guid",
+                     "hidecategories",
+                     "hidedropdown",
                      "if",
-                     "ifloat",
+                     "ignores",
                      "immutable",
+                     "immutablewhencooked",
+                     "implements",
                      "import",
-                     "in",
-                     "inout",
+                     "inherits",
+                     "init",
+                     "input",
+                     "insert",
+                     "insertitem",
+                     "instanced",
                      "int",
                      "interface",
+                     "interp",
+                     "intrinsic",
                      "invariant",
-                     "ireal",
-                     "is",
-                     "lazy",
+                     "iterator",
+                     "k2call",
+                     "k2override",
+                     "k2pure",
+                     "latent",
+                     "length",
+                     "local",
+                     "localized",
                      "long",
-                     "macro",
-                     "mixin",
-                     "module",
+                     "map",
+                     "name",
+                     "nameof",
+                     "native",
+                     "nativeonly",
+                     "nativereplication",
                      "new",
-                     "nothrow",
-                     "null",
+                     "noexport",
+                     "noexportheader",
+                     "noclear",
+                     "noimport",
+                     "none",
+                     "nontransactional",
+                     "nontransient",
+                     "noteditinlinenew",
+                     "notforconsole",
+                     "notinstanced",
+                     "notplaceable",
+                     "nousercreate",
+                     "operator",
+                     "optional",
+                     "orderedarray",
                      "out",
-                     "override",
-                     "package",
-                     "pragma",
+                     "parseconfig",
+                     "perobjectconfig",
+                     "perobjectlocalized",
+                     "placeable",
                      "private",
+                     "privatewrite",
+                     "preoperator",
                      "protected",
+                     "protectedwrite",
+                     "pointer",
+                     "postoperator",
                      "public",
-                     "pure",
-                     "real",
-                     "ref",
+                     "reliable",
+                     "remove",
+                     "removeindex",
+                     "removeitem",
+                     "replace",
+                     "replication",
+                     "repnotify",
+                     "repretry",
                      "return",
-                     "scope",
-                     "shared",
-                     "short",
-                     "static",
+                     "rot",
+                     "rng",
+                     "showcategories",
+                     "structcpptext",
+                     "structdefaultproperties",
+                     "structdefaults",
+                     "safereplace",
+                     "self",
+                     "server",
+                     "serializetext",
+                     "simulated",
+                     "singular",
+                     "skip",
+                     "sort",
+                     "state",
+                     "stop",
+                     "strictconfig",
+                     "string",
                      "struct",
                      "super",
                      "switch",
-                     "synchronized",
-                     "template",
-                     "this",
-                     "throw",
+                     "transient",
+                     "travel",
                      "true",
-                     "try",
-                     "typedef",
-                     "typeid",
-                     "typeof",
-                     "ubyte",
-                     "ucent",
-                     "uint",
-                     "ulong",
-                     "union",
-                     "unittest",
-                     "ushort",
-                     "version",
-                     "void",
-                     "volatile",
-                     "wchar",
+                     "unreliable",
+                     "until",
+                     "var",
+                     "vect",
+                     "virtual",
                      "while",
-                     "with",
-                     "__FILE__",
-                     "__MODULE__",
-                     "__LINE__",
-                     "__FUNCTION__",
-                     "__PRETTY_FUNCTION__",
-                     "__gshared",
-                     "__traits",
-                     "__vector",
-                     "__parameters"
+                     "within"
                   ],
                   "Attributes": {
                      "Element": "ReservedWord"
+                  }
+               },
+               {
+                  "Type": "Method",
+                  "Words": [
+                     "event",
+                     "function"
+                  ],
+                  "Attributes": {
+                     "Element": "Method"
                   }
                },
                {
@@ -305,16 +469,7 @@
                      "[",
                      "]",
                      "{",
-                     "}",
-                     "&",
-                     "|",
-                     "!",
-                     "$",
-                     "%",
-                     "^",
-                     "~",
-                     "@",
-                     "?"
+                     "}"
                   ],
                   "Attributes": {
                      "Element": "Symbol"
@@ -343,6 +498,9 @@
    "CodeFolding": {
       "Ranges": [
          {
+            "Options": {
+               "StringEscapeChar": "\\"
+            },
             "SkipRegion": [
                {
                   "OpenToken": "'",

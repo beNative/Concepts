@@ -33,8 +33,11 @@ type
   TBCEditorCustomLineColorsEvent = procedure(Sender: TObject; ALine: Integer; var AUseColors: Boolean;
     var AForeground: TColor; var ABackground: TColor) of object;
 
+  TBCEditorCustomTokenAttributeEvent = procedure(Sender: TObject; const AText: string; const ALine: Integer;
+    const APosition: Integer; var AForegroundColor: TColor; var ABackgroundColor: TColor; var AStyles: TFontStyles) of object;
+
   TBCEditorStateFlag = (sfCaretChanged, sfScrollBarChanged, sfLinesChanging, sfIgnoreNextChar, sfCaretVisible, sfDblClicked,
-    sfWaitForDragging, sfCodeFoldingInfoClicked, sfInSelection);
+    sfWaitForDragging, sfCodeFoldingInfoClicked, sfInSelection, sfDragging);
   TBCEditorStateFlags = set of TBCEditorStateFlag;
 
   TBCEditorOption = (
@@ -77,6 +80,7 @@ type
     soALTSetsColumnMode,
     soFromEndOfLine,
     soHighlightSimilarTerms,
+    soToEndOfLastLine,
     soToEndOfLine,
     soTripleClickRowSelect
   );
@@ -99,7 +103,8 @@ type
     soSelectedOnly,
     soShowStringNotFound,
     soShowSearchMatchNotFound,
-    soWholeWordsOnly
+    soWholeWordsOnly,
+    soWrapAround
   );
   TBCEditorSearchOptions = set of TBCEditorSearchOption;
 
@@ -288,7 +293,7 @@ type
   TBCEditorSortOrder = (soToggle, soAsc, soDesc);
 
   TBCEditorChangeReason = (crInsert, crPaste, crDragDropInsert, crDelete, crLineBreak, crIndent, crUnindent,
-    crAutoCompleteBegin, crAutoCompleteEnd, crCaret, crSelection, crNothing, crGroupBreak);
+    crCaret, crSelection, crNothing, crGroupBreak);
 
   TBCEditorWordWrapStyle = (wwsClientWidth, wwsRightMargin, wwsSpecified);
 
@@ -312,6 +317,9 @@ type
   TBCEditorLeftMarginBorderStyle = (mbsNone, mbsMiddle, mbsRight);
 
   TBCEditorScrollHintFormat = (shfTopLineOnly, shfTopToBottom);
+
+  TBCEditorIndicatorOption = (ioInvertBlending, ioShowBorder, ioUseBlending);
+  TBCEditorIndicatorOptions = set of TBCEditorIndicatorOption;
 
 implementation
 

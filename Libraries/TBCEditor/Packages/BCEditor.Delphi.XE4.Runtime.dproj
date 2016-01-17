@@ -163,6 +163,7 @@
         <DCCReference Include="..\Source\BCEditor.Editor.MatchingPair.Colors.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Minimap.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Minimap.Colors.pas"/>
+        <DCCReference Include="..\Source\BCEditor.Editor.Minimap.Indicator.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.PopupWindow.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Replace.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.RightMargin.pas"/>
@@ -180,6 +181,7 @@
         <DCCReference Include="..\Source\BCEditor.Editor.SpecialChars.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.SpecialChars.EndOfLine.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.SpecialChars.Selection.pas"/>
+        <DCCReference Include="..\Source\BCEditor.Editor.SyncEdit.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Tabs.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Undo.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Undo.Item.pas"/>
@@ -237,7 +239,7 @@
                     <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
                     <VersionInfo Name="AutoIncBuild">False</VersionInfo>
                     <VersionInfo Name="MajorVer">1</VersionInfo>
-                    <VersionInfo Name="MinorVer">0</VersionInfo>
+                    <VersionInfo Name="MinorVer">3</VersionInfo>
                     <VersionInfo Name="Release">0</VersionInfo>
                     <VersionInfo Name="Build">0</VersionInfo>
                     <VersionInfo Name="Debug">False</VersionInfo>

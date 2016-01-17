@@ -15,7 +15,6 @@ begin
   {$endif}
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.Title := 'BCEditor - Property Demo';
   Application.CreateForm(TMainForm, MainForm);
   Application.Run;
 end.

@@ -13,34 +13,34 @@
       "Editor":{
          "Colors":{
             "Background":"clWindow",
-            "ActiveLineBackground":"$00C7EEF8",
-            "CodeFoldingActiveLineBackground":"$00C7EEF8",
+            "ActiveLineBackground":"$00E6FAFF",
+            "CodeFoldingActiveLineBackground":"$00E6FAFF",
             "CodeFoldingBackground":"clWhite",
-            "CodeFoldingCollapsedLine":"$00B7B7B7",
-            "CodeFoldingFoldingLine":"$00B7B7B7",
-            "CodeFoldingFoldingLineHighlight":"$00B7B7B7",
-            "CodeFoldingIndent":"$00B7B7B7",
-            "CodeFoldingIndentHighlight":"$00B7B7B7",
+            "CodeFoldingCollapsedLine":"$00CC9999",
+            "CodeFoldingFoldingLine":"$00CC9999",
+            "CodeFoldingFoldingLineHighlight":"$00CC9999",
+            "CodeFoldingIndent":"$00CC9999",
+            "CodeFoldingIndentHighlight":"$00CC9999",
             "CodeFoldingHintBackground":"clWindow",
-            "CodeFoldingHintBorder":"$00B7B7B7",
+            "CodeFoldingHintBorder":"$00CC9999",
             "CodeFoldingHintText":"clNone",
             "CompletionProposalBackground":"clWindow",
             "CompletionProposalForeground":"clWindowText",
             "CompletionProposalSelectedBackground":"clHighlight",
             "CompletionProposalSelectedText":"clHighlightText",
-            "LeftMarginActiveLineBackground":"$00C7EEF8",
+            "LeftMarginActiveLineBackground":"$00E6FAFF",
             "LeftMarginBackground":"clWhite",
             "LeftMarginBorder":"clWhite",
-            "LeftMarginLineNumberLine":"$00B7B7B7",
-            "LeftMarginLineNumbers":"$00B7B7B7",
+            "LeftMarginLineNumberLine":"$00CC9999",
+            "LeftMarginLineNumbers":"$00CC9999",
             "LeftMarginLineStateModified":"clYellow",
             "LeftMarginLineStateNormal":"clLime",
             "LeftMarginBookmarkPanel":"clWhite",
             "MatchingPairMatched":"clAqua",
-            "MatchingPairUnderline":"$00B7B7B7",
+            "MatchingPairUnderline":"$00CC9999",
             "MatchingPairUnmatched":"clYellow",
             "MinimapBookmark":"$00999999",
-            "MinimapVisibleLines":"$00C7EEF8",
+            "MinimapVisibleLines":"$00E6FAFF",
             "RightMargin":"clSilver",
             "RightMovingEdge":"clSilver",
             "SearchHighlighterBackground":"$0078AAFF",
@@ -61,7 +61,7 @@
             "CompletionProposal":"Consolas"
          },
          "FontSizes":{
-            "LineNumbers":"9",
+            "LineNumbers":"8",
             "Text":"9",
             "Minimap":"1",
             "CodeFoldingHint":"8",
@@ -76,17 +76,18 @@
          },
          {
             "Name":"Comment",
-            "Foreground":"$00969896",
-            "Background":"clWindow"
+            "Foreground":"$00999999",
+            "Background":"clWindow",
+            "Style":"Italic"
          },
          {
             "Name":"String",
-            "Foreground":"$00913618",
+            "Foreground":"$005049d4",
             "Background":"clWindow"
          },
          {
             "Name":"Directive",
-            "Foreground":"$00969896",
+            "Foreground":"$00999900",
             "Background":"clWindow"
          },
          {
@@ -96,22 +97,23 @@
          },
          {
             "Name":"ReservedWord",
-            "Foreground":"$005d1da7",
-            "Background":"clWindow"
+            "Foreground":"$009f6f2f",
+            "Background":"clWindow",
+            "Style":"Bold"
          },
          {
             "Name":"Symbol",
-            "Foreground":"$00333333",
+            "Foreground":"clNavy",
             "Background":"clWindow"
          },
          {
             "Name":"Number",
-            "Foreground":"$00b38600",
+            "Foreground":"$00AAAA33",
             "Background":"clWindow"
          },
          {
             "Name":"HexNumber",
-            "Foreground":"$00b38600",
+            "Foreground":"$00AAAA33",
             "Background":"clWindow"
          },
          {
@@ -121,32 +123,35 @@
          },
          {
             "Name":"HighlightedBlockSymbol",
-            "Foreground":"00333333",
+            "Foreground":"clNavy",
             "Background":"$00f9f7f7"
          },
          {
             "Name":"AssemblerComment",
-            "Foreground":"$00969896",
-            "Background":"$00f9f7f7"
+            "Foreground":"$00999999",
+            "Background":"$00f9f7f7",
+            "Style":"Italic"
          },
          {
             "Name":"AssemblerReservedWord",
-            "Foreground":"$005d1da7",
-            "Background":"$00f9f7f7"
+            "Foreground":"$009f6f2f",
+            "Background":"$00f9f7f7",
+            "Style":"Bold"
          },
          {
             "Name":"Attribute",
-            "Foreground":"$00913618",
+            "Foreground":"$00cf9f4f",
             "Background":"clWindow"
          },
          {
             "Name":"Method",
-            "Foreground":"$005d1da7",
-            "Background":"clWindow"
+            "Foreground":"$009f6f2f",
+            "Background":"clWindow",
+            "Style":"Bold"
          },
          {
             "Name":"MethodName",
-            "Foreground":"$00a35d79",
+            "Foreground":"$00333333",
             "Background":"clWindow"
          }
       ]

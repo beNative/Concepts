@@ -5,15 +5,11 @@
             "Version": "1.0",
             "Date": "09.01.2016",
             "Sample": [
-               "// Hello World in C\r\n",
+               "// Hello World in Lisp\r\n",
                "\r\n",
-               "#include <stdio.h>\r\n",
-               "\r\n",
-               "int main(void)\r\n",
-               "{\r\n",
-               "    printf(\"Hello, world!\\n\");\r\n",
-               "    return 0;\r\n",
-               "}"
+               "(defun Hello ()\r\n",
+							 "  \"Hello World\"\r\n",
+							 ") "
             ]
          },
          "Author": {
@@ -33,8 +29,8 @@
                      "Element": "Comment"
                   },
                   "TokenRange": {
-                     "Open": "/*",
-                     "Close": "*/"
+                     "Open": "#|",
+                     "Close": "|#"
                   }
                },
                {
@@ -46,52 +42,7 @@
                      "CloseOnEndOfLine": true
                   },
                   "TokenRange": {
-                     "Open": "//"
-                  }
-               },
-               {
-                  "Type": "String",
-                  "Attributes": {
-                     "Element": "String"
-                  },
-                  "Properties": {
-                     "CloseOnEndOfLine": true
-                  },
-                  "TokenRange": {
-                     "Open": "'",
-                     "Close": "'"
-                  },
-                  "SubRules": {
-                     "Range": [
-                        {
-                           "Type": "String",
-                           "Attributes": {
-                              "Element": "String"
-                           },
-                           "Properties": {
-                              "CloseOnEndOfLine": true,
-                              "CloseOnTerm": true
-                           },
-                           "TokenRange": {
-                              "Open": "\\'",
-                              "Close": ""
-                           }
-                        },
-                        {
-                           "Type": "String",
-                           "Attributes": {
-                              "Element": "String"
-                           },
-                           "Properties": {
-                              "CloseOnEndOfLine": true,
-                              "CloseOnTerm": true
-                           },
-                           "TokenRange": {
-                              "Open": "\\\\",
-                              "Close": ""
-                           }
-                        }
-                     ]
+                     "Open": ";"
                   }
                },
                {
@@ -140,15 +91,53 @@
                   }
                },
                {
-                  "Type": "Directive",
+                  "Type": "Character",
                   "Attributes": {
-                     "Element": "Directive"
-                  },
-                  "Properties": {
-                     "CloseOnEndOfLine": true
+                     "Element": "Character"
                   },
                   "TokenRange": {
-                     "Open": "#"
+                     "Open": "#\\",
+                     "Close": " "
+                  }
+               },
+               {
+                  "Type": "Character",
+                  "Attributes": {
+                     "Element": "Character"
+                  },
+                  "Properties": {
+                     "CloseOnTerm": true
+                  },
+                  "TokenRange": {
+                     "Open": "#'"
+                  }
+               },
+               {
+                  "Type": "Method",
+                  "Attributes": {
+                     "Element": "MethodName"
+                  },
+                  "Properties": {
+                     "AlternativeClose": [
+                        "("
+                     ]
+                  },
+                  "TokenRange": {
+                     "Open": "defun",
+                     "Close": ""
+                  },
+                  "SubRules": {
+                     "KeyList": [
+                        {
+                           "Type": "Symbol",
+                           "Words": [
+                              "("
+                           ],
+                           "Attributes": {
+                              "Element": "Symbol"
+                           }
+                        }
+                     ]
                   }
                },
                {
@@ -169,51 +158,62 @@
             ],
             "KeyList": [
                {
-                  "Name": "C Keywords",
                   "Type": "ReservedWord",
                   "Words": [
-                     "auto",
-                     "break",
+                     "and",
                      "case",
-                     "char",
-                     "const",
-                     "continue",
-                     "default",
                      "do",
-                     "double",
                      "else",
-                     "enum",
-                     "extern",
-                     "float",
-                     "for",
-                     "goto",
+                     "eq",
                      "if",
-                     "int",
-                     "long",
-                     "register",
-                     "return",
-                     "short",
-                     "signed",
-                     "sizeof",
-                     "static",
-                     "struct",
-                     "switch",
-                     "typedef",
-                     "union",
-                     "unsigned",
-                     "void",
-                     "volatile",
-                     "while"
+                     "let",
+                     "loop",
+                     "neq",
+                     "nil",
+                     "null",
+                     "or",
+                     "when"        
                   ],
                   "Attributes": {
                      "Element": "ReservedWord"
                   }
                },
                {
+                  "Type": "Method",
+                  "Words": [
+                     "append",
+                     "apply",
+                     "car",
+                     "cdr",
+                     "cond",
+                     "cons",
+                     "def",
+                     "defmacro",
+                     "defmethod",
+                     "defparameter",
+                     "defun",
+                     "eval",
+                     "format",
+                     "lambda",
+                     "list",
+                     "listp",
+                     "load",
+                     "memberp",
+                     "progn",
+                     "quote",
+                     "send",
+                     "setf",
+                     "setq",
+                     "t"
+                  ],
+                  "Attributes": {
+                     "Element": "Method"
+                  }
+               },
+               {
                   "Type": "Symbol",
                   "Words": [
                      ":",
-                     ";",
                      "<",
                      ">",
                      "=",
@@ -254,77 +254,28 @@
          }
       }
    },
-   "CodeFolding": {
-      "Ranges": [
-         {
-            "Options": {
-               "StringEscapeChar": "\\"
-            },
-            "SkipRegion": [
-               {
-                  "OpenToken": "'",
-                  "CloseToken": "'",
-                  "RegionType": "String"
-               },
-               {
-                  "OpenToken": "\"",
-                  "CloseToken": "\"",
-                  "RegionType": "String"
-               },
-               {
-                  "OpenToken": "//",
-                  "RegionType": "SingleLine"
-               },
-               {
-                  "OpenToken": "/*",
-                  "CloseToken": "*/",
-                  "RegionType": "MultiLine"
-               }
-            ],
-            "FoldRegion": [
-               {
-                  "OpenToken": "{",
-                  "CloseToken": "}"
-               }
-            ]
-         }
-      ]
-   },
    "MatchingPair": {
       "Pairs": [
          {
             "OpenToken": "(",
             "CloseToken": ")"
-         },
-         {
-            "OpenToken": "[",
-            "CloseToken": "]"
-         },
-         {
-            "OpenToken": "{",
-            "CloseToken": "}"
          }
       ]
    },
    "CompletionProposal": {
       "SkipRegion": [
          {
-            "OpenToken": "'",
-            "CloseToken": "'",
-            "RegionType": "String"
-         },
-         {
             "OpenToken": "\"",
             "CloseToken": "\"",
             "RegionType": "String"
          },
          {
-            "OpenToken": "//",
+            "OpenToken": ";",
             "RegionType": "SingleLine"
          },
          {
-            "OpenToken": "/*",
-            "CloseToken": "*/",
+            "OpenToken": "#|",
+            "CloseToken": "|#",
             "RegionType": "MultiLine"
          }
       ]

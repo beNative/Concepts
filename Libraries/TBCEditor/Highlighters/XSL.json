@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "19.11.2015",
+            "Date": "09.01.2016",
             "Sample": [
                "<?xml version=\"1.0\"?>\r\n",
 							 "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">\r\n",

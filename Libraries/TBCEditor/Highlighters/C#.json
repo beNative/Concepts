@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "28.10.2015",
+            "Date": "09.01.2016",
             "Sample": [
                "// Hello World in C Sharp\r\n",
                "\r\n",
@@ -164,7 +164,8 @@
                      "CloseOnEndOfLine": true
                   },
                   "TokenRange": {
-                     "Open": "0"
+                     "Open": "0",
+                     "OpenBreakType": "Any"
                   }
                }
             ],
@@ -280,7 +281,6 @@
                {
                   "Type": "Symbol",
                   "Words": [
-                     "..",
                      ":",
                      ";",
                      "<",

@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "22.12.2015",
+            "Date": "09.01.2016",
             "Sample": [
                "// Hello World in Pascal\r\n",
                "\r\n",
@@ -127,6 +127,64 @@
                   },
                   "TokenRange": {
                      "Open": "procedure",
+                     "Close": ";"
+                  },
+                  "SubRules": {
+                     "KeyList": [
+                        {
+                           "Type": "Symbol",
+                           "Words": [
+                              ";",
+                              "("
+                           ],
+                           "Attributes": {
+                              "Element": "Symbol"
+                           }
+                        }
+                     ]
+                  }
+               },
+               {
+                  "Type": "Method",
+                  "Attributes": {
+                     "Element": "MethodName"
+                  },
+                  "Properties": {
+                     "AlternativeClose": [
+                        "("
+                     ]
+                  },
+                  "TokenRange": {
+                     "Open": "constructor",
+                     "Close": ";"
+                  },
+                  "SubRules": {
+                     "KeyList": [
+                        {
+                           "Type": "Symbol",
+                           "Words": [
+                              ";",
+                              "("
+                           ],
+                           "Attributes": {
+                              "Element": "Symbol"
+                           }
+                        }
+                     ]
+                  }
+               },
+               {
+                  "Type": "Method",
+                  "Attributes": {
+                     "Element": "MethodName"
+                  },
+                  "Properties": {
+                     "AlternativeClose": [
+                        "("
+                     ]
+                  },
+                  "TokenRange": {
+                     "Open": "destructor",
                      "Close": ";"
                   },
                   "SubRules": {
@@ -357,11 +415,9 @@
                      "cdecl",
                      "class",
                      "const",
-                     "constructor",
                      "contains",
                      "default",
                      "deprecated",
-                     "destructor",
                      "dispid",
                      "dispinterface",
                      "div",
@@ -452,6 +508,8 @@
                {
                   "Type": "Method",
                   "Words": [
+                     "constructor",
+                     "destructor",
                      "function",
                      "procedure"
                   ],
@@ -462,7 +520,6 @@
                {
                   "Type": "Symbol",
                   "Words": [
-                     "..",
                      ":",
                      ";",
                      "<",

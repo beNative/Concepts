@@ -5,13 +5,10 @@ interface
 uses
   Winapi.Windows, System.Math, System.Classes, Vcl.Graphics, System.UITypes, BCEditor.Consts, BCEditor.Types;
 
-function CeilOfIntDiv(ADividend: Cardinal; ADivisor: Word): Word;
 function DeleteWhitespace(const AText: string): string;
 function GetTabConvertProc(ATabWidth: Integer): TBCEditorTabConvertProc;
-function GetTextSize(AHandle: HDC; AText: PChar; ACount: Integer): TSize;
 function MessageDialog(const AMessage: string; ADlgType: TMsgDlgType; AButtons: TMsgDlgButtons): Integer;
 function MinMax(AValue, AMinValue, AMaxValue: Integer): Integer;
-function TextExtent(ACanvas: TCanvas; const AText: string): TSize;
 function TextWidth(ACanvas: TCanvas; const AText: string): Integer;
 function TextHeight(ACanvas: TCanvas; const AText: string): Integer;
 procedure ClearList(var AList: TList);
@@ -30,15 +27,6 @@ begin
     AList.Free;
     AList := nil;
   end;
-end;
-
-function CeilOfIntDiv(ADividend: Cardinal; ADivisor: Word): Word;
-var
-  LRemainder: Word;
-begin
-  DivMod(ADividend, ADivisor, Result, LRemainder);
-  if LRemainder > 0 then
-    Inc(Result);
 end;
 
 procedure ClearList(var AList: TList);
@@ -131,33 +119,20 @@ begin
   Result := TBCEditorTabConvertProc(@ConvertTabs);
 end;
 
-function GetTextSize(AHandle: HDC; AText: PChar; ACount: Integer): TSize;
-begin
-  Result.cx := 0;
-  Result.cy := 0;
-  GetTextExtentPoint32W(AHandle, AText, ACount, Result);
-end;
-
-type
-  TAccessCanvas = class(TCanvas);
-
-function TextExtent(ACanvas: TCanvas; const AText: string): TSize;
-begin
-  with TAccessCanvas(ACanvas) do
-  begin
-    RequiredState([csHandleValid, csFontValid]);
-    Result := GetTextSize(Handle, PChar(AText), Length(AText));
-  end;
-end;
-
 function TextWidth(ACanvas: TCanvas; const AText: string): Integer;
+var
+  LSize: TSize;
 begin
-  Result := TextExtent(ACanvas, AText).cx;
+  GetTextExtentPoint32(ACanvas.Handle, PChar(AText), Length(AText), LSize);
+  Result := LSize.cx;
 end;
 
 function TextHeight(ACanvas: TCanvas; const AText: string): Integer;
+var
+  LSize: TSize;
 begin
-  Result := TextExtent(ACanvas, AText).cy;
+  GetTextExtentPoint32(ACanvas.Handle, PChar(AText), Length(AText), LSize);
+  Result := LSize.cy;
 end;
 
 end.

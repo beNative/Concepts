@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "04.12.2015",
+            "Date": "09.01.2016",
             "Sample": [
                "// Hello World in Groovy\r\n",
                "println \"Hello, world!\""
@@ -155,7 +155,8 @@
                      "CloseOnEndOfLine": true
                   },
                   "TokenRange": {
-                     "Open": "0"
+                     "Open": "0",
+                     "OpenBreakType": "Any"
                   }
                }
             ],
@@ -209,7 +210,6 @@
                {
                   "Type": "Symbol",
                   "Words": [
-                     "..",
                      ":",
                      ";",
                      "<",

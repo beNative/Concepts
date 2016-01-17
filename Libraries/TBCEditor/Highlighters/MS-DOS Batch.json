@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "28.10.2015",
+            "Date": "09.01.2016",
             "Sample": [
                "REM Hello World in Batch\r\n",
                "\r\n",
@@ -346,7 +346,6 @@
                {
                   "Type": "Symbol",
                   "Words": [
-                     "..",
                      ":",
                      ";",
                      "<",

@@ -8,10 +8,8 @@ uses
 type
   TBCEditorSearchHighlighter = class(TPersistent)
   strict private
-    FAlphaBlending: Byte;
     FColors: TBCEditorSearchColors;
     FOnChange: TBCEditorSearchChangeEvent;
-    procedure SetAlphaBlending(const AValue: Byte);
     procedure SetColors(const AValue: TBCEditorSearchColors);
     procedure DoChange;
     procedure SetOnChange(AValue: TBCEditorSearchChangeEvent);
@@ -20,7 +18,6 @@ type
     destructor Destroy; override;
     procedure Assign(ASource: TPersistent); override;
   published
-    property AlphaBlending: Byte read FAlphaBlending write SetAlphaBlending default 255;
     property Colors: TBCEditorSearchColors read FColors write SetColors;
     property OnChange: TBCEditorSearchChangeEvent read FOnChange write SetOnChange;
   end;
@@ -33,7 +30,6 @@ constructor TBCEditorSearchHighlighter.Create;
 begin
   inherited;
 
-  FAlphaBlending := 255;
   FColors := TBCEditorSearchColors.Create;
 end;
 
@@ -48,7 +44,6 @@ begin
   if Assigned(ASource) and (ASource is TBCEditorSearchHighlighter) then
   with ASource as TBCEditorSearchHighlighter do
   begin
-    Self.FAlphaBlending := FAlphaBlending;
     Self.FColors.Assign(Colors);
     Self.DoChange;
   end
@@ -71,15 +66,6 @@ end;
 procedure TBCEditorSearchHighlighter.SetColors(const AValue: TBCEditorSearchColors);
 begin
   FColors.Assign(AValue);
-end;
-
-procedure TBCEditorSearchHighlighter.SetAlphaBlending(const AValue: Byte);
-begin
-  if FAlphaBlending <> AValue then
-  begin
-    FAlphaBlending := AValue;
-    DoChange;
-  end;
 end;
 
 end.

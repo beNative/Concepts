@@ -3,7 +3,7 @@
         "Info": {
             "General": {           
                 "Version": "1.0",
-                "Date": "10.12.2015",
+                "Date": "09.01.2016",
                 "Sample": [
                     "#!/path/to/wish\r\n",
                     "\r\n",
@@ -106,13 +106,14 @@
                         "Attributes": {
                             "Element": "HexNumber"
                         },
-                        "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyz???GHIJKLMNOPQRSTUWVYZ???",
+                        "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
                         "Properties": {
                             "CloseOnTerm": true,
                             "CloseOnEndOfLine": true
                         },
                         "TokenRange": {
-                            "Open": "0x"
+                            "Open": "0",
+                            "OpenBreakType": "Any"
                         }
                     }
                 ],
@@ -502,7 +503,6 @@
                     {
                         "Type": "Symbol",
                         "Words": [
-                            "..",
                             ":",
                             ";",
                             "<",

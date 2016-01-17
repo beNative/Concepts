@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "28.10.2015",
+            "Date": "09.01.2016",
             "Sample": [
                "REGBS   EQU     $1000     ; location of on-board peripherals\r\n",
                "PAO     EQU     0         ; port A offset from REGBS\r\n",

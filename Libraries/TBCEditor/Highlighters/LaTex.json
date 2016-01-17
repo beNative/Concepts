@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "28.10.2015",
+            "Date": "09.01.2016",
             "Sample": [
                "\\documentclass{article}\r\n",
                "\\usepackage{graphicx}\r\n",
@@ -143,7 +143,6 @@
                {
                   "Type": "Symbol",
                   "Words": [
-                     "..",
                      ":",
                      ";",
                      "<",

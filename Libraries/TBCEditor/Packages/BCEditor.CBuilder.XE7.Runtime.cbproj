@@ -230,164 +230,170 @@
         <DelphiCompile Include="..\Source\BCEditor.Editor.Minimap.Colors.pas">
             <BuildOrder>40</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Minimap.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Minimap.Indicator.pas">
             <BuildOrder>41</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.PopupWindow.pas">
-            <BuildOrder>93</BuildOrder>
-        </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Minimap.pas">
             <BuildOrder>42</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Replace.pas">
+        <DelphiCompile Include="..\Source\BCEditor.PopupWindow.pas">
+            <BuildOrder>94</BuildOrder>
+        </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.pas">
             <BuildOrder>43</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.RightMargin.Colors.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Replace.pas">
             <BuildOrder>44</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.RightMargin.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.RightMargin.Colors.pas">
             <BuildOrder>45</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Scroll.Hint.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.RightMargin.pas">
             <BuildOrder>46</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Scroll.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Scroll.Hint.pas">
             <BuildOrder>47</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Search.Highlighter.Colors.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Scroll.pas">
             <BuildOrder>48</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Search.Highlighter.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Search.Highlighter.Colors.pas">
             <BuildOrder>49</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Search.Map.Colors.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Search.Highlighter.pas">
             <BuildOrder>50</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Search.Map.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Search.Map.Colors.pas">
             <BuildOrder>51</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Search.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Search.Map.pas">
             <BuildOrder>52</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Selection.Colors.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Search.pas">
             <BuildOrder>53</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Selection.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Selection.Colors.pas">
             <BuildOrder>54</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.SkipRegions.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Selection.pas">
             <BuildOrder>55</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.SpecialChars.EndOfLine.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.SkipRegions.pas">
             <BuildOrder>56</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.SpecialChars.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.SpecialChars.EndOfLine.pas">
             <BuildOrder>57</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.SpecialChars.Selection.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.SpecialChars.pas">
             <BuildOrder>58</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Tabs.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.SpecialChars.Selection.pas">
             <BuildOrder>59</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Undo.Item.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.SyncEdit.pas">
+            <BuildOrder>59</BuildOrder>
+        </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Tabs.pas">
             <BuildOrder>60</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Undo.List.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Undo.Item.pas">
             <BuildOrder>61</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Undo.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Undo.List.pas">
             <BuildOrder>62</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Utils.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Undo.pas">
             <BuildOrder>63</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.WordWrap.Colors.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Utils.pas">
             <BuildOrder>64</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.WordWrap.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.WordWrap.Colors.pas">
             <BuildOrder>65</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Encoding.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.WordWrap.pas">
             <BuildOrder>66</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Highlighter.Attributes.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Encoding.pas">
             <BuildOrder>67</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Highlighter.Colors.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Highlighter.Attributes.pas">
             <BuildOrder>68</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Highlighter.Info.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Highlighter.Colors.pas">
             <BuildOrder>69</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Highlighter.JSONImporter.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Highlighter.Info.pas">
             <BuildOrder>70</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Highlighter.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Highlighter.JSONImporter.pas">
             <BuildOrder>71</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Highlighter.Rules.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Highlighter.pas">
             <BuildOrder>72</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Highlighter.Token.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Highlighter.Rules.pas">
             <BuildOrder>73</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.KeyboardHandler.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Highlighter.Token.pas">
             <BuildOrder>74</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Language.pas">
+        <DelphiCompile Include="..\Source\BCEditor.KeyboardHandler.pas">
             <BuildOrder>75</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Lines.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Language.pas">
             <BuildOrder>76</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.MacroRecorder.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Lines.pas">
             <BuildOrder>77</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Print.HeaderFooter.pas">
+        <DelphiCompile Include="..\Source\BCEditor.MacroRecorder.pas">
             <BuildOrder>78</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Print.Margins.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Print.HeaderFooter.pas">
             <BuildOrder>79</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Print.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Print.Margins.pas">
             <BuildOrder>80</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Print.Preview.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Print.pas">
             <BuildOrder>81</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Print.PrinterInfo.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Print.Preview.pas">
             <BuildOrder>82</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Print.Types.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Print.PrinterInfo.pas">
             <BuildOrder>83</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Search.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Print.Types.pas">
             <BuildOrder>84</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Search.RegularExpressions.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Search.pas">
             <BuildOrder>85</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Search.Wildcard.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Search.RegularExpressions.pas">
             <BuildOrder>86</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.StyleHooks.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Search.Wildcard.pas">
             <BuildOrder>87</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.TextDrawer.pas">
+        <DelphiCompile Include="..\Source\BCEditor.StyleHooks.pas">
             <BuildOrder>88</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Types.pas">
+        <DelphiCompile Include="..\Source\BCEditor.TextDrawer.pas">
             <BuildOrder>89</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Utils.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Types.pas">
             <BuildOrder>90</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.JsonDataObjects.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Utils.pas">
             <BuildOrder>91</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.CodeFolding.Hint.Form.pas">
+        <DelphiCompile Include="..\Source\BCEditor.JsonDataObjects.pas">
             <BuildOrder>92</BuildOrder>
+        </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.CodeFolding.Hint.Form.pas">
+            <BuildOrder>93</BuildOrder>
         </DelphiCompile>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>

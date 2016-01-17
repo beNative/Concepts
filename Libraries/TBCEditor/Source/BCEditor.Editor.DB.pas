@@ -85,6 +85,7 @@ type
     property OnCommandProcessed;
     property OnContextHelp;
     property OnCustomLineColors;
+    property OnCustomTokenAttribute;
     property OnDblClick;
     property OnDragDrop;
     property OnDragOver;

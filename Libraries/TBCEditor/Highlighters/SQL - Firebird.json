@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "04.12.2015",
+            "Date": "09.01.2016",
             "Sample": [
                "select \"Hello world!\" from RDB$DATABASE;"
             ]
@@ -433,7 +433,6 @@
                {
                   "Type": "Symbol",
                   "Words": [
-                     "..",
                      ":",
                      ";",
                      "<",
