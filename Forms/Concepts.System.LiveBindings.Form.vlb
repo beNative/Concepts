@@ -47,13 +47,6 @@ Coordinates=372,252,101,51
 [sbrMain]
 Coordinates=10,252,57,69
 
-[dgaMain1]
-Coordinates=113,1,61,33
-Visible=False
-
-[absMain1]
-Coordinates=10,56,75,123
-
 [grdMain]
 Coordinates=214,10,54,105
 
@@ -98,4 +91,11 @@ Coordinates=140,347,97,51
 
 [btnAlterContactCompany]
 Coordinates=368,347,139,51
+
+[dgaMain]
+Coordinates=113,1,61,33
+Visible=False
+
+[absMain]
+Coordinates=10,56,75,123
 
