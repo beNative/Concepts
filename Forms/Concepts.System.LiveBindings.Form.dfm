@@ -242,8 +242,7 @@ object frmLiveBindings: TfrmLiveBindings
     Top = 209
     Width = 220
     Height = 25
-    DataSource = absMain1
-    Anchors = [akTop, akRight]
+    DataSource = absMain
     Orientation = orHorizontal
     TabOrder = 10
   end
@@ -305,7 +304,7 @@ object frmLiveBindings: TfrmLiveBindings
     end
     object lnkgrdtdtsrcabsMain: TLinkGridToDataSource
       Category = 'Quick Bindings'
-      DataSource = absMain1
+      DataSource = absMain
       GridControl = grdMain
       Columns = <
         item
@@ -322,7 +321,7 @@ object frmLiveBindings: TfrmLiveBindings
         end>
     end
   end
-  object dgaMain1: TDataGeneratorAdapter
+  object dgaMain: TDataGeneratorAdapter
     FieldDefs = <
       item
         Name = 'AlphaColor1'
@@ -344,12 +343,12 @@ object frmLiveBindings: TfrmLiveBindings
     AutoPost = False
     RecordCount = 100
     Options = [loptAllowInsert, loptAllowDelete, loptAllowModify]
-    Left = 608
-    Top = 128
+    Left = 736
+    Top = 88
   end
-  object absMain1: TAdapterBindSource
+  object absMain: TAdapterBindSource
     AutoActivate = True
-    Adapter = dgaMain1
+    Adapter = dgaMain
     ScopeMappings = <>
     Left = 768
     Top = 120
