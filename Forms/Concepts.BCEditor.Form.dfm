@@ -1,8 +1,8 @@
 object frmBCEditor: TfrmBCEditor
   Left = 0
   Top = 0
-  ClientHeight = 627
-  ClientWidth = 990
+  ClientHeight = 721
+  ClientWidth = 1008
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -10,22 +10,25 @@ object frmBCEditor: TfrmBCEditor
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poMainFormCenter
   ShowHint = True
   PixelsPerInch = 96
   TextHeight = 13
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 990
-    Height = 627
+    Width = 1008
+    Height = 721
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 990
+    ExplicitHeight = 627
     object splSplitter: TSplitter
       Left = 313
       Top = 0
       Width = 8
-      Height = 608
+      Height = 702
       ResizeStyle = rsUpdate
       ExplicitLeft = 273
       ExplicitTop = 1
@@ -35,10 +38,11 @@ object frmBCEditor: TfrmBCEditor
       Left = 0
       Top = 0
       Width = 313
-      Height = 608
+      Height = 702
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 608
       object cbxControls: TComboBox
         AlignWithMargins = True
         Left = 3
@@ -56,15 +60,17 @@ object frmBCEditor: TfrmBCEditor
     object pnlRight: TPanel
       Left = 321
       Top = 0
-      Width = 669
-      Height = 608
+      Width = 687
+      Height = 702
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitWidth = 669
+      ExplicitHeight = 608
       object spl1: TSplitter
         Left = 0
         Top = 289
-        Width = 669
+        Width = 687
         Height = 6
         Cursor = crVSplit
         Align = alTop
@@ -74,29 +80,33 @@ object frmBCEditor: TfrmBCEditor
       object pnlRightTop: TPanel
         Left = 0
         Top = 0
-        Width = 669
+        Width = 687
         Height = 289
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitWidth = 669
         object pgcMain: TPageControl
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 663
+          Width = 681
           Height = 283
-          ActivePage = tsHighlighters
+          ActivePage = tsColors
           Align = alClient
           TabOrder = 0
+          ExplicitWidth = 663
           object tsHighlighter: TTabSheet
             Caption = 'Highlighter definition'
+            ExplicitWidth = 655
             object tlbHighlighter: TToolBar
               Left = 0
               Top = 0
-              Width = 655
+              Width = 673
               Height = 29
               Caption = 'tlbHighlighter'
               TabOrder = 0
+              ExplicitWidth = 655
               object btnSaveHighlighter: TToolButton
                 Left = 0
                 Top = 0
@@ -104,25 +114,49 @@ object frmBCEditor: TfrmBCEditor
               end
             end
             object pnlHighlighter: TPanel
-              Left = 0
+              Left = 153
               Top = 29
-              Width = 655
+              Width = 520
               Height = 226
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 1
+              ExplicitLeft = 0
+              ExplicitWidth = 655
+            end
+            object pnlHLLeft: TPanel
+              Left = 0
+              Top = 29
+              Width = 153
+              Height = 226
+              Align = alLeft
+              BevelOuter = bvNone
+              TabOrder = 2
+            end
+            object pnlHLRight: TPanel
+              Left = 153
+              Top = 29
+              Width = 520
+              Height = 226
+              Align = alClient
+              BevelOuter = bvNone
+              TabOrder = 3
+              ExplicitLeft = 8
+              ExplicitWidth = 153
             end
           end
           object tsColors: TTabSheet
             Caption = 'Color mappings'
             ImageIndex = 1
+            ExplicitWidth = 655
             object tlbColors: TToolBar
               Left = 0
               Top = 0
-              Width = 655
+              Width = 673
               Height = 29
               Caption = 'tlbColors'
               TabOrder = 0
+              ExplicitWidth = 655
               object btnSaveColorMap: TToolButton
                 Left = 0
                 Top = 0
@@ -130,39 +164,69 @@ object frmBCEditor: TfrmBCEditor
               end
             end
             object pnlColors: TPanel
-              Left = 0
+              Left = 153
               Top = 29
-              Width = 655
+              Width = 520
               Height = 226
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 1
+              ExplicitLeft = 0
+              ExplicitWidth = 655
+            end
+            object pnlCMLeft: TPanel
+              Left = 0
+              Top = 29
+              Width = 153
+              Height = 226
+              Align = alLeft
+              BevelOuter = bvNone
+              TabOrder = 2
+              ExplicitLeft = 8
+            end
+            object pnlCMRight: TPanel
+              Left = 153
+              Top = 29
+              Width = 520
+              Height = 226
+              Align = alClient
+              BevelOuter = bvNone
+              TabOrder = 3
+              ExplicitLeft = 8
+              ExplicitWidth = 153
             end
           end
           object tsHighlighters: TTabSheet
-            Caption = 'tsHighlighters'
+            Caption = 'Highlighters'
             ImageIndex = 2
+            ExplicitLeft = 3
+            ExplicitTop = 31
+            ExplicitWidth = 655
           end
         end
       end
       object pnlRightBottom: TPanel
         Left = 0
         Top = 295
-        Width = 669
-        Height = 313
+        Width = 687
+        Height = 407
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitWidth = 669
+        ExplicitHeight = 313
       end
     end
     object sbrStatusBar: TStatusBar
       Left = 0
-      Top = 608
-      Width = 990
+      Top = 702
+      Width = 1008
       Height = 19
       Panels = <>
       ParentShowHint = False
       ShowHint = True
+      ExplicitTop = 608
+      ExplicitWidth = 990
     end
   end
   object aclMain: TActionList

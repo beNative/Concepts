@@ -353,6 +353,7 @@ uses
   BCEditor.Editor.MatchingPair in 'Libraries\TBCEditor\Source\BCEditor.Editor.MatchingPair.pas',
   BCEditor.Editor.Minimap.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.Colors.pas',
   BCEditor.Editor.Minimap in 'Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.pas',
+  BCEditor.Editor.Minimap.Indicator in 'Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.Indicator.pas',
   BCEditor.Editor in 'Libraries\TBCEditor\Source\BCEditor.Editor.pas',
   BCEditor.Editor.PopupWindow in 'Libraries\TBCEditor\Source\BCEditor.Editor.PopupWindow.pas',
   BCEditor.Editor.Replace in 'Libraries\TBCEditor\Source\BCEditor.Editor.Replace.pas',
@@ -404,8 +405,8 @@ uses
   BCEditor.TextDrawer in 'Libraries\TBCEditor\Source\BCEditor.TextDrawer.pas',
   BCEditor.Types in 'Libraries\TBCEditor\Source\BCEditor.Types.pas',
   BCEditor.Utils in 'Libraries\TBCEditor\Source\BCEditor.Utils.pas',
-  Concepts.BCEditor.Form in 'Forms\Concepts.BCEditor.Form.pas' {frmBCEditor},
   {$ENDIF }
+  Concepts.BCEditor.Form in 'Forms\Concepts.BCEditor.Form.pas' {frmBCEditor},
   Concepts.RTTEye.RttiTemplates in 'Types\Concepts.RTTEye.RttiTemplates.pas',
   {$IFDEF DELPHIZMQ}
   Concepts.ZeroMQ.Form in 'Forms\Concepts.ZeroMQ.Form.pas' {frmZMQConcept},
@@ -417,9 +418,9 @@ uses
   CPUID in 'Libraries\DDetours\CPUID.pas',
   DDetours in 'Libraries\DDetours\DDetours.pas',
   InstDecode in 'Libraries\DDetours\InstDecode.pas',
-  Concepts.DDetours.Form in 'Forms\Concepts.DDetours.Form.pas' {frmDDetours},
   {$ENDIF }
-  {$IFDEF ZOBJECTINSPECTOR}
+  Concepts.DDetours.Form in 'Forms\Concepts.DDetours.Form.pas' {frmDDetours},
+  //{$IFDEF ZOBJECTINSPECTOR}
   zBase in 'Libraries\TzObjectInspector\zBase.pas',
   zCanvasStack in 'Libraries\TzObjectInspector\zCanvasStack.pas',
   zGraphicDialog in 'Libraries\TzObjectInspector\zGraphicDialog.pas' {GraphicDialog},
@@ -429,8 +430,8 @@ uses
   zRecList in 'Libraries\TzObjectInspector\zRecList.pas',
   zStringsDialog in 'Libraries\TzObjectInspector\zStringsDialog.pas' {StringsDialog},
   zUtils in 'Libraries\TzObjectInspector\zUtils.pas',
+  //{$ENDIF }
   Concepts.zObjectInspector.Form in 'Forms\Concepts.zObjectInspector.Form.pas' {frmzObjectInspector},
-  {$ENDIF }
   Concepts.ComponentInspector in 'Concepts.ComponentInspector.pas' {frmComponentInspector};
 
 

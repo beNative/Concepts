@@ -49,6 +49,10 @@ uses
   BCEditor.Editor.Base, BCEditor.Editor,
   {$ENDIF}
 
+  {$IFDEF ZOBJECTINSPECTOR}
+  zObjInspector,
+  {$ENDIF}
+
   Concepts.Types.Contact;
 
 type
@@ -127,6 +131,15 @@ type
     ): TBCEditor; static;
     {$ENDIF}
 
+    {$IFDEF ZOBJECTINSPECTOR}
+    class function CreatezObjectInspector(
+      AOwner      : TComponent;
+      AParent     : TWinControl;
+      AObject     : TObject;
+      const AName : string = ''
+      ): TzObjectInspector; static;
+    {$ENDIF}
+
   end;
 
 type
@@ -160,6 +173,8 @@ implementation
 uses
   System.Rtti,
   Vcl.Forms, Vcl.Graphics,
+
+  BCEditor.Types,
 
   DDuce.RandomData,
 
@@ -460,6 +475,23 @@ begin
   Result := VST;
 end;
 
+{$IFDEF ZOBJECTINSPECTOR}
+class function TConceptFactories.CreatezObjectInspector(AOwner: TComponent;
+  AParent: TWinControl; AObject: TObject;
+  const AName: string): TzObjectInspector;
+var
+  OI: TzObjectInspector;
+begin
+  OI                  := TzObjectInspector.Create(AOwner);
+  OI.Parent           := AParent;
+  OI.Align            := alClient;
+  OI.AlignWithMargins := True;
+  OI.Name             := AName;
+  OI.Component        := AObject;
+  Result := OI;
+end;
+{$ENDIF}
+
 {$IFDEF BCEDITOR}
 class function TConceptFactories.CreateBCEditor(AOwner: TComponent;
   AParent: TWinControl; const AFileName : string; const AHighlighter: string;
@@ -471,8 +503,7 @@ begin
   BCE.Parent := AParent;
   BCE.Align := alClient;
   BCE.AlignWithMargins := True;
-  BCE.Directories.Colors := '';
-  BCE.Directories.Highlighters := '';
+
   if AFileName <> '' then
     BCE.LoadFromFile(AFileName);
   if AHighlighter <> '' then
@@ -480,8 +511,11 @@ begin
   if AColorMap <> '' then
     BCE.Highlighter.Colors.LoadFromFile(AColorMap + '.json');
 
-  BCE.CodeFolding.Visible := True;
+  BCE.CodeFolding.Options := BCE.CodeFolding.Options + [cfoFoldMultilineComments];
   BCE.Font.Name := 'Consolas';
+  BCE.CodeFolding.Visible := True;
+  BCE.URIOpener := True;
+
   Result := BCE;
 end;
 {$ENDIF}

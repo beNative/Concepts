@@ -135,8 +135,6 @@ uses
 { TReflectionData }
 
 procedure TReflectionData.AfterConstruction;
-var
-  I : Integer;
 begin
   inherited AfterConstruction;
   FReflection := TReflection.Create;
@@ -241,11 +239,8 @@ end;
 { TMethodData }
 
 constructor TMethodData.Create(AMember: TRttiMember);
-var
-  P : TRttiParameter;
 begin
   inherited Create(AMember);
-
 end;
 
 function TMethodData.GetName: string;

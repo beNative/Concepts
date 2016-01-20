@@ -138,10 +138,8 @@ end;
 
 procedure TfrmTreeViewPresenterTree.CreateRttiTreeview;
 var
-  OL : IObjectList;
-  EI  : Enumerable<TRttiInterfaceType>;
+  EI : Enumerable<TRttiInterfaceType>;
   EC : Enumerable<TRttiInstanceType>;
-
 begin
   FReflection := TReflection.Create;
   FTVP := TTreeViewPresenter.Create(Self);

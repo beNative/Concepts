@@ -885,8 +885,7 @@ begin
   LType := LCtx.GetType(Obj.ClassInfo);
   LPropList := TzRttiType(LType).GetUsedProperties;
   for LProp in LPropList do
-  // TS
-//    if LProp.Visibility = mvPublished then
+    if LProp.Visibility = mvPublished then
       Exit(True);
 end;
 
