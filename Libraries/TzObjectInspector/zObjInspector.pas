@@ -565,10 +565,6 @@ type
     procedure WMLButtonUp(var Message: TWMLButtonUp); message WM_LBUTTONUP;
     procedure WMLBUTTONDBLCLK(var Message: TWMLBUTTONDBLCLK);
       message WM_LBUTTONDBLCLK;
-    function DoMouseWheelDown(Shift: TShiftState; MousePos: TPoint): Boolean;
-      override;
-    function DoMouseWheelUp(Shift: TShiftState; MousePos: TPoint): Boolean;
-      override;
     function GetPlusMinBtnRect(Index: Integer): TRect;
     function GetItemRect(Index: Integer): TRect;
     function GetValueRect(Index: Integer): TRect;
@@ -593,6 +589,10 @@ type
     procedure SetAllowSearch(const Value: Boolean);
     procedure SetReadOnlyColor(const Value: TColor);
   protected
+    function DoMouseWheelDown(Shift: TShiftState; MousePos: TPoint): Boolean;
+      override;
+    function DoMouseWheelUp(Shift: TShiftState; MousePos: TPoint): Boolean;
+      override;
     procedure CreateWnd; override;
     procedure Paint; override;
     function DoSelectCaret(Index: Integer): Boolean;

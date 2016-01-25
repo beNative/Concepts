@@ -477,8 +477,7 @@ end;
 
 {$IFDEF ZOBJECTINSPECTOR}
 class function TConceptFactories.CreatezObjectInspector(AOwner: TComponent;
-  AParent: TWinControl; AObject: TObject;
-  const AName: string): TzObjectInspector;
+  AParent: TWinControl; AObject: TObject; const AName: string): TzObjectInspector;
 var
   OI: TzObjectInspector;
 begin
@@ -488,6 +487,7 @@ begin
   OI.AlignWithMargins := True;
   OI.Name             := AName;
   OI.Component        := AObject;
+  OI.SplitterPos      := OI.ClientWidth div 2;
   Result := OI;
 end;
 {$ENDIF}

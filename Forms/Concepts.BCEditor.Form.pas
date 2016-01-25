@@ -29,6 +29,8 @@ uses
 
   Spring.Collections,
 
+  zObjInspector,
+
   BCEditor.Editor.Base, BCEditor.Editor, BCEditor.Highlighter;
 
 type
@@ -37,7 +39,6 @@ type
     pnlMain            : TPanel;
     pnlLeft            : TPanel;
     pnlRight           : TPanel;
-    cbxControls        : TComboBox;
     sbrStatusBar       : TStatusBar;
     splSplitter        : TSplitter;
     pnlRightTop        : TPanel;
@@ -62,13 +63,11 @@ type
     pnlCMRight         : TPanel;
     {$ENDREGION}
 
-    procedure cbxControlsChange(Sender: TObject);
-
     procedure actSaveHighlighterExecute(Sender: TObject);
     procedure actSaveColorMapExecute(Sender: TObject);
 
   private
-    FPropertyInspector : TPropertyInspector;
+    FObjectInspector   : TzObjectInspector;
     FBCEditor          : TBCEditor;
     FHighlighterEditor : TBCEditor;
     FColorSchemeEditor : TBCEditor;
@@ -101,18 +100,22 @@ type
       Selected : Boolean
     );
 
-  public
-    procedure AfterConstruction; override;
+    function FObjectInspectorBeforeAddItem(
+      Sender : TControl;
+      PItem  : PPropItem
+    ): Boolean;
 
     procedure LoadHighlighters;
     procedure LoadColorMaps;
+  public
+    procedure AfterConstruction; override;
 
   end;
 
 implementation
 
 uses
-  System.IOUtils, System.Types,
+  System.IOUtils, System.Types, System.Rtti,
   Vcl.Graphics,
 
   DDuce.Components.Factories, DDuce.Logger,
@@ -168,22 +171,16 @@ begin
     'JSON',
     'tsColors'
   );
-  FPropertyInspector := TDDuceComponents.CreatePropertyInspector(
+
+  FObjectInspector := TConceptFactories.CreatezObjectInspector(
     Self,
     pnlLeft,
     FBCEditor
   );
-  FPropertyInspector.Name := 'PropertyInspector';
+  FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
 
-//  FObjectInspector := TConceptFactories.CreatezObjectInspector(
-//    Self,
-//    pnlLeft,
-//    FBCEditor
-//  );
+  FObjectInspector.ExpandAll;
 
-  cbxControls.AddItem(FBCEditor.Name, FBCEditor);
-  cbxControls.AddItem(FBCEditor.Highlighter.FileName, FBCEditor.Highlighter);
-  cbxControls.ItemIndex := 0;
   FHighlighters := TCollections.CreateList<string>;
   FColorMaps    := TCollections.CreateList<string>;
   LoadHighlighters;
@@ -214,13 +211,6 @@ end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
-procedure TfrmBCEditor.cbxControlsChange(Sender: TObject);
-//var
-//  O: TObject;
-begin
-  //O := cbxControls.Items.Objects[cbxControls.ItemIndex] as TObject;
-end;
-
 procedure TfrmBCEditor.FCMGridCellText(Sender: TObject; Cell: TGridCell;
   var Value: string);
 begin
@@ -258,6 +248,14 @@ begin
   FHLGrid.SetFocus;
 end;
 
+function TfrmBCEditor.FObjectInspectorBeforeAddItem(Sender: TControl;
+  PItem: PPropItem): Boolean;
+begin
+  Result := not (PItem.Prop.PropertyType is TRttiMethodType);
+end;
+{$ENDREGION}
+
+{$REGION 'protected methods'}
 procedure TfrmBCEditor.LoadColorMaps;
 begin
   FColorMaps.AddRange(TDirectory.GetFiles(FBCEditor.Directories.Colors, '*.json'));
