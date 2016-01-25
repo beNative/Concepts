@@ -27,7 +27,6 @@ uses
   Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.ActnList, Vcl.ImgList, Vcl.ToolWin,
   Vcl.Controls, Vcl.Forms, Vcl.Menus,
 
-
   DDuce.Components.PropertyInspector;
 
 type
@@ -61,19 +60,33 @@ type
     procedure actDeleteExecute(Sender: TObject);
     procedure actUpExecute(Sender: TObject);
     procedure actDownExecute(Sender: TObject);
-    procedure lvCollectionItemsDragDrop(Sender, Source: TObject; X,
-      Y: Integer);
-    procedure lvCollectionItemsDragOver(Sender, Source: TObject; X,
-      Y: Integer; State: TDragState; var Accept: Boolean);
     procedure actSelectAllExecute(Sender: TObject);
-    procedure lvCollectionItemsSelectItem(Sender: TObject; Item: TListItem;
-      Selected: Boolean);
+
+    procedure lvCollectionItemsDragDrop(
+      Sender : TObject;
+      Source : TObject;
+      X      : Integer;
+      Y      : Integer
+    );
+    procedure lvCollectionItemsDragOver(
+      Sender     : TObject;
+      Source     : TObject;
+      X          : Integer;
+      Y          : Integer;
+      State      : TDragState;
+      var Accept : Boolean
+    );
+    procedure lvCollectionItemsSelectItem(
+      Sender   : TObject;
+      Item     : TListItem;
+      Selected : Boolean
+    );
+    procedure FInspectorModified(Sender: TObject);
 
   private
     FCollection : TCollection;
     FInspector  : TPropertyInspector;
 
-    procedure FInspectorModified(Sender: TObject);
     function GetActiveItem: TCollectionItem;
 
   protected
@@ -102,6 +115,7 @@ uses
 
 {$R *.dfm}
 
+{$REGION 'interfaced routines'}
 procedure ExecuteCollectionEditor(ACollection : TCollection);
 var
   Form : TfrmCollectionEditor;
@@ -113,7 +127,9 @@ begin
     Form.Free;
   end;
 end;
+{$ENDREGION}
 
+{$REGION 'construction and destruction'}
 constructor TfrmCollectionEditor.Create(AOwner: TComponent;
   ACollection: TCollection);
 begin
@@ -122,10 +138,13 @@ begin
   FInspector  := TPropertyInspector.Create(Self);
   FInspector.Parent := pnlRight;
   FInspector.Align  := alClient;
+  FInspector.Splitter := FInspector.ClientWidth div 2;
   FInspector.OnModified := FInspectorModified;
   UpdateItems;
 end;
+{$ENDREGION}
 
+{$REGION 'property access methods'}
 function TfrmCollectionEditor.GetActiveItem: TCollectionItem;
 var
   I : Integer;
@@ -137,6 +156,7 @@ begin
 
   Result := TCollectionItem(lvCollectionItems.Items[I].Data);
 end;
+{$ENDREGION}
 
 {$REGION 'action handlers'}
 procedure TfrmCollectionEditor.actAddExecute(Sender: TObject);

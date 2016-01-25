@@ -1736,8 +1736,6 @@ begin
       if ExpandButton then
         DrawExpandButton(FCellBitmap.Canvas, 2 + Indent, 3, Expanded);
     end;
-
-
     Canvas.Draw(ARect.Left, ARect.Top, FCellBitmap);
   end
   else
@@ -2283,6 +2281,18 @@ begin
   RecreateWnd;
 end;
 
+procedure TCustomPropsPage.CMFontChanged(var Message: TMessage);
+begin
+  inherited;
+  Canvas.Font := Font;
+  DefaultRowHeight := Canvas.TextHeight('Wg') + 3;
+end;
+
+function TCustomPropsPage.GetSplitter: Integer;
+begin
+  Result := ColWidths[0];
+end;
+
 procedure TCustomPropsPage.SetSplitter(const Value: Integer);
 var
   LNewVal: Integer;
@@ -2296,10 +2306,6 @@ begin
   UpdateColWidths;
 end;
 
-function TCustomPropsPage.GetSplitter: Integer;
-begin
-  Result := ColWidths[0];
-end;
 
 procedure TCustomPropsPage.SetValuesColor(const Value: TColor);
 begin
@@ -2314,13 +2320,6 @@ function TCustomPropsPage.GetItemCaptionColor(
   AItem: TPropsPageItem): TColor;
 begin
   Result := Font.Color;
-end;
-
-procedure TCustomPropsPage.CMFontChanged(var Message: TMessage);
-begin
-  inherited;
-  Canvas.Font := Font;
-  DefaultRowHeight := Canvas.TextHeight('Wg') + 3;
 end;
 
 procedure TCustomPropsPage.UpdatePattern;
