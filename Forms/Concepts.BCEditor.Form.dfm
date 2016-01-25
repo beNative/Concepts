@@ -22,8 +22,6 @@ object frmBCEditor: TfrmBCEditor
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 990
-    ExplicitHeight = 627
     object splSplitter: TSplitter
       Left = 313
       Top = 0
@@ -42,7 +40,6 @@ object frmBCEditor: TfrmBCEditor
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 608
       object cbxControls: TComboBox
         AlignWithMargins = True
         Left = 3
@@ -65,8 +62,6 @@ object frmBCEditor: TfrmBCEditor
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitWidth = 669
-      ExplicitHeight = 608
       object spl1: TSplitter
         Left = 0
         Top = 289
@@ -85,7 +80,6 @@ object frmBCEditor: TfrmBCEditor
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 669
         object pgcMain: TPageControl
           AlignWithMargins = True
           Left = 3
@@ -95,10 +89,12 @@ object frmBCEditor: TfrmBCEditor
           ActivePage = tsColors
           Align = alClient
           TabOrder = 0
-          ExplicitWidth = 663
           object tsHighlighter: TTabSheet
             Caption = 'Highlighter definition'
+            ExplicitLeft = 0
+            ExplicitTop = 0
             ExplicitWidth = 655
+            ExplicitHeight = 0
             object tlbHighlighter: TToolBar
               Left = 0
               Top = 0
@@ -148,7 +144,6 @@ object frmBCEditor: TfrmBCEditor
           object tsColors: TTabSheet
             Caption = 'Color mappings'
             ImageIndex = 1
-            ExplicitWidth = 655
             object tlbColors: TToolBar
               Left = 0
               Top = 0
@@ -156,7 +151,6 @@ object frmBCEditor: TfrmBCEditor
               Height = 29
               Caption = 'tlbColors'
               TabOrder = 0
-              ExplicitWidth = 655
               object btnSaveColorMap: TToolButton
                 Left = 0
                 Top = 0
@@ -171,8 +165,6 @@ object frmBCEditor: TfrmBCEditor
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 1
-              ExplicitLeft = 0
-              ExplicitWidth = 655
             end
             object pnlCMLeft: TPanel
               Left = 0
@@ -182,7 +174,6 @@ object frmBCEditor: TfrmBCEditor
               Align = alLeft
               BevelOuter = bvNone
               TabOrder = 2
-              ExplicitLeft = 8
             end
             object pnlCMRight: TPanel
               Left = 153
@@ -192,8 +183,6 @@ object frmBCEditor: TfrmBCEditor
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 3
-              ExplicitLeft = 8
-              ExplicitWidth = 153
             end
           end
           object tsHighlighters: TTabSheet
@@ -202,6 +191,7 @@ object frmBCEditor: TfrmBCEditor
             ExplicitLeft = 3
             ExplicitTop = 31
             ExplicitWidth = 655
+            ExplicitHeight = 0
           end
         end
       end
@@ -213,8 +203,6 @@ object frmBCEditor: TfrmBCEditor
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitWidth = 669
-        ExplicitHeight = 313
       end
     end
     object sbrStatusBar: TStatusBar
@@ -225,8 +213,6 @@ object frmBCEditor: TfrmBCEditor
       Panels = <>
       ParentShowHint = False
       ShowHint = True
-      ExplicitTop = 608
-      ExplicitWidth = 990
     end
   end
   object aclMain: TActionList

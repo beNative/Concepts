@@ -194,17 +194,11 @@ end;
 
 {$REGION 'action handlers'}
 procedure TfrmSpringLogging.actLogValueExecute(Sender: TObject);
-
 var
   TS : TStrings;
-  LE : TLogEntry;
-  a: TArray<TValue>;
 begin
   TS := TStringList.Create;
-  //a := ['een', 'twee', 'drie', 'vier', 'vijf'];
-
   FLogger.LogValue('Form', TS);
-  //FLogger.LogValue('array', TValue.From(a));
   TS.Free;
 end;
 

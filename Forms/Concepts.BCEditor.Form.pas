@@ -112,7 +112,8 @@ type
 implementation
 
 uses
-  System.IOUtils, Vcl.Graphics,
+  System.IOUtils, System.Types,
+  Vcl.Graphics,
 
   DDuce.Components.Factories, DDuce.Logger,
 
@@ -214,10 +215,10 @@ end;
 
 {$REGION 'event handlers'}
 procedure TfrmBCEditor.cbxControlsChange(Sender: TObject);
-var
-  O: TObject;
+//var
+//  O: TObject;
 begin
-  O := cbxControls.Items.Objects[cbxControls.ItemIndex] as TObject;
+  //O := cbxControls.Items.Objects[cbxControls.ItemIndex] as TObject;
 end;
 
 procedure TfrmBCEditor.FCMGridCellText(Sender: TObject; Cell: TGridCell;
