@@ -17,7 +17,6 @@ const
   { Max values }
   BCEDITOR_MAX_BOOKMARKS = 9;
   BCEDITOR_MAX_SCROLL_RANGE = 32767;
-  BCEDITOR_MAX_UNDO_ACTIONS = 1024;
   { Characters }
   BCEDITOR_UNDERSCORE = '_';
   BCEDITOR_WORD_BREAK_CHARACTERS = ['.', ',', ';', ':', '"', '''', '!', '?', '[', ']', '(', ')', '{', '}', '^', '-',
@@ -59,6 +58,9 @@ const
   clWordWrapIndicatorBackground = $00FFFFFF;
   clWordWrapIndicatorArrow = clNavy;
   clWordWrapIndicatorLines = clBlack;
+  { Undo }
+  BCEDITOR_UNDO_MAX_ACTIONS = 1024;
+  BCEDITOR_UNDO_BLOCK_NUMBER_START = 10;
 
 implementation
 

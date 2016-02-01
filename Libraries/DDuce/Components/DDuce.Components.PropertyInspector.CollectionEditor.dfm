@@ -3,7 +3,7 @@ object frmCollectionEditor: TfrmCollectionEditor
   Top = 326
   BorderStyle = bsSizeToolWin
   ClientHeight = 457
-  ClientWidth = 463
+  ClientWidth = 484
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -25,11 +25,12 @@ object frmCollectionEditor: TfrmCollectionEditor
   object pnlRight: TPanel
     Left = 208
     Top = 0
-    Width = 255
+    Width = 276
     Height = 457
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 255
   end
   object pnlLeft: TPanel
     Left = 0
@@ -172,7 +173,7 @@ object frmCollectionEditor: TfrmCollectionEditor
     Left = 328
     Top = 200
     Bitmap = {
-      494C010104000900080010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010104000900040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

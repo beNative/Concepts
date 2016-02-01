@@ -565,10 +565,6 @@ type
     procedure WMLButtonUp(var Message: TWMLButtonUp); message WM_LBUTTONUP;
     procedure WMLBUTTONDBLCLK(var Message: TWMLBUTTONDBLCLK);
       message WM_LBUTTONDBLCLK;
-    function DoMouseWheelDown(Shift: TShiftState; MousePos: TPoint): Boolean;
-      override;
-    function DoMouseWheelUp(Shift: TShiftState; MousePos: TPoint): Boolean;
-      override;
     function GetPlusMinBtnRect(Index: Integer): TRect;
     function GetItemRect(Index: Integer): TRect;
     function GetValueRect(Index: Integer): TRect;
@@ -593,6 +589,10 @@ type
     procedure SetAllowSearch(const Value: Boolean);
     procedure SetReadOnlyColor(const Value: TColor);
   protected
+    function DoMouseWheelDown(Shift: TShiftState; MousePos: TPoint): Boolean;
+      override;
+    function DoMouseWheelUp(Shift: TShiftState; MousePos: TPoint): Boolean;
+      override;
     procedure CreateWnd; override;
     procedure Paint; override;
     function DoSelectCaret(Index: Integer): Boolean;
@@ -885,8 +885,7 @@ begin
   LType := LCtx.GetType(Obj.ClassInfo);
   LPropList := TzRttiType(LType).GetUsedProperties;
   for LProp in LPropList do
-  // TS
-//    if LProp.Visibility = mvPublished then
+    if LProp.Visibility = mvPublished then
       Exit(True);
 end;
 
@@ -1200,6 +1199,8 @@ end;
 
 function TPropItem.IsEnum: Boolean;
 begin
+  if not Assigned(Prop) then
+    Exit(False);
   if IsCategory then
     Exit(False);
   Result := Prop.PropertyType.TypeKind = tkEnumeration;
@@ -1495,7 +1496,7 @@ var
       Exit(False);
     LPropList := TzRttiType(LType).GetUsedProperties;
     for LProp in LPropList do
-      //if LProp.Visibility = mvPublished then
+      if LProp.Visibility = mvPublished then
         if (LProp.PropertyType.TypeKind = tkClass) then
         begin
           s := LProp.PropertyType.ToString;
@@ -1564,7 +1565,7 @@ var
     FRttiType := FContext.GetType(AInstance.ClassInfo);
     LPropList := TzRttiType(FRttiType).GetUsedProperties;
     for LProp in LPropList do
-      //if LProp.Visibility = mvPublished then
+      if LProp.Visibility = mvPublished then
       begin
         Allow := True;
         LQName := QualifiedName + '.' + LProp.Name;

@@ -3,7 +3,8 @@ unit BCEditor.Editor.Minimap;
 interface
 
 uses
-  System.Classes, System.UITypes, Vcl.Graphics, BCEditor.Types, BCEditor.Editor.Minimap.Colors;
+  System.Classes, System.UITypes, Vcl.Graphics, BCEditor.Types, BCEditor.Editor.Minimap.Indicator,
+  BCEditor.Editor.Minimap.Colors;
 
 type
   TBCEditorMinimap = class(TPersistent)
@@ -15,6 +16,7 @@ type
     FCursor: TCursor;
     FDragging: Boolean;
     FFont: TFont;
+    FIndicator: TBCEditorMinimapIndicator;
     FOnChange: TNotifyEvent;
     FOptions: TBCEditorMinimapOptions;
     FTopLine: Integer;
@@ -44,6 +46,7 @@ type
     property Colors: TBCEditorMinimapColors read FColors write SetColors;
     property Cursor: TCursor read FCursor write FCursor default crArrow;
     property Font: TFont read FFont write SetFont;
+    property Indicator: TBCEditorMinimapIndicator read FIndicator write FIndicator;
     property OnChange: TNotifyEvent read FOnChange write SetOnChange;
     property Options: TBCEditorMinimapOptions read FOptions write FOptions default [];
     property Visible: Boolean read FVisible write SetVisible default False;
@@ -78,12 +81,14 @@ begin
 
   FTopLine := 1;
 
+  FIndicator := TBCEditorMinimapIndicator.Create;
   FColors := TBCEditorMinimapColors.Create;
 end;
 
 destructor TBCEditorMinimap.Destroy;
 begin
   FFont.Free;
+  FIndicator.Free;
   FColors.Free;
   inherited Destroy;
 end;
@@ -109,6 +114,7 @@ begin
   FOnChange := AValue;
   FFont.OnChange := AValue;
   FColors.OnChange := AValue;
+  FIndicator.OnChange := AValue;
 end;
 
 procedure TBCEditorMinimap.DoChange;

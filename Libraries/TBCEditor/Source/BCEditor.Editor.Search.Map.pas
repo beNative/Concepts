@@ -3,12 +3,13 @@ unit BCEditor.Editor.Search.Map;
 interface
 
 uses
-  System.Classes, BCEditor.Editor.Search.Map.Colors, BCEditor.Types;
+  System.Classes, System.UITypes, BCEditor.Editor.Search.Map.Colors, BCEditor.Types;
 
 type
   TBCEditorSearchMap = class(TPersistent)
   strict private
     FColors: TBCEditorSearchMapColors;
+    FCursor: TCursor;
     FOnChange: TBCEditorSearchChangeEvent;
     FOptions: TBCEditorSearchMapOptions;
     FVisible: Boolean;
@@ -26,6 +27,7 @@ type
     function GetWidth: Integer;
   published
     property Colors: TBCEditorSearchMapColors read FColors write SetColors;
+    property Cursor: TCursor read FCursor write FCursor default crArrow;
     property OnChange: TBCEditorSearchChangeEvent read FOnChange write SetOnChange;
     property Options: TBCEditorSearchMapOptions read FOptions write SetOptions default [moShowActiveLine];
     property Visible: Boolean read FVisible write SetVisible default False;
@@ -47,6 +49,7 @@ begin
   FOptions := [moShowActiveLine];
   FVisible := False;
   FWidth := 5;
+  FCursor := crArrow;
 end;
 
 destructor TBCEditorSearchMap.Destroy;
@@ -64,6 +67,7 @@ begin
     Self.FOptions := Options;
     Self.FWidth := FWidth;
     Self.FColors := FColors;
+    Self.FCursor := FCursor;
     Self.DoChange;
   end
   else

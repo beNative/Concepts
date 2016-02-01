@@ -110,8 +110,8 @@ object frmObjectDataSet: TfrmObjectDataSet
           BevelKind = bkFlat
           BevelOuter = bvNone
           Caption = 
-            'TDBGridView -> TDataSource -> TObjectDataSet -> IObjectList<TCon' +
-            'tact>'
+            'TDBGrid -> TDataSource -> TObjectDataSet -> IObjectList<TContact' +
+            '>'
           Color = clAppWorkSpace
           FullRepaint = False
           Font.Charset = DEFAULT_CHARSET

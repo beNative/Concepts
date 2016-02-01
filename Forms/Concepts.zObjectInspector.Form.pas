@@ -67,7 +67,7 @@ implementation
 {$R *.dfm}
 
 uses
-  System.StrUtils,
+  System.StrUtils, System.TypInfo, System.Rtti,
 
   DDuce.Logger,
 
@@ -88,20 +88,19 @@ begin
   FObjectInspector.Name             := 'FObjectInspector';
   FObjectInspector.OnBeforeAddItem  := FObjectInspectorBeforeAddItem;
   FObjectHost := TzObjectHost.Create;
-//  for I := 0 to ComponentCount - 1 do
-//  begin
-//    C := Components[I];
-//    FObjectHost.AddObject(C, C.Name);
-//    cbxControls.AddItem(Format('%s: %s', [C.Name, C.ClassName]), C);
-//  end;
-//  for I := 0 to bgMain.Images.Count - 1 do
-//    with bgMain.Items.Add do
-//      ImageIndex := I;
-
-//  FObjectInspector.Component := FObjectHost;
-  FObjectInspector.Component := FObjectInspector;
+  for I := 0 to ComponentCount - 1 do
+  begin
+    C := Components[I];
+    FObjectHost.AddObject(C, C.Name);
+    cbxControls.AddItem(Format('%s: %s', [C.Name, C.ClassName]), C);
+  end;
+  for I := 0 to bgMain.Images.Count - 1 do
+    with bgMain.Items.Add do
+      ImageIndex := I;
+  FObjectHost.AddObject(FObjectInspector, 'ObjectInspector');
+  FObjectInspector.Component := FObjectHost;
   FObjectInspector.SplitterPos := FObjectInspector.Width div 2;
-    FObjectInspector.SortByCategory := False;
+  FObjectInspector.SortByCategory := False;
 end;
 
 procedure TfrmzObjectInspector.BeforeDestruction;
@@ -117,22 +116,8 @@ end;
 {$REGION 'event handlers'}
 function TfrmzObjectInspector.FObjectInspectorBeforeAddItem(Sender: TControl;
   PItem: PPropItem): Boolean;
-var
-  S : string;
 begin
-
-  S := PItem.Name;
-  Logger.Send(S);
-  if MatchText(S, ['GestureList', 'GestureEngine', 'StandardGestures', 'VCLComObject', 'ComObject']) then
-  //, 'Touch', 'StyleElements'])
-    Exit(False);
-  Logger.Send(S, PItem.ValueName);
-  //Logger.Send(S, PItem.ValueName);
-
-//  Logger.Send(PItem.Name, PItem.Value.ToString);
-
-  //Result := not PItem.IsSet;
-  //{$IFDEF DELPHIX_SEATTLE_UP}Result := PItem.Prop.PropertyType.TypeKind <> tkMethod;
+  Result := not (PItem.Prop.PropertyType is TRttiMethodType);
 end;
 
 procedure TfrmzObjectInspector.cbxControlsChange(Sender: TObject);

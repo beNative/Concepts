@@ -18,7 +18,7 @@ type
     constructor Create;
     procedure Assign(ASource: TPersistent); override;
   published
-    property MaxActions: Integer read FMaxActions write SetMaxActions default BCEDITOR_MAX_UNDO_ACTIONS;
+    property MaxActions: Integer read FMaxActions write SetMaxActions default BCEDITOR_UNDO_MAX_ACTIONS;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property Options: TBCEditorUndoOptions read FOptions write SetOptions default [uoGroupUndo];
   end;
@@ -29,7 +29,7 @@ constructor TBCEditorUndo.Create;
 begin
   inherited;
 
-  FMaxActions := BCEDITOR_MAX_UNDO_ACTIONS;
+  FMaxActions := BCEDITOR_UNDO_MAX_ACTIONS;
   FOptions := [uoGroupUndo];
 end;
 

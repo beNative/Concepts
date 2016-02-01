@@ -89,7 +89,7 @@ type
     function GetLengthOfLongestLine: Integer; overload;
     procedure Clear; override;
     procedure Delete(AIndex: Integer); override;
-    procedure DeleteLines(AIndex, ACount: Integer);
+    procedure DeleteLines(const AIndex: Integer; ACount: Integer);
     procedure Insert(AIndex: Integer; const AValue: string); override;
     procedure InsertLines(AIndex, ACount: Integer; AStrings: TStrings = nil);
     procedure InsertStrings(AIndex: Integer; AStrings: TStrings);
@@ -249,7 +249,7 @@ begin
     FOnDeleted(Self, AIndex, 1);
 end;
 
-procedure TBCEditorLines.DeleteLines(AIndex, ACount: Integer);
+procedure TBCEditorLines.DeleteLines(const AIndex: Integer; ACount: Integer);
 var
   i, LLinesAfter: Integer;
 begin

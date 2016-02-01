@@ -36,7 +36,7 @@ uses
 
 type
   TfrmLiveBindings = class(TForm)
-    absMain1                  : TAdapterBindSource;
+    absMain: TAdapterBindSource;
     aclMain                   : TActionList;
     actAlterContactCompany    : TAction;
     actGenerateContact        : TAction;
@@ -49,7 +49,7 @@ type
     bxpProgressBar            : TBindExpression;
     bxpStatusbar              : TBindExpression;
     cbxControls               : TComboBox;
-    dgaMain1                  : TDataGeneratorAdapter;
+    dgaMain: TDataGeneratorAdapter;
     edtButtonCaption          : TEdit;
     edtCompanyName            : TEdit;
     edtFirstName              : TEdit;
@@ -74,6 +74,7 @@ type
     procedure cbxControlsChange(Sender: TObject);
     procedure trbTrackBarChange(Sender: TObject);
     procedure FormResize(Sender: TObject);
+
     procedure actGenerateContactExecute(Sender: TObject);
     procedure actAlterContactCompanyExecute(Sender: TObject);
 
