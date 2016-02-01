@@ -98,7 +98,6 @@ end;
 
 procedure TBCEditorGlyph.Draw(ACanvas: TCanvas; X, Y: Integer; ALineHeight: Integer);
 var
-  LSourceRect, LDestinationRect: TRect;
   LGlyphBitmap: Vcl.Graphics.TBitmap;
   LMaskColor: TColor;
 begin
@@ -116,20 +115,12 @@ begin
   else
     Exit;
 
-  if ALineHeight >= LGlyphBitmap.Height then
-  begin
-    LSourceRect := Rect(0, 0, LGlyphBitmap.Width, LGlyphBitmap.Height);
-    Inc(Y, (ALineHeight - LGlyphBitmap.Height) div 2);
-    LDestinationRect := Rect(X, Y, X + LGlyphBitmap.Width, Y + LGlyphBitmap.Height);
-  end
-  else
-  begin
-    LDestinationRect := Rect(X, Y, X + LGlyphBitmap.Width, Y + ALineHeight);
-    Y := (LGlyphBitmap.Height - ALineHeight) div 2;
-    LSourceRect := Rect(0, Y, LGlyphBitmap.Width, Y + ALineHeight);
-  end;
+  Inc(Y, Abs(LGlyphBitmap.Height - ALineHeight) div 2);
 
-  ACanvas.BrushCopy(LDestinationRect, LGlyphBitmap, LSourceRect, LMaskColor);
+  LGlyphBitmap.Transparent := True;
+  LGlyphBitmap.TransparentMode := tmFixed;
+  LGlyphBitmap.TransparentColor := LMaskColor;
+  ACanvas.Draw(X, Y, LGlyphBitmap);
 end;
 
 procedure TBCEditorGlyph.SetGlyph(AValue: Vcl.Graphics.TBitmap);

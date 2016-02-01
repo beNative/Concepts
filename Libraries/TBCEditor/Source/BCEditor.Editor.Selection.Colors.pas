@@ -6,7 +6,7 @@ uses
   System.Classes, Vcl.Graphics, BCEditor.Consts;
 
 type
-  TBCEditorSelectedColor = class(TPersistent)
+  TBCEditorSelectionColors = class(TPersistent)
   strict private
     FBackground: TColor;
     FForeground: TColor;
@@ -26,7 +26,7 @@ implementation
 
 { TBCEditorSelectedColor }
 
-constructor TBCEditorSelectedColor.Create;
+constructor TBCEditorSelectionColors.Create;
 begin
   inherited;
 
@@ -34,10 +34,10 @@ begin
   FForeground := clHighLightText;
 end;
 
-procedure TBCEditorSelectedColor.Assign(ASource: TPersistent);
+procedure TBCEditorSelectionColors.Assign(ASource: TPersistent);
 begin
-  if Assigned(ASource) and (ASource is TBCEditorSelectedColor) then
-  with ASource as TBCEditorSelectedColor do
+  if Assigned(ASource) and (ASource is TBCEditorSelectionColors) then
+  with ASource as TBCEditorSelectionColors do
   begin
     Self.FBackground := FBackground;
     Self.FForeground := FForeground;
@@ -48,7 +48,7 @@ begin
     inherited Assign(ASource);
 end;
 
-procedure TBCEditorSelectedColor.SetBackground(AValue: TColor);
+procedure TBCEditorSelectionColors.SetBackground(AValue: TColor);
 begin
   if FBackground <> AValue then
   begin
@@ -58,7 +58,7 @@ begin
   end;
 end;
 
-procedure TBCEditorSelectedColor.SetForeground(AValue: TColor);
+procedure TBCEditorSelectionColors.SetForeground(AValue: TColor);
 begin
   if FForeground <> AValue then
   begin

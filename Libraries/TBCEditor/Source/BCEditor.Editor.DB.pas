@@ -131,6 +131,7 @@ type
     property SkinData;
     {$ENDIF}
     property SpecialChars;
+    property SyncEdit;
     property TabOrder;
     property Tabs;
     property TabStop;

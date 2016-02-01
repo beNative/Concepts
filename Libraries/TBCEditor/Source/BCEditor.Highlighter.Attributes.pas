@@ -3,7 +3,7 @@ unit BCEditor.Highlighter.Attributes;
 interface
 
 uses
-  Winapi.Windows, System.Classes, Vcl.Graphics;
+  Winapi.Windows, System.Classes, Vcl.Graphics, BCEditor.Consts;
 
 type
   TBCEditorHighlighterAttribute = class(TPersistent)
@@ -11,6 +11,7 @@ type
     FBackground: TColor;
     FBackgroundDefault: TColor;
     FElement: string;
+    FEscapeChar: Char;
     FForeground: TColor;
     FForegroundDefault: TColor;
     FName: string;
@@ -37,6 +38,7 @@ type
   published
     property Background: TColor read FBackground write SetBackground stored GetBackgroundColorStored;
     property Element: string read FElement write FElement;
+    property EscapeChar: Char read FEscapeChar write FEscapeChar default BCEDITOR_NONE_CHAR;
     property Foreground: TColor read FForeground write SetForeground stored GetForegroundColorStored;
     property ParentForeground: Boolean read FParentForeground write FParentForeground;
     property ParentBackground: Boolean read FParentBackground write FParentBackground;
@@ -49,6 +51,16 @@ uses
   System.SysUtils;
 
 { TBCEditorHighlighterAttribute }
+
+constructor TBCEditorHighlighterAttribute.Create(const AttributeName: string);
+begin
+  inherited Create;
+
+  FBackground := clNone;
+  FForeground := clNone;
+  FName := AttributeName;
+  FEscapeChar := BCEDITOR_NONE_CHAR;
+end;
 
 procedure TBCEditorHighlighterAttribute.Assign(ASource: TPersistent);
 begin
@@ -92,15 +104,6 @@ procedure TBCEditorHighlighterAttribute.Changed;
 begin
   if Assigned(FOnChange) then
     FOnChange(Self);
-end;
-
-constructor TBCEditorHighlighterAttribute.Create(const AttributeName: string);
-begin
-  inherited Create;
-
-  FBackground := clNone;
-  FForeground := clNone;
-  FName := AttributeName;
 end;
 
 function TBCEditorHighlighterAttribute.GetBackgroundColorStored: Boolean;

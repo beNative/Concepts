@@ -108,6 +108,11 @@ type
   );
   TBCEditorSearchOptions = set of TBCEditorSearchOption;
 
+  TBCEditorSyncEditOption = (
+    seCaseSensitive
+  );
+  TBCEditorSyncEditOptions = set of TBCEditorSyncEditOption;
+
   TBCEditorReplaceOption = (
     roBackwards,
     roCaseSensitive,
@@ -182,12 +187,13 @@ type
     ttAssemblerComment,
     ttAssemblerReservedWord,
     ttAttribute,
+    ttBlockComment,
     ttCharacter,
-    ttComment,
     ttDirective,
     ttHexNumber,
     ttHighlightedBlock,
     ttHighlightedBlockSymbol,
+    ttLineComment,
     ttMailtoLink,
     ttMethod,
     ttMethodName,
@@ -225,8 +231,6 @@ type
   TBCEditorContextHelpEvent = procedure(Sender: TObject; Word: string) of object;
 
   TBCEditorMouseCursorEvent = procedure(Sender: TObject; const aLineCharPos: TBCEditorTextPosition; var aCursor: TCursor) of object;
-
-  TBCEditorCharSet = set of AnsiChar;
 
   TBCEditorTokenHelper = record
     Position: Integer;

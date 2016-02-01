@@ -1,9 +1,11 @@
 object frmThreads: TfrmThreads
   Left = 0
   Top = 0
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'Threads'
-  ClientHeight = 178
-  ClientWidth = 449
+  ClientHeight = 188
+  ClientWidth = 459
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -15,14 +17,14 @@ object frmThreads: TfrmThreads
   ShowHint = True
   OnCloseQuery = FormCloseQuery
   DesignSize = (
-    449
-    178)
+    459
+    188)
   PixelsPerInch = 96
   TextHeight = 13
   object lbxCounters: TListBox
     Left = 8
-    Top = 130
-    Width = 433
+    Top = 140
+    Width = 443
     Height = 21
     Anchors = [akLeft, akRight, akBottom]
     Columns = 20
@@ -36,6 +38,8 @@ object frmThreads: TfrmThreads
     ParentDoubleBuffered = False
     ParentFont = False
     TabOrder = 0
+    ExplicitTop = 130
+    ExplicitWidth = 433
   end
   object btnCreateAnonymousThreads: TButton
     Left = 8
@@ -49,8 +53,8 @@ object frmThreads: TfrmThreads
   end
   object sbrMain: TStatusBar
     Left = 0
-    Top = 159
-    Width = 449
+    Top = 169
+    Width = 459
     Height = 19
     Panels = <
       item
@@ -60,6 +64,8 @@ object frmThreads: TfrmThreads
         Width = 200
       end>
     StyleElements = [seFont, seClient]
+    ExplicitTop = 159
+    ExplicitWidth = 449
   end
   object btnTerminateThreads: TButton
     Left = 8
@@ -114,8 +120,8 @@ object frmThreads: TfrmThreads
   object lbxThreads: TCheckListBox
     Left = 320
     Top = 8
-    Width = 121
-    Height = 118
+    Width = 131
+    Height = 128
     Anchors = [akLeft, akTop, akBottom]
     Columns = 3
     ItemHeight = 13

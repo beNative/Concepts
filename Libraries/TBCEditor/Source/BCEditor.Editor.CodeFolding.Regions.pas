@@ -56,6 +56,7 @@ type
     FCloseToken: string;
     FOpenToken: string;
     FSkipRegions: TBCEditorSkipRegions;
+    FEscapeChar: Char;
     FStringEscapeChar: Char;
     function GetItem(AIndex: Integer): TBCEditorCodeFoldingRegionItem;
   public
@@ -64,6 +65,7 @@ type
     function Add(const AOpenToken: string; const ACloseToken: string): TBCEditorCodeFoldingRegionItem;
     property CloseToken: string read FCloseToken write FCloseToken;
     function Contains(const AOpenToken, ACloseToken: string): Boolean;
+    property EscapeChar: Char read FEscapeChar write FEscapeChar default BCEDITOR_NONE_CHAR;
     property Items[AIndex: Integer]: TBCEditorCodeFoldingRegionItem read GetItem; default;
     property OpenToken: string read FOpenToken write FOpenToken;
     property SkipRegions: TBCEditorSkipRegions read FSkipRegions;
@@ -113,6 +115,7 @@ constructor TBCEditorCodeFoldingRegion.Create(AItemClass: TCollectionItemClass);
 begin
   inherited Create(AItemClass);
   FSkipRegions := TBCEditorSkipRegions.Create(TBCEditorSkipRegionItem);
+  FEscapeChar := BCEDITOR_NONE_CHAR;
   FStringEscapeChar := BCEDITOR_NONE_CHAR;
 end;
 

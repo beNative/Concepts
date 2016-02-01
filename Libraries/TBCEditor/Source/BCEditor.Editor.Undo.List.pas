@@ -15,13 +15,10 @@ type
     FInsideUndoBlock: Boolean;
     FItems: TList;
     FLockCount: Integer;
-    FMaxActions: Integer;
     FOnAddedUndo: TNotifyEvent;
     function GetCanUndo: Boolean;
     function GetItemCount: Integer;
     function GetItems(AIndex: Integer): TBCEditorUndoItem;
-    procedure EnsureMaxEntries;
-    procedure SetMaxActions(AValue: Integer);
     procedure SetItems(AIndex: Integer; const AValue: TBCEditorUndoItem);
   public
     constructor Create;
@@ -43,14 +40,12 @@ type
   public
     procedure AddGroupBreak;
     procedure Assign(ASource: TPersistent); override;
-    //procedure DeleteItem(AIndex: Integer);
     property BlockCount: Integer read FBlockCount;
     property CanUndo: Boolean read GetCanUndo;
     property InsideRedo: Boolean read FInsideRedo write FInsideRedo default False;
     property InsideUndoBlock: Boolean read FInsideUndoBlock write FInsideUndoBlock default False;
     property ItemCount: Integer read GetItemCount;
     property Items[AIndex: Integer]: TBCEditorUndoItem read GetItems write SetItems;
-    property MaxActions: Integer read FMaxActions write SetMaxActions default BCEDITOR_UNDO_MAX_ACTIONS;
     property OnAddedUndo: TNotifyEvent read FOnAddedUndo write FOnAddedUndo;
   end;
 
@@ -63,7 +58,6 @@ begin
   inherited;
 
   FItems := TList.Create;
-  FMaxActions := BCEDITOR_UNDO_MAX_ACTIONS;
   FInsideRedo := False;
   FInsideUndoBlock := False;
   FBlockNumber := BCEDITOR_UNDO_BLOCK_NUMBER_START;
@@ -95,7 +89,6 @@ begin
     Self.FBlockCount := FBlockCount;
     Self.FChangeBlockNumber := FChangeBlockNumber;
     Self.FLockCount := FLockCount;
-    Self.FMaxActions := FMaxActions;
     Self.FInsideRedo := FInsideRedo;
   end
   else
@@ -148,6 +141,7 @@ procedure TBCEditorUndoList.Clear;
 var
   i: Integer;
 begin
+  FBlockCount := 0;
   for i := 0 to FItems.Count - 1 do
     TBCEditorUndoItem(FItems[i]).Free;
   FItems.Clear;
@@ -158,19 +152,6 @@ begin
   Assert(FBlockCount > 0);
   Dec(FBlockCount);
   FInsideUndoBlock := False;
-end;
-
-procedure TBCEditorUndoList.EnsureMaxEntries;
-var
-  LItem: TBCEditorUndoItem;
-begin
-  if FItems.Count > FMaxActions then
-    while FItems.Count > FMaxActions do
-    begin
-      LItem := FItems[0];
-      LItem.Free;
-      FItems.Delete(0);
-    end;
 end;
 
 function TBCEditorUndoList.GetCanUndo: Boolean;
@@ -216,20 +197,8 @@ begin
   if Assigned(AItem) then
   begin
     FItems.Add(AItem);
-    EnsureMaxEntries;
     if (AItem.ChangeReason <> crGroupBreak) and Assigned(OnAddedUndo) then
       OnAddedUndo(Self);
-  end;
-end;
-
-procedure TBCEditorUndoList.SetMaxActions(AValue: Integer);
-begin
-  if AValue < 0 then
-    AValue := 0;
-  if FMaxActions <> AValue then
-  begin
-    FMaxActions := AValue;
-    EnsureMaxEntries;
   end;
 end;
 

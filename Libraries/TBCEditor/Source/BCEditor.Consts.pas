@@ -3,11 +3,13 @@ unit BCEditor.Consts;
 interface
 
 uses
-  BCEditor.Types, Vcl.Graphics;
+  Vcl.Graphics;
+
+type
+  TBCEditorCharSet = set of AnsiChar;
 
 const
   BCEDITOR_WHEEL_DIVISOR = 120;
-  BCEDITOR_DEFAULT_OPTIONS = [eoAutoIndent, eoDragDropEditing];
   BCEDITOR_MAILTO = 'mailto:';
   BCEDITOR_HTTP = 'http://';
   { Clipboard formats }
@@ -29,7 +31,9 @@ const
   BCEDITOR_TAB_CHAR = #9;
   BCEDITOR_LINEFEED = #10;
   BCEDITOR_CARRIAGE_RETURN = #13;
+  BCEDITOR_CARRIAGE_RETURN_KEY = 13;
   BCEDITOR_ESCAPE = #27;
+  BCEDITOR_ESCAPE_KEY = 27;
   BCEDITOR_SPACE_CHAR = #32;
   BCEDITOR_EXCLAMATION_MARK = #33;
   BCEDITOR_LOW_LINE = #95;
@@ -58,8 +62,8 @@ const
   clWordWrapIndicatorBackground = $00FFFFFF;
   clWordWrapIndicatorArrow = clNavy;
   clWordWrapIndicatorLines = clBlack;
+  clSyncEditBackground = $00FCFDCD;
   { Undo }
-  BCEDITOR_UNDO_MAX_ACTIONS = 1024;
   BCEDITOR_UNDO_BLOCK_NUMBER_START = 10;
 
 implementation

@@ -222,6 +222,9 @@ begin
       LEditor.Search.Map.Colors.Foreground := StringToColorDef(LColorsObject['SearchMapForeground'].Value, LEditor.Search.Map.Colors.Foreground);
       LEditor.Selection.Colors.Background := StringToColorDef(LColorsObject['SelectionBackground'].Value, LEditor.Selection.Colors.Background);
       LEditor.Selection.Colors.Foreground := StringToColorDef(LColorsObject['SelectionForeground'].Value, LEditor.Selection.Colors.Foreground);
+      LEditor.SyncEdit.Colors.Background := StringToColorDef(LColorsObject['SyncEditBackground'].Value, LEditor.SyncEdit.Colors.Background);
+      LEditor.SyncEdit.Colors.EditBorder := StringToColorDef(LColorsObject['SyncEditEditBorder'].Value, LEditor.SyncEdit.Colors.EditBorder);
+      LEditor.SyncEdit.Colors.WordBorder := StringToColorDef(LColorsObject['SyncEditWordBorder'].Value, LEditor.SyncEdit.Colors.WordBorder);
       LEditor.WordWrap.Colors.Arrow := StringToColorDef(LColorsObject['WordWrapIndicatorArrow'].Value, LEditor.WordWrap.Colors.Arrow);
       LEditor.WordWrap.Colors.Lines := StringToColorDef(LColorsObject['WordWrapIndicatorLines'].Value, LEditor.WordWrap.Colors.Lines);
     end;
@@ -252,8 +255,10 @@ begin
   if Assigned(AAttributesObject) then
   begin
     AHighlighterAttribute.Element := AElementPrefix + AAttributesObject['Element'].Value;
-    AHighlighterAttribute.ParentForeground := AAttributesObject.B['ParentForeground'];
+    AHighlighterAttribute.ParentForeground := StrToBoolDef(AAttributesObject['ParentForeground'].Value, False);
     AHighlighterAttribute.ParentBackground := StrToBoolDef(AAttributesObject['ParentBackground'].Value, True);
+    if AAttributesObject.Contains('EscapeChar') then
+      AHighlighterAttribute.EscapeChar := AAttributesObject['EscapeChar'].Value[1];
   end;
 end;
 
@@ -288,11 +293,11 @@ procedure TBCEditorHighlighterJSONImporter.ImportRange(ARange: TBCEditorRange; R
   const AElementPrefix: string = ''); { Recursive method }
 var
   i, j: Integer;
-  LFileName: string;
-  NewRange: TBCEditorRange;
-  NewKeyList: TBCEditorKeyList;
-  NewSet: TBCEditorSet;
-  SubRulesObject, PropertiesObject, TokenRangeObject: TJsonObject;
+  LFileName, LOpenToken, LCloseToken: string;
+  LNewRange: TBCEditorRange;
+  LNewKeyList: TBCEditorKeyList;
+  LNewSet: TBCEditorSet;
+  LSubRulesObject, LPropertiesObject, LTokenRangeObject: TJsonObject;
   LJSONObject, LJSONSubRulesObject: TJsonObject;
   LAlternativeCloseArray: TJsonArray;
   LFileStream: TStream;
@@ -310,21 +315,21 @@ begin
       LJSONObject := TJsonObject.ParseFromStream(LFileStream) as TJsonObject;
       if Assigned(LJSONObject) then
       try
-        TokenRangeObject := LJSONObject['Highlighter']['MainRules'].ObjectValue;
+        LTokenRangeObject := LJSONObject['Highlighter']['MainRules'].ObjectValue;
         { You can include MainRules... }
-        if TokenRangeObject['Name'].Value = RangeObject['IncludeRange'].Value then
-          ImportRange(AParentRange, TokenRangeObject, nil, True, LElementPrefix)
+        if LTokenRangeObject['Name'].Value = RangeObject['IncludeRange'].Value then
+          ImportRange(AParentRange, LTokenRangeObject, nil, True, LElementPrefix)
         else
         { or SubRules... }
         begin
-          SubRulesObject := TokenRangeObject['SubRules'].ObjectValue;
-          if Assigned(SubRulesObject) then
-          for i := 0 to SubRulesObject.Count - 1 do
+          LSubRulesObject := LTokenRangeObject['SubRules'].ObjectValue;
+          if Assigned(LSubRulesObject) then
+          for i := 0 to LSubRulesObject.Count - 1 do
           begin
-            if SubRulesObject.Names[i] = 'Range' then
-            for j := 0 to SubRulesObject.Items[i].ArrayValue.Count - 1 do
+            if LSubRulesObject.Names[i] = 'Range' then
+            for j := 0 to LSubRulesObject.Items[i].ArrayValue.Count - 1 do
             begin
-              LJSONSubRulesObject := SubRulesObject.Items[i].ArrayValue.O[j];
+              LJSONSubRulesObject := LSubRulesObject.Items[i].ArrayValue.O[j];
               if LJSONSubRulesObject.S['Name'] = RangeObject['IncludeRange'].Value then
               begin
                 ImportRange(ARange, LJSONSubRulesObject, nil, False, LElementPrefix);
@@ -349,21 +354,21 @@ begin
           ARange.Delimiters := StrToSet(RangeObject['Delimiters'].Value);
         ARange.TokenType := StrToRangeType(RangeObject['Type'].Value);
 
-        PropertiesObject := RangeObject['Properties'].ObjectValue;
-        if Assigned(PropertiesObject) then
+        LPropertiesObject := RangeObject['Properties'].ObjectValue;
+        if Assigned(LPropertiesObject) then
         begin
-          ARange.CloseOnEndOfLine := PropertiesObject.B['CloseOnEndOfLine'];
-          ARange.CloseOnTerm := PropertiesObject.B['CloseOnTerm'];
-          ARange.SkipWhitespace := PropertiesObject.B['SkipWhitespace'];
-          ARange.CloseParent := PropertiesObject.B['CloseParent'];
-          LAlternativeCloseArray := PropertiesObject['AlternativeClose'].ArrayValue;
+          ARange.CloseOnEndOfLine := LPropertiesObject.B['CloseOnEndOfLine'];
+          ARange.CloseOnTerm := LPropertiesObject.B['CloseOnTerm'];
+          ARange.SkipWhitespace := LPropertiesObject.B['SkipWhitespace'];
+          ARange.CloseParent := LPropertiesObject.B['CloseParent'];
+          LAlternativeCloseArray := LPropertiesObject['AlternativeClose'].ArrayValue;
           if LAlternativeCloseArray.Count > 0 then
           begin
             ARange.AlternativeCloseArrayCount := LAlternativeCloseArray.Count;
             for i := 0 to ARange.AlternativeCloseArrayCount - 1 do
               ARange.AlternativeCloseArray[i] := LAlternativeCloseArray.Items[i].Value;
           end;
-          ARange.OpenBeginningOfLine := PropertiesObject.B['OpenBeginningOfLine'];
+          ARange.OpenBeginningOfLine := LPropertiesObject.B['OpenBeginningOfLine'];
         end;
 
         ARange.OpenToken.Clear;
@@ -371,40 +376,50 @@ begin
         ARange.CloseToken.Clear;
         ARange.CloseToken.BreakType := btUnspecified;
 
-        TokenRangeObject := RangeObject['TokenRange'].ObjectValue;
-        if Assigned(TokenRangeObject) then
-          ARange.AddTokenRange(TokenRangeObject['Open'].Value, StrToBreakType(TokenRangeObject['OpenBreakType'].Value),
-            TokenRangeObject['Close'].Value, StrToBreakType(TokenRangeObject['CloseBreakType'].Value));
+        LTokenRangeObject := RangeObject['TokenRange'].ObjectValue;
+        if Assigned(LTokenRangeObject) then
+        begin
+          LOpenToken := LTokenRangeObject['Open'].Value;
+          LCloseToken := LTokenRangeObject['Close'].Value;
+
+          ARange.AddTokenRange(LOpenToken, StrToBreakType(LTokenRangeObject['OpenBreakType'].Value), LCloseToken,
+            StrToBreakType(LTokenRangeObject['CloseBreakType'].Value));
+
+          case ARange.TokenType of
+            ttLineComment: FHighlighter.Comments.AddLineComment(LOpenToken);
+            ttBlockComment: FHighlighter.Comments.AddBlockComment(LOpenToken, LCloseToken);
+          end;
+        end;
       end;
       { Sub rules }
-      SubRulesObject := RangeObject['SubRules'].ObjectValue;
+      LSubRulesObject := RangeObject['SubRules'].ObjectValue;
 
-      if Assigned(SubRulesObject) then
+      if Assigned(LSubRulesObject) then
       begin
-        for i := 0 to SubRulesObject.Count - 1 do
+        for i := 0 to LSubRulesObject.Count - 1 do
         begin
-          if SubRulesObject.Names[i] = 'Range' then
-          for j := 0 to SubRulesObject.Items[i].ArrayValue.Count - 1 do
+          if LSubRulesObject.Names[i] = 'Range' then
+          for j := 0 to LSubRulesObject.Items[i].ArrayValue.Count - 1 do
           begin
-            NewRange := TBCEditorRange.Create;
-            ImportRange(NewRange, SubRulesObject.Items[i].ArrayValue.O[j], ARange); { ARange is for the MainRules include }
-            ARange.AddRange(NewRange);
+            LNewRange := TBCEditorRange.Create;
+            ImportRange(LNewRange, LSubRulesObject.Items[i].ArrayValue.O[j], ARange); { ARange is for the MainRules include }
+            ARange.AddRange(LNewRange);
           end
           else
-          if SubRulesObject.Names[i] = 'KeyList' then
-          for j := 0 to SubRulesObject.Items[i].ArrayValue.Count - 1 do
+          if LSubRulesObject.Names[i] = 'KeyList' then
+          for j := 0 to LSubRulesObject.Items[i].ArrayValue.Count - 1 do
           begin
-            NewKeyList := TBCEditorKeyList.Create;
-            ImportKeyList(NewKeyList, SubRulesObject.Items[i].ArrayValue.O[j], AElementPrefix);
-            ARange.AddKeyList(NewKeyList);
+            LNewKeyList := TBCEditorKeyList.Create;
+            ImportKeyList(LNewKeyList, LSubRulesObject.Items[i].ArrayValue.O[j], AElementPrefix);
+            ARange.AddKeyList(LNewKeyList);
           end
           else
-          if SubRulesObject.Names[i] = 'Set' then
-          for j := 0 to SubRulesObject.Items[i].ArrayValue.Count - 1 do
+          if LSubRulesObject.Names[i] = 'Set' then
+          for j := 0 to LSubRulesObject.Items[i].ArrayValue.Count - 1 do
           begin
-            NewSet := TBCEditorSet.Create;
-            ImportSet(NewSet, SubRulesObject.Items[i].ArrayValue.O[j], AElementPrefix);
-            ARange.AddSet(NewSet);
+            LNewSet := TBCEditorSet.Create;
+            ImportSet(LNewSet, LSubRulesObject.Items[i].ArrayValue.O[j], AElementPrefix);
+            ARange.AddSet(LNewSet);
           end
         end;
       end;
@@ -622,8 +637,6 @@ procedure TBCEditorHighlighterJSONImporter.ImportCodeFoldingOptions(ACodeFolding
 var
   LCodeFoldingObject: TJsonObject;
 begin
-  ACodeFoldingRegion.StringEscapeChar := BCEDITOR_NONE_CHAR;
-
   if ACodeFoldingObject.Contains('Options') then
   begin
     LCodeFoldingObject := ACodeFoldingObject['Options'].ObjectValue;
@@ -633,6 +646,9 @@ begin
 
     if LCodeFoldingObject.Contains('CloseToken') then
       ACodeFoldingRegion.CloseToken := LCodeFoldingObject['CloseToken'].Value;
+
+    if LCodeFoldingObject.Contains('EscapeChar') then
+      ACodeFoldingRegion.EscapeChar := LCodeFoldingObject['EscapeChar'].Value[1];
 
     if LCodeFoldingObject.Contains('StringEscapeChar') then
       ACodeFoldingRegion.StringEscapeChar := LCodeFoldingObject['StringEscapeChar'].Value[1];
@@ -732,7 +748,10 @@ begin
     LElement.Foreground := StringToColorDef(LJsonDataValue.ObjectValue['Foreground'].Value, clWindowText);
     LElement.Name := LJsonDataValue.ObjectValue['Name'].Value;
     LElement.Style := StrToFontStyle(LJsonDataValue.ObjectValue['Style'].Value);
-    FHighlighter.Colors.Styles.Add(LElement)
+    FHighlighter.Colors.Styles.Add(LElement);
+
+    if LElement.Name = 'Editor' then
+      (FHighlighter.Editor as TBCBaseEditor).ForegroundColor := LElement.Foreground;
   end;
 end;
 

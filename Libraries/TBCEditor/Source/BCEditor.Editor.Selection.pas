@@ -9,14 +9,14 @@ type
   TBCEditorSelection = class(TPersistent)
   strict private
     FActiveMode: TBCEditorSelectionMode;
-    FColors: TBCEditorSelectedColor;
+    FColors: TBCEditorSelectionColors;
     FMode: TBCEditorSelectionMode;
     FOnChange: TNotifyEvent;
     FOptions: TBCEditorSelectionOptions;
     FVisible: Boolean;
     procedure DoChange;
     procedure SetActiveMode(const AValue: TBCEditorSelectionMode);
-    procedure SetColors(const AValue: TBCEditorSelectedColor);
+    procedure SetColors(const AValue: TBCEditorSelectionColors);
     procedure SetMode(const AValue: TBCEditorSelectionMode);
     procedure SetOnChange(AValue: TNotifyEvent);
     procedure SetOptions(AValue: TBCEditorSelectionOptions);
@@ -27,7 +27,7 @@ type
     procedure Assign(ASource: TPersistent); override;
     property ActiveMode: TBCEditorSelectionMode read FActiveMode write SetActiveMode stored False;
   published
-    property Colors: TBCEditorSelectedColor read FColors write SetColors;
+    property Colors: TBCEditorSelectionColors read FColors write SetColors;
     property Mode: TBCEditorSelectionMode read FMode write SetMode default smNormal;
     property Options: TBCEditorSelectionOptions read FOptions write SetOptions default [soHighlightSimilarTerms];
     property Visible: Boolean read FVisible write SetVisible default True;
@@ -42,7 +42,7 @@ constructor TBCEditorSelection.Create;
 begin
   inherited;
 
-  FColors := TBCEditorSelectedColor.Create;
+  FColors := TBCEditorSelectionColors.Create;
   FActiveMode := smNormal;
   FMode := smNormal;
   FOptions := [soHighlightSimilarTerms];
@@ -84,7 +84,7 @@ begin
     FOnChange(Self);
 end;
 
-procedure TBCEditorSelection.SetColors(const AValue: TBCEditorSelectedColor);
+procedure TBCEditorSelection.SetColors(const AValue: TBCEditorSelectionColors);
 begin
   FColors.Assign(AValue);
 end;

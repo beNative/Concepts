@@ -87,6 +87,7 @@ type
     function StringLength(AIndex: Integer): Integer;
     function Add(const AValue: string): Integer; override;
     function GetLengthOfLongestLine: Integer; overload;
+    function GetLineText(ALine: Integer): string;
     procedure Clear; override;
     procedure Delete(AIndex: Integer); override;
     procedure DeleteLines(const AIndex: Integer; ACount: Integer);
@@ -701,6 +702,14 @@ begin
   else
   if Assigned(FOnChange) then
     FOnChange(Self);
+end;
+
+function TBCEditorLines.GetLineText(ALine: Integer): string;
+begin
+  if (ALine >= 0) and (ALine < Count) then
+    Result := Get(ALine)
+  else
+    Result := '';
 end;
 
 end.
