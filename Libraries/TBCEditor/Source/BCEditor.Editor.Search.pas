@@ -15,6 +15,7 @@ type
     FEnabled: Boolean;
     FEngine: TBCEditorSearchEngine;
     FHighlighter: TBCEditorSearchHighlighter;
+    FLines: TList;
     FMap: TBCEditorSearchMap;
     FOnChange: TBCEditorSearchChangeEvent;
     FOptions: TBCEditorSearchOptions;
@@ -31,11 +32,13 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Assign(ASource: TPersistent); override;
+    procedure ClearLines;
     property Visible: Boolean read FVisible write FVisible;
   published
     property Enabled: Boolean read FEnabled write SetEnabled default True;
     property Engine: TBCEditorSearchEngine read FEngine write SetEngine default seNormal;
     property Highlighter: TBCEditorSearchHighlighter read FHighlighter write SetHighlighter;
+    property Lines: TList read FLines write FLines;
     property Map: TBCEditorSearchMap read FMap write SetMap;
     property OnChange: TBCEditorSearchChangeEvent read FOnChange write SetOnChange;
     property Options: TBCEditorSearchOptions read FOptions write FOptions default BCEDITOR_SEARCH_OPTIONS;
@@ -53,6 +56,7 @@ begin
   FSearchText := '';
   FEngine := seNormal;
   FMap := TBCEditorSearchMap.Create;
+  FLines := TList.Create;
   FHighlighter := TBCEditorSearchHighlighter.Create;
   FOptions := BCEDITOR_SEARCH_OPTIONS;
   FEnabled := True;
@@ -62,6 +66,8 @@ destructor TBCEditorSearch.Destroy;
 begin
   FMap.Free;
   FHighlighter.Free;
+  ClearLines;
+  FLines.Free;
   inherited;
 end;
 
@@ -130,6 +136,15 @@ end;
 procedure TBCEditorSearch.SetMap(const AValue: TBCEditorSearchMap);
 begin
   FMap.Assign(AValue);
+end;
+
+procedure TBCEditorSearch.ClearLines;
+var
+  i: Integer;
+begin
+  for i := FLines.Count - 1 downto 0 do
+    Dispose(PBCEditorTextPosition(FLines.Items[i]));
+  FLines.Clear;
 end;
 
 end.

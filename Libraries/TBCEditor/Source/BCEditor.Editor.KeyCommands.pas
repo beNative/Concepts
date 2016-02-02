@@ -129,6 +129,9 @@ const
   { Search }
   ecSearchNext = 800;
   ecSearchPrevious = 801;
+  { Comments }
+  ecLineComment = 900;
+  ecBlockComment = 901;
 
   ecUserFirst = 1001;
   { code folding }
@@ -227,7 +230,7 @@ type
   end;
 
 const
-  EditorCommandStrings: array [0 .. 109] of TBCEditorCommandString = (
+  EditorCommandStrings: array [0 .. 111] of TBCEditorCommandString = (
     (Value: ecNone; Name: 'ecNone'),
     (Value: ecLeft; Name: 'ecLeft'),
     (Value: ecRight; Name: 'ecRight'),
@@ -337,7 +340,9 @@ const
     (Value: ecUncollapseAll; Name: 'ecUncollapseAll'),
     (Value: ecCollapseCurrent; Name: 'ecCollapseCurrent'),
     (Value: ecSearchNext; Name: 'ecSearchNext'),
-    (Value: ecSearchPrevious; Name: 'ecSearchPrevious')
+    (Value: ecSearchPrevious; Name: 'ecSearchPrevious'),
+    (Value: ecLineComment; Name: 'ecLineComment'),
+    (Value: ecBlockComment; Name: 'ecBlockComment')
   );
 
 function IdentToEditorCommand(const AIdent: string; var ACommand: LongInt): Boolean;
@@ -714,6 +719,9 @@ begin
   Add(ecNormalSelect, [ssCtrl, ssAlt], Ord('N'));
   Add(ecColumnSelect, [ssCtrl, ssAlt], Ord('C'));
   Add(ecLineSelect, [ssCtrl, ssAlt], Ord('L'));
+  { Comments }
+  Add(ecLineComment, [ssCtrl], VK_OEM_2);
+  Add(ecBlockComment, [ssCtrl, ssShift], VK_OEM_2);
 end;
 
 procedure TBCEditorKeyCommands.SetItem(AIndex: Integer; AValue: TBCEditorKeyCommand);

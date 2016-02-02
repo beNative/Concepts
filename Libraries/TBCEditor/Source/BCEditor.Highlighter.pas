@@ -4,8 +4,8 @@ interface
 
 uses
   System.Classes, System.SysUtils, Vcl.Controls, Vcl.Graphics, BCEditor.Highlighter.Rules, BCEditor.Highlighter.Token,
-  BCEditor.Types, BCEditor.Highlighter.Attributes, BCEditor.Highlighter.Info, BCEditor.Editor.SkipRegions,
-  BCEditor.Highlighter.Colors, BCEditor.Editor.CodeFolding.Regions;
+  BCEditor.Consts, BCEditor.Highlighter.Attributes, BCEditor.Highlighter.Info, BCEditor.Editor.SkipRegions,
+  BCEditor.Highlighter.Colors, BCEditor.Editor.CodeFolding.Regions, BCEditor.Highlighter.Comments, BCEditor.Types;
 
 type
   TBCEditorHighlighter = class(TObject)
@@ -15,6 +15,7 @@ type
     FCodeFoldingRangeCount: Integer;
     FCodeFoldingRegions: TBCEditorCodeFoldingRegions;
     FColors: TBCEditorHighlighterColors;
+    FComments: TBCEditorHighlighterComments;
     FCompletionProposalSkipRegions: TBCEditorSkipRegions;
     FCurrentLine: PChar;
     FCurrentRange: TBCEditorRange;
@@ -77,6 +78,7 @@ type
     property CodeFoldingRangeCount: Integer read FCodeFoldingRangeCount write SetCodeFoldingRangeCount;
     property CodeFoldingRegions: TBCEditorCodeFoldingRegions read FCodeFoldingRegions write FCodeFoldingRegions;
     property Colors: TBCEditorHighlighterColors read FColors write FColors;
+    property Comments: TBCEditorHighlighterComments read FComments write FComments;
     property CompletionProposalSkipRegions: TBCEditorSkipRegions read FCompletionProposalSkipRegions write FCompletionProposalSkipRegions;
     property Editor: TWinControl read FEditor;
     property FileName: string read FFileName write FFileName;
@@ -97,7 +99,7 @@ type
 implementation
 
 uses
-  BCEditor.Highlighter.JSONImporter, System.Types, BCEditor.Consts, BCEditor.Editor.Base, System.IOUtils;
+  BCEditor.Highlighter.JSONImporter, System.Types, BCEditor.Editor.Base, System.IOUtils;
 
 { TBCEditorHighlighter }
 
@@ -123,6 +125,8 @@ begin
   FAttributes.Sorted := False;
 
   FCodeFoldingRangeCount := 0;
+
+  FComments := TBCEditorHighlighterComments.Create;
 
   FCompletionProposalSkipRegions := TBCEditorSkipRegions.Create(TBCEditorSkipRegionItem);
 
@@ -150,6 +154,8 @@ destructor TBCEditorHighlighter.Destroy;
 begin
   Clear;
 
+  FComments.Free;
+  FComments := nil;
   FMainRules.Free;
   FMainRules := nil;
   FInfo.Free;
@@ -409,6 +415,7 @@ begin
   FAttributes.Clear;
   FMainRules.Clear;
   FInfo.Clear;
+  FComments.Clear;
   FCompletionProposalSkipRegions.Clear;
   for i := FMatchingPairs.Count - 1 downto 0 do
     Dispose(PBCEditorMatchingPairToken(FMatchingPairs.Items[i]));
