@@ -1004,7 +1004,11 @@ begin
     if Assigned(Grid) and Assigned(Grid.DataLink.DataSet) then
     begin
       DS := Grid.DataLink.DataSet;
+      {$IFDEF DELPHIXE6_UP}
       if DS.Active or not (lcAutomatic in DS.Fields.LifeCycles) then
+      {$ELSE}
+      if DS.Active or not DS.DefaultFields then
+      {$ENDIF}
       begin
         SetField(DS.FindField(FFieldName));
       end;
