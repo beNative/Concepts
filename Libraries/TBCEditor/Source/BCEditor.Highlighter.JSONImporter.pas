@@ -40,12 +40,15 @@ implementation
 
 uses
   System.SysUtils, System.TypInfo, Vcl.Graphics, Vcl.Forms, BCEditor.Consts, BCEditor.Types, Vcl.Dialogs,
-  BCEditor.Highlighter.Token;
+  BCEditor.Highlighter.Token, Vcl.GraphUtil;
 
 function StringToColorDef(const AString: string; const DefaultColor: TColor): Integer;
 begin
   if Trim(AString) = '' then
     Result := DefaultColor
+  else
+  if Pos('clWeb', AString) = 1 then
+    Result := WebColorNameToColor(AString)
   else
     Result := StringToColor(AString);
 end;

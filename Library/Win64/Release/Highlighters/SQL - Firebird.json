@@ -2,8 +2,8 @@
    "Highlighter": {
       "Info": {
          "General": {
-            "Version": "1.0",
-            "Date": "28.10.2015",
+            "Version": "1.3",
+            "Date": "28.01.2016",
             "Sample": [
                "select \"Hello world!\" from RDB$DATABASE;"
             ]
@@ -20,7 +20,7 @@
          "SubRules": {
             "Range": [
                {
-                  "Type": "Comment",
+                  "Type": "BlockComment",
                   "Attributes": {
                      "Element": "Comment"
                   },
@@ -30,7 +30,7 @@
                   }
                },
                {
-                  "Type": "Comment",
+                  "Type": "LineComment",
                   "Attributes": {
                      "Element": "Comment"
                   },
@@ -66,6 +66,19 @@
                      "Open": "\"",
                      "Close": "\""
                   }
+               },
+               {
+                  "Type": "Method",
+                  "Attributes": {
+                     "Element": "MethodName"
+                  },
+                  "Properties": {
+                     "CloseOnEndOfLine": true,
+                     "CloseOnTerm": true
+                  },
+                  "TokenRange": {
+                     "Open": "rdb$"
+                  }
                }
             ],
             "KeyList": [
@@ -96,7 +109,6 @@
                      "atan2",
                      "auto",
                      "autonomous",
-                     "avg",
                      "backup",
                      "before",
                      "begin",
@@ -143,7 +155,6 @@
                      "cos",
                      "cosh",
                      "cot",
-                     "count",
                      "create",
                      "cross",
                      "cstring",
@@ -193,7 +204,6 @@
                      "fetch",
                      "file",
                      "filter",
-                     "first",
                      "firstname",
                      "float",
                      "floor",
@@ -233,7 +243,6 @@
                      "isolation",
                      "join",
                      "key",
-                     "last",
                      "lastname",
                      "leading",
                      "leave",
@@ -254,13 +263,11 @@
                      "mapping",
                      "matched",
                      "matching",
-                     "max",
                      "maximum_segment",
                      "maxvalue",
                      "merge",
                      "middlename",
                      "millisecond",
-                     "min",
                      "minute",
                      "minvalue",
                      "mod",
@@ -371,7 +378,6 @@
                      "statistics",
                      "sub_type",
                      "substring",
-                     "sum",
                      "suspend",
                      "table",
                      "tan",
@@ -422,9 +428,24 @@
                   }
                },
                {
+                  "Type": "Method",
+                  "Words": [
+									   "avg",
+									   "count",
+									   "first",
+									   "last",
+									   "max",
+									   "min",
+									   "sum",
+									   "trim"
+                  ],
+                  "Attributes": {
+                     "Element": "Method"
+                  }
+               },
+               {
                   "Type": "Symbol",
                   "Words": [
-                     "..",
                      ":",
                      ";",
                      "<",

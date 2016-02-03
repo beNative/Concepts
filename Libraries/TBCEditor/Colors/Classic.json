@@ -3,7 +3,7 @@
       "Info":{
          "General":{
             "Version":"1.3",
-            "Date":"09.01.2016"
+            "Date":"29.01.2016"
          },
          "Author":{
             "Name":"Lasse Rautiainen",
@@ -50,6 +50,9 @@
             "SearchMapForeground":"clYellow",
             "SelectionBackground":"clSilver",
             "SelectionForeground":"clNavy",
+            "SyncEditBackground":"$009999CC",
+            "SyncEditEditBorder":"clYellow",
+            "SyncEditWordBorder":"clSilver",
             "WordWrapIndicatorArrow": "clSilver",
             "WordWrapIndicatorLines": "clWhite"
          },

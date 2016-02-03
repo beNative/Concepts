@@ -7,11 +7,11 @@ uses
   BCCommon.Form.Base, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls, BCEditor.Editor, BCEditor.Highlighter,
   BCEditor.Editor.Base, Vcl.Buttons, Vcl.AppEvnts, System.Actions, Vcl.ActnList, BCEditor.Print,
   BCCommon.Images, BCComponent.SkinProvider, BCComponent.SkinManager, BCControl.Panel, BCControl.StatusBar,
-  BCComponent.TitleBar, Vcl.Menus,
-  BCControl.Splitter, BCCommon.Frame.Base, BCComponent.MultiStringHolder,
-  System.Win.TaskbarCore, Vcl.Taskbar, Vcl.StdCtrls,
+  BCComponent.TitleBar, Vcl.Menus, ToolCtrlsEh, DBGridEhToolCtrls, EhLibVCL, DBAxisGridsEh, ObjectInspectorEh,
+  BCControl.Splitter, GridsEh, BCCommon.Frame.Base, sPanel, BCComponent.MultiStringHolder, sSkinManager, sStatusBar,
+  sSplitter, acTitleBar, sSkinProvider, System.Win.TaskbarCore, Vcl.Taskbar, sDialogs, Vcl.StdCtrls, sButton,
   BCControl.Button, System.Diagnostics, BCCommon.Dialog.Popup.Highlighter, BCCommon.Dialog.Popup.Highlighter.Color,
-  BCControl.SpeedButton, BCControl.ComboBox;
+  sSpeedButton, BCControl.SpeedButton, sComboBox, BCControl.ComboBox, sLabel;
 
 const
   BCEDITORDEMO_CAPTION = 'TBCEditor Control Demo v1.3';
@@ -24,21 +24,36 @@ type
     ActionFileOpen: TAction;
     ActionPreview: TAction;
     ActionSearch: TAction;
+    Editor: TBCEditor;
     MenuItemExit: TMenuItem;
     MenuItemFileOpen: TMenuItem;
     MenuItemPrintPreview: TMenuItem;
     MenuItemSeparator1: TMenuItem;
     MenuItemSeparator2: TMenuItem;
     MultiStringHolderFileTypes: TBCMultiStringHolder;
+    ObjectInspectorEh: TObjectInspectorEh;
+    PanelLeft: TBCPanel;
+    PanelProperty: TBCPanel;
     PopupMenuFile: TPopupMenu;
     PopupMenuDummy: TPopupMenu;
+    Splitter: TBCSplitter;
+    OpenDialog: TsOpenDialog;
     MenuItemSkins: TMenuItem;
     ActionSkins: TAction;
+    PanelSearch: TBCPanel;
+    ComboBoxSearchText: TBCComboBox;
+    BCSplitter1: TBCSplitter;
+    SpeedButtonFindPrevious: TBCSpeedButton;
+    SpeedButtonFindNext: TBCSpeedButton;
+    SpeedButtonDivider: TBCSpeedButton;
+    SpeedButtonOptions: TBCSpeedButton;
+    SpeedButtonClose: TBCSpeedButton;
+    PanelRight: TBCPanel;
     ActionFindNext: TAction;
     ActionFindPrevious: TAction;
     ActionOptions: TAction;
     ActionClose: TAction;
-
+    LabelSearchResultCount: TsLabel;
     procedure ActionFileOpenExecute(Sender: TObject);
     procedure ActionPreviewExecute(Sender: TObject);
     procedure ActionSearchExecute(Sender: TObject);

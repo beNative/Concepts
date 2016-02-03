@@ -1,0 +1,111 @@
+package BCCommon.Delphi.XE8.Runtime;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$DEFINE EDITBONE}
+{$ENDIF IMPLICITBUILDING}
+{$RUNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  BCControls.Delphi.XE8.Runtime,
+  BCComponents.Delphi.XE8.Runtime,
+  VirtualTreesR,
+  vclactnband,
+  xmlrtl,
+  acntDelphiXE8,
+  BCEditor.Delphi.XE8.Runtime,
+  EhLib220;
+
+contains
+  BCCommon.Images in '..\Source\BCCommon.Images.pas' {ImagesDataModule: TDataModule},
+  BCCommon.Frame.Base in '..\Source\BCCommon.Frame.Base.pas' {BCBaseFrame},
+  BCCommon.Frame.Search in '..\Source\BCCommon.Frame.Search.pas' {BCSearchFrame: TFrame},
+  BCCommon.Dialog.Base in '..\Source\BCCommon.Dialog.Base.pas' {BCBaseDialog},
+  BCCommon.Dialog.Options.Search in '..\Source\BCCommon.Dialog.Options.Search.pas' {SearchOptionsDialog},
+  BCCommon.Form.Print.Preview in '..\Source\BCCommon.Form.Print.Preview.pas' {PrintPreviewDialog},
+  BCCommon.Dialog.Replace in '..\Source\BCCommon.Dialog.Replace.pas' {ReplaceDialog},
+  BCCommon.Consts in '..\Source\BCCommon.Consts.pas',
+  BCCommon.Language.Strings in '..\Source\BCCommon.Language.Strings.pas' {LanguageDataModule: TDataModule},
+  BCCommon.Language.Utils in '..\Source\BCCommon.Language.Utils.pas',
+  BCCommon.StringUtils in '..\Source\BCCommon.StringUtils.pas',
+  BCCommon.FileUtils in '..\Source\BCCommon.FileUtils.pas',
+  BCCommon.Utils in '..\Source\BCCommon.Utils.pas',
+  BCCommon.Options.Container in '..\Source\BCCommon.Options.Container.pas',
+  BCCommon.Frame.Options.Base in '..\Source\BCCommon.Frame.Options.Base.pas' {BCOptionsBaseFrame: TFrame},
+  BCCommon.Frame.Options.Editor.CompletionProposal in '..\Source\BCCommon.Frame.Options.Editor.CompletionProposal.pas' {OptionsEditorCompletionProposalFrame: TFrame},
+  BCCommon.Frame.Options.Editor.Search in '..\Source\BCCommon.Frame.Options.Editor.Search.pas' {OptionsEditorSearchFrame: TFrame},
+  BCCommon.Frame.Options.Editor.Options in '..\Source\BCCommon.Frame.Options.Editor.Options.pas' {OptionsEditorOptionsFrame: TFrame},
+  BCCommon.Frame.Options.Editor.Font in '..\Source\BCCommon.Frame.Options.Editor.Font.pas' {OptionsEditorFontFrame: TFrame},
+  BCCommon.Frame.Options.Editor.LeftMargin in '..\Source\BCCommon.Frame.Options.Editor.LeftMargin.pas' {OptionsEditorLeftMarginFrame: TFrame},
+  BCCommon.Frame.Options.Editor.RightMargin in '..\Source\BCCommon.Frame.Options.Editor.RightMargin.pas' {OptionsEditorRightMarginFrame: TFrame},
+  BCCommon.Frame.Options.Compare in '..\Source\BCCommon.Frame.Options.Compare.pas' {OptionsCompareFrame: TFrame},
+  BCCommon.Frame.Options.MainMenu in '..\Source\BCCommon.Frame.Options.MainMenu.pas' {OptionsMainMenuFrame: TFrame},
+  BCCommon.Frame.Options.StatusBar in '..\Source\BCCommon.Frame.Options.StatusBar.pas' {OptionsStatusBarFrame: TFrame},
+  BCCommon.Frame.Options.Output in '..\Source\BCCommon.Frame.Options.Output.pas' {OptionsOutputFrame: TFrame},
+  BCCommon.Frame.Options.Toolbar in '..\Source\BCCommon.Frame.Options.Toolbar.pas' {OptionsToolbarFrame: TFrame},
+  BCCommon.Dialog.Options.ToolbarItems in '..\Source\BCCommon.Dialog.Options.ToolbarItems.pas' {OptionsToolbarItemsDialog},
+  BCCommon.Frame.Options.Print in '..\Source\BCCommon.Frame.Options.Print.pas' {OptionsPrintFrame: TFrame},
+  BCCommon.Frame.Options.SQL.Select in '..\Source\BCCommon.Frame.Options.SQL.Select.pas' {OptionsSQLSelectFrame: TFrame},
+  BCCommon.Options.Container.SQL.Formatter in '..\Source\BCCommon.Options.Container.SQL.Formatter.pas',
+  BCCommon.SQL.Consts in '..\Source\BCCommon.SQL.Consts.pas',
+  BCCommon.Messages in '..\Source\BCCommon.Messages.pas',
+  BCCommon.Frame.Options.SQL.Alignments in '..\Source\BCCommon.Frame.Options.SQL.Alignments.pas' {OptionsSQLAlignmentsFrame: TFrame},
+  BCCommon.Frame.Options.SQL.Insert in '..\Source\BCCommon.Frame.Options.SQL.Insert.pas' {OptionsSQLInsertFrame: TFrame},
+  BCCommon.Frame.Options.SQL.Update in '..\Source\BCCommon.Frame.Options.SQL.Update.pas' {OptionsSQLUpdateFrame: TFrame},
+  BCCommon.Frame.Options.SQL.Whitespace in '..\Source\BCCommon.Frame.Options.SQL.Whitespace.pas' {OptionsSQLWhitespaceFrame: TFrame},
+  BCCommon.Frame.Options.SQL.Capitalization in '..\Source\BCCommon.Frame.Options.SQL.Capitalization.pas' {OptionsSQLCapitalizationFrame: TFrame},
+  BCCommon.Frame.Options.SQL.Indentation in '..\Source\BCCommon.Frame.Options.SQL.Indentation.pas' {OptionsSQLIndentationFrame: TFrame},
+  BCCommon.Frame.Options.SQL.Formatter in '..\Source\BCCommon.Frame.Options.SQL.Formatter.pas' {OptionsSQLFormatterFrame: TFrame},
+  BCCommon.Dialog.FindInFiles in '..\Source\BCCommon.Dialog.FindInFiles.pas' {FindInFilesDialog},
+  BCCommon.Frame.Compare in '..\Source\BCCommon.Frame.Compare.pas' {CompareFrame: TFrame},
+  BCCommon.Hash in '..\Source\BCCommon.Hash.pas',
+  BCCommon.Dialog.DownloadURL in '..\Source\BCCommon.Dialog.DownloadURL.pas' {DownloadURLDialog},
+  BCCommon.Form.Convert in '..\Source\BCCommon.Form.Convert.pas' {ConvertForm},
+  BCCommon.Math in '..\Source\BCCommon.Math.pas',
+  BCCommon.Form.SearchForFiles in '..\Source\BCCommon.Form.SearchForFiles.pas' {SearchForFilesForm},
+  BCCommon.Dialog.ConfirmReplace in '..\Source\BCCommon.Dialog.ConfirmReplace.pas' {ConfirmReplaceDialog},
+  BCCommon.Frame.Options.Editor.Scroll in '..\Source\BCCommon.Frame.Options.Editor.Scroll.pas' {OptionsEditorScrollFrame: TFrame},
+  BCCommon.Frame.Options.Editor.Caret in '..\Source\BCCommon.Frame.Options.Editor.Caret.pas' {OptionsEditorCaretFrame: TFrame},
+  BCCommon.Frame.Options.Editor.Tabulator in '..\Source\BCCommon.Frame.Options.Editor.Tabulator.pas' {OptionsEditorTabulatorFrame: TFrame},
+  BCCommon.Frame.Options.Editor.Minimap in '..\Source\BCCommon.Frame.Options.Editor.Minimap.pas' {OptionsEditorMinimapFrame: TFrame},
+  BCCommon.Frame.Options.Editor.CodeFolding in '..\Source\BCCommon.Frame.Options.Editor.CodeFolding.pas' {OptionsEditorCodeFoldingFrame: TFrame},
+  BCCommon.Frame.Options.Editor.MatchingPair in '..\Source\BCCommon.Frame.Options.Editor.MatchingPair.pas' {OptionsEditorMatchingPairFrame: TFrame},
+  BCCommon.Frame.Options.Editor.Color in '..\Source\BCCommon.Frame.Options.Editor.Color.pas' {OptionsEditorColorFrame: TFrame},
+  BCCommon.Frame.Options.Editor.Selection in '..\Source\BCCommon.Frame.Options.Editor.Selection.pas' {OptionsEditorSelectionFrame: TFrame},
+  BCCommon.Frame.Options.Editor.SpecialChars in '..\Source\BCCommon.Frame.Options.Editor.SpecialChars.pas' {OptionsEditorSpecialCharsFrame: TFrame},
+  BCCommon.Dialog.InputQuery in '..\Source\BCCommon.Dialog.InputQuery.pas' {InputQueryDialog},
+  BigIni in '..\Source\BigIni.pas',
+  Diff in '..\Source\Diff.pas',
+  IniPersist in '..\Source\IniPersist.pas',
+  BCCommon.Dialog.ItemList in '..\Source\BCCommon.Dialog.ItemList.pas' {ItemListDialog},
+  BCCommon.Dialog.SkinSelect in '..\Source\BCCommon.Dialog.SkinSelect.pas' {SkinSelectDialog},
+  BCCommon.Form.Base in '..\Source\BCCommon.Form.Base.pas' {BCBaseForm},
+  BCCommon.Dialog.Popup.Highlighter.Color in '..\Source\BCCommon.Dialog.Popup.Highlighter.Color.pas' {PopupHighlighterColorDialog},
+  BCCommon.Dialog.Popup.Highlighter in '..\Source\BCCommon.Dialog.Popup.Highlighter.pas' {PopupHighlighterDialog},
+  BCCommon.WindowsInfo in '..\Source\BCCommon.WindowsInfo.pas';
+
+end.

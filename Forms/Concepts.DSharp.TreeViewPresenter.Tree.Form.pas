@@ -61,10 +61,10 @@ type
     procedure actExecuteExecute(Sender: TObject);
 
   private
-    FPI          : TPropertyInspector;
+//    FPI          : TPropertyInspector;
     FVST         : TVirtualStringTree;
     FTVP         : TTreeViewPresenter;
-    FVSTColumns  : TVirtualStringTree;
+    //FVSTColumns  : TVirtualStringTree;
     FObjectList  : IList<TReflectionData>;
     FData        : TReflectionData;
     FObjectList2 : IObjectList;
@@ -137,9 +137,9 @@ begin
 end;
 
 procedure TfrmTreeViewPresenterTree.CreateRttiTreeview;
-var
-  EI : Enumerable<TRttiInterfaceType>;
-  EC : Enumerable<TRttiInstanceType>;
+//var
+  //EI : Enumerable<TRttiInterfaceType>;
+  //EC : Enumerable<TRttiInstanceType>;
 begin
   FReflection := TReflection.Create;
   FTVP := TTreeViewPresenter.Create(Self);
@@ -189,9 +189,9 @@ end;
 
 {$REGION 'event handlers'}
 procedure TfrmTreeViewPresenterTree.FTVPSelectionChanged(Sender: TObject);
-var
-  SI : TObject;
-  S  : string;
+//var
+  //SI : TObject;
+  //S  : string;
 begin
   //FPI.Objects[0] := FTVP.SelectedItem;
   if Assigned(FTVP.SelectedItem) then

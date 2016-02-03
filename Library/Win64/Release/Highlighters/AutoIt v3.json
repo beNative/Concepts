@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "28.10.2015",
+            "Date": "26.01.2016",
             "Sample": [
                "MsgBox(64, \"Tutorial\", \"Hello World!\")"
             ]
@@ -20,7 +20,7 @@
          "SubRules": {
             "Range": [
                {
-                  "Type": "Comment",
+                  "Type": "LineComment",
                   "Attributes": {
                      "Element": "Comment"
                   },
@@ -556,7 +556,6 @@
                {
                   "Type": "Symbol",
                   "Words": [
-                     "..",
                      ":",
                      "<",
                      ">",

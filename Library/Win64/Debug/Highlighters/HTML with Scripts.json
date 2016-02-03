@@ -3,8 +3,8 @@
       "Info": {
          "General": {
             "MultiHighlighter": true,
-            "Version": "1.0",
-            "Date": "28.10.2015",
+            "Version": "1.3",
+            "Date": "26.01.2016",
             "Sample": [
                "<!DOCTYPE HTML>\r\n",
                "<!-- Hello World in HTML -->\r\n",
@@ -30,7 +30,7 @@
          "SubRules": {
             "Range": [
                {
-                  "Type": "Comment",
+                  "Type": "BlockComment",
                   "Attributes": {
                      "Element": "Comment"
                   },
@@ -99,7 +99,7 @@
                            "IncludeRange": "PHP"
                         },
                         {
-                           "Type": "Comment",
+                           "Type": "BlockComment",
                            "Attributes": {
                               "Element": "Comment"
                            },

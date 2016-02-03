@@ -2,8 +2,8 @@
    "Highlighter": {
       "Info": {
          "General": {
-            "Version": "1.0",
-            "Date": "28.10.2015",
+            "Version": "1.3",
+            "Date": "26.01.2016",
             "Sample": [
                "' Hello World in Visual Basic\r\n",
                "\r\n",
@@ -31,7 +31,7 @@
          "SubRules": {
             "Range": [
                {
-                  "Type": "Comment",
+                  "Type": "LineComment",
                   "Attributes": {
                      "Element": "Comment"
                   },
@@ -78,7 +78,8 @@
                      "CloseOnEndOfLine": true
                   },
                   "TokenRange": {
-                     "Open": "0"
+                     "Open": "0",
+                     "OpenBreakType": "Any"
                   }
                }
             ],
@@ -253,7 +254,6 @@
                {
                   "Type": "Symbol",
                   "Words": [
-                     "..",
                      ":",
                      ";",
                      "<",

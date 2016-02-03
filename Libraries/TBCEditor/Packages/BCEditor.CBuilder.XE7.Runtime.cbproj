@@ -293,6 +293,9 @@
         <DelphiCompile Include="..\Source\BCEditor.Editor.SyncEdit.pas">
             <BuildOrder>59</BuildOrder>
         </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.SyncEdit.Colors.pas">
+            <BuildOrder>59</BuildOrder>
+        </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.Tabs.pas">
             <BuildOrder>60</BuildOrder>
         </DelphiCompile>
@@ -321,6 +324,9 @@
             <BuildOrder>68</BuildOrder>
         </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Highlighter.Colors.pas">
+            <BuildOrder>69</BuildOrder>
+        </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Highlighter.Comments.pas">
             <BuildOrder>69</BuildOrder>
         </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Highlighter.Info.pas">

@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "09.01.2016",
+            "Date": "26.01.2016",
             "Sample": [
                "<%\r\n",
                "response.write(\"Hello World!\")\r\n",
@@ -35,7 +35,7 @@
                   "SubRules": {
                      "Range": [
                         {
-                           "Type": "Comment",
+                           "Type": "BlockComment",
                            "Attributes": {
                               "Element": "Comment"
                            },
@@ -45,7 +45,7 @@
                            }
                         },
                         {
-                           "Type": "Comment",
+                           "Type": "LineComment",
                            "Attributes": {
                               "Element": "Comment"
                            },

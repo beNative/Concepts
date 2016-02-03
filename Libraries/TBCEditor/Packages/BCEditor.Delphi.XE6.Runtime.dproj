@@ -181,6 +181,7 @@
         <DCCReference Include="..\Source\BCEditor.Editor.SpecialChars.EndOfLine.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.SpecialChars.Selection.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.SyncEdit.pas"/>
+        <DCCReference Include="..\Source\BCEditor.Editor.SyncEdit.Colors.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Tabs.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Undo.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Undo.Item.pas"/>
@@ -192,6 +193,7 @@
         <DCCReference Include="..\Source\BCEditor.Highlighter.pas"/>
         <DCCReference Include="..\Source\BCEditor.Highlighter.Attributes.pas"/>
         <DCCReference Include="..\Source\BCEditor.Highlighter.Colors.pas"/>
+        <DCCReference Include="..\Source\BCEditor.Highlighter.Comments.pas"/>
         <DCCReference Include="..\Source\BCEditor.Highlighter.Info.pas"/>
         <DCCReference Include="..\Source\BCEditor.Highlighter.JSONImporter.pas"/>
         <DCCReference Include="..\Source\BCEditor.Highlighter.Rules.pas"/>

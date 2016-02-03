@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "09.01.2016",
+            "Date": "26.01.2016",
             "Sample": [
                "REGBS   EQU     $1000     ; location of on-board peripherals\r\n",
                "PAO     EQU     0         ; port A offset from REGBS\r\n",
@@ -24,7 +24,7 @@
          "SubRules": {
             "Range": [
                {
-                  "Type": "Comment",
+                  "Type": "LineComment",
                   "Attributes": {
                      "Element": "Comment"
                   },
@@ -36,7 +36,7 @@
                   }
                },
                {
-                  "Type": "Comment",
+                  "Type": "LineComment",
                   "Attributes": {
                      "Element": "Comment"
                   },
