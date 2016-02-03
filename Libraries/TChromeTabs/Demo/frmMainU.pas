@@ -33,15 +33,13 @@ uses
   frameChromeTabStyleU,
 
   {$if CompilerVersion >= 21.0}ChromeTabsGlassForm,{$ifend}
-  {$if CompilerVersion >= 28.0}System.Actions,{$ifend}
-  {$if CompilerVersion >= 29.0}System.ImageList,{$ifend}
 
   ChromeTabs,
   ChromeTabsTypes,
   ChromeTabsUtils,
   ChromeTabsControls,
   ChromeTabsClasses,
-  ChromeTabsLog, System.Actions;
+  ChromeTabsLog, System.Actions, System.ImageList;
 
 type
   TFormType = {$if CompilerVersion >= 21.0}

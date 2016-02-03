@@ -749,7 +749,8 @@ implementation
 uses
   zObjInspList,
   zStringsDialog,
-  zGraphicDialog;
+  zGraphicDialog,
+  DDuce.Logger;
 
 resourcestring
   SDialogDerivedErr =
@@ -886,6 +887,7 @@ begin
   LPropList := TzRttiType(LType).GetUsedProperties;
   for LProp in LPropList do
     if LProp.Visibility = mvPublished then
+    //if LProp.Visibility in [mvPublic, mvPublished] then // TS
       Exit(True);
 end;
 
@@ -1498,6 +1500,7 @@ var
     LPropList := TzRttiType(LType).GetUsedProperties;
     for LProp in LPropList do
       if LProp.Visibility = mvPublished then
+      //if LProp.Visibility in [mvPublic, mvPublished] then // TS
         if (LProp.PropertyType.TypeKind = tkClass) then
         begin
           s := LProp.PropertyType.ToString;
@@ -1567,6 +1570,7 @@ var
     LPropList := TzRttiType(FRttiType).GetUsedProperties;
     for LProp in LPropList do
       if LProp.Visibility = mvPublished then
+      //if LProp.Visibility in [mvPublic, mvPublished] then // TS
       begin
         Allow := True;
         LQName := QualifiedName + '.' + LProp.Name;
@@ -1643,7 +1647,8 @@ var
                 FCircularLinkProps.Add(LQName);
             FPropInstance.Add(LQName, LInstance);
           end
-          else if (PItem.IsSet) then
+          //else if (LProp.Visibility = mvPublished) and (PItem.IsSet) then // TS
+          else if PItem.IsSet then
           begin
             EnumSet;
           end;
@@ -2614,7 +2619,6 @@ begin
   Result := DoExpandItem(PItem);
   if Result then
     UpdateProperties(True);
-
 end;
 
 procedure TzCustomObjInspector.CollapseAll;

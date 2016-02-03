@@ -135,7 +135,7 @@ type
     class function CreatezObjectInspector(
       AOwner      : TComponent;
       AParent     : TWinControl;
-      AObject     : TObject;
+      AObject     : TObject = nil;
       const AName : string = ''
       ): TzObjectInspector; static;
     {$ENDIF}

@@ -9,31 +9,31 @@
                 "Name": "Tim Sinaeve",
                 "Mail": "",
                 "Email": "tim.sinaeve@gmail.com"
-            }
+            }     
         },
         "Editor": {
             "Colors": {
                 "Background": "clWhite",
                 "ActiveLineBackground": "clYellow",
-                "CodeFoldingActiveLineBackground": "$00E6FAFF",
+                "CodeFoldingActiveLineBackground": "clYellow",
                 "CodeFoldingBackground": "clWhite",
-                "CodeFoldingCollapsedLine": "$00CC9999",
-                "CodeFoldingFoldingLineHighlight": "$00CC9999",
-                "CodeFoldingFoldingLine": "$00CC9999",
-                "CodeFoldingIndent": "$00CC9999",
-                "CodeFoldingIndentHighlight": "$00CC9999",
-                "CodeFoldingHintBackground": "clWindow",
-                "CodeFoldingHintBorder": "$00CC9999",
+                "CodeFoldingCollapsedLine": "clGray",
+                "CodeFoldingFoldingLineHighlight": "clGray",
+                "CodeFoldingFoldingLine": "clGray",
+                "CodeFoldingIndent": "clGray",
+                "CodeFoldingIndentHighlight": "clGray",
+                "CodeFoldingHintBackground": "clWebLightYellow",
+                "CodeFoldingHintBorder": "clGray",
                 "CodeFoldingHintText": "clWindowText",
                 "CompletionProposalBackground": "clWindow",
                 "CompletionProposalForeground": "clWindowText",
                 "CompletionProposalSelectedBackground": "clHighlight",
                 "CompletionProposalSelectedText": "clHighlightText",
-                "LeftMarginActiveLineBackground": "$00E6FAFF",
+                "LeftMarginActiveLineBackground": "clYellow",
                 "LeftMarginBackground": "clWhite",
                 "LeftMarginBorder": "clWhite",
-                "LeftMarginLineNumberLine": "$00CC9999",
-                "LeftMarginLineNumbers": "$00CC9999",
+                "LeftMarginLineNumberLine": "clGray",
+                "LeftMarginLineNumbers": "clGray",
                 "LeftMarginLineStateModified": "clYellow",
                 "LeftMarginLineStateNormal": "clLime",
                 "LeftMarginBookmarkPanel": "clWhite",
@@ -41,15 +41,15 @@
                 "MatchingPairUnderline": "$00CC9999",
                 "MatchingPairUnmatched": "clYellow",
                 "MinimapBookmark": "clGreen",
-                "MinimapVisibleLines": "$00E6FAFF",
+                "MinimapVisibleLines": "clWebLemonChiffon",
                 "RightMargin": "clSilver",
                 "RightMovingEdge": "clSilver",
-                "SearchHighlighterBackground": "$0078AAFF",
+                "SearchHighlighterBackground": "clWebDarkOrange",
                 "SearchHighlighterForeground": "clWindowText",
                 "SearchMapActiveLine": "$00F0F0F0",
                 "SearchMapBackground": "$00F4F4F4",
                 "SearchMapForeground": "$0078AAFF",
-                "SelectionBackground": "$00A56D53",
+                "SelectionBackground": "clGray",
                 "SelectionForeground": "clHighlightText",
                 "WordWrapIndicatorArrow": "clNavy",
                 "WordWrapIndicatorLines": "clBlack"
@@ -63,7 +63,7 @@
             },
             "FontSizes": {
                 "LineNumbers": "8",
-                "Text": "11",
+                "Text": "8",
                 "Minimap": "1",
                 "CodeFoldingHint": "8",
                 "CompletionProposal": "8"
@@ -153,13 +153,13 @@
             },
             {
                 "Name": "Method",
-                "Foreground": "clPurple",
+                "Foreground": "clBlue",
                 "Background": "clWindow",
                 "Style": "Bold"
             },
             {
                 "Name": "MethodName",
-                "Foreground": "clNavy",
+                "Foreground": "clBlack",
                 "Background": "clWindow"
             }
         ]

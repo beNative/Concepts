@@ -73,12 +73,14 @@ procedure AutoSizeDisplayWidths(
   AOffset  : Integer = 0
 ); overload;
 
+function AskConfirmation(const AMessage: string): Boolean;
+
 implementation
 
 uses
   Winapi.Windows, Winapi.Messages,
   System.StrUtils, System.Variants, System.Character,
-  Vcl.Forms;
+  Vcl.Forms, Vcl.Dialogs;
 
 var
   FRtti: TRttiContext;
@@ -597,6 +599,21 @@ begin
   finally
     ADataSet.EnableControls;
   end;
+end;
+
+function AskConfirmation(const AMessage: string): Boolean;
+var
+  MR: TModalResult;
+begin
+  MR := MessageDlg(AMessage, mtConfirmation, [mbYes, mbNo], 0);
+  if MR = mrYes then
+  begin
+    Result := True;
+  end
+  else
+  begin
+    Result := False;
+  end
 end;
 
 {$ENDREGION}

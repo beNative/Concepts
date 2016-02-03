@@ -21,9 +21,9 @@ unit Concepts.BCEditor.Form;
 interface
 
 uses
-  System.Classes, System.Actions,
+  System.Classes, System.Actions, System.SysUtils,
   Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms,
-  Vcl.ActnList, Vcl.ToolWin,
+  Vcl.ActnList, Vcl.ToolWin, Vcl.Graphics,
 
   DDuce.Components.PropertyInspector, DDuce.Components.Gridview,
 
@@ -50,31 +50,55 @@ type
     aclMain            : TActionList;
     actSaveHighlighter : TAction;
     actSaveColorMap    : TAction;
-    tlbHighlighter     : TToolBar;
-    tlbColors          : TToolBar;
-    btnSaveHighlighter : TToolButton;
-    btnSaveColorMap    : TToolButton;
     pnlHighlighter     : TPanel;
     pnlColors          : TPanel;
-    tsHighlighters     : TTabSheet;
     pnlHLLeft          : TPanel;
     pnlHLRight         : TPanel;
     pnlCMLeft          : TPanel;
     pnlCMRight         : TPanel;
+    tlbComponentInspector: TToolBar;
+    actCollapseAll: TAction;
+    actExpandAll: TAction;
+    btnCollapseAll: TToolButton;
+    btnExpandAll: TToolButton;
+    tlbHighlighter: TToolBar;
+    btnSaveHighlighter: TToolButton;
+    tlbColors: TToolBar;
+    btnSaveColorMap: TToolButton;
+    pnlLeftBottom: TPanel;
+    pnlExampleCodeHeader: TPanel;
+    splLeftHorizontal: TSplitter;
+    pnlCMRightRight: TPanel;
     {$ENDREGION}
 
     procedure actSaveHighlighterExecute(Sender: TObject);
     procedure actSaveColorMapExecute(Sender: TObject);
+    procedure actCollapseAllExecute(Sender: TObject);
+    procedure actExpandAllExecute(Sender: TObject);
 
   private
     FObjectInspector   : TzObjectInspector;
     FBCEditor          : TBCEditor;
     FHighlighterEditor : TBCEditor;
     FColorSchemeEditor : TBCEditor;
+    FExampleCodeEditor : TBCEditor;
     FHighlighters      : IList<string>;
     FColorMaps         : IList<string>;
     FHLGrid            : TGridView;
     FCMGrid            : TGridView;
+    FColorGrid         : TGridView;
+
+    procedure FColorGridCellText(
+      Sender    : TObject;
+      Cell      : TGridCell;
+      var Value : string
+    );
+
+    procedure FColorGridCellColors(
+      Sender : TObject;
+      Cell   : TGridCell;
+      Canvas : TCanvas
+    );
 
     procedure FHLGridCellText(
       Sender    : TObject;
@@ -86,6 +110,12 @@ type
       Sender   : TObject;
       Cell     : TGridCell;
       Selected : Boolean
+    );
+
+    procedure FHLGridChanging(
+      Sender       : TObject;
+      var Cell     : TGridCell;
+      var Selected : Boolean
     );
 
     procedure FCMGridCellText(
@@ -100,6 +130,12 @@ type
       Selected : Boolean
     );
 
+    procedure FCMGridChanging(
+      Sender       : TObject;
+      var Cell     : TGridCell;
+      var Selected : Boolean
+    );
+
     function FObjectInspectorBeforeAddItem(
       Sender : TControl;
       PItem  : PPropItem
@@ -107,8 +143,13 @@ type
 
     procedure LoadHighlighters;
     procedure LoadColorMaps;
+
+  protected
+    procedure UpdateActions; override;
+
   public
     procedure AfterConstruction; override;
+
 
   end;
 
@@ -116,11 +157,11 @@ implementation
 
 uses
   System.IOUtils, System.Types, System.Rtti,
-  Vcl.Graphics,
+  Vcl.GraphUtil,
 
   DDuce.Components.Factories, DDuce.Logger,
 
-  Concepts.Factories;
+  Concepts.Factories, Concepts.Resources, Concepts.Utils;
 
 {$R *.dfm}
 
@@ -128,6 +169,23 @@ uses
 procedure TfrmBCEditor.AfterConstruction;
 begin
   inherited AfterConstruction;
+
+  FColorGrid := TDDuceComponents.CreateGridView(Self, pnlCMRightRight);
+  FColorGrid.GridLines := False;
+  with FColorGrid.Columns.Add do
+  begin
+    Caption := 'Name';
+    Width := 150;
+  end;
+  with FColorGrid.Columns.Add do
+  begin
+    Caption := 'Color';
+    Width := 50;
+  end;
+  FColorGrid.OnGetCellText   := FColorGridCellText;
+  FColorGrid.OnGetCellColors := FColorGridCellColors;
+  FColorGrid.Rows.Count := WebNamedColorsCount;
+
   FHLGrid := TDDuceComponents.CreateGridView(Self, pnlHLLeft);
   FHLGrid.Header.Font.Style := [fsBold];
   FHLGrid.GridLines := False;
@@ -138,6 +196,7 @@ begin
   end;
   FHLGrid.OnGetCellText := FHLGridCellText;
   FHLGrid.OnChange      := FHLGridChange;
+  FHLGrid.OnChanging    := FHLGridChanging;
 
   FCMGrid := TDDuceComponents.CreateGridView(Self, pnlCMLeft);
   FCMGrid.Header.Font.Style := [fsBold];
@@ -148,6 +207,7 @@ begin
     Width := 100;
   end;
   FCMGrid.OnGetCellText := FCMGridCellText;
+  FCMGrid.OnChanging    := FCMGridChanging;
   FCMGrid.OnChange      := FCMGridChange;
 
   FBCEditor := TConceptFactories.CreateBCEditor(
@@ -171,15 +231,25 @@ begin
     'JSON',
     'tsColors'
   );
+  FExampleCodeEditor := TConceptFactories.CreateBCEditor(
+    Self,
+    pnlLeftBottom,
+    '',
+    'Object Pascal',
+    'tsColors'
+  );
 
   FObjectInspector := TConceptFactories.CreatezObjectInspector(
     Self,
-    pnlLeft,
-    FBCEditor
+    pnlLeft
+  //  FBCEditor
   );
-  FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
 
-  FObjectInspector.ExpandAll;
+  FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
+  FObjectInspector.Component := FBCEditor;
+
+
+//  FObjectInspector.ExpandAll;
 
   FHighlighters := TCollections.CreateList<string>;
   FColorMaps    := TCollections.CreateList<string>;
@@ -191,6 +261,16 @@ end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
+procedure TfrmBCEditor.actCollapseAllExecute(Sender: TObject);
+begin
+  FObjectInspector.CollapseAll;
+end;
+
+procedure TfrmBCEditor.actExpandAllExecute(Sender: TObject);
+begin
+  FObjectInspector.ExpandAll;
+end;
+
 procedure TfrmBCEditor.actSaveColorMapExecute(Sender: TObject);
 var
   S : string;
@@ -222,11 +302,49 @@ procedure TfrmBCEditor.FCMGridChange(Sender: TObject; Cell: TGridCell;
 var
   S : string;
 begin
-  S := FColorMaps[Cell.Row];
-  S := FBCEditor.GetColorsFileName(S);
-  FColorSchemeEditor.LoadFromFile(S);
-  FBCEditor.Highlighter.Colors.LoadFromFile(S);
-  FCMGrid.SetFocus;
+  if not FColorSchemeEditor.Modified then
+  begin
+    S := FColorMaps[Cell.Row];
+    S := FBCEditor.GetColorsFileName(S);
+    FColorSchemeEditor.LoadFromFile(S);
+    FBCEditor.Highlighter.Colors.LoadFromFile(S);
+    FExampleCodeEditor.Highlighter.Colors.LoadFromFile(S);
+    FCMGrid.SetFocus;
+  end;
+end;
+
+procedure TfrmBCEditor.FCMGridChanging(Sender: TObject; var Cell: TGridCell;
+  var Selected: Boolean);
+begin
+  if FColorSchemeEditor.Modified then
+  begin
+    if AskConfirmation('Save?') then
+    begin
+      actSaveColorMap.Execute;
+    end
+    else
+    begin
+      Cell := FCMGrid.CellFocused;
+    end;
+  end;
+end;
+
+procedure TfrmBCEditor.FColorGridCellColors(Sender: TObject; Cell: TGridCell;
+  Canvas: TCanvas);
+begin
+  if Cell.Col = 1 then
+  begin
+    Canvas.Brush.Color := WebNamedColors[Cell.Row].Value;
+  end;
+end;
+
+procedure TfrmBCEditor.FColorGridCellText(Sender: TObject; Cell: TGridCell;
+  var Value: string);
+begin
+  if Cell.Col = 0 then
+  begin
+    Value := WebNamedColors[Cell.Row].Name;
+  end;
 end;
 
 procedure TfrmBCEditor.FHLGridCellText(Sender: TObject; Cell: TGridCell;
@@ -244,14 +362,32 @@ begin
   S := FBCEditor.GetHighlighterFileName(S);
   FHighlighterEditor.LoadFromFile(S);
   FBCEditor.Highlighter.LoadFromFile(S);
-  FBCEditor.Text := FBCEditor.Highlighter.Info.General.Sample;
+  FExampleCodeEditor.Highlighter.LoadFromFile(S);
+  FExampleCodeEditor.Text := FBCEditor.Highlighter.Info.General.Sample;
   FHLGrid.SetFocus;
+end;
+
+procedure TfrmBCEditor.FHLGridChanging(Sender: TObject; var Cell: TGridCell;
+  var Selected: Boolean);
+begin
+  if FHighlighterEditor.Modified then
+  begin
+    if AskConfirmation('Save?') then
+    begin
+      actSaveHighlighter.Execute;
+    end
+    else
+    begin
+      Cell := FHLGrid.CellFocused;
+    end;
+  end;
 end;
 
 function TfrmBCEditor.FObjectInspectorBeforeAddItem(Sender: TControl;
   PItem: PPropItem): Boolean;
 begin
-  Result := not (PItem.Prop.PropertyType is TRttiMethodType);
+  Result := not PItem.Name.Contains('ComObject');
+  Result := Result and (not (PItem.Prop.PropertyType is TRttiMethodType));
 end;
 {$ENDREGION}
 
@@ -270,6 +406,13 @@ begin
   FHLGrid.Rows.Count := FHighlighters.Count;
   FHLGrid.Refresh;
   FHLGrid.AutoSizeCols;
+end;
+
+procedure TfrmBCEditor.UpdateActions;
+begin
+  inherited UpdateActions;
+  actSaveHighlighter.Enabled := FHighlighterEditor.Modified;
+  actSaveColorMap.Enabled    := FColorSchemeEditor.Modified;
 end;
 {$ENDREGION}
 
