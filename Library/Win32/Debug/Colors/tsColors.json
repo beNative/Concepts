@@ -136,13 +136,13 @@
             {
                 "Name": "AssemblerComment",
                 "Foreground": "clGray",
-                "Background": "$00EEFFFF",
+                "Background": "clWindow",
                 "Style": "Italic"
             },
             {
                 "Name": "AssemblerReservedWord",
                 "Foreground": "clBlue",
-                "Background": "$00EEFFFF",
+                "Background": "clWindow",
                 "Style": "Bold"
             },
             {

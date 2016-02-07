@@ -96,6 +96,7 @@ type
   TzObjectHost = class;
   TzInspDialog = class;
   PPropItem = ^TPropItem;
+  TVisibilitySet = set of TMemberVisibility;
 
   TPropItem = record
     Parent: PPropItem;
@@ -310,7 +311,7 @@ type
     procedure PropInfoChanged;
   public
     constructor Create(AOwner: TComponent;
-      Inspector: TzCustomObjInspector); overload;
+      Inspector: TzCustomObjInspector); reintroduce; overload;
     { Do not publish any property ! }
     property PropInfo: PPropItem read FPropItem write SetPropItem;
     property AlignWithMargins;
@@ -370,15 +371,19 @@ type
     FSortByCategory: Boolean;
     FDefaultCategoryName: String;
     FLockUpdate: Boolean;
+    FVisibility: TVisibilitySet;
     procedure SetComponent(Value: TObject);
     function GetItemOrder(PItem: PPropItem): Integer;
     procedure SetSortByCategory(const Value: Boolean);
+    function GetVisibility: TVisibilitySet;
+    procedure SetVisibility(const Value: TVisibilitySet);
   protected
     procedure UpdateVisibleItems;
     procedure UpdateItems;
     procedure ComponentChanged; virtual;
     procedure Changed; virtual;
   public
+
     procedure Invalidate; override;
     procedure BeginUpdate;
     procedure EndUpdate;
@@ -392,6 +397,7 @@ type
     function IsValueNoDefault(QualifiedName: String; Value: String): Boolean;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure AfterConstruction; override;
     property Component: TObject read FComponent write SetComponent;
     // property ComponentRoot: TCustomForm read GetComponentRoot;
     property ComponentClassType: TClass read FComponentClassType;
@@ -401,6 +407,8 @@ type
       write SetSortByCategory;
     property DefaultCategoryName: String read FDefaultCategoryName
       write FDefaultCategoryName;
+    property Visibility: TVisibilitySet
+      read GetVisibility write SetVisibility;
     property OnBeforeAddItem: TPropItemEvent read FOnBeforeAddItem
       write FOnBeforeAddItem;
   end;
@@ -750,7 +758,8 @@ uses
   zObjInspList,
   zStringsDialog,
   zGraphicDialog,
-  DDuce.Logger;
+  zCollectionEditor;
+  //DDuce.Logger;
 
 resourcestring
   SDialogDerivedErr =
@@ -886,8 +895,8 @@ begin
   LType := LCtx.GetType(Obj.ClassInfo);
   LPropList := TzRttiType(LType).GetUsedProperties;
   for LProp in LPropList do
-    if LProp.Visibility = mvPublished then
-    //if LProp.Visibility in [mvPublic, mvPublished] then // TS
+    //if LProp.Visibility = mvPublished then
+    if LProp.Visibility in [mvPublic, mvPublished] then // TS
       Exit(True);
 end;
 
@@ -1312,6 +1321,11 @@ begin
     Result := 0;
 end;
 
+function TzObjInspectorBase.GetVisibility: TVisibilitySet;
+begin
+  Result := FVisibility;
+end;
+
 procedure TzObjInspectorBase.Invalidate;
 begin
   if not FLockUpdate then
@@ -1386,6 +1400,12 @@ begin
     FPropsCategory.Add(PropertyName, L);
 end;
 
+procedure TzObjInspectorBase.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  FVisibility := [mvPublished];
+end;
+
 procedure TzObjInspectorBase.BeginUpdate;
 begin
   FLockUpdate := True;
@@ -1444,6 +1464,11 @@ begin
   end;
 end;
 
+procedure TzObjInspectorBase.SetVisibility(const Value: TVisibilitySet);
+begin
+  FVisibility := Value;
+end;
+
 procedure TzObjInspectorBase.UpdateItems;
 var
   LCategory: TList<String>;
@@ -1499,8 +1524,7 @@ var
       Exit(False);
     LPropList := TzRttiType(LType).GetUsedProperties;
     for LProp in LPropList do
-      if LProp.Visibility = mvPublished then
-      //if LProp.Visibility in [mvPublic, mvPublished] then // TS
+      if LProp.Visibility in Visibility then
         if (LProp.PropertyType.TypeKind = tkClass) then
         begin
           s := LProp.PropertyType.ToString;
@@ -1569,8 +1593,7 @@ var
     FRttiType := FContext.GetType(AInstance.ClassInfo);
     LPropList := TzRttiType(FRttiType).GetUsedProperties;
     for LProp in LPropList do
-      if LProp.Visibility = mvPublished then
-      //if LProp.Visibility in [mvPublic, mvPublished] then // TS
+      if LProp.Visibility in Visibility then
       begin
         Allow := True;
         LQName := QualifiedName + '.' + LProp.Name;
@@ -1647,8 +1670,7 @@ var
                 FCircularLinkProps.Add(LQName);
             FPropInstance.Add(LQName, LInstance);
           end
-          //else if (LProp.Visibility = mvPublished) and (PItem.IsSet) then // TS
-          else if PItem.IsSet then
+          else if (LProp.Visibility = mvPublished) and (PItem.IsSet) then // TS
           begin
             EnumSet;
           end;
@@ -4073,9 +4095,11 @@ begin
     vtObj, vtIcon:
       begin
         if PItem.Value.AsObject is TStrings then
-          Exit(TStringsDialog)
+          Result := TStringsDialog
         else if PItem.Value.AsObject is TGraphic then
-          Exit(TGraphicDialog);
+          Result := TGraphicDialog
+        else if PItem.Value.AsObject is TCollection then
+          Result := TzCollectionEditorDialog
       end;
     vtColor:
       Result := TColorDialog;
@@ -4353,7 +4377,6 @@ begin
   if PItem.Prop.PropertyType.TypeKind = tkMethod then
   begin
     Result := GetMethodName(Value, PItem.ComponentRoot);
-    Exit;
   end;
   Result := Value.ToString;
 end;
@@ -4417,25 +4440,33 @@ end;
 
 class function TzCustomValueManager.HasDialog(const PItem: PPropItem): Boolean;
 begin
+//  Logger.Enter('TzCustomValueManager.HasDialog');
   Result := False;
   case GetValueType(PItem) of
     vtObj:
       begin
         if PItem.Value.AsObject is TStrings then
-          Exit(True)
+          Result := True
         else if PItem.Value.AsObject is TGraphic then
-          Exit(True);
-
+          Result := True
+        else if PItem.Value.AsObject is TCollection then
+          Result := True;
+      end;
+    vtString:
+      begin
+        Result := True;
       end;
     vtColor, vtFont, vtIcon:
       begin
-        Exit(True);
+        Result := True;
       end;
   end;
+//  Logger.Leave('TzCustomValueManager.HasDialog');
 end;
 
 class function TzCustomValueManager.HasList(const PItem: PPropItem): Boolean;
 begin
+//  Logger.Enter('TzCustomValueManager.HasList');
   Result := False;
 
   case GetValueType(PItem) of
@@ -4443,13 +4474,13 @@ begin
       begin
         Result := IsPropTypeDerivedFromClass(PItem.Prop.PropertyType,
           TComponent);
-        Exit;
       end;
     vtMethod, vtBool, vtColor, vtCursor, vtSetElement, vtEnum:
       begin
-        Exit(True);
+        Result := True;
       end;
   end;
+//  Logger.Leave('TzCustomValueManager.HasList');
 end;
 
 class procedure TzCustomValueManager.PaintValue(Canvas: TCanvas; Index: Integer;

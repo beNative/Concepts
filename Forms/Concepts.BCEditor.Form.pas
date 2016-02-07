@@ -66,9 +66,14 @@ type
     tlbColors: TToolBar;
     btnSaveColorMap: TToolButton;
     pnlLeftBottom: TPanel;
-    pnlExampleCodeHeader: TPanel;
     splLeftHorizontal: TSplitter;
     pnlCMRightRight: TPanel;
+    splVerticalRight: TSplitter;
+    pgcLeftBottoù: TPageControl;
+    tsSampleCode: TTabSheet;
+    pnlExampleCodeHeader: TPanel;
+    TabSheet1: TTabSheet;
+    mmo1: TMemo;
     {$ENDREGION}
 
     procedure actSaveHighlighterExecute(Sender: TObject);
@@ -156,7 +161,7 @@ type
 implementation
 
 uses
-  System.IOUtils, System.Types, System.Rtti,
+  System.IOUtils, System.Types, System.Rtti, System.TypInfo,
   Vcl.GraphUtil,
 
   DDuce.Components.Factories, DDuce.Logger,
@@ -233,7 +238,7 @@ begin
   );
   FExampleCodeEditor := TConceptFactories.CreateBCEditor(
     Self,
-    pnlLeftBottom,
+    tsSampleCode,
     '',
     'Object Pascal',
     'tsColors'
@@ -242,14 +247,14 @@ begin
   FObjectInspector := TConceptFactories.CreatezObjectInspector(
     Self,
     pnlLeft
-  //  FBCEditor
   );
 
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
+  FObjectInspector.Visibility := [mvPublished];
   FObjectInspector.Component := FBCEditor;
+  FObjectInspector.ExpandAll;
 
 
-//  FObjectInspector.ExpandAll;
 
   FHighlighters := TCollections.CreateList<string>;
   FColorMaps    := TCollections.CreateList<string>;
@@ -411,8 +416,10 @@ end;
 procedure TfrmBCEditor.UpdateActions;
 begin
   inherited UpdateActions;
-  actSaveHighlighter.Enabled := FHighlighterEditor.Modified;
-  actSaveColorMap.Enabled    := FColorSchemeEditor.Modified;
+  actSaveHighlighter.Enabled :=
+    tsHighlighter.Visible and FHighlighterEditor.Modified;
+  actSaveColorMap.Enabled    :=
+    tsColors.Visible and FColorSchemeEditor.Modified;
 end;
 {$ENDREGION}
 

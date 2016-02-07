@@ -425,6 +425,7 @@ uses
   Concepts.DDetours.Form in 'Forms\Concepts.DDetours.Form.pas' {frmDDetours},
   //{$IFDEF ZOBJECTINSPECTOR}
   zBase in 'Libraries\TzObjectInspector\zBase.pas',
+  zCollectionEditor in 'Libraries\TzObjectInspector\zCollectionEditor.pas' {zCollectionEditorDialog},
   zCanvasStack in 'Libraries\TzObjectInspector\zCanvasStack.pas',
   zGraphicDialog in 'Libraries\TzObjectInspector\zGraphicDialog.pas' {GraphicDialog},
   zObjInspDialogs in 'Libraries\TzObjectInspector\zObjInspDialogs.pas',
@@ -436,8 +437,7 @@ uses
   //{$ENDIF }
   Concepts.zObjectInspector.Form in 'Forms\Concepts.zObjectInspector.Form.pas' {frmzObjectInspector},
   Concepts.ComponentInspector in 'Concepts.ComponentInspector.pas' {frmComponentInspector};
-
-
+  
 {$R *.res}
 
 begin

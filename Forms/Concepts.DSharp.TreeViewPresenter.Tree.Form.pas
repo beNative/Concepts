@@ -31,6 +31,8 @@ uses
 
   VirtualTrees,
 
+  zObjInspector,
+
   DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter,
   DSharp.Bindings, DSharp.Windows.CustomPresenter,
 
@@ -61,20 +63,16 @@ type
     procedure actExecuteExecute(Sender: TObject);
 
   private
-//    FPI          : TPropertyInspector;
-    FVST         : TVirtualStringTree;
-    FTVP         : TTreeViewPresenter;
-    //FVSTColumns  : TVirtualStringTree;
-    FObjectList  : IList<TReflectionData>;
-    FData        : TReflectionData;
-    FObjectList2 : IObjectList;
-    FReflection  : IReflection;
+    FOI         : TzObjectInspector;
+    FVST        : TVirtualStringTree;
+    FTVP        : TTreeViewPresenter;
+    FData       : TReflectionData;
+    FObjectList : IObjectList;
 
     procedure FTVPSelectionChanged(Sender: TObject);
 
   public
     procedure AfterConstruction; override;
-    procedure CreateFirstAttemptTreeView;
 
     procedure CreateRttiTreeview;
 
@@ -102,64 +100,29 @@ uses
 procedure TfrmTreeViewPresenterTree.AfterConstruction;
 begin
   inherited AfterConstruction;
-
   FVST  := TConceptFactories.CreateVirtualStringTree(Self, pnlTreeView);
   CreateRttiTreeview;
-
   FTVP.OnSelectionChanged := FTVPSelectionChanged;
   FTVP.UseColumnDefinitions := True;
   FTVP.TreeView := FVST;
-  //FPI   := TDDuceComponents.CreatePropertyInspector(Self, pnlLeftTop, FTVP);
+  FOI   := TConceptFactories.CreatezObjectInspector(Self, pnlLeftTop, FTVP);
 end;
 
 procedure TfrmTreeViewPresenterTree.BeforeDestruction;
 begin
   FObjectList := nil;
-  FObjectList2 := nil;
   inherited BeforeDestruction;
 end;
 
-{$ENDREGION}
-
-procedure TfrmTreeViewPresenterTree.CreateFirstAttemptTreeView;
-begin
-  FData.Filter := edtFilter.Text;
-  FTVP := TTreeViewPresenter.Create(Self);
-  with FTVP.ColumnDefinitions.Add('Name') do
-  begin
-    ValuePropertyName := 'Name';
-    Alignment         := taLeftJustify;
-    AutoSize          := True;
-  end;
-  FTVP.View.ItemsSource := FData.Types as IObjectList;
-  FTVP.View.ItemTemplate := TTypeTemplate.Create(FTVP.ColumnDefinitions);
-
-end;
-
 procedure TfrmTreeViewPresenterTree.CreateRttiTreeview;
-//var
-  //EI : Enumerable<TRttiInterfaceType>;
-  //EC : Enumerable<TRttiInstanceType>;
 begin
-  FReflection := TReflection.Create;
   FTVP := TTreeViewPresenter.Create(Self);
-  FObjectList2 := TCollections.CreateObjectList<TObject>(True) as IObjectList;
-  FTVP.View.ItemsSource := FObjectList2;
-
-
-
-
-  //FTVP.View.ItemsSource := EI.ToList as IObjectList;
+  FObjectList := TCollections.CreateObjectList<TObject>(True) as IObjectList;
+  FTVP.View.ItemsSource := FObjectList;
   FTVP.OnSelectionChanged := FTVPSelectionChanged;
-
-//  with FTVP.ColumnDefinitions.Add('Name') do
-//  begin
-//    ValuePropertyName := 'Name';
-//    Alignment         := taLeftJustify;
-//    AutoSize          := True;
-//  end;
   FTVP.View.ItemTemplate := TRttiTypeTemplate.Create;
 end;
+{$ENDREGION}
 
 {$REGION 'action handlers'}
 
@@ -173,13 +136,13 @@ begin
   Screen.Cursor := crHourGlass;
   FTVP.BeginUpdate;
   try
-    FObjectList2.Clear;
+    FObjectList.Clear;
     ET := TType.Types.Where( function(const AArg: TRttiType): Boolean
-    begin
-       Result := AArg.QualifiedName.Contains(edtFilter.Text);
-    end
+      begin
+        Result := AArg.QualifiedName.Contains(edtFilter.Text);
+      end
     );
-    FObjectList2.AddRange(ET.ToList as IObjectList);
+    FObjectList.AddRange(ET.ToList as IObjectList);
   finally
     Screen.Cursor := crDefault;
     FTVP.EndUpdate;
@@ -189,35 +152,12 @@ end;
 
 {$REGION 'event handlers'}
 procedure TfrmTreeViewPresenterTree.FTVPSelectionChanged(Sender: TObject);
-//var
-  //SI : TObject;
-  //S  : string;
 begin
-  //FPI.Objects[0] := FTVP.SelectedItem;
   if Assigned(FTVP.SelectedItem) then
   begin
-//    SI := FTVP.SelectedItem;
-//    if SI is TMemberData then
-//    begin
-//      mmoDetails.Lines.Text := Reflect.Properties(TMemberData(SI).RttiMember).ToString;
-//      S := TMemberData(SI).RttiMember.ClassName;
-//    end
-//    else if SI is TTypeData then
-//    begin
-//      mmoDetails.Lines.Text := Reflect.Properties(TTypeData(SI).RttiType).ToString;
-//      S := TTypeData(SI).RttiType.ClassName;
-//    end
-//    else if SI is TParameter then
-//    begin
-//      mmoDetails.Lines.Text := Reflect.Properties(TParameter(SI).RttiParameter).ToString;
-//      S := TParameter(SI).RttiParameter.ClassName;
-//    end;
-
     pnlType.Caption := FTVP.SelectedItem.ClassName;
     mmoDetails.Lines.Text := Reflect.Properties(FTVP.SelectedItem).ToString;
-
   end;
-
 end;
 
 {$ENDREGION}
