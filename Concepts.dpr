@@ -423,7 +423,9 @@ uses
   InstDecode in 'Libraries\DDetours\InstDecode.pas',
   {$ENDIF }
   Concepts.DDetours.Form in 'Forms\Concepts.DDetours.Form.pas' {frmDDetours},
+  //{$IFDEF ZOBJECTINSPECTOR}
   zBase in 'Libraries\TzObjectInspector\zBase.pas',
+  zCollectionEditor in 'Libraries\TzObjectInspector\zCollectionEditor.pas' {zCollectionEditorDialog},
   zCanvasStack in 'Libraries\TzObjectInspector\zCanvasStack.pas',
   zGraphicDialog in 'Libraries\TzObjectInspector\zGraphicDialog.pas' {GraphicDialog},
   zObjInspDialogs in 'Libraries\TzObjectInspector\zObjInspDialogs.pas',
@@ -432,10 +434,10 @@ uses
   zRecList in 'Libraries\TzObjectInspector\zRecList.pas',
   zStringsDialog in 'Libraries\TzObjectInspector\zStringsDialog.pas' {StringsDialog},
   zUtils in 'Libraries\TzObjectInspector\zUtils.pas',
+  //{$ENDIF }
   Concepts.zObjectInspector.Form in 'Forms\Concepts.zObjectInspector.Form.pas' {frmzObjectInspector},
-  Concepts.ComponentInspector in 'Concepts.ComponentInspector.pas' {frmComponentInspector},
-  Concepts.Spring.Persistence.Form in 'Forms\Concepts.Spring.Persistence.Form.pas' {frmSpringPersistence};
-
+  Concepts.ComponentInspector in 'Concepts.ComponentInspector.pas' {frmComponentInspector};
+  
 {$R *.res}
 
 begin
@@ -443,14 +445,7 @@ begin
   ReportMemoryLeaksOnShutdown := DebugHook > 0;
   {$WARNINGS ON}
   Application.Initialize;
-//  TConcepts.RegisterConcepts;
-  ConceptManager.Register(
-    TfrmZMQConcept,
-    'ZeroMQ',
-    'ZeroMQ',
-    'ZeroMQ demo'
-  );
-
+  TConcepts.RegisterConcepts;
   Application.CreateForm(TdmResources, dmResources);
   if ConceptManager.ItemList.Count = 1 then
   begin
