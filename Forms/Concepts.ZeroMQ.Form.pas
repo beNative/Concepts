@@ -28,65 +28,73 @@ uses
 
   ZeroMQ;
 
+{ IZeroMQ
+    .Start(ZMQSocket) => IZMQPair  Creates a IZMQPair which supports the given
+                         socket.
+    .Monitor => connect a TZMQEventProc which will be called for the given
+                set of events.
+ }
+
 type
   TfrmZMQConcept = class(TForm)
     {$REGION 'designer controls'}
-    aclMain                  : TActionList;
-    actBind                  : TAction;
-    actConnect               : TAction;
-    actCreateNew             : TAction;
-    actReceive               : TAction;
-    actSend                  : TAction;
-    actSubscribe             : TAction;
-    btnClientConnect         : TButton;
-    btnCreateNew             : TButton;
-    btnReceive               : TButton;
-    btnSend                  : TButton;
-    btnServerBind            : TButton;
-    btnSubscribe             : TButton;
-    edtAddress               : TLabeledEdit;
-    edtFilter                : TLabeledEdit;
-    edtPort                  : TLabeledEdit;
-    lbxEvents                : TCheckListBox;
-    mmoLog                   : TMemo;
-    mmoReceive               : TMemo;
-    mmoSend                  : TMemo;
-    pnlClient                : TPanel;
-    pnlConnectionString      : TPanel;
-    pnlZMQSocket             : TPanel;
-    rgpTransport             : TRadioGroup;
-    rgpZMQSocket             : TRadioGroup;
-    shpDealerRouter          : TShape;
-    shpPair                  : TShape;
-    shpPublisherSubscriber   : TShape;
-    shpPullPush              : TShape;
-    shpRequesterResponder    : TShape;
-    shpSpacer                : TShape;
-    shpStream                : TShape;
-    shpXPublisherXSubscriber : TShape;
+    aclMain             : TActionList;
+    actBind             : TAction;
+    actClose            : TAction;
+    actConnect          : TAction;
+    actCreateNew        : TAction;
+    actReceive          : TAction;
+    actSend             : TAction;
+    actSubscribe        : TAction;
+    btnClientConnect    : TButton;
+    btnCreateNew        : TButton;
+    btnReceive          : TButton;
+    btnSend             : TButton;
+    btnServerBind       : TButton;
+    btnSubscribe        : TButton;
+    edtAddress          : TLabeledEdit;
+    edtFilter           : TLabeledEdit;
+    edtPort             : TLabeledEdit;
+    lbxEvents           : TCheckListBox;
+    mmoLog              : TMemo;
+    mmoReceive          : TMemo;
+    mmoSend             : TMemo;
+    pnlClient           : TPanel;
+    pnlConnectionString : TPanel;
+    rgpTransport        : TRadioGroup;
+    rgpZMQSocket        : TRadioGroup;
     {$ENDREGION}
 
-    procedure actSendExecute(Sender: TObject);
-    procedure actConnectExecute(Sender: TObject);
     procedure actBindExecute(Sender: TObject);
-    procedure actReceiveExecute(Sender: TObject);
-    procedure actSubscribeExecute(Sender: TObject);
+    procedure actCloseExecute(Sender: TObject);
+    procedure actConnectExecute(Sender: TObject);
     procedure actCreateNewExecute(Sender: TObject);
+    procedure actReceiveExecute(Sender: TObject);
+    procedure actSendExecute(Sender: TObject);
+    procedure actSubscribeExecute(Sender: TObject);
 
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure lbxEventsClickCheck(Sender: TObject);
 
   private
     FZMQ       : IZeroMQ;
     FPair      : IZMQPair;
     FEventProc : TZMQEventProc;
+    FEvents    : ZMQEvents;
 
   protected
+    function GetEvents: ZMQEvents;
+    procedure SetEvents(const Value: ZMQEvents);
+    function GetSocket: ZMQSocket;
+    procedure SetSocket(const Value: ZMQSocket);
     function GetConnectionString: string;
     function GetPort: Integer;
-    function GetZMQSocket: ZMQSocket;
+    procedure SetPort(const Value: Integer);
     function GetTransport: string;
+    procedure SetTransport(const Value: string);
 
     procedure UpdateActions; override;
+    procedure UpdateEvents;
 
     property ZMQ: IZeroMQ
       read FZMQ write FZMQ;
@@ -94,11 +102,21 @@ type
     property Pair: IZMQPair
       read FPair write FPair;
 
+    property Socket: ZMQSocket
+      read GetSocket write SetSocket;
+
     property Port: Integer
-      read GetPort;
+      read GetPort write SetPort;
+
+    property Transport: string
+      read GetTransport write SetTransport;
 
     property ConnectionString: string
       read GetConnectionString;
+
+    { Set of all event types to monitor. }
+    property Events: ZMQEvents
+      read GetEvents write SetEvents;
 
   public
     procedure AfterConstruction; override;
@@ -111,7 +129,32 @@ type
 
   end;
 
+const
+  ZMQTransports : array[0..4] of string = (
+    'tcp',
+    'inproc', // every connection needs to share the same IZeroMQ
+    'ipc',
+    'pgm',
+    'egm'
+  );
+  ZMQEventNames : array[ZMQEvent] of string = (
+    'Connected',
+    'Delayed',
+    'Retried',
+    'Listening',
+    'BindFailed',
+    'Accepted',
+    'AcceptFailed',
+    'Closed',
+    'CloseFailed',
+    'Disconnected',
+    'MonitorStopped'
+  );
+
 implementation
+
+uses
+  DDuce.Reflect, BCEditor.JsonDataObjects;
 
 {$R *.dfm}
 
@@ -119,37 +162,20 @@ implementation
 procedure TfrmZMQConcept.AfterConstruction;
 begin
   inherited AfterConstruction;
-  if not Assigned(FZMQ) then
-    FZMQ := TZeroMQ.Create;
-
+  FZMQ   := TZeroMQ.Create;
+  Events := ZMQAllEvents;
   FEventProc := procedure(Event: ZMQEvents; Value: Integer; const Address: string)
     const
       LOG_MESSAGE = '%s (Value=%d, Address=%s)';
     var
       S : string;
+      E : ZMQEvent;
     begin
-      if Connected in Event then
-        S := 'Connected';
-      if Delayed in Event then
-        S := 'Delayed';
-      if Retried in Event then
-        S := 'Retried';
-      if Listening in Event then
-        S := 'Listening';
-      if BindFailed in Event then
-        S := 'BindFailed';
-      if Accepted in Event then
-        S := 'Accepted';
-      if AcceptFailed in Event then
-        S := 'AcceptFailed';
-      if Closed in Event then
-        S := 'Closed';
-      if CloseFailed in Event then
-        S := 'CloseFailed';
-      if Disconnected in Event then
-        S := 'Disconnected';
-      if MonitorStopped in Event then
-        S := 'MonitorStopped';
+      for E := Low(ZMQEvent) to High(ZMQEvent) do
+      begin
+        if E in Event then
+          S := S + ZMQEventNames[E] + ' ';
+      end;
       mmoLog.Lines.Add(Format(LOG_MESSAGE, [S, Value, Address]));
     end;
 end;
@@ -157,7 +183,7 @@ end;
 procedure TfrmZMQConcept.BeforeDestruction;
 begin
   Pair := nil;
-  ZMQ := nil;
+  ZMQ  := nil;
   inherited BeforeDestruction;
 end;
 
@@ -180,9 +206,28 @@ var
   S : string;
 begin
   S := Format(CONNECTION_STRING, [GetTransport, edtAddress.Text]);
-  if GetTransport = 'tcp' then
+  if Transport = 'tcp' then
     S := S + ':' + Port.ToString;
   Result := S;
+end;
+
+function TfrmZMQConcept.GetEvents: ZMQEvents;
+begin
+  Result := FEvents;
+end;
+
+procedure TfrmZMQConcept.SetEvents(const Value: ZMQEvents);
+var
+  E : ZMQEvent;
+begin
+  if Value <> Events then
+  begin
+    FEvents := Value;
+    for E := Low(ZMQEvent) to High(ZMQEvent) do
+    begin
+      lbxEvents.Checked[Ord(E)] := E in FEvents;
+    end;
+  end;
 end;
 
 function TfrmZMQConcept.GetPort: Integer;
@@ -190,20 +235,51 @@ begin
   Result := StrToIntDef(edtPort.Text, 5555);
 end;
 
-function TfrmZMQConcept.GetTransport: string;
+procedure TfrmZMQConcept.SetPort(const Value: Integer);
 begin
-  case rgpTransport.ItemIndex of
-    0: Result := 'tcp';
-    1: Result := 'inproc'; // every connection needs to share the same IZeroMQ
-    2: Result := 'ipc';
-    3: Result := 'pgm';
-    4: Result := 'pgm';
+  if Value <> Port then
+  begin
+    edtPort.Text := Value.ToString;
   end;
 end;
 
-function TfrmZMQConcept.GetZMQSocket: ZMQSocket;
+function TfrmZMQConcept.GetSocket: ZMQSocket;
 begin
   Result := ZMQSocket(rgpZMQSocket.ItemIndex);
+end;
+
+procedure TfrmZMQConcept.SetSocket(const Value: ZMQSocket);
+begin
+  if Value <> Socket then
+  begin
+    rgpZMQSocket.ItemIndex := Ord(Value);
+  end;
+end;
+
+function TfrmZMQConcept.GetTransport: string;
+begin
+  Result := ZMQTransports[rgpTransport.ItemIndex];
+end;
+
+procedure TfrmZMQConcept.SetTransport(const Value: string);
+var
+  I : Integer;
+  B : Boolean;
+begin
+  if Value <> Transport then
+  begin
+    I := 0;
+    B := False;
+    while not B and (I < Length(ZMQTransports)) do
+    begin
+      if ZMQTransports[I] = Value then
+      begin
+        B := True;
+        rgpTransport.ItemIndex := I;
+      end;
+      Inc(I);
+    end;
+  end;
 end;
 {$ENDREGION}
 
@@ -212,26 +288,49 @@ procedure TfrmZMQConcept.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   Action := caFree;
 end;
+
+procedure TfrmZMQConcept.lbxEventsClickCheck(Sender: TObject);
+begin
+  UpdateEvents;
+end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
+procedure TfrmZMQConcept.actBindExecute(Sender: TObject);
+begin
+  if Assigned(Pair) then
+    Pair.Close;
+  Pair := nil;
+  Pair := FZMQ.Start(Socket);
+  FZMQ.Monitor(
+    Pair,
+    edtAddress.Text,
+    Events,
+    FEventProc
+  );
+  if Transport = 'tcp' then
+    edtAddress.Text := '*';
+  Pair.Bind(ConnectionString);
+end;
+
+procedure TfrmZMQConcept.actCloseExecute(Sender: TObject);
+begin
+  Pair.Close;
+end;
+
 procedure TfrmZMQConcept.actConnectExecute(Sender: TObject);
-var
-  N : Integer;
 begin
   if Assigned(Pair) then
   begin
     Pair.Close;
   end;
   Pair := nil;
-  Pair := ZMQ.Start(GetZMQSocket);
-  N := StrToIntDef(edtPort.Text, 5555);
+  Pair := ZMQ.Start(Socket);
   FZMQ.Monitor(
     Pair,
     edtAddress.Text,
-    [Connected, Delayed, Retried, Listening, BindFailed, Accepted, AcceptFailed,
-     Closed, CloseFailed, Disconnected, MonitorStopped],
-     FEventProc
+    Events,
+    FEventProc
   );
   Pair.Connect(ConnectionString);
 end;
@@ -258,24 +357,6 @@ procedure TfrmZMQConcept.actSubscribeExecute(Sender: TObject);
 begin
   Pair.Subscribe(edtFilter.Text);
 end;
-
-procedure TfrmZMQConcept.actBindExecute(Sender: TObject);
-begin
-  if Assigned(Pair) then
-    Pair.Close;
-  Pair := nil;
-  Pair := FZMQ.Start(GetZMQSocket);
-  FZMQ.Monitor(
-    Pair,
-    edtAddress.Text,
-    [Connected, Delayed, Retried, Listening, BindFailed, Accepted, AcceptFailed,
-    Closed, CloseFailed, Disconnected, MonitorStopped],
-    FEventProc
-  );
-  if GetTransport = 'tcp' then
-    edtAddress.Text := '*';
-  Pair.Bind(ConnectionString);
-end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
@@ -289,6 +370,19 @@ begin
   actSend.Enabled      := B;
   actSubscribe.Enabled := B;
   pnlConnectionString.Caption := ConnectionString;
+end;
+
+procedure TfrmZMQConcept.UpdateEvents;
+var
+  I : Integer;
+begin
+  for I := 0 to lbxEvents.Count - 1 do
+  begin
+    if lbxEvents.Checked[I] then
+      Include(FEvents, ZMQEvent(I))
+    else
+      Exclude(FEvents, ZMQEvent(I));
+  end;
 end;
 {$ENDREGION}
 

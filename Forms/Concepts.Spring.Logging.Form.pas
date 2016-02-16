@@ -69,7 +69,7 @@ type
     chkWinIPCEnabled   : TCheckBox;
     btnLog             : TButton;
     edtLogFile         : TEdit;
-    imlLogLevels: TImageList;
+    imlLogLevels       : TImageList;
 
     procedure actTrackThisExecute(Sender: TObject);
     procedure actLogExecute(Sender: TObject);
