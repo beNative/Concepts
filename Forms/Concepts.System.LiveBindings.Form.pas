@@ -23,7 +23,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Rtti, System.Actions,
-  System.Bindings.Outputs, System.Bindings.Manager, System.Bindings.Helper,
+  System.Bindings.Outputs, System.Bindings.Helper,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ComCtrls, Vcl.Bind.DBEngExt, Vcl.Bind.Editors, Vcl.ExtCtrls, Vcl.ActnList,
   Vcl.Bind.Grid, Data.Bind.Grid, Vcl.Grids, Vcl.Buttons, Vcl.Bind.Navigator,
@@ -100,7 +100,7 @@ implementation
 uses
   DDuce.Components.Factories,
 
-  Concepts.Factories, Concepts.Resources;
+  Concepts.Factories;
 
 {$REGION 'construction and destruction'}
 procedure TfrmLiveBindings.AfterConstruction;

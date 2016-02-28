@@ -39,7 +39,6 @@ object frmMulticastEvents: TfrmMulticastEvents
     Height = 13
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 1
-    ExplicitWidth = 272
   end
   object btnExecute: TButton
     Left = 107
@@ -52,7 +51,6 @@ object frmMulticastEvents: TfrmMulticastEvents
     ImageMargins.Left = 4
     Images = dmResources.imlMain
     TabOrder = 2
-    ExplicitWidth = 173
   end
   object trbImageIndex: TTrackBar
     Left = 8
@@ -66,7 +64,6 @@ object frmMulticastEvents: TfrmMulticastEvents
     TabOrder = 3
     TickStyle = tsManual
     OnChange = trbImageIndexChange
-    ExplicitWidth = 272
   end
   object aclMain: TActionList
     Images = dmResources.imlMain

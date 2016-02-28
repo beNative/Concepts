@@ -30,6 +30,28 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    object pnlVirtualStringTreeTitle: TPanel
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 736
+      Height = 20
+      Align = alTop
+      BevelKind = bkFlat
+      BevelOuter = bvNone
+      Caption = 'TVirtualStringTree'
+      Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 0
+      ExplicitLeft = 6
+      ExplicitTop = 11
+    end
   end
   object pnlBottom: TPanel
     Left = 0

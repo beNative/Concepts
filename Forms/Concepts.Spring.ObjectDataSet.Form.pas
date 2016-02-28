@@ -32,7 +32,7 @@ interface
 
 uses
   System.Actions, System.Classes,
-  Vcl.ActnList, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Mask, Vcl.DBCtrls, Vcl.StdCtrls,
+  Vcl.ActnList, Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.DBCtrls, Vcl.StdCtrls, Vcl.Mask,
   Vcl.Controls, Vcl.DBGrids, Vcl.Forms,
   Data.DB, Data.Bind.Components,
 
@@ -42,7 +42,7 @@ uses
 
   DSharp.Windows.TreeViewPresenter,
 
-  Concepts.Types.Contact, Concepts.Resources;
+  Concepts.Types.Contact;
 
 type
   TfrmObjectDataSet = class(TForm)

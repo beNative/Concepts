@@ -98,9 +98,7 @@ implementation
 {$R *.dfm}
 
 uses
-  System.SyncObjs,
-
-  Concepts.Resources;
+  System.SyncObjs;
 
 resourcestring
   SStillThreadsRunning =

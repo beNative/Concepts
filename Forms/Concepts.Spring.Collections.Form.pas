@@ -89,9 +89,9 @@ implementation
 uses
   Vcl.Dialogs,
 
-  DDuce.RandomData, DDuce.ScopedReference,
+  DDuce.ScopedReference,
 
-  Concepts.Factories, Concepts.Resources, Concepts.Utils;
+  Concepts.Factories, Concepts.Utils;
 
 resourcestring
   SFindContactsWithFirstName = 'Find all contacts with first name = %s';

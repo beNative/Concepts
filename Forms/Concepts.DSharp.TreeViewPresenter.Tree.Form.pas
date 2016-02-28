@@ -27,7 +27,7 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.Samples.Spin, Vcl.ExtCtrls, Vcl.ActnList,
+  Vcl.ExtCtrls, Vcl.ActnList,
 
   VirtualTrees,
 
@@ -38,9 +38,7 @@ uses
 
   Spring.Collections, Spring.Reflection,
 
-  DDuce.Components.PropertyInspector, DDuce.Components.GridView,
-
-  Concepts.RTTEye.Data, Concepts.Resources;
+  Concepts.Resources;
 
 type
   TfrmTreeViewPresenterTree = class(TForm)
@@ -66,17 +64,14 @@ type
     FOI         : TzObjectInspector;
     FVST        : TVirtualStringTree;
     FTVP        : TTreeViewPresenter;
-    FData       : TReflectionData;
     FObjectList : IObjectList;
 
     procedure FTVPSelectionChanged(Sender: TObject);
 
   public
     procedure AfterConstruction; override;
-
-    procedure CreateRttiTreeview;
-
     procedure BeforeDestruction; override;
+    procedure CreateRttiTreeview;
 
   end;
 
@@ -87,14 +82,11 @@ implementation
 uses
   System.Rtti,
 
-  DSharp.Windows.ColumnDefinitions.ControlTemplate,
-
   Spring.Collections.Adapters, Spring.Collections.Enumerable,
 
-  DDuce.RandomData, DDuce.Components.Factories, DDuce.Reflect,
+  DDuce.Reflect,
 
-  Concepts.RTTEye.RttiTemplates, Concepts.Factories, Concepts.RTTEye.Templates,
-  Concepts.Utils;
+  Concepts.RTTEye.RttiTemplates, Concepts.Factories;
 
 {$REGION 'construction and destruction'}
 procedure TfrmTreeViewPresenterTree.AfterConstruction;
@@ -137,7 +129,8 @@ begin
   FTVP.BeginUpdate;
   try
     FObjectList.Clear;
-    ET := TType.Types.Where( function(const AArg: TRttiType): Boolean
+    ET := TType.Types.Where(
+      function(const AArg: TRttiType): Boolean
       begin
         Result := AArg.QualifiedName.Contains(edtFilter.Text);
       end
@@ -159,7 +152,6 @@ begin
     mmoDetails.Lines.Text := Reflect.Properties(FTVP.SelectedItem).ToString;
   end;
 end;
-
 {$ENDREGION}
 
 end.

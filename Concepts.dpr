@@ -385,7 +385,6 @@ uses
   BCEditor.Highlighter.Attributes in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.Attributes.pas',
   BCEditor.Highlighter.Colors in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.Colors.pas',
   BCEditor.Highlighter.Info in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.Info.pas',
-  BCEditor.Highlighter.JSONImporter in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.JSONImporter.pas',
   BCEditor.Highlighter in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.pas',
   BCEditor.Highlighter.Rules in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.Rules.pas',
   BCEditor.Highlighter.Token in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.Token.pas',

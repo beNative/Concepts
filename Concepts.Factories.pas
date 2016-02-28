@@ -38,8 +38,8 @@ uses
   DSharp.DevExpress.TreeListPresenter,
   {$ENDIF}
 
-  DDuce.Components.PropertyInspector, DDuce.Components.LogTree,
-  DDuce.Components.GridView, DDuce.Components.DBGridView,
+
+
 
   {$IFDEF DEVEXPRESS}
   cxGridCustomView, cxTL, cxTLData,

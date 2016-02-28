@@ -81,7 +81,7 @@ uses
   System.SysUtils, System.TypInfo,
   Vcl.Dialogs, Vcl.Graphics,
 
-  Concepts.Resources, Concepts.Utils;
+  Concepts.Utils;
 
 const
   LEVEL_PACKAGE = 0;

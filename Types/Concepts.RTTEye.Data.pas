@@ -15,6 +15,8 @@
 }
 
 
+{ NOT USED! }
+
 unit Concepts.RTTEye.Data;
 
 interface
@@ -45,6 +47,7 @@ type
     FParameters : IList<TParameter>;
 
     function GetRttiMember: TRttiMember;
+    function GetParameters: IObjectList;
 
   protected
     function GetName: string; virtual;
@@ -55,8 +58,8 @@ type
     property RttiMember: TRttiMember
       read GetRttiMember;
 
-    property Parameters: IList<TParameter>
-      read FParameters;
+    property Parameters: IObjectList
+      read GetParameters;
 
     property Name: string
       read GetName;
@@ -77,8 +80,8 @@ type
     property RttiMethod: TRttiMethod
       read GetRttiMethod;
 
-    property Parameters: IList<TParameter>
-      read FParameters;
+    property Parameters: IObjectList
+      read GetParameters;
 
   end;
 
@@ -88,7 +91,7 @@ type
     FRttiType : TRttiType;
 
     function GetName: string;
-    function GetMembers: IList<TMemberData>;
+    function GetMembers: IObjectList;
 
   public
     constructor Create(AType : TRttiType);
@@ -99,7 +102,7 @@ type
     property RttiType: TRttiType
       read FRttiType;
 
-    property Members: IList<TMemberData>
+    property Members: IObjectList
       read GetMembers;
 
   end;
@@ -112,12 +115,13 @@ type
 
     function GetName: string;
     procedure SetFilter(const Value: string);
+    function GetTypes: IObjectList;
 
   public
     procedure AfterConstruction; override;
 
-    property Types: IList<TTypeData>
-      read FTypes;
+    property Types: IObjectList
+      read GetTypes;
 
     property Filter: string
       read FFilter write SetFilter;
@@ -144,6 +148,11 @@ end;
 function TReflectionData.GetName: string;
 begin
 //
+end;
+
+function TReflectionData.GetTypes: IObjectList;
+begin
+  Result := FTypes as IObjectList;
 end;
 
 procedure TReflectionData.SetFilter(const Value: string);
@@ -199,9 +208,9 @@ begin
 end;
 
 
-function TTypeData.GetMembers: IList<TMemberData>;
+function TTypeData.GetMembers: IObjectList;
 begin
-  Result := FMembers;
+  Result := FMembers as IObjectList;
 end;
 
 function TTypeData.GetName: string;
@@ -229,6 +238,11 @@ end;
 function TMemberData.GetName: string;
 begin
   Result := FRttiMember.ToString;
+end;
+
+function TMemberData.GetParameters: IObjectList;
+begin
+  Result := FParameters as IObjectList;
 end;
 
 function TMemberData.GetRttiMember: TRttiMember;

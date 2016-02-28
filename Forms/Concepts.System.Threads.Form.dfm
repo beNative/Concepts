@@ -38,8 +38,6 @@ object frmThreads: TfrmThreads
     ParentDoubleBuffered = False
     ParentFont = False
     TabOrder = 0
-    ExplicitTop = 130
-    ExplicitWidth = 433
   end
   object btnCreateAnonymousThreads: TButton
     Left = 8
@@ -64,8 +62,6 @@ object frmThreads: TfrmThreads
         Width = 200
       end>
     StyleElements = [seFont, seClient]
-    ExplicitTop = 159
-    ExplicitWidth = 449
   end
   object btnTerminateThreads: TButton
     Left = 8

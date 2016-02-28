@@ -21,7 +21,6 @@ interface
 uses
   System.Rtti,
 
-  DSharp.Windows.ColumnDefinitions.ControlTemplate,
   DSharp.Core.DataTemplates,
 
   Spring.Collections;
@@ -33,6 +32,7 @@ type
     function GetItem(const Item: TRttiType; const Index: Integer): TObject; override;
     function GetValue(const Item: TRttiType;
       const ColumnIndex: Integer): TValue; override;
+
    procedure AfterConstruction; override;
   end;
 
@@ -100,10 +100,8 @@ begin
     O.AddRange((EP.ToList as IObjectList).ToArray);
     EM := TRttiInstanceType(Item).Methods;
     O.AddRange((EM.ToList as IObjectList).ToArray);
-    //O := O.Concat(EF.ToList as IObjectList) as IObjectList;
     Result := O;
   end
-
   else
     Result := inherited GetItems(Item);
 end;
@@ -118,7 +116,7 @@ end;
 {$REGION 'TRttiMemberTemplate'}
 procedure TRttiMemberTemplate.AfterConstruction;
 begin
-  inherited;
+  inherited AfterConstruction;
   RegisterDataTemplate(TRttiParameterTemplate.Create);
 end;
 
@@ -131,7 +129,6 @@ begin
   begin
     Result := inherited GetItem(Item, Index);
   end;
-
 end;
 
 function TRttiMemberTemplate.GetItemCount(const Item: TRttiMember): Integer;

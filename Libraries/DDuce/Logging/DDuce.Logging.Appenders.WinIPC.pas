@@ -24,7 +24,7 @@ uses
   Winapi.Windows,
   System.Classes,
 
-  Spring.Logging.Appenders.Base, Spring.Logging.Appenders, Spring.Logging;
+  Spring.Logging.Appenders.Base, Spring.Logging;
 
 type
   TWinIPCAppender = class(TLogAppenderBase, ILogAppender)

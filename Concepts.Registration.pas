@@ -79,7 +79,7 @@ uses
   {$IFDEF DSHARP}
   Concepts.DSharp.TreeViewPresenter.Tree.Form,
   Concepts.DSharp.TreeViewPresenter.List.Form,
-  Concepts.DSharp.Bindings.Form,
+
   {$ENDIF}
 
   {$IFDEF SPRING}
@@ -117,7 +117,7 @@ uses
   {$IFDEF DDETOURS}
   Concepts.DDetours.Form,
   {$ENDIF}
-  
+
   {$IFDEF DELPHIZMQ}
   Concepts.ZeroMQ.Form,
   {$ENDIF}

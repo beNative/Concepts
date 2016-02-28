@@ -31,8 +31,9 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   System.ImageList,
+
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList, Vcl.StdCtrls,
-  Vcl.ExtCtrls, Vcl.ImgList, Vcl.Tabs,
+  Vcl.ExtCtrls, Vcl.Tabs, Vcl.ImgList,
 
   Spring.Logging, Spring.Logging.Controller, Spring.Logging.Extensions,
   Spring.Logging.Appenders,
@@ -69,7 +70,7 @@ type
     chkWinIPCEnabled   : TCheckBox;
     btnLog             : TButton;
     edtLogFile         : TEdit;
-    imlLogLevels: TImageList;
+    imlLogLevels       : TImageList;
 
     procedure actTrackThisExecute(Sender: TObject);
     procedure actLogExecute(Sender: TObject);
@@ -111,9 +112,7 @@ uses
 
   Spring.Logging.Loggers, Spring.Logging.Serializers,
 
-  DDuce.Reflect, DDuce.Components.Factories,
-
-  Concepts.Factories, Concepts.Resources;
+  DDuce.Reflect, DDuce.Components.Factories;
 
 type
   TLogLevel = Spring.Logging.TLogLevel;

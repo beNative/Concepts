@@ -32,7 +32,7 @@ interface
 uses
   Winapi.Windows,
   Winapi.Messages,
-  Winapi.UxTheme,
+
 
   System.Classes,
   Vcl.Themes,

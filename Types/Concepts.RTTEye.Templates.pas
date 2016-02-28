@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{ NOT USED!}
+
 unit Concepts.RTTEye.Templates;
 
 interface
@@ -90,7 +92,7 @@ type
 implementation
 
 uses
-  Spring.Reflection, System.Rtti, System.SysUtils,
+  System.Rtti, System.SysUtils,
 
   DDuce.Logger,
 
@@ -126,7 +128,7 @@ uses
 //function TReflectionTemplate.GetItems(const Item: TObject): IObjectList;
 //begin
 //  if Item is TReflectionData then
-//    Result := TReflectionData(Item).Types as IObjectList
+//    Result := TReflectionData(Item).Types
 //  else
 //    Result := inherited GetItems(Item);
 //end;
@@ -173,7 +175,7 @@ end;
 function TTypeTemplate.GetItems(const Item: TObject): IObjectList;
 begin
   if Item is TTypeData then
-     Result := TTypeData(Item).Members as IObjectList
+     Result := TTypeData(Item).Members
    else
      Result := inherited GetItems(Item);
 end;
@@ -217,7 +219,7 @@ end;
 function TMemberTemplate.GetItems(const Item: TObject): IObjectList;
 begin
   if Item is TMethodData then
-    Result := TMethodData(Item).Parameters as IObjectList
+    Result := TMethodData(Item).Parameters
   else
     Result := inherited GetItems(Item);
 end;

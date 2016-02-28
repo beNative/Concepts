@@ -67,11 +67,11 @@ implementation
 {$R *.dfm}
 
 uses
-  System.StrUtils, System.TypInfo, System.Rtti,
+  System.Rtti,
 
   DDuce.Logger,
 
-  Concepts.Resources, Concepts.Factories;
+  Concepts.Factories;
 
 {$REGION 'construction and destruction'}
 procedure TfrmzObjectInspector.AfterConstruction;

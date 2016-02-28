@@ -24,7 +24,7 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList,
-  Vcl.StdCtrls, Vcl.Buttons, Vcl.ComCtrls, Vcl.ExtCtrls,
+  Vcl.Buttons, Vcl.ComCtrls, Vcl.ExtCtrls,
 
   Concepts.Spring.MultiCastEvents.Data;
 
@@ -52,8 +52,7 @@ implementation
 
 {$R *.dfm}
 
-uses
-  Concepts.Resources;
+
 
 {$REGION 'construction and destruction'}
 constructor TfrmMulticastEventsChild.Create(AOwner: TComponent;

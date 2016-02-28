@@ -88,8 +88,6 @@
           TabOrder = 0
           object tsSampleCode: TTabSheet
             Caption = 'tsSampleCode'
-            ExplicitWidth = 281
-            ExplicitHeight = 165
             object pnlExampleCodeHeader: TPanel
               AlignWithMargins = True
               Left = 3
@@ -109,14 +107,15 @@
               ParentBackground = False
               ParentFont = False
               TabOrder = 0
-              ExplicitLeft = 6
-              ExplicitTop = 11
-              ExplicitWidth = 275
             end
           end
           object TabSheet1: TTabSheet
             Caption = 'TabSheet1'
             ImageIndex = 1
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object mmo1: TMemo
               Left = 0
               Top = 0
@@ -126,10 +125,6 @@
               Lines.Strings = (
                 'mmo1')
               TabOrder = 0
-              ExplicitLeft = 120
-              ExplicitTop = 88
-              ExplicitWidth = 185
-              ExplicitHeight = 89
             end
           end
         end
@@ -217,6 +212,10 @@
           object tsColors: TTabSheet
             Caption = 'Color mappings'
             ImageIndex = 1
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object splVerticalRight: TSplitter
               Left = 475
               Top = 0

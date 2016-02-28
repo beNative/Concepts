@@ -33,7 +33,7 @@ uses
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList, Vcl.StdCtrls,
 
-  Spring.Interception.ClassProxy, Spring.Interception;
+  Spring.Interception;
 
 type
   INumber = interface(IInvokable)

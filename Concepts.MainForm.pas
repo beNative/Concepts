@@ -96,7 +96,7 @@ uses
 
   Spring.Collections,
 
-  Concepts.Factories, Concepts.Manager, Concepts.Resources;
+  Concepts.Factories, Concepts.Manager;
 
 resourcestring
   SConceptsLoaded = '%d concepts loaded.';

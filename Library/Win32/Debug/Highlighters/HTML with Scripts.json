@@ -495,14 +495,6 @@
    "CodeFolding": {
       "Ranges": [
          {
-            "SkipRegion": [
-
-            ],
-            "FoldRegion": [
-
-            ]
-         },
-         {
             "Options": {
                "OpenToken": "<SCRIPT",
                "CloseToken": "</SCRIPT",

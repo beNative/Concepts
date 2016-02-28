@@ -63,7 +63,7 @@ uses
   System.SysUtils,
   Vcl.Dialogs,
 
-  Concepts.Resources, Concepts.Spring.MultiCastEvents.ChildForm;
+  Concepts.Spring.MultiCastEvents.ChildForm;
 
 {$REGION 'construction and destruction'}
 procedure TfrmMulticastEvents.AfterConstruction;

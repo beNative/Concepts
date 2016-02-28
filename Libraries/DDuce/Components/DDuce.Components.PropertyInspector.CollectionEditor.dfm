@@ -30,7 +30,6 @@ object frmCollectionEditor: TfrmCollectionEditor
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 255
   end
   object pnlLeft: TPanel
     Left = 0

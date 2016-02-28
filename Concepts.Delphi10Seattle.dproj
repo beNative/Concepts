@@ -486,6 +486,9 @@
             <Form>frmDDetours</Form>
         </DCCReference>
         <DCCReference Include="Libraries\TzObjectInspector\zBase.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\zCollectionEditor.pas">
+            <Form>zCollectionEditorDialog</Form>
+        </DCCReference>
         <DCCReference Include="Libraries\TzObjectInspector\zCanvasStack.pas"/>
         <DCCReference Include="Libraries\TzObjectInspector\zGraphicDialog.pas">
             <Form>GraphicDialog</Form>

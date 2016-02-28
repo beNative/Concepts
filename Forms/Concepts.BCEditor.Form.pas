@@ -23,9 +23,9 @@ interface
 uses
   System.Classes, System.Actions, System.SysUtils,
   Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms,
-  Vcl.ActnList, Vcl.ToolWin, Vcl.Graphics,
+  Vcl.ActnList, Vcl.Graphics, Vcl.ToolWin,
 
-  DDuce.Components.PropertyInspector, DDuce.Components.Gridview,
+  DDuce.Components.Gridview,
 
   Spring.Collections,
 
@@ -36,44 +36,44 @@ uses
 type
   TfrmBCEditor = class(TForm)
     {$REGION 'designer controls'}
-    pnlMain            : TPanel;
-    pnlLeft            : TPanel;
-    pnlRight           : TPanel;
-    sbrStatusBar       : TStatusBar;
-    splSplitter        : TSplitter;
-    pnlRightTop        : TPanel;
-    pnlRightBottom     : TPanel;
-    spl1               : TSplitter;
-    pgcMain            : TPageControl;
-    tsHighlighter      : TTabSheet;
-    tsColors           : TTabSheet;
-    aclMain            : TActionList;
-    actSaveHighlighter : TAction;
-    actSaveColorMap    : TAction;
-    pnlHighlighter     : TPanel;
-    pnlColors          : TPanel;
-    pnlHLLeft          : TPanel;
-    pnlHLRight         : TPanel;
-    pnlCMLeft          : TPanel;
-    pnlCMRight         : TPanel;
-    tlbComponentInspector: TToolBar;
-    actCollapseAll: TAction;
-    actExpandAll: TAction;
-    btnCollapseAll: TToolButton;
-    btnExpandAll: TToolButton;
-    tlbHighlighter: TToolBar;
-    btnSaveHighlighter: TToolButton;
-    tlbColors: TToolBar;
-    btnSaveColorMap: TToolButton;
-    pnlLeftBottom: TPanel;
-    splLeftHorizontal: TSplitter;
-    pnlCMRightRight: TPanel;
-    splVerticalRight: TSplitter;
-    pgcLeftBottoù: TPageControl;
-    tsSampleCode: TTabSheet;
-    pnlExampleCodeHeader: TPanel;
-    TabSheet1: TTabSheet;
-    mmo1: TMemo;
+    pnlMain               : TPanel;
+    pnlLeft               : TPanel;
+    pnlRight              : TPanel;
+    sbrStatusBar          : TStatusBar;
+    splSplitter           : TSplitter;
+    pnlRightTop           : TPanel;
+    pnlRightBottom        : TPanel;
+    spl1                  : TSplitter;
+    pgcMain               : TPageControl;
+    tsHighlighter         : TTabSheet;
+    tsColors              : TTabSheet;
+    aclMain               : TActionList;
+    actSaveHighlighter    : TAction;
+    actSaveColorMap       : TAction;
+    pnlHighlighter        : TPanel;
+    pnlColors             : TPanel;
+    pnlHLLeft             : TPanel;
+    pnlHLRight            : TPanel;
+    pnlCMLeft             : TPanel;
+    pnlCMRight            : TPanel;
+    tlbComponentInspector : TToolBar;
+    actCollapseAll        : TAction;
+    actExpandAll          : TAction;
+    btnCollapseAll        : TToolButton;
+    btnExpandAll          : TToolButton;
+    tlbHighlighter        : TToolBar;
+    btnSaveHighlighter    : TToolButton;
+    tlbColors             : TToolBar;
+    btnSaveColorMap       : TToolButton;
+    pnlLeftBottom         : TPanel;
+    splLeftHorizontal     : TSplitter;
+    pnlCMRightRight       : TPanel;
+    splVerticalRight      : TSplitter;
+    pgcLeftBottoù         : TPageControl;
+    tsSampleCode          : TTabSheet;
+    pnlExampleCodeHeader  : TPanel;
+    TabSheet1             : TTabSheet;
+    mmo1                  : TMemo;
     {$ENDREGION}
 
     procedure actSaveHighlighterExecute(Sender: TObject);
@@ -155,7 +155,6 @@ type
   public
     procedure AfterConstruction; override;
 
-
   end;
 
 implementation
@@ -166,7 +165,7 @@ uses
 
   DDuce.Components.Factories, DDuce.Logger,
 
-  Concepts.Factories, Concepts.Resources, Concepts.Utils;
+  Concepts.Factories, Concepts.Utils;
 
 {$R *.dfm}
 
@@ -253,9 +252,6 @@ begin
   FObjectInspector.Visibility := [mvPublished];
   FObjectInspector.Component := FBCEditor;
   FObjectInspector.ExpandAll;
-
-
-
   FHighlighters := TCollections.CreateList<string>;
   FColorMaps    := TCollections.CreateList<string>;
   LoadHighlighters;
