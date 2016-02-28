@@ -28,7 +28,7 @@ type
     FAltEnabled: Boolean;
     FAlwaysShowCaret: Boolean;
     FBackgroundColor: TColor;
-    FBookMarks: array [0 .. 8] of TBCEditorBookmark;
+    FBookmarks: array [0 .. 8] of TBCEditorBookmark;
     FBorderStyle: TBorderStyle;
     FBufferBmp: Vcl.Graphics.TBitmap;
     FCaret: TBCEditorCaret;
@@ -40,6 +40,7 @@ type
     FCharWidth: Integer;
     FCodeFolding: TBCEditorCodeFolding;
     FCodeFoldingHintForm: TBCEditorCodeFoldingHintForm;
+    FCodeFoldingLock: Boolean;
     FCodeFoldingRangeFromLine: array of TBCEditorCodeFoldingRange;
     FCodeFoldingRangeToLine: array of TBCEditorCodeFoldingRange;
     FCodeFoldingTreeLine: array of Boolean;
@@ -95,6 +96,9 @@ type
     FMouseDownY: Integer;
     FMouseOverURI: Boolean;
     FMouseWheelAccumulator: Integer;
+    FMouseMoveScrollCursors: array [0..7] of HCursor;
+    FMouseMoveScrolling: Boolean;
+    FMouseMoveScrollingPoint: TPoint;
     FOldMouseMovePoint: TPoint;
     FOnAfterBookmarkPanelPaint: TBCEditorBookmarkPanelPaintEvent;
     FOnAfterBookmarkPlaced: TNotifyEvent;
@@ -116,6 +120,7 @@ type
     FOnChainUndoAdded: TNotifyEvent;
     FOnCommandProcessed: TBCEditorProcessCommandEvent;
     FOnContextHelp: TBCEditorContextHelpEvent;
+    FOnCreateFileStream: TBCEditorCreateFileStreamEvent;
     FOnCustomLineColors: TBCEditorCustomLineColorsEvent;
     FOnCustomTokenAttribute: TBCEditorCustomTokenAttributeEvent;
     FOnDropFiles: TBCEditorDropFilesEvent;
@@ -188,6 +193,7 @@ type
     function GetCanPaste: Boolean;
     function GetCanRedo: Boolean;
     function GetCanUndo: Boolean;
+    function GetCharAtCursor: Char;
     function GetClipboardText: string;
     function GetDisplayCaretPosition: TBCEditorDisplayPosition;
     function GetDisplayLineNumber(const ADisplayLineNumber: Integer): Integer;
@@ -202,6 +208,8 @@ type
     function GetLeftSpacing(ACharCount: Integer; AWantTabs: Boolean): string;
     function GetLineIndentChars(ALine: Integer): Integer;
     function GetMatchingToken(APoint: TBCEditorTextPosition; var AMatch: TBCEditorMatchingPairMatch): TBCEditorMatchingTokenResult;
+    function GetMouseMoveScrollCursors(AIndex: Integer): HCURSOR;
+    function GetMouseMoveScrollCursorIndex: Integer;
     function GetSelectionAvailable: Boolean;
     function GetSelectedText: string;
     function GetSearchResultCount: Integer;
@@ -220,6 +228,7 @@ type
     function LeftSpaceCount(const ALine: string; AWantTabs: Boolean = False): Integer;
     function NextWordPosition: TBCEditorTextPosition; overload;
     function NextWordPosition(const ATextPosition: TBCEditorTextPosition): TBCEditorTextPosition; overload;
+    function OpenClipboard: Boolean;
     function PreviousWordPosition: TBCEditorTextPosition; overload;
     function PreviousWordPosition(const ATextPosition: TBCEditorTextPosition): TBCEditorTextPosition; overload;
     function RescanHighlighterRangesFrom(AIndex: Integer): Integer;
@@ -264,7 +273,7 @@ type
     procedure DragMinimap(Y: Integer);
     procedure DrawCursor(ACanvas: TCanvas);
     procedure FindAll(const ASearchText: string = '');
-    procedure FindWords(AWord: string; AList: TList; ACaseSensitive: Boolean; AWholeWordsOnly: Boolean);
+    procedure FindWords(const AWord: string; AList: TList; ACaseSensitive: Boolean; AWholeWordsOnly: Boolean);
     procedure FontChanged(Sender: TObject);
     procedure InitCodeFolding;
     procedure LinesChanging(Sender: TObject);
@@ -298,6 +307,7 @@ type
     procedure SetLines(AValue: TBCEditorLines);
     procedure SetLineWithRightTrim(ALine: Integer; const ALineText: string);
     procedure SetModified(AValue: Boolean);
+    procedure SetMouseMoveScrollCursors(AIndex: Integer; AValue: HCURSOR);
     procedure SetOptions(AValue: TBCEditorOptions);
     procedure SetTextCaretPosition(AValue: TBCEditorTextPosition);
     procedure SetRightMargin(const AValue: TBCEditorRightMargin);
@@ -427,10 +437,11 @@ type
     procedure PaintGuides(AFirstRow, ALastRow: Integer; AMinimap: Boolean);
     procedure PaintLeftMargin(const AClipRect: TRect; AFirstLine, ALastTextLine, ALastLine: Integer);
     procedure PaintMinimapIndicator(AClipRect: TRect);
+    procedure PaintMouseMoveScrollPoint;
     procedure PaintRightMarginMove;
     procedure PaintSearchMap(AClipRect: TRect);
     procedure PaintSearchResults;
-    procedure PaintSpecialChars(ALine, AScrolledXBy: Integer; ALineRect: TRect);
+    procedure PaintSpecialChars(ALine, AFirstColumn: Integer; ALineRect: TRect);
     procedure PaintSyncItems;
     procedure PaintTextLines(AClipRect: TRect; AFirstRow, ALastRow: Integer; AMinimap: Boolean);
     procedure RecalculateCharExtent;
@@ -509,6 +520,8 @@ type
     procedure EndUpdate;
     procedure EnsureCursorPositionVisible(AForceToMiddle: Boolean = False; AEvenIfVisible: Boolean = False);
     procedure ExecuteCommand(ACommand: TBCEditorCommand; AChar: Char; AData: Pointer); virtual;
+    procedure ExportToHTML(const AFileName: string; const ACharSet: string = ''; AEncoding: System.SysUtils.TEncoding = nil); overload;
+    procedure ExportToHTML(AStream: TStream; const ACharSet: string = ''; AEncoding: System.SysUtils.TEncoding = nil); overload;
     procedure GotoBookmark(ABookmark: Integer);
     procedure GotoLineAndCenter(ATextLine: Integer);
     procedure HookEditorLines(ALines: TBCEditorLines; AUndo, ARedo: TBCEditorUndoList);
@@ -564,6 +577,7 @@ type
     property CanUndo: Boolean read GetCanUndo;
     property Canvas;
     property Caret: TBCEditorCaret read FCaret write FCaret;
+    property CharAtCursor: Char read GetCharAtCursor;
     property DisplayCaretX: Integer read FDisplayCaretX write SetDisplayCaretX;
     property DisplayCaretPosition: TBCEditorDisplayPosition read GetDisplayCaretPosition write SetDisplayCaretPosition;
     property DisplayCaretY: Integer read FDisplayCaretY write SetDisplayCaretY;
@@ -589,6 +603,7 @@ type
     property MatchingPair: TBCEditorMatchingPair read FMatchingPair write FMatchingPair;
     property Minimap: TBCEditorMinimap read FMinimap write FMinimap;
     property Modified: Boolean read FModified write SetModified;
+    property MouseMoveScrollCursors[AIndex: Integer]: HCURSOR read GetMouseMoveScrollCursors write SetMouseMoveScrollCursors;
     property OnAfterBookmarkPanelPaint: TBCEditorBookmarkPanelPaintEvent read FOnAfterBookmarkPanelPaint write FOnAfterBookmarkPanelPaint;
     property OnAfterBookmarkPlaced: TNotifyEvent read FOnAfterBookmarkPlaced write FOnAfterBookmarkPlaced;
     property OnAfterClearBookmark: TNotifyEvent read FOnAfterClearBookmark write FOnAfterClearBookmark;
@@ -601,6 +616,7 @@ type
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnCommandProcessed: TBCEditorProcessCommandEvent read FOnCommandProcessed write FOnCommandProcessed;
     property OnContextHelp: TBCEditorContextHelpEvent read FOnContextHelp write FOnContextHelp;
+    property OnCreateFileStream: TBCEditorCreateFileStreamEvent read FOnCreateFileStream write FOnCreateFileStream;
     property OnCustomLineColors: TBCEditorCustomLineColorsEvent read FOnCustomLineColors write FOnCustomLineColors;
     property OnCustomTokenAttribute: TBCEditorCustomTokenAttributeEvent read FOnCustomTokenAttribute write FOnCustomTokenAttribute;
     property OnDropFiles: TBCEditorDropFilesEvent read FOnDropFiles write FOnDropFiles;
@@ -653,6 +669,8 @@ type
     property WordWrap: TBCEditorWordWrap read FWordWrap write SetWordWrap;
   end;
 
+  EBCEditorBaseException = class(Exception);
+
 implementation
 
 {$R BCEditor.res}
@@ -661,7 +679,7 @@ uses
   Winapi.ShellAPI, Winapi.Imm, System.Math, System.Types, Vcl.Clipbrd, System.Character, Vcl.Menus,
   BCEditor.Editor.LeftMargin.Border, BCEditor.Editor.LeftMargin.LineNumbers, BCEditor.Editor.Scroll.Hint,
   BCEditor.Editor.Search.Map, BCEditor.Editor.Undo.Item, BCEditor.Editor.Utils, BCEditor.Encoding, BCEditor.Language,
-  BCEditor.Highlighter.Rules{$IFDEF USE_VCL_STYLES}, Vcl.Themes, BCEditor.StyleHooks{$ENDIF}
+  BCEditor.Highlighter.Rules, BCEditor.Export.HTML{$IFDEF USE_VCL_STYLES}, Vcl.Themes, BCEditor.StyleHooks{$ENDIF}
   {$IFDEF USE_ALPHASKINS}, Winapi.CommCtrl, sVCLUtils, sMessages, sConst, sSkinProps{$ENDIF};
 
 type
@@ -697,6 +715,8 @@ end;
 { TBCBaseEditor }
 
 constructor TBCBaseEditor.Create(AOwner: TComponent);
+var
+  i: Integer;
 begin
   inherited Create(AOwner);
 
@@ -722,6 +742,7 @@ begin
   FResetLineNumbersCache := True;
   FSelectedCaseText := '';
   FURIOpener := False;
+  FCodeFoldingLock := False;
 
   { Code folding }
   FAllCodeFoldingRanges := TBCEditorAllCodeFoldingRanges.Create;
@@ -850,6 +871,9 @@ begin
   FTextOffset := GetTextOffset;
   { Highlighter }
   FHighlighter := TBCEditorHighlighter.Create(Self);
+  { Mouse wheel scroll cursors }
+  for i := 0 to 7 do
+    FMouseMoveScrollCursors[i] := LoadCursor(HInstance, PChar(BCEDITOR_MOUSE_MOVE_SCROLL + IntToStr(i)));
 end;
 
 destructor TBCBaseEditor.Destroy;
@@ -1093,6 +1117,25 @@ begin
   Result.Row := FDisplayCaretY;
 end;
 
+function TBCBaseEditor.GetCharAtCursor: Char;
+var
+  LTextPosition: TBCEditorTextPosition;
+  LTextLine: string;
+  LLength: Integer;
+begin
+  Result := BCEDITOR_NONE_CHAR;
+  LTextPosition := TextCaretPosition;
+  if (LTextPosition.Line >= 0) and (LTextPosition.Line < FLines.Count) then
+  begin
+    LTextLine := FLines[LTextPosition.Line];
+    LLength := Length(LTextLine);
+    if LLength = 0 then
+      Exit;
+    if LTextPosition.Char <= LLength then
+      Result := LTextLine[LTextPosition.Char];
+  end;
+end;
+
 function TBCBaseEditor.GetClipboardText: string;
 var
   LGlobalMem: HGLOBAL;
@@ -1119,41 +1162,37 @@ var
 
 begin
   Result := '';
-  Clipboard.Open;
+  if not OpenClipboard then
+    Exit;
   try
     if Clipboard.HasFormat(CF_UNICODETEXT) then
     begin
-      LGLobalMem := Clipboard.GetAsHandle(CF_UNICODETEXT);
+      LGlobalMem := Clipboard.GetAsHandle(CF_UNICODETEXT);
+      if LGlobalMem <> 0 then
       try
-        if LGlobalMem <> 0 then
-          Result := PChar(GlobalLock(LGlobalMem));
+        Result := PChar(GlobalLock(LGlobalMem));
       finally
-        if LGlobalMem <> 0 then
-          GlobalUnlock(LGlobalMem);
+        GlobalUnlock(LGlobalMem);
       end;
     end
     else
     begin
       LLocaleID := 0;
       LGlobalMem := Clipboard.GetAsHandle(CF_LOCALE);
+      if LGlobalMem <> 0 then
       try
-        if LGlobalMem <> 0 then
-          LLocaleID := PInteger(GlobalLock(LGlobalMem))^;
+        LLocaleID := PInteger(GlobalLock(LGlobalMem))^;
       finally
-        if LGlobalMem <> 0 then
-          GlobalUnlock(LGlobalMem);
+        GlobalUnlock(LGlobalMem);
       end;
 
       LGlobalMem := Clipboard.GetAsHandle(CF_TEXT);
+      if LGlobalMem <> 0 then
       try
-        if LGlobalMem <> 0 then
-        begin
-          LBytePointer := GlobalLock(LGlobalMem);
-          Result := AnsiStringToString(PAnsiChar(LBytePointer), CodePageFromLocale(LLocaleID));
-        end
+        LBytePointer := GlobalLock(LGlobalMem);
+        Result := AnsiStringToString(PAnsiChar(LBytePointer), CodePageFromLocale(LLocaleID));
       finally
-        if LGlobalMem <> 0 then
-          GlobalUnlock(LGlobalMem);
+        GlobalUnlock(LGlobalMem);
       end;
     end;
   finally
@@ -1182,7 +1221,7 @@ begin
       LPivot := (LFirst + LLast) div 2;
       if FLineNumbersCache[LPivot] = ADisplayLineNumber then
       begin
-        LFound  := True;
+        LFound := True;
         Result := LPivot;
         if FWordWrap.Enabled then
         begin
@@ -1448,7 +1487,7 @@ begin
   begin
     InitializeCurrentLine;
 
-    LCaretX := DisplayCaretX;
+    LCaretX := APoint.Char + 1;
     while not GetEndOfLine and (LCaretX > GetTokenPosition + GetTokenLength) do
       Next;
 
@@ -1567,9 +1606,60 @@ begin
   end;
 end;
 
+function TBCBaseEditor.GetMouseMoveScrollCursors(AIndex: Integer): HCURSOR;
+begin
+  Result := 0;
+  if (AIndex >= Low(FMouseMoveScrollCursors)) and (AIndex <= High(FMouseMoveScrollCursors)) then
+    Result := FMouseMoveScrollCursors[AIndex];
+end;
+
 function TBCBaseEditor.GetTextCaretY: Integer;
 begin
   Result := GetDisplayTextLineNumber(DisplayCaretY) - 1;
+end;
+
+function TBCBaseEditor.GetMouseMoveScrollCursorIndex: Integer;
+var
+  LCursorPoint: TPoint;
+  LLeftX, LRightX, LTopY, LBottomY: Integer;
+begin
+  Result := scNone;
+
+  Winapi.Windows.GetCursorPos(LCursorPoint);
+  LCursorPoint := ScreenToClient(LCursorPoint);
+
+  LLeftX := FMouseMoveScrollingPoint.X - FScroll.Indicator.Width;
+  LRightX := FMouseMoveScrollingPoint.X + 4;
+  LTopY := FMouseMoveScrollingPoint.Y - FScroll.Indicator.Height;
+  LBottomY := FMouseMoveScrollingPoint.Y + 4;
+
+  if LCursorPoint.Y < LTopY then
+  begin
+    if LCursorPoint.X < LLeftX then
+      Exit(scNorthWest)
+    else
+    if (LCursorPoint.X >= LLeftX) and (LCursorPoint.X <= LRightX) then
+      Exit(scNorth)
+    else
+      Exit(scNorthEast)
+  end;
+
+  if LCursorPoint.Y > LBottomY then
+  begin
+    if LCursorPoint.X < LLeftX then
+      Exit(scSouthWest)
+    else
+    if (LCursorPoint.X >= LLeftX) and (LCursorPoint.X <= LRightX) then
+      Exit(scSouth)
+    else
+      Exit(scSouthEast)
+  end;
+
+  if LCursorPoint.X < LLeftX then
+    Exit(scWest);
+
+  if LCursorPoint.X > LRightX then
+    Exit(scEast);
 end;
 
 function TBCBaseEditor.GetSelectionAvailable: Boolean;
@@ -1655,7 +1745,6 @@ function TBCBaseEditor.GetSelectedText: string;
     LFirst := SelectionBeginPosition.Line;
     LColumnTo := SelectionEndPosition.Char;
     LLast := SelectionEndPosition.Line;
-    LTotalLength := 0;
     case FSelection.ActiveMode of
       smNormal:
         begin
@@ -1700,7 +1789,7 @@ function TBCBaseEditor.GetSelectedText: string;
           if LColumnFrom > LColumnTo then
             SwapInt(LColumnFrom, LColumnTo);
 
-          LTotalLength := ((LColumnTo - LColumnFrom) + Length(sLineBreak)) * (LLast - LFirst + 1);
+          LTotalLength := ((LColumnTo - LColumnFrom) + Length(SLineBreak)) * (LLast - LFirst + 1);
           SetLength(Result, LTotalLength);
           P := PChar(Result);
 
@@ -1716,25 +1805,10 @@ function TBCBaseEditor.GetSelectedText: string;
             LDisplayPosition.Column := LColumnTo;
             R := DisplayToTextPosition(LDisplayPosition).Char;
             LTrimCount := CopyPaddedAndForward(S, L, R - L, P);
-            LTotalLength := LTotalLength + (R - L) - LTrimCount + Length(sLineBreak);
-            CopyAndForward(sLineBreak, 1, MaxInt, P);
+            LTotalLength := LTotalLength + (R - L) - LTrimCount + Length(SLineBreak);
+            CopyAndForward(SLineBreak, 1, MaxInt, P);
           end;
-          SetLength(Result, Max(LTotalLength - Length(sLineBreak), 0));
-        end;
-      smLine:
-        begin
-          for i := GetDisplayTextLineNumber(LFirst) - 1 to GetDisplayTextLineNumber(LLast + 1) - 2 do
-            Inc(LTotalLength, Length(TrimRight(Lines[i])) + Length(sLineBreak));
-          if LLast = FLines.Count then
-            Dec(LTotalLength, Length(sLineBreak));
-
-          SetLength(Result, LTotalLength);
-          P := PChar(Result);
-          for i := GetDisplayTextLineNumber(LFirst) - 1 to GetDisplayTextLineNumber(LLast + 1) - 2 do
-          begin
-            CopyAndForward(TrimRight(Lines[i]), 1, MaxInt, P);
-            CopyAndForward(sLineBreak, 1, MaxInt, P);
-          end;
+          SetLength(Result, Max(LTotalLength - Length(SLineBreak), 0));
         end;
     end;
   end;
@@ -1858,10 +1932,10 @@ begin
       begin
         LTextLine := FLines.ExpandedStrings[j - 1];
         LStringLength := Length(LTextLine);
-        if (LStringLength > GetWrapAtColumn) and (GetWrapAtColumn > 0) then
+        LMaxRowLength := GetWrapAtColumn;
+        if (LStringLength > LMaxRowLength) and (LMaxRowLength > 0) then
         begin
           LRowBegin := PChar(LTextLine);
-          LMaxRowLength := GetWrapAtColumn;
           LMinRowLength := Max(LMaxRowLength div 3, 1);
           LRowEnd := LRowBegin + LMaxRowLength;
           LLineEnd := LRowBegin + LStringLength;
@@ -1874,6 +1948,8 @@ begin
               if IsWordBreakChar(LRunner^) then
               begin
                 LRowEnd := LRunner;
+                if LRowEnd - LRowBegin < LMaxRowLength then
+                  Inc(LRowEnd);
                 Break;
               end;
               Dec(LRunner);
@@ -1951,7 +2027,7 @@ begin
     LLength := Length(LTextLine);
     if LLength = 0 then
       Exit;
-    if (ATextPosition.Char >= 1) and (ATextPosition.Char <= LLength + 1) and not IsWordBreakChar(LTextLine[ATextPosition.Char]) then
+    if (ATextPosition.Char >= 1) and (ATextPosition.Char <= LLength) and not IsWordBreakChar(LTextLine[ATextPosition.Char]) then
     begin
       LStop := ATextPosition.Char;
       while (LStop <= LLength) and not IsWordBreakChar(LTextLine[LStop]) do
@@ -2302,6 +2378,30 @@ begin
   Result.Row := Max(1, TopLine + Y div FLineHeight);
 end;
 
+function TBCBaseEditor.OpenClipboard: Boolean;
+var
+  LRetryCount: Integer;
+  LDelayStepMs: Integer;
+begin
+  LDelayStepMs := BCEDITOR_CLIPBOARD_DELAY_STEP_MS;
+  Result := False;
+  for LRetryCount := 1 to BCEDITOR_CLIPBOARD_MAX_RETRIES do
+  try
+    Clipboard.Open;
+    Result := True;
+    Break;
+  except
+    on Exception do
+    if LRetryCount = BCEDITOR_CLIPBOARD_MAX_RETRIES then
+      raise
+    else
+    begin
+      Sleep(LDelayStepMs);
+      Inc(LDelayStepMs, BCEDITOR_CLIPBOARD_DELAY_STEP_MS);
+    end;
+  end;
+end;
+
 function TBCBaseEditor.PreviousWordPosition: TBCEditorTextPosition;
 begin
   Result := PreviousWordPosition(TextCaretPosition);
@@ -2428,7 +2528,7 @@ var
 
 begin
   if not Assigned(FSearchEngine) then
-    raise Exception.Create(SBCEditorSearchEngineNotAssigned);
+    raise EBCEditorBaseException.Create(SBCEditorSearchEngineNotAssigned);
 
   Result := 0;
   if Length(ASearchText) = 0 then
@@ -2442,12 +2542,6 @@ begin
   begin
     LStartTextPosition := SelectionBeginPosition;
     LEndTextPosition := SelectionEndPosition;
-    if FSelection.ActiveMode = smLine then
-    begin
-      LStartTextPosition.Char := 1;
-      LEndTextPosition.Char := FLines.StringLength(LEndTextPosition.Line);
-    end
-    else
     if FSelection.ActiveMode = smColumn then
       if LStartTextPosition.Char > LEndTextPosition.Char then
         SwapInt(LStartTextPosition.Char, LEndTextPosition.Char);
@@ -2481,10 +2575,10 @@ begin
   FSearchEngine.Pattern := ASearchText;
   case FSearch.Engine of
     seNormal:
-    begin
-      TBCEditorNormalSearch(FSearchEngine).CaseSensitive := soCaseSensitive in FSearch.Options;
-      TBCEditorNormalSearch(FSearchEngine).WholeWordsOnly := soWholeWordsOnly in FSearch.Options;
-    end;
+      begin
+        TBCEditorNormalSearch(FSearchEngine).CaseSensitive := soCaseSensitive in FSearch.Options;
+        TBCEditorNormalSearch(FSearchEngine).WholeWordsOnly := soWholeWordsOnly in FSearch.Options;
+      end;
   end;
   LIsEndUndoBlock := False;
   try
@@ -2653,7 +2747,7 @@ begin
 
   CheckIfAtMatchingKeywords;
   Paint;
-  UpdateScrollbars;
+  UpdateScrollBars;
 end;
 
 procedure TBCBaseEditor.CodeFoldingLinesDeleted(AFirstLine: Integer; ACount: Integer);
@@ -2744,7 +2838,7 @@ begin
   end;
   CheckIfAtMatchingKeywords;
   Paint;
-  UpdateScrollbars;
+  UpdateScrollBars;
 end;
 
 procedure TBCBaseEditor.CompletionProposalTimerHandler(Sender: TObject);
@@ -2832,24 +2926,24 @@ procedure TBCBaseEditor.DoToggleSelectedCase(const ACommand: TBCEditorCommand);
   function TitleCase(const AValue: string): string;
   var
     i, LLength: Integer;
-    s: string;
+    S: string;
   begin
     Result := '';
     i := 1;
     LLength := Length(AValue);
     while i <= LLength do
     begin
-      s := AValue[i];
+      S := AValue[i];
       if i > 1 then
       begin
         if AValue[i - 1] = ' ' then
-          s := AnsiUpperCase(s)
+          S := AnsiUpperCase(S)
         else
-          s := AnsiLowerCase(s);
+          S := AnsiLowerCase(S);
       end
       else
-        s := AnsiUpperCase(s);
-      Result := Result + s;
+        S := AnsiUpperCase(S);
+      Result := Result + S;
       Inc(i);
     end;
   end;
@@ -2994,10 +3088,12 @@ begin
   begin
     LTextBeginPosition := PBCEditorTextPosition(FSyncEdit.SyncItems.Items[i])^;
 
-    if (LTextBeginPosition.Line = FSyncEdit.EditBeginPosition.Line) and (LTextBeginPosition.Char > FSyncEdit.EditBeginPosition.Char) then
+    if (LTextBeginPosition.Line = FSyncEdit.EditBeginPosition.Line) and
+      (LTextBeginPosition.Char < FSyncEdit.EditBeginPosition.Char) then
     begin
-      LTextBeginPosition.Char := LTextBeginPosition.Char + LDifference;
-      PBCEditorTextPosition(FSyncEdit.SyncItems.Items[i])^.Char := LTextBeginPosition.Char;
+      FSyncEdit.MoveBeginPositionChar(LDifference);
+      FSyncEdit.MoveEndPositionChar(LDifference);
+      SetTextCaretX(TextCaretPosition.Char + LDifference);
     end;
 
     LTextEndPosition := LTextBeginPosition;
@@ -3018,9 +3114,11 @@ begin
     if j < FSyncEdit.SyncItems.Count then
     begin
       LTextSameLinePosition := PBCEditorTextPosition(FSyncEdit.SyncItems.Items[j])^;
+
       while (j < FSyncEdit.SyncItems.Count) and (LTextSameLinePosition.Line = LTextBeginPosition.Line) do
       begin
         PBCEditorTextPosition(FSyncEdit.SyncItems.Items[j])^.Char := LTextSameLinePosition.Char + LDifference;
+
         Inc(j);
         if j < FSyncEdit.SyncItems.Count then
           LTextSameLinePosition := PBCEditorTextPosition(FSyncEdit.SyncItems.Items[j])^;
@@ -3033,11 +3131,13 @@ end;
 procedure TBCBaseEditor.DoTabKey;
 var
   LTextCaretPosition: TBCEditorTextPosition;
+  LDisplayCaretPosition: TBCEditorDisplayPosition;
   LTabText, LTextLine: string;
-  LNewCaretX: Integer;
+  LCharCount, LLengthAfterLine, LPreviousLine, LPreviousLineCharCount: Integer;
   LChangeScroll: Boolean;
 begin
-  if SelectionAvailable and (toSelectedBlockIndent in FTabs.Options) then
+  if SelectionAvailable and (FSelectionBeginPosition.Line <> FSelectionEndPosition.Line) and
+    (toSelectedBlockIndent in FTabs.Options) then
   begin
     DoBlockIndent;
     Exit;
@@ -3046,34 +3146,68 @@ begin
   FUndoList.BeginBlock(1);
   try
     LTextCaretPosition := TextCaretPosition;
-
     if SelectionAvailable then
     begin
-      FUndoList.AddChange(crDelete, LTextCaretPosition, FSelectionBeginPosition, FSelectionEndPosition, GetSelectedText,
+      FUndoList.AddChange(crDelete, LTextCaretPosition, SelectionBeginPosition, SelectionEndPosition, GetSelectedText,
         FSelection.ActiveMode);
       DoSelectedText('');
       DoChange;
-    end;
-
-    if toTabsToSpaces in FTabs.Options then
-    begin
-      LNewCaretX := LTextCaretPosition.Char + FTabs.Width;
-      LTabText := StringOfChar(BCEDITOR_SPACE_CHAR, FTabs.Width);
-    end
-    else
-    begin
-      LNewCaretX := LTextCaretPosition.Char + 1;
-      LTabText := BCEDITOR_TAB_CHAR;
+      LTextCaretPosition := FSelectionBeginPosition;
     end;
 
     LTextLine := FLines[LTextCaretPosition.Line];
-    Insert(LTabText, LTextLine, LTextCaretPosition.Char);
-    FLines[LTextCaretPosition.Line] := LTextLine;
+
+    LDisplayCaretPosition := DisplayCaretPosition;
+    LLengthAfterLine := Max(LDisplayCaretPosition.Column - FLines.ExpandedStringLengths[LTextCaretPosition.Line], 1);
+
+    LCharCount := 0;
+
+    if toColumns in FTabs.Options then
+      if (LDisplayCaretPosition.Column - 1) mod FTabs.Width <> 0 then
+        LCharCount := LLengthAfterLine - 1 + FTabs.Width - (LDisplayCaretPosition.Column - 1) mod FTabs.Width;
+
+    if LCharCount = 0 then
+    begin
+      if LLengthAfterLine > 1 then
+        LCharCount := LLengthAfterLine
+      else
+        LCharCount := FTabs.Width;
+    end;
+
+    if toPreviousLineIndent in FTabs.Options then
+      if Trim(FLines[LTextCaretPosition.Line]) = '' then
+      begin
+        LPreviousLine := LTextCaretPosition.Line - 1;
+        while (LPreviousLine >= 0) and (FLines[LPreviousLine] = '') do
+          Dec(LPreviousLine);
+        LPreviousLineCharCount := LeftSpaceCount(FLines[LPreviousLine], True);
+        if LPreviousLineCharCount > LTextCaretPosition.Char then
+          LCharCount := LPreviousLineCharCount - LeftSpaceCount(FLines[LTextCaretPosition.Line], True)
+      end;
+
+    if LLengthAfterLine > 1 then
+      LTextCaretPosition.Char := Length(LTextLine) + 1;
+
+    if toTabsToSpaces in FTabs.Options then
+      LTabText := StringOfChar(BCEDITOR_SPACE_CHAR, LCharCount)
+    else
+    begin
+      LTabText := StringOfChar(BCEDITOR_TAB_CHAR, LCharCount div FTabs.Width);
+      LTabText := LTabText + StringOfChar(BCEDITOR_SPACE_CHAR, LCharCount mod FTabs.Width);
+    end;
+
+    if InsertMode then
+    begin
+      Insert(LTabText, LTextLine, LTextCaretPosition.Char);
+      FLines[LTextCaretPosition.Line] := LTextLine;
+    end;
 
     LChangeScroll := not (soPastEndOfLine in FScroll.Options);
     try
       FScroll.Options := FScroll.Options + [soPastEndOfLine];
-      SetTextCaretX(LNewCaretX);
+      if not InsertMode then
+        LTabText := StringReplace(LTabText, BCEDITOR_TAB_CHAR, StringOfChar(BCEDITOR_SPACE_CHAR, FTabs.Width), [rfReplaceAll]);
+      SetTextCaretX(LTextCaretPosition.Char + Length(LTabText));
     finally
       if LChangeScroll then
         FScroll.Options := FScroll.Options - [soPastEndOfLine];
@@ -3081,7 +3215,12 @@ begin
     EnsureCursorPositionVisible;
 
     if FSelection.ActiveMode <> smColumn then
-      FUndoList.AddChange(crInsert, LTextCaretPosition, LTextCaretPosition, TextCaretPosition, '', FSelection.ActiveMode);
+    begin
+      if InsertMode then
+        FUndoList.AddChange(crInsert, LTextCaretPosition, LTextCaretPosition, TextCaretPosition, '', FSelection.ActiveMode)
+      else
+        FUndoList.AddChange(crCaret, LTextCaretPosition, LTextCaretPosition, LTextCaretPosition, '', FSelection.ActiveMode);
+    end
   finally
     FUndoList.EndBlock;
   end;
@@ -3129,13 +3268,13 @@ begin
         LPoint.X := LPoint.X + 1;
       end;
     csVerticalLine, csThinVerticalLine:
-    begin
-      LCaretWidth := 1;
-      if LCaretStyle = csVerticalLine then
-        LCaretWidth := 2;
-      LCaretHeight := FLineHeight;
-      X := 1;
-    end;
+      begin
+        LCaretWidth := 1;
+        if LCaretStyle = csVerticalLine then
+          LCaretWidth := 2;
+        LCaretHeight := FLineHeight;
+        X := 1;
+      end;
   end;
 
   LTempBitmap := Vcl.Graphics.TBitmap.Create;
@@ -3174,14 +3313,14 @@ begin
     LKeyword := FSearch.SearchText
   else
     LKeyword := ASearchText;
-    
+
   if LKeyword = '' then
     Exit;
 
   FindWords(LKeyword, FSearch.Lines, soCaseSensitive in FSearch.Options, False);
 end;
 
-procedure TBCBaseEditor.FindWords(AWord: string; AList: TList; ACaseSensitive: Boolean; AWholeWordsOnly: Boolean);
+procedure TBCBaseEditor.FindWords(const AWord: string; AList: TList; ACaseSensitive: Boolean; AWholeWordsOnly: Boolean);
 var
   i: Integer;
   LLine: string;
@@ -3254,12 +3393,21 @@ end;
 
 procedure TBCBaseEditor.MoveCaretAndSelection(const ABeforeTextPosition, AAfterTextPosition: TBCEditorTextPosition;
   ASelectionCommand: Boolean);
+var
+  LReason: TBCEditorChangeReason;
 begin
   if not (uoGroupUndo in FUndo.Options) and UndoList.CanUndo then
     FUndoList.AddGroupBreak;
 
-  FUndoList.AddChange(crCaret, ABeforeTextPosition, ABeforeTextPosition, ABeforeTextPosition, '',
-    FSelection.ActiveMode);
+  if not ASelectionCommand then
+  begin
+    if SelectionAvailable then
+      LReason := crSelection
+    else
+      LReason := crCaret;
+    FUndoList.AddChange(LReason, TextCaretPosition, SelectionBeginPosition, SelectionEndPosition, '',
+      FSelection.ActiveMode);
+  end;
 
   IncPaintLock;
   if ASelectionCommand then
@@ -3285,7 +3433,10 @@ var
 begin
   LTextCaretPosition := TextCaretPosition;
   if not SelectionAvailable then
+  begin
     FSelectionBeginPosition := LTextCaretPosition;
+    FSelectionEndPosition := LTextCaretPosition;
+  end;
 
   LZeroPosition := LTextCaretPosition;
   LDestinationPosition := LZeroPosition;
@@ -3556,7 +3707,7 @@ var
             if LKeyWordPtr^ = BCEDITOR_NONE_CHAR then { if found, skip single line comment or push skip region into stack }
             begin
               if LSkipRegionItem.RegionType = ritSingleLineComment then
-              { single line comment skip until next line }
+                { single line comment skip until next line }
                 Exit(True)
               else
                 LOpenTokenSkipFoldRangeList.Add(LSkipRegionItem);
@@ -4081,16 +4232,16 @@ begin
     scEngineUpdate:
       AssignSearchEngine;
     scSearch:
-    begin
-      FindAll; { for search map and search count }
-      if Assigned(FSearchEngine) and FSearch.Enabled then
       begin
-        if soBackwards in FSearch.Options then
-          FindPrevious
-        else
-          FindNext(True);
+        FindAll; { for search map and search count }
+        if Assigned(FSearchEngine) and FSearch.Enabled then
+        begin
+          if soBackwards in FSearch.Options then
+            FindPrevious
+          else
+            FindNext(True);
+        end;
       end;
-    end;
   end;
   Invalidate;
 end;
@@ -4151,10 +4302,11 @@ begin
   if AText = '' then
     Exit;
   LLength := Length(AText);
-  Clipboard.open;
+
+  if not OpenClipboard then
+    Exit;
   try
     Clipboard.Clear;
-
     { set ANSI text only on Win9X, WinNT automatically creates ANSI from Unicode }
     if Win32Platform <> VER_PLATFORM_WIN32_NT then
     begin
@@ -4189,7 +4341,6 @@ begin
         GlobalUnlock(LGlobalMem);
       end;
     end;
-    { Don't free Mem! It belongs to the clipboard now, and it will free it when it is done with it. }
   finally
     Clipboard.Close;
   end;
@@ -4258,8 +4409,11 @@ var
   LMaxLineWidth: Integer;
   LDelta: Integer;
   LTextAreaRect: TRect;
+  LWrapAtColumn: Integer;
 begin
-  if FWordWrap.Enabled and (GetWrapAtColumn <= FVisibleChars) then
+  LWrapAtColumn := GetWrapAtColumn;
+
+  if FWordWrap.Enabled and (LWrapAtColumn <= FVisibleChars) then
     AValue := 1;
 
   if soPastEndOfLine in FScroll.Options then
@@ -4272,7 +4426,7 @@ begin
   else
   begin
     if FWordWrap.Enabled then
-      LMaxLineWidth := GetWrapAtColumn
+      LMaxLineWidth := LWrapAtColumn
     else
       LMaxLineWidth := FLines.GetLengthOfLongestLine;
     if LMaxLineWidth > FVisibleChars then
@@ -4296,7 +4450,7 @@ begin
     end
     else
       InvalidateLines(-1, -1);
-    if ((soAutosizeMaxWidth in FScroll.Options) or (soPastEndOfLine in FScroll.Options)) and
+    if ((soAutoSizeMaxWidth in FScroll.Options) or (soPastEndOfLine in FScroll.Options)) and
       (FScroll.MaxWidth < LeftChar + FVisibleChars) then
       FScroll.MaxWidth := LeftChar + FVisibleChars - 1
     else
@@ -4363,6 +4517,12 @@ begin
   end;
 end;
 
+procedure TBCBaseEditor.SetMouseMoveScrollCursors(AIndex: Integer; AValue: HCURSOR);
+begin
+  if (AIndex >= Low(FMouseMoveScrollCursors)) and (AIndex <= High(FMouseMoveScrollCursors)) then
+    FMouseMoveScrollCursors[AIndex] := AValue;
+end;
+
 procedure TBCBaseEditor.SetOptions(AValue: TBCEditorOptions);
 begin
   if FOptions <> AValue then
@@ -4406,16 +4566,15 @@ begin
       LTextCaretPosition := FDragBeginTextCaretPosition
     else
       LTextCaretPosition := TextCaretPosition;
-    if SelectionAvailable then
-      FUndoList.AddChange(crDelete, LTextCaretPosition, SelectionBeginPosition, SelectionEndPosition, GetSelectedText,
-        FSelection.ActiveMode)
-    else
-      FSelection.ActiveMode := FSelection.Mode;
 
     LBlockStartPosition := SelectionBeginPosition;
     LBlockEndPosition := SelectionEndPosition;
-    FSelectionBeginPosition := LBlockStartPosition;
-    FSelectionEndPosition := LBlockEndPosition;
+
+    if SelectionAvailable then
+      FUndoList.AddChange(crDelete, LTextCaretPosition, LBlockStartPosition, LBlockEndPosition, GetSelectedText,
+        FSelection.ActiveMode)
+    else
+      FSelection.ActiveMode := FSelection.Mode;
 
     DoSelectedText(AValue);
 
@@ -4817,12 +4976,12 @@ var
   LCodeFoldingRange: TBCEditorCodeFoldingRange;
 begin
   if Assigned(AFoldRanges) then
-  for i := 0 to AFoldRanges.Count - 1 do
-  begin
-    LCodeFoldingRange := AFoldRanges[i];
-    UpdateFoldRanges(LCodeFoldingRange.SubCodeFoldingRanges, ALineCount);
-    LCodeFoldingRange.MoveBy(ALineCount);
-  end;
+    for i := 0 to AFoldRanges.Count - 1 do
+    begin
+      LCodeFoldingRange := AFoldRanges[i];
+      UpdateFoldRanges(LCodeFoldingRange.SubCodeFoldingRanges, ALineCount);
+      LCodeFoldingRange.MoveBy(ALineCount);
+    end;
 end;
 
 procedure TBCBaseEditor.UpdateModifiedStatus;
@@ -4884,15 +5043,19 @@ var
   end;
 
   procedure UpdateHorizontalScrollBar;
+  var
+    LWrapAtColumn: Integer;
   begin
+    LWrapAtColumn := GetWrapAtColumn;
+
     if (FScroll.Bars in [ssBoth, ssHorizontal]) and
-      (not FWordWrap.Enabled or (FWordWrap.Enabled and (GetWrapAtColumn > FVisibleChars))) then
+      (not FWordWrap.Enabled or (FWordWrap.Enabled and (LWrapAtColumn > FVisibleChars))) then
     begin
       if soPastEndOfLine in FScroll.Options then
         LMaxScroll := FScroll.MaxWidth
       else
       if FWordWrap.Enabled then
-        LMaxScroll := GetWrapAtColumn
+        LMaxScroll := LWrapAtColumn
       else
         LMaxScroll := Max(FLines.GetLengthOfLongestLine, 1);
       if LMaxScroll <= BCEDITOR_MAX_SCROLL_RANGE then
@@ -5566,7 +5729,6 @@ begin
   begin
     if FSelection.Visible then
       SetWordBlock(TextCaretPosition);
-    FUndoList.AddChange(crCaret, TextCaretPosition, SelectionBeginPosition, SelectionEndPosition, '', FSelection.ActiveMode);
     inherited;
     Include(FStateFlags, sfDblClicked);
     MouseCapture := False;
@@ -5714,7 +5876,7 @@ begin
 
     LSomethingToDelete := False;
     j := 0;
-    SetLength(LStringToDelete, LLastLine -  LBlockBeginPosition.Line + 1);
+    SetLength(LStringToDelete, LLastLine - LBlockBeginPosition.Line + 1);
     for i := LBlockBeginPosition.Line to LLastLine do
     begin
       LLine := PChar(Lines[i]);
@@ -5739,7 +5901,7 @@ begin
       else
         LDeleteIndex := Min(LBlockBeginPosition.Char, LBlockEndPosition.Char);
       j := 0;
-      for I := LBlockBeginPosition.Line to LLastLine do
+      for i := LBlockBeginPosition.Line to LLastLine do
       begin
         LLength := Length(LStringToDelete[j]);
         Inc(j);
@@ -5792,9 +5954,9 @@ begin
   SetClipboardText(AText);
 
   LTextLength := Length(AText);
-  { Open and Close are the only TClipboard methods used because TClipboard is very hard (impossible) to work with if
-    you want to put more than one format on it at a time. }
-  Clipboard.Open;
+
+  if not OpenClipboard then
+    Exit;
   try
     { Copy it in custom format to know what kind of block it is. That effects how it is pasted in. }
     LGlobalMem := GlobalAlloc(GMEM_MOVEABLE or GMEM_DDESHARE, SizeOf(TBCEditorSelectionMode) + LTextLength + 1);
@@ -5813,16 +5975,11 @@ begin
         GlobalUnlock(LGlobalMem);
       end;
     end;
-    { Don't free Mem! It belongs to the clipboard now, and it will free it when it is done with it. }
-  finally
-    Clipboard.Close;
-  end;
-  if FSelection.Mode = smColumn then
-  begin
-    { Borland-IDE }
-    LSmType := $02;
-    Clipboard.Open;
-    try
+
+    if FSelection.Mode = smColumn then
+    begin
+      { Borland-IDE }
+      LSmType := $02;
       LGlobalMem := GlobalAlloc(GMEM_MOVEABLE or GMEM_DDESHARE, SizeOf(LSmType));
       if LGlobalMem <> 0 then
       begin
@@ -5837,14 +5994,9 @@ begin
           GlobalUnlock(LGlobalMem);
         end;
       end;
-    finally
-      Clipboard.Close;
-    end;
 
-    { Microsoft VisualStudio }
-    LSmType := $02;
-    Clipboard.Open;
-    try
+      { Microsoft VisualStudio }
+      LSmType := $02;
       LGlobalMem := GlobalAlloc(GMEM_MOVEABLE or GMEM_DDESHARE, SizeOf(LSmType));
       if LGlobalMem <> 0 then
       begin
@@ -5859,9 +6011,9 @@ begin
           GlobalUnlock(LGlobalMem);
         end;
       end;
-    finally
-      Clipboard.Close;
     end;
+  finally
+    Clipboard.Close;
   end;
 end;
 
@@ -5935,7 +6087,7 @@ begin
       begin
         if uoGroupUndo in FUndo.Options then
           LIsKeepGoing := LIsPasteAction and (FUndoList.LastChangeString = LLastChangeString) or
-           (LLastChangeReason = LUndoItem.ChangeReason) or
+           (LLastChangeReason = LUndoItem.ChangeReason) and (LUndoItem.ChangeBlockNumber = LLastChangeBlockNumber) or
            (LUndoItem.ChangeBlockNumber <> 0) and (LUndoItem.ChangeBlockNumber = LLastChangeBlockNumber);
         LLastChangeReason := LUndoItem.ChangeReason;
         LIsPasteAction := LLastChangeReason = crPaste;
@@ -6105,7 +6257,7 @@ begin
   else
   begin
     LNewLine := LNewLine - VisibleLines div 2;
-    LStep :=  Abs(LNewLine - TopLine) div 5;
+    LStep := Abs(LNewLine - TopLine) div 5;
     if LNewLine < TopLine then
     while LNewLine < TopLine - LStep do
     begin
@@ -6301,22 +6453,6 @@ begin
     Exit;
   end;
 
-  if FCompletionProposal.Enabled then
-  begin
-    ShortCutToKey(FCompletionProposal.ShortCut, LShortCutKey, LShortCutShift);
-    if (AShift = LShortCutShift) and (AKey = LShortCutKey) or
-      (AShift = []) and (cpoAutoInvoke in FCompletionProposal.Options) and Chr(AKey).IsLetter then
-    begin
-      DoExecuteCompletionProposal;
-      if not (cpoAutoInvoke in FCompletionProposal.Options) then
-      begin
-        AKey := 0;
-        Include(FStateFlags, sfIgnoreNextChar);
-        Exit;
-      end;
-    end;
-  end;
-
   if FSyncEdit.Enabled then
   begin
     if FSyncEdit.Active then
@@ -6335,9 +6471,6 @@ begin
       Exit;
     end;
   end;
-
-  if Assigned(FCompletionProposalPopupWindow) and not FCompletionProposalPopupWindow.Visible then
-    FreeCompletionProposalPopupWindow;
 
   FKeyboardHandler.ExecuteKeyDown(Self, AKey, AShift);
 
@@ -6359,7 +6492,8 @@ begin
     if FSyncEdit.Active then
     begin
       case LEditorCommand of
-        ecChar, ecBackspace, ecCopy, ecCut, ecLeft, ecSelectionLeft, ecRight, ecSelectionRight: ;
+        ecChar, ecBackspace, ecCopy, ecCut, ecLeft, ecSelectionLeft, ecRight, ecSelectionRight:
+          ;
         ecPaste:
           if Pos(BCEDITOR_CARRIAGE_RETURN, GetClipboardText) <> 0 then
             LEditorCommand := ecNone;
@@ -6381,6 +6515,25 @@ begin
   finally
     if Assigned(LData) then
       FreeMem(LData);
+  end;
+
+  if Assigned(FCompletionProposalPopupWindow) and not FCompletionProposalPopupWindow.Visible then
+    FreeCompletionProposalPopupWindow;
+
+  if FCompletionProposal.Enabled and not Assigned(FCompletionProposalPopupWindow) then
+  begin
+    ShortCutToKey(FCompletionProposal.ShortCut, LShortCutKey, LShortCutShift);
+    if (AShift = LShortCutShift) and (AKey = LShortCutKey) or
+      (AKey <> LShortCutKey) and (cpoAutoInvoke in FCompletionProposal.Options) and Chr(AKey).IsLetter then
+    begin
+      DoExecuteCompletionProposal;
+      if not (cpoAutoInvoke in FCompletionProposal.Options) then
+      begin
+        AKey := 0;
+        Include(FStateFlags, sfIgnoreNextChar);
+        Exit;
+      end;
+    end;
   end;
 end;
 
@@ -6431,7 +6584,7 @@ var
   LLongestLineLength: Integer;
 begin
   Invalidate;
-  if soAutosizeMaxWidth in FScroll.Options then
+  if soAutoSizeMaxWidth in FScroll.Options then
   begin
     LLongestLineLength := FLines.GetLengthOfLongestLine;
     if LLongestLineLength <> FScroll.MaxWidth then
@@ -6476,7 +6629,7 @@ var
 begin
   for i := 0 to Marks.Count - 1 do
   begin
-    LMark :=  Marks[i];
+    LMark := Marks[i];
     if LMark.Line >= AIndex + ACount then
       LMark.Line := LMark.Line - ACount
     else
@@ -6552,7 +6705,7 @@ begin
   InvalidateLines(AIndex + 1, AIndex + FVisibleLines + 1);
   InvalidateLeftMarginLines(AIndex + 1, AIndex + FVisibleLines + 1);
 
-  if soAutosizeMaxWidth in FScroll.Options then
+  if soAutoSizeMaxWidth in FScroll.Options then
   begin
     LLength := FLines.ExpandedStringLengths[AIndex];
     if LLength > FScroll.MaxWidth then
@@ -6580,7 +6733,7 @@ begin
   if Assigned(FOnLinesPutted) then
     FOnLinesPutted(Self, AIndex, ACount);
 
-  if soAutosizeMaxWidth in FScroll.Options then
+  if soAutoSizeMaxWidth in FScroll.Options then
   begin
     LLength := FLines.ExpandedStringLengths[AIndex];
     if LLength > FScroll.MaxWidth then
@@ -6616,19 +6769,19 @@ end;
 
 procedure TBCBaseEditor.MouseDown(AButton: TMouseButton; AShift: TShiftState; X, Y: Integer);
 var
-  LWasSelected: Boolean;
+  LSelectionAvailable: Boolean;
   LLeftMarginWidth: Integer;
   LDisplayPosition: TBCEditorDisplayPosition;
+  LRow, LRowCount: Integer;
 begin
   LLeftMarginWidth := FLeftMargin.GetWidth + FCodeFolding.GetWidth;
   if FMinimap.Align = maLeft then
     Inc(LLeftMarginWidth, FMinimap.GetWidth);
 
-  LWasSelected := False;
+  LSelectionAvailable := SelectionAvailable;
 
   if AButton = mbLeft then
   begin
-    LWasSelected := SelectionAvailable;
     FMouseDownX := X;
     FMouseDownY := Y;
     if FMinimap.Visible then
@@ -6643,15 +6796,19 @@ begin
       Exit;
     end;
 
-  if FSyncEdit.Enabled and FSyncEdit.Activator.Visible and not FSyncEdit.Active and LWasSelected then
+  if FSyncEdit.Enabled and FSyncEdit.Activator.Visible and not FSyncEdit.Active and LSelectionAvailable then
   begin
     LDisplayPosition := TextToDisplayPosition(SelectionEndPosition);
-    if (X < LeftMargin.Bookmarks.Panel.Width) and
-      (Y div FLineHeight <= LDisplayPosition.Row - TopLine) and
-      (Y div FLineHeight > LDisplayPosition.Row - TopLine - 1) then
+
+    if X < LeftMargin.Bookmarks.Panel.Width then
     begin
-      FSyncEdit.Active := True;
-      Exit;
+      LRowCount := Y div FLineHeight;
+      LRow := LDisplayPosition.Row - TopLine;
+      if (LRowCount <= LRow) and (LRowCount > LRow - 1) then
+      begin
+        FSyncEdit.Active := True;
+        Exit;
+      end;
     end;
   end;
 
@@ -6724,7 +6881,8 @@ begin
     if AButton = mbRight then
     begin
       if (coRightMouseClickMovesCaret in FCaret.Options) and
-        (SelectionAvailable and not IsTextPositionInSelection(DisplayToTextPosition(PixelsToRowColumn(X, Y))) or not SelectionAvailable) then
+        (LSelectionAvailable and not IsTextPositionInSelection(DisplayToTextPosition(PixelsToRowColumn(X, Y))) or
+        not LSelectionAvailable) then
       begin
         InvalidateSelection;
         FSelectionEndPosition := FSelectionBeginPosition;
@@ -6735,9 +6893,19 @@ begin
     end
     else
     begin
-      FUndoList.AddChange(crCaret, TextCaretPosition, SelectionBeginPosition, SelectionEndPosition, '', FSelection.ActiveMode);
+      FUndoList.AddChange(crCaret, TextCaretPosition, SelectionBeginPosition, SelectionEndPosition, '',
+        FSelection.ActiveMode);
       ComputeCaret(X, Y);
     end;
+  end;
+
+  FMouseMoveScrolling := False;
+  if AButton = mbMiddle then
+  begin
+    FMouseMoveScrolling := True;
+    FMouseMoveScrollingPoint := Point(X, Y);
+    Invalidate;
+    Exit;
   end;
 
   if AButton = mbLeft then
@@ -6745,7 +6913,7 @@ begin
     MouseCapture := True;
 
     Exclude(FStateFlags, sfWaitForDragging);
-    if LWasSelected and (eoDragDropEditing in FOptions) and (X > LLeftMarginWidth) and
+    if LSelectionAvailable and (eoDragDropEditing in FOptions) and (X > LLeftMarginWidth) and
       (FSelection.Mode = smNormal) and IsTextPositionInSelection(DisplayToTextPosition(PixelsToRowColumn(X, Y))) then
       Include(FStateFlags, sfWaitForDragging);
   end;
@@ -6817,6 +6985,7 @@ var
   LPositionText: string;
   LLine: Integer;
   LMinimapWidth: Integer;
+  LTextCaretPosition: TBCEditorTextPosition;
 begin
   if FMinimap.Visible then
     if (FMinimap.Align = maRight) and (X > ClientRect.Width - FMinimap.GetWidth - FSearch.Map.GetWidth) or
@@ -6940,7 +7109,7 @@ begin
     end;
   end
   else
-  if (ssLeft in AShift) and MouseCapture and ((X <> FOldMouseMovePoint.X) or (Y <> FOldMouseMovePoint.Y))  then
+  if (ssLeft in AShift) and MouseCapture and ((X <> FOldMouseMovePoint.X) or (Y <> FOldMouseMovePoint.Y)) then
   begin
     FOldMouseMovePoint.X := X;
     FOldMouseMovePoint.Y := Y;
@@ -6953,9 +7122,9 @@ begin
       LDisplayPosition.Row := DisplayCaretY;
     if not (sfCodeFoldingInfoClicked in FStateFlags) then { no selection when info clicked }
     begin
-      FUndoList.AddChange(crCaret, TextCaretPosition, SelectionBeginPosition, SelectionEndPosition, '', FSelection.ActiveMode);
-      TextCaretPosition := DisplayToTextPosition(LDisplayPosition);
-      SelectionEndPosition := TextCaretPosition;
+      LTextCaretPosition := DisplayToTextPosition(LDisplayPosition);
+      TextCaretPosition := LTextCaretPosition;
+      SelectionEndPosition := LTextCaretPosition;
       if (uoGroupUndo in FUndo.Options) and UndoList.CanUndo then
         FUndoList.AddGroupBreak;
     end;
@@ -7206,6 +7375,9 @@ begin
 
     if FRightMargin.Moving then
       PaintRightMarginMove;
+
+    if FMouseMoveScrolling and (soWheelClickMove in FScroll.Options) then
+      PaintMouseMoveScrollPoint;
   finally
     FLastTopLine := FTopLine;
     FLastLineNumberCount := FLineNumbersCount;
@@ -7526,13 +7698,13 @@ var
   LLine, LPreviousLine: Integer;
   LLineRect: TRect;
 
-  procedure DrawMark(ABookMark: TBCEditorBookmark; var ALeftMarginOffset: Integer; AMarkRow: Integer);
+  procedure DrawMark(ABookmark: TBCEditorBookmark; var ALeftMarginOffset: Integer; AMarkRow: Integer);
   var
     Y: Integer;
   begin
-    if not ABookMark.InternalImage and Assigned(FLeftMargin.Bookmarks.Images) then
+    if not ABookmark.InternalImage and Assigned(FLeftMargin.Bookmarks.Images) then
     begin
-      if ABookMark.ImageIndex <= FLeftMargin.Bookmarks.Images.Count then
+      if ABookmark.ImageIndex <= FLeftMargin.Bookmarks.Images.Count then
       begin
         ALeftMarginOffset := 0;
 
@@ -7541,20 +7713,21 @@ var
         else
           Y := 0;
         with FLeftMargin.Bookmarks do
-          Images.Draw(Canvas, AClipRect.Left + Panel.LeftMargin + ALeftMarginOffset, (AMarkRow - TopLine) * FLineHeight + Y,
-            ABookMark.ImageIndex);
+          Images.Draw(Canvas, AClipRect.Left + Panel.LeftMargin + ALeftMarginOffset,
+            (AMarkRow - TopLine) * FLineHeight + Y, ABookmark.ImageIndex);
         Inc(ALeftMarginOffset, FLeftMargin.Bookmarks.Panel.OtherMarkXOffset);
       end;
     end
     else
     begin
-      if ABookMark.ImageIndex in [0 .. 8] then
+      if ABookmark.ImageIndex in [0 .. 8] then
       begin
         if not Assigned(FInternalBookmarkImage) then
-          FInternalBookmarkImage := TBCEditorInternalImage.Create(HINSTANCE, 'BCEDITORBOOKMARKIMAGES', 9);
+          FInternalBookmarkImage := TBCEditorInternalImage.Create(HINSTANCE, BCEDITOR_BOOKMARK_IMAGES, 9);
         if ALeftMarginOffset = 0 then
-          FInternalBookmarkImage.Draw(Canvas, ABookMark.ImageIndex, AClipRect.Left + FLeftMargin.Bookmarks.Panel.LeftMargin +
-            ALeftMarginOffset, (aMarkRow - TopLine) * FLineHeight, FLineHeight, clFuchsia);
+          FInternalBookmarkImage.Draw(Canvas, ABookmark.ImageIndex,
+            AClipRect.Left + FLeftMargin.Bookmarks.Panel.LeftMargin + ALeftMarginOffset,
+            (AMarkRow - TopLine) * FLineHeight, FLineHeight, clFuchsia);
         Inc(ALeftMarginOffset, FLeftMargin.Bookmarks.Panel.OtherMarkXOffset);
       end;
     end;
@@ -7683,13 +7856,14 @@ var
     i: Integer;
   begin
     if FWordWrap.Enabled and FWordWrap.Indicator.Visible then
-    for i := AFirstLine to ALastLine do
-    begin
-      LLine := GetDisplayTextLineNumber(i);
-      LPreviousLine := GetDisplayTextLineNumber(i - 1);
-      if LLine = LPreviousLine then
-        FWordWrap.Indicator.Draw(Canvas, AClipRect.Left + FWordWrap.Indicator.Left, (i - TopLine) * FLineHeight, FLineHeight);
-    end;
+      for i := AFirstLine to ALastLine do
+      begin
+        LLine := GetDisplayTextLineNumber(i);
+        LPreviousLine := GetDisplayTextLineNumber(i - 1);
+        if LLine = LPreviousLine then
+          FWordWrap.Indicator.Draw(Canvas, AClipRect.Left + FWordWrap.Indicator.Left, (i - TopLine) * FLineHeight,
+            FLineHeight);
+      end;
   end;
 
   procedure PaintBorder;
@@ -7742,14 +7916,14 @@ var
               end;
           end;
           if LHasOtherMarks then
-          for j := 0 to Marks.Count - 1 do
-          begin
-            LBookmark := Marks[j];
-            if LBookmark.Line + 1 = LBookmarkLine then
-              if LBookmark.Visible and not LBookmark.IsBookmark then
-                if not FCodeFolding.Visible or FCodeFolding.Visible then
-                  DrawMark(LBookmark, LLeftMarginOffsets[ALastLine - i], LBookmarkLine);
-          end;
+            for j := 0 to Marks.Count - 1 do
+            begin
+              LBookmark := Marks[j];
+              if LBookmark.Line + 1 = LBookmarkLine then
+                if LBookmark.Visible and not LBookmark.IsBookmark then
+                  if not FCodeFolding.Visible or FCodeFolding.Visible then
+                    DrawMark(LBookmark, LLeftMarginOffsets[ALastLine - i], LBookmarkLine);
+            end;
         end;
       finally
         FreeMem(LLeftMarginOffsets);
@@ -7891,6 +8065,14 @@ begin
     Canvas.Brush.Style := bsClear;
     Canvas.Rectangle(Rect(AClipRect.Left, LTop, AClipRect.Right, LTop + FMinimapIndicatorBitmap.Height));
   end;
+end;
+
+procedure TBCBaseEditor.PaintMouseMoveScrollPoint;
+var
+  LHalfWidth: Integer;
+begin
+  LHalfWidth := FScroll.Indicator.Width div 2;
+  FScroll.Indicator.Draw(Canvas, FMouseMoveScrollingPoint.X - LHalfWidth, FMouseMoveScrollingPoint.Y - LHalfWidth);
 end;
 
 procedure TBCBaseEditor.PaintRightMarginMove;
@@ -8051,35 +8233,55 @@ begin
   end;
 end;
 
-procedure TBCBaseEditor.PaintSpecialChars(ALine, AScrolledXBy: Integer; ALineRect: TRect);
+procedure TBCBaseEditor.PaintSpecialChars(ALine, AFirstColumn: Integer; ALineRect: TRect);
 var
   i: Integer;
+  LLine: string;
   LPLine: PChar;
+  LLineLength: Integer;
   LCharWidth, LTextHeight: Integer;
-  LCharPosition, X, Y, LLeftTemp: Integer;
+  LDisplayCharPosition, X, Y, LLeftTemp: Integer;
   LCharRect: TRect;
   LPilcrow: string;
   LMinimapWidth: Integer;
 begin
   if FSpecialChars.Visible then
   begin
-    LPLine := PChar(FLines.Strings[ALine - 1]);
+    LPLine := PChar(FLines[ALine - 1]);
+    LLineLength := Length(FLines[ALine - 1]);
+
+    LDisplayCharPosition := 1;
+    while LDisplayCharPosition < AFirstColumn do
+    begin
+      if LPLine^ = BCEDITOR_TAB_CHAR then
+        Inc(LDisplayCharPosition, FTabs.Width)
+      else
+        Inc(LDisplayCharPosition);
+
+      Inc(LPLine);
+    end;
+
+    LDisplayCharPosition := 1;
+    LCharWidth := FCharWidth;
 
     if scoUseTextColor in FSpecialChars.Options then
       Canvas.Pen.Color := FHighlighter.MainRules.Attribute.Foreground
     else
       Canvas.Pen.Color := FSpecialChars.Color;
 
-    LCharWidth := FCharWidth;
     LTextHeight := Max(FLineHeight - 8, 0) shr 4;
     with ALineRect do
       X := Top + (Bottom - Top) shr 1 - 1;
 
-    LCharPosition := 1;
-    LLeftTemp := FLeftMargin.GetWidth + FCodeFolding.GetWidth - AScrolledXBy;
+    LLeftTemp := FLeftMargin.GetWidth + FCodeFolding.GetWidth;
     if FMinimap.Align = maLeft then
       Inc(LLeftTemp, FMinimap.GetWidth);
-    while LPLine^ <> BCEDITOR_NONE_CHAR do
+
+    LLine := FLines[ALine - 1];
+    LLine := Copy(LLine, AFirstColumn, Length(LLine));
+    LPLine := PChar(LLine);
+
+    while (LPLine^ <> BCEDITOR_NONE_CHAR) and (LDisplayCharPosition <= FVisibleChars) do
     begin
       if LPLine^ = BCEDITOR_SPACE_CHAR then
       begin
@@ -8087,7 +8289,7 @@ begin
         begin
           Top := X - LTextHeight;
           Bottom := X + 2 + LTextHeight;
-          Left := LLeftTemp + LCharPosition * LCharWidth - LCharWidth div 2 - 1;
+          Left := LLeftTemp + LDisplayCharPosition * LCharWidth - LCharWidth div 2 - 1;
           Right := Left + 2;
         end;
         with Canvas, LCharRect do
@@ -8099,7 +8301,7 @@ begin
         begin
           Top := ALineRect.Top;
           Bottom := ALineRect.Bottom;
-          Left := LLeftTemp + LCharPosition * LCharWidth - LCharWidth div 2 - 1;
+          Left := LLeftTemp + LDisplayCharPosition * LCharWidth - LCharWidth div 2 - 1;
           Right := Left + FTabs.Width * LCharWidth - 6;
         end;
         with Canvas do
@@ -8128,13 +8330,15 @@ begin
           MoveTo(i, LCharRect.Top + Y);
           LineTo(i - (Y shr 1), LCharRect.Top + Y + (Y shr 1));
         end;
-        Inc(LCharPosition, FTabs.Width)
+        Inc(LDisplayCharPosition, FTabs.Width);
       end
       else
-        Inc(LCharPosition, Length(LPLine^));
+        Inc(LDisplayCharPosition, Length(LPLine^));
       Inc(LPLine);
     end;
-    if FSpecialChars.EndOfLine.Visible and (ALine <> FLineNumbersCount) then
+
+    if FSpecialChars.EndOfLine.Visible and (ALine <> FLineNumbersCount) and
+      (LLineLength - AFirstColumn < FVisibleChars) then
     begin
       if scoUseTextColor in FSpecialChars.Options then
         Canvas.Pen.Color := FHighlighter.MainRules.Attribute.Foreground
@@ -8146,8 +8350,8 @@ begin
         if FSpecialChars.EndOfLine.Style = eolPilcrow then
           LCharRect.Bottom := ALineRect.Bottom
         else
-        LCharRect.Bottom := ALineRect.Bottom - 3;
-        LCharRect.Left := LLeftTemp + (LCharPosition - 1) * LCharWidth;
+          LCharRect.Bottom := ALineRect.Bottom - 3;
+        LCharRect.Left := LLeftTemp + (LDisplayCharPosition - 1) * LCharWidth;
         if FSpecialChars.EndOfLine.Style = eolEnter then
           LCharRect.Left := LCharRect.Left + 4;
         if FSpecialChars.EndOfLine.Style = eolPilcrow then
@@ -8166,7 +8370,7 @@ begin
         begin
           if FSpecialChars.EndOfLine.Style = eolPilcrow then
           begin
-            if IsTextPositionInSelection(GetTextPosition(LCharPosition, ALine - 1)) then
+            if IsTextPositionInSelection(GetTextPosition(LDisplayCharPosition, ALine - 1)) then
               FTextDrawer.BackgroundColor := FSelection.Colors.Background
             else
             if GetTextCaretY = ALine - 1 then
@@ -8305,7 +8509,7 @@ var
 
     for i := 0 to 8 do
     begin
-      LMark := FBookMarks[i];
+      LMark := FBookmarks[i];
       if Assigned(LMark) then
         if LMark.Line = LCurrentLine - 1 then
           Exit(True);
@@ -8674,15 +8878,17 @@ var
     LHighlighterAttribute: TBCEditorHighlighterAttribute;
     LScrolledXBy: Integer;
     LTokenText: string;
-    LTokenPosition, LTokenLength: Integer;
+    LTokenPosition, LRealTokenPosition, LTokenLength: Integer;
     LStyle: TFontStyles;
-    LKeyWord, LWordAtSelection, LSelectedText: string;
+    LKeyword, LWordAtSelection, LSelectedText: string;
     LAddedMultiByteFillerChars: Boolean;
     LMatchingPairUnderline: Boolean;
     LOpenTokenEndPos, LOpenTokenEndLen: Integer;
     LElement: string;
     LIsCustomBackgroundColor: Boolean;
     LTextPosition: TBCEditorTextPosition;
+    LPreviousFirstColumn: Integer;
+    LTextCaretY: Integer;
 
     function GetWordAtSelection(var ASelectedText: string): string;
     var
@@ -8696,8 +8902,8 @@ var
         SwapInt(LSelectionBeginChar, LSelectionEndChar);
       LTempTextPosition.Char := LSelectionEndChar - 1;
 
-      ASelectedText := Copy(FLines[FSelectionBeginPosition.Line], LSelectionBeginChar, LSelectionEndChar -
-        LSelectionBeginChar);
+      ASelectedText := Copy(FLines[FSelectionBeginPosition.Line], LSelectionBeginChar,
+        LSelectionEndChar - LSelectionBeginChar);
 
       Result := GetWordAtRowColumn(LTempTextPosition);
     end;
@@ -8712,7 +8918,7 @@ var
         LStyle := LHighlighterAttribute.Style;
 
         if Assigned(FOnCustomTokenAttribute) then
-          FOnCustomTokenAttribute(Self, LTokenText, LCurrentLine, LTokenPosition, LForegroundColor,
+          FOnCustomTokenAttribute(Self, LTokenText, LCurrentLine, LRealTokenPosition, LForegroundColor,
             LBackgroundColor, LStyle);
 
         LIsCustomBackgroundColor := False;
@@ -8721,10 +8927,10 @@ var
         if FMatchingPair.Enabled and not FSyncEdit.Active then
           if FCurrentMatchingPair <> trNotFound then
           begin
-            if (LTokenPosition = FCurrentMatchingPairMatch.OpenTokenPos.Char - 1) and
-               (LCurrentLine - 1 = FCurrentMatchingPairMatch.OpenTokenPos.Line) or
-               (LTokenPosition = FCurrentMatchingPairMatch.CloseTokenPos.Char - 1) and
-               (LCurrentLine - 1 = FCurrentMatchingPairMatch.CloseTokenPos.Line) then
+            if (LRealTokenPosition = FCurrentMatchingPairMatch.OpenTokenPos.Char - 1) and
+              (LCurrentLine - 1 = FCurrentMatchingPairMatch.OpenTokenPos.Line) or
+              (LRealTokenPosition = FCurrentMatchingPairMatch.CloseTokenPos.Char - 1) and
+              (LCurrentLine - 1 = FCurrentMatchingPairMatch.CloseTokenPos.Line) then
             begin
               if (FCurrentMatchingPair = trOpenAndCloseTokenFound) or (FCurrentMatchingPair = trCloseAndOpenTokenFound) then
               begin
@@ -8760,7 +8966,7 @@ var
           LKeyword := '';
 
           if LTokenText = LWordAtSelection then
-            LKeyWord := LSelectedText;
+            LKeyword := LSelectedText;
 
           LIsCustomBackgroundColor := (LKeyword <> '') and (LKeyword = LTokenText);
           if LIsCustomBackgroundColor then
@@ -8832,7 +9038,8 @@ var
               FHighlighter.SetCurrentRange(FLines.Ranges[LCurrentLine]);
             FHighlighter.SetCurrentLine(LFromLineText);
             repeat
-              while not FHighlighter.GetEndOfLine and (LOpenTokenEndPos > FHighlighter.GetTokenPosition + FHighlighter.GetTokenLength) do
+              while not FHighlighter.GetEndOfLine and
+                (LOpenTokenEndPos > FHighlighter.GetTokenPosition + FHighlighter.GetTokenLength) do
                 FHighlighter.Next;
               LElement := FHighlighter.GetCurrentRangeAttribute.Element;
               if (LElement <> BCEDITOR_ATTRIBUTE_ELEMENT_COMMENT) and (LElement <> BCEDITOR_ATTRIBUTE_ELEMENT_STRING) then
@@ -8858,10 +9065,10 @@ var
           if LCurrentLine - 1 = FCurrentMatchingPairMatch.OpenTokenPos.Line then
           begin
             if (LFoldRange.RegionItem.OpenTokenEnd <> '') and (LOpenTokenEndPos > 0) then
-              FCurrentMatchingPairMatch.CloseTokenPos.Char := LOpenTokenEndPos + LOpenTokenEndLen + 2{ +2 = '..' }
+              FCurrentMatchingPairMatch.CloseTokenPos.Char := LOpenTokenEndPos + LOpenTokenEndLen + 2 { +2 = '..' }
             else
               FCurrentMatchingPairMatch.CloseTokenPos.Char := FCurrentMatchingPairMatch.OpenTokenPos.Char +
-                Length(FCurrentMatchingPairMatch.OpenToken) + 2{ +2 = '..' };
+                Length(FCurrentMatchingPairMatch.OpenToken) + 2 { +2 = '..' };
             FCurrentMatchingPairMatch.CloseTokenPos.Line := FCurrentMatchingPairMatch.OpenTokenPos.Line;
           end;
         end;
@@ -8875,14 +9082,17 @@ var
       LCurrentRow := LCurrentLine;
 
       LFirstColumn := LFirstChar;
+      LPreviousFirstColumn := LFirstChar;
       LLastColumn := LLastChar;
+      LTextCaretY := GetTextCaretY + 1;
+
       if FWordWrap.Enabled then
         if FWordWrapLineLengths[LDisplayLine] <> 0 then
           LLastColumn := FWordWrapLineLengths[LDisplayLine];
 
       while LCurrentRow = LCurrentLine do
       begin
-        LIsCurrentLine := GetTextCaretY + 1 = LCurrentLine;
+        LIsCurrentLine := LTextCaretY = LCurrentLine;
         LForegroundColor := FForegroundColor;
         LBackgroundColor := GetBackgroundColor;
 
@@ -8949,15 +9159,16 @@ var
         while not FHighlighter.GetEndOfLine do
         begin
           LTokenPosition := FHighlighter.GetTokenPosition;
+          LRealTokenPosition := LTokenPosition;
           FHighlighter.GetToken(LTokenText);
           LTokenLength := FHighlighter.GetTokenLength;
 
           LIsSyncEditBlock := False;
           if FSyncEdit.BlockSelected then
           begin
-             LTextPosition := GetTextPosition(LTokenPosition + 1, LCurrentLine - 1);
-             if FSyncEdit.IsTextPositionInBlock(LTextPosition) then
-               LIsSyncEditBlock := True;
+            LTextPosition := GetTextPosition(LTokenPosition + 1, LCurrentLine - 1);
+            if FSyncEdit.IsTextPositionInBlock(LTextPosition) then
+              LIsSyncEditBlock := True;
           end;
 
           if LTokenPosition + LTokenLength >= LFirstColumn then
@@ -8970,6 +9181,8 @@ var
               begin
                 LFirstColumn := LFirstColumn + FWordWrapLineLengths[LDisplayLine];
                 LLastColumn := LFirstColumn + FVisibleChars;
+                if LTokenPosition + LTokenLength - LPreviousFirstColumn < FVisibleChars then
+                  PrepareToken;
                 Break;
               end;
               Dec(LTokenPosition, LFirstColumn - LFirstChar);
@@ -8984,7 +9197,8 @@ var
         if not AMinimap then
         begin
           PaintCodeFoldingCollapseMark(LFoldRange, LTokenPosition, LTokenLength, LCurrentLine, LScrolledXBy, LLineRect);
-          PaintSpecialChars(LCurrentLine, LScrolledXBy, LLineRect);
+          PaintSpecialChars(LCurrentLine, LPreviousFirstColumn, LLineRect);
+          LPreviousFirstColumn := LFirstColumn;
           PaintCodeFoldingCollapsedLine(LFoldRange, LLineRect);
         end;
 
@@ -9094,12 +9308,12 @@ begin
   FCharWidth := 0;
   FTextDrawer.BaseFont := Font;
   for i := 0 to 3 do
-  if LHasStyle[i] then
-  begin
-    FTextDrawer.BaseStyle := LFontStyles[i];
-    FLineHeight := Max(FLineHeight, FTextDrawer.CharHeight);
-    FCharWidth := Max(FCharWidth, FTextDrawer.CharWidth);
-  end;
+    if LHasStyle[i] then
+    begin
+      FTextDrawer.BaseStyle := LFontStyles[i];
+      FLineHeight := Max(FLineHeight, FTextDrawer.CharHeight);
+      FCharWidth := Max(FCharWidth, FTextDrawer.CharWidth);
+    end;
   Inc(FLineHeight, ExtraLineSpacing);
 end;
 
@@ -9134,24 +9348,28 @@ begin
         begin
           FUndoList.AddChange(LUndoItem.ChangeReason, LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
             LUndoItem.ChangeEndPosition, '', LUndoItem.ChangeSelectionMode, LUndoItem.ChangeBlockNumber);
-          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition, LUndoItem.ChangeEndPosition);
+          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
+            LUndoItem.ChangeEndPosition);
         end;
       crInsert, crPaste, crDragDropInsert:
         begin
-          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition, LUndoItem.ChangeBeginPosition);
-          DoSelectedText(LUndoItem.ChangeSelectionMode, PChar(LUndoItem.ChangeString), False, LUndoItem.ChangeBeginPosition,
-            LUndoItem.ChangeBlockNumber);
+          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
+            LUndoItem.ChangeBeginPosition);
+          DoSelectedText(LUndoItem.ChangeSelectionMode, PChar(LUndoItem.ChangeString), False,
+            LUndoItem.ChangeBeginPosition, LUndoItem.ChangeBlockNumber);
           FUndoList.AddChange(LUndoItem.ChangeReason, LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
             LUndoItem.ChangeEndPosition, '', LUndoItem.ChangeSelectionMode, LUndoItem.ChangeBlockNumber);
           if LUndoItem.ChangeReason = crDragDropInsert then
-            SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition, LUndoItem.ChangeEndPosition);
+            SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
+              LUndoItem.ChangeEndPosition);
         end;
       crDelete:
         begin
-          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition, LUndoItem.ChangeEndPosition);
+          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
+            LUndoItem.ChangeEndPosition);
           LTempString := SelectedText;
-          DoSelectedText(LUndoItem.ChangeSelectionMode, PChar(LUndoItem.ChangeString), False, LUndoItem.ChangeBeginPosition,
-            LUndoItem.ChangeBlockNumber);
+          DoSelectedText(LUndoItem.ChangeSelectionMode, PChar(LUndoItem.ChangeString), False,
+            LUndoItem.ChangeBeginPosition, LUndoItem.ChangeBlockNumber);
           FUndoList.AddChange(LUndoItem.ChangeReason, LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
             LUndoItem.ChangeEndPosition, LTempString, LUndoItem.ChangeSelectionMode, LUndoItem.ChangeBlockNumber);
           TextCaretPosition := LUndoItem.ChangeCaretPosition;
@@ -9164,9 +9382,11 @@ begin
         end;
       crIndent:
         begin
-          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition, LUndoItem.ChangeEndPosition);
+          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
+            LUndoItem.ChangeEndPosition);
           FUndoList.AddChange(LUndoItem.ChangeReason, LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
-            LUndoItem.ChangeEndPosition, LUndoItem.ChangeString, LUndoItem.ChangeSelectionMode, LUndoItem.ChangeBlockNumber);
+            LUndoItem.ChangeEndPosition, LUndoItem.ChangeString, LUndoItem.ChangeSelectionMode,
+            LUndoItem.ChangeBlockNumber);
         end;
       crUnindent:
         begin
@@ -9200,16 +9420,18 @@ begin
             LStrToDelete := LRun;
           until LRun^ = BCEDITOR_NONE_CHAR;
           if LUndoItem.ChangeSelectionMode = smColumn then
-            SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition, LUndoItem.ChangeEndPosition)
+            SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
+              LUndoItem.ChangeEndPosition)
           else
           begin
             LTextPosition.Char := LUndoItem.ChangeBeginPosition.Char - FTabs.Width;
             LTextPosition.Line := LUndoItem.ChangeBeginPosition.Line;
-            SetCaretAndSelection(LTextPosition, LTextPosition, GetTextPosition(LUndoItem.ChangeEndPosition.Char -
-              LLength, LUndoItem.ChangeEndPosition.Line));
+            SetCaretAndSelection(LTextPosition, LTextPosition,
+              GetTextPosition(LUndoItem.ChangeEndPosition.Char - LLength, LUndoItem.ChangeEndPosition.Line));
           end;
           FUndoList.AddChange(LUndoItem.ChangeReason, LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
-            LUndoItem.ChangeEndPosition, LUndoItem.ChangeString, LUndoItem.ChangeSelectionMode, LUndoItem.ChangeBlockNumber);
+            LUndoItem.ChangeEndPosition, LUndoItem.ChangeString, LUndoItem.ChangeSelectionMode,
+            LUndoItem.ChangeBlockNumber);
         end;
     end;
   finally
@@ -9253,11 +9475,11 @@ begin
         LHeight := FLineHeight;
       end;
     csVerticalLine, csThinVerticalLine:
-    begin
-      if LCaretStyle = csVerticalLine then
-        LWidth := 2;
-      LHeight := FLineHeight;
-    end;
+      begin
+        if LCaretStyle = csVerticalLine then
+          LWidth := 2;
+        LHeight := FLineHeight;
+      end;
   end;
   Exclude(FStateFlags, sfCaretVisible);
 
@@ -9419,12 +9641,8 @@ var
   LBlockStartPosition: TBCEditorTextPosition;
 begin
   if AChangeString <> '' then
-  begin
     LBlockStartPosition := SelectionBeginPosition;
-    if FSelection.ActiveMode = smLine then
-      LBlockStartPosition.Char := 1;
-  end;
-  FUndoList.BeginBlock(3);
+  FUndoList.BeginBlock;
   FUndoList.AddChange(crDelete, TextCaretPosition, SelectionBeginPosition, SelectionEndPosition, GetSelectedText,
     FSelection.ActiveMode);
 
@@ -9501,11 +9719,6 @@ var
           end;
           TextCaretPosition := GetTextPosition(LBeginTextPosition.Char, FSelectionEndPosition.Line);
         end;
-      smLine:
-        begin
-          FLines.DeleteLines(LBeginTextPosition.Line, (LEndTextPosition.Line - LBeginTextPosition.Line) + 1);
-          TextCaretPosition := GetTextPosition(1, LBeginTextPosition.Line);
-        end;
     end;
   end;
 
@@ -9540,7 +9753,13 @@ var
 
       LLeftSide := Copy(FLines[LTextCaretPosition.Line], 1, LTextCaretPosition.Char - 1);
       if LTextCaretPosition.Char - 1 > Length(LLeftSide) then
+      begin
+        FUndoList.AddChange(crInsert, LTextCaretPosition, GetTextPosition(Length(LLeftSide) + 1, LTextCaretPosition.Line),
+          GetTextPosition(Length(LLeftSide) + LTextCaretPosition.Char - 1, LTextCaretPosition.Line), '', FSelection.ActiveMode,
+          AChangeBlockNumber);
+
         LLeftSide := LLeftSide + StringOfChar(BCEDITOR_SPACE_CHAR, LTextCaretPosition.Char - 1 - Length(LLeftSide));
+      end;
       LRightSide := Copy(FLines[LTextCaretPosition.Line], LTextCaretPosition.Char, FLines.StringLength(LTextCaretPosition.Line) - (LTextCaretPosition.Char - 1));
 
       { insert the first line of Value into current line }
@@ -9626,8 +9845,8 @@ var
               if toTabsToSpaces in FTabs.Options then
                 LTempString := StringOfChar(BCEDITOR_SPACE_CHAR, LLength)
               else
-                LTempString := StringOfChar(BCEDITOR_TAB_CHAR, LLength div FTabs.Width) + StringOfChar(BCEDITOR_SPACE_CHAR,
-                  LLength mod FTabs.Width);
+                LTempString := StringOfChar(BCEDITOR_TAB_CHAR, LLength div FTabs.Width) +
+                  StringOfChar(BCEDITOR_SPACE_CHAR, LLength mod FTabs.Width);
               LTempString := LTempString + LStr;
             end
             else
@@ -9643,8 +9862,8 @@ var
                 Line := LCurrentLine;
                 Char := Length(Lines[LCurrentLine - 1]) + 1;
               end;
-              FUndoList.AddChange(crLineBreak, LLineBreakPosition, LLineBreakPosition, LLineBreakPosition, '', smNormal,
-                AChangeBlockNumber);
+              FUndoList.AddChange(crLineBreak, LLineBreakPosition, LLineBreakPosition, LLineBreakPosition, '',
+                smNormal, AChangeBlockNumber);
             end;
           end
           else
@@ -9670,79 +9889,22 @@ var
           if LPText^ = BCEDITOR_LINEFEED then
             Inc(LPText);
           Inc(LCurrentLine);
-          Inc(FDisplayCaretY);
+          Inc(LTextCaretPosition.Line);
         end;
         LPStart := LPText;
       until LPText^ = BCEDITOR_NONE_CHAR;
-      Inc(FDisplayCaretX, Length(LStr));
-    end;
-
-    function InsertLine: Integer;
-    var
-      LPStart: PChar;
-      LPText: PChar;
-      LLine: string;
-      LIsAfterLine, LDoReplace, LDoCaretFix: Boolean;
-    begin
-      Result := 0;
-
-      if FLines.Count = 0 then
-        FLines.Add('');
-
-      if LTextCaretPosition.Char = 0 then
-        LIsAfterLine := False
-      else
-        LIsAfterLine := LTextCaretPosition.Char > FLines.StringLength(LTextCaretPosition.Line);
-      LDoReplace := FLines.StringLength(LTextCaretPosition.Line) = 0;
-      LDoCaretFix := False;
-
-      { Insert strings }
-      FDisplayCaretX := 1;
-      LPStart := PChar(AValue);
-      repeat
-        LPText := GetEndOfLine(LPStart);
-        if LPText <> LPStart then
-        begin
-          SetLength(LLine, LPText - LPStart);
-          Move(LPStart^, LLine[1], (LPText - LPStart) * SizeOf(Char));
-        end
-        else
-          LLine := '';
-
-        if LDoReplace then
-        begin
-          LDoReplace := False;
-          FLines[GetTextCaretY] := LLine;
-          LDoCaretFix := True;
-        end
-        else
-        begin
-          FLines.Insert(GetTextCaretY + Ord(LIsAfterLine), LLine);
-          Inc(Result);
-        end;
-
-        Inc(FDisplayCaretY);
-
-        if LPText^ = BCEDITOR_CARRIAGE_RETURN then
-          Inc(LPText);
-        if LPText^ = BCEDITOR_LINEFEED then
-          Inc(LPText);
-        LPStart := LPText;
-      until LPText^ = BCEDITOR_NONE_CHAR;
-
-      if LDoCaretFix then
-        FDisplayCaretX := Length(LLine) + 1;
+      Inc(LTextCaretPosition.Char, Length(LStr));
     end;
 
   var
-    I, LStartLine: Integer;
+    i, LStartLine: Integer;
     LInsertedLines: Integer;
   begin
     if Length(AValue) = 0 then
       Exit;
 
     if SelectionAvailable then
-      LTextCaretPosition := LBeginTextPosition //SelectionBeginPosition
+      LTextCaretPosition := LBeginTextPosition
     else
       LTextCaretPosition := ATextCaretPosition;
 
@@ -9752,20 +9914,14 @@ var
         LInsertedLines := InsertNormal;
       smColumn:
         LInsertedLines := InsertColumn;
-      smLine:
-        LInsertedLines := InsertLine;
     else
       LInsertedLines := 0;
     end;
 
-    { We delete selected based on the current selection mode, but paste
-      what's on the clipboard according to what it was when copied.
-      Update marks }
     if LInsertedLines > 0 then
-      { Trim trailing spaces }
       if eoTrimTrailingSpaces in Options then
-        for I := LStartLine to LStartLine + LInsertedLines do
-          DoTrimTrailingSpaces(I);
+        for i := LStartLine to LStartLine + LInsertedLines do
+          DoTrimTrailingSpaces(i);
 
     { Force caret reset }
     TextCaretPosition := LTextCaretPosition;
@@ -9830,14 +9986,16 @@ begin
         begin
           FRedoList.AddChange(LUndoItem.ChangeReason, LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
             LUndoItem.ChangeEndPosition, '', LUndoItem.ChangeSelectionMode, LUndoItem.ChangeBlockNumber);
-          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition, LUndoItem.ChangeEndPosition);
+          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
+            LUndoItem.ChangeEndPosition);
         end;
       crInsert, crPaste, crDragDropInsert:
         begin
-          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition, LUndoItem.ChangeEndPosition);
+          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
+            LUndoItem.ChangeEndPosition);
           LTempText := SelectedText;
-          DoSelectedText(LUndoItem.ChangeSelectionMode, PChar(LUndoItem.ChangeString), False, LUndoItem.ChangeBeginPosition,
-            LUndoItem.ChangeBlockNumber);
+          DoSelectedText(LUndoItem.ChangeSelectionMode, PChar(LUndoItem.ChangeString), False,
+            LUndoItem.ChangeBeginPosition, LUndoItem.ChangeBlockNumber);
           FRedoList.AddChange(LUndoItem.ChangeReason, LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
             LUndoItem.ChangeEndPosition, LTempText, LUndoItem.ChangeSelectionMode, LUndoItem.ChangeBlockNumber);
         end;
@@ -9851,38 +10009,40 @@ begin
             FLines.Add('');
           end;
 
-          //SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition, LUndoItem.ChangeEndPosition);
+          FSelectionBeginPosition := LUndoItem.ChangeBeginPosition;
+          FSelectionEndPosition := FSelectionBeginPosition;
 
-          DoSelectedText(LUndoItem.ChangeSelectionMode, PChar(LUndoItem.ChangeString), False, LUndoItem.ChangeBeginPosition,
-            LUndoItem.ChangeBlockNumber);
+          DoSelectedText(LUndoItem.ChangeSelectionMode, PChar(LUndoItem.ChangeString), False,
+            LUndoItem.ChangeBeginPosition, LUndoItem.ChangeBlockNumber);
 
           FRedoList.AddChange(LUndoItem.ChangeReason, LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
             LUndoItem.ChangeEndPosition, '', LUndoItem.ChangeSelectionMode, LUndoItem.ChangeBlockNumber);
 
           TextCaretPosition := LUndoItem.ChangeCaretPosition;
+          SelectionBeginPosition := LUndoItem.ChangeBeginPosition;
+          SelectionEndPosition := LUndoItem.ChangeEndPosition;
           EnsureCursorPositionVisible;
         end;
       crLineBreak:
         begin
           TextCaretPosition := LUndoItem.ChangeCaretPosition;
-          if DisplayCaretY > 0 then
-          begin
-            LTempText := FLines.Strings[LUndoItem.ChangeBeginPosition.Line];
-            if (Length(LTempText) < DisplayCaretX - 1) and (LeftSpaceCount(LUndoItem.ChangeString) = 0) then
-              LTempText := LTempText + StringOfChar(BCEDITOR_SPACE_CHAR, DisplayCaretX - 1 - Length(LTempText));
-            SetLineWithRightTrim(LUndoItem.ChangeBeginPosition.Line, LTempText + LUndoItem.ChangeString);
-            FLines.Delete(LUndoItem.ChangeEndPosition.Line);
-          end
-          else
-            SetLineWithRightTrim(LUndoItem.ChangeEndPosition.Line, LUndoItem.ChangeString);
+
+          LTempText := FLines.Strings[LUndoItem.ChangeBeginPosition.Line];
+          if (LUndoItem.ChangeBeginPosition.Char - 1 > Length(LTempText)) and (LeftSpaceCount(LUndoItem.ChangeString) = 0) then
+            LTempText := LTempText + StringOfChar(BCEDITOR_SPACE_CHAR, LUndoItem.ChangeBeginPosition.Char - 1 - Length(LTempText));
+          SetLineWithRightTrim(LUndoItem.ChangeBeginPosition.Line, LTempText + LUndoItem.ChangeString);
+          FLines.Delete(LUndoItem.ChangeEndPosition.Line);
+
           FRedoList.AddChange(LUndoItem.ChangeReason, LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
             LUndoItem.ChangeEndPosition, '', LUndoItem.ChangeSelectionMode, LUndoItem.ChangeBlockNumber);
         end;
       crIndent:
         begin
-          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition, LUndoItem.ChangeEndPosition);
+          SetCaretAndSelection(LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
+            LUndoItem.ChangeEndPosition);
           FRedoList.AddChange(LUndoItem.ChangeReason, LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
-            LUndoItem.ChangeEndPosition, LUndoItem.ChangeString, LUndoItem.ChangeSelectionMode, LUndoItem.ChangeBlockNumber);
+            LUndoItem.ChangeEndPosition, LUndoItem.ChangeString, LUndoItem.ChangeSelectionMode,
+            LUndoItem.ChangeBlockNumber);
         end;
       crUnindent:
         begin
@@ -9896,7 +10056,8 @@ begin
               GetTextPosition(LBeginX, LUndoItem.ChangeEndPosition.Line), PChar(LUndoItem.ChangeString), False);
           end;
           FRedoList.AddChange(LUndoItem.ChangeReason, LUndoItem.ChangeCaretPosition, LUndoItem.ChangeBeginPosition,
-            LUndoItem.ChangeEndPosition, LUndoItem.ChangeString, LUndoItem.ChangeSelectionMode, LUndoItem.ChangeBlockNumber);
+            LUndoItem.ChangeEndPosition, LUndoItem.ChangeString, LUndoItem.ChangeSelectionMode,
+            LUndoItem.ChangeBlockNumber);
         end;
     end;
   finally
@@ -9913,6 +10074,7 @@ var
   LTextPosition: TBCEditorTextPosition;
   LNewCursor: TCursor;
   LMinimapWidth: Integer;
+  LCursorIndex: Integer;
 begin
   Winapi.Windows.GetCursorPos(LCursorPoint);
   LCursorPoint := ScreenToClient(LCursorPoint);
@@ -9921,6 +10083,15 @@ begin
   if FMinimap.Align = maLeft then
     LMinimapWidth := FMinimap.GetWidth;
 
+  if FMouseMoveScrolling then
+  begin
+    LCursorIndex := GetMouseMoveScrollCursorIndex;
+    if LCursorIndex <> -1 then
+      SetCursor(FMouseMoveScrollCursors[LCursorIndex])
+    else
+      SetCursor(0)
+  end
+  else
   if (LCursorPoint.X > LMinimapWidth) and (LCursorPoint.X < LMinimapWidth + FLeftMargin.GetWidth + FCodeFolding.GetWidth) then
     SetCursor(Screen.Cursors[FLeftMargin.Cursor])
   else
@@ -9965,7 +10136,10 @@ end;
 
 function TBCBaseEditor.CreateFileStream(const AFileName: string): TStream;
 begin
-  Result := TFileStream.Create(GetHighlighterFileName(AFileName), fmOpenRead);
+  if Assigned(FOnCreateFileStream) then
+    FOnCreateFileStream(Self, AFileName, Result)
+  else
+    Result := TFileStream.Create(AFileName, fmOpenRead);
 end;
 
 function TBCBaseEditor.DisplayToTextPosition(const ADisplayPosition: TBCEditorDisplayPosition): TBCEditorTextPosition;
@@ -9973,6 +10147,7 @@ var
   LTextLine: string;
   i, LLength, LChar, LPreviousLine, LRow: Integer;
   LIsWrapped: Boolean;
+  LPLine: PChar;
 begin
   Result := TBCEditorTextPosition(ADisplayPosition);
   Result.Line := GetDisplayTextLineNumber(Result.Line);
@@ -9990,6 +10165,19 @@ begin
       Dec(LRow);
       LPreviousLine := GetDisplayTextLineNumber(LRow);
     end;
+    if LIsWrapped then
+    begin
+      i := 1;
+      LPLine := PChar(FLines[Result.Line - 1]);
+      if Result.Char <= Length(FLines.ExpandedStrings[Result.Line - 1]) then
+      while (LPLine^ <> BCEDITOR_NONE_CHAR) and (i < Result.Char) do
+      begin
+        if LPLine^ = BCEDITOR_TAB_CHAR then
+          Dec(Result.Char, FTabs.Width - 1);
+        Inc(i);
+        Inc(LPLine);
+      end;
+    end;
   end;
 
   Dec(Result.Line);
@@ -10001,7 +10189,7 @@ begin
     LChar := 0;
     i := 0;
 
-    while LChar < Result.Char  do
+    while LChar < Result.Char do
     begin
       Inc(i);
       if (i <= LLength) and (LTextLine[i] = BCEDITOR_TAB_CHAR) then
@@ -10119,7 +10307,7 @@ begin
         ATextPosition.Line := LMark.Line;
         Exit(True);
       end;
-  end;
+    end;
 end;
 
 function TBCBaseEditor.GetPositionOfMouse(out ATextPosition: TBCEditorTextPosition): Boolean;
@@ -10157,9 +10345,6 @@ begin
   if (ATextPosition.Line >= LBeginTextPosition.Line) and (ATextPosition.Line <= LEndTextPosition.Line) and
     ((LBeginTextPosition.Line <> LEndTextPosition.Line) or (LBeginTextPosition.Char <> LEndTextPosition.Char)) then
   begin
-    if FSelection.ActiveMode = smLine then
-      Result := True
-    else
     if FSelection.ActiveMode = smColumn then
     begin
       if LBeginTextPosition.Char > LEndTextPosition.Char then
@@ -10223,12 +10408,14 @@ var
 
 begin
   if not Assigned(FSearchEngine) then
-    raise Exception.Create(SBCEditorSearchEngineNotAssigned);
+    raise EBCEditorBaseException.Create(SBCEditorSearchEngineNotAssigned);
 
   Result := 0;
   if Length(ASearchText) = 0 then
     Exit;
 
+  ClearCodeFolding;
+  FCodeFoldingLock := True;
   LIsBackward := roBackwards in FReplace.Options;
   LIsPrompt := roPrompt in FReplace.Options;
   LIsReplaceAll := roReplaceAll in FReplace.Options;
@@ -10238,10 +10425,10 @@ begin
   FSearchEngine.Pattern := ASearchText;
   case FReplace.Engine of
     seNormal:
-    begin
-      TBCEditorNormalSearch(FSearchEngine).CaseSensitive := roCaseSensitive in FReplace.Options;
-      TBCEditorNormalSearch(FSearchEngine).WholeWordsOnly := roWholeWordsOnly in FReplace.Options;
-    end;
+      begin
+        TBCEditorNormalSearch(FSearchEngine).CaseSensitive := roCaseSensitive in FReplace.Options;
+        TBCEditorNormalSearch(FSearchEngine).WholeWordsOnly := roWholeWordsOnly in FReplace.Options;
+      end;
   end;
 
   if not SelectionAvailable then
@@ -10251,12 +10438,6 @@ begin
   begin
     LStartTextPosition := SelectionBeginPosition;
     LEndTextPosition := SelectionEndPosition;
-    if FSelection.ActiveMode = smLine then
-    begin
-      LStartTextPosition.Char := 1;
-      LEndTextPosition.Char := Length(Lines[LEndTextPosition.Line]) + 1;
-    end
-    else
     if FSelection.ActiveMode = smColumn then
       if LStartTextPosition.Char > LEndTextPosition.Char then
         SwapInt(LStartTextPosition.Char, LEndTextPosition.Char);
@@ -10315,8 +10496,7 @@ begin
         LCurrentTextPosition.Char := LFound;
 
         SelectionBeginPosition := LCurrentTextPosition;
-        SetDisplayCaretPosition(False, GetDisplayPosition(1, LCurrentTextPosition.Line));
-        EnsureCursorPositionVisible(True);
+
         Inc(LCurrentTextPosition.Char, LSearchLength);
         SelectionEndPosition := LCurrentTextPosition;
 
@@ -10357,7 +10537,7 @@ begin
           else
           begin
             SelectedText := FSearchEngine.Replace(SelectedText, AReplaceText);
-            LReplaceLength := DisplayCaretX - LFound;
+            LReplaceLength := TextCaretPosition.Char - LFound;
           end
         end;
         if not LIsBackward then
@@ -10373,6 +10553,7 @@ begin
             end;
           end;
         end;
+
         if not LIsReplaceAll then
           Exit;
       end;
@@ -10382,6 +10563,8 @@ begin
         Inc(LCurrentTextPosition.Line);
     end;
   finally
+    FCodeFoldingLock := False;
+    InitCodeFolding;
     if LIsReplaceAll and not LIsPrompt then
       DecPaintLock;
     if LIsEndUndoBlock then
@@ -10548,6 +10731,16 @@ var
   LTextLine: string;
   LLength, LChar: Integer;
   LIsWrapped: Boolean;
+  LPLine: PChar;
+
+  function GetWrapLineLength(ARow: Integer): Integer;
+  begin
+    if FWordWrapLineLengths[ARow] <> 0 then
+      Result := FWordWrapLineLengths[ARow]
+    else
+      Result := GetWrapAtColumn
+  end;
+
 begin
   Result := TBCEditorDisplayPosition(ATextPosition);
   Result.Row := GetDisplayLineNumber(ATextPosition.Line + 1);
@@ -10555,11 +10748,20 @@ begin
   LIsWrapped := False;
   if Visible and FWordWrap.Enabled then
   begin
-    LLength := GetWrapAtColumn;
-    if FWordWrapLineLengths[Result.Row] <> 0 then
-      LLength := FWordWrapLineLengths[Result.Row];
+    i := 1;
+
+    LPLine := PChar(FLines[ATextPosition.Line]);
+    if Result.Column <= Length(FLines[ATextPosition.Line]) then
+    while (LPLine^ <> BCEDITOR_NONE_CHAR) and (i < Result.Column) do
+    begin
+      if LPLine^ = BCEDITOR_TAB_CHAR then
+        Inc(Result.Column, FTabs.Width - 1);
+      Inc(i);
+      Inc(LPLine);
+    end;
+
     if FVisibleChars > 0 then
-    while Result.Column - 1 > LLength do
+    while Result.Column - 1 > GetWrapLineLength(Result.Row) do
     begin
       LIsWrapped := True;
       if FWordWrapLineLengths[Result.Row] <> 0  then
@@ -10776,14 +10978,16 @@ var
 begin
   i := 0;
   while i < Marks.Count do
-  if not Marks.Items[i].IsBookmark then
-    Marks.Delete(i)
-  else
-    Inc(i);
+    if not Marks.Items[i].IsBookmark then
+      Marks.Delete(i)
+    else
+      Inc(i);
 end;
 
 procedure TBCBaseEditor.ClearCodeFolding;
 begin
+  if FCodeFoldingLock then
+    Exit;
   FAllCodeFoldingRanges.ClearAll;
   FResetLineNumbersCache := True;
   SetLength(FCodeFoldingTreeLine, 0);
@@ -10818,7 +11022,7 @@ begin
     CodeFoldingCollapseLevel(i);
 
   FLines.EndUpdate;
-  UpdateScrollbars;
+  UpdateScrollBars;
 end;
 
 procedure TBCBaseEditor.CodeFoldingCollapseLevel(ALevel: Integer);
@@ -10858,7 +11062,7 @@ begin
   FSelectionBeginPosition := LBlockBeginPosition;
   FSelectionEndPosition := LBlockEndPosition;
 
-  UpdateScrollbars;
+  UpdateScrollBars;
 end;
 
 procedure TBCBaseEditor.CodeFoldingUncollapseLevel(ALevel: Integer; ANeedInvalidate: Boolean);
@@ -10918,7 +11122,7 @@ begin
     begin
       case ACommand of
         ecBackspace, ecDeleteChar, ecDeleteWord, ecDeleteLastWord, ecDeleteLine, ecClear, ecLineBreak, ecChar,
-        ecString, ecImeStr, ecCut, ecPaste, ecBlockIndent, ecBlockUnindent, ecTab:
+          ecString, ecImeStr, ecCut, ecPaste, ecBlockIndent, ecBlockUnindent, ecTab:
           if SelectionAvailable then
           begin
             LOldSelectionBeginPosition := GetSelectionBeginPosition;
@@ -11015,13 +11219,13 @@ begin
     LStrings := TStringList.Create;
     try
       LStrings.Text := SelectedText;
-      SelectedText := BCEditor.Utils.DeleteWhiteSpace(LStrings.Text);
+      SelectedText := BCEditor.Utils.DeleteWhitespace(LStrings.Text);
     finally
       LStrings.Free;
     end;
   end
   else
-    Text := BCEditor.Utils.DeleteWhiteSpace(Text);
+    Text := BCEditor.Utils.DeleteWhitespace(Text);
   DoChange;
 end;
 
@@ -11033,11 +11237,11 @@ var
   LComment: string;
   LCommentIndex: Integer;
   LSpaceCount: Integer;
+  LSpaces: string;
   LLineText: string;
-  LLineLength: Integer;
-  LCommentLength: Integer;
   LTextCaretPosition, LSelectionBeginPosition, LSelectionEndPosition: TBCEditorTextPosition;
   LCodeFoldingRange: TBCEditorCodeFoldingRange;
+  LDeleteComment: Boolean;
 begin
   LLength := Length(FHighlighter.Comments.BlockComments);
 
@@ -11068,7 +11272,8 @@ begin
     i := 0;
     LCommentIndex := -2;
     LLineText := FLines[LStartLine];
-    LSpaceCount := LeftSpaceCount(LLineText, True);
+    LSpaceCount := LeftSpaceCount(LLineText, False);
+    LSpaces := Copy(LLineText, 1, LSpaceCount);
     LLineText := Trim(LLineText);
 
     if LLineText <> '' then
@@ -11084,11 +11289,13 @@ begin
 
     FUndoList.BeginBlock;
 
+    LDeleteComment := False;
     if LCommentIndex <> -2 then
     begin
+      LDeleteComment := True;
       LComment := FHighlighter.Comments.BlockComments[LCommentIndex];
-      FUndoList.AddChange(crDelete, LTextCaretPosition, GetTextPosition(1 + LSpaceCount, LStartLine),
-        GetTextPosition(Length(LComment) + 1 + LSpaceCount, LStartLine), LComment, FSelection.ActiveMode);
+      FUndoList.AddChange(crDelete, LTextCaretPosition, GetTextPosition(LSpaceCount + 1, LStartLine),
+        GetTextPosition(LSpaceCount + Length(LComment) + 1, LStartLine), LComment, FSelection.ActiveMode);
       LLineText := Copy(LLineText, Length(LComment) + 1, Length(LLineText));
     end;
 
@@ -11097,54 +11304,42 @@ begin
     if LCommentIndex < LLength - 1 then
       LComment := FHighlighter.Comments.BlockComments[LCommentIndex];
 
-    LLineText := StringOfChar(' ', LSpaceCount) + LComment + LLineText;
+    LLineText := LSpaces + LComment + LLineText;
 
     FLines.BeginUpdate;
     FLines.Strings[LStartLine] := LLineText;
 
     FUndoList.AddChange(crInsert, LTextCaretPosition, GetTextPosition(1 + LSpaceCount, LStartLine),
-      GetTextPosition(Length(LComment) + 1 + LSpaceCount, LStartLine), '', FSelection.ActiveMode);
+      GetTextPosition(1 + LSpaceCount + Length(LComment), LStartLine), '', FSelection.ActiveMode);
 
-    i := 1;
-    LCommentIndex := -1;
+    Inc(LCommentIndex);
     LLineText := FLines[LEndLine];
-    LSpaceCount := LeftSpaceCount(LLineText, True);
+    LSpaceCount := LeftSpaceCount(LLineText, False);
+    LSpaces := Copy(LLineText, 1, LSpaceCount);
     LLineText := Trim(LLineText);
-    LLineLength := Length(LLineText);
-    LCommentLength := 0;
 
-    if LLineText <> '' then
-    while i < LLength do
+    if LDeleteComment and (LLineText <> '') then
     begin
-      LCommentLength := Length(FHighlighter.Comments.BlockComments[i]);
-      if Pos(FHighlighter.Comments.BlockComments[i], LLineText) = LLineLength - LCommentLength + 1 then
+      LComment := FHighlighter.Comments.BlockComments[LCommentIndex - 2];
+      if Pos(LComment, LLineText) = Length(LLineText) - Length(LComment) + 1 then
       begin
-        LCommentIndex := i;
-        Break;
+        FUndoList.AddChange(crDelete, LTextCaretPosition, GetTextPosition(LSpaceCount + Length(LLineText) - Length(LComment) + 1, LEndLine),
+          GetTextPosition(LSpaceCount + Length(LLineText) + 1, LEndLine), LComment, FSelection.ActiveMode);
+        LLineText := Copy(LLineText, 1, Length(LLineText) - Length(LComment));
       end;
-      Inc(i, 2);
     end;
 
-    if LCommentIndex <> -1 then
-    begin
-      LComment := FHighlighter.Comments.BlockComments[LCommentIndex];
-      FUndoList.AddChange(crDelete, LTextCaretPosition, GetTextPosition(FLines.StringLength(LEndLine) - LCommentLength + 1, LEndLine),
-        GetTextPosition(FLines.StringLength(LEndLine) + 1, LEndLine), LComment, FSelection.ActiveMode);
+    if (LCommentIndex > 0) and (LCommentIndex < LLength) then
+      LComment := FHighlighter.Comments.BlockComments[LCommentIndex]
+    else
+      LComment := '';
 
-      LLineText := Copy(LLineText, 1, LLineLength - LCommentLength);
-    end;
-
-    Inc(LCommentIndex, 2);
-    LComment := '';
-    if LCommentIndex < LLength then
-      LComment :=  FHighlighter.Comments.BlockComments[LCommentIndex];
-
-    LLineText := StringOfChar(' ', LSpaceCount) + LLineText + LComment;
+    LLineText := LSpaces + LLineText + LComment;
 
     FLines.Strings[LEndLine] := LLineText;
 
-    FUndoList.AddChange(crInsert, LTextCaretPosition, GetTextPosition(Length(LLineText) - Length(LComment) + 1, LEndLine),
-      GetTextPosition(Length(LLineText) + Length(LComment) + 1, LEndLine), '', FSelection.ActiveMode);
+    FUndoList.AddChange(crInsert, LTextCaretPosition, GetTextPosition(Length(LLineText) - Length(LComment) + 1,
+      LEndLine), GetTextPosition(Length(LLineText) + Length(LComment) + 1, LEndLine), '', FSelection.ActiveMode);
 
     FUndoList.EndBlock;
     FLines.EndUpdate;
@@ -11162,12 +11357,9 @@ begin
   if not ReadOnly and SelectionAvailable then
   begin
     BeginUndoBlock;
-    try
-      DoCopyToClipboard(SelectedText);
-      SelectedText := '';
-    finally
-      EndUndoBlock;
-    end;
+    DoCopyToClipboard(SelectedText);
+    SelectedText := '';
+    EndUndoBlock;
   end;
 end;
 
@@ -11218,6 +11410,7 @@ begin
             else
             begin
               SelectedText := '';
+
               if LDropAfter and (LNewCaretPosition.Line = LSelectionEndPosition.Line) then
                 Dec(LNewCaretPosition.Char, LSelectionEndPosition.Char - LSelectionBeginPosition.Char);
               if LDropAfter and (LSelectionEndPosition.Line > LSelectionBeginPosition.Line) then
@@ -11232,23 +11425,12 @@ begin
             TextCaretPosition := LNewCaretPosition;
             SelectionBeginPosition := LNewCaretPosition;
 
-            Assert(not SelectionAvailable);
-            LockUndo;
-            try
-              SelectedText := LDragDropText;
-            finally
-              UnlockUndo;
-            end;
+            SelectedText := LDragDropText;
           finally
             if LChangeScrollPastEndOfLine then
               FScroll.Options := FScroll.Options - [soPastEndOfLine];
           end;
-          if ASource = Self then
-            FUndoList.AddChange(crDragDropInsert, LNewCaretPosition, LNewCaretPosition, SelectionEndPosition,
-              SelectedText, FSelection.ActiveMode)
-          else
-            FUndoList.AddChange(crInsert, LNewCaretPosition, LNewCaretPosition, SelectionEndPosition, SelectedText,
-              FSelection.ActiveMode);
+
           SelectionEndPosition := TextCaretPosition;
           CommandProcessor(ecSelectionGotoXY, BCEDITOR_NONE_CHAR, @LNewCaretPosition);
         finally
@@ -11497,13 +11679,21 @@ begin
           if SelectionAvailable then
           begin
             if FSyncEdit.Active then
+            begin
+              if LTextCaretPosition.Char < FSyncEdit.EditBeginPosition.Char then
+                Exit;
               FSyncEdit.MoveEndPositionChar(-FSelectionEndPosition.Char + FSelectionBeginPosition.Char);
+            end;
             SetSelectedTextEmpty;
           end
           else
           begin
             if FSyncEdit.Active then
+            begin
+              if LTextCaretPosition.Char <= FSyncEdit.EditBeginPosition.Char then
+                Exit;
               FSyncEdit.MoveEndPositionChar(-1);
+            end;
             LLineText := FLines[LTextCaretPosition.Line];
             LLength := Length(LLineText);
             LTabBuffer := FLines.Strings[LTextCaretPosition.Line];
@@ -11553,8 +11743,8 @@ begin
                 LCaretNewPosition.Line := LTextCaretPosition.Line - 1;
                 LCaretNewPosition.Char := Length(Lines[LTextCaretPosition.Line - 1]) + 1;
 
-                FUndoList.AddChange(crDelete, LTextCaretPosition, LCaretNewPosition, LTextCaretPosition,
-                  sLineBreak, smNormal);
+                FUndoList.AddChange(crDelete, LTextCaretPosition, LCaretNewPosition, LTextCaretPosition, SLineBreak,
+                  smNormal);
 
                 FLines.Delete(LTextCaretPosition.Line);
 
@@ -11579,7 +11769,8 @@ begin
             begin
               LSpaceCount1 := LeftSpaceCount(LLineText);
               LSpaceCount2 := 0;
-              if (LLineText[LTextCaretPosition.Char - 1] <= BCEDITOR_SPACE_CHAR) and (LSpaceCount1 = LTextCaretPosition.Char - 1) then
+              if (LLineText[LTextCaretPosition.Char - 1] <= BCEDITOR_SPACE_CHAR) and
+                (LSpaceCount1 = LTextCaretPosition.Char - 1) then
               begin
                 LVisualSpaceCount1 := GetLeadingExpandedLength(LLineText);
                 LVisualSpaceCount2 := 0;
@@ -11604,7 +11795,7 @@ begin
                 begin
                   i := LTextCaretPosition.Char - 2;
                   LLength := GetLeadingExpandedLength(LLineText, i);
-                  while LLength > LVisualSpaceCount2 do
+                  while (i > 0) and (LLength > LVisualSpaceCount2) do
                   begin
                     Dec(i);
                     LLength := GetLeadingExpandedLength(LLineText, i);
@@ -11638,7 +11829,8 @@ begin
 
                   LHelper := Copy(LLineText, i + 1, LSpaceCount1 - i);
                   Delete(LLineText, i + 1, LSpaceCount1 - i);
-                  FUndoList.AddChange(crDelete, LTextCaretPosition, GetTextPosition(i + 1, LTextCaretPosition.Line), LTextCaretPosition, LHelper, smNormal);
+                  FUndoList.AddChange(crDelete, LTextCaretPosition, GetTextPosition(i + 1, LTextCaretPosition.Line),
+                    LTextCaretPosition, LHelper, smNormal);
                   SetTextCaretX(i + 1);
                 end;
                 FLines[LTextCaretPosition.Line] := LLineText;
@@ -11652,8 +11844,8 @@ begin
                 if LChar.IsSurrogate then
                   i := 2;
                 LHelper := Copy(LLineText, LTextCaretPosition.Char - i, i);
-                FUndoList.AddChange(crDelete, LTextCaretPosition, GetTextPosition(LTextCaretPosition.Char - i, LTextCaretPosition.Line), LTextCaretPosition,
-                  LHelper, smNormal);
+                FUndoList.AddChange(crDelete, LTextCaretPosition, GetTextPosition(LTextCaretPosition.Char - i,
+                  LTextCaretPosition.Line), LTextCaretPosition, LHelper, smNormal);
 
                 Delete(LLineText, LTextCaretPosition.Char - i, i);
                 FLines[LTextCaretPosition.Line] := LLineText;
@@ -11686,15 +11878,14 @@ begin
             begin
               if LTextCaretPosition.Line < FLines.Count - 1 then
               begin
+                FUndoList.BeginBlock;
                 LSpaceCount1 := LTextCaretPosition.Char - 1 - LLength;
-                if toTabsToSpaces in FTabs.Options then
-                  LSpaceBuffer := StringOfChar(BCEDITOR_SPACE_CHAR, LSpaceCount1)
-                else
-                if AllWhiteUpToCaret(LLineText, LLength) then
-                  LSpaceBuffer := StringOfChar(BCEDITOR_TAB_CHAR, LSpaceCount1 div FTabs.Width) +
-                    StringOfChar(BCEDITOR_SPACE_CHAR, LSpaceCount1 mod FTabs.Width)
-                else
-                  LSpaceBuffer := StringOfChar(BCEDITOR_SPACE_CHAR, LSpaceCount1);
+                LSpaceBuffer := StringOfChar(BCEDITOR_SPACE_CHAR, LSpaceCount1);
+
+                if LSpaceCount1 > 0 then
+                  FUndoList.AddChange(crInsert, LTextCaretPosition,
+                    GetTextPosition(LTextCaretPosition.Char - LSpaceCount1, LTextCaretPosition.Line),
+                    GetTextPosition(LTextCaretPosition.Char, LTextCaretPosition.Line), '', smNormal);
 
                 with LTextCaretPosition do
                 begin
@@ -11702,25 +11893,26 @@ begin
                   Line := Line + 1;
                 end;
 
-                LHelper := sLineBreak;
-                FUndoList.AddChange(crDelete, LTextCaretPosition, TextCaretPosition, LTextCaretPosition, LHelper, smNormal);
+                FUndoList.AddChange(crDelete, LTextCaretPosition, TextCaretPosition, LTextCaretPosition, SLineBreak, smNormal);
 
                 FLines[LTextCaretPosition.Line - 1] := LLineText + LSpaceBuffer + FLines[LTextCaretPosition.Line];
                 FLines.Attributes[LTextCaretPosition.Line - 1].LineState := lsModified;
                 FLines.Delete(LTextCaretPosition.Line);
                 DoChange;
+                FUndoList.EndBlock;
               end;
             end;
           end;
       ecDeleteWord, ecDeleteEndOfLine:
         if not ReadOnly then
         begin
-          LLineText := FLines.ExpandedStrings[LTextCaretPosition.Line];
+          LLineText := FLines[LTextCaretPosition.Line];
           LLength := Length(LLineText);
           if ACommand = ecDeleteWord then
           begin
             LWordPosition := WordEnd;
-            if (LWordPosition.Char < LTextCaretPosition.Char) or ((LWordPosition.Char = LTextCaretPosition.Char) and (LWordPosition.Line < FLines.Count)) then
+            if (LWordPosition.Char < LTextCaretPosition.Char) or
+              ((LWordPosition.Char = LTextCaretPosition.Char) and (LWordPosition.Line < FLines.Count)) then
             begin
               if LWordPosition.Char > LLength then
               begin
@@ -11729,7 +11921,7 @@ begin
                 LLineText := FLines[LWordPosition.Line];
               end
               else
-              if LLineText[LWordPosition.Char] <> BCEDITOR_SPACE_CHAR then
+              if (LWordPosition.Char <= LLength) and (LLineText[LWordPosition.Char] <> BCEDITOR_SPACE_CHAR) then
                 Inc(LWordPosition.Char);
             end
             else
@@ -11753,8 +11945,9 @@ begin
             SetSelectionEndPosition(LWordPosition);
             FSelection.ActiveMode := smNormal;
             LHelper := SelectedText;
-            DoSelectedText(StringOfChar(' ', LTextCaretPosition.Char - SelectionBeginPosition.Char));
-            FUndoList.AddChange(crDelete, LTextCaretPosition, LTextCaretPosition, LWordPosition, LHelper, smNormal);
+            DoSelectedText('');
+            FUndoList.AddChange(crDelete, LTextCaretPosition, SelectionBeginPosition, LWordPosition, LHelper, smNormal);
+            DoChange;
           end;
         end;
       ecDeleteLastWord, ecDeleteBeginningOfLine:
@@ -11781,6 +11974,7 @@ begin
             finally
               FSelection.Mode := LOldSelectionMode;
             end;
+            DoChange;
           end;
         end;
       ecDeleteLine:
@@ -11800,10 +11994,10 @@ begin
             FLines.Delete(LTextCaretPosition.Line);
             LHelper := LHelper + BCEDITOR_CARRIAGE_RETURN + BCEDITOR_LINEFEED;
             FUndoList.AddChange(crDelete, LTextCaretPosition, GetTextPosition(1, LTextCaretPosition.Line),
-              GetTextPosition(1, LTextCaretPosition.Line + 1),
-              LHelper, smNormal);
+              GetTextPosition(1, LTextCaretPosition.Line + 1), LHelper, smNormal);
           end;
           TextCaretPosition := GetTextPosition(1, LTextCaretPosition.Line);
+          DoChange;
         end;
       ecMoveLineUp:
         begin
@@ -11887,7 +12081,7 @@ begin
       ecInsertLine, ecLineBreak:
         if not ReadOnly then
         begin
-          //FUndoList.BeginBlock(4);
+          FUndoList.BeginBlock;
           try
             if SelectionAvailable then
             begin
@@ -12026,8 +12220,9 @@ begin
                     DisplayCaretX := 1;
                 end;
 
-                FUndoList.AddChange(crLineBreak, LTextCaretPosition, LTextCaretPosition,
-                  GetTextPosition(DisplayCaretX, LTextCaretPosition.Line + 1), '', smNormal);
+                FUndoList.AddChange(crLineBreak, LTextCaretPosition,
+                  GetTextPosition(Length(FLines[LTextCaretPosition.Line]) + 1, LTextCaretPosition.Line),
+                  GetTextPosition(1, LTextCaretPosition.Line + 1), '', smNormal);
               end;
             end
             else
@@ -12090,7 +12285,7 @@ begin
             EnsureCursorPositionVisible;
           finally
             DoChange;
-           // UndoList.EndBlock;
+            UndoList.EndBlock;
           end;
         end;
       ecTab:
@@ -12146,7 +12341,7 @@ begin
               if LSpaceCount1 > 0 then
               begin
                 LTextCaretPosition.Char := LLength + LSpaceCount1 + 2;
-                FUndoList.AddChange(crInsert, LTextCaretPosition, GetTextPosition(LLength + LSpaceCount1 + 1,
+                FUndoList.AddChange(crInsert, LTextCaretPosition, GetTextPosition(LLength + 1,
                   LTextCaretPosition.Line), GetTextPosition(LLength + LSpaceCount1 + 2, LTextCaretPosition.Line), '',
                   smNormal);
                 FLines.Attributes[LTextCaretPosition.Line].LineState := lsModified;
@@ -12154,8 +12349,8 @@ begin
               else
               begin
                 LTextCaretPosition.Char := LTextCaretPosition.Char + 1;
-                FUndoList.AddChange(crInsert, LTextCaretPosition, LBlockStartPosition,
-                  LTextCaretPosition, '', smNormal);
+                FUndoList.AddChange(crInsert, LTextCaretPosition, LBlockStartPosition, LTextCaretPosition, '',
+                  smNormal);
                 FLines.Attributes[LTextCaretPosition.Line].LineState := lsModified;
               end;
             end
@@ -12180,14 +12375,16 @@ begin
               if LSpaceCount1 > 0 then
               begin
                 LTextCaretPosition.Char := LLength + LSpaceCount1 + 1;
-                FUndoList.AddChange(crInsert, LTextCaretPosition, GetTextPosition(LLength + LSpaceCount1, LTextCaretPosition.Line),
-                  GetTextPosition(LLength + LSpaceCount1 + 1, LTextCaretPosition.Line), '', smNormal);
+                FUndoList.AddChange(crInsert, LTextCaretPosition, GetTextPosition(LLength + 1,
+                  LTextCaretPosition.Line), GetTextPosition(LLength + LSpaceCount1 + 1, LTextCaretPosition.Line), '',
+                  smNormal);
                 FLines.Attributes[LTextCaretPosition.Line].LineState := lsModified;
               end
               else
               begin
                 LTextCaretPosition.Char := LTextCaretPosition.Char + 1;
-                FUndoList.AddChange(crInsert, LTextCaretPosition, LBlockStartPosition, LTextCaretPosition, LHelper, smNormal);
+                FUndoList.AddChange(crInsert, LTextCaretPosition, LBlockStartPosition, LTextCaretPosition, LHelper,
+                  smNormal);
                 FLines.Attributes[LTextCaretPosition.Line].LineState := lsModified;
               end;
             end;
@@ -12202,7 +12399,7 @@ begin
           DoChange;
         end;
       ecUpperCase, ecLowerCase, ecAlternatingCase, ecSentenceCase, ecTitleCase, ecUpperCaseBlock, ecLowerCaseBlock,
-      ecAlternatingCaseBlock:
+        ecAlternatingCaseBlock:
         if not ReadOnly then
           DoToggleSelectedCase(ACommand);
       ecUndo:
@@ -12281,17 +12478,17 @@ begin
         FSelection.Mode := smNormal;
       ecColumnSelect:
         FSelection.Mode := smColumn;
-      ecLineSelect:
-        FSelection.Mode := smLine;
       ecContextHelp:
         begin
           if Assigned(FOnContextHelp) then
             FOnContextHelp(Self, WordAtCursor);
         end;
       ecBlockComment:
-        DoBlockComment;
+        if not ReadOnly then
+          DoBlockComment;
       ecLineComment:
-        DoLineComment;
+        if not ReadOnly then
+          DoLineComment;
       ecImeStr:
         if not ReadOnly then
         begin
@@ -12311,12 +12508,12 @@ begin
           begin
             BeginUndoBlock;
             try
-              FUndoList.AddChange(crDelete, LTextCaretPosition, FSelectionBeginPosition, FSelectionEndPosition, LHelper,
-                smNormal);
+              FUndoList.AddChange(crDelete, LTextCaretPosition, FSelectionBeginPosition, FSelectionEndPosition,
+                LHelper, smNormal);
               LBlockStartPosition := FSelectionBeginPosition;
               DoSelectedText(S);
-              FUndoList.AddChange(crInsert, LTextCaretPosition, FSelectionBeginPosition, FSelectionEndPosition, LHelper,
-                smNormal);
+              FUndoList.AddChange(crInsert, LTextCaretPosition, FSelectionBeginPosition, FSelectionEndPosition,
+                LHelper, smNormal);
             finally
               EndUndoBlock;
             end;
@@ -12345,7 +12542,8 @@ begin
               SetLineWithRightTrim(GetTextCaretY, LLineText);
               if FInsertMode then
                 LHelper := '';
-              FUndoList.AddChange(crInsert, LTextCaretPosition, LBlockStartPosition, TextCaretPosition, LHelper, smNormal);
+              FUndoList.AddChange(crInsert, LTextCaretPosition, LBlockStartPosition, TextCaretPosition, LHelper,
+                smNormal);
               if DisplayCaretX >= LeftChar + FVisibleChars then
                 LeftChar := LeftChar + Min(25, FVisibleChars - 1);
             finally
@@ -12357,6 +12555,28 @@ begin
     end;
   finally
     DecPaintLock;
+  end;
+end;
+
+procedure TBCBaseEditor.ExportToHTML(const AFileName: string; const ACharSet: string = ''; AEncoding: System.SysUtils.TEncoding = nil);
+var
+  LFileStream: TFileStream;
+begin
+  LFileStream := TFileStream.Create(AFileName, fmCreate);
+  try
+    ExportToHTML(LFileStream, ACharSet, AEncoding);
+  finally
+    LFileStream.Free;
+  end;
+end;
+
+procedure TBCBaseEditor.ExportToHTML(AStream: TStream; const ACharSet: string = ''; AEncoding: System.SysUtils.TEncoding = nil);
+begin
+  with TBCEditorExportHTML.Create(FLines, FHighlighter, Font, ACharSet) do
+  try
+    SaveToStream(AStream, AEncoding);
+  finally
+    Free;
   end;
 end;
 
@@ -12385,15 +12605,15 @@ var
   LTextCaretPosition: TBCEditorTextPosition;
 begin
   if FCodeFolding.Visible then
-  for i := 0 to FAllCodeFoldingRanges.AllCount - 1 do
-  begin
-    LCodeFoldingRange := FAllCodeFoldingRanges[i];
-    if LCodeFoldingRange.FromLine > ATextLine then
-      Break
-    else
-    if (LCodeFoldingRange.FromLine <= ATextLine) and LCodeFoldingRange.Collapsed then
-      CodeFoldingUncollapse(LCodeFoldingRange);
-  end;
+    for i := 0 to FAllCodeFoldingRanges.AllCount - 1 do
+    begin
+      LCodeFoldingRange := FAllCodeFoldingRanges[i];
+      if LCodeFoldingRange.FromLine > ATextLine then
+        Break
+      else
+      if (LCodeFoldingRange.FromLine <= ATextLine) and LCodeFoldingRange.Collapsed then
+        CodeFoldingUncollapse(LCodeFoldingRange);
+    end;
   LTextCaretPosition := GetTextPosition(1, ATextLine);
   TopLine := Max(LTextCaretPosition.Line - FVisibleLines div 2, 1);
   SetTextCaretPosition(LTextCaretPosition);
@@ -12466,6 +12686,8 @@ end;
 
 procedure TBCBaseEditor.InitCodeFolding;
 begin
+  if FCodeFoldingLock then
+    Exit;
   ClearCodeFolding;
   if Visible then
     CreateLineNumbersCache(True);
@@ -12529,8 +12751,8 @@ begin
 
       if ALastLine >= AFirstLine then
       begin
-        LInvalidationRect := Rect(LMinimapWidth, FLineHeight * (AFirstLine - TopLine), LMinimapWidth + FLeftMargin.GetWidth,
-          FLineHeight * (ALastLine - TopLine + 1));
+        LInvalidationRect := Rect(LMinimapWidth, FLineHeight * (AFirstLine - TopLine),
+          LMinimapWidth + FLeftMargin.GetWidth, FLineHeight * (ALastLine - TopLine + 1));
 
         if sfLinesChanging in FStateFlags then
           UnionRect(FInvalidateRect, FInvalidateRect, LInvalidationRect)
@@ -12595,7 +12817,8 @@ begin
           ALastLine := TopLine + VisibleLines;
       if ALastLine >= AFirstLine then
       begin
-        LInvalidationRect := Rect(0, FLineHeight * (AFirstLine - TopLine), ClientWidth, FLineHeight * (ALastLine - TopLine + 1));
+        LInvalidationRect := Rect(0, FLineHeight * (AFirstLine - TopLine), ClientWidth,
+          FLineHeight * (ALastLine - TopLine + 1));
         DeflateMinimapRect(LInvalidationRect);
         if sfLinesChanging in FStateFlags then
           UnionRect(FInvalidateRect, FInvalidateRect, LInvalidationRect)
@@ -12756,58 +12979,71 @@ var
   LPasteMode: TBCEditorSelectionMode;
   LGlobalMem: HGLOBAL;
   LFirstByteOfMemoryBlock: PByte;
+  LLength: Integer;
 begin
-  if not CanPaste then
-    Exit;
-
   LTextCaretPosition := TextCaretPosition;
   LPasteMode := FSelection.Mode;
 
-  if Clipboard.HasFormat(GClipboardFormatBCEditor) then
-  begin
-    Clipboard.Open;
-    try
+  if not OpenClipboard then
+    Exit;
+  try
+    if not CanPaste then
+      Exit;
+
+    if Clipboard.HasFormat(GClipboardFormatBCEditor) then
+    begin
       LGlobalMem := Clipboard.GetAsHandle(GClipboardFormatBCEditor);
-      LFirstByteOfMemoryBlock := GlobalLock(LGlobalMem);
-      try
-        if Assigned(LFirstByteOfMemoryBlock) then
-          LPasteMode := PBCEditorSelectionMode(LFirstByteOfMemoryBlock)^;
-      finally
-        GlobalUnlock(LGlobalMem);
-      end
-    finally
-      Clipboard.Close;
-    end;
-  end
-  else
-  if Clipboard.HasFormat(GClipboardFormatBorland) then
-  begin
-    Clipboard.Open;
-    try
+      if LGlobalMem <> 0 then
+      begin
+        LFirstByteOfMemoryBlock := GlobalLock(LGlobalMem);
+        try
+          if Assigned(LFirstByteOfMemoryBlock) then
+            LPasteMode := PBCEditorSelectionMode(LFirstByteOfMemoryBlock)^;
+        finally
+          GlobalUnlock(LGlobalMem);
+        end
+      end;
+    end
+    else
+    if Clipboard.HasFormat(GClipboardFormatBorland) then
+    begin
       LGlobalMem := Clipboard.GetAsHandle(GClipboardFormatBorland);
-      LFirstByteOfMemoryBlock := GlobalLock(LGlobalMem);
-      try
-        if Assigned(LFirstByteOfMemoryBlock) then
-          if LFirstByteOfMemoryBlock^ = $02 then
-            LPasteMode := smColumn
-          else
-            LPasteMode := smNormal;
-      finally
-        GlobalUnlock(LGlobalMem);
-      end
-    finally
-      Clipboard.Close;
-    end;
-  end
-  else
-  if Clipboard.HasFormat(GClipboardFormatMSDev) then
-    LPasteMode := smColumn;
+      if LGlobalMem <> 0 then
+      begin
+        LFirstByteOfMemoryBlock := GlobalLock(LGlobalMem);
+        try
+          if Assigned(LFirstByteOfMemoryBlock) then
+            if LFirstByteOfMemoryBlock^ = $02 then
+              LPasteMode := smColumn
+            else
+              LPasteMode := smNormal;
+        finally
+          GlobalUnlock(LGlobalMem);
+        end
+      end;
+    end
+    else
+    if Clipboard.HasFormat(GClipboardFormatMSDev) then
+      LPasteMode := smColumn;
+  finally
+    Clipboard.Close;
+  end;
+
+  FUndoList.BeginBlock;
+
+  LLength := FLines.StringLength(LTextCaretPosition.Line);
 
   if SelectionAvailable then
-    FUndoList.AddChange(crDelete, LTextCaretPosition, FSelectionBeginPosition, FSelectionEndPosition, GetSelectedText,
+    FUndoList.AddChange(crDelete, LTextCaretPosition, SelectionBeginPosition, SelectionEndPosition, GetSelectedText,
       FSelection.ActiveMode)
   else
+  begin
     FSelection.ActiveMode := Selection.Mode;
+
+    if LTextCaretPosition.Char > LLength + 1 then
+      FUndoList.AddChange(crInsert, LTextCaretPosition, GetTextPosition(LLength + 1, LTextCaretPosition.Line),
+        LTextCaretPosition, '', smNormal);
+  end;
 
   LClipBoardText := GetClipboardText;
 
@@ -12817,9 +13053,6 @@ begin
     LEndPositionOfBlock := SelectionEndPosition;
     FSelectionBeginPosition := LStartPositionOfBlock;
     FSelectionEndPosition := LEndPositionOfBlock;
-
-    if FSelection.ActiveMode = smLine then
-      LStartPositionOfBlock.Char := 1;
 
     if FSyncEdit.Active then
       FSyncEdit.MoveEndPositionChar(-FSelectionEndPosition.Char + FSelectionBeginPosition.Char + Length(LClipBoardText));
@@ -12835,18 +13068,9 @@ begin
   DoSelectedText(LPasteMode, PChar(LClipBoardText), True);
 
   LEndPositionOfBlock := SelectionEndPosition;
-  if LPasteMode = smNormal then
-    FUndoList.AddChange(crPaste, LTextCaretPosition, LStartPositionOfBlock, LEndPositionOfBlock, SelectedText, LPasteMode)
-  else
-  if LPasteMode = smLine then
-  begin
-    if DisplayCaretX = 1 then
-      FUndoList.AddChange(crPaste, LTextCaretPosition, GetTextPosition(1, LStartPositionOfBlock.Line),
-        GetTextPosition(FVisibleChars, LEndPositionOfBlock.Line - 1), SelectedText, smLine)
-    else
-      FUndoList.AddChange(crPaste, LTextCaretPosition, GetTextPosition(1, LStartPositionOfBlock.Line),
-        LEndPositionOfBlock, SelectedText, smNormal);
-  end;
+
+  FUndoList.AddChange(crPaste, LTextCaretPosition, LStartPositionOfBlock, LEndPositionOfBlock, SelectedText, LPasteMode);
+  FUndoList.EndBlock;
 
   if FSyncEdit.Active then
     DoSyncEdit;
@@ -12905,7 +13129,7 @@ begin
       begin
         if uoGroupUndo in FUndo.Options then
           LKeepGoing := LPasteAction and (FRedoList.LastChangeString = LLastChangeString) or
-            (LLastChangeReason = LUndoItem.ChangeReason) or
+            (LLastChangeReason = LUndoItem.ChangeReason) and (LUndoItem.ChangeBlockNumber = LLastChangeBlockNumber) or
             (LUndoItem.ChangeBlockNumber <> 0) and (LUndoItem.ChangeBlockNumber = LLastChangeBlockNumber);
         LLastChangeReason := LUndoItem.ChangeReason;
         LPasteAction := LLastChangeReason = crPaste;
@@ -12923,6 +13147,7 @@ var
   LLine, LEndLine: Integer;
   LCommentIndex: Integer;
   LSpaceCount: Integer;
+  LSpaces: string;
   LLineText: string;
   LComment: string;
   LTextCaretPosition, LSelectionBeginPosition, LSelectionEndPosition: TBCEditorTextPosition;
@@ -12946,6 +13171,7 @@ begin
       LEndLine := LLine;
     end;
     FLines.BeginUpdate;
+    FUndoList.BeginBlock;
     for LLine := LLine to LEndLine do
     begin
       LCodeFoldingRange := CodeFoldingRangeForLine(LLine + 1);
@@ -12954,7 +13180,8 @@ begin
       i := 0;
       LCommentIndex := -1;
       LLineText := FLines[LLine];
-      LSpaceCount := LeftSpaceCount(LLineText, True);
+      LSpaceCount := LeftSpaceCount(LLineText, False);
+      LSpaces := Copy(LLineText, 1, LSpaceCount);
       LLineText := Trim(LLineText);
 
       if LLineText <> '' then
@@ -12970,9 +13197,9 @@ begin
 
       if LCommentIndex <> -1 then
       begin
-        LComment := FHighlighter.Comments.BlockComments[LCommentIndex];
+        LComment := FHighlighter.Comments.LineComments[LCommentIndex];
         FUndoList.AddChange(crDelete, LTextCaretPosition, GetTextPosition(1 + LSpaceCount, LLine),
-          GetTextPosition(Length(LComment) + 1 + LSpaceCount, LLine), LComment, FSelection.ActiveMode);
+          GetTextPosition(Length(LComment) + 1 + LSpaceCount, LLine), LComment, smNormal);
         LLineText := Copy(LLineText,  Length(FHighlighter.Comments.LineComments[LCommentIndex]) + 1, Length(LLineText));
       end;
 
@@ -12981,12 +13208,12 @@ begin
       if LCommentIndex < LLength then
         LComment := FHighlighter.Comments.LineComments[LCommentIndex];
 
-      LLineText := LComment + StringOfChar(' ', LSpaceCount) + LLineText;
+      LLineText := LComment + LSpaces + LLineText;
 
       FLines.Strings[LLine] := LLineText;
 
       FUndoList.AddChange(crInsert, LTextCaretPosition, GetTextPosition(1, LLine),
-        GetTextPosition(Length(LComment) + 1, LLine), '', FSelection.ActiveMode);
+        GetTextPosition(Length(LComment) + 1, LLine), '', smNormal);
 
       if not SelectionAvailable then
       begin
@@ -12994,6 +13221,7 @@ begin
         TextCaretPosition := LTextCaretPosition;
       end;
     end;
+    FUndoList.EndBlock;
     FLines.EndUpdate;
 
     FSelectionBeginPosition := LSelectionBeginPosition;
@@ -13062,7 +13290,7 @@ begin
   LTextCaretPosition.Line := ALineNumber - 1;
 
   FUndoList.AddChange(crPaste, LTextCaretPosition, GetTextPosition(1, ALineNumber - 1),
-    GetTextPosition(Length(AValue) + 1, ALineNumber - 1), FLines.Strings[ALineNumber - 1], smLine);
+    GetTextPosition(Length(AValue) + 1, ALineNumber - 1), FLines.Strings[ALineNumber - 1], FSelection.ActiveMode);
 
   FLines.BeginUpdate;
   FLines.Strings[ALineNumber - 1] := AValue;
@@ -13210,7 +13438,7 @@ end;
 procedure TBCBaseEditor.Sort(ASortOrder: TBCEditorSortOrder = soToggle);
 var
   i, LLastLength: Integer;
-  s: string;
+  S: string;
   LStringList: TStringList;
   LOldSelectionBeginPosition, LOldSelectionEndPosition: TBCEditorTextPosition;
 begin
@@ -13221,37 +13449,37 @@ begin
     else
       LStringList.Text := Text;
     LStringList.Sort;
-    s := '';
+    S := '';
     if (ASortOrder = soDesc) or (ASortOrder = soToggle) and (FLastSortOrder = soAsc) then
     begin
       FLastSortOrder := soDesc;
       for i := LStringList.Count - 1 downto 0 do
       begin
-        s := s + LStringList.Strings[i];
+        S := S + LStringList.Strings[i];
         if i <> 0 then
-          s := s + Chr(13) + Chr(10);
+          S := S + Chr(13) + Chr(10);
       end;
     end
     else
     begin
       FLastSortOrder := soAsc;
-      s := LStringList.Text;
+      S := LStringList.Text;
     end;
-    s := TrimRight(s);
-    LStringList.Text := s;
+    S := TrimRight(S);
+    LStringList.Text := S;
 
     if SelectionAvailable then
     begin
       LOldSelectionBeginPosition := GetSelectionBeginPosition;
       LOldSelectionEndPosition := GetSelectionEndPosition;
-      SelectedText := s;
+      SelectedText := S;
       FSelectionBeginPosition := LOldSelectionBeginPosition;
       FSelectionEndPosition := LOldSelectionEndPosition;
       LLastLength := Length(LStringList.Strings[LStringList.Count - 1]) + 1;
       FSelectionEndPosition.Char := LLastLength
     end
     else
-      Text := s;
+      Text := S;
   finally
     LStringList.Free;
     if FCodeFolding.Visible then
@@ -13364,7 +13592,7 @@ begin
       else
         CommandProcessor(ecAlternatingCase, BCEDITOR_NONE_CHAR, nil);
     cSentence: { Sentence case }
-       CommandProcessor(ecSentenceCase, BCEDITOR_NONE_CHAR, nil);
+      CommandProcessor(ecSentenceCase, BCEDITOR_NONE_CHAR, nil);
     cTitle: { Title Case }
       CommandProcessor(ecTitleCase, BCEDITOR_NONE_CHAR, nil);
     cOriginal: { Original text }
@@ -13445,9 +13673,11 @@ begin
     LCompositionForm.ptCurrentPos := Point(X, Y);
     ImmSetCompositionWindow(ImmGetContext(Handle), @LCompositionForm);
 
-    LCaretTextPosition := TextCaretPosition;
     if Assigned(FOnCaretChanged) then
+    begin
+      LCaretTextPosition := TextCaretPosition;
       FOnCaretChanged(Self, LCaretTextPosition.Char, LCaretTextPosition.Line + FLeftMargin.LineNumbers.StartFrom);
+    end;
   end;
 end;
 
@@ -13489,13 +13719,14 @@ begin
           Exit;
         end;
 
-      AC_GETAPPLICATION: begin
-        AMessage.Result := LRESULT(Application);
-        Exit
-      end;
+      AC_GETAPPLICATION:
+        begin
+          AMessage.Result := LRESULT(Application);
+          Exit
+        end;
 
       AC_REMOVESKIN:
-        if (ACUInt(AMessage.LParam) = ACUInt(SkinData.SkinManager)) and not (csDestroying in ComponentState) then
+        if (ACUInt(AMessage.LParam) = ACUInt(SkinData.SkinManager)) and not(csDestroying in ComponentState) then
         begin
           if FScrollWnd <> nil then
             FreeAndNil(FScrollWnd);
@@ -13510,7 +13741,7 @@ begin
         begin
           CommonWndProc(AMessage, FCommonData);
           RefreshEditScrolls(SkinData, FScrollWnd);
-          SendMessage(Handle, WM_NCPaint, 0, 0);
+          SendMessage(Handle, WM_NCPAINT, 0, 0);
           Exit;
         end;
 
@@ -13529,7 +13760,8 @@ begin
     if AMessage.Msg = SM_ALPHACMD then
       case AMessage.WParamHi of
         AC_ENDPARENTUPDATE:
-          if FCommonData.Updating then begin
+          if FCommonData.Updating then
+          begin
             if not InUpdating(FCommonData, True) then
               Perform(WM_NCPAINT, 0, 0);
 
@@ -13563,6 +13795,7 @@ initialization
   GClipboardFormatMSDev := RegisterClipboardFormat(BCEDITOR_CLIPBOARD_FORMAT_MSDEV);
 
 finalization
+
   {$IFDEF USE_VCL_STYLES}
   TCustomStyleEngine.UnregisterStyleHook(TBCBaseEditor, TBCEditorStyleHook);
   {$ENDIF}

@@ -11,7 +11,7 @@ uses
   BCControl.Splitter, GridsEh, BCCommon.Frame.Base, sPanel, BCComponent.MultiStringHolder, sSkinManager, sStatusBar,
   sSplitter, acTitleBar, sSkinProvider, System.Win.TaskbarCore, Vcl.Taskbar, sDialogs, Vcl.StdCtrls, sButton,
   BCControl.Button, System.Diagnostics, BCCommon.Dialog.Popup.Highlighter, BCCommon.Dialog.Popup.Highlighter.Color,
-  sSpeedButton, BCControl.SpeedButton, sComboBox, BCControl.ComboBox, sLabel;
+  sSpeedButton, BCControl.SpeedButton, sComboBox, BCControl.ComboBox, sLabel, sMemo;
 
 const
   BCEDITORDEMO_CAPTION = 'TBCEditor Control Demo v1.3';
@@ -54,6 +54,11 @@ type
     ActionOptions: TAction;
     ActionClose: TAction;
     LabelSearchResultCount: TsLabel;
+    SplitterUndo: TBCSplitter;
+    PanelUndo: TBCPanel;
+    MemoRedo: TsMemo;
+    BCSplitter3: TBCSplitter;
+    MemoUndo: TsMemo;
     procedure ActionFileOpenExecute(Sender: TObject);
     procedure ActionPreviewExecute(Sender: TObject);
     procedure ActionSearchExecute(Sender: TObject);
@@ -83,6 +88,7 @@ type
     procedure ClearText;
     procedure InitializeEditorPrint(EditorPrint: TBCEditorPrint);
     procedure LockFormPaint;
+    procedure PopulateUndoList(AMemo: TsMemo);
     procedure PrintPreview;
     procedure SetMatchesFound;
     procedure UnlockFormPaint;
@@ -97,7 +103,8 @@ implementation
 
 uses
   BCCommon.Language.Strings, BCCommon.Form.Print.Preview, BCEditor.Print.Types, BCCommon.StringUtils,
-  BCCommon.Dialog.SkinSelect, BCCommon.FileUtils, BCEditor.Types, BCCommon.Dialog.Options.Search;
+  BCCommon.Dialog.SkinSelect, BCCommon.FileUtils, BCEditor.Types, BCCommon.Dialog.Options.Search,
+  BCEditor.Editor.Undo.Item, BCEditor.Editor.Undo.List;
 
 procedure TMainForm.ActionSkinsExecute(Sender: TObject);
 begin
@@ -185,6 +192,10 @@ begin
   InfoText := Format('%d: %d', [Y, X]);
   if StatusBar.Panels[0].Text <> InfoText then
     StatusBar.Panels[0].Text := InfoText;
+  {$IFDEF DEBUG}
+  PopulateUndoList(MemoUndo);
+  PopulateUndoList(MemoRedo);
+  {$ENDIF}
 end;
 
 procedure TMainForm.InitializeEditorPrint(EditorPrint: TBCEditorPrint);
@@ -312,6 +323,14 @@ begin
 
   SelectedHighlighterClick('Object Pascal');
   SelectedHighlighterColorClick('Default');
+
+  {$IFDEF DEBUG}
+  PanelUndo.Visible := True;
+  SplitterUndo.Visible := True;
+  {$ELSE}
+  ClientWidth := 1100;
+  ClientHeight := 644;
+  {$ENDIF}
 end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
@@ -451,6 +470,62 @@ begin
     FPopupHighlighterColorDialog.Visible := False;
     FPopupHighlighterColorDialog := nil;
   end;
+end;
+
+procedure TMainForm.PopulateUndoList(AMemo: TsMemo);
+var
+  i: Integer;
+  LUndoItem: TBCEditorUndoItem;
+  LUndoList: TBCEditorUndoList;
+  LMemo: TsMemo;
+
+  function GetReasonText(AReason: TBCEditorChangeReason): string;
+  begin
+    case AReason of
+      crInsert: Result := 'Insert';
+      crPaste: Result := 'Paste';
+      crDragDropInsert: Result := 'DragDropInsert';
+      crDelete: Result := 'Delete';
+      crLineBreak: Result := 'LineBreak';
+      crIndent: Result := 'Indent';
+      crUnindent: Result := 'Unindent';
+      crCaret: Result := 'Caret';
+      crSelection: Result := 'Selection';
+      crNothing: Result := 'Nothing';
+      crGroupBreak: Result := 'GroupBreak';
+    end;
+  end;
+
+begin
+  LUndoList := nil;
+  LMemo := AMemo;
+  if LMemo = MemoUndo then
+    LUndoList := Editor.UndoList
+  else
+  if LMemo = MemoRedo then
+    LUndoList := Editor.RedoList;
+
+  if LMemo.Lines.Count = LUndoList.ItemCount then
+    Exit;
+
+  LMemo.Lines.BeginUpdate;
+  LMemo.Clear;
+  if Assigned(LUndoList) then
+  for i := 0 to LUndoList.ItemCount - 1 do
+  begin
+    LUndoItem := LUndoList.Items[i];
+    LMemo.Lines.Add(Format('%d: %s c: (%d, %d) b: (%d, %d), e: (%d, %d), s: %s',
+      [LUndoItem.ChangeBlockNumber,
+      GetReasonText(LUndoItem.ChangeReason),
+      LUndoItem.ChangeCaretPosition.Char,
+      LUndoItem.ChangeCaretPosition.Line,
+      LUndoItem.ChangeBeginPosition.Char,
+      LUndoItem.ChangeBeginPosition.Line,
+      LUndoItem.ChangeEndPosition.Char,
+      LUndoItem.ChangeEndPosition.Line,
+      LUndoItem.ChangeString]));
+  end;
+  LMemo.Lines.EndUpdate;
 end;
 
 procedure TMainForm.LockFormPaint;

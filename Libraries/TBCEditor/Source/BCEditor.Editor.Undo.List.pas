@@ -13,6 +13,7 @@ type
     FChangeBlockNumber: Integer;
     FInsideRedo: Boolean;
     FInsideUndoBlock: Boolean;
+    FInsideUndoBlockCount: Integer;
     FItems: TList;
     FLockCount: Integer;
     FOnAddedUndo: TNotifyEvent;
@@ -29,8 +30,9 @@ type
     function LastChangeBlockNumber: Integer;
     function LastChangeReason: TBCEditorChangeReason;
     function LastChangeString: string;
-    procedure AddChange(AReason: TBCEditorChangeReason; const ACaretPosition, ASelectionBeginPosition, ASelectionEndPosition: TBCEditorTextPosition;
-      const ChangeText: string; SelectionMode: TBCEditorSelectionMode; AChangeBlockNumber: Integer = 0);
+    procedure AddChange(AReason: TBCEditorChangeReason;
+      const ACaretPosition, ASelectionBeginPosition, ASelectionEndPosition: TBCEditorTextPosition;
+      const AChangeText: string; SelectionMode: TBCEditorSelectionMode; AChangeBlockNumber: Integer = 0);
     procedure BeginBlock(AChangeBlockNumber: Integer = 0);
     procedure Clear;
     procedure EndBlock;
@@ -60,6 +62,7 @@ begin
   FItems := TList.Create;
   FInsideRedo := False;
   FInsideUndoBlock := False;
+  FInsideUndoBlockCount := 0;
   FBlockNumber := BCEDITOR_UNDO_BLOCK_NUMBER_START;
 end;
 
@@ -97,7 +100,7 @@ end;
 
 procedure TBCEditorUndoList.AddChange(AReason: TBCEditorChangeReason;
   const ACaretPosition, ASelectionBeginPosition, ASelectionEndPosition: TBCEditorTextPosition;
-  const ChangeText: string; SelectionMode: TBCEditorSelectionMode; AChangeBlockNumber: Integer = 0);
+  const AChangeText: string; SelectionMode: TBCEditorSelectionMode; AChangeBlockNumber: Integer = 0);
 var
   LNewItem: TBCEditorUndoItem;
 begin
@@ -118,7 +121,7 @@ begin
       ChangeCaretPosition := ACaretPosition;
       ChangeBeginPosition := ASelectionBeginPosition;
       ChangeEndPosition := ASelectionEndPosition;
-      ChangeString := ChangeText;
+      ChangeString := AChangeText;
     end;
     PushItem(LNewItem);
   end;
@@ -127,6 +130,10 @@ end;
 procedure TBCEditorUndoList.BeginBlock(AChangeBlockNumber: Integer = 0);
 begin
   Inc(FBlockCount);
+
+  if FInsideUndoBlock then
+    Exit;
+
   if AChangeBlockNumber = 0 then
   begin
     Inc(FBlockNumber);
@@ -134,6 +141,8 @@ begin
   end
   else
     FChangeBlockNumber := AChangeBlockNumber;
+
+  FInsideUndoBlockCount := FBlockCount;
   FInsideUndoBlock := True;
 end;
 
@@ -150,8 +159,9 @@ end;
 procedure TBCEditorUndoList.EndBlock;
 begin
   Assert(FBlockCount > 0);
+  if FInsideUndoBlockCount = FBlockCount then
+    FInsideUndoBlock := False;
   Dec(FBlockCount);
-  FInsideUndoBlock := False;
 end;
 
 function TBCEditorUndoList.GetCanUndo: Boolean;

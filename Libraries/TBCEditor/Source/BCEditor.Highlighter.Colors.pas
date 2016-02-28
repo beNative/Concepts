@@ -38,7 +38,7 @@ type
 implementation
 
 uses
-  System.SysUtils, BCEditor.Editor.Base, BCEditor.Highlighter, BCEditor.Highlighter.JSONImporter, System.IOUtils;
+  System.SysUtils, BCEditor.Editor.Base, BCEditor.Highlighter, BCEditor.Highlighter.Import.JSON, System.IOUtils;
 
 { TBCEditorHighlighterColors }
 
@@ -106,7 +106,7 @@ var
 begin
   TBCEditorHighlighter(FOwner).Loading := True;
   LHighlighter := TBCEditorHighlighter(FOwner);
-  with TBCEditorHighlighterJSONImporter.Create(LHighlighter) do
+  with TBCEditorHighlighterImportJSON.Create(LHighlighter) do
   try
     ImportColorsFromStream(AStream);
   finally

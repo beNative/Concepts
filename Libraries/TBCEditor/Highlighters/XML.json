@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.3",
-            "Date": "26.01.2016",
+            "Date": "25.02.2016",
             "Sample": [
                "<!-- Hello World in XML -->\r\n",
                "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n",
@@ -32,6 +32,16 @@
                   "TokenRange": {
                      "Open": "<!--",
                      "Close": "-->"
+                  }
+               },
+               {
+                  "Type": "String",
+                  "Attributes": {
+                     "Element": "Editor"
+                  },
+                  "TokenRange": {
+                     "Open": "{",
+                     "Close": "}"
                   }
                },
                {

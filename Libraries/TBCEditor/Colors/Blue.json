@@ -3,7 +3,7 @@
       "Info":{
          "General":{
             "Version":"1.3",
-            "Date":"29.01.2016"
+            "Date":"13.02.2016"
          },
          "Author":{
             "Name":"Lasse Rautiainen",
@@ -12,7 +12,7 @@
       },
       "Editor":{
          "Colors":{
-            "Background":"clWindow",
+            "Background":"clWhite",
             "ActiveLineBackground":"$00E6FAFF",
             "CodeFoldingActiveLineBackground":"$00E6FAFF",
             "CodeFoldingBackground":"clWhite",
@@ -21,11 +21,11 @@
             "CodeFoldingFoldingLineHighlight":"$00CC9999",
             "CodeFoldingIndent":"$00CC9999",
             "CodeFoldingIndentHighlight":"$00CC9999",
-            "CodeFoldingHintBackground":"clWindow",
+            "CodeFoldingHintBackground":"clWhite",
             "CodeFoldingHintBorder":"$00CC9999",
             "CodeFoldingHintText":"clNone",
-            "CompletionProposalBackground":"clWindow",
-            "CompletionProposalForeground":"clWindowText",
+            "CompletionProposalBackground":"clWhite",
+            "CompletionProposalForeground":"clBlack",
             "CompletionProposalSelectedBackground":"clHighlight",
             "CompletionProposalSelectedText":"clHighlightText",
             "LeftMarginActiveLineBackground":"$00E6FAFF",
@@ -44,7 +44,7 @@
             "RightMargin":"clSilver",
             "RightMovingEdge":"clSilver",
             "SearchHighlighterBackground":"$0078AAFF",
-            "SearchHighlighterForeground":"clWindowText",
+            "SearchHighlighterForeground":"clBlack",
             "SearchMapActiveLine":"$00F0F0F0",
             "SearchMapBackground":"$00F4F4F4",
             "SearchMapForeground":"$0078AAFF",
@@ -75,49 +75,49 @@
          {
             "Name":"Editor",
             "Foreground":"$00333333",
-            "Background":"clWindow"
+            "Background":"clWhite"
          },
          {
             "Name":"Comment",
             "Foreground":"$00999999",
-            "Background":"clWindow",
+            "Background":"clWhite",
             "Style":"Italic"
          },
          {
             "Name":"String",
             "Foreground":"$005049d4",
-            "Background":"clWindow"
+            "Background":"clWhite"
          },
          {
             "Name":"Directive",
             "Foreground":"$00999900",
-            "Background":"clWindow"
+            "Background":"clWhite"
          },
          {
             "Name":"Character",
             "Foreground":"$00cf9f4f",
-            "Background":"clWindow"
+            "Background":"clWhite"
          },
          {
             "Name":"ReservedWord",
             "Foreground":"$009f6f2f",
-            "Background":"clWindow",
+            "Background":"clWhite",
             "Style":"Bold"
          },
          {
             "Name":"Symbol",
             "Foreground":"clNavy",
-            "Background":"clWindow"
+            "Background":"clWhite"
          },
          {
             "Name":"Number",
             "Foreground":"$00AAAA33",
-            "Background":"clWindow"
+            "Background":"clWhite"
          },
          {
             "Name":"HexNumber",
             "Foreground":"$00AAAA33",
-            "Background":"clWindow"
+            "Background":"clWhite"
          },
          {
             "Name":"HighlightedBlock",
@@ -144,18 +144,18 @@
          {
             "Name":"Attribute",
             "Foreground":"$00cf9f4f",
-            "Background":"clWindow"
+            "Background":"clWhite"
          },
          {
             "Name":"Method",
             "Foreground":"$009f6f2f",
-            "Background":"clWindow",
+            "Background":"clWhite",
             "Style":"Bold"
          },
          {
             "Name":"MethodName",
             "Foreground":"$00333333",
-            "Background":"clWindow"
+            "Background":"clWhite"
          }
       ]
    }

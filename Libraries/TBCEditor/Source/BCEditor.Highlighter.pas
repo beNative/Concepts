@@ -99,7 +99,7 @@ type
 implementation
 
 uses
-  BCEditor.Highlighter.JSONImporter, System.Types, BCEditor.Editor.Base, System.IOUtils;
+  BCEditor.Highlighter.Import.JSON, System.Types, BCEditor.Editor.Base, System.IOUtils;
 
 { TBCEditorHighlighter }
 
@@ -227,9 +227,7 @@ begin
   end;
 
   if Assigned(FCurrentRange) then
-  begin
     if FCurrentRange.AlternativeCloseArrayCount > 0 then
-    begin
       for i := 0 to FCurrentRange.AlternativeCloseArrayCount - 1 do
       begin
         LKeyword := PChar(FCurrentRange.AlternativeCloseArray[i]);
@@ -245,8 +243,6 @@ begin
           Break;
         end;
       end;
-    end;
-  end;
 
   FTokenPosition := FRunPosition;
   if Assigned(FCurrentRange) then
@@ -296,7 +292,7 @@ begin
   end;
 
   if FBeginningOfLine then
-    if (FRunPosition - 1 >= 0) then
+    if FRunPosition >= 1 then
       if not CharInset(FCurrentLine[FRunPosition - 1], BCEDITOR_ABSOLUTE_DELIMITERS) then
         FBeginningOfLine := False;
 
@@ -534,7 +530,7 @@ begin
         LTempLines.Text := LEditor.Lines.Text;
       end;
       LEditor.Lines.Clear;
-      with TBCEditorHighlighterJSONImporter.Create(Self) do
+      with TBCEditorHighlighterImportJSON.Create(Self) do
       try
         ImportFromStream(AStream);
       finally

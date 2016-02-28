@@ -37,7 +37,7 @@ begin
   inherited;
 
   FColor := clActiveLineBackground;
-  FIndicator := TBCEditorGlyph.Create(HINSTANCE, 'BCEDITORACTIVELINE', clFuchsia);
+  FIndicator := TBCEditorGlyph.Create(HINSTANCE, BCEDITOR_ACTIVE_LINE, clFuchsia);
   FIndicator.Visible := False;
   FVisible := True;
 end;

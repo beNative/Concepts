@@ -365,7 +365,7 @@ begin
   end;
   for i := LStartLine to LEndLine do
   begin
-    if not FSelectedOnly or (FSelectionMode = smLine) then
+    if not FSelectedOnly then
       LText := FLines[i]
     else
     begin
@@ -690,7 +690,7 @@ begin
         FLineNumber := i + 1;
         if (not FSelectedOnly or ((i >= FBlockBeginPosition.Line - 1) and (i <= FBlockEndPosition.Line - 1))) then
         begin
-          if (not FSelectedOnly or (FSelectionMode = smLine)) then
+          if not FSelectedOnly then
             WriteLine(FLines[i])
           else
           begin
@@ -749,17 +749,17 @@ begin
   PrintStatus(psBegin, AStartPage, FAbort);
   UpdatePages(Printer.Canvas);
 
-  for j := 1 to Copies do
+  for i := 1 to Copies do
   begin
-    i := AStartPage;
+    j := AStartPage;
     if AEndPage < 0 then
       AEndPage := FPageCount;
-    while (i <= AEndPage) and (not FAbort) do
+    while (j <= AEndPage) and (not FAbort) do
     begin
-      PrintPage(i);
-      if ((i < AEndPage) or (j < Copies)) and not FAbort then
+      PrintPage(j);
+      if ((j < AEndPage) or (i < Copies)) and not FAbort then
         Printer.NewPage;
-      i := i + 1;
+      Inc(j);
     end;
   end;
   if not FAbort then

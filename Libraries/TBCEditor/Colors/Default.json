@@ -3,7 +3,7 @@
       "Info": {
          "General": {
             "Version": "1.0",
-            "Date": "29.01.2016"
+            "Date": "13.02.2016"
          },
          "Author": {
             "Name": "Lasse Rautiainen",
@@ -13,7 +13,7 @@
       },
       "Editor": {
          "Colors": {
-            "Background": "clWindow",
+            "Background": "clWhite",
             "ActiveLineBackground": "$00E6FAFF",
             "CodeFoldingActiveLineBackground": "$00E6FAFF",
             "CodeFoldingBackground": "clWhite",
@@ -22,11 +22,11 @@
             "CodeFoldingFoldingLine": "$00CC9999",
             "CodeFoldingIndent": "$00CC9999",
             "CodeFoldingIndentHighlight": "$00CC9999",
-            "CodeFoldingHintBackground": "clWindow",
+            "CodeFoldingHintBackground": "clWhite",
             "CodeFoldingHintBorder": "$00CC9999",
-            "CodeFoldingHintText": "clWindowText",
-            "CompletionProposalBackground": "clWindow",
-            "CompletionProposalForeground": "clWindowText",
+            "CodeFoldingHintText": "clBlack",
+            "CompletionProposalBackground": "clWhite",
+            "CompletionProposalForeground": "clBlack",
             "CompletionProposalSelectedBackground": "clHighlight",
             "CompletionProposalSelectedText": "clHighlightText",
             "LeftMarginActiveLineBackground": "$00E6FAFF",
@@ -45,14 +45,14 @@
             "RightMargin": "clSilver",
             "RightMovingEdge": "clSilver",
             "SearchHighlighterBackground": "$0078AAFF",
-            "SearchHighlighterForeground": "clWindowText",
+            "SearchHighlighterForeground": "clBlack",
             "SearchMapActiveLine": "$00F0F0F0",
             "SearchMapBackground": "$00F4F4F4",
             "SearchMapForeground": "$0078AAFF",
             "SelectionBackground": "$00A56D53",
             "SelectionForeground": "clHighlightText",
             "SyncEditBackground": "$00FAFFE6",
-            "SyncEditEditBorder": "clWindowText",
+            "SyncEditEditBorder": "clBlack",
             "SyncEditWordBorder": "$00A56D53",
             "WordWrapIndicatorArrow": "clNavy",
             "WordWrapIndicatorLines": "clBlack"
@@ -75,50 +75,50 @@
       "Elements": [
          {
             "Name": "Editor",
-            "Foreground": "clWindowText",
-            "Background": "clWindow"
+            "Foreground": "clBlack",
+            "Background": "clWhite"
          },
          {
             "Name": "Comment",
             "Foreground": "clGreen",
-            "Background": "clWindow",
+            "Background": "clWhite",
             "Style": "Italic"
          },
          {
             "Name": "String",
             "Foreground": "clBlue",
-            "Background": "clWindow"
+            "Background": "clWhite"
          },
          {
             "Name": "Directive",
             "Foreground": "clTeal",
-            "Background": "clWindow"
+            "Background": "clWhite"
          },
          {
             "Name": "Character",
             "Foreground": "clPurple",
-            "Background": "clWindow"
+            "Background": "clWhite"
          },
          {
             "Name": "ReservedWord",
             "Foreground": "clNavy",
-            "Background": "clWindow",
+            "Background": "clWhite",
             "Style": "Bold"
          },
          {
             "Name": "Symbol",
             "Foreground": "clNavy",
-            "Background": "clWindow"
+            "Background": "clWhite"
          },
          {
             "Name": "Number",
             "Foreground": "clBlue",
-            "Background": "clWindow"
+            "Background": "clWhite"
          },
          {
             "Name": "HexNumber",
             "Foreground": "clBlue",
-            "Background": "clWindow"
+            "Background": "clWhite"
          },
          {
             "Name": "HighlightedBlock",
@@ -145,18 +145,18 @@
          {
             "Name": "Attribute",
             "Foreground": "clMaroon",
-            "Background": "clWindow"
+            "Background": "clWhite"
          },
          {
             "Name": "Method",
             "Foreground": "clNavy",
-            "Background": "clWindow",
+            "Background": "clWhite",
             "Style": "Bold"
          },
          {
             "Name": "MethodName",
-            "Foreground": "clWindowText",
-            "Background": "clWindow"
+            "Foreground": "clBlack",
+            "Background": "clWhite"
          }
       ]
    }

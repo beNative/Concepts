@@ -120,7 +120,7 @@ type
     property Text: string read GetTextStr write SetTextStr;
   end;
 
-  EEditorStringList = class(Exception);
+  EBCEditorLinesException = class(Exception);
 
 implementation
 
@@ -131,7 +131,7 @@ uses
 
 procedure ListIndexOutOfBounds(AIndex: Integer);
 begin
-  raise EEditorStringList.CreateFmt(SBCEditorListIndexOutOfBounds, [AIndex]);
+  raise EBCEditorLinesException.CreateFmt(SBCEditorListIndexOutOfBounds, [AIndex]);
 end;
 
 constructor TBCEditorLines.Create;

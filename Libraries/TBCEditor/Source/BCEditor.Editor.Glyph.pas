@@ -27,7 +27,7 @@ type
     destructor Destroy; override;
 
     procedure Assign(ASource: TPersistent); override;
-    procedure Draw(ACanvas: TCanvas; X, Y: Integer; ALineHeight: Integer);
+    procedure Draw(ACanvas: TCanvas; X, Y: Integer; ALineHeight: Integer = 0);
     property Height: Integer read GetHeight;
     property Width: Integer read GetWidth;
   published
@@ -96,7 +96,7 @@ begin
     inherited Assign(ASource);
 end;
 
-procedure TBCEditorGlyph.Draw(ACanvas: TCanvas; X, Y: Integer; ALineHeight: Integer);
+procedure TBCEditorGlyph.Draw(ACanvas: TCanvas; X, Y: Integer; ALineHeight: Integer = 0);
 var
   LGlyphBitmap: Vcl.Graphics.TBitmap;
   LMaskColor: TColor;
@@ -115,7 +115,8 @@ begin
   else
     Exit;
 
-  Inc(Y, Abs(LGlyphBitmap.Height - ALineHeight) div 2);
+  if ALineHeight <> 0 then
+    Inc(Y, Abs(LGlyphBitmap.Height - ALineHeight) div 2);
 
   LGlyphBitmap.Transparent := True;
   LGlyphBitmap.TransparentMode := tmFixed;

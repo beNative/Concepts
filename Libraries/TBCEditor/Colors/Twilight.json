@@ -3,7 +3,7 @@
       "Info":{
          "General":{
             "Version":"1.3",
-            "Date":"29.01.2016"
+            "Date":"13.02.2016"
          },
          "Author":{
             "Name":"Lasse Rautiainen",
@@ -143,7 +143,7 @@
          {
             "Name":"Attribute",
             "Foreground":"clWhite",
-            "Background":"clWindow"
+            "Background":"clWhite"
          },
          {
             "Name":"Method",

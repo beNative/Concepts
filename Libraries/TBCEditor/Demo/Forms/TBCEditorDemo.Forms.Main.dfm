@@ -1,7 +1,7 @@
 inherited MainForm: TMainForm
   Caption = ''
   ClientHeight = 644
-  ClientWidth = 1100
+  ClientWidth = 1348
   Color = clWhite
   Position = poScreenCenter
   ShowHint = True
@@ -9,7 +9,7 @@ inherited MainForm: TMainForm
   PixelsPerInch = 96
   TextHeight = 13
   object Splitter: TBCSplitter [0]
-    Left = 754
+    Left = 1002
     Top = 0
     Height = 625
     Align = alRight
@@ -17,7 +17,7 @@ inherited MainForm: TMainForm
   end
   inherited StatusBar: TBCStatusBar
     Top = 625
-    Width = 1100
+    Width = 1348
     Panels = <
       item
         Alignment = taCenter
@@ -34,7 +34,7 @@ inherited MainForm: TMainForm
       end>
   end
   object PanelProperty: TBCPanel [2]
-    Left = 760
+    Left = 1008
     Top = 0
     Width = 340
     Height = 625
@@ -67,7 +67,7 @@ inherited MainForm: TMainForm
     AlignWithMargins = True
     Left = 6
     Top = 0
-    Width = 748
+    Width = 996
     Height = 625
     Margins.Left = 6
     Margins.Top = 0
@@ -78,11 +78,19 @@ inherited MainForm: TMainForm
     ParentColor = True
     TabOrder = 2
     SkinData.SkinSection = 'TRANSPARENT'
+    object SplitterUndo: TBCSplitter
+      Left = 593
+      Top = 0
+      Height = 598
+      Align = alRight
+      Visible = False
+      SkinData.SkinSection = 'SPLITTER'
+    end
     object Editor: TBCEditor
       AlignWithMargins = True
       Left = 0
       Top = 5
-      Width = 748
+      Width = 593
       Height = 593
       Cursor = crIBeam
       Margins.Left = 0
@@ -141,6 +149,7 @@ inherited MainForm: TMainForm
       RightMargin.Visible = True
       Search.Enabled = False
       SpecialChars.Style = scsDot
+      SyncEdit.ShortCut = 24650
       TabOrder = 0
       WordWrap.Enabled = False
       WordWrap.Indicator.Glyph.Data = {
@@ -181,7 +190,7 @@ inherited MainForm: TMainForm
       AlignWithMargins = True
       Left = 0
       Top = 601
-      Width = 748
+      Width = 996
       Height = 21
       Margins.Left = 0
       Margins.Right = 0
@@ -248,7 +257,7 @@ inherited MainForm: TMainForm
         ImageIndex = 78
       end
       object SpeedButtonClose: TBCSpeedButton
-        Left = 727
+        Left = 975
         Top = 0
         Width = 21
         Height = 21
@@ -338,7 +347,7 @@ inherited MainForm: TMainForm
       object PanelRight: TBCPanel
         Left = 279
         Top = 0
-        Width = 448
+        Width = 696
         Height = 21
         Align = alClient
         BevelOuter = bvNone
@@ -347,7 +356,7 @@ inherited MainForm: TMainForm
         SkinData.SkinSection = 'CHECKBOX'
         object LabelSearchResultCount: TsLabel
           AlignWithMargins = True
-          Left = 441
+          Left = 689
           Top = 0
           Width = 4
           Height = 21
@@ -363,6 +372,58 @@ inherited MainForm: TMainForm
           Font.Name = 'Tahoma'
           Font.Style = []
         end
+      end
+    end
+    object PanelUndo: TBCPanel
+      Left = 599
+      Top = 0
+      Width = 397
+      Height = 598
+      Align = alRight
+      BevelOuter = bvNone
+      TabOrder = 2
+      Visible = False
+      SkinData.SkinSection = 'CHECKBOX'
+      object BCSplitter3: TBCSplitter
+        Left = 0
+        Top = 293
+        Width = 397
+        Height = 6
+        Cursor = crVSplit
+        Align = alTop
+        Color = clBtnFace
+        ParentColor = False
+        SkinData.SkinSection = 'SPLITTER'
+      end
+      object MemoRedo: TsMemo
+        AlignWithMargins = True
+        Left = 0
+        Top = 299
+        Width = 397
+        Height = 294
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 0
+        Margins.Bottom = 5
+        Align = alClient
+        ScrollBars = ssBoth
+        TabOrder = 0
+        WordWrap = False
+      end
+      object MemoUndo: TsMemo
+        AlignWithMargins = True
+        Left = 0
+        Top = 5
+        Width = 397
+        Height = 288
+        Margins.Left = 0
+        Margins.Top = 5
+        Margins.Right = 0
+        Margins.Bottom = 0
+        Align = alTop
+        ScrollBars = ssBoth
+        TabOrder = 1
+        WordWrap = False
       end
     end
   end
@@ -525,6 +586,10 @@ inherited MainForm: TMainForm
       Hint = 'Close'
       OnExecute = ActionCloseExecute
     end
+  end
+  inherited MainMenu: TMainMenu
+    Left = 81
+    Top = 282
   end
   object PopupMenuFile: TPopupMenu
     Images = ImagesDataModule.ImageList

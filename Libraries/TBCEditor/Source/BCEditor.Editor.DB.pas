@@ -84,6 +84,7 @@ type
     property OnClick;
     property OnCommandProcessed;
     property OnContextHelp;
+    property OnCreateFileStream;
     property OnCustomLineColors;
     property OnCustomTokenAttribute;
     property OnDblClick;

@@ -91,8 +91,9 @@ type
     property IsTrueType: Boolean read GetIsTrueType;
   end;
 
+  EBCEditorFontStockException = class(Exception);
+
   { TBCEditorTextDrawer }
-  ETextDrawerException = class(Exception);
 
   TBCEditorTextDrawer = class(TObject)
   strict private
@@ -150,14 +151,17 @@ type
     property Style: TFontStyles write SetStyle;
   end;
 
+  EBCEditorTextDrawerException = class(Exception);
+
 function GetFontsInfoManager: TBCEditorFontsInfoManager;
 
 implementation
 
+uses
+  BCEditor.Language;
+
 var
   GFontsInfoManager: TBCEditorFontsInfoManager;
-
-  { utility routines }
 
 function GetFontsInfoManager: TBCEditorFontsInfoManager;
 begin
@@ -189,7 +193,7 @@ begin
     BaseFont := TFont.Create;
     BaseFont.Assign(ABaseFont);
     BaseLogFont := ALogFont;
-    IsTrueType := (0 <> (TRUETYPE_FONTTYPE and ALogFont.lfPitchAndFamily));
+    IsTrueType := 0 <> (TRUETYPE_FONTTYPE and ALogFont.lfPitchAndFamily);
   except
     Result^.BaseFont.Free;
     Dispose(Result);
@@ -452,7 +456,7 @@ begin
     end;
   end
   else
-    raise Exception.Create('SetBaseFont: ''Value'' must be specified.');
+    raise EBCEditorFontStockException.Create(SBCEditorValueMustBeSpecified);
 end;
 
 procedure TBCEditorFontStock.SetStyle(AValue: TFontStyles);
@@ -591,7 +595,7 @@ begin
     SetStyle(AValue.Style);
   end
   else
-    raise ETextDrawerException.Create('SetBaseFont: ''Value'' must be specified.');
+    raise EBCEditorTextDrawerException.Create(SBCEditorValueMustBeSpecified);
 end;
 
 procedure TBCEditorTextDrawer.SetBaseStyle(const AValue: TFontStyles);

@@ -6,7 +6,7 @@ uses
   System.Classes, BCEditor.Types;
 
 const
-  BCEDITOR_DEFAULT_TAB_OPTIONS = [toSelectedBlockIndent];
+  BCEDITOR_DEFAULT_TAB_OPTIONS = [toColumns, toSelectedBlockIndent];
 
 type
   TBCEditorTabs = class(TPersistent)

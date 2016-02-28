@@ -18,11 +18,10 @@ type
     FActiveControl: TWinControl;
     FIsFocusable: Boolean;
     procedure CreateParams(var Params: TCreateParams); override;
-    procedure InvalidateEditor;
+    procedure Hide; virtual;
+    procedure Show(Origin: TPoint); virtual;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure Hide;
-    procedure Show(Origin: TPoint); virtual;
     property ActiveControl: TWinControl read FActiveControl;
     property IsFocusable: Boolean read FIsFocusable;
   end;
@@ -59,15 +58,6 @@ procedure TBCEditorPopupWindow.Hide;
 begin
   SetWindowPos(Handle, 0, 0, 0, 0, 0, SWP_NOZORDER or SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE or SWP_HIDEWINDOW);
   Visible := False;
-end;
-
-procedure TBCEditorPopupWindow.InvalidateEditor;
-var
-  R: TRect;
-begin
-  R := FEditor.ClientRect;
-  Winapi.Windows.InvalidateRect(FEditor.Handle, @R, False);
-  UpdateWindow(FEditor.Handle);
 end;
 
 procedure TBCEditorPopupWindow.Show(Origin: TPoint);

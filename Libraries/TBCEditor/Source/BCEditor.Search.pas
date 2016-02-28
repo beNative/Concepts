@@ -3,7 +3,7 @@ unit BCEditor.Search;
 interface
 
 uses
-  System.Classes;
+  System.Classes, System.SysUtils;
 
 type
   TBCEditorSearchCustom = class
@@ -15,7 +15,7 @@ type
     procedure SetPattern(const AValue: string); virtual; abstract;
   public
     function FindAll(const AText: string): Integer; virtual; abstract;
-    function Replace(const AOccurrence, aReplacement: string): string; virtual; abstract;
+    function Replace(const AOccurrence, AReplacement: string): string; virtual; abstract;
     procedure Clear; virtual; abstract;
     property Lengths[AIndex: Integer]: Integer read GetLength;
     property Pattern: string read GetPattern write SetPattern;
@@ -68,10 +68,12 @@ type
     property WholeWordsOnly: Boolean read FWholeWordsOnly write FWholeWordsOnly;
   end;
 
+  EBCEditorSearchException = class(Exception);
+
 implementation
 
 uses
-  System.SysUtils, System.Character, BCEditor.Consts;
+  System.Character, BCEditor.Consts, BCEditor.Language;
 
 constructor TBCEditorNormalSearch.Create;
 begin
@@ -120,7 +122,7 @@ var
 begin
   FPatternLength := Length(FPattern);
   if FPatternLength = 0 then
-    raise Exception.Create('Pattern is empty');
+    raise EBCEditorSearchException.Create(SBCEditorPatternIsEmpty);
   FPatternLengthSuccessor := FPatternLength + 1;
   FLookAt := 1;
   for LAnsiChar := Low(AnsiChar) to High(AnsiChar) do

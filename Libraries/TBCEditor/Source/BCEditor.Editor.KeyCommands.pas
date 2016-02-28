@@ -61,7 +61,6 @@ const
   { Selection modes }
   ecNormalSelect = 231;
   ecColumnSelect = 232;
-  ecLineSelect = 233;
   { Bookmark }
   ecGotoBookmark1 = 302;
   ecGotoBookmark2 = 303;
@@ -192,6 +191,8 @@ type
     property SecondaryShortCut: TShortCut read GetSecondaryShortCut write SetSecondaryShortCut default 0;
   end;
 
+  EBCEditorKeyCommandException = class(Exception);
+
   TBCEditorKeyCommands = class(TCollection)
   strict private
     FOwner: TPersistent;
@@ -230,7 +231,7 @@ type
   end;
 
 const
-  EditorCommandStrings: array [0 .. 111] of TBCEditorCommandString = (
+  EditorCommandStrings: array [0 .. 110] of TBCEditorCommandString = (
     (Value: ecNone; Name: 'ecNone'),
     (Value: ecLeft; Name: 'ecLeft'),
     (Value: ecRight; Name: 'ecRight'),
@@ -298,7 +299,6 @@ const
     (Value: ecShiftTab; Name: 'ecShiftTab'),
     (Value: ecNormalSelect; Name: 'ecNormalSelect'),
     (Value: ecColumnSelect; Name: 'ecColumnSelect'),
-    (Value: ecLineSelect; Name: 'ecLineSelect'),
     (Value: ecUserFirst; Name: 'ecUserFirst'),
     (Value: ecContextHelp; Name: 'ecContextHelp'),
     (Value: ecGotoBookmark1; Name: 'ecGotoBookmark1'),
@@ -452,7 +452,7 @@ begin
   begin
     LDuplicate := TBCEditorKeyCommands(Collection).FindShortcuts(AValue, SecondaryShortCut);
     if (LDuplicate <> -1) and (LDuplicate <> Self.Index) then
-      raise Exception.Create(SBCEditorDuplicateShortcut);
+      raise EBCEditorKeyCommandException.Create(SBCEditorDuplicateShortcut);
   end;
 
   Vcl.Menus.ShortCutToKey(AValue, LNewKey, LNewShiftState);
@@ -486,7 +486,7 @@ begin
   begin
     LDuplicate := TBCEditorKeyCommands(Collection).FindShortcuts(ShortCut, AValue);
     if (LDuplicate <> -1) and (LDuplicate <> Self.Index) then
-      raise Exception.Create(SBCEditOrduplicateShortcut);
+      raise EBCEditorKeyCommandException.Create(SBCEditOrduplicateShortcut);
   end;
 
   Vcl.Menus.ShortCutToKey(AValue, LNewKey, LNewShiftState);
@@ -718,7 +718,6 @@ begin
   { Selection modes }
   Add(ecNormalSelect, [ssCtrl, ssAlt], Ord('N'));
   Add(ecColumnSelect, [ssCtrl, ssAlt], Ord('C'));
-  Add(ecLineSelect, [ssCtrl, ssAlt], Ord('L'));
   { Comments }
   Add(ecLineComment, [ssCtrl], VK_OEM_2);
   Add(ecBlockComment, [ssCtrl, ssShift], VK_OEM_2);

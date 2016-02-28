@@ -3,22 +3,24 @@ unit BCEditor.Editor.Scroll;
 interface
 
 uses
-  System.Classes, System.UITypes, BCEditor.Types, BCEditor.Editor.Scroll.Hint;
+  System.Classes, System.UITypes, BCEditor.Types, BCEditor.Editor.Glyph, BCEditor.Editor.Scroll.Hint;
 
 const
-  BCEDITOR_DEFAULT_SCROLL_OPTIONS = [soAutosizeMaxWidth, soPastEndOfLine, soShowHint];
+  BCEDITOR_DEFAULT_SCROLL_OPTIONS = [soAutosizeMaxWidth, soPastEndOfLine, soShowHint, soWheelClickMove];
 
 type
   TBCEditorScroll = class(TPersistent)
   strict private
     FBars: System.UITypes.TScrollStyle;
     FHint: TBCEditorScrollHint;
+    FIndicator: TBCEditorGlyph;
     FMaxWidth: Integer;
     FOnChange: TNotifyEvent;
     FOptions: TBCEditorScrollOptions;
     procedure DoChange;
     procedure SetBars(const AValue: System.UITypes.TScrollStyle);
     procedure SetHint(const AValue: TBCEditorScrollHint);
+    procedure SetIndicator(const AValue: TBCEditorGlyph);
     procedure SetOptions(const AValue: TBCEditorScrollOptions);
     procedure SetMaxWidth(AValue: Integer);
   public
@@ -28,6 +30,7 @@ type
   published
     property Bars: System.UITypes.TScrollStyle read FBars write SetBars default System.UITypes.TScrollStyle.ssBoth;
     property Hint: TBCEditorScrollHint read FHint write SetHint;
+    property Indicator: TBCEditorGlyph read FIndicator write SetIndicator;
     property MaxWidth: Integer read FMaxWidth write SetMaxWidth default 1024;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property Options: TBCEditorScrollOptions read FOptions write SetOptions default BCEDITOR_DEFAULT_SCROLL_OPTIONS;
@@ -36,7 +39,7 @@ type
 implementation
 
 uses
-  BCEditor.Utils;
+  BCEditor.Utils, BCEditor.Consts, Vcl.Graphics;
 
 { TBCEditorScroll }
 
@@ -48,11 +51,13 @@ begin
   FMaxWidth := 1024;
   FBars := System.UITypes.TScrollStyle.ssBoth;
   FHint := TBCEditorScrollHint.Create;
+  FIndicator := TBCEditorGlyph.Create(HINSTANCE, BCEDITOR_MOUSE_MOVE_SCROLL, clFuchsia);
 end;
 
 destructor TBCEditorScroll.Destroy;
 begin
   FHint.Free;
+  FIndicator.Free;
 
   inherited;
 end;
@@ -79,6 +84,7 @@ begin
   begin
     Self.FBars := FBars;
     Self.FHint.Assign(FHint);
+    Self.FIndicator.Assign(FIndicator);
     Self.FOptions := FOptions;
     Self.FMaxWidth := FMaxWidth;
     Self.DoChange;
@@ -109,6 +115,11 @@ end;
 procedure TBCEditorScroll.SetHint(const AValue: TBCEditorScrollHint);
 begin
   FHint.Assign(AValue);
+end;
+
+procedure TBCEditorScroll.SetIndicator(const AValue: TBCEditorGlyph);
+begin
+  FIndicator.Assign(AValue);
 end;
 
 end.

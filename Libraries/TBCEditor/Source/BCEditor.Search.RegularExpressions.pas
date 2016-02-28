@@ -68,6 +68,7 @@ begin
   begin
     AddResult(Match.Index, Match.Length);
     Match := Match.NextMatch;
+    Inc(Result);
   end;
 end;
 

@@ -38,7 +38,6 @@ type
     FScrollWnd: TacScrollWnd;
 {$ENDIF}
     FTopLine: Integer;
-    function IsWordBreakChar(AChar: Char): Boolean;
     function GetItemList: TStrings;
     procedure AddKeyHandlers;
     procedure EditorKeyDown(Sender: TObject; var AKey: Word; AShift: TShiftState);
@@ -57,6 +56,7 @@ type
     function CanResize(var AWidth, AHeight: Integer): Boolean; override;
     procedure Paint; override;
     procedure Resize; override;
+    procedure Hide; override;
     procedure MouseDown(AButton: TMouseButton; AShift: TShiftState; X, Y: Integer); override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -65,8 +65,8 @@ type
     procedure AfterConstruction; override;
 {$ENDIF}
     function GetCurrentInput: string;
-    procedure Execute(const ACurrentString: string; X, Y: Integer);
     procedure Assign(ASource: TPersistent); override;
+    procedure Execute(const ACurrentString: string; X, Y: Integer);
     procedure WndProc(var AMessage: TMessage); override;
     property CurrentString: string read FCurrentString write SetCurrentString;
     property ItemList: TStrings read GetItemList;
@@ -120,11 +120,16 @@ begin
     FreeAndNil(FCommonData);
 {$ENDIF}
   RemoveKeyHandlers;
-
   FBitmapBuffer.Free;
   SetLength(FItemIndexArray, 0);
 
   inherited Destroy;
+end;
+
+procedure TBCEditorCompletionProposalPopupWindow.Hide;
+begin
+  RemoveKeyHandlers;
+  inherited Hide;
 end;
 
 {$IFDEF USE_ALPHASKINS}
@@ -219,7 +224,7 @@ begin
             else
               LChar := BCEDITOR_SPACE_CHAR;
 
-            if Self.IsWordBreakChar(LChar) then
+            if IsWordBreakChar(LChar) then
               Self.Hide
             else
               CurrentString := FCurrentString + LChar;
@@ -276,18 +281,16 @@ begin
   case AKey of
     BCEDITOR_CARRIAGE_RETURN, BCEDITOR_ESCAPE:
       Hide;
-    BCEDITOR_SPACE_CHAR .. high(Char):
+    BCEDITOR_SPACE_CHAR .. High(Char):
       begin
-        if IsWordBreakChar(AKey) and Assigned(OnValidate) then
-        begin
+        if (Owner as TBCBaseEditor).IsWordBreakChar(AKey) and Assigned(OnValidate) then
           if AKey = BCEDITOR_SPACE_CHAR then
-            OnValidate(Self, [], BCEDITOR_NONE_CHAR)
-          else
-            OnValidate(Self, [], AKey);
-        end;
-
+            OnValidate(Self, [], BCEDITOR_NONE_CHAR);
         CurrentString := FCurrentString + AKey;
-
+        if (cpoAutoInvoke in FCompletionProposal.Options) and (Length(FItemIndexArray) = 0) or
+          (Pos(AKey, FCompletionProposal.CloseChars) <> 0) then
+          Hide
+        else
         if Assigned(OnKeyPress) then
           OnKeyPress(Self, AKey);
       end;
@@ -371,7 +374,7 @@ procedure TBCEditorCompletionProposalPopupWindow.MoveLine(ALineCount: Integer);
 begin
   if ALineCount > 0 then
   begin
-    if (TopLine < (Length(FItemIndexArray) - ALineCount)) then
+    if TopLine < Length(FItemIndexArray) - ALineCount then
       TopLine := TopLine + ALineCount
     else
       TopLine := Length(FItemIndexArray) - 1;
@@ -465,11 +468,6 @@ begin
       Invalidate;
     UpdateScrollBar;
   end;
-end;
-
-function TBCEditorCompletionProposalPopupWindow.IsWordBreakChar(AChar: Char): Boolean;
-begin
-  Result := (Owner as TBCBaseEditor).IsWordBreakChar(AChar);
 end;
 
 procedure TBCEditorCompletionProposalPopupWindow.WMMouseWheel(var AMessage: TMessage);
@@ -589,26 +587,29 @@ begin
     CalculateFormPlacement;
     CalculateColumnWidths;
     CurrentString := ACurrentString;
-    UpdateScrollBar;
-    Visible := True;
+    if Length(FItemIndexArray) > 0 then
+    begin
+      UpdateScrollBar;
+      Visible := True;
+    end;
   end;
 end;
 
 procedure TBCEditorCompletionProposalPopupWindow.HandleOnValidate(Sender: TObject; AShift: TShiftState; AEndToken: Char);
 var
-  Editor: TBCBaseEditor;
-  Value: string;
+  LEditor: TBCBaseEditor;
+  LValue, LLine: string;
   LTextPosition: TBCEditorTextPosition;
 begin
   if not Assigned(Owner) then
     Exit;
-  Editor := Owner as TBCBaseEditor;
-  with Editor do
+  LEditor := Owner as TBCBaseEditor;
+  with LEditor do
   begin
     BeginUpdate;
     BeginUndoBlock;
     try
-      LTextPosition := Editor.TextCaretPosition;
+      LTextPosition := TextCaretPosition;
       if FAdjustCompletionStart then
         FCompletionStart := GetTextPosition(FCompletionStart, LTextPosition.Line).Char;
 
@@ -617,7 +618,8 @@ begin
         SelectionBeginPosition := GetTextPosition(FCompletionStart, LTextPosition.Line);
         if AEndToken = BCEDITOR_NONE_CHAR then
         begin
-          if IsWordBreakChar(Lines[LTextPosition.Line][LTextPosition.Char]) then
+          LLine := Lines[LTextPosition.Line];
+          if (Length(LLine) >= LTextPosition.Char) and IsWordBreakChar(LLine[LTextPosition.Char]) then
             SelectionEndPosition := LTextPosition
           else
             SelectionEndPosition := GetTextPosition(WordEnd.Char, LTextPosition.Line)
@@ -627,12 +629,12 @@ begin
       end;
 
       if FSelectedLine < Length(FItemIndexArray) then
-        Value := GetItemList[FItemIndexArray[FSelectedLine]]
+        LValue := GetItemList[FItemIndexArray[FSelectedLine]]
       else
-        Value := SelectedText;
+        LValue := SelectedText;
 
-      if SelectedText <> Value then
-        SelectedText := Value;
+      if SelectedText <> LValue then
+        SelectedText := LValue;
 
       if CanFocus then
         SetFocus;
@@ -670,7 +672,7 @@ begin
   if i <= Length(LLineText) then
   begin
     FAdjustCompletionStart := False;
-    while (i > 0) and (LLineText[i] > BCEDITOR_SPACE_CHAR) and not Self.IsWordBreakChar(LLineText[i]) do
+    while (i > 0) and (LLineText[i] > BCEDITOR_SPACE_CHAR) and not LEditor.IsWordBreakChar(LLineText[i]) do
       Dec(i);
 
     FCompletionStart := i + 1;

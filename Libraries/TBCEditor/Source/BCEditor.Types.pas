@@ -36,6 +36,8 @@ type
   TBCEditorCustomTokenAttributeEvent = procedure(Sender: TObject; const AText: string; const ALine: Integer;
     const APosition: Integer; var AForegroundColor: TColor; var ABackgroundColor: TColor; var AStyles: TFontStyles) of object;
 
+  TBCEditorCreateFileStreamEvent = procedure(Sender: TObject; const AFileName: string; var AStream: TStream) of object;
+
   TBCEditorStateFlag = (sfCaretChanged, sfScrollBarChanged, sfLinesChanging, sfIgnoreNextChar, sfCaretVisible, sfDblClicked,
     sfWaitForDragging, sfCodeFoldingInfoClicked, sfInSelection, sfDragging);
   TBCEditorStateFlags = set of TBCEditorStateFlag;
@@ -59,11 +61,14 @@ type
     soHintFollows, { The scroll hint follows the mouse when scrolling vertically }
     soPastEndOfFileMarker, { Allows the cursor to go past the end of file marker }
     soPastEndOfLine, { Allows the cursor to go past the last character into the white space at the end of a line }
-    soShowHint { Shows a hint of the visible line numbers when scrolling vertically }
-    );
+    soShowHint, { Shows a hint of the visible line numbers when scrolling vertically }
+    soWheelClickMove { Scrolling by mouse move after wheel click. }
+  );
   TBCEditorScrollOptions = set of TBCEditorScrollOption;
 
   TBCEditorTabOption = (
+    toColumns,
+    toPreviousLineIndent,
     toSelectedBlockIndent,
     toTabsToSpaces
     );
@@ -71,9 +76,8 @@ type
 
   PBCEditorSelectionMode = ^TBCEditorSelectionMode;
   TBCEditorSelectionMode = (
-    smNormal,
-    smLine,
-    smColumn
+    smColumn,
+    smNormal
   );
 
   TBCEditorSelectionOption = (
