@@ -2,7 +2,7 @@ object frmZMQConcept: TfrmZMQConcept
   Left = 0
   Top = 0
   Caption = 'TP'
-  ClientHeight = 653
+  ClientHeight = 575
   ClientWidth = 738
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -14,7 +14,7 @@ object frmZMQConcept: TfrmZMQConcept
   OnClose = FormClose
   DesignSize = (
     738
-    653)
+    575)
   PixelsPerInch = 96
   TextHeight = 13
   object pnlClient: TPanel
@@ -24,6 +24,9 @@ object frmZMQConcept: TfrmZMQConcept
     Height = 637
     BevelOuter = bvNone
     TabOrder = 0
+    DesignSize = (
+      420
+      637)
     object edtAddress: TLabeledEdit
       Left = 168
       Top = 32
@@ -39,11 +42,17 @@ object frmZMQConcept: TfrmZMQConcept
     end
     object mmoSend: TMemo
       Left = 127
-      Top = 336
+      Top = 196
       Width = 285
       Height = 124
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
       Lines.Strings = (
         'Test')
+      ParentFont = False
       TabOrder = 1
     end
     object edtPort: TLabeledEdit
@@ -69,18 +78,30 @@ object frmZMQConcept: TfrmZMQConcept
     end
     object btnSend: TButton
       Left = 127
-      Top = 305
-      Width = 75
+      Top = 148
+      Width = 131
       Height = 25
       Action = actSend
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 4
     end
     object btnReceive: TButton
       Left = 127
-      Top = 466
+      Top = 326
       Width = 75
       Height = 25
       Action = actReceive
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 5
     end
     object btnServerBind: TButton
@@ -90,175 +111,6 @@ object frmZMQConcept: TfrmZMQConcept
       Height = 25
       Action = actBind
       TabOrder = 6
-    end
-    object pnlZMQSocket: TPanel
-      Left = 3
-      Top = 32
-      Width = 118
-      Height = 374
-      BevelOuter = bvNone
-      TabOrder = 7
-      DesignSize = (
-        118
-        374)
-      object shpRequesterResponder: TShape
-        AlignWithMargins = True
-        Left = 3
-        Top = 104
-        Width = 110
-        Height = 54
-        Margins.Top = 1
-        Margins.Right = 5
-        Margins.Bottom = 1
-        Align = alTop
-        Brush.Color = clYellow
-        Pen.Color = clWhite
-        Pen.Style = psClear
-        ExplicitLeft = 29
-        ExplicitTop = 165
-        ExplicitWidth = 87
-      end
-      object shpStream: TShape
-        AlignWithMargins = True
-        Left = 3
-        Top = 328
-        Width = 110
-        Height = 36
-        Margins.Top = 1
-        Margins.Right = 5
-        Margins.Bottom = 1
-        Align = alTop
-        Brush.Color = clBtnFace
-        Pen.Color = clWhite
-        Pen.Style = psClear
-        ExplicitLeft = 4
-        ExplicitTop = 329
-        ExplicitWidth = 90
-      end
-      object shpPullPush: TShape
-        AlignWithMargins = True
-        Left = 3
-        Top = 216
-        Width = 110
-        Height = 54
-        Margins.Top = 1
-        Margins.Right = 5
-        Margins.Bottom = 1
-        Align = alTop
-        Brush.Color = 16761343
-        Pen.Color = clWhite
-        Pen.Style = psClear
-        ExplicitLeft = 29
-        ExplicitTop = 179
-        ExplicitWidth = 87
-      end
-      object shpPublisherSubscriber: TShape
-        AlignWithMargins = True
-        Left = 3
-        Top = 48
-        Width = 110
-        Height = 54
-        Margins.Top = 1
-        Margins.Right = 5
-        Margins.Bottom = 1
-        Align = alTop
-        Brush.Color = 16764622
-        Pen.Color = clWhite
-        Pen.Style = psClear
-        ExplicitLeft = 30
-        ExplicitTop = 109
-        ExplicitWidth = 87
-      end
-      object shpDealerRouter: TShape
-        AlignWithMargins = True
-        Left = 3
-        Top = 160
-        Width = 110
-        Height = 54
-        Margins.Top = 1
-        Margins.Right = 5
-        Margins.Bottom = 1
-        Align = alTop
-        Pen.Color = clWhite
-        Pen.Style = psClear
-        ExplicitLeft = 37
-        ExplicitTop = 179
-        ExplicitWidth = 87
-      end
-      object shpXPublisherXSubscriber: TShape
-        AlignWithMargins = True
-        Left = 3
-        Top = 272
-        Width = 110
-        Height = 54
-        Margins.Top = 1
-        Margins.Right = 5
-        Margins.Bottom = 1
-        Align = alTop
-        Brush.Color = 12910532
-        Pen.Color = clWhite
-        Pen.Style = psClear
-        ExplicitLeft = 30
-        ExplicitTop = 179
-        ExplicitWidth = 87
-      end
-      object shpPair: TShape
-        AlignWithMargins = True
-        Left = 3
-        Top = 19
-        Width = 110
-        Height = 27
-        Margins.Top = 1
-        Margins.Right = 5
-        Margins.Bottom = 1
-        Align = alTop
-        Brush.Color = clBtnFace
-        Pen.Color = clWhite
-        Pen.Style = psClear
-        ExplicitLeft = 4
-        ExplicitTop = 27
-        ExplicitWidth = 90
-      end
-      object shpSpacer: TShape
-        AlignWithMargins = True
-        Left = 3
-        Top = 1
-        Width = 110
-        Height = 16
-        Margins.Top = 1
-        Margins.Right = 5
-        Margins.Bottom = 1
-        Align = alTop
-        Brush.Color = clBtnFace
-        Pen.Color = clWhite
-        Pen.Style = psClear
-        ExplicitLeft = 6
-        ExplicitWidth = 90
-      end
-      object rgpZMQSocket: TRadioGroup
-        Left = 4
-        Top = 5
-        Width = 113
-        Height = 365
-        Anchors = [akLeft, akTop, akRight]
-        Ctl3D = True
-        ItemIndex = 0
-        Items.Strings = (
-          'Pair'
-          'Publisher'
-          'Subscriber'
-          'Requester'
-          'Responder'
-          'Dealer'
-          'Router'
-          'Pull'
-          'Push'
-          'XPublisher'
-          'XSubscriber'
-          'Stream')
-        ParentCtl3D = False
-        TabOrder = 0
-      end
     end
     object edtFilter: TLabeledEdit
       Left = 169
@@ -270,21 +122,33 @@ object frmZMQConcept: TfrmZMQConcept
       EditLabel.Height = 13
       EditLabel.Caption = 'Filter:'
       LabelPosition = lpLeft
-      TabOrder = 8
+      TabOrder = 7
     end
     object mmoReceive: TMemo
       Left = 127
-      Top = 497
+      Top = 357
       Width = 285
       Height = 122
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       ReadOnly = True
-      TabOrder = 9
+      TabOrder = 8
     end
     object lbxEvents: TCheckListBox
-      Left = 303
-      Top = 165
+      Left = 4
+      Top = 242
       Width = 117
       Height = 153
+      OnClickCheck = lbxEventsClickCheck
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
       ItemHeight = 13
       Items.Strings = (
         'Connected'
@@ -298,7 +162,8 @@ object frmZMQConcept: TfrmZMQConcept
         'CloseFailed'
         'Disconnected'
         'MonitorStopped')
-      TabOrder = 10
+      ParentFont = False
+      TabOrder = 9
     end
     object pnlConnectionString: TPanel
       AlignWithMargins = True
@@ -315,7 +180,9 @@ object frmZMQConcept: TfrmZMQConcept
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
       ParentFont = False
-      TabOrder = 11
+      TabOrder = 10
+      ExplicitLeft = 127
+      ExplicitWidth = 290
     end
     object btnSubscribe: TButton
       Left = 127
@@ -323,7 +190,7 @@ object frmZMQConcept: TfrmZMQConcept
       Width = 131
       Height = 25
       Action = actSubscribe
-      TabOrder = 12
+      TabOrder = 11
     end
     object rgpTransport: TRadioGroup
       Left = 264
@@ -339,14 +206,36 @@ object frmZMQConcept: TfrmZMQConcept
         'ipc'
         'pgm'
         'epgm')
-      TabOrder = 13
+      TabOrder = 12
     end
     object btnCreateNew: TButton
-      Left = 114
-      Top = 148
+      Left = 242
+      Top = 165
       Width = 144
       Height = 25
       Action = actCreateNew
+      TabOrder = 13
+    end
+    object rgpZMQSocket: TRadioGroup
+      Left = 4
+      Top = 32
+      Width = 102
+      Height = 204
+      Anchors = [akLeft, akTop, akRight]
+      ItemIndex = 0
+      Items.Strings = (
+        'Pair'
+        'Publisher'
+        'Subscriber'
+        'Requester'
+        'Responder'
+        'Dealer'
+        'Router'
+        'Pull'
+        'Push'
+        'XPublisher'
+        'XSubscriber'
+        'Stream')
       TabOrder = 14
     end
   end
@@ -354,8 +243,14 @@ object frmZMQConcept: TfrmZMQConcept
     Left = 434
     Top = 8
     Width = 296
-    Height = 637
+    Height = 559
     Anchors = [akLeft, akTop, akRight, akBottom]
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Consolas'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 1
   end
   object aclMain: TActionList
@@ -384,6 +279,11 @@ object frmZMQConcept: TfrmZMQConcept
     object actCreateNew: TAction
       Caption = 'Create new ZeroMQ node'
       OnExecute = actCreateNewExecute
+    end
+    object actClose: TAction
+      Caption = 'Close'
+      Hint = 'Close connection'
+      OnExecute = actCloseExecute
     end
   end
 end

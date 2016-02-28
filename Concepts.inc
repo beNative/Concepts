@@ -52,7 +52,7 @@
 { TBCEditor }
 {$DEFINE BCEDITOR}
 {DelphiZMQ}
-{.$DEFINE DELPHIZMQ}
+{$DEFINE DELPHIZMQ}
 { DDetours }
 {$DEFINE DDETOURS}
 { TzObjectInspector }

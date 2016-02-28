@@ -92,6 +92,7 @@ uses
   Concepts.Spring.Logging.Form,
   Concepts.Spring.Types.Form,
   Concepts.Spring.Utils.Form,
+  Concepts.Spring.Persistence.Form,
   {$ENDIF}
 
   {$IFDEF BTMEMORYMODULE}
@@ -175,6 +176,13 @@ begin
     'Persistence',
     'Spring',
     'TObjectDataSet',
+    FCategoryColor
+  );
+  ConceptManager.Register(
+    TfrmSpringPersistence,
+    'Persistence',
+    'Spring',
+    'Spring entities',
     FCategoryColor
   );
   ConceptManager.Register(
