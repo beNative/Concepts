@@ -8,6 +8,7 @@ uses
 type
   TBCEditorSearchMap = class(TPersistent)
   strict private
+    FAlign: TBCEditorSearchMapAlign;
     FColors: TBCEditorSearchMapColors;
     FCursor: TCursor;
     FOnChange: TBCEditorSearchChangeEvent;
@@ -15,6 +16,7 @@ type
     FVisible: Boolean;
     FWidth: Integer;
     procedure DoChange;
+    procedure SetAlign(const AValue: TBCEditorSearchMapAlign);
     procedure SetOnChange(AValue: TBCEditorSearchChangeEvent);
     procedure SetColors(const AValue: TBCEditorSearchMapColors);
     procedure SetOptions(const AValue: TBCEditorSearchMapOptions);
@@ -26,6 +28,7 @@ type
     procedure Assign(ASource: TPersistent); override;
     function GetWidth: Integer;
   published
+    property Align: TBCEditorSearchMapAlign read FAlign write SetAlign default saRight;
     property Colors: TBCEditorSearchMapColors read FColors write SetColors;
     property Cursor: TCursor read FCursor write FCursor default crArrow;
     property OnChange: TBCEditorSearchChangeEvent read FOnChange write SetOnChange;
@@ -45,6 +48,7 @@ constructor TBCEditorSearchMap.Create;
 begin
   inherited;
 
+  FAlign := saRight;
   FColors := TBCEditorSearchMapColors.Create;
   FOptions := [moShowActiveLine];
   FVisible := False;
@@ -63,6 +67,7 @@ begin
   if ASource is TBCEditorSearchMap then
   with ASource as TBCEditorSearchMap do
   begin
+    Self.FAlign := FAlign;
     Self.FVisible := FVisible;
     Self.FOptions := Options;
     Self.FWidth := FWidth;
@@ -92,6 +97,15 @@ procedure TBCEditorSearchMap.DoChange;
 begin
   if Assigned(FOnChange) then
     FOnChange(scSearch);
+end;
+
+procedure TBCEditorSearchMap.SetAlign(const AValue: TBCEditorSearchMapAlign);
+begin
+  if FAlign <> AValue then
+  begin
+    FAlign := AValue;
+    DoChange;
+  end;
 end;
 
 procedure TBCEditorSearchMap.SetVisible(AValue: Boolean);

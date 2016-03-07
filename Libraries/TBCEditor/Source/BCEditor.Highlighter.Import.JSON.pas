@@ -3,8 +3,8 @@ unit BCEditor.Highlighter.Import.JSON;
 interface
 
 uses
-  System.Classes, BCEditor.Editor.Base, BCEditor.Highlighter, BCEditor.Highlighter.Colors, BCEditor.Highlighter.Info,
-  BCEditor.Highlighter.Attributes, BCEditor.Highlighter.Rules, BCEditor.Editor.SkipRegions,
+  System.Classes, System.SysUtils, BCEditor.Editor.Base, BCEditor.Highlighter, BCEditor.Highlighter.Colors,
+  BCEditor.Highlighter.Info, BCEditor.Highlighter.Attributes, BCEditor.Highlighter.Rules, BCEditor.Editor.SkipRegions,
   BCEditor.Editor.CodeFolding.Regions, BCEditor.JsonDataObjects;
 
 type
@@ -36,10 +36,12 @@ type
     procedure ImportColorsFromStream(AStream: TStream);
   end;
 
+  EJsonImportException = class(Exception);
+
 implementation
 
 uses
-  System.SysUtils, System.TypInfo, Vcl.Graphics, Vcl.Forms, BCEditor.Consts, BCEditor.Types, Vcl.Dialogs,
+  System.TypInfo, Vcl.Graphics, Vcl.Forms, BCEditor.Consts, BCEditor.Types, Vcl.Dialogs,
   BCEditor.Highlighter.Token, Vcl.GraphUtil, BCEditor.Utils, BCEditor.Language;
 
 function StringToColorDef(const AString: string; const DefaultColor: TColor): Integer;
@@ -798,8 +800,10 @@ begin
       JSONObject.Free;
     end;
   except
+    on E: EJsonParserException do
+      raise EJsonImportException.Create(Format(SBCEditorErrorInHighlighterParse, [E.LineNum, E.Column, E.Message]));
     on E: Exception do
-      MessageDialog(SBCEditorErrorInHighlighterImport + E.Message, mtError, [mbOK]);
+      raise EJsonImportException.Create(Format(SBCEditorErrorInHighlighterImport, [E.Message]));
   end;
 end;
 
@@ -816,8 +820,10 @@ begin
       JSONObject.Free;
     end;
   except
+    on E: EJsonParserException do
+      raise EJsonImportException.Create(Format(SBCEditorErrorInHighlighterParse, [E.LineNum, E.Column, E.Message]));
     on E: Exception do
-      MessageDialog(SBCEditorErrorInHighlighterColorImport + E.Message, mtError, [mbOK]);
+      raise EJsonImportException.Create(Format(SBCEditorErrorInHighlighterImport, [E.Message]));
   end;
 end;
 

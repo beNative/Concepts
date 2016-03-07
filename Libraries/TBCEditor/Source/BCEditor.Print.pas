@@ -23,6 +23,7 @@ type
     FCanvas: TCanvas;
     FCharWidth: Integer;
     FColors: Boolean;
+    FColumns: Boolean;
     FCopies: Integer;
     FDefaultBackground: TColor;
     FDocumentTitle: string;
@@ -120,7 +121,6 @@ type
     property OnPrintStatus: TBCEditorPrintStatusEvent read FOnPrintStatus write FOnPrintStatus;
     property PageOffset: Integer read FPageOffset write FPageOffset default 0;
     property SelectedOnly: Boolean read FSelectedOnly write FSelectedOnly default False;
-    property TabWidth: Integer read FTabWidth write FTabWidth;
     property Title: string read FTitle write FTitle;
     property Wrap: Boolean read FWrap write SetWrap default True;
   end;
@@ -189,7 +189,7 @@ var
   LLine: string;
   LHasTabs: Boolean;
 begin
-  LTabConvertProc := GetTabConvertProc(FTabWidth);
+  LTabConvertProc := GetTabConvertProc(FColumns);
   with FLines do
   begin
     BeginUpdate;
@@ -818,6 +818,7 @@ begin
   Highlighter := AValue.Highlighter;
   Font := AValue.Font;
   CharWidth := AValue.CharWidth;
+  FColumns := toColumns in AValue.Tabs.Options;
   FTabWidth := AValue.Tabs.Width;
   SetLines(AValue.Lines);
   FSelectionAvailable := AValue.SelectionAvailable;

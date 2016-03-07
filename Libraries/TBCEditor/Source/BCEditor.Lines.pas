@@ -43,6 +43,7 @@ type
   TBCEditorLines = class(TStrings)
   strict private
     FCapacity: Integer;
+    FColumns: Boolean;
     FCount: Integer;
     FIndexOfLongestLine: Integer;
     FLengthOfLongestLine: Integer;
@@ -77,6 +78,7 @@ type
     function GetTextStr: string; override;
     procedure Put(AIndex: Integer; const AValue: string); override;
     procedure SetCapacity(AValue: Integer); override;
+    procedure SetColumns(AValue: Boolean);
     procedure SetTabWidth(AValue: Integer);
     procedure SetTextStr(const AValue: string); override;
     procedure SetUpdateState(AUpdating: Boolean); override;
@@ -99,6 +101,7 @@ type
     procedure SaveToStream(AStream: TStream; AEncoding: TEncoding = nil); override;
     procedure TrimTrailingSpaces(AIndex: Integer);
     property Attributes[AIndex: Integer]: PBCEditorLineAttribute read GetAttributes write PutAttributes;
+    property Columns: Boolean read FColumns write SetColumns;
     property Count: Integer read FCount;
     property ExpandedStrings[AIndex: Integer]: string read GetExpandedString;
     property ExpandedStringLengths[AIndex: Integer]: Integer read GetExpandedStringLength;
@@ -315,6 +318,7 @@ begin
     else
     begin
       Result := FTabConvertProc(Value, FTabWidth, LHasTabs);
+
       ExpandedLength := Length(Result);
       Exclude(Flags, sfExpandedLengthUnknown);
       Exclude(Flags, sfHasTabs);
@@ -636,7 +640,6 @@ begin
   if FTabWidth <> AValue then
   begin
     FTabWidth := AValue;
-    FTabConvertProc := GetTabConvertProc(FTabWidth);
     FIndexOfLongestLine := -1;
     for i := 0 to FCount - 1 do
       with FList^[i] do
@@ -646,6 +649,12 @@ begin
         Include(Flags, sfExpandedLengthUnknown);
       end;
   end;
+end;
+
+procedure TBCEditorLines.SetColumns(AValue: Boolean);
+begin
+  FTabConvertProc := GetTabConvertProc(AValue);
+  FColumns := AValue;
 end;
 
 procedure TBCEditorLines.SetTextStr(const AValue: string);

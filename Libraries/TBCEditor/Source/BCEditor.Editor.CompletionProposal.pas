@@ -34,7 +34,7 @@ type
     property CompletionColumnIndex: Integer read FCompletionColumnIndex write FCompletionColumnIndex default 0;
     property Enabled: Boolean read FEnabled write FEnabled default True;
     property Font: TFont read FFont write FFont;
-    property Options: TBCEditorCompletionProposalOptions read FOptions write FOptions default [cpoFiltered, cpoParseItemsFromText, cpoResizeable];
+    property Options: TBCEditorCompletionProposalOptions read FOptions write FOptions default [cpoFiltered, cpoParseItemsFromText];
     property ShortCut: TShortCut read FShortCut write FShortCut;
     property Trigger: TBCEditorCompletionProposalTrigger read FTrigger write FTrigger;
     property VisibleLines: Integer read FVisibleLines write FVisibleLines default 8;
@@ -62,7 +62,7 @@ begin
   FFont := TFont.Create;
   FFont.Name := 'Courier New';
   FFont.Size := 8;
-  FOptions := [cpoFiltered, cpoParseItemsFromText, cpoResizeable];
+  FOptions := [cpoFiltered, cpoParseItemsFromText];
   FShortCut := Vcl.Menus.ShortCut(Ord(' '), [ssCtrl]);
   FTrigger := TBCEditorCompletionProposalTrigger.Create;
   FVisibleLines := 8;

@@ -148,8 +148,7 @@ type
     cpoAutoInvoke,
     cpoCaseSensitive,
     cpoFiltered,
-    cpoParseItemsFromText,
-    cpoResizeable
+    cpoParseItemsFromText
   );
   TBCEditorCompletionProposalOptions = set of TBCEditorCompletionProposalOption;
 
@@ -256,7 +255,8 @@ type
   );
 
   TBCEditorSpecialCharsOption = (
-    scoUseTextColor
+    scoTextColor,
+    scoMiddleColor
   );
   TBCEditorSpecialCharsOptions = set of TBCEditorSpecialCharsOption;
   TBCEditorSpecialCharsStyle = (scsDot, scsSolid);
@@ -288,6 +288,7 @@ type
   TBCEditorMinimapOptions = set of TBCEditorMinimapOption;
 
   TBCEditorMinimapAlign = (maLeft, maRight);
+  TBCEditorSearchMapAlign = (saLeft, saRight);
 
   TBCEditorUndoOption = (
     uoGroupUndo
@@ -307,6 +308,8 @@ type
 
   TBCEditorCodeFoldingMarkStyle = (msSquare, msCircle);
   TBCEditorCodeFoldingChanges = (fcEnabled, fcRefresh, fcRescan);
+
+  TLineSpacingRule = (lsSingle, lsOneAndHalf, lsDouble, lsSpecified);
 
   TBCEditorCodeFoldingChangeEvent = procedure(Event: TBCEditorCodeFoldingChanges) of object;
 

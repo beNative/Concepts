@@ -98,6 +98,7 @@ begin
   if ASource is TBCEditorMinimap then
   with ASource as TBCEditorMinimap do
   begin
+    Self.FAlign := FAlign;
     Self.FColors.Assign(FColors);
     Self.FFont.Assign(FFont);
     Self.FOptions := FOptions;

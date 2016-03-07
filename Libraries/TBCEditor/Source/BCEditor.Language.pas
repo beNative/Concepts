@@ -33,7 +33,8 @@ resourcestring
 
   { BCEditor.Highlighter.Import.JSON }
   SBCEditorImporterFileNotFound = 'File ''%s'' not found';
-  SBCEditorErrorInHighlighterImport = 'Error in highlighter import: ';
+  SBCEditorErrorInHighlighterParse = 'JSON parse error on line %d column %d: %s';
+  SBCEditorErrorInHighlighterImport = 'Error in highlighter import: %s';
   SBCEditorErrorInHighlighterColorImport = 'Error in highlighter color import: ';
 
   { BCEditor.Search }
