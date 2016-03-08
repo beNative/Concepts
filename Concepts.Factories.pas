@@ -512,6 +512,10 @@ begin
     BCE.Highlighter.Colors.LoadFromFile(AColorMap + '.json');
 
   BCE.CodeFolding.Options := BCE.CodeFolding.Options + [cfoFoldMultilineComments];
+
+  BCE.Tabs.Options := BCE.Tabs.Options + [toPreviousLineIndent];
+  BCE.Selection.Options := BCE.Selection.Options + [soALTSetsColumnMode];
+
   BCE.Font.Name := 'Consolas';
   BCE.CodeFolding.Visible := True;
   BCE.URIOpener := True;

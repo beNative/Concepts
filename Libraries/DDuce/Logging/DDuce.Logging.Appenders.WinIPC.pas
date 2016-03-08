@@ -14,7 +14,7 @@
   limitations under the License.
 }
 
-{ IPC appender for the Spring4D logging system. }
+{ WinIPC appender for the Spring4D logging system. }
 
 unit DDuce.Logging.Appenders.WinIPC;
 
@@ -24,7 +24,7 @@ uses
   Winapi.Windows,
   System.Classes,
 
-  Spring.Logging.Appenders.Base, Spring.Logging;
+  Spring.Logging.Appenders.Base, Spring.Logging.Appenders, Spring.Logging;
 
 type
   TWinIPCAppender = class(TLogAppenderBase, ILogAppender)
@@ -72,8 +72,8 @@ const
 var
   CDS     : TCopyDataStruct;
   TextSize : Integer;
-  DataSize : Integer;
-  P        : Pointer;
+//  DataSize : Integer;
+//  P        : Pointer;
   S        : AnsiString;
   LMT      : Integer;
 begin

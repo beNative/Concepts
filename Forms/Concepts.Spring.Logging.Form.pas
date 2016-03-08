@@ -188,7 +188,6 @@ begin
   FLA.FileName := edtLogFile.Text;
   FFileLogAppender  := FLA;
 end;
-
 {$ENDREGION}
 
 {$REGION 'action handlers'}

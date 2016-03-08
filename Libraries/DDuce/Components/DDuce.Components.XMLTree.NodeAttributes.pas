@@ -80,8 +80,8 @@ type
 
 implementation
 
-{$region 'TNodeAttributesItem' /fold}
-{$region 'construction and destruction' /fold}
+{$REGION 'TNodeAttributesItem'}
+{$REGION 'construction and destruction'}
 constructor TNodeAttributesItem.Create(ACollection: System.Classes.TCollection);
 begin
   inherited Create(ACollection);
@@ -99,9 +99,9 @@ begin
   FFont.Free;
   inherited BeforeDestruction;
 end;
-{$endregion}
+{$ENDREGION}
 
-{$region 'property access mehods' /fold}
+{$REGION 'property access mehods'}
 procedure TNodeAttributesItem.SetBackGroundColor(AValue: TColor);
 begin
   if AValue <> BackGroundColor then
@@ -125,11 +125,11 @@ begin
     Changed(False);
   end;
 end;
-{$endregion}
-{$endregion}
+{$ENDREGION}
+{$ENDREGION}
 
-{$region 'TNodeAttributes' /fold}
-{$region 'property access mehods' /fold}
+{$REGION 'TNodeAttributes'}
+{$REGION 'property access mehods'}
 function TNodeAttributes.GetItemByType(Index: TNodeType): TNodeAttributesItem;
 var
   I : Integer;
@@ -148,7 +148,7 @@ begin
     Inc(I);
   end;
 end;
-{$endregion}
-{$endregion}
+{$ENDREGION}
+{$ENDREGION}
 end.
 

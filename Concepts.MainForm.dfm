@@ -55,6 +55,7 @@ object frmMain: TfrmMain
     Width = 1007
     Height = 34
     Align = alBottom
+    BevelOuter = bvNone
     ColumnCollection = <
       item
         Value = 34.297279594373700000
@@ -88,8 +89,8 @@ object frmMain: TfrmMain
     TabOrder = 2
     object btnExecute: TButton
       AlignWithMargins = True
-      Left = 348
-      Top = 4
+      Left = 347
+      Top = 3
       Width = 325
       Height = 26
       Action = actExecute
@@ -99,11 +100,13 @@ object frmMain: TfrmMain
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 0
+      ExplicitLeft = 348
+      ExplicitTop = 4
     end
     object btnClose: TButton
       AlignWithMargins = True
-      Left = 679
-      Top = 4
+      Left = 678
+      Top = 3
       Width = 324
       Height = 26
       Action = actClose
@@ -113,11 +116,13 @@ object frmMain: TfrmMain
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 1
+      ExplicitLeft = 679
+      ExplicitTop = 4
     end
     object btnExecuteModal: TButton
       AlignWithMargins = True
-      Left = 4
-      Top = 4
+      Left = 3
+      Top = 3
       Width = 338
       Height = 26
       Action = actExecuteModal
@@ -128,6 +133,8 @@ object frmMain: TfrmMain
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 2
+      ExplicitLeft = 4
+      ExplicitTop = 4
     end
   end
   object aclMain: TActionList

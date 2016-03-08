@@ -21,6 +21,7 @@ unit Concepts.Utils;
 interface
 
 uses
+  Winapi.WinSock, Winapi.WinInet,
   System.Classes, System.Rtti, System.TypInfo, System.SysUtils,
   Vcl.Controls, Vcl.Graphics,
 
@@ -74,6 +75,10 @@ procedure AutoSizeDisplayWidths(
 ); overload;
 
 function AskConfirmation(const AMessage: string): Boolean;
+
+procedure GetIPAddresses(AStrings: TStrings);
+
+function GetExternalIP(out AIP: string): Boolean;
 
 implementation
 
@@ -616,6 +621,118 @@ begin
   end
 end;
 
+procedure GetIPAddresses(AStrings: TStrings);
+type
+  TaPInAddr = array [0 .. 10] of PInAddr;
+  PaPInAddr = ^TaPInAddr;
+var
+  PHE       : PHostEnt;
+  PPtr      : PaPInAddr;
+  Buffer    : array [0 .. 63] of AnsiChar;
+  I         : Integer;
+  GInitData : TWSAData;
+begin
+  WSAStartup($101, GInitData);
+  AStrings.Clear;
+  GetHostName(Buffer, SizeOf(Buffer));
+  PHE := GetHostByName(Buffer);
+  if PHE = nil then
+    Exit;
+  PPtr := PaPInAddr(PHE^.h_addr_list);
+  I    := 0;
+  while PPtr^[I] <> nil do
+  begin
+    AStrings.Add(inet_ntoa(PPtr^[I]^));
+    Inc(I);
+  end;
+  WSACleanup;
+end;
+
+function IsValidIP(const AIP: string): Boolean;
+var
+  SL : TStringList;
+  N  : Integer;
+begin
+  SL := TStringList.Create;
+  try
+    SL.StrictDelimiter := True;
+    SL.Delimiter := '.';
+    SL.DelimitedText := AIP;
+    if SL.Count <> 4 then
+      Exit(False);
+    for N := 0 to SL.Count - 1 do
+      if not StrToIntDef(SL[N], -1) in [0..255] then
+        Exit(False);
+
+    Exit(True);
+  finally
+    SL.Free;
+  end;
+end;
+
+function GetExternalIP(out AIP: string): Boolean;
+const
+  BUFFER_SIZE = 1024;
+  URL_LIST    : array[0..2] of string = (
+    'http://bot.whatismyipaddress.com',
+    'http://icanhazip.com',
+    'http://myip.dnsomatic.com'
+  );
+var
+  INETHandle : Pointer;
+  URLHandle  : Pointer;
+  BytesRead  : Cardinal;
+  Buffer     : Pointer;
+  OStream    : TStringStream;
+  I          : Integer;
+  URL        : string;
+  DataString : string;
+begin
+  Result := FALSE;
+  for I := Low(URL_LIST) to High(URL_LIST) do
+  begin
+    URL := URL_LIST[I];
+    INETHandle := InternetOpen(PChar(URL), 0, nil, nil, 0);
+    if Assigned(INETHandle) then
+    try
+      URLHandle := InternetOpenUrl(INETHandle, PChar(URL), nil, 0, 0, 0);
+      if Assigned(URLHandle) then
+      try
+        GetMem(Buffer, BUFFER_SIZE);
+        try
+          OStream := TStringStream.Create;
+          try
+            repeat
+              if not InternetReadFile(URLHandle, Buffer, BUFFER_SIZE, BytesRead) then
+                Break;
+
+              if BytesRead > 0 then
+                OStream.WriteBuffer(Buffer^, BytesRead);
+            until BytesRead = 0;
+
+            if OStream.Size > 0 then
+            begin
+              DataString := Trim(OStream.DataString);
+              if IsValidIP(DataString) then
+              begin
+                AIP := DataString;
+                Exit(True);
+              end;
+            end;
+          finally
+            OStream.Free;
+          end;
+        finally
+          FreeMem(Buffer, BUFFER_SIZE);
+        end;
+      finally
+        InternetCloseHandle(URLHandle);
+      end;
+    finally
+      InternetCloseHandle(INETHandle);
+    end;
+  end;
+end;
 {$ENDREGION}
 
 end.

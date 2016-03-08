@@ -74,12 +74,14 @@ type
     pnlExampleCodeHeader  : TPanel;
     TabSheet1             : TTabSheet;
     mmo1                  : TMemo;
+    actTest: TAction;
     {$ENDREGION}
 
     procedure actSaveHighlighterExecute(Sender: TObject);
     procedure actSaveColorMapExecute(Sender: TObject);
     procedure actCollapseAllExecute(Sender: TObject);
     procedure actExpandAllExecute(Sender: TObject);
+    procedure actTestExecute(Sender: TObject);
 
   private
     FObjectInspector   : TzObjectInspector;
@@ -161,7 +163,7 @@ implementation
 
 uses
   System.IOUtils, System.Types, System.Rtti, System.TypInfo,
-  Vcl.GraphUtil,
+  Vcl.GraphUtil, Vcl.Dialogs,
 
   DDuce.Components.Factories, DDuce.Logger,
 
@@ -289,6 +291,12 @@ begin
   FHighlighterEditor.SaveToFile(S);
   FBCEditor.Highlighter.LoadFromFile(S);
 end;
+
+procedure TfrmBCEditor.actTestExecute(Sender: TObject);
+begin
+  ShowMessage('Works');
+end;
+
 {$ENDREGION}
 
 {$REGION 'event handlers'}

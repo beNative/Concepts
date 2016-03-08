@@ -26,13 +26,30 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList,
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.CheckLst,
 
-  ZeroMQ;
+  ZeroMQ,
+
+  Spring.SystemUtils;
 
 { IZeroMQ
     .Start(ZMQSocket) => IZMQPair  Creates a IZMQPair which supports the given
                          socket.
     .Monitor => connect a TZMQEventProc which will be called for the given
                 set of events.
+
+  These are the socket combinations that are valid for a connect-bind pair
+  (either side can bind):
+
+    PUB and SUB
+    REQ and REP
+    REQ and ROUTER (take care, REQ inserts an extra null frame)
+    DEALER and REP (take care, REP assumes a null frame)
+    DEALER and ROUTER
+    DEALER and DEALER
+    ROUTER and ROUTER
+    PUSH and PULL
+    PAIR and PAIR
+
+
  }
 
 type
@@ -44,7 +61,7 @@ type
     actConnect          : TAction;
     actCreateNew        : TAction;
     actReceive          : TAction;
-    actSend             : TAction;
+    actSendMemoText: TAction;
     actSubscribe        : TAction;
     btnClientConnect    : TButton;
     btnCreateNew        : TButton;
@@ -63,6 +80,12 @@ type
     pnlConnectionString : TPanel;
     rgpTransport        : TRadioGroup;
     rgpZMQSocket        : TRadioGroup;
+    edtPollTimeout: TLabeledEdit;
+    actSendCounterValue: TAction;
+    actResetCounter: TAction;
+    edtCounter: TLabeledEdit;
+    btnSendCounterValue: TButton;
+    mmoIPs: TMemo;
     {$ENDREGION}
 
     procedure actBindExecute(Sender: TObject);
@@ -70,17 +93,22 @@ type
     procedure actConnectExecute(Sender: TObject);
     procedure actCreateNewExecute(Sender: TObject);
     procedure actReceiveExecute(Sender: TObject);
-    procedure actSendExecute(Sender: TObject);
+    procedure actSendMemoTextExecute(Sender: TObject);
     procedure actSubscribeExecute(Sender: TObject);
 
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure lbxEventsClickCheck(Sender: TObject);
+    procedure actSendCounterValueExecute(Sender: TObject);
+    procedure actResetCounterExecute(Sender: TObject);
+    procedure edtCounterExit(Sender: TObject);
 
   private
     FZMQ       : IZeroMQ;
     FPair      : IZMQPair;
     FEventProc : TZMQEventProc;
     FEvents    : ZMQEvents;
+    FPoll      : IZMQPoll;
+    FCounter   : Integer;
 
   protected
     function GetEvents: ZMQEvents;
@@ -101,6 +129,9 @@ type
 
     property Pair: IZMQPair
       read FPair write FPair;
+
+    property Poll: IZMQPoll
+      read FPoll write FPoll;
 
     property Socket: ZMQSocket
       read GetSocket write SetSocket;
@@ -154,12 +185,18 @@ const
 implementation
 
 uses
-  DDuce.Reflect, BCEditor.JsonDataObjects;
+  DDuce.Reflect,
+
+  BCEditor.JsonDataObjects,
+
+  Concepts.Utils;
 
 {$R *.dfm}
 
 {$REGION 'construction and destruction'}
 procedure TfrmZMQConcept.AfterConstruction;
+var
+  S : string;
 begin
   inherited AfterConstruction;
   FZMQ   := TZeroMQ.Create;
@@ -178,6 +215,10 @@ begin
       end;
       mmoLog.Lines.Add(Format(LOG_MESSAGE, [S, Value, Address]));
     end;
+
+  GetIPAddresses(mmoIPs.Lines);
+  if GetExternalIP(S) then
+    mmoIPs.Lines.Add(S);
 end;
 
 procedure TfrmZMQConcept.BeforeDestruction;
@@ -196,6 +237,11 @@ begin
   if Assigned(AZMQ) then
     FZMQ := AZMQ;
 end;
+procedure TfrmZMQConcept.edtCounterExit(Sender: TObject);
+begin
+  FCounter := StrToInt(edtCounter.Text);
+end;
+
 {$ENDREGION}
 
 {$REGION 'property access methods'}
@@ -308,8 +354,8 @@ begin
     Events,
     FEventProc
   );
-  if Transport = 'tcp' then
-    edtAddress.Text := '*';
+//  if Transport = 'tcp' then
+//    edtAddress.Text := '*';
   Pair.Bind(ConnectionString);
 end;
 
@@ -319,6 +365,8 @@ begin
 end;
 
 procedure TfrmZMQConcept.actConnectExecute(Sender: TObject);
+var
+  S    : string;
 begin
   if Assigned(Pair) then
   begin
@@ -333,6 +381,19 @@ begin
     FEventProc
   );
   Pair.Connect(ConnectionString);
+  Poll := ZMQ.Poller;
+  Poll.RegisterPair(Pair, [PollEvent.PollIn],
+    procedure(Event: PollEvents)
+    var
+      S : string;
+    begin
+      if PollEvent.PollIn in Event then
+      begin
+        S := Pair.ReceiveString;
+        mmoReceive.Text := S;
+      end;
+    end
+  );
 end;
 
 procedure TfrmZMQConcept.actCreateNewExecute(Sender: TObject);
@@ -345,10 +406,23 @@ end;
 
 procedure TfrmZMQConcept.actReceiveExecute(Sender: TObject);
 begin
-  mmoReceive.Text := Pair.ReceiveString(True);
+  //mmoReceive.Text := Pair.ReceiveString(True);
+
 end;
 
-procedure TfrmZMQConcept.actSendExecute(Sender: TObject);
+procedure TfrmZMQConcept.actResetCounterExecute(Sender: TObject);
+begin
+//
+end;
+
+procedure TfrmZMQConcept.actSendCounterValueExecute(Sender: TObject);
+begin
+  Pair.SendString(FCounter.ToString);
+  Inc(FCounter);
+  edtCounter.Text := FCounter.ToString;
+end;
+
+procedure TfrmZMQConcept.actSendMemoTextExecute(Sender: TObject);
 begin
   Pair.SendString(mmoSend.Text, True);
 end;
@@ -367,9 +441,15 @@ begin
   inherited UpdateActions;
   B := Assigned(Pair);
   actReceive.Enabled   := B;
-  actSend.Enabled      := B;
+  actSendMemoText.Enabled      := B;
+  actSendCounterValue.Enabled := B;
   actSubscribe.Enabled := B;
   pnlConnectionString.Caption := ConnectionString;
+  if Assigned(FPoll) then
+  begin
+    if FPoll.PollOnce(StrToInt(edtPollTimeout.Text)) > 0 then
+      FPoll.FireEvents;
+  end;
 end;
 
 procedure TfrmZMQConcept.UpdateEvents;

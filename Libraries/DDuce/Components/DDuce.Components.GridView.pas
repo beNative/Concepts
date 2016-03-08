@@ -11662,7 +11662,7 @@ begin
   end;
 end;
 
-{$region 'TGridViewVclStyleScrollBarsHook'}
+{$REGION 'TGridViewVclStyleScrollBarsHook'}
 {$if CompilerVersion >= 23}
 procedure TGridViewVclStyleScrollBarsHook.CalcScrollBarsRect;
 var

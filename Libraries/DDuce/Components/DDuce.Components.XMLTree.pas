@@ -62,7 +62,7 @@ const
   DEFAULT_BGCOLOR_ELEMENT   = $00ECFFEC; // ELEMENT_NODE without ChildNodes green
   DEFAULT_BGCOLOR_NODE      = $00FFD7D7; // ELEMENT_NODE without ChildNodes green
 
-{$REGION 'default VST options' /fold}
+{$REGION 'default VST options'}
 const
   DEFAULT_VST_SELECTIONOPTIONS = [
     { Prevent user from selecting with the selection rectangle in multiselect
@@ -350,7 +350,7 @@ type
     function GetDefaultNodeType(AXMLNode: TXmlNode): TNodeType;
 
   protected
-    {$REGION 'TVirtualStringTree overrides' /fold}
+    {$REGION 'TVirtualStringTree overrides'}
     function GetOptionsClass: TTreeOptionsClass; override;
     procedure DoInitNode(
       Parent, ANode  : PVirtualNode;
@@ -485,7 +485,7 @@ type
       read GetNodeXML write SetNodeXML;
 
   published
-    {$REGION 'published properties' /fold}
+    {$REGION 'published properties'}
     property XML: string
       read GetXML write SetXML;
 
@@ -762,7 +762,7 @@ const
     xeEndTag
   ];
 
-{$REGION 'TXmlNodeHelper' /fold}
+{$REGION 'TXmlNodeHelper'}
 
 type
   TXmlNodeHelper = class helper for TXmlNode
@@ -909,7 +909,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION 'construction and destruction' /fold}
+{$REGION 'construction and destruction'}
 procedure TXMLTree.AfterConstruction;
 begin
   inherited;
@@ -958,7 +958,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION 'property access mehods' /fold}
+{$REGION 'property access mehods'}
 function TXMLTree.GetNodeXML(ANode: PVirtualNode): string;
 begin
   Result := string(GetData(ANode).XMLNode.WriteToString);
@@ -1043,7 +1043,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION 'message handlers' /fold}
+{$REGION 'message handlers'}
 { This message was posted by ourselves from the node change handler above to
   decouple that change event and our intention to start editing a node. This
   is necessary to avoid interferences between nodes editors potentially created
@@ -1060,7 +1060,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION 'event dispatch methods' /fold}
+{$REGION 'event dispatch methods'}
 procedure TXMLTree.DoCheckNode(Parent: PVirtualNode; var ANewXMLNode: TXmlNode;
   var ANewNodeType: TNodeType; var AAdd: Boolean);
 begin
@@ -1371,7 +1371,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION 'private methods' /fold}
+{$REGION 'private methods'}
 procedure TXMLTree.WMChar(var Message: TWMChar);
 begin
   with Message do
@@ -1477,7 +1477,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION 'protected methods' /fold}
+{$REGION 'protected methods'}
 procedure TXMLTree.InitializeNodeAttributes;
 var
   NAI: TNodeAttributesItem;
@@ -1552,7 +1552,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION 'public methods' /fold}
+{$REGION 'public methods'}
 procedure TXMLTree.Clear;
 begin
   BeginUpdate;
@@ -1905,7 +1905,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION 'TExpandedState' /fold}
+{$REGION 'TExpandedState'}
 procedure TExpandedState.AfterConstruction;
 begin
   inherited;

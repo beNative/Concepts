@@ -254,7 +254,6 @@
         <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.XMLTree.Editors.pas"/>
         <DCCReference Include="Libraries\DDuce\Components\DDuce.Components.XMLTree.NodeAttributes.pas"/>
         <DCCReference Include="Libraries\DDuce\DDuce.DynamicRecord.pas"/>
-        <DCCReference Include="Libraries\DDuce\DDuce.Logger.pas"/>
         <DCCReference Include="Libraries\DDuce\DDuce.RandomData.pas"/>
         <DCCReference Include="Libraries\DDuce\DDuce.Reflect.pas"/>
         <DCCReference Include="Libraries\DDuce\DDuce.ScopedReference.pas"/>
@@ -507,6 +506,25 @@
         <DCCReference Include="Concepts.ComponentInspector.pas">
             <Form>frmComponentInspector</Form>
         </DCCReference>
+        <DCCReference Include="Forms\Concepts.Spring.Persistence.Form.pas">
+            <Form>frmSpringPersistence</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.ChromeTabs.Form.pas">
+            <Form>frmChromeTabs</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Libraries\ZeroMQ\ZeroMQ.API.pas"/>
+        <DCCReference Include="Libraries\ZeroMQ\ZeroMQ.pas"/>
+        <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.Base.pas"/>
+        <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.LogFile.pas"/>
+        <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.pas"/>
+        <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.WinIPC.pas"/>
+        <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.ZeroMQ.pas"/>
+        <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Factories.pas"/>
+        <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Interfaces.pas"/>
+        <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.pas"/>
+        <DCCReference Include="Libraries\DDuce\DDuce.WinIPC.pas"/>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
         <BuildConfiguration Include="Debug">
@@ -634,7 +652,16 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
                         <RemoteDir>Contents\Resources</RemoteDir>
@@ -948,16 +975,7 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="DependencyModule">
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.dll;.bpl</Extensions>
-                    </Platform>
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
