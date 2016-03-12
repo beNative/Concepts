@@ -11,6 +11,8 @@ type
     FBlockCount: Integer;
     FBlockNumber: Integer;
     FChangeBlockNumber: Integer;
+    FChanged: Boolean;
+    FChangeCount: Integer;
     FInsideRedo: Boolean;
     FInsideUndoBlock: Boolean;
     FInsideUndoBlockCount: Integer;
@@ -44,6 +46,8 @@ type
     procedure Assign(ASource: TPersistent); override;
     property BlockCount: Integer read FBlockCount;
     property CanUndo: Boolean read GetCanUndo;
+    property Changed: Boolean read FChanged write FChanged;
+    property ChangeCount: Integer read FChangeCount;
     property InsideRedo: Boolean read FInsideRedo write FInsideRedo default False;
     property InsideUndoBlock: Boolean read FInsideUndoBlock write FInsideUndoBlock default False;
     property ItemCount: Integer read GetItemCount;
@@ -55,6 +59,9 @@ implementation
 
 { TBCEditorUndoList }
 
+const
+  BCEDITOR_MODIFYING_CHANGE_REASONS = [crInsert, crPaste, crDragDropInsert, crDelete, crLineBreak, crIndent, crUnindent];
+
 constructor TBCEditorUndoList.Create;
 begin
   inherited;
@@ -63,6 +70,7 @@ begin
   FInsideRedo := False;
   FInsideUndoBlock := False;
   FInsideUndoBlockCount := 0;
+  FChangeCount := 0;
   FBlockNumber := BCEDITOR_UNDO_BLOCK_NUMBER_START;
 end;
 
@@ -106,6 +114,9 @@ var
 begin
   if FLockCount = 0 then
   begin
+    FChanged := AReason in BCEDITOR_MODIFYING_CHANGE_REASONS;
+    if FChanged then
+      Inc(FChangeCount);
     LNewItem := TBCEditorUndoItem.Create;
     with LNewItem do
     begin
@@ -154,6 +165,7 @@ begin
   for i := 0 to FItems.Count - 1 do
     TBCEditorUndoItem(FItems[i]).Free;
   FItems.Clear;
+  FChangeCount := 0;
 end;
 
 procedure TBCEditorUndoList.EndBlock;
@@ -199,6 +211,8 @@ begin
   begin
     Result := FItems[i];
     FItems.Delete(i);
+    if Result.ChangeReason in BCEDITOR_MODIFYING_CHANGE_REASONS then
+      Dec(FChangeCount);
   end;
 end;
 
@@ -259,11 +273,5 @@ procedure TBCEditorUndoList.SetItems(AIndex: Integer; const AValue: TBCEditorUnd
 begin
   FItems[AIndex] := AValue;
 end;
-
-{procedure TBCEditorUndoList.DeleteItem(AIndex: Integer);
-begin
-  TBCEditorUndoItem(FItems[AIndex]).Free;
-  FItems.Delete(AIndex);
-end; }
 
 end.
