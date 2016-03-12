@@ -40,7 +40,6 @@ type
   end;
 {$ENDREGION}
 
-
 {$REGION 'TKeyStrokeTemplate'}
 type
   TKeyCommandTemplate = class(TColumnDefinitionsControlTemplate)

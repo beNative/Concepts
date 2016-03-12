@@ -16,7 +16,7 @@
 
 unit DDuce.Logger.Factories;
 
-{$I DDuce.inc}
+//{$I DDuce.inc}
 
 interface
 
@@ -37,6 +37,8 @@ uses
   DDuce.Logger.Channels.ZeroMQ;
 
 initialization
-  Logger.Channels.Add(TWinIPCChannel.Create);
+  Logger := TLogger.Create;
+//  Logger.Channels.Add(TWinIPCChannel.Create);
+//  Logger.Channels.Add(TLogFileChannel.Create);
 
 end.

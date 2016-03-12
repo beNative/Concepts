@@ -18,7 +18,7 @@ unit DDuce.Logger.Channels;
 
 { Register logger channel types? }
 
-{$I DDuce.inc}
+//{$I DDuce.inc}
 
 interface
 

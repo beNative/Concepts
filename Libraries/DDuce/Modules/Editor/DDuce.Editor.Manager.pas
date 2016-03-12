@@ -2332,10 +2332,10 @@ procedure TdmEditorManager.Notification(AComponent: TComponent; Operation: TOper
 begin
   if Supports(AComponent, IEditorView) and (Operation = opRemove) then
   begin
-    Logger.Enter(Self, 'Notification');
+    //Logger.Enter(Self, 'Notification');
     DeleteView(AComponent as IEditorView);
     Logger.Watch('ViewCount', ViewCount);
-    Logger.Leave(Self, 'Notification');
+    //Logger.Leave(Self, 'Notification');
   end;
   inherited Notification(AComponent, Operation);
 end;

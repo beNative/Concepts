@@ -63,7 +63,7 @@ type
       Selected         : Boolean
     ): Boolean;
     procedure FTVPActionsFilter(Item: TObject; var Accepted: Boolean);
-    procedure FVSTActionsKeyPress(Sender: TObject; var Key: char);
+    procedure FVSTActionsKeyPress(Sender: TObject; var Key: Char);
 
   private
     FVSTActions      : TVirtualStringTree;

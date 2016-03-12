@@ -61,7 +61,7 @@ type
     actConnect          : TAction;
     actCreateNew        : TAction;
     actReceive          : TAction;
-    actSendMemoText: TAction;
+    actSendMemoText     : TAction;
     actSubscribe        : TAction;
     btnClientConnect    : TButton;
     btnCreateNew        : TButton;
@@ -80,12 +80,12 @@ type
     pnlConnectionString : TPanel;
     rgpTransport        : TRadioGroup;
     rgpZMQSocket        : TRadioGroup;
-    edtPollTimeout: TLabeledEdit;
-    actSendCounterValue: TAction;
-    actResetCounter: TAction;
-    edtCounter: TLabeledEdit;
-    btnSendCounterValue: TButton;
-    mmoIPs: TMemo;
+    edtPollTimeout      : TLabeledEdit;
+    actSendCounterValue : TAction;
+    actResetCounter     : TAction;
+    edtCounter          : TLabeledEdit;
+    btnSendCounterValue : TButton;
+    mmoIPs              : TMemo;
     {$ENDREGION}
 
     procedure actBindExecute(Sender: TObject);
@@ -160,28 +160,6 @@ type
 
   end;
 
-const
-  ZMQTransports : array[0..4] of string = (
-    'tcp',
-    'inproc', // every connection needs to share the same IZeroMQ
-    'ipc',
-    'pgm',
-    'egm'
-  );
-  ZMQEventNames : array[ZMQEvent] of string = (
-    'Connected',
-    'Delayed',
-    'Retried',
-    'Listening',
-    'BindFailed',
-    'Accepted',
-    'AcceptFailed',
-    'Closed',
-    'CloseFailed',
-    'Disconnected',
-    'MonitorStopped'
-  );
-
 implementation
 
 uses
@@ -189,7 +167,7 @@ uses
 
   BCEditor.JsonDataObjects,
 
-  Concepts.Utils;
+  Concepts.Utils, Concepts.ZeroMQ.Data;
 
 {$R *.dfm}
 
@@ -354,8 +332,8 @@ begin
     Events,
     FEventProc
   );
-//  if Transport = 'tcp' then
-//    edtAddress.Text := '*';
+  if Transport = 'tcp' then
+    edtAddress.Text := '*';
   Pair.Bind(ConnectionString);
 end;
 

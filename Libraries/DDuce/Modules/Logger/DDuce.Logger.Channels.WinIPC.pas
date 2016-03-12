@@ -16,26 +16,33 @@
 
 unit DDuce.Logger.Channels.WinIPC;
 
-{$I DDuce.inc}
+//{$I DDuce.inc}
 
 interface
 
 uses
   System.Classes, System.SysUtils,
 
-  DDuce.WinIPC,
+  DDuce.WinIPC.Client,
   DDuce.Logger.Interfaces, DDuce.Logger.Channels.Base;
 
 type
   TWinIPCChannel = class(TCustomLogChannel)
   strict private
-    FClient       : TWinIPCClient;
+    FClient       : TWinIPCClient; // sends to the server
     FBuffer       : TMemoryStream;
-    FClearMessage : TLogMessage;
+    FClearMessage : TLogMessage; // needs to move to logger!
+
+  strict protected
+    function GetConnected: Boolean; override;
+    
 
   public
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
+    procedure BeforeDestruction; override;    
+
+    function Connect: Boolean; override;
+    function Disconnect: Boolean; override;
 
     procedure Clear; override;
     procedure Write(const AMsg: TLogMessage); override;
@@ -47,33 +54,27 @@ implementation
 procedure TWinIPCChannel.AfterConstruction;
 begin
   inherited AfterConstruction;
-  with FClearMessage do
-  begin
-    MsgType := Integer(lmtClear);
-    MsgText := '';
-    MsgTime := Now;
-    Data    := nil;
-  end;
+  FClearMessage.MsgType := Integer(lmtClear);
+  FClearMessage.MsgText := '';
+  FClearMessage.MsgTime := Now;
+  FClearMessage.Data    := nil;
   FBuffer := TMemoryStream.Create;
-  FClient := TWinIPCClient.Create(nil);
-  with FClient do
-  begin
-    ServerID := 'ipc_log_server';
-    // todo: Start server only when channel is active
-    if ServerRunning then
-    begin
-      Active := True;
-    end
-    else
-      Active := False;
-  end;
+  FClient := TWinIPCClient.Create;
+  FClient.Connect;
 end;
 
 procedure TWinIPCChannel.BeforeDestruction;
 begin
   FClient.Free;
   FBuffer.Free;
-  inherited;
+  inherited BeforeDestruction;
+end;
+{$ENDREGION}
+
+{$REGION 'property access methods'}
+function TWinIPCChannel.GetConnected: Boolean;
+begin
+  Result := FClient.Connected;
 end;
 {$ENDREGION}
 
@@ -83,6 +84,16 @@ begin
   Write(FClearMessage);
 end;
 
+function TWinIPCChannel.Connect: Boolean;
+begin
+  Result := FClient.Connect;
+end;
+
+function TWinIPCChannel.Disconnect: Boolean;
+begin
+  Result := True;
+end;
+
 procedure TWinIPCChannel.Write(const AMsg: TLogMessage);
 const
   ZeroBuf: Integer = 0;
@@ -90,25 +101,31 @@ var
   TextSize : Integer;
   DataSize : Integer;
 begin
-  with FBuffer do
+  if not Connected then
+    Connect;
+  if Connected then
   begin
     TextSize := Length(AMsg.MsgText);
-    Seek(0, soFromBeginning);
-    WriteBuffer(AMsg.MsgType, SizeOf(Integer));
-    WriteBuffer(AMsg.MsgTime, SizeOf(TDateTime));
-    WriteBuffer(TextSize, SizeOf(Integer));
-    WriteBuffer(AMsg.MsgText[1], TextSize);
+    FBuffer.Seek(0, soFromBeginning);
+    FBuffer.WriteBuffer(AMsg.MsgType, SizeOf(Integer));
+    FBuffer.WriteBuffer(AMsg.MsgTime, SizeOf(TDateTime));
+    FBuffer.WriteBuffer(TextSize, SizeOf(Integer));
+    FBuffer.WriteBuffer(AMsg.MsgText[1], TextSize);
     if AMsg.Data <> nil then
     begin
       DataSize := AMsg.Data.Size;
-      WriteBuffer(DataSize, SizeOf(Integer));
+      FBuffer.WriteBuffer(DataSize, SizeOf(Integer));
       AMsg.Data.Position := 0;
-      CopyFrom(AMsg.Data, DataSize);
+      FBuffer.CopyFrom(AMsg.Data, DataSize);
     end
     else
-      WriteBuffer(ZeroBuf, SizeOf(Integer)); // necessary?
+      FBuffer.WriteBuffer(ZeroBuf, SizeOf(Integer)); // necessary?
+    FClient.SendStream(FBuffer);
+  end
+  else
+  begin
+  //  raise Exception.Create('Write failed. Channel is not connected.');
   end;
-  FClient.SendStream(FBuffer);
 end;
 {$ENDREGION}
 

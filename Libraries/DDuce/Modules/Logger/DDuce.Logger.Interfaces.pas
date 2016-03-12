@@ -16,7 +16,7 @@
 
 unit DDuce.Logger.Interfaces;
 
-{$I DDuce.inc}
+//{$I DDuce.inc}
 
 interface
 
@@ -50,7 +50,7 @@ type
 
   ILogger = interface;
 
-  TLogMessage = record
+  TLogMessage = packed record
     MsgType : Integer;
     MsgTime : TDateTime;
     MsgText : AnsiString;
@@ -73,12 +73,21 @@ type
   ['{FDE37401-BB4F-4362-863A-CCCCF9228BD9}']
     function GetActive: Boolean;
     procedure SetActive(const Value: Boolean);
+    function GetConnected: Boolean;
+    procedure SetConnected(const Value: Boolean);
 
     procedure Clear;
     procedure Write(const AMsg: TLogMessage);
+    function Connect: Boolean;
+    function Disconnect: Boolean;
 
     property Active: Boolean
       read GetActive write SetActive;
+
+    { True when the channel is connected with the server (or receiving)
+      instance. }
+    property Connected: Boolean
+      read GetConnected write SetConnected;
   end;
 
   TChannelList = IList<ILogChannel>;
@@ -87,14 +96,14 @@ type
   ['{28E9BADE-6B42-4399-8867-1CA115576E40}']
     function GetChannels: TChannelList;
 
-    procedure Send(const AName: string; AArgs: array of const); overload;
+    procedure Send(const AName: string; const AArgs: array of const); overload;
     procedure Send(const AName: string; const AValue: string = ''); overload;
 
     procedure Send(const AName: string; AValue: TStrings); overload;
 
     { All primary types that are are implicitely ba cast to TValue will be
       handled through this call. }
-    procedure Send(const AName: string; AValue: TValue); overload;
+    procedure Send(const AName: string; const AValue: TValue); overload;
 
     { Send methods for types that do not have an implicit cast to TValue
       These are equivalent to Send(AName, TValue.From(AValue)); }
@@ -124,11 +133,11 @@ type
     procedure Watch(const AName: string; AValue: Boolean); overload;
 
     procedure SendWarning(const AText: string);
-    procedure SendWarningFmt(const AText: string; AArgs: array of const);
+    procedure SendWarningFmt(const AText: string; const AArgs: array of const);
     procedure SendError(const AText: string);
-    procedure SendErrorFmt(const AText: string; AArgs: array of const);
+    procedure SendErrorFmt(const AText: string; const AArgs: array of const);
     procedure SendInfo(const AText: string);
-    procedure SendInfoFmt(const AText: string; AArgs: array of const);
+    procedure SendInfoFmt(const AText: string; const AArgs: array of const);
 
     procedure SendPointer(const AName: string; APointer: Pointer);
     procedure SendException(const AName: string; AException: Exception);

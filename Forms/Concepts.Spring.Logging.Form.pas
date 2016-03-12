@@ -197,6 +197,7 @@ var
 begin
   TS := TStringList.Create;
   FLogger.LogValue('Form', TS);
+  FLogger.Track()
   TS.Free;
 end;
 
@@ -222,7 +223,7 @@ procedure TfrmSpringLogging.tsMainChange(Sender: TObject; NewTab: Integer;
   var AllowChange: Boolean);
 begin
   if NewTab = 0 then
-    FPropertyInspector.Objects[0] :=  FLogger as TLogger
+    FPropertyInspector.Objects[0] := FLogger as TLogger
   else
     FPropertyInspector.Objects[0] := FLogTree;
 end;

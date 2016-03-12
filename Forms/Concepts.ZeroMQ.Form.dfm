@@ -302,8 +302,6 @@ object frmZMQConcept: TfrmZMQConcept
     Font.Style = []
     ParentFont = False
     TabOrder = 1
-    ExplicitWidth = 296
-    ExplicitHeight = 559
   end
   object aclMain: TActionList
     Left = 496

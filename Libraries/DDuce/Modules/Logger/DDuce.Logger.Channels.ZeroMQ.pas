@@ -16,7 +16,7 @@
 
 unit DDuce.Logger.Channels.ZeroMQ;
 
-{$I DDuce.inc}
+//{$I DDuce.inc}
 
 interface
 
@@ -28,7 +28,7 @@ type
   strict private
     //FClient       : TWinIPCClient;
     //FBuffer       : TMemoryStream;
-    FClearMessage : TLogMessage;
+    //FClearMessage : TLogMessage;
 
   public
     procedure AfterConstruction; override;

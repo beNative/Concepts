@@ -60,6 +60,7 @@ implementation
 
 uses
   System.Rtti,
+  Vcl.Graphics,
 
   DSharp.Windows.ColumnDefinitions.ControlTemplate;
 
@@ -73,7 +74,7 @@ const
     toExtendedFocus,
     { Hit test as well as selection highlight are not constrained to the text
       of a node. }
-    toFullRowSelect,
+    toFullRowSelect
     { Constrain selection to the same level as the selection anchor. }
 //    toLevelSelectConstraint,
     { Allow selection, dragging etc. with the middle mouse button. This and
@@ -89,7 +90,7 @@ const
 //    toCenterScrollIntoView
     { Simplifies draw selection, so a node's caption does not need to intersect
       with the selection rectangle. }
-    toSimpleDrawSelection
+//    toSimpleDrawSelection
   ];
   DEFAULT_VST_MISCOPTIONS = [
     { Register tree as OLE accepting drop target }
@@ -134,7 +135,7 @@ const
     { Avoid drawing the dotted rectangle around the currently focused node. }
     toHideFocusRect,
     { Selected nodes are drawn as unselected nodes if the tree is unfocused. }
-//    toHideSelection,
+    toHideSelection,
     { Track which node is under the mouse cursor. }
 //    toHotTrack,
     { Paint tree as would it always have the focus }
@@ -146,7 +147,7 @@ const
     { Show the dropmark during drag'n drop operations. }
     toShowDropmark,
     { Display horizontal lines to simulate a grid. }
-    toShowHorzGridLines,
+//    toShowHorzGridLines,
     { Show static background instead of a tiled one. }
     toStaticBackground,
     { Show lines also at top level (does not show the hidden/internal root
@@ -155,7 +156,7 @@ const
     { Display tree lines to show hierarchy of nodes. }
     toShowTreeLines,
     { Display vertical lines (depending on columns) to simulate a grid. }
-    toShowVertGridLines,
+//    toShowVertGridLines,
     { Draw UI elements (header, tree buttons etc.) according to the current
       theme if enabled (Windows XP+ only, application must be themed). }
     toThemeAware,
@@ -174,7 +175,7 @@ const
     { Enable alpha blending for node selections. }
     toUseBlendedSelection,
     { Show simple static background instead of a tiled one. }
-    toStaticBackground
+    toStaticBackground,
     { Display child nodes above their parent. }
 //    toChildrenAbove,
     { Draw the tree with a fixed indent. }
@@ -182,7 +183,7 @@ const
     { Use the explorer theme if run under Windows Vista (or above). }
 //    toUseExplorerTheme
     { Do not show tree lines if theming is used. }
-//    toHideTreeLinesIfThemed,
+    toHideTreeLinesIfThemed
     { Draw nodes even if they are filtered out. }
 //    toShowFilteredNodes
   ];
@@ -296,7 +297,7 @@ begin
     end;
   end;
   ATVP.TreeView := AVST;
-  ATVP.SyncMode := False;
+  ATVP.SyncMode := True;
   ATVP.UseColumnDefinitions := True;
   ATVP.ListMode             := True;
   if Assigned(ASource) then
@@ -321,6 +322,10 @@ begin
   VST.HintMode := hmTooltip;
   VST.Align    := alClient;
   VST.DrawSelectionMode := smBlendedRectangle;
+  VST.Colors.SelectionRectangleBlendColor := clGray;
+  VST.Colors.SelectionTextColor := clBlack;
+  VST.Colors.GridLineColor      := clGray;
+
   VST.Header.Height := 18;
   VST.Header.Options               := DEFAULT_VST_HEADEROPTIONS;
   VST.TreeOptions.SelectionOptions := DEFAULT_VST_SELECTIONOPTIONS;

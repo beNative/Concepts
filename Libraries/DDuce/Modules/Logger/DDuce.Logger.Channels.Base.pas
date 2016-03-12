@@ -16,7 +16,7 @@
 
 unit DDuce.Logger.Channels.Base;
 
-{$I DDuce.inc}
+//{$I DDuce.inc}
 
 interface
 
@@ -31,13 +31,26 @@ type
   strict protected
     function GetActive: Boolean; virtual;
     procedure SetActive(const Value: Boolean); virtual;
+    function GetConnected: Boolean; virtual;
+    procedure SetConnected(const Value: Boolean); virtual;
 
   public
+    procedure AfterConstruction; override;
+
     procedure Clear; virtual; abstract;
     procedure Write(const AMsg: TLogMessage); virtual; abstract;
 
+    function Connect: Boolean; virtual;
+    function Disconnect: Boolean; virtual;
+
+    { Indicates that messages from the Logger object will be sent through this
+      channel. }
     property Active: Boolean
       read GetActive write SetActive;
+
+    { True when the channel is connected with the server (receiver) instance. }
+    property Connected: Boolean
+      read GetConnected write SetConnected;
   end;
 
 implementation
@@ -48,9 +61,40 @@ begin
   Result := FActive;
 end;
 
+function TCustomLogChannel.GetConnected: Boolean;
+begin
+  Result := False;
+end;
+
 procedure TCustomLogChannel.SetActive(const Value: Boolean);
 begin
   FActive := Value;
+end;
+
+procedure TCustomLogChannel.SetConnected(const Value: Boolean);
+begin
+  if Value then
+    Connect
+  else
+    Disconnect;
+end;
+{$ENDREGION}
+
+{$REGION 'public methods'}
+procedure TCustomLogChannel.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  Active := True;
+end;
+
+function TCustomLogChannel.Connect: Boolean;
+begin
+  Result := False;
+end;
+
+function TCustomLogChannel.Disconnect: Boolean;
+begin
+  Result := False;
 end;
 {$ENDREGION}
 

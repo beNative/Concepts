@@ -24,7 +24,7 @@
 
 unit DDuce.Logger;
 
-{$I DDuce.inc}
+//{$I DDuce.inc}
 
 {
   LogChannels are implemented as follows:
@@ -86,7 +86,7 @@ type
     procedure Clear;
 
     // Send functions
-    procedure Send(const AName: string; AArgs: array of const); overload;
+    procedure Send(const AName: string; const AArgs: array of const); overload;
     procedure Send(const AName: string; const AValue: string = ''); overload;
 
     procedure Send(const AName: string; AValue: TStrings); overload;
@@ -98,24 +98,24 @@ type
     procedure SendRect(const AName: string; const AValue: TRect);
 
     // no need to define overloads which have an implicit cast to TValue
-    procedure Send(const AName: string; AValue: TValue); overload;
+    procedure Send(const AName: string; const AValue: TValue); overload;
 
     procedure SendPointer(const AName: string; APointer: Pointer);
     procedure SendException(const AName: string; AException: Exception);
     procedure SendMemory(const AName: string; AAddress: Pointer; ASize: LongWord);
 
     procedure SendIf(
-      const AText       : string;
-            AExpression : Boolean;
-            AIsTrue     : Boolean = True
+      const AText : string;
+      AExpression : Boolean;
+      AIsTrue     : Boolean = True
     );
 
     procedure SendWarning(const AText: string);
-    procedure SendWarningFmt(const AText: string; AArgs: array of const);
+    procedure SendWarningFmt(const AText: string; const AArgs: array of const);
     procedure SendError(const AText: string);
-    procedure SendErrorFmt(const AText: string; AArgs: array of const);
+    procedure SendErrorFmt(const AText: string; const AArgs: array of const);
     procedure SendInfo(const AText: string);
-    procedure SendInfoFmt(const AText: string; AArgs: array of const);
+    procedure SendInfoFmt(const AText: string; const AArgs: array of const);
 
     { Uses the OnCustomData event as callback. }
     procedure SendCustomData(
@@ -126,12 +126,12 @@ type
       const AName : string;
       const AData : TValue;
       AFunc       : TCustomDataCallbackMethod
-      ); overload;
+    ); overload;
     procedure SendCustomData(
       const AName : string;
       const AData : TValue;
       AFunc       : TCustomDataCallbackFunction
-      ); overload;
+    ); overload;
 
     procedure AddCheckPoint(const AName: string = '');
     procedure ResetCheckPoint(const AName: string = '');
@@ -170,7 +170,7 @@ type
   end;
 
 var
-  Logger: ILogger;
+  Logger: ILogger = nil;
 
 implementation
 
@@ -239,7 +239,7 @@ begin
   LM.MsgText := AnsiString(AText);
   LM.Data    := AStream;
   for LC in Channels do
-//    if C.Active then
+    if LC.Active then
       LC.Write(LM);
 end;
 
@@ -251,17 +251,17 @@ end;
 procedure TLogger.InternalSendBuffer(AMsgType: TLogMessageType; const AText: string;
   var ABuffer; ACount: LongWord);
 var
-  Stream: TStream;
+  LStream: TStream;
 begin
-  Stream := nil;
+  LStream := nil;
   if ACount > 0 then
   begin
-    Stream := TMemoryStream.Create;
+    LStream := TMemoryStream.Create;
     try
-      Stream.Write(ABuffer, ACount);
-      InternalSendStream(AMsgType, AText, Stream);
+      LStream.Write(ABuffer, ACount);
+      InternalSendStream(AMsgType, AText, LStream);
     finally
-      FreeAndNil(Stream);
+      FreeAndNil(LStream);
     end;
   end
   else
@@ -287,7 +287,7 @@ begin
   InternalSend(lmtInfo, AText);
 end;
 
-procedure TLogger.SendInfoFmt(const AText: string; AArgs: array of const);
+procedure TLogger.SendInfoFmt(const AText: string; const AArgs: array of const);
 begin
   InternalSend(lmtInfo, Format(AText, AArgs));
 end;
@@ -304,12 +304,13 @@ end;
 
 procedure TLogger.Send(const AName: string; AValue: TStrings);
 var
-  S : string;
+  S       : string;
 begin
   if Assigned(AValue) then
     S := AValue.Text
   else
     S := '';
+  //LBuffer := PAnsiChar(S);
   InternalSendBuffer(lmtStrings, AName, S[1], Length(S));
 end;
 
@@ -350,7 +351,7 @@ begin
   Send(AName, TValue.From(AValue));
 end;
 
-procedure TLogger.Send(const AName: string; AValue: TValue);
+procedure TLogger.Send(const AName: string; const AValue: TValue);
 begin
   case AValue.Kind of
     tkInteger:
@@ -396,7 +397,7 @@ begin
   end;
 end;
 
-procedure TLogger.Send(const AName: string; AArgs: array of const);
+procedure TLogger.Send(const AName: string; const AArgs: array of const);
 begin
   Send(Format(AName, AArgs));
 end;
@@ -432,7 +433,7 @@ begin
   InternalSend(lmtWarning, AText);
 end;
 
-procedure TLogger.SendWarningFmt(const AText: string; AArgs: array of const);
+procedure TLogger.SendWarningFmt(const AText: string; const AArgs: array of const);
 begin
   InternalSend(lmtWarning, Format(AText, AArgs));
 end;
@@ -442,7 +443,7 @@ begin
   InternalSend(lmtError, AText);
 end;
 
-procedure TLogger.SendErrorFmt(const AText: string; AArgs: array of const);
+procedure TLogger.SendErrorFmt(const AText: string; const AArgs: array of const);
 begin
   InternalSend(lmtError, Format(AText, AArgs));
 end;
@@ -658,8 +659,5 @@ begin
 end;
 {$ENDREGION}
 {$ENDREGION}
-
-initialization
-  Logger := TLogger.Create;
 
 end.

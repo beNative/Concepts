@@ -16,7 +16,7 @@
 
 unit DDuce.Logger.Channels.LogFile;
 
-{$I DDuce.inc}
+//{$I DDuce.inc}
 
 interface
 
