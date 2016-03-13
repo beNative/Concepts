@@ -57,7 +57,7 @@ const
     ZMQ_VERSION_PATCH;
 
 (*  Run-time API version detection                                            *)
-procedure zmq_version(major, minor, patch: PInteger); cdecl; external LIBZEROMQ;
+procedure zmq_version(major, minor, patch: PInteger); cdecl; external LIBZEROMQ delayed;
 
 (******************************************************************************)
 (*  0MQ errors.                                                               *)
@@ -98,10 +98,10 @@ const
 (*  of this function is to make the code 100% portable, including where 0MQ   *)
 (*  compiled with certain CRT library (on Windows) is linked to an            *)
 (*  application that uses different CRT library.                              *)
-  function zmq_errno(): Integer; cdecl; external LIBZEROMQ;
+  function zmq_errno(): Integer; cdecl; external LIBZEROMQ delayed;
 
 (*  Resolves system errors and 0MQ errors to human-readable string.           *)
-  function zmq_strerror(errnum: Integer): PAnsiChar; cdecl; external LIBZEROMQ;
+  function zmq_strerror(errnum: Integer): PAnsiChar; cdecl; external LIBZEROMQ delayed;
 
 (******************************************************************************)
 (*  0MQ infrastructure (a.k.a. context) initialisation & termination.         *)
@@ -116,16 +116,16 @@ const
   ZMQ_IO_THREADS_DFLT  = 1;
   ZMQ_MAX_SOCKETS_DFLT = 1024;
 
-function zmq_ctx_new(): Pointer; cdecl; external LIBZEROMQ;
-function zmq_ctx_term(context: Pointer): Integer; cdecl; external LIBZEROMQ;
-function zmq_ctx_shutdown(context: Pointer): Integer; cdecl; external LIBZEROMQ;
-function zmq_ctx_set(context: Pointer; option, optval: Integer): Integer; cdecl; external LIBZEROMQ;
-function zmq_ctx_get(context: Pointer; option: Integer): Integer; cdecl; external LIBZEROMQ;
+function zmq_ctx_new(): Pointer; cdecl; external LIBZEROMQ delayed;
+function zmq_ctx_term(context: Pointer): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_ctx_shutdown(context: Pointer): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_ctx_set(context: Pointer; option, optval: Integer): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_ctx_get(context: Pointer; option: Integer): Integer; cdecl; external LIBZEROMQ delayed;
 
 (*  Old (legacy) API                                                          *)
-function zmq_init(io_threads: Integer): Pointer; cdecl; external LIBZEROMQ; deprecated;
-function zmq_term(context: Pointer): Integer; cdecl; external LIBZEROMQ; deprecated;
-function zmq_ctx_destroy(context: Pointer): Integer; cdecl; external LIBZEROMQ; deprecated;
+function zmq_init(io_threads: Integer): Pointer; cdecl; external LIBZEROMQ delayed; deprecated;
+function zmq_term(context: Pointer): Integer; cdecl; external LIBZEROMQ delayed; deprecated;
+function zmq_ctx_destroy(context: Pointer): Integer; cdecl; external LIBZEROMQ delayed; deprecated;
 
 (******************************************************************************)
 (*  0MQ message definition.                                                   *)
@@ -151,19 +151,19 @@ type
 
   TZmqFreeFunction = procedure(data, hint: Pointer); stdcall;
 
-function zmq_msg_init(msg: PZmqMsg): Integer; cdecl; external LIBZEROMQ;
-function zmq_msg_init_size(msg: PZmqMsg; size: NativeUInt): Integer; cdecl; external LIBZEROMQ;
-function zmq_msg_init_data(msg: PZmqMsg; data: Pointer; size: NativeUInt; ffn: TZmqFreeFunction; hint: Pointer): Integer; cdecl; external LIBZEROMQ;
-function zmq_msg_send(msg: PZmqMsg; s: Pointer; flags: Integer): Integer; cdecl; external LIBZEROMQ;
-function zmq_msg_recv(msg: PZmqMsg; s: Pointer; flags: Integer): Integer; cdecl; external LIBZEROMQ;
-function zmq_msg_close(msg: PZmqMsg): Integer; cdecl; external LIBZEROMQ;
-function zmq_msg_move(dest, src: PZmqMsg): Integer; cdecl; external LIBZEROMQ;
-function zmq_msg_copy(dest, src: PZmqMsg): Integer; cdecl; external LIBZEROMQ;
-function zmq_msg_data(msg: PZmqMsg): Pointer; cdecl; external LIBZEROMQ;
-function zmq_msg_size(msg: PZmqMsg): NativeUInt; cdecl; external LIBZEROMQ;
-function zmq_msg_more(msg: PZmqMsg): Integer; cdecl; external LIBZEROMQ;
-function zmq_msg_get(msg: PZmqMsg; option: Integer): Integer; cdecl; external LIBZEROMQ;
-function zmq_msg_set(msg: PZmqMsg; option, optval: Integer): Integer; cdecl; external LIBZEROMQ;
+function zmq_msg_init(msg: PZmqMsg): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_msg_init_size(msg: PZmqMsg; size: NativeUInt): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_msg_init_data(msg: PZmqMsg; data: Pointer; size: NativeUInt; ffn: TZmqFreeFunction; hint: Pointer): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_msg_send(msg: PZmqMsg; s: Pointer; flags: Integer): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_msg_recv(msg: PZmqMsg; s: Pointer; flags: Integer): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_msg_close(msg: PZmqMsg): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_msg_move(dest, src: PZmqMsg): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_msg_copy(dest, src: PZmqMsg): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_msg_data(msg: PZmqMsg): Pointer; cdecl; external LIBZEROMQ delayed;
+function zmq_msg_size(msg: PZmqMsg): NativeUInt; cdecl; external LIBZEROMQ delayed;
+function zmq_msg_more(msg: PZmqMsg): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_msg_get(msg: PZmqMsg; option: Integer): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_msg_set(msg: PZmqMsg; option, optval: Integer): Integer; cdecl; external LIBZEROMQ delayed;
 
 (******************************************************************************)
 (*  0MQ socket definition.                                                    *)
@@ -292,28 +292,28 @@ type
     value: Integer;  // value is either error code, fd or reconnect interval
   end;
 
-function zmq_socket(p: Pointer; kind: Integer): Pointer; cdecl; external LIBZEROMQ;
-function zmq_close(s: Pointer): Integer; cdecl; external LIBZEROMQ;
-function zmq_setsockopt(s: Pointer; option: Integer; const optval: Pointer; optvallen: NativeUInt): Integer; cdecl; external LIBZEROMQ;
-function zmq_getsockopt (s: Pointer; option: Integer; optval: Pointer; optvallen: PCardinal): Integer; cdecl; external LIBZEROMQ;
-function zmq_bind(s: Pointer; const addr: PAnsiChar): Integer; cdecl; external LIBZEROMQ;
-function zmq_connect(s: Pointer; const addr: PAnsiChar): Integer; cdecl; external LIBZEROMQ;
-function zmq_unbind(s: Pointer; const addr: PAnsiChar): Integer; cdecl; external LIBZEROMQ;
-function zmq_disconnect(s: Pointer; const addr: PAnsiChar): Integer; cdecl; external LIBZEROMQ;
-function zmq_send(s: Pointer; const buf: Pointer; len: NativeUInt; flags: Integer): Integer; cdecl; external LIBZEROMQ;
-function zmq_send_const (s: Pointer; const buf: Pointer; len: NativeUInt; flags: Integer): Integer; cdecl; external LIBZEROMQ;
-function zmq_recv(s, buf: Pointer; len: NativeUInt; flags: Integer): Integer; cdecl; external LIBZEROMQ;
-function zmq_socket_monitor(s: Pointer; const addr: PAnsiChar; events: Integer): Integer; cdecl; external LIBZEROMQ;
+function zmq_socket(p: Pointer; kind: Integer): Pointer; cdecl; external LIBZEROMQ delayed;
+function zmq_close(s: Pointer): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_setsockopt(s: Pointer; option: Integer; const optval: Pointer; optvallen: NativeUInt): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_getsockopt (s: Pointer; option: Integer; optval: Pointer; optvallen: PCardinal): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_bind(s: Pointer; const addr: PAnsiChar): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_connect(s: Pointer; const addr: PAnsiChar): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_unbind(s: Pointer; const addr: PAnsiChar): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_disconnect(s: Pointer; const addr: PAnsiChar): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_send(s: Pointer; const buf: Pointer; len: NativeUInt; flags: Integer): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_send_const (s: Pointer; const buf: Pointer; len: NativeUInt; flags: Integer): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_recv(s, buf: Pointer; len: NativeUInt; flags: Integer): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_socket_monitor(s: Pointer; const addr: PAnsiChar; events: Integer): Integer; cdecl; external LIBZEROMQ delayed;
 
-function zmq_sendmsg(s: Pointer; msg: PZmqMsg; flags: Integer): Integer; cdecl; external LIBZEROMQ;
-function zmq_recvmsg(s: Pointer; msg: PZmqMsg; flags: Integer): Integer; cdecl; external LIBZEROMQ;
+function zmq_sendmsg(s: Pointer; msg: PZmqMsg; flags: Integer): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_recvmsg(s: Pointer; msg: PZmqMsg; flags: Integer): Integer; cdecl; external LIBZEROMQ delayed;
 
 (*  Experimental                                                              *)
 type
   PZMQIOVec = type Pointer;
 
-function zmq_sendiov(s: Pointer; iov: PZMQIOVec; count: NativeUInt; flags: Integer): Integer; cdecl; external LIBZEROMQ;
-function zmq_recviov(s: Pointer; iov: PZMQIOVec; count: PNativeUInt; flags: Integer): Integer; cdecl; external LIBZEROMQ;
+function zmq_sendiov(s: Pointer; iov: PZMQIOVec; count: NativeUInt; flags: Integer): Integer; cdecl; external LIBZEROMQ delayed;
+function zmq_recviov(s: Pointer; iov: PZMQIOVec; count: PNativeUInt; flags: Integer): Integer; cdecl; external LIBZEROMQ delayed;
 
 (******************************************************************************)
 (*  I/O multiplexing.                                                         *)
@@ -336,25 +336,25 @@ type
 const
   ZMQ_POLLITEMS_DFLT = 16;
 
-function zmq_poll(items: PZmqPollItem; nitems: Integer; timeout: LongInt): Integer; cdecl; external LIBZEROMQ;
+function zmq_poll(items: PZmqPollItem; nitems: Integer; timeout: LongInt): Integer; cdecl; external LIBZEROMQ delayed;
 
 (*  Built-in message proxy (3-way) *)
 
-function zmq_proxy(frontend, backend, capture: Pointer): Integer; cdecl; external LIBZEROMQ;
+function zmq_proxy(frontend, backend, capture: Pointer): Integer; cdecl; external LIBZEROMQ delayed;
 
 (* These functions are documented by man pages                                *)
 
 (*  Encode a binary key as printable text using ZMQ RFC 32  *)
 (* Encode data with Z85 encoding. Returns encoded data                        *)
-function zmq_z85_encode(dest: PAnsiChar; data: PByte; size: NativeUInt): PAnsiChar; cdecl; external LIBZEROMQ;
+function zmq_z85_encode(dest: PAnsiChar; data: PByte; size: NativeUInt): PAnsiChar; cdecl; external LIBZEROMQ delayed;
 
 (*  Encode a binary key from printable text per ZMQ RFC 32  *)
 (* Decode data with Z85 encoding. Returns decoded data                        *)
-function zmq_z85_decode(dest: PByte; str: PAnsiChar): PByte; cdecl; external LIBZEROMQ;
+function zmq_z85_decode(dest: PByte; str: PAnsiChar): PByte; cdecl; external LIBZEROMQ delayed;
 
 (* Generate z85-encoded public and private keypair with libsodium.            *)
 (* Returns 0 on success.                                                      *)
-function zmq_curve_keypair(z85_public_key, z85_secret_key: PAnsiChar): Integer; cdecl; external LIBZEROMQ;
+function zmq_curve_keypair(z85_public_key, z85_secret_key: PAnsiChar): Integer; cdecl; external LIBZEROMQ delayed;
 
 (*  Deprecated aliases *)
 const
@@ -363,7 +363,7 @@ const
   ZMQ_QUEUE     = 3 deprecated;
 
 (*  Deprecated method *)
-function zmq_device(kind: Integer; frontend, backend: Pointer): Integer; cdecl; external LIBZEROMQ; deprecated;
+function zmq_device(kind: Integer; frontend, backend: Pointer): Integer; cdecl; external LIBZEROMQ delayed; deprecated;
 
 (*  These functions are not documented by man pages                           *)
 
@@ -371,23 +371,23 @@ function zmq_device(kind: Integer; frontend, backend: Pointer): Integer; cdecl; 
 (*  about minutiae of time-related functions on different OS platforms.       *)
 
 (*  Starts the stopwatch. Returns the handle to the watch.                    *)
-function zmq_stopwatch_start: Pointer; cdecl; external LIBZEROMQ;
+function zmq_stopwatch_start: Pointer; cdecl; external LIBZEROMQ delayed;
 
 (*  Stops the stopwatch. Returns the number of microseconds elapsed since     *)
 (*  the stopwatch was started.                                                *)
-function zmq_stopwatch_stop(watch: Pointer): Cardinal; cdecl; external LIBZEROMQ;
+function zmq_stopwatch_stop(watch: Pointer): Cardinal; cdecl; external LIBZEROMQ delayed;
 
 (*  Sleeps for specified number of seconds.                                   *)
-procedure zmq_sleep(seconds: Integer); cdecl; external LIBZEROMQ;
+procedure zmq_sleep(seconds: Integer); cdecl; external LIBZEROMQ delayed;
 
 type
   TZmqThreadFn = procedure(data: Pointer); stdcall;
 
 (* Start a thread. Returns a handle to the thread.                            *)
-function zmq_threadstart(func: TZmqThreadFn; arg: Pointer): Pointer; cdecl; external LIBZEROMQ;
+function zmq_threadstart(func: TZmqThreadFn; arg: Pointer): Pointer; cdecl; external LIBZEROMQ delayed;
 
 (* Wait for thread to complete then free up resources.                        *)
-procedure zmq_threadclose(thread: Pointer); cdecl; external LIBZEROMQ;
+procedure zmq_threadclose(thread: Pointer); cdecl; external LIBZEROMQ delayed;
 
 implementation
 
