@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -324,7 +324,7 @@ begin
 {$ENDIF}
 
   internalServiceName := serviceName;
-  Validate(model.ComponentType, TType.GetType(serviceType), internalServiceName);
+  Validate(model.ComponentType, serviceType.RttiType, internalServiceName);
   model.Services[internalServiceName] := serviceType;
   fServiceTypeMappings.Add(serviceType, model);
   fServiceNameMappings.Add(internalServiceName, model);
@@ -459,15 +459,12 @@ end;
 
 function TComponentRegistry.RegisterComponent(
   componentTypeInfo: PTypeInfo): TComponentModel;
-var
-  componentType: TRttiType;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckNotNull(componentTypeInfo, 'componentTypeInfo');
 {$ENDIF}
 
-  componentType := TType.GetType(componentTypeInfo);
-  Result := TComponentModel.Create(componentType);
+  Result := TComponentModel.Create(componentTypeInfo.RttiType);
   fModels.Add(Result);
 end;
 
@@ -546,8 +543,8 @@ end;
 function TComponentRegistry.FindAll(
   serviceType: PTypeInfo): IEnumerable<TComponentModel>;
 var
-  models: IReadOnlyCollection<TComponentModel>;
-  unnamedModels: IReadOnlyCollection<TComponentModel>;
+  models: IReadOnlyList<TComponentModel>;
+  unnamedModels: IReadOnlyList<TComponentModel>;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckNotNull(serviceType, 'serviceType');

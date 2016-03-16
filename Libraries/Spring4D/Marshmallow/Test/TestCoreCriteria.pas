@@ -6,8 +6,8 @@ interface
 
 uses
   TestFramework,
-  Generics.Collections,
   TestEntities,
+  Spring.TestUtils,
   Spring.Collections,
   Spring.Persistence.Core.Session,
   Spring.Persistence.Criteria,
@@ -43,6 +43,7 @@ type
     procedure Add_SubEntity_Criterion;
     procedure Disjunction;
     procedure Conjunction;
+    procedure TestJunctions;
 {$IFNDEF DELPHIXE}
     // TODO: split into several tests - not everything here is compatible across all Delphi versions
     procedure OperatorOverloading_Eq;
@@ -52,25 +53,25 @@ type
 implementation
 
 uses
-  Spring.Persistence.Core.ConnectionFactory
-  ,Spring.Persistence.Core.Interfaces
-  ,Spring.Persistence.Criteria.OrderBy
-  ,Spring.Persistence.Criteria.Properties
-  ,TestSession
-  ,Spring.Persistence.SQL.Types
-  ,Spring.Persistence.SQL.Params
-  ,TestConsts
-  ,SysUtils
-  ,Variants
-  ,Rtti
-  ;
+  SysUtils,
+  Variants,
+  Spring.Persistence.Core.ConnectionFactory,
+  Spring.Persistence.Core.Interfaces,
+  Spring.Persistence.Criteria.OrderBy,
+  Spring.Persistence.Criteria.Properties,
+  Spring.Persistence.SQL.Commands,
+  Spring.Persistence.SQL.Interfaces,
+  Spring.Persistence.SQL.Params,
+  Spring.Persistence.SQL.Register,
+  Spring.Persistence.SQL.Types,
+  TestConsts,
+  TestSession;
 
 
 procedure TCriteriaTest.SetUp;
 begin
   FSession := TSession.Create(TConnectionFactory.GetInstance(dtSQLite, TestDB));
   FCriteria := FSession.CreateCriteria<TCustomer>;
-
 
   FSession.Connection.AddExecutionListener(
     procedure(const command: string; const params: IEnumerable<TDBParam>)
@@ -95,6 +96,56 @@ begin
   ClearTable(TBL_ORDERS);
   FCriteria := nil;
   FSession.Free;
+end;
+
+procedure TCriteriaTest.TestJunctions;
+var
+  orJunction1: IJunction;
+  orJunction2: IJunction;
+  andJunction: IJunction;
+  params: IList<TDBParam>;
+  sqlWhere: string;
+  param: TDBParam;
+  command: TSelectCommand;
+  generator: ISQLGenerator;
+const
+  expected =
+    '(t0."FIRST_NAME" = :PERSONS_FIRST_NAME1 OR t0."FIRST_NAME" = :PERSONS_FIRST_NAME2) AND ' +
+    '(t0."LAST_NAME" = :PERSONS_LAST_NAME1 OR t0."LAST_NAME" = :PERSONS_LAST_NAME2)';
+begin
+  command := TSelectCommand.Create(TPerson);
+  try
+    generator := TSQLGeneratorRegister.GetGenerator(qlOracle);
+
+    orJunction1 := Restrictions.Disjunction;
+    orJunction1.EntityClass := TCustomer;
+    orJunction1.Add(Restrictions.Eq('FIRST_NAME', ''));
+    orJunction1.Add(Restrictions.Eq('FIRST_NAME', ''));
+    orJunction2 := Restrictions.Disjunction;
+    orJunction2.EntityClass := TCustomer;
+    orJunction2.Add(Restrictions.Eq('LAST_NAME', ''));
+    orJunction2.Add(Restrictions.Eq('LAST_NAME', ''));
+
+    andJunction := Restrictions.Conjunction;
+    andJunction.EntityClass := TCustomer;
+    andJunction.Add(orJunction1);
+    andJunction.Add(orJunction2);
+
+    params := TCollections.CreateList<TDBParam>(True);
+    param := TDBParam.Create('FIRST_NAME', '');
+    params.Add(Param);
+    param := TDBParam.Create('FIRST_NAME', '');
+    params.Add(Param);
+    param := TDBParam.Create('LAST_NAME', '');
+    params.Add(Param);
+    param := TDBParam.Create('LAST_NAME', '');
+    params.Add(Param);
+
+    sqlWhere := andJunction.ToSqlString(params, command, generator, False);
+    CheckEqualsString(expected, sqlWhere);
+  finally
+    command.Free;
+  end;
 end;
 
 procedure TCriteriaTest.Add_Eq;
@@ -542,6 +593,6 @@ begin
 end;
 
 initialization
-  // Register any test cases with the test runner
-  RegisterTest(TCriteriaTest.Suite);
+  RegisterTest('Spring.Persistence.Criteria', TCriteriaTest.Suite);
+
 end.

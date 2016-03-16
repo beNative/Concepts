@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -59,12 +59,13 @@ uses
   TestCoreCriteria in '..\..\..\Marshmallow\Test\TestCoreCriteria.pas',
   TestDatabaseManager in '..\..\..\Marshmallow\Test\TestDatabaseManager.pas',
   {$IFDEF DELPHIXE5_UP}
-  TestFireDACAdapter in '..\..\..\Marshmallow\Test\TestFireDACAdapter.pas',
+  TestFireDACConnection in '..\..\..\Marshmallow\Test\TestFireDACConnection.pas',
+  TestAdaptersFireDAC in '..\..\..\Marshmallow\Test\TestAdaptersFireDAC.pas',
   {$ENDIF }
   //+TestObjectDataset in '..\..\..\Marshmallow\Test\TestObjectDataset.pas',
   //+ViewTestObjectDataset in '..\..\Source\Persistence\ViewTestObjectDataset.pas' {frmObjectDatasetTest},
   TestSimpleRepository in '..\..\..\Marshmallow\Test\TestSimpleRepository.pas',
-  TestSQLiteAdapter in '..\..\..\Marshmallow\Test\TestSQLiteAdapter.pas',
+  TestAdaptersSQLite in '..\..\..\Marshmallow\Test\TestAdaptersSQLite.pas',
   Spring.Tests.Persistence.FmxRefForm in '..\..\Source\Persistence\Spring.Tests.Persistence.FmxRefForm.pas' {PersistenceFmxRefForm};
 
 {$R *.res}
@@ -80,6 +81,8 @@ begin
   OutputDir := IncludeTrailingPathDelimiter(System.IOUtils.TPath.GetDocumentsPath);
   PictureFilename := OutputDir + 'DelphiOOP.png';
   OutputDir := '/storage/emulated/0/';
+  if not DirectoryExists(OutputDir) then
+    OutputDir := '/storage/sdcard/';
 {$ELSE}
   {$MESSAGE ERROR 'Unsupported platform'}
 {$IFEND}

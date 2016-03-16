@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -35,6 +35,7 @@ uses
   TestFramework,
   Spring,
   Spring.Interception,
+  Spring.Mocking,
   Spring.Tests.Container,
   Spring.Tests.Interception.Types;
 
@@ -104,9 +105,18 @@ type
     procedure TestByRegistrationWithSelector;
   end;
 
-  TTestMocks = class(TContainerTestCase)
+  TTestAutoMockingExtension = class(TContainerTestCase)
+  private
+    function GetMock<T>: Mock<T>;
+    function GetIMock<T>: IMock<T>;
+  protected
+    procedure SetUp; override;
   published
-    procedure TestAutoMockingContainer;
+    procedure Test;
+    procedure ResolveIMockFromAutoMockingContainer;
+    procedure ResolveMockFromAutoMockingContainer;
+    procedure ResolveIMockIndirectlyFromAutoMockingContainer;
+    procedure ResolveMockIndirectlyFromAutoMockingContainer;
   end;
 
 implementation
@@ -115,7 +125,6 @@ uses
   Spring.Collections,
   Spring.Container.AutoMockExtension,
   Spring.Container.Core,
-  Spring.Mocking,
   Spring.Interception.CustomProxy,
   Spring.TestUtils;
 
@@ -570,6 +579,8 @@ end;
 procedure TStorageTests.TearDown;
 begin
   fSUT.Free;
+  fPrimaryStorage := nil;
+  fSecondaryStorage := nil;
 end;
 
 procedure TStorageTests.Save_should_use_primaryStorage_when_it_is_up;
@@ -700,11 +711,27 @@ end;
 
 {$REGION 'TTestMocks'}
 
-procedure TTestMocks.TestAutoMockingContainer;
+function TTestAutoMockingExtension.GetIMock<T>: IMock<T>;
+begin
+  Result := fContainer.Resolve<IMock<T>>;
+end;
+
+function TTestAutoMockingExtension.GetMock<T>: Mock<T>;
+begin
+  Result := fContainer.Resolve<Mock<T>>;
+end;
+
+procedure TTestAutoMockingExtension.SetUp;
+begin
+  inherited;
+  fContainer.AddExtension<TAutoMockExtension>;
+  fContainer.Build;
+end;
+
+procedure TTestAutoMockingExtension.Test;
 var
   sut: TBasketController;
 begin
-  fContainer.AddExtension<TAutoMockExtension>;
   fContainer.RegisterType<TBasketController>;
   fContainer.Build;
 
@@ -715,6 +742,30 @@ begin
   finally
     sut.Free;
   end;
+  Pass;
+end;
+
+procedure TTestAutoMockingExtension.ResolveIMockFromAutoMockingContainer;
+begin
+  fContainer.Resolve<IMock<ICommandChannel>>;
+  Pass;
+end;
+
+procedure TTestAutoMockingExtension.ResolveIMockIndirectlyFromAutoMockingContainer;
+begin
+  GetIMock<ICommandChannel<TObject>>;
+  Pass;
+end;
+
+procedure TTestAutoMockingExtension.ResolveMockFromAutoMockingContainer;
+begin
+  fContainer.Resolve<Mock<ICommandChannel>>;
+  Pass;
+end;
+
+procedure TTestAutoMockingExtension.ResolveMockIndirectlyFromAutoMockingContainer;
+begin
+  GetMock<ICommandChannel<TObject>>;
   Pass;
 end;
 

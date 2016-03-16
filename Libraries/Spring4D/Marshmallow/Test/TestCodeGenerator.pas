@@ -73,6 +73,6 @@ begin
 end;
 
 initialization
-  RegisterTest(TCodeGeneratorTest.Suite);
+  RegisterTest('Spring.Persistence.Mapping', TCodeGeneratorTest.Suite);
 
 end.

@@ -24,6 +24,13 @@ uses
   Spring.Persistence.Adapters.MSSQL in '..\..\Source\Persistence\Adapters\Spring.Persistence.Adapters.MSSQL.pas',
   Spring.Persistence.Adapters.Oracle in '..\..\Source\Persistence\Adapters\Spring.Persistence.Adapters.Oracle.pas',
   Spring.Persistence.Adapters.SQLite in '..\..\Source\Persistence\Adapters\Spring.Persistence.Adapters.SQLite.pas',
+  {$IFDEF ENABLE_UIB}
+  Spring.Persistence.Adapters.UIB in '..\..\Source\Persistence\Adapters\Spring.Persistence.Adapters.UIB.pas',
+  TestAdaptersUIB in 'TestAdaptersUIB.pas',
+  {$ENDIF}
+  {$IFDEF ENABLE_ZEOS}
+  Spring.Persistence.Adapters.Zeos in '..\..\Source\Persistence\Adapters\Spring.Persistence.Adapters.Zeos.pas',
+  {$ENDIF}
   Spring.Persistence.Core.AbstractSession in '..\..\Source\Persistence\Core\Spring.Persistence.Core.AbstractSession.pas',
   Spring.Persistence.Core.Base in '..\..\Source\Persistence\Core\Spring.Persistence.Core.Base.pas',
   Spring.Persistence.Core.ConnectionFactory in '..\..\Source\Persistence\Core\Spring.Persistence.Core.ConnectionFactory.pas',
@@ -98,7 +105,8 @@ uses
   Spring.Persistence.SQL.Params in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Params.pas',
   Spring.Persistence.SQL.Register in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Register.pas',
   Spring.Persistence.SQL.Types in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Types.pas',
-  TestAdapterMongoDB in 'TestAdapterMongoDB.pas',
+  TestExceptions in 'TestExceptions.pas',
+  TestAdaptersMongoDB in 'TestAdaptersMongoDB.pas',
   TestAdaptersASA in 'TestAdaptersASA.pas',
   TestAdaptersOracle in 'TestAdaptersOracle.pas',
   TestSQLServerSQLGenerator in 'TestSQLServerSQLGenerator.pas',
@@ -111,17 +119,23 @@ uses
   TestCoreUtils in 'TestCoreUtils.pas',
   TestDatabaseManager in 'TestDatabaseManager.pas',
   {$IFDEF DELPHIXE5_UP}
-  TestFireDACAdapter in 'TestFireDACAdapter.pas',
+  TestAdaptersFireDAC in 'TestAdaptersFireDAC.pas',
+  TestFireDACConnection in 'TestFireDACConnection.pas',
   {$ENDIF}
   TestObjectDataset in 'TestObjectDataset.pas',
   TestPersistence in 'TestPersistence.pas',
   TestSession in 'TestSession.pas',
   TestSimpleRepository in 'TestSimpleRepository.pas',
-  TestSQLiteAdapter in 'TestSQLiteAdapter.pas',
+  TestAdaptersSQLite in 'TestAdaptersSQLite.pas',
   TestEntities in 'TestEntities.pas',
   ViewTestObjectDataset in 'ViewTestObjectDataset.pas' {frmObjectDatasetTest},
   Spring.Persistence.Core.EntityWrapper in '..\..\Source\Persistence\Core\Spring.Persistence.Core.EntityWrapper.pas',
-  TestEntityWrapper in 'TestEntityWrapper.pas';
+  TestEntityWrapper in 'TestEntityWrapper.pas',
+  TestAdaptersADO in 'TestAdaptersADO.pas',
+  TestMockADOConnection in 'TestMockADOConnection.pas',
+  TestAdaptersMSSQL in 'TestAdaptersMSSQL.pas',
+  TestAdaptersDBX in 'TestAdaptersDBX.pas',
+  TestSQLConnection in 'TestSQLConnection.pas';
 
 begin
   OutputDir := IncludeTrailingPathDelimiter(ExtractFileDir(ParamStr(0)));

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -508,7 +508,7 @@ begin
   CheckBuildRequired;
   componentModel := fRegistry.FindDefault(serviceType);
   context := TCreationContext.Create(componentModel, arguments);
-  targetType := TType.GetType(serviceType);
+  targetType := serviceType.RttiType;
   Result := fResolver.Resolve(
     context, TDependencyModel.Create(targetType, nil), nil);
 end;
@@ -532,7 +532,7 @@ begin
     raise EResolveException.CreateResFmt(@SServiceNotFound, [serviceName]);
   context := TCreationContext.Create(componentModel, arguments);
   serviceType := componentModel.GetServiceType(serviceName);
-  targetType := TType.GetType(serviceType);
+  targetType := serviceType.RttiType;
   Result := fResolver.Resolve(
     context, TDependencyModel.Create(targetType, nil), serviceName);
 end;
@@ -557,7 +557,7 @@ var
   serviceName: string;
 begin
   CheckBuildRequired;
-  targetType := TType.GetType(serviceType);
+  targetType := serviceType.RttiType;
   // TODO: remove dependency on lazy type
   if IsLazyType(serviceType) then
     serviceType := targetType.GetGenericArguments[0].Handle;

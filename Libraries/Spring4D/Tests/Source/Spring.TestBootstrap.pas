@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -32,11 +32,19 @@ interface
 
 {$IFDEF FMX}
 uses
+ {$IFDEF LEAKCHECK}
+  LeakCheck,
+  LeakCheck.Utils,
+ {$ENDIF LEAKCHECK}
   System.StartUpCopy,
   FMX.Forms,
   FMXTestRunner;
-{$ELSE}
-{$ENDIF}
+{$ELSE FMX}
+ {$IFDEF LEAKCHECK}
+uses
+  LeakCheck;
+ {$ENDIF LEAKCHECK}
+{$ENDIF FMX}
 
 implementation
 

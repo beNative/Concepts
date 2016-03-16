@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -33,6 +33,7 @@ unit Spring.Tests.Base;
 interface
 
 uses
+  Classes,
   TypInfo,
   TestFramework,
   Spring.TestUtils,
@@ -44,21 +45,28 @@ type
   TTestNullableInteger = class(TTestCase)
   private
     fInteger: Nullable<Integer>;
+  protected
+    procedure TearDown; override;
   published
     procedure TestInitialValue;
     procedure GetValueOrDefault;
     procedure TestAssignFive;
-    procedure TestAssignNil;
     procedure TestException;
     procedure TestLocalVariable;
     procedure TestFromVariant;
     procedure TestEquals;
     procedure TestDefaultReturnsInitialValue;
+    procedure TestAssignFloat;
+    procedure TestAssignStringNonInt;
+    procedure TestAssignStringInt;
+    procedure TestNullableNull;
   end;
 
   TTestNullableBoolean = class(TTestCase)
   private
     fBoolean: Nullable<Boolean>;
+  protected
+    procedure TearDown; override;
   published
     procedure TestIssue55;
   end;
@@ -66,6 +74,8 @@ type
   TTestNullableDateTime = class(TTestCase)
   private
     fDateTime: Nullable<TDateTime>;
+  protected
+    procedure TearDown; override;
   published
     procedure TestFromVariantSQLTimestamp;
 {$IFDEF DELPHIXE_UP}
@@ -76,6 +86,8 @@ type
   TTestNullableInt64 = class(TTestCase)
   private
     fInt64: Nullable<Int64>;
+  protected
+    procedure TearDown; override;
   published
     procedure TestFromVariantFmtBcd;
   end;
@@ -94,6 +106,7 @@ type
   protected
     const
       CExpectedBalance = 100;
+    procedure TearDown; override;
   published
     procedure TestByValueFactory;
     procedure TestByValue;
@@ -135,12 +148,8 @@ type
     procedure HandlerDouble(const value: Double);
     procedure HandlerExtended(const value: Extended);
 
-    procedure HandleChanged(Sender: TObject; const handler: TEventInt64;
-      action: TEventsChangedAction);
-    procedure HandleChanged2(Sender: TObject;
-      const handler: TProc<Integer, string>; action: TEventsChangedAction);
+    procedure HandleChanged(Sender: TObject);
   published
-    procedure TestEmpty;
     procedure TestInvoke;
     procedure TestOneHandler;
     procedure TestTwoHandlers;
@@ -201,6 +210,8 @@ type
     fTestedTypeKinds: TTypeKinds;
     const
       PointerSize = SizeOf(Pointer);
+    type
+      TByteSet = set of Byte;
   protected
     procedure MatchType(const aTypeInfo: PTypeInfo; const aExpectedTypeKind: TTypeKind;
       const aExpectedTypeSize: Integer);
@@ -251,6 +262,7 @@ type
     procedure Test_GetTypeSize_PWideChar;
     procedure Test_GetTypeSize_Real;
     procedure Test_GetTypeSize_Set;
+    procedure Test_GetTypeSize_SetOfByte;
     procedure Test_GetTypeSize_ShortInt;
 {$IFNDEF NEXTGEN}
     procedure Test_GetTypeSize_ShortString;
@@ -278,6 +290,7 @@ type
     fSUT: Tuple<Integer, string>;
   protected
     procedure SetUp; override;
+    procedure TearDown; override;
   published
     procedure Test_Create;
     procedure Test_Pack;
@@ -298,6 +311,7 @@ type
     fSUT: Tuple<Integer, string, Boolean>;
   protected
     procedure SetUp; override;
+    procedure TearDown; override;
   published
     procedure Test_Create;
     procedure Test_Pack;
@@ -320,6 +334,7 @@ type
     fSUT: Tuple<Integer, string, Boolean, Char>;
   protected
     procedure SetUp; override;
+    procedure TearDown; override;
   published
     procedure Test_Create;
     procedure Test_Pack;
@@ -339,7 +354,7 @@ type
     procedure Test_Unpack_ThreeValues;
   end;
 
-  TTestSmartPointer = class(TTestCase)
+  TTestOwned = class(TTestCase)
   published
     procedure TestInterfaceType_Instance_Gets_Created;
     procedure TestInterfaceType_Instance_Gets_Destroyed_When_Created;
@@ -352,7 +367,7 @@ type
     procedure TestRecordType_Manage_Typed_Pointer;
   end;
 
-  TTestDynamicArray = class(TTestCase)
+  TTestVector = class(TTestCase)
   published
     procedure ClassOperatorAdd_InputNotModified;
 
@@ -373,6 +388,8 @@ type
     procedure DeleteRange_Mid;
     procedure DeleteRange_IndexLessThanZero_NothingHappens;
     procedure DeleteRange_GreaterThanLengthMinusCount_DeleteUntilEnd;
+
+    procedure Remove_ArrayContainsElements;
   end;
 
   TTestValueHelper = class(TTestCase)
@@ -383,7 +400,14 @@ type
     fSUT, fValue: TValue;
     procedure DoCheckEquals(expected: Boolean = True);
     procedure DoCheckCompare(expected: Integer = 0);
+  protected
+    procedure TearDown; override;
   published
+    procedure Test_AsPointer_Pointer;
+    procedure Test_AsPointer_Class;
+    procedure Test_AsPointer_Interface;
+    procedure Test_AsPointer_OtherWillRaise;
+
     procedure Test_Equals_ByteToInt_ValuesAreNotEqual_ReturnsFalse;
     procedure Test_Equals_ShortIntToInt_ValuesAreEqual_ReturnsTrue;
     procedure Test_Equals_IntToInt_ValuesAreEqual_ReturnsTrue;
@@ -395,12 +419,91 @@ type
     procedure Test_Compare_IntToInt_ValuesAreEqual_ReturnsTrue;
 
     procedure Test_Compare_StringToString_ValuesAreEqual_ReturnsTrue;
+
+    procedure EqualsReturnsTrueForEqualVariants;
+    procedure EqualsReturnsTrueForUnassignedVariants;
+    procedure EqualsReturnsTrueForEqualVariantArrays;
+    procedure EqualsReturnsTrueForEqualVariantArraysTwoDimensions;
+    procedure EqualsReturnsTrueForEqualVariantArraysWithDifferentType;
+    procedure EqualsReturnsFalseForDifferentVariants;
+    procedure EqualsReturnsFalseForDifferentVariantsOneIsUnassigned;
+    procedure EqualsReturnsFalseForDifferentVariantArraysWithDifferentLength;
+    procedure EqualsReturnsFalseForDifferentVariantArraysWithSameLength;
+    procedure EqualsReturnsTrueForEqualVariantArrayOfVariantArray;
+    procedure EqualsReturnsFalseForDifferentVariantArrayOfVariantArray;
+
+    procedure EqualsReturnsTrueForEqualPointers;
+    procedure EqualsReturnsFalseForUnequalPointers;
+
+    procedure FromVariantProperlyHandlesVariantArrays;
+
+    procedure ConvertStringToIntegerFailsForInvalidString;
+    procedure ConvertStringToFloatFailsForInvalidString;
   end;
+
+{$IFNDEF DELPHI2010}
+  TTestManagedObject = class(TTestCase)
+  published
+    procedure TestInitialization;
+  end;
+
+  TTestObject = class(TManagedObject)
+  private
+    [Default(42)]
+    fIntValue: Integer;
+    [Default(High(Int64))]
+    fInt64Value: Int64;
+    [Default(High(UInt64))]
+    fUInt64Value: UInt64;
+    [Default(Low(Int64))]
+    fInt64Value2: Int64;
+    [Default(Low(UInt64))]
+    fUInt64Value2: UInt64;
+    [Default('test')]
+    fStrValue: string;
+    [Default(True)]
+    fBoolValue: Boolean;
+    [Default(20.5)]
+    fDoubleValue: Double;
+    [Default('2015-09-30 17:30:00')]
+    fDateTime: TDateTime;
+    [Managed]
+    fObjValue: TObject;
+    [Managed(TPersistent)]
+    fObjValue2: TObject;
+    [Managed(False)]
+    fObjValue3: TObject;
+  {$IFNDEF NEXTGEN}
+    [Default('x')]
+    fAnsiCharValue: AnsiChar;
+  {$ENDIF}
+    [Default('y')]
+    fWideCharValue: WideChar;
+    [Default('z')]
+    fCharValue: Char;
+  {$IFDEF DELPHIXE_UP}
+    [Managed(TInterfacedObject)]
+    fIntfValue: IInterface;
+  {$ENDIF}
+
+    fIntValue_Prop: Integer;
+    fStrValue_Prop: string;
+    procedure SetStrValue_Prop(const Value: string); virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    [Default(43)]
+    property IntValue: Integer read fIntValue_Prop write fIntValue_Prop;
+
+    [Default('hello')]
+    property StrValue: string read fStrValue_Prop write SetStrValue_Prop;
+  end;
+{$ENDIF}
 
 implementation
 
 uses
-  Classes,
   DateUtils,
   FmtBcd,
   SqlTimSt,
@@ -426,6 +529,12 @@ begin
   CheckEquals(18, fInteger.GetValueOrDefault(18));
 end;
 
+procedure TTestNullableInteger.TearDown;
+begin
+  inherited;
+  fInteger := Nullable.Null;
+end;
+
 procedure TTestNullableInteger.TestAssignFive;
 begin
   fInteger := 5;
@@ -435,12 +544,23 @@ begin
   Check(fInteger.Value <> 3);
 end;
 
-procedure TTestNullableInteger.TestAssignNil;
+procedure TTestNullableInteger.TestAssignFloat;
 begin
-  fInteger := 5;
-  CheckTrue(fInteger.HasValue);
-  fInteger := nil;
-  CheckFalse(fInteger.HasValue);
+  ExpectedException := EInvalidCast;
+  fInteger := 99.9;
+end;
+
+procedure TTestNullableInteger.TestAssignStringInt;
+begin
+  // Nullable does NOT do a variant type conversion but is strict about the underlying type
+  ExpectedException := EInvalidCast;
+  fInteger := '5';
+end;
+
+procedure TTestNullableInteger.TestAssignStringNonInt;
+begin
+  ExpectedException := EInvalidCast;
+  fInteger := '5x';
 end;
 
 procedure TTestNullableInteger.TestDefaultReturnsInitialValue;
@@ -461,6 +581,16 @@ var
 begin
   CheckFalse(dirtyValue.HasValue);
   dirtyValue := 5;
+end;
+
+procedure TTestNullableInteger.TestNullableNull;
+begin
+  fInteger := 42;
+  CheckEquals(42, fInteger.Value);
+  fInteger := Nullable.Null;
+  Check(not fInteger.HasValue);
+  Check(fInteger = Nullable.Null);
+  CheckFalse(fInteger <> Nullable.Null);
 end;
 
 procedure TTestNullableInteger.TestFromVariant;
@@ -508,6 +638,12 @@ end;
 
 {$REGION 'TTestNullableBoolean'}
 
+procedure TTestNullableBoolean.TearDown;
+begin
+  inherited;
+  fBoolean := Nullable.Null;
+end;
+
 procedure TTestNullableBoolean.TestIssue55;
 var
   v: Variant;
@@ -544,6 +680,7 @@ begin
   fBSender := nil;
   fBInvoked := False;
   fHandlerInvokeCount := 0;
+  fProc := nil;
 end;
 
 procedure TTestMulticastEvent.HandlerA(sender: TObject);
@@ -587,19 +724,11 @@ var
   e: Event<TProc<Integer, string>>;
 begin
   e.Add(fProc);
-  CheckEquals(1, e.Count);
   e.Invoke(CNumber, CText);
   CheckEquals(CNumber, fHandlerInvokeCount);
   e.Remove(fProc);
-  CheckEquals(0, e.Count);
   e.Invoke(CNumber, CText);
   CheckEquals(CNumber, fHandlerInvokeCount);
-end;
-
-procedure TTestMulticastEvent.TestEmpty;
-begin
-  CheckEquals(0, fEvent.Count);
-  CheckTrue(fEvent.IsEmpty);
 end;
 
 procedure TTestMulticastEvent.TestInvoke;
@@ -654,9 +783,7 @@ var
 begin
   event.OnChanged := HandleChanged;
   event.Add(HandlerInt64);
-  CheckTrue(fAInvoked);
   event.Remove(HandlerInt64);
-  CheckTrue(fBInvoked);
   CheckEquals(2, fHandlerInvokeCount);
 end;
 
@@ -664,39 +791,20 @@ procedure TTestMulticastEvent.TestNotifyDelegate;
 var
   event2: Event<TProc<Integer, string>>;
 begin
-  event2.OnChanged := HandleChanged2;
+  event2.OnChanged := HandleChanged;
   event2.Add(fProc);
-  CheckTrue(fAInvoked);
   event2.Remove(fProc);
-  CheckTrue(fBInvoked);
   CheckEquals(2, fHandlerInvokeCount);
 end;
 
-procedure TTestMulticastEvent.HandleChanged(Sender: TObject;
-  const handler: TEventInt64; action: TEventsChangedAction);
+procedure TTestMulticastEvent.HandleChanged(Sender: TObject);
 begin
-  handler(42);
-  case action of
-    caAdded: fAInvoked := True;
-    caRemoved: fBInvoked := True;
-  end
-end;
-
-procedure TTestMulticastEvent.HandleChanged2(Sender: TObject;
-  const handler: TProc<Integer, string>; action: TEventsChangedAction);
-begin
-  handler(1, CText);
-  case action of
-    caAdded: fAInvoked := True;
-    caRemoved: fBInvoked := True;
-  end
+  Inc(fHandlerInvokeCount);
 end;
 
 procedure TTestMulticastEvent.TestOneHandler;
 begin
   fEvent.Add(HandlerA);
-  CheckEquals(1, fEvent.Count);
-  CheckFalse(fEvent.IsEmpty);
 
   fEvent.Invoke(Self);
   CheckTrue(fAInvoked);
@@ -705,7 +813,6 @@ begin
   CheckSame(nil, fBSender);
 
   fEvent.Remove(HandlerA);
-  CheckEquals(0, fEvent.Count);
 end;
 
 procedure TTestMulticastEvent.TestRecordType;
@@ -713,14 +820,14 @@ var
   e: Event<TNotifyEvent>;
 begin
   CheckTrue(e.Enabled);
-  CheckTrue(e.IsEmpty);
+//  CheckTrue(e.IsEmpty);
 
   e.Add(HandlerA);
   e.Add(HandlerB);
   e.Invoke(nil);
 
-  CheckFalse(e.IsEmpty);
-  CheckEquals(2, e.Count);
+//  CheckFalse(e.IsEmpty);
+//  CheckEquals(2, e.Count);
 
   CheckTrue(fAInvoked);
   CheckSame(nil, fASender);
@@ -728,10 +835,10 @@ begin
   CheckSame(nil, fBSender);
 
   e.Remove(HandlerA);
-  CheckEquals(1, e.Count);
+//  CheckEquals(1, e.Count);
 
   e.Remove(HandlerB);
-  CheckEquals(0, e.Count);
+//  CheckEquals(0, e.Count);
 end;
 
 procedure TTestMulticastEvent.TestTwoHandlers;
@@ -746,17 +853,16 @@ begin
   CheckSame(nil, fBSender);
 
   fEvent.Remove(HandlerA);
-  CheckEquals(1, fEvent.Count);
 
   fEvent.Remove(HandlerB);
-  CheckEquals(0, fEvent.Count);
 end;
 
 procedure TTestMulticastEvent.TestRemove;
 begin
   fEvent.Add(HandlerA);
   fEvent.Remove(HandlerB);
-  CheckEquals(1, fEvent.Count);
+  fEvent.Invoke(nil);
+  Check(fAInvoked);
 end;
 {$ENDIF SUPPORTS_GENERIC_EVENTS}
 
@@ -799,6 +905,12 @@ var
 begin
   ExpectedException := EArgumentException;
   TLazyInitializer.EnsureInitialized<Integer>(i, function: Integer begin Exit(42) end);
+end;
+
+procedure TTestLazy.TearDown;
+begin
+  inherited;
+  fBalance := nil;
 end;
 
 procedure TTestLazy.TestByValue;
@@ -1466,6 +1578,11 @@ begin
   MatchType(TypeInfo(TTypeKinds), tkSet, SizeOf(TTypeKinds));
 end;
 
+procedure TTestSpringEventsMethods.Test_GetTypeSize_SetOfByte;
+begin
+  MatchType(TypeInfo(TByteSet), tkSet, SizeOf(TByteSet));
+end;
+
 procedure TTestSpringEventsMethods.Test_GetTypeSize_Single;
 begin
   MatchType(TypeInfo(Single), tkFloat, SizeOf(Single));
@@ -1584,6 +1701,12 @@ begin
   fSUT := Tuple<Integer, string>.Create(42, 'foo');
 end;
 
+procedure TTestTuplesDouble.TearDown;
+begin
+  inherited;
+  fSUT := Default(Tuple<Integer, string, Boolean>);
+end;
+
 procedure TTestTuplesDouble.Test_Create;
 begin
   CheckEquals(42, fSUT.Value1);
@@ -1689,6 +1812,12 @@ end;
 procedure TTestTuplesTriple.SetUp;
 begin
   fSUT := Tuple<Integer, string, Boolean>.Create(42, 'foo', True);
+end;
+
+procedure TTestTuplesTriple.TearDown;
+begin
+  inherited;
+  fSUT := Default(Tuple<Integer, string, Boolean>);
 end;
 
 procedure TTestTuplesTriple.Test_Create;
@@ -1824,6 +1953,12 @@ end;
 procedure TTestTuplesQuadruple.SetUp;
 begin
   fSUT := Tuple<Integer, string, Boolean, Char>.Create(42, 'foo', True, 'X');
+end;
+
+procedure TTestTuplesQuadruple.TearDown;
+begin
+  inherited;
+  fSUT := Default(Tuple<Integer, string, Boolean, Char>);
 end;
 
 procedure TTestTuplesQuadruple.Test_Create;
@@ -2007,43 +2142,51 @@ begin
   inherited;
 end;
 
-procedure TTestSmartPointer.TestInterfaceType_Instance_Gets_Created;
+procedure TTestOwned.TestInterfaceType_Instance_Gets_Created;
 var
-  p: ISmartPointer<TTestClass>;
+  p: IOwned<TTestClass>;
 begin
-  p := TSmartPointer<TTestClass>.Create();
+  p := TOwned<TTestClass>.Create();
   CheckTrue(p.CreateCalled);
 end;
 
-procedure TTestSmartPointer.TestInterfaceType_Instance_Gets_Destroyed_When_Created;
+procedure TTestOwned.TestInterfaceType_Instance_Gets_Destroyed_When_Created;
 var
-  p: ISmartPointer<TTestClass>;
+  p: IOwned<TTestClass>;
+  t: TTestClass;
   destroyCalled: Boolean;
 begin
-  p := TSmartPointer<TTestClass>.Create();
-  p.DestroyCalled := @destroyCalled;
+  p := TOwned<TTestClass>.Create();
+  t := p;
+  t.DestroyCalled := @destroyCalled;
+{$IFDEF AUTOREFCOUNT}
+  t := nil;
+{$ENDIF}
   destroyCalled := False;
   p := nil;
   CheckTrue(destroyCalled);
 end;
 
-procedure TTestSmartPointer.TestInterfaceType_Instance_Gets_Destroyed_When_Injected;
+procedure TTestOwned.TestInterfaceType_Instance_Gets_Destroyed_When_Injected;
 var
   t: TTestClass;
-  p: ISmartPointer<TTestClass>;
+  p: IOwned<TTestClass>;
   destroyCalled: Boolean;
 begin
   t := TTestClass.Create;
   t.DestroyCalled := @destroyCalled;
-  p := TSmartPointer<TTestClass>.Create(t);
+  p := TOwned<TTestClass>.Create(t);
+{$IFDEF AUTOREFCOUNT}
+  t := nil;
+{$ENDIF}
   destroyCalled := False;
   p := nil;
   CheckTrue(destroyCalled);
 end;
 
-procedure TTestSmartPointer.TestRecordType_Implicit_FromInstance_Works;
+procedure TTestOwned.TestRecordType_Implicit_FromInstance_Works;
 var
-  p: SmartPointer<TTestClass>;
+  p: Owned<TTestClass>;
   t: TTestClass;
 begin
   t := TTestClass.Create;
@@ -2051,9 +2194,9 @@ begin
   CheckSame(t, p.Value);
 end;
 
-procedure TTestSmartPointer.TestRecordType_Implicit_ToInstance_Works;
+procedure TTestOwned.TestRecordType_Implicit_ToInstance_Works;
 var
-  p: SmartPointer<TTestClass>;
+  p: Owned<TTestClass>;
   t, t2: TTestClass;
 begin
   t := TTestClass.Create;
@@ -2062,9 +2205,9 @@ begin
   CheckSame(t, t2);
 end;
 
-procedure TTestSmartPointer.TestRecordType_Instance_Gets_Destroyed;
+procedure TTestOwned.TestRecordType_Instance_Gets_Destroyed;
 var
-  p: SmartPointer<TTestClass>;
+  p: Owned<TTestClass>;
   t: TTestClass;
   destroyCalled: Boolean;
 begin
@@ -2075,7 +2218,7 @@ begin
   t := nil;
 {$ENDIF}
   destroyCalled := False;
-  p := Default(SmartPointer<TTestClass>);
+  p := Default(Owned<TTestClass>);
   CheckTrue(destroyCalled);
 end;
 
@@ -2086,11 +2229,11 @@ type
     s: string;
   end;
 
-procedure TTestSmartPointer.TestRecordType_Manage_Typed_Pointer;
+procedure TTestOwned.TestRecordType_Manage_Typed_Pointer;
 var
-  p: ISmartPointer<PMyRecord>;
+  p: IOwned<PMyRecord>;
 begin
-  p := TSmartPointer<PMyRecord>.Create();
+  p := TOwned<PMyRecord>.Create();
   p.x := 11;
   p.y := 22;
   p.s := 'Hello World';
@@ -2101,11 +2244,11 @@ end;
 {$ENDREGION}
 
 
-{$REGION 'TTestDynamicArray'}
+{$REGION 'TTestVector'}
 
-procedure TTestDynamicArray.ClassOperatorAdd_InputNotModified;
+procedure TTestVector.ClassOperatorAdd_InputNotModified;
 var
-  arr, arr2: DynamicArray<Integer>;
+  arr, arr2: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   arr2 := arr + 6;
@@ -2113,9 +2256,9 @@ begin
   CheckEquals(6, arr2.Count);
 end;
 
-procedure TTestDynamicArray.ClassOperatorIn_ArrayInArray_True;
+procedure TTestVector.ClassOperatorIn_ArrayInArray_True;
 var
-  arr, arr2: DynamicArray<Integer>;
+  arr, arr2: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   arr2.Add([1, 2, 3]);
@@ -2123,34 +2266,34 @@ begin
 end;
 
 
-procedure TTestDynamicArray.ClassOperatorIn_ArrayNotInArray_False;
+procedure TTestVector.ClassOperatorIn_ArrayNotInArray_False;
 var
-  arr, arr2: DynamicArray<Integer>;
+  arr, arr2: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   arr2.Add([1, 2, 3, 6]);
   CheckFalse(arr2 in arr);
 end;
 
-procedure TTestDynamicArray.ClassOperatorIn_ItemInArray_True;
+procedure TTestVector.ClassOperatorIn_ItemInArray_True;
 var
-  arr: DynamicArray<Integer>;
+  arr: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   CheckTrue(3 in arr);
 end;
 
-procedure TTestDynamicArray.ClassOperatorIn_ItemNotInArray_False;
+procedure TTestVector.ClassOperatorIn_ItemNotInArray_False;
 var
-  arr: DynamicArray<Integer>;
+  arr: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   CheckFalse(6 in arr);
 end;
 
-procedure TTestDynamicArray.ClassOperatorSubtract_InputNotModified;
+procedure TTestVector.ClassOperatorSubtract_InputNotModified;
 var
-  arr, arr2: DynamicArray<Integer>;
+  arr, arr2: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   arr2 := arr - 3;
@@ -2158,9 +2301,9 @@ begin
   CheckEquals(4, arr2.Count);
 end;
 
-procedure TTestDynamicArray.DeleteRange_GreaterThanLengthMinusCount_DeleteUntilEnd;
+procedure TTestVector.DeleteRange_GreaterThanLengthMinusCount_DeleteUntilEnd;
 var
-  arr: DynamicArray<Integer>;
+  arr: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   arr.Delete(2, 4);
@@ -2169,9 +2312,9 @@ begin
   CheckEquals(2, arr[1]);
 end;
 
-procedure TTestDynamicArray.DeleteRange_IndexLessThanZero_NothingHappens;
+procedure TTestVector.DeleteRange_IndexLessThanZero_NothingHappens;
 var
-  arr: DynamicArray<Integer>;
+  arr: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   arr.Delete(-1, 2);
@@ -2183,9 +2326,9 @@ begin
   CheckEquals(5, arr[4]);
 end;
 
-procedure TTestDynamicArray.DeleteRange_Mid;
+procedure TTestVector.DeleteRange_Mid;
 var
-  arr: DynamicArray<Integer>;
+  arr: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   arr.Delete(2, 2);
@@ -2195,9 +2338,9 @@ begin
   CheckEquals(5, arr[2]);
 end;
 
-procedure TTestDynamicArray.Delete_End;
+procedure TTestVector.Delete_End;
 var
-  arr: DynamicArray<Integer>;
+  arr: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   arr.Delete(4);
@@ -2208,9 +2351,9 @@ begin
   CheckEquals(4, arr[3]);
 end;
 
-procedure TTestDynamicArray.Delete_IndexEqualsCount_NothingHappens;
+procedure TTestVector.Delete_IndexEqualsCount_NothingHappens;
 var
-  arr: DynamicArray<Integer>;
+  arr: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   arr.Delete(5);
@@ -2222,9 +2365,9 @@ begin
   CheckEquals(5, arr[4]);
 end;
 
-procedure TTestDynamicArray.Delete_IndexLessThanZero_NothingHappens;
+procedure TTestVector.Delete_IndexLessThanZero_NothingHappens;
 var
-  arr: DynamicArray<Integer>;
+  arr: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   arr.Delete(-1);
@@ -2236,9 +2379,9 @@ begin
   CheckEquals(5, arr[4]);
 end;
 
-procedure TTestDynamicArray.Delete_Mid;
+procedure TTestVector.Delete_Mid;
 var
-  arr: DynamicArray<Integer>;
+  arr: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   arr.Delete(2);
@@ -2249,9 +2392,9 @@ begin
   CheckEquals(5, arr[3]);
 end;
 
-procedure TTestDynamicArray.Delete_Start;
+procedure TTestVector.Delete_Start;
 var
-  arr: DynamicArray<Integer>;
+  arr: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   arr.Delete(0);
@@ -2262,18 +2405,47 @@ begin
   CheckEquals(5, arr[3]);
 end;
 
-procedure TTestDynamicArray.IndexOf_ItemInArray;
+procedure TTestVector.IndexOf_ItemInArray;
 var
-  arr: DynamicArray<Integer>;
+  arr: Vector<Integer>;
 begin
   arr.Add([1, 2, 3, 4, 5]);
   CheckEquals(2, arr.IndexOf(3));
+end;
+
+procedure TTestVector.Remove_ArrayContainsElements;
+var
+  arr: Vector<Integer>;
+begin
+  arr.Add([1, 2, 3, 4, 5]);
+  CheckEquals(5, arr.Remove);
+  CheckEquals(4, arr.Remove);
+  CheckEquals(3, arr.Remove);
+  CheckEquals(2, arr.Remove);
+  CheckEquals(1, arr.Remove);
+  CheckEquals(0, arr.Count);
 end;
 
 {$ENDREGION}
 
 
 {$REGION 'TTestValueHelper'}
+
+procedure TTestValueHelper.ConvertStringToFloatFailsForInvalidString;
+var
+  f: Double;
+begin
+  fSUT := 'foo';
+  CheckFalse(fSUT.TryConvert<Double>(f));
+end;
+
+procedure TTestValueHelper.ConvertStringToIntegerFailsForInvalidString;
+var
+  i: Integer;
+begin
+  fSUT := 'foo';
+  CheckFalse(fSUT.TryConvert<Integer>(i));
+end;
 
 procedure TTestValueHelper.DoCheckCompare(expected: Integer);
 begin
@@ -2286,6 +2458,255 @@ begin
     CheckTrue(fSUT.Equals(fValue))
   else
     CheckFalse(fSUT.Equals(fValue));
+end;
+
+procedure TTestValueHelper.EqualsReturnsFalseForDifferentVariantArrayOfVariantArray;
+var
+  v1, v2: Variant;
+  v3, v4: Variant;
+begin
+  v1 := VarArrayCreate([0, 2], varVariant);
+  v3 := VarArrayCreate([0, 2], varVariant);
+  v1[0] := 0;
+  v1[1] := 1;
+  v1[2] := 2;
+  v3[0] := v1;
+  v3[1] := v1;
+  v3[2] := v1;
+  v2 := VarArrayCreate([0, 2], varVariant);
+  v4 := VarArrayCreate([0, 2], varVariant);
+  v2[0] := 0;
+  v2[1] := 1;
+  v2[2] := 3;
+  v4[0] := v2;
+  v4[1] := v2;
+  v4[2] := v2;
+
+  fSUT := TValue.From(v1);
+  fValue := TValue.From(v2);
+  DoCheckEquals(False);
+end;
+
+procedure TTestValueHelper.EqualsReturnsFalseForDifferentVariantArraysWithDifferentLength;
+var
+  v1, v2: Variant;
+begin
+  v1 := VarArrayCreate([0, 2], varInteger);
+  v1[0] := 0;
+  v1[1] := 1;
+  v1[2] := 2;
+  v2 := VarArrayCreate([0, 3], varInteger);
+  v2[0] := 0;
+  v2[1] := 1;
+  v2[2] := 2;
+  v2[3] := 3;
+
+  fSUT := TValue.From(v1);
+  fValue := TValue.From(v2);
+  DoCheckEquals(False);
+end;
+
+procedure TTestValueHelper.EqualsReturnsFalseForDifferentVariantArraysWithSameLength;
+var
+  v1, v2: Variant;
+begin
+  v1 := VarArrayCreate([0, 2], varInteger);
+  v1[0] := 0;
+  v1[1] := 1;
+  v1[2] := 2;
+  v2 := VarArrayCreate([0, 2], varInteger);
+  v2[0] := 0;
+  v2[1] := 1;
+  v2[2] := 3;
+
+  fSUT := TValue.From(v1);
+  fValue := TValue.From(v2);
+  DoCheckEquals(False);
+end;
+
+procedure TTestValueHelper.EqualsReturnsFalseForDifferentVariants;
+begin
+  fSUT := TValue.From(Variant('test'));
+  fValue := TValue.From(Variant('tets'));
+  DoCheckEquals(False);
+end;
+
+procedure TTestValueHelper.EqualsReturnsFalseForDifferentVariantsOneIsUnassigned;
+begin
+  fSUT := TValue.From(Variant('test'));
+  fValue := TValue.From(Unassigned);
+  DoCheckEquals(False);
+end;
+
+procedure TTestValueHelper.EqualsReturnsFalseForUnequalPointers;
+begin
+  fSUT := TValue.From<Pointer>(Self);
+  fValue := TValue.From<Pointer>(nil);
+  DoCheckEquals(False);
+end;
+
+procedure TTestValueHelper.EqualsReturnsTrueForEqualPointers;
+begin
+  fSUT := TValue.From<Pointer>(Self);
+  fValue := TValue.From<Pointer>(Self);
+  DoCheckEquals;
+end;
+
+procedure TTestValueHelper.EqualsReturnsTrueForEqualVariantArrayOfVariantArray;
+var
+  v1, v2: Variant;
+  v3, v4: Variant;
+begin
+  v1 := VarArrayCreate([0, 2], varVariant);
+  v3 := VarArrayCreate([0, 2], varVariant);
+  v1[0] := 0;
+  v1[1] := 1;
+  v1[2] := 2;
+  v3[0] := v1;
+  v3[1] := v1;
+  v3[2] := v1;
+  v2 := VarArrayCreate([0, 2], varVariant);
+  v4 := VarArrayCreate([0, 2], varVariant);
+  v2[0] := 0;
+  v2[1] := 1;
+  v2[2] := 2;
+  v4[0] := v2;
+  v4[1] := v2;
+  v4[2] := v2;
+
+  fSUT := TValue.From(v1);
+  fValue := TValue.From(v2);
+  DoCheckEquals;
+end;
+
+procedure TTestValueHelper.EqualsReturnsTrueForEqualVariantArrays;
+var
+  v1, v2: Variant;
+begin
+  v1 := VarArrayCreate([0, 2], varInteger);
+  v1[0] := 0;
+  v1[1] := 1;
+  v1[2] := 2;
+  v2 := VarArrayCreate([0, 2], varInteger);
+  v2[0] := 0;
+  v2[1] := 1;
+  v2[2] := 2;
+
+  fSUT := TValue.From(v1);
+  fValue := TValue.From(v2);
+  DoCheckEquals;
+end;
+
+procedure TTestValueHelper.EqualsReturnsTrueForEqualVariantArraysTwoDimensions;
+var
+  v1, v2: Variant;
+begin
+  v1 := VarArrayCreate([0, 2, 0, 1], varInteger);
+  v1[0,0] := 0;
+  v1[1,0] := 1;
+  v1[2,0] := 2;
+  v1[0,1] := 3;
+  v1[1,1] := 4;
+  v1[2,1] := 5;
+  v2 := VarArrayCreate([0, 2, 0, 1], varInteger);
+  v2[0,0] := 0;
+  v2[1,0] := 1;
+  v2[2,0] := 2;
+  v2[0,1] := 3;
+  v2[1,1] := 4;
+  v2[2,1] := 5;
+
+  fSUT := TValue.From(v1);
+  fValue := TValue.From(v2);
+  DoCheckEquals;
+end;
+
+procedure TTestValueHelper.EqualsReturnsTrueForEqualVariantArraysWithDifferentType;
+var
+  v1, v2: Variant;
+begin
+  v1 := VarArrayCreate([0, 2], varInteger);
+  v1[0] := 0;
+  v1[1] := 1;
+  v1[2] := 2;
+  v2 := VarArrayCreate([0, 2], varByte);
+  v2[0] := 0;
+  v2[1] := 1;
+  v2[2] := 2;
+
+  fSUT := TValue.From(v1);
+  fValue := TValue.From(v2);
+  DoCheckEquals;
+end;
+
+procedure TTestValueHelper.EqualsReturnsTrueForEqualVariants;
+begin
+  fSUT := TValue.From(Variant('test'));
+  fValue := TValue.From(Variant('test'));
+  DoCheckEquals;
+end;
+
+procedure TTestValueHelper.EqualsReturnsTrueForUnassignedVariants;
+begin
+  fSUT := TValue.From(Unassigned);
+  fValue := TValue.From(Unassigned);
+  DoCheckEquals;
+end;
+
+procedure TTestValueHelper.FromVariantProperlyHandlesVariantArrays;
+var
+  v: Variant;
+  arr: TArray<Integer>;
+begin
+  v := VarArrayCreate([0, 2], varInteger);
+  v[0] := 0;
+  v[1] := 1;
+  v[2] := 2;
+  fSUT := TValue.FromVariant(v);
+  Check(fSUT.TypeInfo = TypeInfo(TArray<Integer>));
+  arr := fSUT.AsType<TArray<Integer>>;
+  CheckEquals(3, Length(arr));
+  CheckEquals(0, arr[0]);
+  CheckEquals(1, arr[1]);
+  CheckEquals(2, arr[2]);
+end;
+
+procedure TTestValueHelper.TearDown;
+begin
+  fSUT := TValue.Empty;
+  fValue := TValue.Empty;
+  inherited;
+end;
+
+procedure TTestValueHelper.Test_AsPointer_Class;
+begin
+  fSUT := Self;
+  CheckEquals(Pointer(Self), fSUT.AsPointer);
+end;
+
+procedure TTestValueHelper.Test_AsPointer_Interface;
+var
+  intf: IInterface;
+begin
+  intf := TInterfacedObject.Create;
+  fSUT := TValue.From<IInterface>(intf);
+  CheckEquals(NativeInt(Pointer(intf)), NativeInt(fSUT.AsPointer));
+end;
+
+procedure TTestValueHelper.Test_AsPointer_OtherWillRaise;
+begin
+  ExpectedException := EInvalidCast;
+  fSUT := Integer(42);
+  fSUT.AsPointer;
+end;
+
+procedure TTestValueHelper.Test_AsPointer_Pointer;
+var
+  ptr: Pointer;
+begin
+  ptr := Self;
+  fSUT := TValue.From<Pointer>(ptr);
+  CheckEquals(ptr, fSUT.AsPointer);
 end;
 
 procedure TTestValueHelper.Test_Compare_IntToInt_ValuesAreEqual_ReturnsTrue;
@@ -2344,6 +2765,12 @@ end;
 
 {$REGION 'TTestNullableDateTime'}
 
+procedure TTestNullableDateTime.TearDown;
+begin
+  fDateTime := Nullable.Null;
+  inherited;
+end;
+
 procedure TTestNullableDateTime.TestFromVariantSQLTimestamp;
 var
   dt: TDateTime;
@@ -2379,6 +2806,12 @@ end;
 
 {$REGION 'TTestNullableInt64'}
 
+procedure TTestNullableInt64.TearDown;
+begin
+  fInt64 := Nullable.Null;
+  inherited;
+end;
+
 procedure TTestNullableInt64.TestFromVariantFmtBcd;
 var
   v: Variant;
@@ -2387,6 +2820,66 @@ begin
   fInt64 := v;
   CheckEquals(8123456789012345678, fInt64);
 end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestManagedObject'}
+
+{$IFNDEF DELPHI2010}
+constructor TTestObject.Create;
+begin
+  // no inherited here for testing (initialization is done within NewInstance)
+  fObjValue3 := TObject.Create;
+end;
+
+destructor TTestObject.Destroy;
+begin
+  // no inherited here for testing (finalization is done within FreeInstance)
+end;
+
+procedure TTestObject.SetStrValue_Prop(const Value: string);
+begin
+  fStrValue_Prop := Value;
+end;
+
+procedure TTestManagedObject.TestInitialization;
+var
+  obj: TTestObject;
+begin
+  obj := TTestObject.Create;
+  try
+    // check field initializations
+    CheckEquals(42, obj.fIntValue);
+    CheckEquals(High(Int64), obj.fInt64Value);
+    CheckEquals(High(UInt64), obj.fUInt64Value);
+    CheckEquals(Low(Int64), obj.fInt64Value2);
+    CheckEquals(Low(UInt64), obj.fUInt64Value2);
+    CheckEquals('test', obj.fStrValue);
+    CheckTrue(obj.fBoolValue);
+    CheckEquals(20.5, obj.fDoubleValue);
+    CheckEquals(EncodeDateTime(2015, 9, 30, 17, 30, 0, 0), obj.fDateTime);
+    CheckIs(obj.fObjValue, TObject);
+    CheckIs(obj.fObjValue2, TPersistent);
+    CheckIs(obj.fObjValue3, TObject);
+  {$IFNDEF NEXTGEN}
+    CheckEquals('x', Char(obj.fAnsiCharValue));
+  {$ENDIF}
+    CheckEquals('y', Char(obj.fWideCharValue));
+    CheckEquals('z', Char(obj.fCharValue));
+  {$IFDEF DELPHIXE_UP}
+    CheckNotNull(obj.fIntfValue);
+    CheckIs(obj.fIntfValue as TObject, TInterfacedObject);
+  {$ENDIF}
+
+    // check property initializations
+    CheckEquals(43, obj.fIntValue_Prop);
+    CheckEquals('hello', obj.fStrValue_Prop);
+  finally
+    obj.Free;
+  end;
+end;
+{$ENDIF}
 
 {$ENDREGION}
 

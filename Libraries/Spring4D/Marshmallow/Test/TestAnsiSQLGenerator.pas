@@ -7,12 +7,13 @@ uses
   Spring.Collections,
   Spring.Persistence.SQL.Commands,
   Spring.Persistence.SQL.Generators.Ansi,
+  Spring.Persistence.SQL.Interfaces,
   Spring.Persistence.SQL.Types;
 
 type
   TAnsiSQLGeneratorTest = class(TTestCase)
   private
-    FAnsiSQLGenerator: TAnsiSQLGenerator;
+    FAnsiSQLGenerator: ISQLGenerator;
   public
     procedure SetUp; override;
     procedure TearDown; override;
@@ -72,7 +73,6 @@ end;
 
 procedure TAnsiSQLGeneratorTest.TearDown;
 begin
-  FAnsiSQLGenerator.Free;
   FAnsiSQLGenerator := nil;
 end;
 
@@ -351,6 +351,7 @@ begin
   finally
     LTable.Free;
     LCommand.Free;
+    LCols := nil;
   end;
 end;
 
@@ -418,7 +419,7 @@ begin
 end;
 
 initialization
-  RegisterTest(TAnsiSQLGeneratorTest.Suite);
+  RegisterTest('Spring.Persistence.Generators', TAnsiSQLGeneratorTest.Suite);
 
 end.
 

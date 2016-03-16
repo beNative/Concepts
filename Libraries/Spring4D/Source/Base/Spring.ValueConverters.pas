@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -703,6 +703,10 @@ type
       TTypeMapping<TSource,TTarget> = record
         SourceType: TSource;
         TargetType: TTarget;
+{$IFDEF NEXTGEN}
+        // Fixes incorrect register argument passing
+        Padding: Pointer;
+{$ENDIF}
       end;
 
     class var fTypeInfoToTypeInfoRegistry: TDictionary<TTypeMapping<PTypeInfo,PTypeInfo>, IValueConverter>;
@@ -868,9 +872,15 @@ var
   converter: IValueConverter;
 begin
   converter := TValueConverterFactory.GetConverter(value.TypeInfo, targetTypeInfo);
-  Result := (Assigned(converter)
-    and converter.TryConvertTo(value, targetTypeInfo, targetValue, parameter))
-    or value.TryCast(targetTypeInfo, targetValue);
+  Result := Assigned(converter)
+    and converter.TryConvertTo(value, targetTypeInfo, targetValue, parameter);
+  if not Result then
+{$IFNDEF DELPHIXE2_UP}
+    // workaround for wrong TValue.TryCast for string to float (it calls ConvStr2Str by mistake)
+    if not ((value.Kind in [tkString, tkLString, tkWString, tkUString])
+      and (targetTypeInfo.Kind = tkFloat)) then
+{$ENDIF}
+    Result := value.TryCast(targetTypeInfo, targetValue);
 end;
 
 function TDefaultConverter.TryConvertTo(const value: TValue;
@@ -1866,6 +1876,9 @@ var
 begin
   System.MonitorEnter(fTypeInfoToTypeInfoRegistry);
   try
+{$IFDEF NEXTGEN}
+    typeToTypeMapping := Default(TTypeMapping<PTypeInfo,PTypeInfo>);
+{$ENDIF}
     typeToTypeMapping.SourceType := sourceTypeInfo;
     typeToTypeMapping.TargetType := targetTypeInfo;
     if fTypeInfoToTypeInfoRegistry.TryGetValue(typeToTypeMapping, converter) then
@@ -1978,6 +1991,9 @@ begin
 
   System.MonitorEnter(fTypeInfoToTypeInfoRegistry);
   try
+{$IFDEF NEXTGEN}
+    mapping := Default(TTypeMapping<PTypeInfo,PTypeInfo>);
+{$ENDIF}
     mapping.SourceType := sourceTypeInfo;
     mapping.TargetType := targetTypeInfo;
     fTypeInfoToTypeInfoRegistry.AddOrSetValue(mapping, converter);

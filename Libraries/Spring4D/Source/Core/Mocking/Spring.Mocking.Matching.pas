@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -131,7 +131,11 @@ begin
         tkClass:
         begin
           idxArr[indizes[i].AsType<TIndexWrapper>.fIndex] := i;
+{$IFNDEF AUTOREFCOUNT}
           indizes[i].AsType<TIndexWrapper>.Free;
+{$ELSE}
+          indizes[i].AsType<TIndexWrapper>.DisposeOf;
+{$ENDIF}
         end;
         tkInterface:
         begin
@@ -183,13 +187,15 @@ end;
 class function TMatcherFactory.WrapIndex<T>(index: Integer): T;
 begin
   Result := Default(T);
-  case {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} of
+  case TType.Kind<T> of
     tkInteger, tkChar, tkWChar, tkEnumeration, tkSet, tkInt64:
       PByte(@Result)^ := index;
+{$IFNDEF NEXTGEN}
     tkLString:
       PAnsiString(@Result)^ := AnsiString(IntToStr(index));
     tkWString:
       PWideString(@Result)^ := IntToStr(index);
+{$ENDIF}
     tkUString:
       PUnicodeString(@Result)^ := IntToStr(index);
     tkClass:

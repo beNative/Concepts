@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -40,8 +40,6 @@ type
     function GetInvoke: TCollectionChangedEvent<T>;
     procedure Add(handler: TCollectionChangedEvent<T>);
     procedure Remove(handler: TCollectionChangedEvent<T>);
-    procedure ForEach(const action: TAction<TCollectionChangedEvent<T>>);
-
     procedure InternalInvoke(Sender: TObject; const Item: T;
       Action: TCollectionChangedAction);
   public
@@ -63,15 +61,6 @@ procedure TCollectionChangedEventImpl<T>.Add(
   handler: TCollectionChangedEvent<T>);
 begin
   inherited Add(TMethodPointer(handler));
-end;
-
-procedure TCollectionChangedEventImpl<T>.ForEach(
-  const action: TAction<TCollectionChangedEvent<T>>);
-var
-  handler: TMethodPointer;
-begin
-  for handler in Handlers do
-    action(TCollectionChangedEvent<T>(handler));
 end;
 
 function TCollectionChangedEventImpl<T>.GetInvoke: TCollectionChangedEvent<T>;

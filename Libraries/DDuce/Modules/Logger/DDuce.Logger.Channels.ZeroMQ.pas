@@ -20,51 +20,129 @@ unit DDuce.Logger.Channels.ZeroMQ;
 
 interface
 
+{ Channel holding a ZeroMQ publisher socket where one or more Logviewers can
+  subscribe to.
+
+  The channel creates a PUB socket and binds it to its local IP address.
+
+}
+
 uses
+  System.Classes, System.SysUtils,
+
+  ZeroMQ,
+
   DDuce.Logger.Interfaces, DDuce.Logger.Channels.Base;
+
+const
+  FILTER_NAME = 'debug';
+  DEFAULT_PORT = 5555;
 
 type
   TZeroMQChannel = class(TCustomLogChannel)
   strict private
-    //FClient       : TWinIPCClient;
-    //FBuffer       : TMemoryStream;
-    //FClearMessage : TLogMessage;
+    FBuffer    : TStringStream;
+    FZMQ       : IZeroMQ;
+    FPublisher : IZMQPair;
 
   public
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
 
-    procedure Clear; override;
-    procedure Write(const AMsg: TLogMessage); override;
+    function GetActive: Boolean; override;
+
+    function Write(const AMsg: TLogMessage): Boolean; override;
+    function Connect: Boolean; override;
   end;
 
 implementation
+
+uses
+  ZeroMQ.API;
 
 {$REGION 'construction and destruction'}
 procedure TZeroMQChannel.AfterConstruction;
 begin
   inherited AfterConstruction;
-//
+  if FileExists(LIBZEROMQ) then
+  begin
+    FBuffer := TStringStream.Create;
+    FZMQ := TZeroMQ.Create;
+  end;
 end;
 
 procedure TZeroMQChannel.BeforeDestruction;
 begin
+  if Assigned(FBuffer) then
+  begin
+    FBuffer.Free;
+  end;
+  if Assigned(FPublisher)  then
+  begin
+    FPublisher.Close;
+  end;
   inherited BeforeDestruction;
-//
+end;
+{$ENDREGION}
+
+{$REGION 'property access methods'}
+function TZeroMQChannel.GetActive: Boolean;
+begin
+  Result := Assigned(FZMQ) and inherited GetActive;
 end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
-procedure TZeroMQChannel.Clear;
+function TZeroMQChannel.Connect: Boolean;
 begin
-  inherited Clear;
-//
+  if Active then
+  begin
+    FPublisher := FZMQ.Start(ZMQSocket.Publisher);
+    Connected :=
+      FPublisher.Bind(Format('tcp://%s:%d', ['*', DEFAULT_PORT])) <> -1;
+  end;
 end;
 
-procedure TZeroMQChannel.Write(const AMsg: TLogMessage);
+function TZeroMQChannel.Write(const AMsg: TLogMessage): Boolean;
+const
+  ZeroBuf: Integer = 0;
+var
+  TextSize : Integer;
+  DataSize : Integer;
+  N        : Integer;
 begin
-  inherited Write(AMsg);
-//
+  if Active then
+  begin
+    if not Connected then
+      Connect;
+    if Connected then
+    begin
+      TextSize := Length(AMsg.MsgText);
+      FBuffer.Seek(0, soFromBeginning);
+      FBuffer.WriteBuffer(AMsg.MsgType, SizeOf(Integer));
+      FBuffer.WriteBuffer(AMsg.MsgTime, SizeOf(TDateTime));
+      FBuffer.WriteBuffer(TextSize, SizeOf(Integer));
+      FBuffer.WriteBuffer(AMsg.MsgText[1], TextSize);
+      if AMsg.Data <> nil then
+      begin
+        DataSize := AMsg.Data.Size;
+        FBuffer.WriteBuffer(DataSize, SizeOf(Integer));
+        AMsg.Data.Position := 0;
+        FBuffer.CopyFrom(AMsg.Data, DataSize);
+      end
+      else
+        FBuffer.WriteBuffer(ZeroBuf, SizeOf(Integer)); // necessary?
+      Result := FPublisher.SendString(FBuffer.DataString) > 0;
+    end
+    else
+    begin
+      Result := False;
+    end;
+  end
+  else
+  begin
+    Result := False;
+  end;
 end;
 {$ENDREGION}
 

@@ -206,6 +206,6 @@ begin
 end;
 
 initialization
-  RegisterTest(TEntityWrapperTest.Suite);
+  RegisterTest('Spring.Persistence.Core', TEntityWrapperTest.Suite);
 
 end.

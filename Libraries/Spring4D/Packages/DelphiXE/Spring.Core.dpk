@@ -61,6 +61,7 @@ contains
   Spring.Logging.Container in '..\..\Source\Core\Logging\Spring.Logging.Container.pas',
   Spring.Mocking in '..\..\Source\Core\Mocking\Spring.Mocking.pas',
   Spring.Mocking.Core in '..\..\Source\Core\Mocking\Spring.Mocking.Core.pas',
-  Spring.Mocking.Interceptor in '..\..\Source\Core\Mocking\Spring.Mocking.Interceptor.pas';
+  Spring.Mocking.Interceptor in '..\..\Source\Core\Mocking\Spring.Mocking.Interceptor.pas',
+  Spring.Mocking.Matching in '..\..\Source\Core\Mocking\Spring.Mocking.Matching.pas';
 
 end.

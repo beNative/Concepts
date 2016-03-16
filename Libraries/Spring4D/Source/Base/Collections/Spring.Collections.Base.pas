@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -121,10 +121,6 @@ type
     function GetElementType: PTypeInfo; override;
     class function GetEqualityComparer: IEqualityComparer<T>; static;
   {$ENDREGION}
-{$IFDEF WEAKREF}
-    function HasWeakRef: Boolean; inline;
-{$ENDIF}
-    function IsManaged: Boolean; inline;
     function TryGetElementAt(out value: T; index: Integer): Boolean; virtual;
     function TryGetFirst(out value: T): Boolean; overload; virtual;
     function TryGetFirst(out value: T; const predicate: TPredicate<T>): Boolean; overload;
@@ -589,11 +585,10 @@ end;
 constructor TEnumerableBase<T>.Create;
 begin
   inherited Create;
-  case {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} of
-    tkClass: fComparer := IComparer<T>(GetInstanceComparer)
+  if TType.Kind<T> = tkClass then
+    fComparer := IComparer<T>(GetInstanceComparer)
   else
     fComparer := TComparer<T>.Default;
-  end;
 end;
 
 constructor TEnumerableBase<T>.Create(const comparer: IComparer<T>);
@@ -842,34 +837,12 @@ end;
 class function TEnumerableBase<T>.GetEqualityComparer: IEqualityComparer<T>;
 begin
   if not Assigned(fEqualityComparer) then
-    case {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} of
-      tkClass: IEqualityComparer<TObject>(fEqualityComparer) :=
-        TEqualityComparer<TObject>.Default;
+    if TType.Kind<T> = tkClass then
+      IEqualityComparer<TObject>(fEqualityComparer) := TEqualityComparer<TObject>.Default
     else
       fEqualityComparer := TEqualityComparer<T>.Default;
-    end;
   Result := fEqualityComparer;
 end;
-
-function TEnumerableBase<T>.IsManaged: Boolean;
-begin
-{$IFDEF DELPHIXE7_UP}
-  Result := IsManagedType(T);
-{$ELSE}
-  Result := Rtti.IsManaged(TypeInfo(T));
-{$ENDIF}
-end;
-
-{$IFDEF WEAKREF}
-function TEnumerableBase<T>.HasWeakRef: Boolean;
-begin
-{$IFDEF DELPHIXE7_UP}
-  Result := System.HasWeakRef(T);
-{$ELSE}
-  Result := System.TypInfo.HasWeakRef(TypeInfo(T));
-{$ENDIF}
-end;
-{$ENDIF}
 
 function TEnumerableBase<T>.Last: T;
 var
@@ -1171,7 +1144,7 @@ var
 begin
   Result := Default(T);
   for item in Self do
-    case {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} of
+    case TType.Kind<T> of
       tkInteger: PInteger(@Result)^ := PInteger(@Result)^ + PInteger(@item)^;
       tkInt64: PInt64(@Result)^ := PInt64(@Result)^ + PInt64(@item)^;
       tkFloat:

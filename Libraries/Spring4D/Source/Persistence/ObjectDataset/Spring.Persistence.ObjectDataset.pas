@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -301,18 +301,18 @@ var
   LText, LItem: string;
   LSplittedFields: TStringDynArray;
   LIndexFieldItem: TIndexFieldInfo;
-  iPos: Integer;
+  i: Integer;
 begin
   Result := TCollections.CreateList<TIndexFieldInfo>;
   LSplittedFields := SplitString(ASortText, [','], True);
   for LText in LSplittedFields do
   begin
     LItem := UpperCase(LText);
-    LIndexFieldItem.Descending := PosEx('DESC', LItem) > 1;
+    LIndexFieldItem.Descending := Pos('DESC', LItem) > 1;
     LItem := Trim(LText);
-    iPos := PosEx(' ', LItem);
-    if iPos > 1 then
-      LItem := Copy(LItem, 1, iPos - 1);
+    i := Pos(' ', LItem);
+    if i > 1 then
+      LItem := Copy(LItem, 1, i - 1);
 
     LIndexFieldItem.Field := FindField(LItem);
     if not FProperties.TryGetFirst(LIndexFieldItem.RttiProperty,

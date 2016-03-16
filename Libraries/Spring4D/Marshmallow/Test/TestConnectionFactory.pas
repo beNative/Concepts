@@ -1,16 +1,17 @@
 unit TestConnectionFactory;
 
+{$I Spring.inc}
+
 interface
 
 uses
-  TestFramework, Spring.Persistence.Core.Interfaces, Generics.Collections, SysUtils,
-  Spring.Persistence.Core.ConnectionFactory;
+  TestFramework;
 
 type
   TConnectionFactoryTest = class(TTestCase)
   public
 {$IFDEF MSWINDOWS}
-    procedure When_ADOConn_And_Json_GetInstance;
+    procedure TestGetInstanceADO;
 {$ENDIF}
   published
     procedure TestGetInstance;
@@ -21,73 +22,75 @@ type
 implementation
 
 uses
+  SysUtils,
   SQLiteTable3,
   Spring.Persistence.Adapters.SQLite,
+  Spring.Persistence.Core.ConnectionFactory,
+  Spring.Persistence.Core.Interfaces,
   Spring.Persistence.SQL.Interfaces,
   TestEntities;
 
 procedure TConnectionFactoryTest.TestGetInstance;
 var
-  ReturnValue: IDBConnection;
-  AConcreteConnection: TObject;
+  connection: IDBConnection;
+  externalConnection: TObject;
 begin
-  AConcreteConnection := TSQLiteDatabase.Create(':memory:');
-  try
-    ReturnValue := nil;
-    CheckFalse(Assigned(ReturnValue));
-    ReturnValue := TConnectionFactory.GetInstance(dtSQLite, AConcreteConnection);
-    CheckTrue(Assigned(ReturnValue));
-  finally
-    AConcreteConnection.Free;
-  end;
+  externalConnection := TSQLiteDatabase.Create(':memory:');
+  connection := TConnectionFactory.GetInstance(dtSQLite, externalConnection);
+  connection.AutoFreeConnection := True;
+  CheckNotNull(connection);
 end;
-
-const
-  JSON_SQLITE = '{"SQLiteTable3.TSQLiteDatabase": { "Filename": ":memory:" } }';
 
 procedure TConnectionFactoryTest.TestGetInstance1;
+const
+  JSON_SQLITE = '{"SQLiteTable3.TSQLiteDatabase": { "Filename": ":memory:" } }';
 var
-  ReturnValue: IDBConnection;
+  connection: IDBConnection;
 begin
-  ReturnValue := TConnectionFactory.GetInstance(dtSQLite, JSON_SQLITE);
-  CheckTrue(Assigned(ReturnValue));
-  CheckEquals(qlSQLite, ReturnValue.QueryLanguage);
-  CheckTrue(ReturnValue.IsConnected);
+  connection := TConnectionFactory.GetInstance(dtSQLite, JSON_SQLITE);
+  CheckNotNull(connection);
+  CheckEquals(qlSQLite, connection.QueryLanguage);
+  CheckTrue(connection.IsConnected);
 end;
 
+procedure TConnectionFactoryTest.TestGetInstanceFromFilename;
 const
   FILE_JSON = 'Conn_Sqlite.json';
-
-procedure TConnectionFactoryTest.TestGetInstanceFromFilename;
 var
-  ReturnValue: IDBConnection;
-  sDir: string;
+  connection: IDBConnection;
+  directory: string;
 begin
-  sDir := IncludeTrailingPathDelimiter(ExtractFileDir(PictureFilename));
-  ReturnValue := TConnectionFactory.GetInstanceFromFile(dtSQLite, sDir + FILE_JSON);
-  CheckTrue(Assigned(ReturnValue));
-  CheckEquals(qlSQLite, ReturnValue.QueryLanguage);
-  CheckTrue(ReturnValue.IsConnected);
+  directory := IncludeTrailingPathDelimiter(ExtractFileDir(PictureFilename));
+  connection := TConnectionFactory.GetInstanceFromFile(dtSQLite, directory + FILE_JSON);
+  CheckNotNull(connection);
+  CheckEquals(qlSQLite, connection.QueryLanguage);
+  CheckTrue(connection.IsConnected);
 end;
 
 {$IFDEF MSWINDOWS}
-
-procedure TConnectionFactoryTest.When_ADOConn_And_Json_GetInstance;
+procedure TConnectionFactoryTest.TestGetInstanceADO;
 const
-  JSON: string = '{'+
-    '"Data.Win.ADODB.TADOConnection": {'+
-    '    "LoginPrompt": "False", '+
-    '    "ConnectionString": ""'+
-    '}'+
-'}';
+{$IFDEF HAS_UNITSCOPE}
+  JSON = '{'+
+    '  "Data.Win.ADODB.TADOConnection": {' +
+    '    "LoginPrompt": "False", ' +
+    '    "ConnectionString": ""' +
+    '  }' +
+    '}';
+{$ELSE}
+  JSON = '{'+
+    '  "ADODB.TADOConnection": {' +
+    '    "LoginPrompt": "False", ' +
+    '    "ConnectionString": ""' +
+    '  }' +
+    '}';
+{$ENDIF}
 begin
   CheckNotNull(TConnectionFactory.GetInstance(dtADO, JSON));
 end;
-
 {$ENDIF}
 
 initialization
-  // Register any test cases with the test runner
-  RegisterTest(TConnectionFactoryTest.Suite);
-end.
+  RegisterTest('Spring.Persistence.Core', TConnectionFactoryTest.Suite);
 
+end.

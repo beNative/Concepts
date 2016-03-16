@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,6 +29,10 @@
 ///   Spring4D</see> Framework.
 /// </summary>
 unit Spring;
+
+{$IFDEF DELPHIXE4_UP}
+  {$ZEROBASEDSTRINGS OFF}
+{$ENDIF}
 
 interface
 
@@ -346,6 +350,7 @@ type
   TValueHelper = record helper for TValue
   private
     function GetTypeKind: TTypeKind; inline;
+    function GetValueType: TRttiType;
     function TryAsInterface(typeInfo: PTypeInfo; out Intf): Boolean;
     class procedure RaiseConversionError(source, target: PTypeInfo); static;
   public
@@ -503,6 +508,11 @@ type
     ///   value is an empty reference type.
     /// </remarks>
     property Kind: TTypeKind read GetTypeKind;
+
+    /// <summary>
+    ///   Returns the TRttiType of the stored value.
+    /// </summary>
+    property ValueType: TRttiType read GetValueType;
   end;
 
   {$ENDREGION}
@@ -520,7 +530,7 @@ type
   TRttiMethodHelper = class helper for TRttiMethod
   private
     procedure DispatchValue(const value: TValue; typeInfo: PTypeInfo);
-    procedure FixParameters(var parameters: TArray<TRttiParameter>);
+    procedure FixParameters(const parameters: TArray<TRttiParameter>);
     function GetReturnTypeHandle: PTypeInfo;
   public
     /// <summary>
@@ -560,6 +570,189 @@ type
     ///   returns nil.
     /// </summary>
     property ReturnTypeHandle: PTypeInfo read GetReturnTypeHandle;
+  end;
+
+  {$ENDREGION}
+
+
+  {$REGION 'Procedure types'}
+
+  /// <summary>
+  ///   Represents a logical predicate.
+  /// </summary>
+  /// <param name="arg">
+  ///   the value needs to be determined.
+  /// </param>
+  /// <returns>
+  ///   Returns <c>True</c> if the value was accepted, otherwise, returns <c>
+  ///   False</c>.
+  /// </returns>
+  /// <remarks>
+  ///   <note type="tip">
+  ///     This type redefined the <see cref="SysUtils|TPredicate`1">
+  ///     SysUtils.TPredicate&lt;T&gt;</see> type with a const parameter.
+  ///   </note>
+  /// </remarks>
+  /// <seealso cref="Spring.DesignPatterns|ISpecification&lt;T&gt;" />
+  {$M+}
+  TPredicate<T> = reference to function(const arg: T): Boolean;
+  {$M-}
+
+  /// <summary>
+  ///   Represents an anonymous method that has a single parameter and does not
+  ///   return a value.
+  /// </summary>
+  /// <seealso cref="TActionProc&lt;T&gt;" />
+  /// <seealso cref="TActionMethod&lt;T&gt;" />
+  {$M+}
+  TAction<T> = reference to procedure(const arg: T);
+
+  TAction<T1, T2> = reference to procedure(const arg1: T1; const arg2: T2);
+
+  TAction<T1, T2, T3> = reference to procedure(const arg1: T1; const arg2: T2; const arg3: T3);
+
+  TAction<T1, T2, T3, T4> = reference to procedure(const arg1: T1; const arg2: T2; const arg3: T3; const arg4: T4);
+  {$M-}
+
+  /// <summary>
+  ///   Represents a procedure that has a single parameter and does not return
+  ///   a value.
+  /// </summary>
+  /// <seealso cref="TAction&lt;T&gt;" />
+  /// <seealso cref="TActionMethod&lt;T&gt;" />
+  TActionProc<T> = procedure(const arg: T);
+
+  /// <summary>
+  ///   Represents a instance method that has a single parameter and does not
+  ///   return a value.
+  /// </summary>
+  /// <seealso cref="TAction&lt;T&gt;" />
+  /// <seealso cref="TActionProc&lt;T&gt;" />
+  TActionMethod<T> = procedure(const arg: T) of object;
+
+  /// <summary>
+  ///   Represents a anonymous method that has the same signature as
+  ///   TNotifyEvent.
+  /// </summary>
+  {$M+}
+  TNotifyProc = reference to procedure(Sender: TObject);
+  {$M-}
+
+  /// <summary>
+  ///   An event type like TNotifyEvent that also has a generic item parameter.
+  /// </summary>
+  TNotifyEvent<T> = procedure(Sender: TObject; const item: T) of object;
+
+  {$ENDREGION}
+
+
+  {$REGION 'Multicast Event'}
+
+  TMethodPointer = procedure of object;
+
+  IEvent = interface
+    ['{CFC14C4D-F559-4A46-A5B1-3145E9B182D8}']
+  {$REGION 'Property Accessors'}
+    function GetCanInvoke: Boolean;
+    function GetInvoke: TMethodPointer;
+    function GetEnabled: Boolean;
+    function GetOnChanged: TNotifyEvent;
+    procedure SetEnabled(const value: Boolean);
+    procedure SetOnChanged(const value: TNotifyEvent);
+  {$ENDREGION}
+
+    procedure Add(const handler: TMethodPointer);
+    procedure Remove(const handler: TMethodPointer);
+
+    /// <summary>
+    ///   Removes all event handlers which were registered by an instance.
+    /// </summary>
+    procedure RemoveAll(instance: Pointer);
+
+    /// <summary>
+    ///   Clears all event handlers.
+    /// </summary>
+    procedure Clear;
+
+    /// <summary>
+    ///   Returns <b>True</b> when the event will do anything because it is <see cref="Spring|IEvent.Enabled">
+    ///   Enabled</see> and contains any event handler. Otherwise returns <b>
+    ///   False</b>.
+    /// </summary>
+    property CanInvoke: Boolean read GetCanInvoke;
+
+    /// <summary>
+    ///   Gets the value indicates whether the multicast event is enabled, or
+    ///   sets the value to enable or disable the event.
+    /// </summary>
+    property Enabled: Boolean read GetEnabled write SetEnabled;
+
+    property Invoke: TMethodPointer read GetInvoke;
+    property OnChanged: TNotifyEvent read GetOnChanged write SetOnChanged;
+  end;
+
+  /// <summary>
+  ///   Represents a multicast event.
+  /// </summary>
+  /// <typeparam name="T">
+  ///   The event handler type must be an instance procedural type such as
+  ///   TNotifyEvent.
+  /// </typeparam>
+  IEvent<T> = interface(IEvent)
+  {$REGION 'Property Accessors'}
+    function GetInvoke: T;
+  {$ENDREGION}
+
+    /// <summary>
+    ///   Adds an event handler to the list.
+    /// </summary>
+    procedure Add(handler: T);
+
+    /// <summary>
+    ///   Removes an event handler if it was added to the event.
+    /// </summary>
+    procedure Remove(handler: T);
+
+    /// <summary>
+    ///   Invokes all event handlers.
+    /// </summary>
+    property Invoke: T read GetInvoke;
+  end;
+
+{$IFDEF SUPPORTS_GENERIC_EVENTS}
+  Event<T> = record
+  private
+    fInstance: IEvent<T>;
+    function GetCanInvoke: Boolean;
+    function GetEnabled: Boolean;
+    function GetInvoke: T;
+    function GetOnChanged: TNotifyEvent;
+    procedure SetEnabled(const value: Boolean);
+    procedure SetOnChanged(value: TNotifyEvent);
+    procedure EnsureInitialized;
+  public
+    class function Create: Event<T>; static;
+
+    procedure Add(const handler: T);
+    procedure Remove(const handler: T);
+    procedure RemoveAll(instance: Pointer);
+    procedure Clear;
+
+    property CanInvoke: Boolean read GetCanInvoke;
+    property Enabled: Boolean read GetEnabled write SetEnabled;
+    property Invoke: T read GetInvoke;
+    property OnChanged: TNotifyEvent read GetOnChanged write SetOnChanged;
+
+    class operator Implicit(const value: IEvent<T>): Event<T>;
+    class operator Implicit(var value: Event<T>): IEvent<T>;
+    class operator Implicit(var value: Event<T>): T;
+    class operator Implicit(const value: T): Event<T>;
+  end;
+{$ENDIF}
+
+  INotifyEvent = IEvent<TNotifyEvent>;
+
+  INotifyEvent<T> = interface(IEvent<TNotifyEvent<T>>)
   end;
 
   {$ENDREGION}
@@ -652,71 +845,6 @@ type
     /// </summary>
     property IsEmpty: Boolean read GetIsEmpty;
   end;
-
-  {$ENDREGION}
-
-
-  {$REGION 'Procedure types'}
-
-  /// <summary>
-  ///   Represents a logical predicate.
-  /// </summary>
-  /// <param name="arg">
-  ///   the value needs to be determined.
-  /// </param>
-  /// <returns>
-  ///   Returns <c>True</c> if the value was accepted, otherwise, returns <c>
-  ///   False</c>.
-  /// </returns>
-  /// <remarks>
-  ///   <note type="tip">
-  ///     This type redefined the <see cref="SysUtils|TPredicate`1">
-  ///     SysUtils.TPredicate&lt;T&gt;</see> type with a const parameter.
-  ///   </note>
-  /// </remarks>
-  /// <seealso cref="Spring.DesignPatterns|ISpecification&lt;T&gt;" />
-  {$M+}
-  TPredicate<T> = reference to function(const arg: T): Boolean;
-  {$M-}
-
-  /// <summary>
-  ///   Represents an anonymous method that has a single parameter and does not
-  ///   return a value.
-  /// </summary>
-  /// <seealso cref="TActionProc&lt;T&gt;" />
-  /// <seealso cref="TActionMethod&lt;T&gt;" />
-  {$M+}
-  TAction<T> = reference to procedure(const arg: T);
-  {$M-}
-
-  /// <summary>
-  ///   Represents a procedure that has a single parameter and does not return
-  ///   a value.
-  /// </summary>
-  /// <seealso cref="TAction&lt;T&gt;" />
-  /// <seealso cref="TActionMethod&lt;T&gt;" />
-  TActionProc<T> = procedure(const arg: T);
-
-  /// <summary>
-  ///   Represents a instance method that has a single parameter and does not
-  ///   return a value.
-  /// </summary>
-  /// <seealso cref="TAction&lt;T&gt;" />
-  /// <seealso cref="TActionProc&lt;T&gt;" />
-  TActionMethod<T> = procedure(const arg: T) of object;
-
-  /// <summary>
-  ///   Represents a anonymous method that has the same signature as
-  ///   TNotifyEvent.
-  /// </summary>
-  {$M+}
-  TNotifyProc = reference to procedure(Sender: TObject);
-  {$M-}
-
-  /// <summary>
-  ///   An event type like TNotifyEvent that also has a generic item parameter.
-  /// </summary>
-  TNotifyEvent<T> = procedure(Sender: TObject; const item: T) of object;
 
   {$ENDREGION}
 
@@ -1433,124 +1561,6 @@ type
   {$ENDREGION}
 
 
-  {$REGION 'Multicast Event'}
-
-  TMethodPointer = procedure of object;
-
-  IEvent = interface
-    ['{CFC14C4D-F559-4A46-A5B1-3145E9B182D8}']
-  {$REGION 'Property Accessors'}
-    function GetCanInvoke: Boolean;
-    function GetInvoke: TMethodPointer;
-    function GetEnabled: Boolean;
-    function GetOnChanged: TNotifyEvent;
-    procedure SetEnabled(const value: Boolean);
-    procedure SetOnChanged(const value: TNotifyEvent);
-  {$ENDREGION}
-
-    procedure Add(const handler: TMethodPointer);
-    procedure Remove(const handler: TMethodPointer);
-    procedure RemoveAll(instance: Pointer);
-    procedure Clear;
-
-    /// <summary>
-    ///   Returns <b>True</b> when the event will do anything because it is <see cref="Spring|IEvent.Enabled">
-    ///   Enabled</see> and contains any event handler. Otherwise returns <b>
-    ///   False</b>.
-    /// </summary>
-    property CanInvoke: Boolean read GetCanInvoke;
-
-    /// <summary>
-    ///   Gets the value indicates whether the multicast event is enabled, or
-    ///   sets the value to enable or disable the event.
-    /// </summary>
-    property Enabled: Boolean read GetEnabled write SetEnabled;
-
-    property Invoke: TMethodPointer read GetInvoke;
-    property OnChanged: TNotifyEvent read GetOnChanged write SetOnChanged;
-  end;
-
-  /// <summary>
-  ///   Represents a multicast event.
-  /// </summary>
-  /// <typeparam name="T">
-  ///   The event handler type must be an instance procedural type such as
-  ///   TNotifyEvent.
-  /// </typeparam>
-  IEvent<T> = interface(IEvent)
-  {$REGION 'Property Accessors'}
-    function GetInvoke: T;
-  {$ENDREGION}
-
-    /// <summary>
-    ///   Adds an event handler to the list.
-    /// </summary>
-    procedure Add(handler: T);
-
-    /// <summary>
-    ///   Removes an event handler if it was added to the event.
-    /// </summary>
-    procedure Remove(handler: T);
-
-    /// <summary>
-    ///   Removes all event handlers which were registered by an instance.
-    /// </summary>
-    procedure RemoveAll(instance: Pointer);
-
-    /// <summary>
-    ///   Clears all event handlers.
-    /// </summary>
-    procedure Clear;
-
-    /// <summary>
-    ///   Iterates all event handlers and perform the specified action on each
-    ///   one.
-    /// </summary>
-    procedure ForEach(const action: TAction<T>);
-
-    /// <summary>
-    ///   Invokes all event handlers.
-    /// </summary>
-    property Invoke: T read GetInvoke;
-  end;
-
-{$IFDEF SUPPORTS_GENERIC_EVENTS}
-  Event<T> = record
-  private
-    fInstance: IEvent<T>;
-    function GetCanInvoke: Boolean;
-    function GetEnabled: Boolean;
-    function GetInvoke: T;
-    function GetOnChanged: TNotifyEvent;
-    procedure SetEnabled(const value: Boolean);
-    procedure SetOnChanged(value: TNotifyEvent);
-    procedure EnsureInitialized;
-  public
-    class function Create: Event<T>; static;
-
-    procedure Add(const handler: T);
-    procedure Remove(const handler: T);
-    procedure RemoveAll(instance: Pointer);
-    procedure Clear;
-
-    property CanInvoke: Boolean read GetCanInvoke;
-    property Enabled: Boolean read GetEnabled write SetEnabled;
-    property Invoke: T read GetInvoke;
-    property OnChanged: TNotifyEvent read GetOnChanged write SetOnChanged;
-
-    class operator Implicit(const value: IEvent<T>): Event<T>;
-    class operator Implicit(var value: Event<T>): IEvent<T>;
-    class operator Implicit(var value: Event<T>): T;
-    class operator Implicit(const value: T): Event<T>;
-  end;
-{$ENDIF}
-
-  INotifyEvent<T> = interface(IEvent<TNotifyEvent<T>>)
-  end;
-
-  {$ENDREGION}
-
-
   {$REGION 'Property change notification'}
 
   IEventArgs = interface
@@ -1649,11 +1659,15 @@ type
   {$REGION 'TTypeInfoHelper'}
 
   TTypeInfoHelper = record helper for TTypeInfo
+  strict private
+    function GetRttiType: TRttiType; inline;
   public
 {$IFNDEF DELPHIXE3_UP}
     function TypeData: PTypeData; inline;
 {$ENDIF}
     function TypeName: string; inline;
+
+    property RttiType: TRttiType read GetRttiType;
   end;
 
   {$ENDREGION}
@@ -1779,21 +1793,12 @@ type
   end;
 
   Owned<T> = record
-  private
-    type
-      TFinalizer = class(TInterfacedObject)
-      private
-        fValue: Pointer;
-      public
-        constructor Create(const value);
-        destructor Destroy; override;
-      end;
   strict private
     fValue: T;
     fFinalizer: IInterface;
   public
     class operator Implicit(const value: T): Owned<T>;
-    class operator Implicit(const value: Owned<T>): T;
+    class operator Implicit(const value: Owned<T>): T; inline;
     property Value: T read fValue;
   end;
 
@@ -2050,14 +2055,41 @@ type
   {$ENDREGION}
 
 
+  {$REGION 'TType'}
+
+  TType = class
+  private
+    class var fContext: TRttiContext;
+  public
+    class constructor Create;
+    class destructor Destroy;
+
+    class function HasWeakRef<T>: Boolean; inline; static;
+    class function IsManaged<T>: Boolean; inline; static;
+    class function Kind<T>: TTypeKind; inline; static;
+
+    class function GetType<T>: TRttiType; overload; static; inline;
+    class function GetType(typeInfo: Pointer): TRttiType; overload; static; inline;
+    class function GetType(classType: TClass): TRttiInstanceType; overload; static; inline;
+
+    class property Context: TRttiContext read fContext;
+  end;
+
+  {$ENDREGION}
+
+
   {$REGION 'Routines'}
 
 {$IFNDEF DELPHIXE_UP}
-function SplitString(const s: string; delimiter: Char): TStringDynArray;
+function SplitString(const s, delimiters: string): TStringDynArray;
 {$ENDIF}
 
 {$IFNDEF DELPHIXE2_UP}
 function ReturnAddress: Pointer;
+{$ENDIF}
+
+{$IFNDEF DELPHIXE3_UP}
+function Pos(const SubStr, Str: UnicodeString; Offset: Integer): Integer; overload;
 {$ENDIF}
 
 procedure PlatformNotImplemented;
@@ -2121,7 +2153,10 @@ function IsLazyType(typeInfo: PTypeInfo): Boolean;
 /// </remarks>
 function GetTypeSize(typeInfo: PTypeInfo): Integer;
 
-function GetTypeKind(typeInfo: PTypeInfo): TTypeKind; inline;
+/// <summary>
+///   Returns the size of the passed set type
+/// </summary>
+function GetSetSize(typeInfo: PTypeInfo): Integer;
 
 /// <summary>
 ///   Compares two TValue instances.
@@ -2182,7 +2217,6 @@ uses
   Spring.VirtualClass;
 
 var
-  Context: TRttiContext;
   VirtualClasses: TVirtualClasses;
   WeakReferences: TWeakReferences;
 
@@ -2190,21 +2224,33 @@ var
 {$REGION 'Routines'}
 
 {$IFNDEF DELPHIXE_UP}
-function SplitString(const s: string; delimiter: Char): TStringDynArray;
+function SplitString(const s, delimiters: string): TStringDynArray;
 var
-  list: TStrings;
+  splitCount: Integer;
+  startIndex: Integer;
+  foundIndex: Integer;
   i: Integer;
 begin
-  list := TStringList.Create;
-  try
-    list.StrictDelimiter := True;
-    list.Delimiter := delimiter;
-    list.DelimitedText := s;
-    SetLength(Result, list.Count);
-    for i := 0 to list.Count - 1 do
-      Result[i] := list[i];
-  finally
-    list.Free;
+  Result := nil;
+
+  if s <> '' then
+  begin
+    splitCount := 0;
+    for i := 1 to Length(s) do
+      if IsDelimiter(delimiters, s, i) then
+        Inc(splitCount);
+
+    SetLength(Result, splitCount + 1);
+
+    startIndex := 1;
+    for i := 0 to splitCount - 1 do
+    begin
+      foundIndex := FindDelimiter(delimiters, s, startIndex);
+      Result[i] := Copy(s, startIndex, foundIndex - startIndex);
+      startIndex := foundIndex + 1;
+    end;
+
+    Result[splitCount] := Copy(s, startIndex, Length(s) - startIndex + 1);
   end;
 end;
 {$ENDIF}
@@ -2213,6 +2259,13 @@ end;
 function ReturnAddress: Pointer;
 asm
   mov eax,[ebp+4]
+end;
+{$ENDIF}
+
+{$IFNDEF DELPHIXE3_UP}
+function Pos(const SubStr, Str: UnicodeString; Offset: Integer): Integer;
+asm
+  jmp PosEx
 end;
 {$ENDIF}
 
@@ -2404,6 +2457,25 @@ begin
     Result := 0;
 end;
 
+function GetSetSize(typeInfo: PTypeInfo): Integer;
+var
+  typeData: PTypeData;
+  count: Integer;
+begin
+  typeData := GetTypeData(typeInfo);
+  typeData := GetTypeData(typeData.CompType^);
+  if typeData.MinValue = 0 then
+    case typeData.MaxValue of
+      0..7: Exit(1);
+      8..15: Exit(2);
+      16..31: Exit(4);
+    end;
+  count := typeData.MaxValue - typeData.MinValue + 1;
+  Result := count div 8;
+  if count mod 8 <> 0 then
+    Inc(Result);
+end;
+
 function GetTypeSize(typeInfo: PTypeInfo): Integer;
 const
   COrdinalSizes: array[TOrdType] of Integer = (
@@ -2423,13 +2495,6 @@ const
 {$ENDIF}
     SizeOf(Comp){8},
     SizeOf(Currency){8});
-  CSetSizes: array[TOrdType] of Integer = (
-    SizeOf(ShortInt){1},
-    SizeOf(Byte){1},
-    SizeOf(SmallInt){2},
-    SizeOf(Word){2},
-    SizeOf(Integer){4},
-    SizeOf(Cardinal){4});
 begin
   case typeInfo.Kind of
 {$IFNDEF NEXTGEN}
@@ -2451,8 +2516,7 @@ begin
     tkVariant:
       Result := SizeOf(Variant);
     tkSet:
-      // big sets have no typeInfo for now
-      Result := CSetSizes[typeInfo.TypeData.OrdType];
+      Result := GetSetSize(typeInfo);
     tkRecord:
       Result := typeInfo.TypeData.RecSize;
     tkArray:
@@ -2461,11 +2525,6 @@ begin
     Assert(False, 'Unsupported type'); { TODO -o##jwp -cEnhance : add more context to the assert }
     Result := -1;
   end;
-end;
-
-function GetTypeKind(typeInfo: PTypeInfo): TTypeKind;
-begin
-  Result := typeInfo.Kind;
 end;
 
 procedure FinalizeValue(const value; typeInfo: PTypeInfo);
@@ -2643,6 +2702,7 @@ begin
   Result := FindVarData(value).VType in [varEmpty, varNull];
 end;
 
+
 {$ENDREGION}
 
 
@@ -2752,7 +2812,7 @@ var
   a: TCustomAttribute;
   setter: Pointer;
 begin
-  t := Context.GetType(classType);
+  t := TType.GetType(classType);
   for f in t.GetFields do
     for a in f.GetAttributes do
       if a is DefaultAttribute then
@@ -3412,7 +3472,7 @@ var
   leftRec, rightRec: Pointer;
   leftValue, rightValue: TValue;
 begin
-  recordType := Context.GetType(left.TypeInfo);
+  recordType := left.TypeInfo.RttiType;
   for method in recordType.GetMethods('&op_Equality') do
   begin
     parameters := method.GetParameters;
@@ -3794,7 +3854,7 @@ end;
 
 class function TValueHelper.FromVariant(const value: Variant): TValue;
 
-  procedure FromCustomVariant(const Value: Variant; var Result: TValue);
+  procedure FromCustomVariant(const value: Variant; out result: TValue);
   type
     PCustomVariantTypeInfo = ^TCustomVariantTypeInfo;
     TCustomVariantTypeInfo = record
@@ -3812,16 +3872,16 @@ class function TValueHelper.FromVariant(const value: Variant): TValue;
     i: Integer;
     info: PCustomVariantTypeInfo;
   begin
-    typeName := VarTypeAsText(TVarData(Value).VType);
+    typeName := VarTypeAsText(TVarData(value).VType);
     for i := 0 to High(CustomVariantTypes) do
     begin
       info := @CustomVariantTypes[i];
       if typeName = info.Name then
       begin
         case info.VType of
-          varDouble: Result := Double(Value);
-          varInt64: Result := {$IFDEF DELPHIXE6_UP}Int64(Value);
-            {$ELSE}StrToInt64(VarToStr(Value));{$ENDIF} // see QC#117696
+          varDouble: result := Double(value);
+          varInt64: result := {$IFDEF DELPHIXE6_UP}Int64(value);
+            {$ELSE}StrToInt64(VarToStr(value));{$ENDIF} // see QC#117696
         else
           raise EVariantTypeCastError.CreateRes(@SInvalidVarCast);
         end;
@@ -3835,43 +3895,43 @@ var
   typeInfo: PTypeInfo;
   arr: Pointer;
 begin
-  case TVarData(Value).VType of
+  case TVarData(value).VType of
     varEmpty, varNull: Exit(Empty);
-    varBoolean: Result := TVarData(Value).VBoolean;
-    varShortInt: Result := TVarData(Value).VShortInt;
-    varSmallint: Result := TVarData(Value).VSmallInt;
-    varInteger: Result := TVarData(Value).VInteger;
+    varBoolean: Result := TVarData(value).VBoolean;
+    varShortInt: Result := TVarData(value).VShortInt;
+    varSmallint: Result := TVarData(value).VSmallInt;
+    varInteger: Result := TVarData(value).VInteger;
 {$IFDEF DELPHIXE4_UP}
-    varSingle: Result := TVarData(Value).VSingle;
-    varDouble: Result := TVarData(Value).VDouble;
-    varCurrency: Result := TVarData(Value).VCurrency;
+    varSingle: Result := TVarData(value).VSingle;
+    varDouble: Result := TVarData(value).VDouble;
+    varCurrency: Result := TVarData(value).VCurrency;
 {$ELSE}
-    varSingle: Result := TValue.From<Single>(TVarData(Value).VSingle);
-    varDouble: Result := TValue.From<Double>(TVarData(Value).VDouble);
-    varCurrency: Result := TValue.From<Currency>(TVarData(Value).VCurrency);
+    varSingle: Result := TValue.From<Single>(TVarData(value).VSingle);
+    varDouble: Result := TValue.From<Double>(TVarData(value).VDouble);
+    varCurrency: Result := TValue.From<Currency>(TVarData(value).VCurrency);
 {$ENDIF}
-    varDate: Result := From<TDateTime>(TVarData(Value).VDate);
-    varOleStr: Result := string(TVarData(Value).VOleStr);
-    varDispatch: Result := From<IDispatch>(IDispatch(TVarData(Value).VDispatch));
-    varError: Result := From<HRESULT>(TVarData(Value).VError);
-    varUnknown: Result := From<IInterface>(IInterface(TVarData(Value).VUnknown));
-    varByte: Result := TVarData(Value).VByte;
-    varWord: Result := TVarData(Value).VWord;
-    varLongWord: Result := TVarData(Value).VLongWord;
-    varInt64: Result := TVarData(Value).VInt64;
+    varDate: Result := From<TDateTime>(TVarData(value).VDate);
+    varOleStr: Result := string(TVarData(value).VOleStr);
+    varDispatch: Result := From<IDispatch>(IDispatch(TVarData(value).VDispatch));
+    varError: Result := From<HRESULT>(TVarData(value).VError);
+    varUnknown: Result := From<IInterface>(IInterface(TVarData(value).VUnknown));
+    varByte: Result := TVarData(value).VByte;
+    varWord: Result := TVarData(value).VWord;
+    varLongWord: Result := TVarData(value).VLongWord;
+    varInt64: Result := TVarData(value).VInt64;
 {$IFDEF DELPHIXE4_UP}
-    varUInt64: Result := TVarData(Value).VUInt64;
+    varUInt64: Result := TVarData(value).VUInt64;
 {$ELSE}
-    varUInt64: Result := TValue.From<UInt64>(TVarData(Value).VUInt64);
+    varUInt64: Result := TValue.From<UInt64>(TVarData(value).VUInt64);
 {$ENDIF}
 {$IFNDEF NEXTGEN}
-    varString: Result := string(AnsiString(TVarData(Value).VString));
+    varString: Result := string(AnsiString(TVarData(value).VString));
 {$ENDIF}
-    varUString: Result := UnicodeString(TVarData(Value).VUString);
+    varUString: Result := UnicodeString(TVarData(value).VUString);
   else
-    if TVarData(Value).VType and varArray = varArray then
+    if TVarData(value).VType and varArray = varArray then
     begin
-      case TVarData(Value).VType and not varArray of
+      case TVarData(value).VType and not varArray of
         varSmallint: typeInfo := System.TypeInfo(TArray<SmallInt>);
         varInteger: typeInfo := System.TypeInfo(TArray<Integer>);
         varSingle: typeInfo := System.TypeInfo(TArray<Single>);
@@ -3895,11 +3955,11 @@ begin
         raise EVariantTypeCastError.CreateRes(@SInvalidVarCast);
       end;
       arr := nil;
-      DynArrayFromVariant(arr, Value, typeInfo);
+      DynArrayFromVariant(arr, value, typeInfo);
       TValue.MakeWithoutCopy(@arr, typeInfo, Result);
     end
     else
-      FromCustomVariant(Value, Result);
+      FromCustomVariant(value, Result);
   end;
 end;
 
@@ -3943,6 +4003,11 @@ begin
     Result := TValueData(Self).FTypeInfo.Kind
   else
     Result := tkUnknown;
+end;
+
+function TValueHelper.GetValueType: TRttiType;
+begin
+  Result := TypeInfo.RttiType;
 end;
 
 function TValueHelper.IsFloat: Boolean;
@@ -4124,9 +4189,9 @@ begin
     if Kind = tkClass then
     begin
 {$IFDEF AUTOREFCOUNT}
-      Self.FData.FValueData.ExtractRawData(@obj);
+      TValueData(Self).FValueData.ExtractRawData(@obj);
 {$ELSE}
-      obj := TObject(Self.FData.FAsObject);
+      obj := TObject(TValueData(Self).FAsObject);
 {$ENDIF}
       Exit(obj.GetInterface(typeData.Guid, Intf));
     end;
@@ -4149,116 +4214,138 @@ end;
 
 {$REGION 'Conversion functions'}
 type
-  TConvertFunc = function(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+  TConvertFunc = function(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 
-function ConvFail(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvFail(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 begin
   Result := False;
 end;
 
-function ConvClass2Class(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvClass2Class(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 begin
-  Result := ASource.TryCast(ATarget, AResult);
+  Result := source.TryCast(target, value);
 end;
 
-function ConvClass2Enum(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvClass2Enum(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 begin
-  Result := ATarget = TypeInfo(Boolean);
+  Result := target = TypeInfo(Boolean);
   if Result then
-    AResult := ASource.AsObject <> nil;
+    value := source.AsObject <> nil;
 end;
 
-function ConvFloat2Ord(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvFloat2Ord(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 begin
-  Result := Frac(ASource.AsExtended) = 0;
+  Result := Frac(source.AsExtended) = 0;
   if Result then
-    AResult := TValue.FromOrdinal(ATarget, Trunc(ASource.AsExtended));
+    value := TValue.FromOrdinal(target, Trunc(source.AsExtended));
 end;
 
-function ConvFloat2Str(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvFloat2Str(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 var
-  LValue: TValue;
+  temp: TValue;
 begin
-  if ASource.TypeInfo = TypeInfo(TDate) then
-    LValue := DateToStr(ASource.AsExtended)
-  else if ASource.TypeInfo = TypeInfo(TDateTime) then
-    LValue := DateTimeToStr(ASource.AsExtended)
-  else if ASource.TypeInfo = TypeInfo(TTime) then
-    LValue := TimeToStr(ASource.AsExtended)
+  if source.TypeInfo = TypeInfo(TDate) then
+    temp := DateToStr(source.AsExtended)
+  else if source.TypeInfo = TypeInfo(TDateTime) then
+    temp := DateTimeToStr(source.AsExtended)
+  else if source.TypeInfo = TypeInfo(TTime) then
+    temp := TimeToStr(source.AsExtended)
   else
-    LValue := FloatToStr(ASource.AsExtended);
-  Result := LValue.TryCast(ATarget, AResult);
+    temp := FloatToStr(source.AsExtended);
+  Result := temp.TryCast(target, value);
 end;
 
-function ConvIntf2Class(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvIntf2Class(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 begin
-  Result := ConvClass2Class(ASource.AsInterface as TObject, ATarget, AResult);
+  Result := ConvClass2Class(source.AsInterface as TObject, target, value);
 end;
 
-function ConvIntf2Intf(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvIntf2Intf(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 var
   intf: IInterface;
 begin
-  Result := ASource.TryAsInterface(ATarget, intf);
+  Result := source.TryAsInterface(target, intf);
   if Result then
-    TValue.Make(@intf, ATarget, AResult)
+    TValue.Make(@intf, target, value)
   else
-    AResult := TValue.Empty;
+    value := TValue.Empty;
 end;
 
-function ConvOrd2Float(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvOrd2Float(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 begin
-  AResult := TValue.FromFloat(ATarget, ASource.AsOrdinal);
+  value := TValue.FromFloat(target, source.AsOrdinal);
   Result := True;
 end;
 
-function ConvOrd2Ord(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvOrd2Ord(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 begin
-  AResult := TValue.FromOrdinal(ATarget, ASource.AsOrdinal);
+  value := TValue.FromOrdinal(target, source.AsOrdinal);
   Result := True;
 end;
 
-function ConvOrd2Str(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvOrd2Str(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 var
-  LValue: TValue;
+  temp: TValue;
 begin
-  LValue := ASource.ToString;
-  Result := LValue.TryCast(ATarget, AResult);
+  temp := source.ToString;
+  Result := temp.TryCast(target, value);
 end;
 
-function ConvRec2Meth(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvRec2Meth(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 begin
-  Result := ASource.TypeInfo = TypeInfo(TMethod);
+  Result := source.TypeInfo = TypeInfo(TMethod);
   if Result then
   begin
-    AResult := TValue.From(ASource.GetReferenceToRawData, ATarget);
+    value := TValue.From(source.GetReferenceToRawData, target);
     Result := True;
   end
 end;
 
-function ConvStr2Enum(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvStr2Enum(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 begin
-  AResult := TValue.FromOrdinal(ATarget, GetEnumValue(ATarget, ASource.AsString));
+  value := TValue.FromOrdinal(target, GetEnumValue(target, source.AsString));
   Result := True;
 end;
 
-function ConvStr2Float(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvStr2Float(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+var
+  s: string;
+  d: TDateTime;
+  f: Extended;
 begin
-  if ATarget = TypeInfo(TDate) then
-    AResult := TValue.From<TDate>(StrToDateDef(ASource.AsString, 0))
-  else if ATarget = TypeInfo(TDateTime) then
-    AResult := TValue.From<TDateTime>(StrToDateTimeDef(ASource.AsString, 0))
-  else if ATarget = TypeInfo(TTime) then
-    AResult := TValue.From<TTime>(StrToTimeDef(ASource.AsString, 0))
-  else
-    AResult := TValue.FromFloat(ATarget, StrToFloatDef(ASource.AsString, 0));
-  Result := True;
+  s := source.AsString;
+  if target = TypeInfo(TDateTime) then
+  begin
+    Result := TryStrToDateTime(s, d);
+    if Result then
+      value := TValue.From<TDateTime>(d);
+  end else
+  if target = TypeInfo(TDate) then
+  begin
+    Result := TryStrToDate(s, d);
+    if Result then
+      value := TValue.From<TDate>(d);
+  end else
+  if target = TypeInfo(TTime) then
+  begin
+    Result := TryStrToTime(s, d);
+    if Result then
+      value := TValue.From<TTime>(d);
+  end else
+  begin
+    Result := TryStrToFloat(s, f);
+    if Result then
+      value := TValue.FromFloat(target, f);
+  end;
 end;
 
-function ConvStr2Ord(const ASource: TValue; ATarget: PTypeInfo; out AResult: TValue): Boolean;
+function ConvStr2Ord(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+var
+  i: Int64;
 begin
-  AResult := TValue.FromOrdinal(ATarget, StrToInt64Def(ASource.AsString, 0));
-  Result := True;
+  Result := TryStrToInt64(source.AsString, i);
+  if Result then
+    value := TValue.FromOrdinal(target, i);
 end;
 
 {$ENDREGION}
@@ -4668,7 +4755,7 @@ begin
 end;
 
 procedure TRttiMethodHelper.FixParameters(
-  var parameters: TArray<TRttiParameter>);
+  const parameters: TArray<TRttiParameter>);
 var
   i: Integer;
 begin
@@ -4861,36 +4948,16 @@ end;
 
 class procedure Guard.CheckTypeKind<T>(expectedTypeKind: TTypeKind;
   const argumentName: string);
-{$IFNDEF DELPHIXE7_UP}
-var
-  typeKind: TTypeKind;
-{$ENDIF}
 begin
-{$IFDEF DELPHIXE7_UP}
-  if System.GetTypeKind(T) <> expectedTypeKind then
-    RaiseArgumentException(System.GetTypeKind(T), argumentName);
-{$ELSE}
-  typeKind := GetTypeKind(TypeInfo(T));
-  if typeKind <> expectedTypeKind then
-    RaiseArgumentException(typeKind, argumentName);
-{$ENDIF}
+  if TType.Kind<T> <> expectedTypeKind then
+    RaiseArgumentException(TType.Kind<T>, argumentName);
 end;
 
 class procedure Guard.CheckTypeKind<T>(expectedTypeKinds: TTypeKinds;
   const argumentName: string);
-{$IFNDEF DELPHIXE7_UP}
-var
-  typeKind: TTypeKind;
-{$ENDIF}
 begin
-{$IFDEF DELPHIXE7_UP}
-  if not (System.GetTypeKind(T) in expectedTypeKinds) then
-    RaiseArgumentException(System.GetTypeKind(T), argumentName);
-{$ELSE}
-  typeKind := GetTypeKind(TypeInfo(T));
-  if not (typeKind in expectedTypeKinds) then
-    RaiseArgumentException(typeKind, argumentName);
-{$ENDIF}
+  if not (TType.Kind<T> in expectedTypeKinds) then
+    RaiseArgumentException(TType.Kind<T>, argumentName);
 end;
 
 class procedure Guard.CheckFalse(condition: Boolean; const msg: string);
@@ -5256,7 +5323,7 @@ begin
   if not other.HasValue then
     Exit(False);
 
-  case {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} of
+  case TType.Kind<T> of
     tkInteger, tkEnumeration:
     begin
       case SizeOf(T) of
@@ -5472,7 +5539,7 @@ end;
 destructor TLazy<T>.Destroy;
 begin
   inherited;
-  if {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} = tkClass then
+  if TType.Kind<T> = tkClass then
 {$IFNDEF AUTOREFCOUNT}
     if fOwnsObjects then
       FreeAndNil(fValue);
@@ -5598,7 +5665,7 @@ begin
     value := valueFactory;
     if PPointer(@value)^ = nil then
       raise EInvalidOperationException.CreateRes(@SValueFactoryReturnedNil);
-    case {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} of
+    case TType.Kind<T> of
       tkClass:
         if TInterlocked.CompareExchange(PObject(@target)^, PObject(@value)^, TObject(nil)) <> nil then
           PObject(@value)^.Free;
@@ -5954,6 +6021,11 @@ end;
 
 {$REGION 'TTypeInfoHelper'}
 
+function TTypeInfoHelper.GetRttiType: TRttiType;
+begin
+  Result := TType.GetType(@Self);
+end;
+
 {$IFNDEF DELPHIXE3_UP}
 function TTypeInfoHelper.TypeData: PTypeData;
 begin
@@ -6195,7 +6267,7 @@ end;
 constructor TOwned<T>.Create;
 begin
   inherited Create;
-  case {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} of
+  case TType.Kind<T> of
     tkClass: PObject(@fValue)^ := TActivator.CreateInstance(TypeInfo(T));
     tkPointer: PPointer(@fValue)^ := AllocMem(GetTypeSize(GetTypeData(TypeInfo(T)).RefType^));
   end;
@@ -6209,8 +6281,10 @@ end;
 
 destructor TOwned<T>.Destroy;
 begin
-  case {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} of
-    tkClass: {$IFNDEF AUTOREFCOUNT}PObject(@fValue).Free;{$ELSE}PObject(@fValue).DisposeOf;{$ENDIF}
+  case TType.Kind<T> of
+{$IFNDEF AUTOREFCOUNT}
+    tkClass: PObject(@fValue).Free;
+{$ENDIF}
     tkPointer: FinalizeRecordPointer(fValue, TypeInfo(T));
   end;
   inherited;
@@ -6229,34 +6303,17 @@ end;
 class operator Owned<T>.Implicit(const value: T): Owned<T>;
 begin
   Result.fValue := value;
-  case {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} of
-    tkClass, tkPointer: Result.fFinalizer := TFinalizer.Create(Result.fValue);
+  case TType.Kind<T> of
+{$IFNDEF AUTOREFCOUNT}
+    tkClass,
+{$ENDIF}
+    tkPointer: Result.fFinalizer := TOwned<T>.Create(Result.fValue);
   end;
 end;
 
 class operator Owned<T>.Implicit(const value: Owned<T>): T;
 begin
   Result := value.fValue;
-end;
-
-{$ENDREGION}
-
-
-{$REGION 'Owned<T>.TFinalizer'}
-
-constructor Owned<T>.TFinalizer.Create(const value);
-begin
-  inherited Create;
-  fValue := Pointer(value);
-end;
-
-destructor Owned<T>.TFinalizer.Destroy;
-begin
-  case {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} of
-    tkClass: {$IFNDEF AUTOREFCOUNT}TObject(fValue).Free;{$ELSE}TObject(fValue).DisposeOf;{$ENDIF}
-    tkPointer: FinalizeRecordPointer(fValue, TypeInfo(T));
-  end;
-  inherited;
 end;
 
 {$ENDREGION}
@@ -6317,7 +6374,7 @@ class function TActivator.CreateInstance(const typeName: string;
 var
   rttiType: TRttiType;
 begin
-  rttiType := Context.FindType(typeName);
+  rttiType := TType.Context.FindType(typeName);
   Result := CreateInstance(TRttiInstanceType(rttiType), arguments).AsObject;
 end;
 
@@ -6334,7 +6391,7 @@ class function TActivator.CreateInstance(classType: TClass;
 var
   rttiType: TRttiType;
 begin
-  rttiType := Context.GetType(classType);
+  rttiType := TType.GetType(classType);
   Result := CreateInstance(TRttiInstanceType(rttiType), arguments).AsObject;
 end;
 
@@ -6357,7 +6414,7 @@ begin
   if ConstructorCache.TryGetValue(classType, Result) then
     Exit;
 
-  for method in Context.GetType(classType).GetMethods do
+  for method in TType.GetType(classType).GetMethods do
   begin
     if not method.IsConstructor then
       Continue;
@@ -6897,7 +6954,7 @@ begin
   fData[index] := Default(T);
   if index <> n then
 {$IFDEF WEAKREF}
-    if {$IFDEF DELPHIXE7_UP}System.HasWeakRef(T){$ELSE}HasWeakRef(TypeInfo(T)){$ENDIF} then
+    if TType.HasWeakRef<T> then
     begin
       for i := index to n - 1 do
         fData[i] := fData[i + 1];
@@ -6931,7 +6988,7 @@ begin
     fData[i] := Default(T);
   if index <> n then
 {$IFDEF WEAKREF}
-    if {$IFDEF DELPHIXE7_UP}System.HasWeakRef(T){$ELSE}HasWeakRef(TypeInfo(T)){$ENDIF} then
+    if TType.HasWeakRef<T> then
     begin
       for i := index to n - count do
         fData[i] := fData[i + count];
@@ -6961,7 +7018,7 @@ begin
   if n <> System.Length(items) then
     Exit(False);
   Result := True;
-  case {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} of
+  case TType.Kind<T> of
     tkInteger:
       for i := 0 to n - 1 do
         if PInteger(@fData[i])^ <> PInteger(@items[i])^ then
@@ -6983,7 +7040,7 @@ begin
   if n <> System.Length(items) then
     Exit(False);
   Result := True;
-  case {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} of
+  case TType.Kind<T> of
     tkInteger:
       for i := 0 to n - 1 do
         if PInteger(@fData[i])^ <> PInteger(@items[i])^ then
@@ -7064,7 +7121,7 @@ end;
 
 function Vector<T>.IndexOf(const item: T): Integer;
 begin
-  case {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} of
+  case TType.Kind<T> of
     tkInteger: Result := InternalIndexOfInt(PInteger(@item)^);
     tkUString: Result := InternalIndexOfStr(PUnicodeString(@item)^);
   else
@@ -7084,7 +7141,7 @@ begin
   SetLength(fData, count + 1);
   if index <> count then
 {$IFDEF WEAKREF}
-    if {$IFDEF DELPHIXE7_UP}System.HasWeakRef(T){$ELSE}HasWeakRef(TypeInfo(T)){$ENDIF} then
+    if TType.HasWeakRef<T> then
     begin
       for i := count - 1 downto index do
         fData[i + 1] := fData[i];
@@ -7163,7 +7220,7 @@ begin
   SetLength(fData, count + len);
   if index <> count then
 {$IFDEF WEAKREF}
-    if {$IFDEF DELPHIXE7_UP}System.HasWeakRef(T){$ELSE}HasWeakRef(TypeInfo(T)){$ENDIF} then
+    if TType.HasWeakRef<T> then
     begin
       for i := count - 1 downto index do
         fData[i + len] := fData[i];
@@ -7172,10 +7229,10 @@ begin
 {$ENDIF}
     begin
       System.Move(fData[index], fData[index + len], (count - index) * SizeOf(T));
-      if {$IFDEF DELPHIXE7_UP}System.IsManagedType(T){$ELSE}Rtti.IsManaged(TypeInfo(T)){$ENDIF} then
+      if TType.IsManaged<T> then
         System.FillChar(fData[index], len * SizeOf(T), 0);
     end;
-  if {$IFDEF DELPHIXE7_UP}System.IsManagedType(T){$ELSE}Rtti.IsManaged(TypeInfo(T)){$ENDIF} then
+  if TType.IsManaged<T> then
   begin
     for i := Low(items) to High(items) do
     begin
@@ -7294,13 +7351,13 @@ end;
 function Vector<T>.Splice(index, count: Integer;
   const items: array of T): Vector<T>;
 var
-  n, i: Integer;
+  i: Integer;
 begin
-  n := System.Length(fData);
-  if (index < 0) or (index >= n) then
+  i := System.Length(fData);
+  if (index < 0) or (index >= i) then
     Exit;
-  if count > n - index then
-    count := n - index;
+  if count > i - index then
+    count := i - index;
   Result.fData := Copy(fData, index, count);
   Delete(index, count);
   Insert(index, items);
@@ -7353,6 +7410,73 @@ begin
   GetLocaleFormatSettings(LOCALE_SYSTEM_DEFAULT, Result);
 end;
 {$ENDIF}
+
+{$ENDREGION}
+
+
+{$REGION 'TType'}
+
+class constructor TType.Create;
+begin
+  fContext := TRttiContext.Create;
+end;
+
+class destructor TType.Destroy;
+begin
+  fContext.Free;
+end;
+
+class function TType.GetType(typeInfo: Pointer): TRttiType;
+begin
+  Result := fContext.GetType(typeInfo);
+end;
+
+class function TType.GetType(classType: TClass): TRttiInstanceType;
+begin
+  Result := TRttiInstanceType(fContext.GetType(classType));
+end;
+
+class function TType.GetType<T>: TRttiType;
+begin
+  Result := fContext.GetType(TypeInfo(T));
+end;
+
+class function TType.HasWeakRef<T>: Boolean;
+begin
+{$IFDEF DELPHIXE7_UP}
+  Result := System.HasWeakRef(T);
+{$ELSE}
+  {$IFDEF WEAKREF}
+  Result := TypInfo.HasWeakRef(TypeInfo(T));
+  {$ELSE}
+  Result := False;
+  {$ENDIF}
+{$ENDIF}
+end;
+
+class function TType.IsManaged<T>: Boolean;
+begin
+{$IFDEF DELPHIXE7_UP}
+  Result := System.IsManagedType(T);
+{$ELSE}
+  Result := Rtti.IsManaged(TypeInfo(T));
+{$ENDIF}
+end;
+
+class function TType.Kind<T>: TTypeKind;
+{$IFDEF DELPHIXE7_UP}
+begin
+  Result := System.GetTypeKind(T);
+{$ELSE}
+var
+  typeInfo: PTypeInfo;
+begin
+  typeInfo := System.TypeInfo(T);
+  if typeInfo = nil then
+    Exit(tkUnknown);
+  Result := typeInfo.Kind;
+{$ENDIF}
+end;
 
 {$ENDREGION}
 

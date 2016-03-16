@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -31,6 +31,7 @@ program Spring.Tests;
 uses
   Spring.TestBootstrap in 'Source\Spring.TestBootstrap.pas',
   TestFramework,
+  Spring.Testing in 'Source\Spring.Testing.pas',
   Spring.TestRegistration in 'Source\Spring.TestRegistration.pas',
   Spring.TestRunner in 'Source\Spring.TestRunner.pas',
   Spring.TestUtils in 'Source\Spring.TestUtils.pas',
@@ -53,9 +54,11 @@ uses
   {$IFDEF DELPHIXE_UP}
   Spring.Tests.Interception in 'Source\Core\Spring.Tests.Interception.pas',
   Spring.Tests.Interception.Types in 'Source\Core\Spring.Tests.Interception.Types.pas',
+  Spring.Tests.Mocking in 'Source\Core\Spring.Tests.Mocking.pas',
   {$ENDIF }
   Spring.Tests.Pool in 'Source\Core\Spring.Tests.Pool.pas',
   Spring.Tests.Cryptography in 'Source\Extensions\Spring.Tests.Cryptography.pas',
+  Spring.Tests.Testing in 'Source\Spring.Tests.Testing.pas',
   Spring.Tests.Utils in 'Source\Extensions\Spring.Tests.Utils.pas',
   Spring.Container;
 

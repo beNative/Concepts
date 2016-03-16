@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -34,10 +34,27 @@ uses
 
 type
   TAbstractTestHelper = class helper for TAbstractTest
+  protected
+  {$IFDEF DELPHI2010}
+    procedure CheckEquals(expected, actual: UInt64; msg: string = ''); overload;
+  {$ENDIF}
   public
-    procedure CheckEqualsString(expected, actual: string; msg: string = '');
+    procedure CheckEqualsString(const expected, actual: string; msg: string = '');
     procedure CheckException(expected: ExceptionClass; const method: TProc; const msg: string = '');
     procedure Pass; inline;
+    function RegisterExpectedMemoryLeak(p: Pointer): Boolean; inline;
+  end;
+
+  TTestCase<T: class, constructor> = class(TTestCase)
+  private type
+    TInterfacedObjectAccess = class(TInterfacedObject);
+  private
+    fSUT: T;
+  strict protected
+    property SUT: T read fSUT;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
   end;
 
 procedure ProcessTestResult(const ATestResult: TTestResult);
@@ -63,9 +80,19 @@ begin
 end;
 {$ENDIF}
 
+
 {$REGION 'TAbstractTestHelper'}
 
-procedure TAbstractTestHelper.CheckEqualsString(expected, actual, msg: string);
+{$IFDEF DELPHI2010}
+procedure TAbstractTestHelper.CheckEquals(expected, actual: UInt64; msg: string = '');
+begin
+  FCheckCalled := True;
+  if expected <> actual then
+    FailNotEquals(UIntToStr(expected), UIntToStr(actual), msg, ReturnAddress);
+end;
+{$ENDIF}
+
+procedure TAbstractTestHelper.CheckEqualsString(const expected, actual: string; msg: string);
 
   procedure EqualsFail(index: Integer); overload;
   const
@@ -116,6 +143,49 @@ end;
 procedure TAbstractTestHelper.Pass;
 begin
   FCheckCalled := True;
+end;
+
+function TAbstractTestHelper.RegisterExpectedMemoryLeak(p: Pointer): Boolean;
+{$IFNDEF MSWINDOWS}
+var
+  memMgrEx: TMemoryManagerEx;
+{$ENDIF}
+begin
+{$IFDEF MSWINDOWS}
+  Result := System.RegisterExpectedMemoryLeak(p);
+{$ELSE}
+  GetMemoryManager(memMgrEx);
+  if Assigned(memMgrEx.RegisterExpectedMemoryLeak) then
+    Result := memMgrEx.RegisterExpectedMemoryLeak(p)
+  else
+    Result := False;
+{$ENDIF}
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestCase<T>'}
+
+procedure TTestCase<T>.SetUp;
+begin
+  inherited;
+  fSUT := T.Create;
+{$IFNDEF AUTOREFCOUNT}
+  if fSUT.InheritsFrom(TInterfacedObject) then
+    TInterfacedObjectAccess(fSUT)._AddRef;
+{$ENDIF}
+end;
+
+procedure TTestCase<T>.TearDown;
+begin
+{$IFNDEF AUTOREFCOUNT}
+  if fSUT.InheritsFrom(TInterfacedObject) then
+    TInterfacedObjectAccess(fSUT)._Release
+  else
+{$ENDIF}
+    fSUT.Free;
+  inherited;
 end;
 
 {$ENDREGION}

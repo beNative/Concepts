@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -78,7 +78,7 @@ type
 
   TTestIntegerList = class(TTestCase)
   private
-    SUT: IList<integer>;
+    SUT: IList<Integer>;
     procedure SimpleFillList;
   protected
     procedure SetUp; override;
@@ -97,6 +97,7 @@ type
     procedure TestListMultipleDelete;
     procedure TestListSimpleExchange;
     procedure TestListReverse;
+    procedure TestListReverseEmpty;
     procedure TestListSort;
     procedure TestListIndexOf;
     procedure TestLastIndexOf;
@@ -147,7 +148,7 @@ type
 
   TTestEmptyStringIntegerDictionary = class(TTestCase)
   private
-    SUT: IDictionary<string, integer>;
+    SUT: IDictionary<string, Integer>;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -161,7 +162,7 @@ type
 
   TTestStringIntegerDictionary = class(TTestCase)
   private
-    SUT: IDictionary<string, integer>;
+    SUT: IDictionary<string, Integer>;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -191,14 +192,13 @@ type
   private
     const MaxStackItems = 1000;
   private
-    SUT: IStack<integer>;
+    SUT: IStack<Integer>;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
     procedure FillStack;
   published
     procedure TestStackCreate;
-    procedure TestStackCreate2;
     procedure TestStackInitializesEmpty;
     procedure TestStackPopPushBalances;
     procedure TestStackClear;
@@ -209,6 +209,16 @@ type
 {$IFDEF DELPHIXE_UP}
     procedure TestStackTrimExcess;
 {$ENDIF}
+  end;
+
+  TTestStackOfTBytes = class(TTestCase)
+  private
+    SUT: IStack<TBytes>;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestStackPush;
   end;
 
   TTestStackOfIntegerChangedEvent = class(TTestCase)
@@ -231,7 +241,7 @@ type
 
   TTestEmptyQueueOfInteger = class(TTestCase)
   private
-    SUT: IQueue<integer>;
+    SUT: IQueue<Integer>;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -244,14 +254,13 @@ type
 
   TTestQueueOfInteger = class(TTestCase)
   private
-    SUT: IQueue<integer>;
+    SUT: IQueue<Integer>;
     procedure FillQueue;  // Will test Enqueue method
   protected
     procedure SetUp; override;
     procedure TearDown; override;
   published
     procedure TestQueueCreate;
-    procedure TestQueueCreate2;
     procedure TestQueueClear;
     procedure TestQueueDequeue;
     procedure TestQueuePeek;
@@ -261,6 +270,16 @@ type
 {$IFDEF DELPHIXE_UP}
     procedure TestQueueTrimExcess;
 {$ENDIF}
+  end;
+
+  TTestQueueOfTBytes = class(TTestCase)
+  private
+    SUT: IQueue<TBytes>;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestQueueEnqueue;
   end;
 
   TTestQueueOfIntegerChangedEvent = class(TTestCase)
@@ -283,8 +302,8 @@ type
 
   TTestListOfIntegerAsIEnumerable = class(TTestCase)
   private
-    InternalList: IList<integer>;
-    SUT: IEnumerable<integer>;
+    InternalList: IList<Integer>;
+    SUT: IEnumerable<Integer>;
     procedure FillList;
   protected
     procedure SetUp; override;
@@ -306,7 +325,7 @@ type
 
   TTestLinkedList = class(TTestCase)
   private
-    SUT: ILinkedList<integer>;
+    SUT: ILinkedList<Integer>;
     fItem: Integer;
     fAction: TCollectionChangedAction;
   protected
@@ -341,6 +360,7 @@ type
     SUT: IList<TPersistent>;
   protected
     procedure SetUp; override;
+    procedure TearDown; override;
   published
     procedure TestQueryInterface;
     procedure TestObjectListCreate;
@@ -353,6 +373,7 @@ type
     SUT: IList<IInvokable>;
   protected
     procedure SetUp; override;
+    procedure TearDown; override;
   published
     procedure TestInterfaceListCreate;
     procedure TestGetElementType;
@@ -399,6 +420,7 @@ type
       Action: TCollectionChangedAction);
   protected
     procedure SetUp; override;
+    procedure TearDown; override;
   published
     procedure TestListAdd;
     procedure TestListAddRangeArray;
@@ -472,7 +494,8 @@ const
   MaxItems = 1000;
   ListCountLimit = 1000;//0000;
 
-{ TTestEmptyHashSet }
+
+{$REGION 'TTestEmptyHashSet'}
 
 procedure TTestEmptyHashSet.SetUp;
 begin
@@ -485,6 +508,7 @@ procedure TTestEmptyHashSet.TearDown;
 begin
   inherited;
   fSet := nil;
+  fEmpty := nil;
 end;
 
 procedure TTestEmptyHashSet.TestEmpty;
@@ -525,7 +549,10 @@ begin
   CheckTrue(fSet.SetEquals(fEmpty));
 end;
 
-{ TTestNormalHashSet }
+{$ENDREGION}
+
+
+{$REGION 'TTestNormalHashSet'}
 
 procedure TTestNormalHashSet.CheckSet(const collection: ISet<Integer>; const values: array of Integer);
 var
@@ -629,7 +656,10 @@ begin
   CheckFalse(fSet2.SetEquals(list));
 end;
 
-{ TTestIntegerList }
+{$ENDREGION}
+
+
+{$REGION 'TTestIntegerList'}
 
 procedure TTestIntegerList.GetCapacity;
 begin
@@ -647,7 +677,7 @@ end;
 procedure TTestIntegerList.SetUp;
 begin
   inherited;
-  SUT := TCollections.CreateList<integer>;
+  SUT := TCollections.CreateList<Integer>;
 end;
 
 procedure TTestIntegerList.TearDown;
@@ -881,6 +911,15 @@ begin
 
   for i := ListCountLimit downto 0 do
     CheckEquals(i, SUT[ListCountLimit - i]);
+
+  ExpectedException := EArgumentOutOfRangeException;
+  SUT.Reverse(SUT.Count - 1, 2);
+end;
+
+procedure TTestIntegerList.TestListReverseEmpty;
+begin
+  SUT.Reverse;
+  Pass;
 end;
 
 procedure TTestIntegerList.TestListSimpleExchange;
@@ -1061,7 +1100,10 @@ begin
   SUT.Add(3);
 end;
 
-{ TTestSortedList }
+{$ENDREGION}
+
+
+{$REGION 'TTestSortedList'}
 
 procedure TTestSortedList.CheckAddRange;
 var
@@ -1127,12 +1169,15 @@ begin
   CheckEquals(-1, Result);
 end;
 
-{ TTestStringIntegerDictionary }
+{$ENDREGION}
+
+
+{$REGION 'TTestStringIntegerDictionary'}
 
 procedure TTestStringIntegerDictionary.SetUp;
 begin
   inherited;
-  SUT := TCollections.CreateDictionary<string, integer>;
+  SUT := TCollections.CreateDictionary<string, Integer>;
   SUT.Add('one', 1);
   SUT.Add('two', 2);
   SUT.Add('three', 3);
@@ -1208,12 +1253,15 @@ begin
   CheckFalse(SUT.ContainsKey('one'), 'TestMapRemove: Values does contain "one"');
 end;
 
-{ TTestEmptyStringIntegerDictionary }
+{$ENDREGION}
+
+
+{$REGION 'TTestEmptyStringIntegerDictionary'}
 
 procedure TTestEmptyStringIntegerDictionary.SetUp;
 begin
   inherited;
-  SUT := TCollections.CreateDictionary<string, integer>;
+  SUT := TCollections.CreateDictionary<string, Integer>;
 end;
 
 procedure TTestEmptyStringIntegerDictionary.TearDown;
@@ -1257,7 +1305,10 @@ begin
   CheckNotNull(query);
 end;
 
-{ TTestEmptyStackofStrings }
+{$ENDREGION}
+
+
+{$REGION 'TTestEmptyStackofStrings'}
 
 procedure TTestEmptyStackofStrings.SetUp;
 begin
@@ -1282,7 +1333,10 @@ begin
   CheckEquals(0, SUT.Count);
 end;
 
-{ TTestStackOfInteger }
+{$ENDREGION}
+
+
+{$REGION 'TTestStackOfInteger'}
 
 procedure TTestStackOfInteger.FillStack;
 var
@@ -1296,7 +1350,7 @@ end;
 procedure TTestStackOfInteger.SetUp;
 begin
   inherited;
-  SUT := TCollections.CreateStack<integer>;
+  SUT := TCollections.CreateStack<Integer>;
 end;
 
 procedure TTestStackOfInteger.TearDown;
@@ -1322,50 +1376,24 @@ begin
   CheckTrue(SUT.EqualsTo(values));
 end;
 
-procedure TTestStackOfInteger.TestStackCreate2;
-var
-  stack: Generics.Collections.TStack<Integer>;
-begin
-  stack := Generics.Collections.TStack<Integer>.Create;
-  try
-    SUT := TStack<Integer>.Create(stack, otReference);
-  finally
-    SUT := nil;
-    stack.Free;
-  end;
-  Pass;
-end;
-
 procedure TTestStackOfInteger.TestStackInitializesEmpty;
 begin
   CheckEquals(0, SUT.Count);
 end;
 
 procedure TTestStackOfInteger.TestStackPeek;
-var
-  Expected: Integer;
-  Actual: integer;
 begin
   FillStack;
-  Expected := MaxStackItems;
-  Actual := SUT.Peek;
-  CheckEquals(Expected, Actual, 'Stack.Peek failed');
+  CheckEquals(MaxStackItems, SUT.Peek, 'Stack.Peek failed');
 end;
 
 procedure TTestStackOfInteger.TestStackPeekOrDefault;
-var
-  Expected: Integer;
-  Actual: integer;
 begin
   FillStack;
-  Expected := MaxStackItems;
-  Actual := SUT.PeekOrDefault;
-  CheckEquals(Expected, Actual, 'Stack.Peek failed');
+  CheckEquals(MaxStackItems, SUT.PeekOrDefault, 'Stack.Peek failed');
 
   SUT.Clear;
-  Expected := Default(Integer);
-  Actual := SUT.PeekOrDefault;
-  CheckEquals(Expected, Actual, 'Stack.Peek failed');
+  CheckEquals(Default(Integer), SUT.PeekOrDefault, 'Stack.Peek failed');
 end;
 
 procedure TTestStackOfInteger.TestStackPopPushBalances;
@@ -1397,39 +1425,62 @@ end;
 
 procedure TTestStackOfInteger.TestStackTryPeek;
 var
-  Expected: Integer;
-  Actual: Integer;
+  value: Integer;
 begin
-  CheckFalse(SUT.TryPeek(Actual));
-  Expected := 0;
-  CheckEquals(Expected, Actual);
+  CheckFalse(SUT.TryPeek(value));
+  CheckEquals(0, value);
   SUT.Push(MaxItems);
-  CheckTrue(SUT.TryPeek(Actual));
-  Expected := MaxItems;
-  CheckEquals(Expected, Actual);
+  CheckTrue(SUT.TryPeek(value));
+  CheckEquals(MaxItems, value);
 end;
 
 procedure TTestStackOfInteger.TestStackTryPop;
 var
-  Expected: Integer;
-  Actual: Integer;
+  i, value: Integer;
 begin
-  CheckFalse(SUT.TryPop(Actual));
-  Expected := 0;
-  CheckEquals(Expected, Actual);
-  for Actual := 1 to MaxItems do
-    SUT.Push(Actual);
-  for Expected := MaxItems downto 1 do
+  CheckFalse(SUT.TryPop(value));
+  CheckEquals(0, value);
+  for i := 1 to MaxItems do
+    SUT.Push(i);
+  for i := MaxItems downto 1 do
   begin
-    CheckTrue(SUT.TryPop(Actual));
-    CheckEquals(Expected, Actual);
+    CheckTrue(SUT.TryPop(value));
+    CheckEquals(i, value);
   end;
-  CheckFalse(SUT.TryPop(Actual));
-  CheckEquals(0, Actual);
+  CheckFalse(SUT.TryPop(value));
+  CheckEquals(0, value);
   CheckTrue(SUT.IsEmpty);
 end;
 
-{ TTestStackOfIntegerChangedEvent }
+{$ENDREGION}
+
+
+{$REGION 'TTestStackOfTBytes'}
+
+procedure TTestStackOfTBytes.SetUp;
+begin
+  SUT := TStack<TBytes>.Create;
+end;
+
+procedure TTestStackOfTBytes.TearDown;
+begin
+  SUT := nil;
+end;
+
+procedure TTestStackOfTBytes.TestStackPush;
+var
+  b: TBytes;
+begin
+  b := TBytes.Create(0);
+  SUT.Push(b);
+  CheckEquals(1, SUT.Count);
+  Check(b = SUT.Peek);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestStackOfIntegerChangedEvent'}
 
 procedure TTestStackOfIntegerChangedEvent.SetUp;
 begin
@@ -1463,9 +1514,6 @@ end;
 
 procedure TTestStackOfIntegerChangedEvent.TestEmpty;
 begin
-  CheckEquals(0, SUT.OnChanged.Count);
-  CheckTrue(SUT.OnChanged.IsEmpty);
-
   SUT.Push(0);
 
   CheckFalse(fAInvoked);
@@ -1489,8 +1537,6 @@ begin
   CheckTrue(fAAction = caRemoved, 'different collection notifications');
 
   SUT.OnChanged.Remove(HandlerA);
-  CheckEquals(0, SUT.OnChanged.Count);
-  CheckTrue(SUT.OnChanged.IsEmpty);
 end;
 
 procedure TTestStackOfIntegerChangedEvent.TestTwoHandlers;
@@ -1515,10 +1561,7 @@ begin
   CheckEquals(0, fBItem, 'handler B: different item');
 
   SUT.OnChanged.Remove(HandlerA);
-  CheckEquals(1, SUT.OnChanged.Count);
-  CheckFalse(SUT.OnChanged.IsEmpty);
   SUT.OnChanged.Remove(HandlerB);
-  CheckTrue(SUT.OnChanged.IsEmpty);
 end;
 
 procedure TTestStackOfIntegerChangedEvent.TestNonGenericChangedEvent;
@@ -1528,16 +1571,12 @@ var
 begin
   event := SUT.OnChanged;
 
-  CheckTrue(event.IsEmpty);
   CheckTrue(event.Enabled);
 
   method.Code := @TTestStackOfIntegerChangedEvent.HandlerA;
   method.Data := Pointer(Self);
 
   event.Add(TMethodPointer(method));
-
-  CheckEquals(1, event.Count);
-  CheckEquals(1, SUT.OnChanged.Count);
 
   SUT.Push(0);
 
@@ -1546,12 +1585,15 @@ begin
   CheckEquals(0, fAItem, 'handler A: different item');
 end;
 
-{ TTestEmptyQueueofTObject }
+{$ENDREGION}
+
+
+{$REGION 'TTestEmptyQueueOfInteger'}
 
 procedure TTestEmptyQueueOfInteger.SetUp;
 begin
   inherited;
-  SUT := TCollections.CreateQueue<integer>
+  SUT := TCollections.CreateQueue<Integer>
 end;
 
 procedure TTestEmptyQueueOfInteger.TearDown;
@@ -1582,7 +1624,10 @@ begin
   CheckException(EListError, procedure begin SUT.Dequeue end, 'EListError was not raised on Peek call with empty Queue');
 end;
 
-{ TTestQueueOfInteger }
+{$ENDREGION}
+
+
+{$REGION 'TTestQueueOfInteger'}
 
 procedure TTestQueueOfInteger.FillQueue;
 var
@@ -1597,7 +1642,7 @@ end;
 procedure TTestQueueOfInteger.SetUp;
 begin
   inherited;
-  SUT := TCollections.CreateQueue<integer>;
+  SUT := TCollections.CreateQueue<Integer>;
 end;
 
 procedure TTestQueueOfInteger.TearDown;
@@ -1623,20 +1668,6 @@ begin
   CheckTrue(SUT.EqualsTo(values));
 end;
 
-procedure TTestQueueOfInteger.TestQueueCreate2;
-var
-  queue: Generics.Collections.TQueue<Integer>;
-begin
-  queue := Generics.Collections.TQueue<Integer>.Create;
-  try
-    SUT := TQueue<Integer>.Create(queue, otReference);
-  finally
-    SUT := nil;
-    queue.Free;
-  end;
-  Pass;
-end;
-
 procedure TTestQueueOfInteger.TestQueueDequeue;
 var
   i: Integer;
@@ -1649,14 +1680,9 @@ begin
 end;
 
 procedure TTestQueueOfInteger.TestQueuePeek;
-var
-  Expected: Integer;
-  Actual: Integer;
 begin
   FillQueue;
-  Expected := 0;
-  Actual := SUT.Peek;
-  CheckEquals(Expected, Actual);
+  CheckEquals(0, SUT.Peek);
   ExpectedException := EListError;
   SUT.Clear;
   SUT.Peek;
@@ -1664,17 +1690,10 @@ begin
 end;
 
 procedure TTestQueueOfInteger.TestQueuePeekOrDefault;
-var
-  Expected: Integer;
-  Actual: Integer;
 begin
-  Actual := SUT.PeekOrDefault;
-  Expected := 0;
-  CheckEquals(Expected, Actual);
+  CheckEquals(0, SUT.PeekOrDefault);
   SUT.Enqueue(MaxItems);
-  Actual := SUT.PeekOrDefault;
-  Expected := MaxItems;
-  CheckEquals(Expected, Actual);
+  CheckEquals(MaxItems, SUT.PeekOrDefault);
 end;
 
 {$IFDEF DELPHIXE_UP}
@@ -1693,39 +1712,62 @@ end;
 
 procedure TTestQueueOfInteger.TestQueueTryDequeue;
 var
-  Expected: Integer;
-  Actual: Integer;
+  i, value: Integer;
 begin
-  CheckFalse(SUT.TryDequeue(Actual));
-  Expected := 0;
-  CheckEquals(Expected, Actual);
-  for Actual := 1 to MaxItems do
-    SUT.Enqueue(Actual);
-  for Expected := 1 to MaxItems do
+  CheckFalse(SUT.TryDequeue(value));
+  CheckEquals(0, value);
+  for i := 1 to MaxItems do
+    SUT.Enqueue(i);
+  for i := 1 to MaxItems do
   begin
-    CheckTrue(SUT.TryDequeue(Actual));
-    CheckEquals(Expected, Actual);
+    CheckTrue(SUT.TryDequeue(value));
+    CheckEquals(i, value);
   end;
-  CheckFalse(SUT.TryDequeue(Actual));
-  CheckEquals(0, Actual);
+  CheckFalse(SUT.TryDequeue(value));
+  CheckEquals(0, value);
   CheckTrue(SUT.IsEmpty);
 end;
 
 procedure TTestQueueOfInteger.TestQueueTryPeek;
 var
-  Expected: Integer;
-  Actual: Integer;
+  value: Integer;
 begin
-  CheckFalse(SUT.TryPeek(Actual));
-  Expected := 0;
-  CheckEquals(Expected, Actual);
+  CheckFalse(SUT.TryPeek(value));
+  CheckEquals(0, value);
   SUT.Enqueue(MaxItems);
-  CheckTrue(SUT.TryPeek(Actual));
-  Expected := MaxItems;
-  CheckEquals(Expected, Actual);
+  CheckTrue(SUT.TryPeek(value));
+  CheckEquals(MaxItems, value);
 end;
 
-{ TTestQueueOfIntegerChangedEvent }
+{$ENDREGION}
+
+
+{$REGION 'TTestQueueOfTBytes'}
+
+procedure TTestQueueOfTBytes.SetUp;
+begin
+  SUT := TQueue<TBytes>.Create;
+end;
+
+procedure TTestQueueOfTBytes.TearDown;
+begin
+  SUT := nil;
+end;
+
+procedure TTestQueueOfTBytes.TestQueueEnqueue;
+var
+  b: TBytes;
+begin
+  b := TBytes.Create(0);
+  SUT.Enqueue(b);
+  CheckEquals(1, SUT.Count);
+  Check(b = SUT.Peek);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestQueueOfIntegerChangedEvent'}
 
 procedure TTestQueueOfIntegerChangedEvent.SetUp;
 begin
@@ -1759,9 +1801,6 @@ end;
 
 procedure TTestQueueOfIntegerChangedEvent.TestEmpty;
 begin
-  CheckEquals(0, SUT.OnChanged.Count);
-  CheckTrue(SUT.OnChanged.IsEmpty);
-
   SUT.Enqueue(0);
 
   CheckFalse(fAInvoked);
@@ -1785,8 +1824,6 @@ begin
   CheckTrue(fAAction = caRemoved, 'different collection notifications');
 
   SUT.OnChanged.Remove(HandlerA);
-  CheckEquals(0, SUT.OnChanged.Count);
-  CheckTrue(SUT.OnChanged.IsEmpty);
 end;
 
 procedure TTestQueueOfIntegerChangedEvent.TestTwoHandlers;
@@ -1811,10 +1848,7 @@ begin
   CheckEquals(0, fBItem, 'handler B: different item');
 
   SUT.OnChanged.Remove(HandlerA);
-  CheckEquals(1, SUT.OnChanged.Count);
-  CheckFalse(SUT.OnChanged.IsEmpty);
   SUT.OnChanged.Remove(HandlerB);
-  CheckTrue(SUT.OnChanged.IsEmpty);
 end;
 
 procedure TTestQueueOfIntegerChangedEvent.TestNonGenericChangedEvent;
@@ -1824,16 +1858,12 @@ var
 begin
   event := SUT.OnChanged;
 
-  CheckTrue(event.IsEmpty);
   CheckTrue(event.Enabled);
 
   method.Code := @TTestStackOfIntegerChangedEvent.HandlerA;
   method.Data := Pointer(Self);
 
   event.Add(TMethodPointer(method));
-
-  CheckEquals(1, event.Count);
-  CheckEquals(1, SUT.OnChanged.Count);
 
   SUT.Enqueue(0);
 
@@ -1842,11 +1872,14 @@ begin
   CheckEquals(0, fAItem, 'handler A: different item');
 end;
 
-{ TTestListOfIntegerAsIEnumerable }
+{$ENDREGION}
+
+
+{$REGION 'TTestListOfIntegerAsIEnumerable'}
 
 procedure TTestListOfIntegerAsIEnumerable.FillList;
 var
-  i: integer;
+  i: Integer;
 begin
   for i := 0 to MaxItems - 1 do
     InternalList.Add(i);
@@ -1855,7 +1888,7 @@ end;
 procedure TTestListOfIntegerAsIEnumerable.SetUp;
 begin
   inherited;
-  InternalList := TCollections.CreateList<integer>;
+  InternalList := TCollections.CreateList<Integer>;
   SUT := InternalList;
 end;
 
@@ -1863,6 +1896,7 @@ procedure TTestListOfIntegerAsIEnumerable.TearDown;
 begin
   inherited;
   SUT := nil;
+  InternalList := nil;
 end;
 
 procedure TTestListOfIntegerAsIEnumerable.TestEnumerableIsEmpty;
@@ -1890,13 +1924,9 @@ begin
 end;
 
 procedure TTestListOfIntegerAsIEnumerable.TestSingle;
-var
-  ExpectedResult, ActualResult: integer;
 begin
   InternalList.Add(1);
-  ExpectedResult := 1;
-  ActualResult := SUT.Single;
-  CheckEquals(ExpectedResult, ActualResult);
+  CheckEquals(1, SUT.Single);
 end;
 
 procedure TTestListOfIntegerAsIEnumerable.TestToArray;
@@ -1934,7 +1964,7 @@ end;
 
 procedure TTestListOfIntegerAsIEnumerable.TestElementAt;
 var
-  i: integer;
+  i: Integer;
 begin
   FillList;
   for i := 0 to MaxItems - 1 do
@@ -1953,7 +1983,10 @@ begin
   CheckEquals(MaxItems, SUT.Count);
 end;
 
-{ TTestLinkedList }
+{$ENDREGION}
+
+
+{$REGION 'TTestLinkedList'}
 
 procedure TTestLinkedList.CheckEvent(expectedItem: Integer;
   expectedAction: TCollectionChangedAction);
@@ -2008,6 +2041,10 @@ begin
   CheckCount(1);
   CheckEvent(1, caAdded);
   CheckNode(node, 1, nil, nil);
+{$IFDEF AUTOREFCOUNT}
+  CheckTrue(node.fOwned);
+  CheckEquals(2, node.RefCount);
+{$ENDIF}
 end;
 
 procedure TTestLinkedList.TestAddFirstNode_ListContainsTwoItems;
@@ -2102,11 +2139,20 @@ begin
   CheckNode(node, 3, nil, prevNode);
 end;
 
-{ TTestObjectList }
+{$ENDREGION}
+
+
+{$REGION 'TTestObjectList'}
 
 procedure TTestObjectList.SetUp;
 begin
   SUT := TObjectList<TPersistent>.Create as IList<TPersistent>;
+end;
+
+procedure TTestObjectList.TearDown;
+begin
+  inherited;
+  SUT := nil;
 end;
 
 procedure TTestObjectList.TestGetElementType;
@@ -2146,7 +2192,10 @@ begin
   CheckFalse(TObjectList<TPersistent>(SUT).OwnsObjects);
 end;
 
-{ TTestInterfaceList }
+{$ENDREGION}
+
+
+{$REGION 'TTestInterfaceList'}
 
 procedure TTestInterfaceList.SetUp;
 begin
@@ -2155,6 +2204,12 @@ end;
 
 type
   TInvokable = class(TInterfacedObject, IInvokable);
+
+procedure TTestInterfaceList.TearDown;
+begin
+  inherited;
+  SUT := nil;
+end;
 
 procedure TTestInterfaceList.TestCopyTo;
 var
@@ -2181,7 +2236,10 @@ begin
   CheckNotNull(SUT.Comparer);      
 end;
 
-{ TTestCollectionList }
+{$ENDREGION}
+
+
+{$REGION 'TTestCollectionList'}
 
 procedure TTestCollectionList.SetUp;
 begin
@@ -2347,7 +2405,10 @@ begin
   CheckSame(item3, SUT[1]);
 end;
 
-{ TTestEnumerable }
+{$ENDREGION}
+
+
+{$REGION 'TTestEnumerable'}
 
 procedure TTestEnumerable.TestAggregate;
 var
@@ -2377,7 +2438,10 @@ begin
     CheckEquals(i, values[i]);
 end;
 
-{ TTestListAdapter }
+{$ENDREGION}
+
+
+{$REGION 'TTestListAdapter'}
 
 procedure TTestListAdapter.ListChanged(Sender: TObject; const Item: Integer;
   Action: TCollectionChangedAction);
@@ -2389,6 +2453,13 @@ procedure TTestListAdapter.SetUp;
 begin
   InternalList := TCollections.CreateList<Integer>([1, 2, 3]);
   SUT := InternalList.AsList;
+end;
+
+procedure TTestListAdapter.TearDown;
+begin
+  inherited;
+  SUT := nil;
+  InternalList := nil;
 end;
 
 procedure TTestListAdapter.TestListAdd;
@@ -2607,7 +2678,10 @@ begin
   CheckTrue(InternalList.EqualsTo([1, 2, 3, 4, 5, 6, 7, 8, 9]));
 end;
 
-{ TTestMultiMap }
+{$ENDREGION}
+
+
+{$REGION 'TTestMultiMap'}
 
 procedure TTestMultiMap.SetUp;
 begin
@@ -2625,5 +2699,8 @@ begin
   CheckEquals(1, SUT.Count);
   CheckEquals(1, SUT[1].First);
 end;
+
+{$ENDREGION}
+
 
 end.

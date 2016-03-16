@@ -35,7 +35,6 @@ type
 
   strict protected
     function GetConnected: Boolean; override;
-    
 
   public
     procedure AfterConstruction; override;
@@ -44,8 +43,7 @@ type
     function Connect: Boolean; override;
     function Disconnect: Boolean; override;
 
-    procedure Clear; override;
-    procedure Write(const AMsg: TLogMessage); override;
+    function Write(const AMsg: TLogMessage): Boolean; override;
   end;
 
 implementation
@@ -79,52 +77,57 @@ end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
-procedure TWinIPCChannel.Clear;
-begin
-  Write(FClearMessage);
-end;
-
 function TWinIPCChannel.Connect: Boolean;
 begin
   Result := FClient.Connect;
+  Connected := True;
 end;
 
 function TWinIPCChannel.Disconnect: Boolean;
 begin
+  FClient.Connected := False;
   Result := True;
 end;
 
-procedure TWinIPCChannel.Write(const AMsg: TLogMessage);
+function TWinIPCChannel.Write(const AMsg: TLogMessage): Boolean;
 const
   ZeroBuf: Integer = 0;
 var
   TextSize : Integer;
   DataSize : Integer;
 begin
-  if not Connected then
-    Connect;
-  if Connected then
+  if Active then
   begin
-    TextSize := Length(AMsg.MsgText);
-    FBuffer.Seek(0, soFromBeginning);
-    FBuffer.WriteBuffer(AMsg.MsgType, SizeOf(Integer));
-    FBuffer.WriteBuffer(AMsg.MsgTime, SizeOf(TDateTime));
-    FBuffer.WriteBuffer(TextSize, SizeOf(Integer));
-    FBuffer.WriteBuffer(AMsg.MsgText[1], TextSize);
-    if AMsg.Data <> nil then
+    if not Connected then
+      Connect;
+    if Connected then
     begin
-      DataSize := AMsg.Data.Size;
-      FBuffer.WriteBuffer(DataSize, SizeOf(Integer));
-      AMsg.Data.Position := 0;
-      FBuffer.CopyFrom(AMsg.Data, DataSize);
+      TextSize := Length(AMsg.MsgText);
+      FBuffer.Seek(0, soFromBeginning);
+      FBuffer.WriteBuffer(AMsg.MsgType, SizeOf(Integer));
+      FBuffer.WriteBuffer(AMsg.MsgTime, SizeOf(TDateTime));
+      FBuffer.WriteBuffer(TextSize, SizeOf(Integer));
+      FBuffer.WriteBuffer(AMsg.MsgText[1], TextSize);
+      if AMsg.Data <> nil then
+      begin
+        DataSize := AMsg.Data.Size;
+        FBuffer.WriteBuffer(DataSize, SizeOf(Integer));
+        AMsg.Data.Position := 0;
+        FBuffer.CopyFrom(AMsg.Data, DataSize);
+      end
+      else
+        FBuffer.WriteBuffer(ZeroBuf, SizeOf(Integer)); // necessary?
+      FClient.SendStream(FBuffer);
+      Result := True;
     end
     else
-      FBuffer.WriteBuffer(ZeroBuf, SizeOf(Integer)); // necessary?
-    FClient.SendStream(FBuffer);
+    begin
+      Result := False;
+    end;
   end
   else
   begin
-  //  raise Exception.Create('Write failed. Channel is not connected.');
+    Result := False;
   end;
 end;
 {$ENDREGION}

@@ -55,7 +55,7 @@ end;
 
 
 initialization
-  RegisterTest(TMSSQLSQLGeneratorTest.Suite);
+  RegisterTest('Spring.Persistence.Generators', TMSSQLSQLGeneratorTest.Suite);
 
 end.
 

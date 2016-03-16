@@ -125,7 +125,9 @@ begin
   ClearTable(TBL_PEOPLE);
   ClearTable(TBL_ORDERS);
   ClearTable(TBL_PRODUCTS);
+  FRepository := nil;
   FSession.Free;
+  FConnection := nil;
 end;
 
 {$ENDREGION}
@@ -190,7 +192,9 @@ end;
 
 
 initialization
-  RegisterTest(TSimpleRepositoryTests.Suite);
-  RegisterTest(TCustomRepositoryTests.Suite);
+  RegisterTests('Spring.Persistence.Core', [
+    TSimpleRepositoryTests.Suite,
+    TCustomRepositoryTests.Suite
+  ]);
 
 end.

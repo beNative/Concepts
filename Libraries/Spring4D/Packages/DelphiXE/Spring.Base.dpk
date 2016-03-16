@@ -67,7 +67,7 @@ contains
   Spring.Patches.QC93646 in '..\..\Source\Base\Patches\Spring.Patches.QC93646.pas',
   Spring.Patches.QC98671 in '..\..\Source\Base\Patches\Spring.Patches.QC98671.pas',
   Spring.Patches.QC107219 in '..\..\Source\Base\Patches\Spring.Patches.QC107219.pas',
-  Spring.Reflection in '..\..\Source\Base\Reflection\Spring.Reflection.pas',
+  Spring.Reflection in '..\..\Source\Base\Spring.Reflection.pas',
   Spring.ResourceStrings in '..\..\Source\Base\Spring.ResourceStrings.pas',
   Spring.SystemUtils in '..\..\Source\Base\Spring.SystemUtils.pas',
   Spring.Times in '..\..\Source\Base\Spring.Times.pas',

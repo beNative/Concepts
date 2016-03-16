@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -295,6 +295,10 @@ type
   TSafeCallObject = class
   public
     procedure SafeCallMethod; virtual; safecall; abstract;
+  end;
+
+  ICommandChannel<T: class> = interface(IInvokable)
+    function Send(const item: T): Integer;
   end;
 
 implementation

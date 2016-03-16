@@ -28,8 +28,6 @@ type
   private
   end;
 
-
-
 implementation
 
 uses
@@ -37,7 +35,7 @@ uses
   DDuce.Logger.Channels.ZeroMQ;
 
 initialization
-  Logger := TLogger.Create;
+  //Logger := TLogger.Create;
 //  Logger.Channels.Add(TWinIPCChannel.Create);
 //  Logger.Channels.Add(TLogFileChannel.Create);
 

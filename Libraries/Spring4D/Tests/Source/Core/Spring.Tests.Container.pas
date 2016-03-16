@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -100,6 +100,9 @@ type
 
     procedure TestResolveFuncWithTwoTypes;
     procedure TestResolveUnknownClasses;
+
+    procedure TestResolveComponentDoesNotFallbackToTObject;
+    procedure TestResolveComponentDoesCallOverriddenConstructor;
   end;
 
   // Same Service, Different Implementations
@@ -140,6 +143,7 @@ type
     fExpectedString: string;
   protected
     procedure SetUp; override;
+    procedure TearDown; override;
   published
     procedure TestNameService;
     procedure TestIntegerArgument;
@@ -177,6 +181,7 @@ type
   protected
     procedure DoRegisterComponents; virtual;
     procedure SetUp; override;
+    procedure TearDown; override;
   published
     procedure TestConstructorInjection;
     procedure TestMethodInjection;
@@ -281,6 +286,9 @@ type
     // AV is raised instead. This is rare corner case not considered to be a
     // major issue.
 {$ENDIF}
+    procedure TestDependencyTypeIsSingletonAlreadyInstantiated;
+    procedure TestDependencyTypeIsSingletonNotYetInstantiated;
+    procedure TestResolveLazyOfSingletonCreatedLater;
   end;
 
   TTestLazyDependenciesDetectRecursion = class(TTestLazyDependencies)
@@ -752,22 +760,83 @@ begin
 end;
 
 procedure TTestSimpleContainer.TestDisposable;
+
+  // place in a separate call to generate finalization around returned
+  // TRegistration
+  procedure Register;
+  begin
+    fContainer.RegisterType<TDisposableComponent>.AsSingleton;
+  end;
+
 var
   service: IAnotherService;
   disposed: Boolean;
+  component: TDisposableComponent;
 begin
-  fContainer.RegisterType<TDisposableComponent>.AsSingleton;
+  Register;
   fContainer.Build;
   service := fContainer.Resolve<IAnotherService>;
-  (service as TDisposableComponent).OnDispose :=
+  component:=(service as TDisposableComponent);
+  component.OnDispose :=
     procedure
     begin
       disposed := True;
     end;
   service := nil;
+{$IFDEF AUTOREFCOUNT}
+  component := nil;
+{$ENDIF}
   disposed := False;
   FreeAndNil(fContainer);
   CheckTrue(disposed);
+end;
+
+type
+  TTestComponent = class(TComponent);
+
+  TTestComponent2 = class(TComponent)
+  private
+    fConstructorCalled: Boolean;
+  public
+    constructor Create(owner: TComponent); override;
+  end;
+
+constructor TTestComponent2.Create(owner: TComponent);
+begin
+  inherited;
+  fConstructorCalled := True;
+end;
+
+procedure TTestSimpleContainer.TestResolveComponentDoesCallOverriddenConstructor;
+var
+  obj: TTestComponent2;
+begin
+  fContainer.RegisterType<TTestComponent2>;
+  fContainer.Build;
+  obj := fContainer.Resolve<TTestComponent2>;
+  try
+    CheckIs(obj, TTestComponent2);
+    CheckTrue(obj.fConstructorCalled);
+    CheckNull(obj.Owner);
+  finally
+    obj.Free;
+  end;
+end;
+
+procedure TTestSimpleContainer.TestResolveComponentDoesNotFallbackToTObject;
+var
+  obj: TComponent;
+begin
+  fContainer.RegisterType<TTestComponent>;
+  fContainer.Build;
+  obj := fContainer.Resolve<TTestComponent>;
+  try
+    CheckIs(obj, TTestComponent);
+    Check(obj.ComponentStyle = [csInheritable]);
+    CheckNull(obj.Owner);
+  finally
+    obj.Free;
+  end;
 end;
 
 procedure TTestSimpleContainer.TestResolveFuncWithTwoTypes;
@@ -951,6 +1020,9 @@ begin
 {$ENDIF}
   fNameService := nil;
 
+  fServices := Default(TArray<INameService>);
+  fServiceValues := Default(TArray<TValue>);
+
   inherited TearDown;
 end;
 
@@ -1024,6 +1096,13 @@ begin
   CheckNotNull(fPrimitive.NameService, 'NameService should not be nil.');
   CheckTrue(fPrimitive.NameService is TNameService, 'Unexpected type.');
   CheckEquals(TNameService.NameString, fPrimitive.NameService.Name);
+end;
+
+procedure TTestActivatorDelegate.TearDown;
+begin
+  inherited;
+  fPrimitive := nil;
+  fExpectedString := '';
 end;
 
 procedure TTestActivatorDelegate.TestIntegerArgument;
@@ -1206,6 +1285,12 @@ begin
   DoRegisterComponents;
   fContainer.Build;
   fExplorer := fContainer.Resolve<IInjectionExplorer>;
+end;
+
+procedure TNamedInjectionsTestCase.TearDown;
+begin
+  inherited;
+  fExplorer := nil;
 end;
 
 procedure TNamedInjectionsTestCase.TestConstructorInjection;
@@ -1692,6 +1777,87 @@ begin
   PerformChecks;
 end;
 {$ENDIF}
+
+type
+  TTestWithLazySingletonBase = class
+  private
+    fA: INameService;
+    fB: Lazy<INameService>;
+  public
+    property A: INameService read fA;
+    property B: Lazy<INameService> read fB;
+  end;
+
+  TTestWithLazySingletonResolveFirst = class(TTestWithLazySingletonBase)
+  public
+    constructor Create(const a: INameService; const b: Lazy<INameService>);
+  end;
+
+  TTestWithLazySingletonResolveLast = class(TTestWithLazySingletonBase)
+  public
+    constructor Create(const b: Lazy<INameService>; const a: INameService);
+  end;
+
+constructor TTestWithLazySingletonResolveFirst.Create(const a: INameService;
+  const b: Lazy<INameService>);
+begin
+  fA := a;
+  fB := b;
+end;
+
+constructor TTestWithLazySingletonResolveLast.Create(
+  const b: Lazy<INameService>; const a: INameService);
+begin
+  fA := a;
+  fB := b;
+end;
+
+procedure TTestLazyDependencies.TestDependencyTypeIsSingletonAlreadyInstantiated;
+var
+  test: TTestWithLazySingletonResolveFirst;
+begin
+  fContainer.RegisterType<INameService, TNameService>.AsSingleton;
+  fContainer.RegisterType<TTestWithLazySingletonResolveFirst>;
+  fContainer.Build;
+
+  test := fContainer.Resolve<TTestWithLazySingletonResolveFirst>;
+  try
+    CheckSame(test.A, test.B.Value);
+  finally
+    test.Free;
+  end;
+end;
+
+procedure TTestLazyDependencies.TestDependencyTypeIsSingletonNotYetInstantiated;
+var
+  test: TTestWithLazySingletonResolveLast;
+begin
+  fContainer.RegisterType<INameService, TNameService>.AsSingleton;
+  fContainer.RegisterType<TTestWithLazySingletonResolveLast>;
+  fContainer.Build;
+
+  test := fContainer.Resolve<TTestWithLazySingletonResolveLast>;
+  try
+    CheckSame(test.A, test.B.Value);
+  finally
+    test.Free;
+  end;
+end;
+
+procedure TTestLazyDependencies.TestResolveLazyOfSingletonCreatedLater;
+var
+  x: Lazy<INameService>;
+  y: INameService;
+begin
+  fContainer.RegisterType<INameService, TNameService>.AsSingleton;
+  fContainer.Build;
+
+  x := fContainer.Resolve<Lazy<INameService>>;
+  CheckFalse(x.IsValueCreated);
+  CheckIs(x.Value, TNameService);
+  y := fContainer.Resolve<INameService>;
+  CheckSame(x.Value, y);
+end;
 
 {$ENDREGION}
 

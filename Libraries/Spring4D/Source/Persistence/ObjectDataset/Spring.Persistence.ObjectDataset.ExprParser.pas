@@ -754,8 +754,8 @@ var
 
       LeftStr := LeftValue;
       RightStr := RightValue;
-      Wildcard1 := (PosEx('*', LeftStr) > 0) {or (PosEx('?', LeftStr) > 0)};
-      Wildcard2 := (PosEx('*', RightStr) > 0) {or (PosEx('?', RightStr) > 0)};
+      Wildcard1 := (Pos('*', LeftStr) > 0) {or (Pos('?', LeftStr) > 0)};
+      Wildcard2 := (Pos('*', RightStr) > 0) {or (Pos('?', RightStr) > 0)};
       if Wildcard1 and not Wildcard2 then
         Result := MatchesMask(RightStr, LeftStr)
       else if Wildcard2 then

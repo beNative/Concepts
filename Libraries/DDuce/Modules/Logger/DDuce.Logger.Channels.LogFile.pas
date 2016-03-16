@@ -50,8 +50,7 @@ type
 
     procedure BeforeDestruction; override;
 
-    procedure Clear; override;
-    procedure Write(const AMsg: TLogMessage); override;
+    function Write(const AMsg: TLogMessage): Boolean; override;
 
     property ShowHeader: Boolean
       read FShowHeader write FShowHeader default False;
@@ -167,12 +166,7 @@ end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
-procedure TLogFileChannel.Clear;
-begin
-  FStreamWriter.BaseStream.Position := 0;
-end;
-
-procedure TLogFileChannel.Write(const AMsg: TLogMessage);
+function TLogFileChannel.Write(const AMsg: TLogMessage): Boolean;
 begin
   // Exit method identation must be set before
   if (AMsg.MsgType = Integer(lmtLeaveMethod)) and (FRelativeIndent >= 2) then
@@ -197,6 +191,7 @@ begin
   // Update enter method identation
   if TLogMessageType(AMsg.MsgType) = lmtEnterMethod then
     Inc(FRelativeIndent, 2);
+  Result := True;
 end;
 {$ENDREGION}
 

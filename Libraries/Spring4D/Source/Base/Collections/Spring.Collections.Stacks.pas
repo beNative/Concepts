@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,35 +29,55 @@ unit Spring.Collections.Stacks;
 interface
 
 uses
-  Generics.Collections,
+  Generics.Defaults,
   Spring.Collections,
   Spring.Collections.Base;
 
 type
+  /// <summary>
+  ///   Represents a last-in, first-out (LIFO) collection of items.
+  /// </summary>
+  /// <typeparam name="T">
+  ///   Specifies the type of elements in the stack.
+  /// </typeparam>
   TStack<T> = class(TEnumerableBase<T>, IStack<T>)
   private
     type
-      TGenericStack = Generics.Collections.TStack<T>;
+      TEnumerator = class(TEnumeratorBase<T>)
+      private
+        fStack: TStack<T>;
+        fIndex: Integer;
+        fVersion: Integer;
+        fCurrent: T;
+      protected
+        function GetCurrent: T; override;
+      public
+        constructor Create(const stack: TStack<T>);
+        destructor Destroy; override;
+        function MoveNext: Boolean; override;
+        procedure Reset; override;
+      end;
   private
-    fStack: TGenericStack;
-    fOwnership: TOwnershipType;
+    fCount: Integer;
+    fItems: TArray<T>;
+    fVersion: Integer;
     fOnChanged: ICollectionChangedEvent<T>;
-    fOnNotify: TCollectionNotifyEvent<T>;
-    procedure DoNotify(Sender: TObject; const Item: T;
-      Action: TCollectionNotification);
-    function GetOnChanged: ICollectionChangedEvent<T>;
-{$IFDEF DELPHIXE_UP}
-    function GetCapacity: Integer;
-    procedure SetCapacity(const value: Integer);
-{$ENDIF}
+    procedure Grow;
+    procedure IncreaseVersion; inline;
+    function PopInternal(notification: TCollectionChangedAction): T;
   protected
+  {$REGION 'Property Accessors'}
+    function GetCapacity: Integer;
     function GetCount: Integer; override;
+    function GetOnChanged: ICollectionChangedEvent<T>;
+    procedure SetCapacity(const value: Integer);
+  {$ENDREGION}
+
     procedure Changed(const item: T; action: TCollectionChangedAction); virtual;
   public
     constructor Create; overload; override;
     constructor Create(const values: array of T); overload;
     constructor Create(const collection: IEnumerable<T>); overload;
-    constructor Create(stack: TGenericStack; ownership: TOwnershipType); overload;
     destructor Destroy; override;
 
     function GetEnumerator: IEnumerator<T>; override;
@@ -65,6 +85,7 @@ type
     procedure Clear;
     procedure Push(const item: T);
     function Pop: T;
+    function Extract: T;
     function Peek: T;
     function PeekOrDefault: T;
     function TryPeek(out item: T): Boolean;
@@ -72,28 +93,43 @@ type
 
     procedure TrimExcess;
 
-{$IFDEF DELPHIXE_UP}
     property Capacity: Integer read GetCapacity write SetCapacity;
-{$ENDIF}
     property OnChanged: ICollectionChangedEvent<T> read GetOnChanged;
+  end;
+
+  TObjectStack<T: class> = class(TStack<T>, ICollectionOwnership)
+  private
+    fOwnsObjects: Boolean;
+  {$REGION 'Property Accessors'}
+    function GetOwnsObjects: Boolean;
+    procedure SetOwnsObjects(const value: Boolean);
+  {$ENDREGION}
+  protected
+    procedure Changed(const item: T; action: TCollectionChangedAction); override;
+  public
+    constructor Create; override;
+    constructor Create(ownsObjects: Boolean); overload;
+    constructor Create(const comparer: IComparer<T>; ownsObjects: Boolean = True); overload;
+
+    property OwnsObjects: Boolean read GetOwnsObjects write SetOwnsObjects;
   end;
 
 implementation
 
 uses
+  Classes,
+  RTLConsts,
+  SysUtils,
+  Spring,
   Spring.Collections.Events,
-  Spring.Collections.Extensions;
+  Spring.ResourceStrings;
 
 
 {$REGION 'TStack<T>'}
 
-constructor TStack<T>.Create(stack: TGenericStack; ownership: TOwnershipType);
+constructor TStack<T>.Create;
 begin
   inherited Create;
-  fStack := stack;
-  fOnNotify := fStack.OnNotify;
-  fStack.OnNotify := DoNotify;
-  fOwnership := ownership;
   fOnChanged := TCollectionChangedEventImpl<T>.Create;
 end;
 
@@ -115,50 +151,10 @@ begin
     Push(item);
 end;
 
-constructor TStack<T>.Create;
-var
-  stack: TGenericStack;
-begin
-  stack := TGenericStack.Create;
-  Create(stack, otOwned);
-end;
-
 destructor TStack<T>.Destroy;
 begin
-  if fOwnership = otOwned then
-    fStack.Free
-  else
-    fStack.OnNotify := fOnNotify;
-
+  Clear;
   inherited Destroy;
-end;
-
-procedure TStack<T>.DoNotify(Sender: TObject; const Item: T;
-  Action: TCollectionNotification);
-begin
-  Changed(Item, TCollectionChangedAction(Action));
-end;
-
-function TStack<T>.GetEnumerator: IEnumerator<T>;
-begin
-  Result := TEnumeratorAdapter<T>.Create(fStack);
-end;
-
-{$IFDEF DELPHIXE_UP}
-function TStack<T>.GetCapacity: Integer;
-begin
-  Result := fStack.Capacity;
-end;
-{$ENDIF}
-
-function TStack<T>.GetCount: Integer;
-begin
-  Result := fStack.Count;
-end;
-
-function TStack<T>.GetOnChanged: ICollectionChangedEvent<T>;
-begin
-  Result := fOnChanged;
 end;
 
 procedure TStack<T>.Changed(const item: T; action: TCollectionChangedAction);
@@ -167,62 +163,224 @@ begin
     fOnChanged.Invoke(Self, item, action);
 end;
 
-procedure TStack<T>.Push(const item: T);
-begin
-  fStack.Push(item);
-end;
-
-{$IFDEF DELPHIXE_UP}
-procedure TStack<T>.SetCapacity(const value: Integer);
-begin
-  fStack.Capacity := value;
-end;
-{$ENDIF}
-
-function TStack<T>.Pop: T;
-begin
-  Result := fStack.Pop;
-end;
-
 procedure TStack<T>.Clear;
 begin
-  fStack.Clear;
+  while fCount > 0 do
+    Pop;
+  SetLength(fItems, 0);
 end;
+
+function TStack<T>.Extract: T;
+begin
+  Result := PopInternal(caExtracted);
+end;
+
+function TStack<T>.GetEnumerator: IEnumerator<T>;
+begin
+  Result := TEnumerator.Create(Self);
+end;
+
+function TStack<T>.GetCapacity: Integer;
+begin
+  Result := Length(fItems);
+end;
+
+function TStack<T>.GetCount: Integer;
+begin
+  Result := fCount;
+end;
+
+function TStack<T>.GetOnChanged: ICollectionChangedEvent<T>;
+begin
+  Result := fOnChanged;
+end;
+
+procedure TStack<T>.Grow;
+var
+  newCapacity: Integer;
+begin
+  newCapacity := Length(fItems) * 2;
+  if newCapacity = 0 then
+    newCapacity := 4
+  else if newCapacity < 0 then
+    OutOfMemoryError;
+  SetLength(fItems, newCapacity);
+end;
+
+{$IFOPT Q+}{$DEFINE OVERFLOW_CHECKS_ON}{$Q-}{$ENDIF}
+procedure TStack<T>.IncreaseVersion;
+begin
+  Inc(fVersion);
+end;
+{$IFDEF OVERFLOW_CHECKS_ON}{$Q+}{$ENDIF}
 
 function TStack<T>.Peek: T;
 begin
-  Result := fStack.Peek;
+  if fCount = 0 then
+    raise EListError.CreateRes(@SUnbalancedOperation);
+  Result := fItems[fCount - 1];
 end;
 
 function TStack<T>.PeekOrDefault: T;
 begin
-  if fStack.Count > 0 then
-    Result := fStack.Peek
+  if fCount = 0 then
+    Result := Default(T)
   else
-    Result := Default(T);
+    Result := fItems[fCount - 1];
+end;
+
+function TStack<T>.Pop: T;
+begin
+  Result := PopInternal(caRemoved);
+end;
+
+function TStack<T>.PopInternal(notification: TCollectionChangedAction): T;
+begin
+  if fCount = 0 then
+    raise EListError.CreateRes(@SUnbalancedOperation);
+  Dec(fCount);
+  Result := fItems[fCount];
+  fItems[Count] := Default(T);
+  IncreaseVersion;
+
+  Changed(Result, notification);
+end;
+
+procedure TStack<T>.Push(const item: T);
+begin
+  if fCount = Length(fItems) then
+    Grow;
+  fItems[fCount] := item;
+  Inc(fCount);
+  IncreaseVersion;
+
+  Changed(item, caAdded);
+end;
+
+procedure TStack<T>.SetCapacity(const value: Integer);
+begin
+  if value < fCount then
+    raise EArgumentOutOfRangeException.CreateRes(@SArgumentOutOfRange);
+  SetLength(fItems, value);
 end;
 
 procedure TStack<T>.TrimExcess;
 begin
-  fStack.TrimExcess;
+  SetLength(fItems, fCount);
 end;
 
 function TStack<T>.TryPeek(out item: T): Boolean;
 begin
-  Result := fStack.Count > 0;
+  Result := fCount > 0;
   if Result then
-    item := fStack.Peek
+    item := Peek
   else
     item := Default(T);
 end;
 
 function TStack<T>.TryPop(out item: T): Boolean;
 begin
-  Result := fStack.Count > 0;
+  Result := fCount > 0;
   if Result then
-    item := fStack.Pop
+    item := Pop
   else
     item := Default(T);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TStack<T>.TEnumerator'}
+
+constructor TStack<T>.TEnumerator.Create(const stack: TStack<T>);
+begin
+  inherited Create;
+  fStack := stack;
+  fStack._AddRef;
+  fVersion := fStack.fVersion;
+end;
+
+destructor TStack<T>.TEnumerator.Destroy;
+begin
+  fStack._Release;
+  inherited;
+end;
+
+function TStack<T>.TEnumerator.GetCurrent: T;
+begin
+  Result := fCurrent;
+end;
+
+function TStack<T>.TEnumerator.MoveNext: Boolean;
+begin
+  Result := False;
+
+  if fVersion <> fStack.fVersion then
+    raise EInvalidOperationException.CreateRes(@SEnumFailedVersion);
+
+  if fIndex < fStack.fCount then
+  begin
+    fCurrent := fStack.fItems[fIndex];
+    Inc(fIndex);
+    Result := True;
+  end
+  else
+    fCurrent := Default(T);
+end;
+
+procedure TStack<T>.TEnumerator.Reset;
+begin
+  if fVersion <> fStack.fVersion then
+    raise EInvalidOperationException.CreateRes(@SEnumFailedVersion);
+
+  fIndex := 0;
+  fCurrent := Default(T);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TObjectStack<T>'}
+
+constructor TObjectStack<T>.Create;
+begin
+  inherited Create;
+  fOwnsObjects := True;
+end;
+
+constructor TObjectStack<T>.Create(ownsObjects: Boolean);
+begin
+  inherited Create;
+  fOwnsObjects := ownsObjects;
+end;
+
+constructor TObjectStack<T>.Create(const comparer: IComparer<T>;
+  ownsObjects: Boolean);
+begin
+  inherited Create(comparer);
+  fOwnsObjects := ownsObjects;
+end;
+
+procedure TObjectStack<T>.Changed(const item: T;
+  action: TCollectionChangedAction);
+begin
+  inherited Changed(item, action);
+  if OwnsObjects and (action = caRemoved) then
+{$IFNDEF AUTOREFCOUNT}
+    item.Free;
+{$ELSE}
+    item.DisposeOf;
+{$ENDIF}
+end;
+
+function TObjectStack<T>.GetOwnsObjects: Boolean;
+begin
+  Result := fOwnsObjects;
+end;
+
+procedure TObjectStack<T>.SetOwnsObjects(const value: Boolean);
+begin
+  fOwnsObjects := value;
 end;
 
 {$ENDREGION}

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -232,7 +232,7 @@ function THashAlgorithmBase.ComputeHashOfFile(const fileName: string): TBuffer;
 var
   stream: TStream;
 begin
-  stream := TFileStream.Create(fileName, fmOpenRead or fmShareExclusive);
+  stream := TFileStream.Create(fileName, fmOpenRead or fmShareDenyNone);
   try
     Result := ComputeHash(stream);
   finally

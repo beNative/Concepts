@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -59,6 +59,7 @@ type
     function GetSQLTableExists(const tableName: string): string; override;
 
     function GetParamClass: TDBParamClass; override;
+    function CreateParam(const paramField: TSQLParamField; const value: TValue): TDBParam; override;
   end;
 
   TOracleDBParam = class(TDBParam)
@@ -76,6 +77,14 @@ uses
 
 
 {$REGION 'TOracleSQLGenerator'}
+
+function TOracleSQLGenerator.CreateParam(const paramField: TSQLParamField;
+  const value: TValue): TDBParam;
+begin
+  Result := inherited;
+  if Assigned(paramField.Column) and (paramField.Column.Length > 1000) then
+    TOracleDBParam(Result).fParamType := ftWideMemo;
+end;
 
 function TOracleSQLGenerator.DoGenerateBackupTable(const tableName: string): TArray<string>;
 begin

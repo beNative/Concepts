@@ -314,15 +314,19 @@ uses
   Concepts.ChromeTabs.Form in 'Forms\Concepts.ChromeTabs.Form.pas' {frmChromeTabs},
   ZeroMQ.API in 'Libraries\ZeroMQ\ZeroMQ.API.pas',
   ZeroMQ in 'Libraries\ZeroMQ\ZeroMQ.pas',
+  DDuce.WinIPC.Client in 'Libraries\DDuce\DDuce.WinIPC.Client.pas',
+  DDuce.WinIPC.Server in 'Libraries\DDuce\DDuce.WinIPC.Server.pas',
+  Concepts.ZeroMQ.Data in 'Forms\Concepts.ZeroMQ.Data.pas',
+  DDuce.Logger.Base in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Base.pas',
   DDuce.Logger.Channels.Base in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.Base.pas',
   DDuce.Logger.Channels.LogFile in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.LogFile.pas',
   DDuce.Logger.Channels in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.pas',
   DDuce.Logger.Channels.WinIPC in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.WinIPC.pas',
+  DDuce.Logger.Channels.WinODS in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.WinODS.pas',
   DDuce.Logger.Channels.ZeroMQ in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.ZeroMQ.pas',
   DDuce.Logger.Factories in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Factories.pas',
   DDuce.Logger.Interfaces in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Interfaces.pas',
-  DDuce.Logger in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.pas',
-  DDuce.WinIPC in 'Libraries\DDuce\DDuce.WinIPC.pas';
+  DDuce.Logger in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.pas';
 
 {$R *.res}
 

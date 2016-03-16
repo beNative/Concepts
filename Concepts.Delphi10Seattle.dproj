@@ -516,15 +516,19 @@
         </DCCReference>
         <DCCReference Include="Libraries\ZeroMQ\ZeroMQ.API.pas"/>
         <DCCReference Include="Libraries\ZeroMQ\ZeroMQ.pas"/>
+        <DCCReference Include="Libraries\DDuce\DDuce.WinIPC.Client.pas"/>
+        <DCCReference Include="Libraries\DDuce\DDuce.WinIPC.Server.pas"/>
+        <DCCReference Include="Forms\Concepts.ZeroMQ.Data.pas"/>
+        <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Base.pas"/>
         <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.Base.pas"/>
         <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.LogFile.pas"/>
         <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.pas"/>
         <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.WinIPC.pas"/>
+        <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.WinODS.pas"/>
         <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.ZeroMQ.pas"/>
         <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Factories.pas"/>
         <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.Interfaces.pas"/>
         <DCCReference Include="Libraries\DDuce\Modules\Logger\DDuce.Logger.pas"/>
-        <DCCReference Include="Libraries\DDuce\DDuce.WinIPC.pas"/>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
         <BuildConfiguration Include="Debug">

@@ -112,6 +112,6 @@ begin
 end;
 
 initialization
-  RegisterTest(TPersistenceTest.Suite);
+  RegisterTest('Spring.Persistence.Core', TPersistenceTest.Suite);
 
 end.

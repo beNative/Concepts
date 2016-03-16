@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -95,9 +95,12 @@ begin
     and mockedType.IsInterface and not mockedType.IsType<IInterface> then
     Exit(True);
 
-  if dependency.TargetType.IsInterface
-    and not fKernel.Registry.HasService(dependency.TypeInfo) then
-    Exit(True);
+  if dependency.TargetType.IsInterface then
+    if argument.IsEmpty then
+      Exit(not fKernel.Registry.HasService(dependency.TypeInfo))
+    else
+      if argument.IsType<string> then
+        Exit(not fKernel.Registry.HasService(dependency.TypeInfo, argument.AsString));
 
   Result := False;
 end;

@@ -58,11 +58,6 @@ type
 
 implementation
 
-
-
-
-  //SizeOf(Integer) * 8 - 1;
-
 {
 function SetToString(ATypeInfo: PTypeInfo; const AValue;
   AQuoteValues: Boolean = True; ABrackets: Boolean = True;
@@ -238,15 +233,13 @@ var
 begin
   Result := '';
   Integer(S) := GetOrdValue(TypeInfo(T), AArg);
-  //ATypeInfo := GetTypeData(ATypeInfo)^.CompType^;
-  //ATypeInfo :=
   for I := 0 to SizeOf(Integer) * 8 - 1 do
   begin
     if I in S then
     begin
       if Result <> '' then
         Result := Result + ',';
-      Name := EnumName(I);// GetEnumName(ATypeInfo, I);
+      Name := EnumName(I);
       Result := Result + Name;
     end;
   end;
@@ -255,3 +248,4 @@ end;
 
 
 end.
+

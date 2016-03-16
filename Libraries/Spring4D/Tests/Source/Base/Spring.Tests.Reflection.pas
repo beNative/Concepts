@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -66,9 +66,16 @@ type
 
   end;
 
+  TTestMethodHelper = class(TTestCase)
+  published
+    procedure ParameterParentEqualsOriginalMethodInstance;
+  end;
+
 implementation
 
 uses
+  Classes,
+  Rtti,
   SysUtils,
   TypInfo,
   Spring,
@@ -115,6 +122,27 @@ end;
 procedure TTestType.TestIsDelegateTypeWithTProc;
 begin
   CheckTrue(TType.IsDelegate(TypeInfo(TProc<Integer>)));
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestMethodHelper'}
+
+procedure TTestMethodHelper.ParameterParentEqualsOriginalMethodInstance;
+var
+  t: TRttiType;
+  m: TRttiMethod;
+  p: TRttiParameter;
+begin
+  t := TType.GetType(TComponent);
+  m := t.GetMethod('Create');
+
+  CheckTrue(m.IsConstructor, 'TRttiMethod.IsConstructor');
+  p := m.GetParameters[0];
+  CheckIs(p.Parent, TRttiMethod, 'TRttiParameter.Parent');
+  CheckTrue(TRttiMethod(p.Parent).IsConstructor, 'TRttiParameter.Parent.IsConstructor');
+  CheckSame(m, p.Parent, 'TRttiParameter.Parent');
 end;
 
 {$ENDREGION}

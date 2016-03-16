@@ -38,7 +38,7 @@ uses
 {$IFDEF ANDROID}
   Androidapi.Timer,
 {$ENDIF}
-  TestInsight.DUnit;
+  Spring.TestRunner;
 
 {$R *.fmx}
 

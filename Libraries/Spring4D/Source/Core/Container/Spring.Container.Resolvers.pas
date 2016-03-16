@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -437,6 +437,7 @@ var
   targetType: TRttiType;
   dependencyModel: TDependencyModel;
   componentModel: TComponentModel;
+  hasEntered: Boolean;
 begin
   if not IsLazyType(dependency.TypeInfo) then
     raise EResolveException.CreateResFmt(@SCannotResolveType, [dependency.Name]);
@@ -446,7 +447,7 @@ begin
   dependencyModel := TDependencyModel.Create(targetType, dependency.Target);
   componentModel := Kernel.Registry.FindOne(targetType.Handle, argument);
 
-  if context.EnterResolution(componentModel, Result) then
+  hasEntered := context.EnterResolution(componentModel, Result);
   try
     case targetType.TypeKind of
       tkClass: Result := InternalResolveClass(
@@ -458,7 +459,8 @@ begin
     end;
     TValueData(Result).FTypeInfo := dependency.TypeInfo;
   finally
-    context.LeaveResolution(componentModel);
+    if hasEntered then
+      context.LeaveResolution(componentModel);
   end;
 end;
 

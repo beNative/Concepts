@@ -196,9 +196,11 @@ var
   TS : TStrings;
 begin
   TS := TStringList.Create;
-  FLogger.LogValue('Form', TS);
-  FLogger.Track()
-  TS.Free;
+  try
+    FLogger.LogValue('Form', TS);
+  finally
+    TS.Free;
+  end;
 end;
 
 procedure TfrmSpringLogging.actTrackThisExecute(Sender: TObject);

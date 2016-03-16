@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -196,7 +196,7 @@ begin
   end;
 {$IFDEF AUTOREFCOUNT}
   // Release reference created by passing closure to HandleInvoke (RSP-10176)
-  if virtualMethodCount > 0 then
+  if Assigned(intercept) then
     __ObjRelease;
 {$ENDIF}
 end;

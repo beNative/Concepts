@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -276,7 +276,7 @@ begin
       if TType.IsAssignable(attribute.ServiceType, targetType.Handle) then
       begin
         if attribute.ServiceType <> targetType.Handle then
-          targetType := TType.GetType(attribute.ServiceType);
+          targetType := attribute.ServiceType.RttiType;
         dependency := TDependencyModel.Create(targetType, target);
       end
       else

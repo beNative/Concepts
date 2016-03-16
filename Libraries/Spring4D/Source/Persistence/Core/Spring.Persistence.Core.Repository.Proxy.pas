@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -58,7 +58,7 @@ type
     fIdTypeName: string;
     fQualifiedIdTypeName: string;
   protected
-    function DoOnInvoke(Method: TRttiMethod; const Args: TArray<TValue>): TValue;
+    function DoOnInvoke(const Method: TRttiMethod; const Args: TArray<TValue>): TValue;
     procedure RegisterDefaultMethods;
     procedure RegisterMethod(const methodSignature: string; const methodRef: TMethodReference);
   public
@@ -212,9 +212,17 @@ begin
     begin
       Result := DoOnInvoke(Method, Args);
     end;
+{$IFDEF AUTOREFCOUNT}
+  // Release reference held by ancestor RawCallBack (bypass RSP-10177)
+  __ObjRelease;
+  // Release reference held by OnInvoke (RSP-10176)
+  __ObjRelease;
+  // Release reference held by RegisterDefaultMethods (RSP-10176)
+  __ObjRelease;
+{$ENDIF}
 end;
 
-function TProxyRepository<T, TID>.DoOnInvoke(Method: TRttiMethod;
+function TProxyRepository<T, TID>.DoOnInvoke(const Method: TRttiMethod;
   const Args: TArray<TValue>): TValue;
 var
   methodRef: TMethodReference;

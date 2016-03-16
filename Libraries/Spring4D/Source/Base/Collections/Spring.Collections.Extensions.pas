@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -772,9 +772,7 @@ var
   i: Integer;
 begin
   inherited Create;
-  SetLength(fValues, Length(values));
-  for i := Low(values) to High(values) do
-    fValues[i] := values[i];
+  fValues := TArray.Copy<T>(values);
 end;
 
 constructor TArrayIterator<T>.Create(const values: TArray<T>);
@@ -3152,6 +3150,7 @@ begin
   if fState = STATE_ENUMERATOR then
   begin
     fIndex := 0;
+    fState := STATE_RUNNING;
   end;
 
   if fState = STATE_RUNNING then

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -212,7 +212,7 @@ begin
     function(const args: Variant): Variant
     begin
       Assert(VarArrayLength(Args) = 2, 'InStr requires 2 arguments');
-      Result := PosEx(Args[0], Args[1]);
+      Result := Pos(string(Args[0]), string(Args[1]));
     end);
   RegisterFunction('Replace',
     function(const args: Variant): Variant

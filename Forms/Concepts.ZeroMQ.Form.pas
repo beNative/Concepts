@@ -358,20 +358,18 @@ begin
     Events,
     FEventProc
   );
-  Pair.Connect(ConnectionString);
-  Poll := ZMQ.Poller;
-  Poll.RegisterPair(Pair, [PollEvent.PollIn],
-    procedure(Event: PollEvents)
-    var
-      S : string;
-    begin
-      if PollEvent.PollIn in Event then
+  if Pair.Connect(ConnectionString) = 0 then
+  begin
+    Poll := ZMQ.Poller;
+    Poll.RegisterPair(Pair, [PollEvent.PollIn],
+      procedure(Event: PollEvents)
       begin
-        S := Pair.ReceiveString;
-        mmoReceive.Text := S;
-      end;
-    end
-  );
+        mmoReceive.Text := Pair.ReceiveString;
+      end
+    );
+  end
+  else
+    ShowMessage('Could not connect.');
 end;
 
 procedure TfrmZMQConcept.actCreateNewExecute(Sender: TObject);
@@ -384,8 +382,7 @@ end;
 
 procedure TfrmZMQConcept.actReceiveExecute(Sender: TObject);
 begin
-  //mmoReceive.Text := Pair.ReceiveString(True);
-
+  mmoReceive.Text := Pair.ReceiveString(True);
 end;
 
 procedure TfrmZMQConcept.actResetCounterExecute(Sender: TObject);

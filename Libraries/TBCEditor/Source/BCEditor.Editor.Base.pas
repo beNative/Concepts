@@ -11512,6 +11512,7 @@ var
   LTextCaretPosition, LSelectionBeginPosition, LSelectionEndPosition: TBCEditorTextPosition;
   LCodeFoldingRange: TBCEditorCodeFoldingRange;
   LDeleteComment: Boolean;
+  LPosition: Integer;
 begin
   LLength := Length(FHighlighter.Comments.BlockComments);
 
@@ -11591,7 +11592,8 @@ begin
     if LDeleteComment and (LLineText <> '') then
     begin
       LComment := FHighlighter.Comments.BlockComments[LCommentIndex - 2];
-      if Pos(LComment, LLineText) = Length(LLineText) - Length(LComment) + 1 then
+      LPosition := Length(LLineText) - Length(LComment) + 1;
+      if (LPosition > 0) and (Pos(LComment, LLineText) = LPosition) then
       begin
         FUndoList.AddChange(crDelete, LTextCaretPosition, GetTextPosition(LSpaceCount + Length(LLineText) - Length(LComment) + 1, LEndLine),
           GetTextPosition(LSpaceCount + Length(LLineText) + 1, LEndLine), LComment, FSelection.ActiveMode);
@@ -12135,11 +12137,11 @@ begin
             LLength := Length(LLineText);
             if LTextCaretPosition.Char <= LLength then
             begin
-              LCounter := 1;
-              LHelper := Copy(LLineText, LTextCaretPosition.Char, LCounter);
-              Delete(LLineText, LTextCaretPosition.Char, LCounter);
+              LHelper := Copy(LLineText, LTextCaretPosition.Char, 1);
+              Delete(LLineText, LTextCaretPosition.Char, 1);
               SetLineWithRightTrim(LTextCaretPosition.Line, LLineText);
-              FUndoList.AddChange(crDelete, LTextCaretPosition, LTextCaretPosition, LTextCaretPosition, LHelper, smNormal);
+              FUndoList.AddChange(crDelete, LTextCaretPosition, LTextCaretPosition,
+                GetTextPosition(LTextCaretPosition.Char + 1, LTextCaretPosition.Line), LHelper, smNormal);
             end
             else
             begin
@@ -12176,31 +12178,7 @@ begin
           LLineText := FLines[LTextCaretPosition.Line];
           LLength := Length(LLineText);
           if ACommand = ecDeleteWord then
-          begin
-            LWordPosition := WordEnd;
-            if (LWordPosition.Char < LTextCaretPosition.Char) or
-              ((LWordPosition.Char = LTextCaretPosition.Char) and (LWordPosition.Line < FLines.Count)) then
-            begin
-              if LWordPosition.Char > LLength then
-              begin
-                Inc(LWordPosition.Line);
-                LWordPosition.Char := 1;
-                LLineText := FLines[LWordPosition.Line];
-              end
-              else
-              if (LWordPosition.Char <= LLength) and (LLineText[LWordPosition.Char] <> BCEDITOR_SPACE_CHAR) then
-                Inc(LWordPosition.Char);
-            end
-            else
-            if (LWordPosition.Char = LTextCaretPosition.Char) and (LWordPosition.Line = LTextCaretPosition.Line) then
-            begin
-              LWordPosition.Char := LLength + 1;
-              LWordPosition.Line := LTextCaretPosition.Line;
-            end;
-            if LLineText <> '' then
-              while LLineText[LWordPosition.Char] = BCEDITOR_SPACE_CHAR do
-                Inc(LWordPosition.Char);
-          end
+            LWordPosition := WordEnd
           else
           begin
             LWordPosition.Char := LLength + 1;
@@ -13345,22 +13323,22 @@ procedure TBCBaseEditor.DoInternalRedo;
 
   procedure RemoveGroupBreak;
   var
-    LUndoItem: TBCEditorUndoItem;
+    LRedoItem: TBCEditorUndoItem;
   begin
     if FRedoList.LastChangeReason = crGroupBreak then
     begin
-      LUndoItem := FRedoList.PopItem;
+      LRedoItem := FRedoList.PopItem;
       try
         FUndoList.AddGroupBreak;
       finally
-        LUndoItem.Free;
+        LRedoItem.Free;
       end;
       UpdateModifiedStatus;
     end;
   end;
 
 var
-  LUndoItem: TBCEditorUndoItem;
+  LRedoItem: TBCEditorUndoItem;
   LLastChangeBlockNumber: Integer;
   LLastChangeReason: TBCEditorChangeReason;
   LLastChangeString: string;
@@ -13375,20 +13353,20 @@ begin
   LLastChangeString := FRedoList.LastChangeString;
   LPasteAction := LLastChangeReason = crPaste;
 
-  LUndoItem := FRedoList.PeekItem;
-  if Assigned(LUndoItem) then
+  LRedoItem := FRedoList.PeekItem;
+  if Assigned(LRedoItem) then
   begin
     repeat
       RedoItem;
-      LUndoItem := FRedoList.PeekItem;
+      LRedoItem := FRedoList.PeekItem;
       LKeepGoing := False;
-      if Assigned(LUndoItem) then
+      if Assigned(LRedoItem) then
       begin
         if uoGroupUndo in FUndo.Options then
           LKeepGoing := LPasteAction and (FRedoList.LastChangeString = LLastChangeString) or
-            (LLastChangeReason = LUndoItem.ChangeReason) and (LUndoItem.ChangeBlockNumber = LLastChangeBlockNumber) or
-            (LUndoItem.ChangeBlockNumber <> 0) and (LUndoItem.ChangeBlockNumber = LLastChangeBlockNumber);
-        LLastChangeReason := LUndoItem.ChangeReason;
+            (LLastChangeReason = LRedoItem.ChangeReason) and (LRedoItem.ChangeBlockNumber = LLastChangeBlockNumber) or
+            (LRedoItem.ChangeBlockNumber <> 0) and (LRedoItem.ChangeBlockNumber = LLastChangeBlockNumber);
+        LLastChangeReason := LRedoItem.ChangeReason;
         LPasteAction := LLastChangeReason = crPaste;
       end;
     until not LKeepGoing;

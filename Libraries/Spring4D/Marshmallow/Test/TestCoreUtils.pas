@@ -95,6 +95,6 @@ end;
 {$ENDIF}
 
 initialization
-  RegisterTest(TTestCoreUtils.Suite);
+  RegisterTest('Spring.Persistence.Core', TTestCoreUtils.Suite);
 
 end.

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -100,6 +100,7 @@ type
     fController: ISerializerController;
   protected
     procedure SetUp; override;
+    procedure TearDown; override;
   published
     procedure TestInterfacedObject;
     procedure TestInterfacedNoObject;
@@ -312,18 +313,15 @@ var
   result: string;
   s, c: string;
   value: TValue;
-{$IFDEF AUTOREFCOUNT}
-  p: Pointer;
-{$ENDIF}
 begin
   controller := TLoggerController.Create;
   controller.AddSerializer(fSerializer);
   fSerializer := TReflectionTypeSerializer.Create([mvPublic], True);
   o := TSampleObject.Create;
   try
-{$IFDEF AUTOREFCOUNT}
+{$IFDEF WEAKREF}
     //We're also testing how WeakRefs work
-    p := o;
+    CheckEquals(1, TSampleObject.Instances);
 {$ENDIF}
     o.fString := 'test';
     o.fObject := o;
@@ -338,7 +336,7 @@ begin
       '    PObject = ' + s + #$A +
       '    PString = test'#$A +
       '    RefCount = ' +
-{$IFDEF NEXTGEN}
+{$IFDEF AUTOREFCOUNT}
       '5'#$A +
       '    Disposed = False' +
 {$ELSE}
@@ -352,7 +350,7 @@ begin
       '  PObject = ' + c + #$A +
       '  PString = test'#$A +
       '  RefCount = ' +
-{$IFDEF NEXTGEN}
+{$IFDEF AUTOREFCOUNT}
       '3'#$A +
       '  Disposed = False' +
 {$ELSE}
@@ -366,9 +364,10 @@ begin
   end;
 
   CheckEquals(s, result);
-{$IFDEF AUTOREFCOUNT}
-  //Lets make sure we're not leaking
-  CheckTrue(TObject(p).Disposed, 'Leak detected!');
+{$IFDEF WEAKREF}
+  //Lets make sure we're not leaking (ie. the instance was freed and all
+  //references removed)
+  CheckEquals(0, TSampleObject.Instances, 'Leak detected!');
 {$ENDIF}
 end;
 
@@ -430,6 +429,12 @@ begin
   fController := TLoggerController.Create;
   fController.AddSerializer(TReflectionTypeSerializer.Create);
   fSerializer := TInterfaceSerializer.Create;
+end;
+
+procedure TTestInterfaceSerializer.TearDown;
+begin
+  inherited;
+  fController := nil;
 end;
 
 procedure TTestInterfaceSerializer.TestInterfacedNoObject;

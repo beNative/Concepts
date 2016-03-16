@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -329,7 +329,11 @@ end;
 
 procedure TEventBase<T>.Add(handler: T);
 begin
-  if {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} = tkInterface then
+{$IFDEF DELPHI2010}
+  if PTypeInfo(TypeInfo(T)).Kind = tkInterface then
+{$ELSE}
+  if TType.Kind<T> = tkInterface then
+{$ENDIF}
     inherited Add(MethodReferenceToMethodPointer(handler))
   else
     inherited Add(PMethodPointer(@handler)^);
@@ -340,7 +344,11 @@ var
   handler: TMethodPointer;
 begin
   for handler in Handlers do
-    if {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} = tkInterface then
+{$IFDEF DELPHI2010}
+    if PTypeInfo(TypeInfo(T)).Kind = tkInterface then
+{$ELSE}
+    if TType.Kind<T> = tkInterface then
+{$ENDIF}
       TAction<IInterface>(action)(MethodPointerToMethodReference(handler))
     else
       TAction<TMethodPointer>(action)(handler);
@@ -348,7 +356,11 @@ end;
 
 function TEventBase<T>.GetInvoke: T;
 begin
-  if {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} = tkInterface then
+{$IFDEF DELPHI2010}
+  if PTypeInfo(TypeInfo(T)).Kind = tkInterface then
+{$ELSE}
+  if TType.Kind<T> = tkInterface then
+{$ENDIF}
     IInterface(PPointer(@Result)^) := MethodPointerToMethodReference(inherited Invoke)
   else
     PMethodPointer(@Result)^ := inherited Invoke;
@@ -356,7 +368,11 @@ end;
 
 procedure TEventBase<T>.Remove(handler: T);
 begin
-  if {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} = tkInterface then
+{$IFDEF DELPHI2010}
+  if PTypeInfo(TypeInfo(T)).Kind = tkInterface then
+{$ELSE}
+  if TType.Kind<T> = tkInterface then
+{$ENDIF}
     inherited Remove(MethodReferenceToMethodPointer(handler))
   else
     inherited Remove(PMethodPointer(@handler)^);

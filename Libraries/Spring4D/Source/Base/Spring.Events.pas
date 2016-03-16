@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -136,6 +136,21 @@ type
   {$ENDREGION}
 
 
+  {$REGION 'TNotifyEventImpl'}
+
+  TNotifyEventImpl = class(TEventBase, INotifyEvent)
+  private
+    function GetInvoke: TNotifyEvent;
+    procedure Add(handler: TNotifyEvent);
+    procedure Remove(handler: TNotifyEvent);
+    procedure InternalInvoke(sender: TObject);
+  public
+    constructor Create;
+  end;
+
+  {$ENDREGION}
+
+
   {$REGION 'TNotifyEventImpl<T>'}
 
   TNotifyEventImpl<T> = class(TEventBase, INotifyEvent<T>)
@@ -143,8 +158,6 @@ type
     function GetInvoke: TNotifyEvent<T>;
     procedure Add(handler: TNotifyEvent<T>);
     procedure Remove(handler: TNotifyEvent<T>);
-    procedure ForEach(const action: TAction<TNotifyEvent<T>>);
-
     procedure InternalInvoke(sender: TObject; const item: T);
   public
     constructor Create;
@@ -532,7 +545,6 @@ end;
 constructor TEvent.Create(typeInfo: PTypeInfo);
 var
   typeData: PTypeData;
-  ctx: TRttiContext;
   method: TRttiMethod;
 begin
   //TODO: If Embt ever adds TRttiMethodType.CreateImplementation this could be done in pure pascal way
@@ -550,7 +562,7 @@ begin
   end
   else if typeInfo.Kind = tkInterface then
   begin
-    method := ctx.GetType(typeInfo).GetMethod('Invoke');
+    method := typeInfo.RttiType.GetMethod('Invoke');
     if not Assigned(method) then
       raise EInvalidOperationException.CreateResFmt(@STypeParameterContainsNoRtti, [typeInfo.Name]);
     New(typeData);
@@ -623,7 +635,11 @@ var
   handler: TMethodPointer;
 begin
   for handler in Handlers do
-    if {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} = tkInterface then
+{$IFDEF DELPHI2010}
+    if PTypeInfo(TypeInfo(T)).Kind = tkInterface then
+{$ELSE}
+    if TType.Kind<T> = tkInterface then
+{$ENDIF}
       TAction<IInterface>(action)(MethodPointerToMethodReference(handler))
     else
       TAction<TMethodPointer>(action)(handler);
@@ -631,7 +647,11 @@ end;
 
 procedure TEvent<T>.Add(handler: T);
 begin
-  if {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} = tkInterface then
+{$IFDEF DELPHI2010}
+  if PTypeInfo(TypeInfo(T)).Kind = tkInterface then
+{$ELSE}
+  if TType.Kind<T> = tkInterface then
+{$ENDIF}
     inherited Add(MethodReferenceToMethodPointer(handler))
   else
     inherited Add(PMethodPointer(@handler)^);
@@ -639,7 +659,11 @@ end;
 
 procedure TEvent<T>.Remove(handler: T);
 begin
-  if {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} = tkInterface then
+{$IFDEF DELPHI2010}
+  if PTypeInfo(TypeInfo(T)).Kind = tkInterface then
+{$ELSE}
+  if TType.Kind<T> = tkInterface then
+{$ENDIF}
     inherited Remove(MethodReferenceToMethodPointer(handler))
   else
     inherited Remove(PMethodPointer(@handler)^);
@@ -647,12 +671,51 @@ end;
 
 function TEvent<T>.GetInvoke: T;
 begin
-  if {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} = tkInterface then
+{$IFDEF DELPHI2010}
+  if PTypeInfo(TypeInfo(T)).Kind = tkInterface then
+{$ELSE}
+  if TType.Kind<T> = tkInterface then
+{$ENDIF}
     TProc(PPointer(@Result)^) := Self
   else
     PMethodPointer(@Result)^ := fInvoke;
 end;
 {$ENDIF SUPPORTS_GENERIC_EVENTS}
+
+{$ENDREGION}
+
+
+{$REGION 'TNotifyEventImpl'}
+
+constructor TNotifyEventImpl.Create;
+begin
+  inherited;
+  TNotifyEvent(fInvoke) := InternalInvoke;
+end;
+
+procedure TNotifyEventImpl.Add(handler: TNotifyEvent);
+begin
+  inherited Add(TMethodPointer(handler));
+end;
+
+function TNotifyEventImpl.GetInvoke: TNotifyEvent;
+begin
+  Result := TNotifyEvent(inherited Invoke);
+end;
+
+procedure TNotifyEventImpl.InternalInvoke(sender: TObject);
+var
+  handler: TMethodPointer;
+begin
+  if Enabled then
+    for handler in Handlers do
+      TNotifyEvent(handler)(sender);
+end;
+
+procedure TNotifyEventImpl.Remove(handler: TNotifyEvent);
+begin
+  inherited Remove(TMethodPointer(handler));
+end;
 
 {$ENDREGION}
 
@@ -668,14 +731,6 @@ end;
 procedure TNotifyEventImpl<T>.Add(handler: TNotifyEvent<T>);
 begin
   inherited Add(TMethodPointer(handler));
-end;
-
-procedure TNotifyEventImpl<T>.ForEach(const action: TAction<TNotifyEvent<T>>);
-var
-  handler: TMethodPointer;
-begin
-  for handler in Handlers do
-    action(TNotifyEvent<T>(handler));
 end;
 
 function TNotifyEventImpl<T>.GetInvoke: TNotifyEvent<T>;

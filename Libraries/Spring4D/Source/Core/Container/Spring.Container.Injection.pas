@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -170,7 +170,7 @@ var
 begin
   for i := Low(parameterTypes) to High(parameterTypes) do
     fDependencies[i] := TDependencyModel.Create(
-      TType.GetType(parameterTypes[i]), fDependencies[i].Target);
+      parameterTypes[i].RttiType, fDependencies[i].Target);
 end;
 
 function TInjectionBase.GetArguments: TArray<TValue>;

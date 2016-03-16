@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -356,7 +356,7 @@ end;
 
 destructor TDriverConnectionAdapter<T>.Destroy;
 begin
-  if {$IFDEF DELPHIXE7_UP}System.GetTypeKind(T){$ELSE}GetTypeKind(TypeInfo(T)){$ENDIF} = tkClass then
+  if TType.Kind<T> = tkClass then
     if AutoFreeConnection then
       PObject(@fConnection).Free;
   inherited Destroy;

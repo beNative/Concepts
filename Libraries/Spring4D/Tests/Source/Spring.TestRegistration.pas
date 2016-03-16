@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -51,6 +51,7 @@ uses
   Spring.Tests.Container.Logging,
 {$IFDEF DELPHIXE_UP}
   Spring.Tests.Interception,
+  Spring.Tests.Mocking,
 {$ENDIF}
   Spring.Tests.Pool,
   Spring.Tests.Utils,
@@ -73,10 +74,16 @@ begin
     TTestTuplesDouble.Suite,
     TTestTuplesTriple.Suite,
     TTestTuplesQuadruple.Suite,
-    TTestSmartPointer.Suite,
-    TTestDynamicArray.Suite,
+    TTestOwned.Suite,
+    TTestVector.Suite,
     TTestValueHelper.Suite
   ]);
+
+{$IFNDEF DELPHI2010}
+  RegisterTests('Spring.Base', [
+    TTestManagedObject.Suite
+  ]);
+{$ENDIF}
 
   RegisterTests('Spring.Base.Collections', [
     TTestEmptyHashSet.Suite,
@@ -87,9 +94,11 @@ begin
     TTestEmptyStringIntegerDictionary.Suite,
     TTestEmptyStackOfStrings.Suite,
     TTestStackOfInteger.Suite,
+    TTestStackOfTBytes.Suite,
     TTestStackOfIntegerChangedEvent.Suite,
     TTestEmptyQueueOfInteger.Suite,
     TTestQueueOfInteger.Suite,
+    TTestQueueOfTBytes.Suite,
     TTestQueueOfIntegerChangedEvent.Suite,
     TTestListOfIntegerAsIEnumerable.Suite,
     TTestLinkedList.Suite,
@@ -105,6 +114,7 @@ begin
     TTestWhere.Suite,
     TTestSelect.Suite,
     TTestRange.Suite,
+    TTestRepeated.Suite,
     TTestConcat.Suite,
     TTestSelectMany.Suite,
     TTestAny.Suite,
@@ -144,7 +154,8 @@ begin
   ]);
 
   RegisterTests('Spring.Base.Reflection', [
-    TTestType.Suite
+    TTestType.Suite,
+    TTestMethodHelper.Suite
   ]);
 
   RegisterTests('Spring.Base.Reflection.ValueConverters', [
@@ -243,7 +254,11 @@ begin
     TProxyTest.Suite,
     TStorageTests.Suite,
     TTestInterception.Suite,
-    TTestMocks.Suite
+    TTestAutoMockingExtension.Suite,
+    TParameterMatchingTests.Suite,
+    ReceivedChecksForInputValueOfVarParams.Suite,
+    MockReturnsOtherMockInDynamicMode.Suite,
+    MockDynamicallySupportsOtherInterfaces.Suite
   ]);
 {$ENDIF}
 

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -31,12 +31,18 @@ uses
   Spring,
   Spring.Collections,
   Spring.Persistence.Core.Graphics,
+  Spring.Persistence.Core.Interfaces,
   Spring.Persistence.Mapping.Attributes;
 
 const
   CustomerColumnCount = 10;
 
 type
+  // ARC note: when using relationships that create a cycle (like TCustomer and
+  // TCustomer_Orders and others) it is needed to break the cycle in destructor.
+  // TSession will call DisposeOf but that doesn't call CleanupInstance, that
+  // would clear the references, sometimes calling DisposeOf is just not enough.
+
   TProduct = class;
   TCustomer_Orders = class;
 
@@ -107,6 +113,22 @@ type
     property OrdersIntf: IList<TCustomer_Orders> read GetOrdersIntf write SetOrdersIntf;
     property StreamLazy: Lazy<TMemoryStream> read FStream write FStream;
     property CustStream: TMemoryStream read GetCustStream write SetCustStream;
+  end;
+
+  [Entity]
+  [Table('PERSONS')]
+  TPerson = class
+  private
+    fSid: Int64;
+    fLastName: string;
+    fFirstName: string;
+  public
+    [Column('SID', [cpPrimaryKey])]
+    property Sid: Int64 read fSid write fSid;
+    [Column('LAST_NAME')]
+    property LastName: string read fLastName write fLastName;
+    [Column('FIRST_NAME')]
+    property FirstName: string read fFirstName write fFirstName;
   end;
 
   TForeignCustomer = class(TCustomer)
@@ -246,6 +268,10 @@ type
     property Phone: string read FPhone write FPhone;
   end;
 
+  [Table('IMONES', 'VIKARINA')]
+  [Sequence('GNR_IMONESID', 1, 1)]
+  TOracleSeqCompany = class(TUIBCompany);
+
   TUserRole = class;
   TRole = class;
 
@@ -264,6 +290,7 @@ type
     property UserRoles: IList<TUserRole> read GetUserRoles;
   public
     constructor Create;
+    destructor Destroy; override;
 
     procedure AddRole(role: TRole);
 
@@ -291,6 +318,7 @@ type
     property UserRoles: IList<TUserRole> read GetUserRoles;
   public
     constructor Create;
+    destructor Destroy; override;
 
     property Id: Integer read fId;
     [Column]
@@ -388,10 +416,31 @@ type
 var
   PictureFilename, OutputDir: string;
 
+procedure CreateTestTables(AConnection: IDBConnection;
+  const Entities: array of TClass);
+
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  Spring.Persistence.Core.DatabaseManager;
+
+procedure CreateTestTables(AConnection: IDBConnection;
+  const Entities: array of TClass);
+var
+  LDBManager: TDatabaseManager;
+  entity: TClass;
+begin
+  LDBManager := TDatabaseManager.Create(AConnection);
+  try
+    LDBManager.ClearEntities;
+    for entity in Entities do
+      LDBManager.RegisterEntity(entity);
+    LDBManager.BuildDatabase;
+  finally
+    LDBManager.Free;
+  end;
+end;
 
 { TCustomer }
 
@@ -498,7 +547,12 @@ end;
 destructor TCustomer_Orders.Destroy;
 begin
   if Assigned(FCustomer) then
+  begin
+{$IFDEF AUTOREFCOUNT}
+    FCustomer.DisposeOf;
+{$ENDIF}
     FCustomer.Free;
+  end;
 
   inherited Destroy;
 end;
@@ -534,6 +588,12 @@ begin
   fUserRoles := TCollections.CreateObjectList<TUserRole>;
 end;
 
+destructor TUser.Destroy;
+begin
+  fUserRoles := nil;
+  inherited;
+end;
+
 function TUser.GetRoles: IList<TRole>;
 var
   userRole: TUserRole;
@@ -548,6 +608,12 @@ end;
 constructor TRole.Create;
 begin
   fUserRoles := TCollections.CreateObjectList<TUserRole>;
+end;
+
+destructor TRole.Destroy;
+begin
+  fUserRoles := nil;
+  inherited;
 end;
 
 function TRole.GetUserRoles: IList<TUserRole>;
@@ -582,9 +648,19 @@ end;
 destructor TUserRole.Destroy;
 begin
   if OwnsUser in fOwnerships then
+  begin
+{$IFDEF AUTOREFCOUNT}
+    fUser.DisposeOf;
+{$ENDIF}
     fUser.Free;
+  end;
   if OwnsRole in fOwnerships then
+  begin
+{$IFDEF AUTOREFCOUNT}
+    fRole.DisposeOf;
+{$ENDIF}
     fRole.Free;
+  end;
   inherited Destroy;
 end;
 

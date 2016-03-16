@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -148,6 +148,10 @@ type
   TTypeSerializerMock2 = class(TTypeSerializerMock);
 
   TSampleObject = class(TInterfacedObject, IInterface)
+{$IFDEF AUTOREFCOUNT}
+  private class var
+    fInstances: Integer;
+{$ENDIF}
   private
     FROProp: Boolean;
   public
@@ -157,6 +161,12 @@ type
     property PObject: TObject read fObject;
     property PString: string read fString write fString;
     property ROProp: Boolean write fROProp;
+{$IFDEF AUTOREFCOUNT}
+  public
+    class function NewInstance: TObject unsafe; override;
+    procedure FreeInstance; override;
+    class property Instances: Integer read fInstances;
+{$ENDIF}
   end;
 
   TSampleRecord = record
@@ -263,6 +273,25 @@ function TTypeSerializerMock.Serialize(const controller: ISerializerController;
 begin
   Result := '';
 end;
+
+{$ENDREGION}
+
+
+{$REGION 'TSampleObject'}
+
+{$IFDEF AUTOREFCOUNT}
+procedure TSampleObject.FreeInstance;
+begin
+  inherited;
+  AtomicDecrement(fInstances);
+end;
+
+class function TSampleObject.NewInstance: TObject;
+begin
+  Result := inherited;
+  AtomicIncrement(fInstances);
+end;
+{$ENDIF}
 
 {$ENDREGION}
 

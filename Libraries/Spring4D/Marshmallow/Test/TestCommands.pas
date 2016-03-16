@@ -51,6 +51,6 @@ begin
 end;
 
 initialization
-  RegisterTest(TTableCreatorTest.Suite);
+  RegisterTest('Spring.Persistence.Commands', TTableCreatorTest.Suite);
 
 end.

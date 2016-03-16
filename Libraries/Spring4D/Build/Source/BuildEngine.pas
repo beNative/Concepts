@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -335,7 +335,7 @@ begin
   fNames.RootDir := properties.GetValueOrDefault('Names.RootDir', 'RootDir');
   fNames.DebugDCUPath := properties.GetValueOrDefault('Names.DebugDCUPath', 'Debug DCU Path');
 
-  fExists := fRegistry.KeyExists(fKeys.BDS);
+  fExists := fRegistry.KeyExists(fKeys.LibraryKey);
   if fExists then
   begin
     EnsureOpenKey(fKeys.BDS);

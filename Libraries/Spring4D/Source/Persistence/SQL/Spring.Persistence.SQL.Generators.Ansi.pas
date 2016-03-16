@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -109,6 +109,7 @@ type
 implementation
 
 uses
+  Rtti,
   StrUtils,
   SysUtils,
   TypInfo,
@@ -618,15 +619,15 @@ end;
 
 procedure TAnsiSQLGenerator.ParseFullTablename(const fullTableName: string; out tableName, schemaName: string);
 var
-  pos: Integer;
+  i: Integer;
 begin
-  pos := PosEx('.', fullTableName);
+  i := Pos('.', fullTableName);
   tableName := fullTableName;
   schemaName := '';
-  if pos > 1 then
+  if i > 1 then
   begin
-    schemaName := Copy(fullTableName, 1, pos - 1);
-    tableName := Copy(fullTableName, pos + 1, Length(fullTableName) - 1);
+    schemaName := Copy(fullTableName, 1, i - 1);
+    tableName := Copy(fullTableName, i + 1, Length(fullTableName) - 1);
   end;
 end;
 
@@ -694,7 +695,7 @@ begin
       begin
         createField := field.Clone;
         try
-          createField.TypeInfo := TType.GetType(typeInfo).GetGenericArguments[0].Handle;
+          createField.TypeInfo := typeInfo.RttiType.GetGenericArguments[0].Handle;
           Result := GetSQLDataTypeName(createField);
         finally
           createField.Free;

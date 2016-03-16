@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -108,6 +108,17 @@ type
     procedure EmptyRange;
     procedure SingleValueOfMaxInt32;
     procedure EmptyRangeStartingAtMinInt32;
+  end;
+
+  TTestRepeated = class(TTestCase)
+  published
+    procedure NegativeCount;
+    procedure LargeButValidCount;
+
+    procedure ValidRepeated;
+    procedure EmptyRepeated;
+    procedure SingleValueOfMaxInt32;
+    procedure NilIsValidForRepeatedObject;
   end;
 
   TTestConcat = class(TTestCase)
@@ -1160,6 +1171,55 @@ end;
 procedure TTestRange.ValidRange;
 begin
   CheckTrue(TEnumerable.Range(5, 3).EqualsTo([5, 6, 7]));
+end;
+
+{ TTestRepeated }
+
+procedure TTestRepeated.EmptyRepeated;
+var
+  obj: Owned<TObject>;
+begin
+  CheckTrue(TEnumerable.Repeated<Integer>(100, 0).EqualsTo([]));
+  obj := TObject.Create;
+  CheckTrue(TEnumerable.Repeated<TObject>(obj, 0).EqualsTo([]));
+end;
+
+procedure TTestRepeated.LargeButValidCount;
+const
+  TestCounts: array[0..2] of Integer = (1, MaxInt div 2 + 2, MaxInt);
+var
+  i: Integer;
+begin
+  for i in TestCounts do
+    CheckEquals(i, TEnumerable.Repeated<Integer>(1, i).Count);
+end;
+
+procedure TTestRepeated.NegativeCount;
+begin
+  CheckException(EArgumentOutOfRangeException,
+    procedure
+    begin
+      TEnumerable.Repeated<Integer>(10, -1);
+    end);
+end;
+
+procedure TTestRepeated.NilIsValidForRepeatedObject;
+begin
+  CheckTrue(TEnumerable.Repeated<TObject>(nil, 3).EqualsTo([nil, nil, nil]));
+end;
+
+procedure TTestRepeated.SingleValueOfMaxInt32;
+begin
+  CheckTrue(TEnumerable.Repeated<Integer>(MaxInt, 1).EqualsTo([MaxInt]));
+end;
+
+procedure TTestRepeated.ValidRepeated;
+var
+  obj: Owned<TObject>;
+begin
+  CheckTrue(TEnumerable.Repeated<Integer>(5, 3).EqualsTo([5, 5, 5]));
+  obj := TObject.Create;
+  CheckTrue(TEnumerable.Repeated<TObject>(obj, 3).EqualsTo([obj, obj, obj]));
 end;
 
 { TTestConcat }

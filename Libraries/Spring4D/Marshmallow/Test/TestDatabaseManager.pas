@@ -85,7 +85,7 @@ begin
   CheckEquals(0, GetTableCount(FConnection));
   FDatabaseManager.BuildDatabase;
 
-  iCount := 6;
+  iCount := 7;
 
   sTables := GetTables(FConnection);
   if Pos('sqlite_sequence', sTables) > 0 then
@@ -122,11 +122,6 @@ begin
 end;
 
 initialization
-  // Register any test cases with the test runner
-  RegisterTest(TDatabaseManagerTest.Suite);
-
-
-
+  RegisterTest('Spring.Persistence.Core', TDatabaseManagerTest.Suite);
 
 end.
-

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -385,21 +385,37 @@ var
   entityClass: TClass;
   capturedId: TValue;
   factory: TFunc<IInterface>;
+{$IFDEF AUTOREFCOUNT}
+  capturedSelf: Pointer;
+  capturedEntity: Pointer;
+{$ENDIF}
 begin
   if not interfaceType.IsGenericTypeOf('IEnumerable<>') then
     raise EORMUnsupportedType.CreateFmt('Unsupported type: %s', [interfaceType.Name]);
   entityClass := interfaceType.GetGenericArguments[0].AsInstance.MetaclassType;
 
+  // Break reference held by the anonymous function closure (RSP-10176).
+  // Do not use __ObjRelease but use unsafe pointer here, if the lazy is
+  // released before TAbstractSession, it would destroy it.
+{$IFDEF AUTOREFCOUNT}
+  capturedSelf := Self;
+  capturedEntity := entity;
+{$ENDIF}
   capturedId := id;
   factory :=
     function: IInterface
     begin
-      Result := GetLazyValueAsInterface(capturedId, entity, column, entityClass);
-    end;
 {$IFDEF AUTOREFCOUNT}
-  // Release reference held by the anonymous function closure (RSP-10176)
-  __ObjRelease;
+      with TAbstractSession(capturedSelf) do
 {$ENDIF}
+        Result := GetLazyValueAsInterface(capturedId,
+{$IFNDEF AUTOREFCOUNT}
+          entity,
+{$ELSE}
+          capturedEntity,
+{$ENDIF}
+          column, entityClass);
+    end;
   Result := TValue.From<Lazy<IInterface>>(TLazy<IInterface>.Create(factory));
 end;
 
@@ -409,17 +425,32 @@ function TAbstractSession.ResolveLazyObject(const id: TValue;
 var
   capturedId: TValue;
   factory: TFunc<TObject>;
+{$IFDEF AUTOREFCOUNT}
+  capturedSelf: Pointer;
+  capturedEntity: Pointer;
+{$ENDIF}
 begin
+  // Break reference held by the anonymous function closure (RSP-10176).
+  // See above for details.
+{$IFDEF AUTOREFCOUNT}
+  capturedSelf := Self;
+  capturedEntity := entity;
+{$ENDIF}
   capturedId := id;
   factory :=
     function: TObject
     begin
-      Result := GetLazyValueAsObject(capturedId, entity, column, entityClass);
-    end;
 {$IFDEF AUTOREFCOUNT}
-  // Release reference held by the anonymous function closure (RSP-10176)
-  __ObjRelease;
+      with TAbstractSession(capturedSelf) do
 {$ENDIF}
+        Result := GetLazyValueAsObject(capturedId,
+{$IFNDEF AUTOREFCOUNT}
+          entity,
+{$ELSE}
+          capturedEntity,
+{$ENDIF}
+          column, entityClass);
+    end;
   Result := TValue.From<Lazy<TObject>>(TLazy<TObject>.Create(factory, True));
 end;
 
@@ -603,7 +634,7 @@ begin
   memberType := columnMember.MemberType.Handle;
   if GetLazyKind(memberType) <> lkRecord then
     raise EORMUnsupportedType.CreateFmt('Unsupported type: %s - expected Lazy<T>', [memberType.TypeName]);
-  targetType := TType.GetType(memberType).GetGenericArguments[0];
+  targetType := memberType.RttiType.GetGenericArguments[0];
   if targetType = nil then
     raise EORMUnsupportedType.CreateFmt('Unsupported type: %s - insufficient rtti', [memberType.TypeName]);
   Result := TValue.Empty;

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -833,6 +833,7 @@ begin
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<Extended>(outFloat));
   CheckEquals(1.11, outFloat);
+  CheckFalse(fConverter.TryConvertTo(TValue.From<string>('foo'), TypeInfo(Extended), outValue));
 end;
 
 procedure TTestFromString.TestStringToEnum;

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -54,6 +54,7 @@ uses
 {$IFDEF DELPHIXE_UP}
   Spring.Tests.Interception in '..\..\Source\Core\Spring.Tests.Interception.pas',
   Spring.Tests.Interception.Types in '..\..\Source\Core\Spring.Tests.Interception.Types.pas',
+  Spring.Tests.Mocking in '..\..\Source\Core\Spring.Tests.Mocking.pas',
 {$ENDIF}
   Spring.Tests.Pool in '..\..\Source\Core\Spring.Tests.Pool.pas',
   Spring.Tests.Cryptography in '..\..\Source\Extensions\Spring.Tests.Cryptography.pas',

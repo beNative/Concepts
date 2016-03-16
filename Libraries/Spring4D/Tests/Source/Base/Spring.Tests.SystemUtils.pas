@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2014 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -36,6 +36,8 @@ type
   TTestSplitString = class(TTestCase)
   private
     fStrings: TStringDynArray;
+  protected
+    procedure TearDown; override;
   published
     procedure TestEmptyString;
     procedure TestOneEntry;
@@ -56,6 +58,8 @@ type
   private
     fStrings: TStringDynArray;
     fBuffer: TCharArray;
+  protected
+    procedure TearDown; override;
   published
     procedure TestNil;
     procedure TestEmpty;
@@ -125,6 +129,12 @@ begin
   CheckEquals('0', fStrings[1]);
 end;
 
+procedure TTestSplitString.TearDown;
+begin
+  inherited;
+  SetLength(fStrings, 0);
+end;
+
 procedure TTestSplitString.TestEmptyEntry;
 begin
   fStrings := SplitString('one  word', [' ']);
@@ -174,6 +184,13 @@ end;
 
 
 {$REGION 'TTestSplitNullTerminatedStrings'}
+
+procedure TTestSplitNullTerminatedStrings.TearDown;
+begin
+  inherited;
+  SetLength(fStrings, 0);
+  SetLength(fBuffer, 0);
+end;
 
 procedure TTestSplitNullTerminatedStrings.TestEmpty;
 begin

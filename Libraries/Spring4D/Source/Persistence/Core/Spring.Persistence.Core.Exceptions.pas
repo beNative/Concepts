@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2015 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -37,7 +37,12 @@ type
   ///   Base class for all ORM related exceptions. Cannot be instantiated
   ///   directly.
   /// </summary>
-  EORMException = class abstract(Exception);
+  EORMException = class abstract(Exception)
+{$IFDEF AUTOREFCOUNT}
+  protected
+    procedure RaisingException(P: PExceptionRecord); override;
+{$ENDIF}
+  end;
 
   EBaseORMException = class(EORMException)
   protected
@@ -207,6 +212,21 @@ uses
   Spring.Reflection;
 
 
+{$REGION 'EORMException'}
+
+{$IFDEF AUTOREFCOUNT}
+procedure EORMException.RaisingException(P: PExceptionRecord);
+begin
+  inherited;
+  // fixes AcquireExceptionObject ARC issue (RSP-13652)
+  if Assigned(InnerException) then
+    InnerException.__ObjRelease;
+end;
+{$ENDIF}
+
+{$ENDREGION}
+
+
 {$REGION 'EBaseORMException'}
 
 constructor EBaseORMException.Create(const entity: TObject);
@@ -267,6 +287,14 @@ begin
 end;
 
 function TORMExceptionHandler.HandleException(const defaultMsg: string): Exception;
+
+{$IFDEF AUTOREFCOUNT}
+  function AcquireExceptionObject: Exception; // fixes RSP-13652
+  begin
+    Pointer(Result):=System.AcquireExceptionObject;
+  end;
+{$ENDIF}
+
 var
   exc: TObject;
 begin
