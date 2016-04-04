@@ -164,6 +164,7 @@
         <DCCReference Include="..\Source\BCEditor.Editor.Minimap.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Minimap.Colors.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Minimap.Indicator.pas"/>
+        <DCCReference Include="..\Source\BCEditor.Editor.Minimap.Shadow.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.PopupWindow.pas"/> 
         <DCCReference Include="..\Source\BCEditor.Editor.Replace.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.RightMargin.pas"/>

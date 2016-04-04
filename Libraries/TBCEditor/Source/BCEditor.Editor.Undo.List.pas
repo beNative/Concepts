@@ -258,10 +258,10 @@ end;
 
 procedure TBCEditorUndoList.AddGroupBreak;
 var
-  vDummy: TBCEditorTextPosition;
+  LDummyTextPosition: TBCEditorTextPosition;
 begin
-  if LastChangeReason <> crGroupBreak then
-    AddChange(crGroupBreak, vDummy, vDummy, vDummy, '', smNormal);
+  if (LastChangeBlockNumber = 0) and (LastChangeReason <> crGroupBreak) then
+    AddChange(crGroupBreak, LDummyTextPosition, LDummyTextPosition, LDummyTextPosition, '', smNormal);
 end;
 
 function TBCEditorUndoList.GetItems(AIndex: Integer): TBCEditorUndoItem;

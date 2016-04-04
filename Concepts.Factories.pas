@@ -38,9 +38,6 @@ uses
   DSharp.DevExpress.TreeListPresenter,
   {$ENDIF}
 
-
-
-
   {$IFDEF DEVEXPRESS}
   cxGridCustomView, cxTL, cxTLData,
   {$ENDIF}

@@ -101,6 +101,7 @@ begin
     Connected :=
       FPublisher.Bind(Format('tcp://%s:%d', ['*', DEFAULT_PORT])) <> -1;
   end;
+  Result := Connected;
 end;
 
 function TZeroMQChannel.Write(const AMsg: TLogMessage): Boolean;
@@ -109,7 +110,6 @@ const
 var
   TextSize : Integer;
   DataSize : Integer;
-  N        : Integer;
 begin
   if Active then
   begin
