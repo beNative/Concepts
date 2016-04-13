@@ -11,6 +11,7 @@
 * [DDetours](http://github.com/MahdiSafsafi/delphi-detours-library)
 * [TBCEditor](http://github.com/bonecode/TBCEditor)
 * [TzObjectInspector](http://github.com/MahdiSafsafi/zcontrols)
+* [JsonDataObjects](http://github.com/ahausladen/JsonDataObjects)
 
 A copy of all libraries that the project depends on are included (except commercial ones of course) to avoid installation hassles for anyone who tries to compile the project. 
 In the [Concepts.inc](http://github.com/beNative/Concepts/blob/master/Concepts.inc) file you can specify which dependencies you want to have included in your build.
