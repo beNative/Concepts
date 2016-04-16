@@ -46,31 +46,31 @@ type
   TfrmSpringLogging = class(TForm)
     aclMain            : TActionList;
     actLog             : TAction;
+    actLogValue        : TAction;
     actTrackThis       : TAction;
     actWarn            : TAction;
-    actLogValue        : TAction;
-    pnlLeft            : TPanel;
-    pnlRight           : TPanel;
-    grpLogEntry        : TGroupBox;
-    lbl1               : TLabel;
-    lblData            : TLabel;
-    rgpLogEntryTypes   : TRadioGroup;
-    rgpLogLevel        : TRadioGroup;
-    edtMessage         : TEdit;
-    edtData            : TEdit;
-    pnlLoggerInspector : TPanel;
-    spl1               : TSplitter;
-    tsMain             : TTabSet;
-    imlMain            : TImageList;
+    btnLog             : TButton;
     btnTrackThis       : TButton;
-    grpAppenders       : TGroupBox;
-    chkTraceLogEnabled : TCheckBox;
     chkFileLogEnabled  : TCheckBox;
     chkLogTreeEnabled  : TCheckBox;
+    chkTraceLogEnabled : TCheckBox;
     chkWinIPCEnabled   : TCheckBox;
-    btnLog             : TButton;
+    edtData            : TEdit;
     edtLogFile         : TEdit;
+    edtMessage         : TEdit;
+    grpAppenders       : TGroupBox;
+    grpLogEntry        : TGroupBox;
     imlLogLevels       : TImageList;
+    imlMain            : TImageList;
+    lbl1               : TLabel;
+    lblData            : TLabel;
+    pnlLeft            : TPanel;
+    pnlLoggerInspector : TPanel;
+    pnlRight           : TPanel;
+    rgpLogEntryTypes   : TRadioGroup;
+    rgpLogLevel        : TRadioGroup;
+    spl1               : TSplitter;
+    tsMain             : TTabSet;
 
     procedure actTrackThisExecute(Sender: TObject);
     procedure actLogExecute(Sender: TObject);
@@ -122,6 +122,7 @@ procedure TfrmSpringLogging.AfterConstruction;
 var
   FLA : TFileLogAppender;
   LP  : ILoggerProperties;
+  SC  : ISerializerController;
 begin
   inherited AfterConstruction;
 
@@ -164,16 +165,24 @@ begin
   FController.AddAppender(FTraceLogAppender);
   FController.AddAppender(FLogTreeAppender);
   FController.AddAppender(FWinIPCAppender);
-  (FController as ISerializerController).AddSerializer(TReflectionTypeSerializer.Create);
-  (FController as ISerializerController).AddSerializer(TSimpleTypeSerializer.Create);
-  (FController as ISerializerController).AddSerializer(TInterfaceSerializer.Create);
-  (FController as ISerializerController).AddSerializer(TArrayOfValueSerializer.Create);
+
+  SC := FController as ISerializerController;
+  SC.AddSerializer(TReflectionTypeSerializer.Create);
+  SC.AddSerializer(TSimpleTypeSerializer.Create);
+  SC.AddSerializer(TInterfaceSerializer.Create);
+  SC.AddSerializer(TArrayOfValueSerializer.Create);
+
   FLogger := TLogger.Create(FController);
-  LP := (FLogger as ILoggerProperties);
+
+  LP := FLogger as ILoggerProperties;
   LP.EntryTypes := LOG_ALL_ENTRY_TYPES;
   LP.Levels     := LOG_ALL_LEVELS;
 
-  FPropertyInspector := TDDuceComponents.CreatePropertyInspector(Self, pnlLoggerInspector, FLogger as TObject);
+  FPropertyInspector := TDDuceComponents.CreatePropertyInspector(
+    Self,
+    pnlLoggerInspector,
+    FLogger as TObject
+  );
 
   InitializeControls;
 end;
@@ -203,9 +212,12 @@ begin
   end;
 end;
 
+{ Track is the equivalent of an Enter/Leave pair at the beginning/ending of a
+  routine or method. }
+
 procedure TfrmSpringLogging.actTrackThisExecute(Sender: TObject);
 begin
-  FLogger.Track(Self.ClassType, 'Test');
+  FLogger.Track(Self, 'actTrackThisExecute');
 end;
 
 procedure TfrmSpringLogging.actLogExecute(Sender: TObject);

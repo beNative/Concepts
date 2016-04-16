@@ -96,6 +96,8 @@ type
 implementation
 
 uses
+  Vcl.Graphics,
+
   Spring;
 
 {$REGION 'construction and destruction'}
@@ -254,6 +256,8 @@ begin
   Guard.CheckNotNull(AParent, 'AParent');
   TB := TToolBar.Create(AOwner);
   ApplyDefaultProperties(TB);
+  TB.Transparent := False;
+  TB.Color := clWhite;
   TB.Parent := AParent;
   TB.Images := FActions.ActionList.Images;
   CreateToolButton(TB, 'actAlignSelection');

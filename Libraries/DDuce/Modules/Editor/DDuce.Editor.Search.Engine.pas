@@ -374,7 +374,7 @@ begin
       Inc(Result.Y);
       Result.X := 1;
       Inc(I);
-      if (I < APos) and (AString[I] in [#10, #13])
+      if (I < APos) and  CharInSet(AString[I], [#10, #13])
         and (AString[I] <> AString[I - 1]) then
         Inc(I);
       end

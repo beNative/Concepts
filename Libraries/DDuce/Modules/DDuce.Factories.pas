@@ -27,7 +27,9 @@ uses
   DSharp.Windows.TreeViewPresenter, DSharp.Core.DataTemplates,
   DSharp.Bindings.Collections,
 
-  VirtualTrees;
+  VirtualTrees,
+
+  zObjInspector;
 
 type
   TFactories = class sealed
@@ -54,6 +56,13 @@ type
       AFilter     : TFilterEvent = nil;
       const AName : string = ''
     ): TTreeViewPresenter; static;
+
+    class function CreatezObjectInspector(
+      AOwner      : TComponent;
+      AParent     : TWinControl;
+      AObject     : TObject = nil;
+      const AName : string = ''
+      ): TzObjectInspector; static;
   end;
 
 implementation
@@ -247,7 +256,7 @@ const
     { Expand node if it is the drop target for more than a certain time. }
     toAutoDropExpand,
     { Nodes are expanded (collapsed) when getting (losing) the focus. }
-    toAutoExpand,
+//    toAutoExpand,
     { Scroll if mouse is near the border while dragging or selecting. }
     toAutoScroll,
     { Scroll as many child nodes in view as possible after expanding a node. }
@@ -302,9 +311,11 @@ begin
   ATVP.ListMode             := True;
   if Assigned(ASource) then
     ATVP.View.ItemsSource := ASource as IObjectList;
-  if Assigned(ATemplate) then
+  if not Assigned(ATemplate) then
     ATVP.View.ItemTemplate :=
-      TColumnDefinitionsControlTemplate.Create(ATVP.ColumnDefinitions);
+      TColumnDefinitionsControlTemplate.Create(ATVP.ColumnDefinitions)
+  else
+    ATVP.View.ItemTemplate := ATemplate;
   if Assigned(AFilter) then
     ATVP.View.Filter.Add(AFilter);
 end;
@@ -347,6 +358,21 @@ begin
   TVP := TTreeViewPresenter.Create(AOwner);
   InitializeTVP(TVP, AVST, ASource, ATemplate, AFilter);
   Result := TVP;
+end;
+
+class function TFactories.CreatezObjectInspector(AOwner: TComponent;
+  AParent: TWinControl; AObject: TObject; const AName: string): TzObjectInspector;
+var
+  OI: TzObjectInspector;
+begin
+  OI                  := TzObjectInspector.Create(AOwner);
+  OI.Parent           := AParent;
+  OI.Align            := alClient;
+  OI.AlignWithMargins := True;
+  OI.Name             := AName;
+  OI.Component        := AObject;
+  OI.SplitterPos      := OI.ClientWidth div 2;
+  Result := OI;
 end;
 
 end.

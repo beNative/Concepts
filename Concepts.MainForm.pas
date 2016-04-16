@@ -27,7 +27,8 @@ uses
 
   VirtualTrees,
 
-  DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter;
+  DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter,
+  System.Win.TaskbarCore, Vcl.Taskbar, Vcl.JumpList;
 
 type
   TfrmMain = class(TForm)
@@ -43,6 +44,7 @@ type
     btnExecute      : TButton;
     btnClose        : TButton;
     btnExecuteModal : TButton;
+    tbrMain: TTaskbar;
     {$ENDREGION}
 
     procedure actExecuteExecute(Sender: TObject);

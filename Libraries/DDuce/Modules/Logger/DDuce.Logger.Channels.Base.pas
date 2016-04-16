@@ -48,8 +48,8 @@ type
     property Active: Boolean
       read GetActive write SetActive;
 
-    { True when the channel is connected with the server (receiver) instance.
-      A channel can only connect when it is set Active first.  }
+    { True when the channel is connected with the receiver instance. A channel
+      can only connect when it is set Active first.  }
     property Connected: Boolean
       read GetConnected write SetConnected;
   end;

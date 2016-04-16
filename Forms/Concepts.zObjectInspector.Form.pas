@@ -16,6 +16,12 @@
 
 unit Concepts.zObjectInspector.Form;
 
+{ This form demonstrates the TzObjectInspector component.
+
+   Official sources can be found at:
+           http://github.com/MahdiSafsafi/zcontrols
+}
+
 interface
 
 uses

@@ -49,8 +49,6 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
       ParentBackground = False
       ParentFont = False
       TabOrder = 0
-      ExplicitLeft = 6
-      ExplicitTop = 11
     end
   end
   object pnlBottom: TPanel

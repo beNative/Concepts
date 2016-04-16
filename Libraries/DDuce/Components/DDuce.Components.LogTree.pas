@@ -382,7 +382,7 @@ end;
 
 procedure TLogTree.Loaded;
 begin
-  inherited;
+  inherited Loaded;
 
   TreeOptions.PaintOptions := TreeOptions.PaintOptions - [toShowRoot,
     toShowTreeLines, toShowButtons] + [toUseBlendedSelection,

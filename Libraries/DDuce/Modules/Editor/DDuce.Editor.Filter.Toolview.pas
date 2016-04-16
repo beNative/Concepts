@@ -42,10 +42,12 @@ uses
 
   VirtualTrees,
 
-  DSharp.Windows.TreeViewPresenter, DSharp.Windows.ColumnDefinitions,
-  DSharp.Core.DataTemplates,
+  Spring.Collections,
 
-  DDuce.Editor.ToolView.Base;
+  DSharp.Windows.TreeViewPresenter, DSharp.Windows.ColumnDefinitions,
+  DSharp.Core.DataTemplates, DSharp.Windows.ControlTemplates,
+
+  DDuce.Editor.ToolView.Base, DDuce.Editor.Filter.Data;
 
 type
   TfrmFilter = class(TCustomEditorToolView)
@@ -75,18 +77,22 @@ type
       Shift: TShiftState);
     procedure edtFilterKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormShow(Sender: TObject);
     procedure FTVPFilter(Item: TObject; var Accepted: Boolean);
     procedure FVSTKeyPress(Sender: TObject; var Key: char);
     procedure FVSTKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FTVPSelectionChanged(Sender: TObject);
 
   strict private
     FVST : TVirtualStringTree;
     FTVP : TTreeViewPresenter;
 
-    FVKPressed : Boolean;
-    //FTextStyle : TTextStyle;
+    FVKPressed        : Boolean;
+    FUpdate           : Boolean;
+    FUpdateEditorView : Boolean;
+    FLines            : IList<TLine>;
+    FTextStyle        : TTextFormat;
 
     function GetFilter: string;
     procedure SetFilter(AValue: string);
@@ -114,9 +120,14 @@ type
     procedure InitializeComponents;
 
   protected
-    procedure SetVisible(Value: Boolean);
+    procedure SetVisible(Value: Boolean); override;
 
+    procedure ApplyFilter;
+    procedure Modified;
+    procedure UpdateView;
+    procedure FillList(AStrings: TStrings);
     procedure UpdateActions; override;
+    procedure UpdateStatusDisplay;
 
   public
     procedure AfterConstruction; override;
@@ -138,6 +149,10 @@ uses
 
   DDuce.Logger, DDuce.Factories,
   DDuce.Editor.Utils;
+
+resourcestring
+  SOneLineWithMatchFound = '1 line with match found.';
+  SLinesWithMatchFound   = '%d lines with match found.';
 
 type
   TVKSet = set of Byte;
@@ -189,6 +204,22 @@ begin
   FVST.OnKeyPress := FVSTKeyPress;
   FVST.OnKeyUp := FVSTKeyUp;
   FTVP := TFactories.CreateTreeViewPresenter(Self, FVST);
+  FLines := TCollections.CreateObjectList<TLine>;
+  FTVP.View.ItemsSource := FLines as IObjectList;
+  with FTVP.ColumnDefinitions.Add('Index', 50) do
+  begin
+    ValuePropertyName := 'Index';
+  end;
+  with FTVP.ColumnDefinitions.Add('Text', 600) do
+  begin
+    ValuePropertyName := 'Text';
+    Font.Assign(View.Editor.Font);
+    Font.Size := 8;
+  end;
+
+
+  InitializeComponents;
+
 
 //  FTextStyle.SingleLine := True;
 //  FTextStyle.Opaque     := False;
@@ -200,6 +231,8 @@ begin
 //  FTextStyle.Alignment  := taLeftJustify;
 //  FTextStyle.Layout     := tlCenter;
 end;
+
+
 {$ENDREGION}
 
 {$REGION 'event handlers'}
@@ -217,17 +250,29 @@ function TfrmFilter.CCustomDraw(Sender: TObject;
 //  Offset : Integer;
 //  R      : TRect;
 //  S      : string;
+var
+  L      : TLine;
+  S      : string;
+  Line   : string;
+  P      : TPoint;
+  //A      : TSynHighlighterAttributes;
+  R      : TRect;
+  I      : Integer;
+  Offset : Integer;
+  Match  : string;
+  C      : TColor;
+  TS     : string;
 begin
-//  if DrawMode = dmBeforeCellPaint then
-//  begin
-//    S := ItemTemplate.GetText(Item, ColumnDefinition.Index);
-//    if IsMatch(S, Match, Offset) then
-//    begin
-//      R := CellRect;
-//      CalcMatchRect(S, Match, Offset, TargetCanvas, ColumnDefinition, R);
-//      DrawMatchRect(TargetCanvas, R);
-//    end;
-//  end;
+  if DrawMode = dmBeforeCellPaint then
+  begin
+    S := FTVP.View.ItemTemplate.GetText(Item, ColumnDefinition.Index);
+    if IsMatch(S, Match, Offset) then
+    begin
+      R := CellRect;
+      CalcMatchRect(S, Match, Offset, TargetCanvas, ColumnDefinition, R);
+      DrawMatchRect(TargetCanvas, R);
+    end;
+  end;
 end;
 
 procedure TfrmFilter.actFocusFilterTextExecute(Sender: TObject);
@@ -247,32 +292,23 @@ var
   F : Boolean;
   G : Boolean;
 begin
-  Logger.Send('KeyDown ActiveControl:', ActiveControl.ClassName);
-  //Logger.Send('Keys : %s', [KeyAndShiftStateToKeyString(Key, Shift)]);
   // SHIFTED and ALTED keycombinations
   A := (ssAlt in Shift) or (ssShift in Shift);
-  Logger.Watch('A', A);
   { Single keys that need to be handled by the edit control like all displayable
     characters but also HOME and END }
   B := (Key in VK_EDIT_KEYS) and (Shift = []);
-  Logger.Watch('B', B);
   { CTRL-keycombinations that need to be handled by the edit control like
     CTRL-C for clipboard copy. }
   C := (Key in VK_CTRL_EDIT_KEYS) and (Shift = [ssCtrl]);
-  Logger.Watch('C', C);
   { SHIFT-keycombinations that need to be handled by the edit control for
     uppercase characters but also eg. SHIFT-HOME for selections. }
   D := (Key in VK_SHIFT_EDIT_KEYS) and (Shift = [ssShift]);
-  Logger.Watch('D', D);
   { Only CTRL key is pressed. }
   E := (Key = VK_CONTROL) and (Shift = [ssCtrl]);
-  Logger.Watch('E', E);
   { Only SHIFT key is pressed. }
   F := (Key = VK_SHIFT) and (Shift = [ssShift]);
-  Logger.Watch('F', F);
   { Only (left) ALT key is pressed. }
   G := (Key = VK_MENU) and (Shift = [ssAlt]);
-  Logger.Watch('G', G);
   if not (A or B or C or D or E or F or G) then
   begin
     FVKPressed := True;
@@ -298,13 +334,27 @@ begin
   FVKPressed := False;
 end;
 
-procedure TfrmFilter.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+procedure TfrmFilter.FillList(AStrings: TStrings);
+var
+  I : Integer;
+begin
+  FTVP.BeginUpdate;
+  FLines.Clear;
+  for I := 0 to AStrings.Count - 1 do
+  begin
+    FLines.Add(TLine.Create(I, AStrings[I]));
+  end;
+  FTVP.EndUpdate;
+end;
+
+procedure TfrmFilter.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   Filter := '';
 end;
 
 procedure TfrmFilter.FormShow(Sender: TObject);
 begin
+  UpdateView;
   FTVP.ApplyFilter;
 end;
 
@@ -319,10 +369,15 @@ begin
   for I := 0 to FTVP.ColumnDefinitions.Count - 1 do
   begin
     C := FTVP.ColumnDefinitions[I];
-    //S := GetPropValue(Item, C.Name, True);
+    S := FTVP.View.ItemTemplate.GetText(Item, C.Index);
     B := B or IsMatch(S);
   end;
   Accepted := B;
+end;
+
+procedure TfrmFilter.FTVPSelectionChanged(Sender: TObject);
+begin
+  FUpdateEditorView := True;
 end;
 
 procedure TfrmFilter.FVSTKeyPress(Sender: TObject; var Key: char);
@@ -341,7 +396,7 @@ begin
     edtFilter.SetFocus;
     PostMessage(edtFilter.Handle, WM_CHAR, Ord(Key), 0);
     edtFilter.SelStart := Length(Filter);
-    // required to prevent the invocation of accelerator keys!
+    // required to prevent the invocation of accSISelerator keys!
     Key := #0;
   end;
 end;
@@ -370,7 +425,7 @@ begin
   end;
 end;
 
-procedure TfrmFilter.SetVisible(Value: boolean);
+procedure TfrmFilter.SetVisible(Value: Boolean);
 begin
   if Value then
   begin
@@ -406,6 +461,11 @@ begin
   end;
 end;
 
+procedure TfrmFilter.Modified;
+begin
+  FUpdate := True;
+end;
+
 procedure TfrmFilter.InitializeComponents;
 var
   C : TColumnDefinition;
@@ -418,7 +478,8 @@ begin
     C.OnCustomDraw := CCustomDraw;
   end;
 
-  //FTVP. := FTVPFilter;
+  FTVP.View.Filter.Add(FTVPFilter);
+  FTVP.OnSelectionChanged := FTVPSelectionChanged;
   FTVP.TreeView := FVST;
 end;
 
@@ -429,7 +490,7 @@ var
   Margin: Integer;
 begin
   // calculate the rectangle to draw around the matching text
-  //Margin := AColumnDefinition.Margin + AColumnDefinition.Spacing;
+  Margin := 8;
   ARect.Left := ARect.Left + Margin +
     ACanvas.TextWidth(System.Copy(ASource, 1, AOffset - 1));
   ARect.Right := ARect.Left + ACanvas.TextWidth(AMatch);
@@ -480,9 +541,69 @@ end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
+procedure TfrmFilter.ApplyFilter;
+var
+  B: Boolean;
+begin
+  B := True;
+//  if RegEx and (Filter <> '') then
+//  begin
+//    try
+//      FRegExpr.Expression := Filter;
+//      FRegExpr.ModifierI := not MatchCase;
+//      FRegExpr.ModifierM := True;
+//      FRegExpr.Compile;
+//      FIsCompiled := True;
+//    except
+//      B := False;
+//      sbrMain.SimpleText := FRegExpr.ErrorMsg(FRegExpr.LastError);
+//    end;
+//  end;
+  if B then
+  begin
+    sbrMain.SimpleText := '';
+    FTVP.ApplyFilter;
+    UpdateStatusDisplay;
+  end;
+end;
+
 procedure TfrmFilter.UpdateActions;
+var
+  L: TLine;
 begin
   inherited UpdateActions;
+  if FUpdate then
+  begin
+    UpdateView;
+    ApplyFilter;
+    FUpdate := False;
+  end;
+  if FUpdateEditorView then // update position in the editorview
+  begin
+    L := TLine(FTVP.SelectedItem);
+    if Assigned(L) then
+      //View.SearchAndSelectLine(L.Index, L.Text);
+      View.Editor.GotoLineAndCenter(L.Index);
+    FUpdateEditorView := False;
+  end;
+end;
+
+procedure TfrmFilter.UpdateStatusDisplay;
+var
+  N : Cardinal;
+begin
+  N := FTVP.TreeView.VisibleCount;
+  if N = 1 then
+    sbrMain.SimpleText := SOneLineWithMatchFound
+  else
+    sbrMain.SimpleText := Format(SLinesWithMatchFound, [N]);
+end;
+
+procedure TfrmFilter.UpdateView;
+begin
+  FillList(View.Lines);
+  FTVP.Refresh;
+  UpdateStatusDisplay;
 end;
 {$ENDREGION}
 end.

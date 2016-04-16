@@ -18,6 +18,13 @@
 
 unit Concepts.ZeroMQ.Form;
 
+{ Form demonstrating the ZeroMQ Delphi binding.
+             http://github.com/zedalaye/Delphi-ZeroMQ
+
+  A great tutorial on ZeroMQ (and message queuing in general) can be found at:
+               http://zguide.zeromq.org/page:all
+}
+
 interface
 
 uses

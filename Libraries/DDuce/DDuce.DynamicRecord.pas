@@ -1316,6 +1316,8 @@ begin
   P := Find(AName);
   if Assigned(P) then
     Result := P.Value
+  else
+    Result := TValue.Empty;
 end;
 
 function TDynamicRecord.GetRefCount: Integer;

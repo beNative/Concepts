@@ -82,8 +82,8 @@ object frmzObjectInspector: TfrmzObjectInspector
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 
-          'This form demonstrates the TPropertyInspector control. '#13#10'You can' +
-          ' adjust properties of any control shown on this form.'
+          'This form demonstrates the TzObjectInspector control. '#13#10'You can ' +
+          'adjust properties of any control shown on this form.'
         EllipsisPosition = epWordEllipsis
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -97,7 +97,7 @@ object frmzObjectInspector: TfrmzObjectInspector
       end
       object btnButton: TButton
         Left = 225
-        Top = 68
+        Top = 71
         Width = 109
         Height = 25
         Caption = 'TButton'

@@ -78,8 +78,6 @@ implementation
 uses
   DSharp.Windows.ColumnDefinitions.ControlTemplate,
 
-
-
   Concepts.Factories;
 
 {$REGION 'construction and destruction'}

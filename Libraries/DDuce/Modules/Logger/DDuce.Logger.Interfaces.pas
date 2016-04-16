@@ -21,7 +21,9 @@ unit DDuce.Logger.Interfaces;
 interface
 
 uses
-  System.Classes, System.Rtti, System.SysUtils, System.Types,
+  System.Classes, System.Rtti, System.SysUtils, System.Types, System.UITypes,
+  System.UIConsts,
+  Vcl.Menus,
 
   Spring.Collections;
 
@@ -30,21 +32,41 @@ type
     lmtInfo        = 0,
     lmtError       = 1,
     lmtWarning     = 2,
+
     lmtValue       = 3,
+
     lmtEnterMethod = 4,
     lmtLeaveMethod = 5,
+
     lmtConditional = 6,
+
     lmtCheckpoint  = 7,
-    lmtStrings     = 8,
+
+    lmtStrings     = 8,   // TStringList
+
     lmtCallStack   = 9,
-    lmtObject      = 10,
+
+    lmtObject      = 10,  // should be lmtComponent (dfm stream is sent)
+
     lmtException   = 11,
+
     lmtBitmap      = 12,
+
     lmtHeapInfo    = 13,
+
     lmtMemory      = 14,
     lmtCustomData  = 15,
+
     lmtWatch       = 20,
     lmtCounter     = 21,
+
+    lmtColor       = 22,
+    lmtAlphaColor  = 23,
+
+    lmtScreenShot  = 24,
+
+    lmtDataSet     = 25,
+
     lmtClear       = 100
   );
 
@@ -96,6 +118,7 @@ type
     function GetChannels: TChannelList;
 
     procedure Send(const AName: string; const AArgs: array of const); overload;
+    { This overload is used for Variant arguments. }
     procedure Send(const AName: string; const AValue: string = ''); overload;
 
     { All primary types that are are implicitely ba cast to TValue will be
@@ -109,7 +132,11 @@ type
     procedure SendTime(const AName: string; AValue: TTime);
 
     { Send methods for types that need a custom representation. }
+    procedure SendColor(const AName: string; AColor: TColor);
+    procedure SendAlphaColor(const AName: string; AAlphaColor: TAlphaColor);
+    procedure SendObject(const AName: string; AValue: TObject);
     procedure SendRect(const AName: string; const AValue: TRect);
+    procedure SendPoint(const AName: string; const APoint: TPoint);
     procedure SendStrings(const AName: string; AValue: TStrings);
     procedure SendComponent(const AName: string; AValue: TComponent);
     procedure SendPointer(const AName: string; APointer: Pointer);
@@ -119,6 +146,7 @@ type
       AAddress   : Pointer;
       ASize      : LongWord
     );
+    procedure SendShortCut(const AName: string; AShortCut: TShortCut);
 
     procedure IncCounter(const AName: string);
     procedure DecCounter(const AName: string);
@@ -130,27 +158,33 @@ type
     procedure Leave(const AName: string); overload;
     procedure Leave(ASender: TObject; const AName: string); overload;
 
+    { Track uses an interface variable to replace Enter/Leave calls in the
+      scope of the method where it is called. A call to Track will create an
+      instance and trigger the Enter method. When the interface variable goes
+      out of scope (end of the routine or method) a call to the logger's Leave
+      method is triggered. }
+    function Track(const AName: string): IInterface; overload;
+    function Track(ASender: TObject; const AName: string): IInterface; overload;
+
     procedure AddCheckPoint(const AName: string = '');
     procedure ResetCheckPoint(const AName: string = '');
 
-    procedure Watch(const AName: string; const AValue: string); overload;
-    procedure Watch(const AName: string; AValue: Integer); overload;
-    procedure Watch(const AName: string; AValue: Cardinal); overload;
-    procedure Watch(const AName: string; AValue: Double); overload;
-    procedure Watch(const AName: string; AValue: Boolean); overload;
+    { Monitors a named value in the LogViewer application }
+    procedure Watch(const AName: string; const AValue: TValue); overload;
+    procedure Watch(const AName: string; const AValue: string = ''); overload;
 
-    procedure SendWarning(const AText: string); overload;
-    procedure SendWarning(
+    procedure Warn(const AText: string); overload;
+    procedure Warn(
       const AText : string;
       const AArgs : array of const
     ); overload;
-    procedure SendError(const AText: string); overload;
-    procedure SendError(
+    procedure Error(const AText: string); overload;
+    procedure Error(
       const AText : string;
       const AArgs : array of const
     ); overload;
-    procedure SendInfo(const AText: string); overload;
-    procedure SendInfo(
+    procedure Info(const AText: string); overload;
+    procedure Info(
       const AText: string;
       const AArgs: array of const
     ); overload;
@@ -160,7 +194,7 @@ type
       AExpression : Boolean;
       AIsTrue     : Boolean = True
     );
-
+    { Sends out a dedicated message to clear the logviewer contents. }
     procedure Clear;
 
     property Channels: TChannelList

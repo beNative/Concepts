@@ -18,6 +18,12 @@
 
 unit Concepts.BCEditor.Form;
 
+{ Form demonstrating the TBCEditor component.
+
+  The official sources of these component can be found at:
+          http://github.com/bonecode/TBCEditor
+}
+
 interface
 
 uses

@@ -38,9 +38,6 @@ uses
   DSharp.DevExpress.TreeListPresenter,
   {$ENDIF}
 
-
-
-
   {$IFDEF DEVEXPRESS}
   cxGridCustomView, cxTL, cxTLData,
   {$ENDIF}
@@ -115,7 +112,7 @@ type
       AParent     : TWinControl;
       ADataSource : TDataSource = nil;
       const AName : string = ''
-      ): TDBGrid; static;
+    ): TDBGrid; static;
 
     class function CreateRandomContact(
       ASpecial: Boolean = False
@@ -137,7 +134,7 @@ type
       AParent     : TWinControl;
       AObject     : TObject = nil;
       const AName : string = ''
-      ): TzObjectInspector; static;
+    ): TzObjectInspector; static;
     {$ENDIF}
 
   end;

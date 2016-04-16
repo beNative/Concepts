@@ -35,7 +35,6 @@ uses
   DDuce.Logger.Interfaces, DDuce.Logger.Channels.Base;
 
 const
-  FILTER_NAME = 'debug';
   DEFAULT_PORT = 5555;
 
 type
@@ -131,7 +130,7 @@ begin
         FBuffer.CopyFrom(AMsg.Data, DataSize);
       end
       else
-        FBuffer.WriteBuffer(ZeroBuf, SizeOf(Integer)); // necessary?
+        FBuffer.WriteBuffer(ZeroBuf, SizeOf(Integer));
       Result := FPublisher.SendString(FBuffer.DataString) > 0;
     end
     else

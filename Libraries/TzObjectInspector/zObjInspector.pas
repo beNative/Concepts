@@ -4377,6 +4377,7 @@ begin
   if PItem.Prop.PropertyType.TypeKind = tkMethod then
   begin
     Result := GetMethodName(Value, PItem.ComponentRoot);
+    Exit;
   end;
   Result := Value.ToString;
 end;

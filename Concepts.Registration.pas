@@ -275,7 +275,7 @@ begin
     TfrmLibraries,
     'Libraries',
     'System',
-    '',
+    'Demonstrates dynamic loading of libraries',
     FCategoryColor
   );
   ConceptManager.Register(
@@ -422,8 +422,6 @@ begin
   );
   {$ENDIF}
 
-  //Exit;
-
   {$IFDEF BCEDITOR}
   ConceptManager.Register(
     TfrmBCEditor,
@@ -447,7 +445,7 @@ begin
     TfrmSQLBuilder4D,
     'TfrmSQLBuilder4D demo',
     'TfrmSQLBuilder4D',
-    ''
+    'Demonstrates the SQLBuilder4D library'
   );
   {$ENDIF}
 
@@ -456,7 +454,7 @@ begin
     TfrmChromeTabs,
     'ChromeTabs',
     'TChromeTabs',
-    'TChromeTabs demo'
+    'TChromeTabs component demo'
   );
   {$ENDIF}
 

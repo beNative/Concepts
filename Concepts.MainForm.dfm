@@ -89,10 +89,10 @@ object frmMain: TfrmMain
     TabOrder = 2
     object btnExecute: TButton
       AlignWithMargins = True
-      Left = 347
+      Left = 348
       Top = 3
-      Width = 325
-      Height = 26
+      Width = 326
+      Height = 28
       Action = actExecute
       Align = alClient
       DoubleBuffered = True
@@ -100,15 +100,13 @@ object frmMain: TfrmMain
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 0
-      ExplicitLeft = 348
-      ExplicitTop = 4
     end
     object btnClose: TButton
       AlignWithMargins = True
-      Left = 678
+      Left = 680
       Top = 3
       Width = 324
-      Height = 26
+      Height = 28
       Action = actClose
       Align = alClient
       DoubleBuffered = True
@@ -116,15 +114,13 @@ object frmMain: TfrmMain
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 1
-      ExplicitLeft = 679
-      ExplicitTop = 4
     end
     object btnExecuteModal: TButton
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 338
-      Height = 26
+      Width = 339
+      Height = 28
       Action = actExecuteModal
       Align = alClient
       Default = True
@@ -133,8 +129,6 @@ object frmMain: TfrmMain
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 2
-      ExplicitLeft = 4
-      ExplicitTop = 4
     end
   end
   object aclMain: TActionList
@@ -156,5 +150,11 @@ object frmMain: TfrmMain
       ImageIndex = 518
       OnExecute = actExecuteModalExecute
     end
+  end
+  object tbrMain: TTaskbar
+    TaskBarButtons = <>
+    TabProperties = []
+    Left = 272
+    Top = 144
   end
 end

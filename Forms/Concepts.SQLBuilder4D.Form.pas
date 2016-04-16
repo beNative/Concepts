@@ -23,12 +23,21 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  System.Actions, Vcl.ActnList;
 
 type
   TfrmSQLBuilder4D = class(TForm)
+    mmoMain  : TMemo;
+    aclMain  : TActionList;
+    actTest1 : TAction;
+    actTest2 : TAction;
+    btnTest1 : TButton;
+    btnTest2 : TButton;
+
+    procedure actTest1Execute(Sender: TObject);
+    procedure actTest2Execute(Sender: TObject);
   public
-    procedure AfterConstruction; override;
 
   end;
 
@@ -47,13 +56,10 @@ const
   PERSON      = 'Person';
   FIRSTNAME   = 'FirstName';
 
-{$REGION 'construction and destruction'}
-procedure TfrmSQLBuilder4D.AfterConstruction;
-var
-  S: string;
+{$REGION 'action handlers'}
+procedure TfrmSQLBuilder4D.actTest1Execute(Sender: TObject);
 begin
-  inherited AfterConstruction;
-  S := SQL.Select
+  mmoMain.Text := SQL.Select
     .Distinct
     .Column('Id')
     .Column('Name').&As('CustomerName')
@@ -61,17 +67,16 @@ begin
     .Where('Name').Equal('John')
     .&And('City').Like('New York', loContaining)
     .ToString;
+end;
 
-  ShowMessage(S);
-
-  S := SQL.Select.Column(ID)
-            .Column(NAME)
-            .Column(DESCRIPTION)
-            .From(ITEM)
-            .Join(PERSON, 'Id = Id').ToString
-            ;
-
-  ShowMessage(S);
+procedure TfrmSQLBuilder4D.actTest2Execute(Sender: TObject);
+begin
+  mmoMain.Text := SQL.Select
+    .Column(ID)
+    .Column(NAME)
+    .Column(DESCRIPTION)
+    .From(ITEM)
+    .Join(PERSON, 'Id = Id').ToString;
 end;
 {$ENDREGION}
 

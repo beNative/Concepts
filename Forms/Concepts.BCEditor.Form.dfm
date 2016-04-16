@@ -112,6 +112,10 @@
           object TabSheet1: TTabSheet
             Caption = 'TabSheet1'
             ImageIndex = 1
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object mmo1: TMemo
               Left = 0
               Top = 0
@@ -208,6 +212,10 @@
           object tsColors: TTabSheet
             Caption = 'Color mappings'
             ImageIndex = 1
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object splVerticalRight: TSplitter
               Left = 475
               Top = 0

@@ -14,9 +14,9 @@
   limitations under the License.
 }
 
-unit DDuce.Forms.ComponentInspector;
+unit DDuce.ObjectInspector.old;
 
-{$I ..\DDuce.inc}
+//{$I ..\DDuce.inc}
 
 interface
 

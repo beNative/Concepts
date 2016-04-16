@@ -14,32 +14,41 @@
   limitations under the License.
 }
 
-unit DDuce.Logger.Factories;
-
-//{$I DDuce.inc}
+unit DDuce.Editor.Filter.Data;
 
 interface
 
+{ Data structure used to feed the Filter view. }
+
 uses
-  DDuce.Logger.Interfaces;
+  System.Classes, System.SysUtils;
 
 type
-  TLoggerFactories = class sealed
-    class function CreateLogger: ILogger;
+  TLine = class(TPersistent)
+  strict private
+    FIndex : Integer;
+    FText  : string;
+  public
+    constructor Create(
+      const AIndex : Integer;
+      const AText  : string
+    );
 
+  published
+    property Index: Integer
+      read FIndex write FIndex;
+
+    property Text: string
+      read FText write FText;
   end;
 
 implementation
 
-uses
-  DDuce.Logger.Base, DDuce.Logger.Channels.LogFile, DDuce.Logger.Channels.WinIPC,
-  DDuce.Logger.Channels.ZeroMQ;
-
-{ TLoggerFactories }
-
-class function TLoggerFactories.CreateLogger: ILogger;
+constructor TLine.Create(const AIndex: Integer; const AText: string);
 begin
-  Result := TLogger.Create;
+  inherited Create;
+  FIndex := AIndex;
+  FText  := AText;
 end;
 
 end.

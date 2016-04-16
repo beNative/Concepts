@@ -18,6 +18,8 @@ unit DDuce.FormSettings;
 
 interface
 
+{ TFormSettings is a data storage for form settings. }
+
 uses
   System.Classes,
   Vcl.Forms, Vcl.Controls;

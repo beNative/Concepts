@@ -31,7 +31,6 @@ type
   strict private
     FClient       : TWinIPCClient; // sends to the server
     FBuffer       : TMemoryStream;
-    FClearMessage : TLogMessage; // needs to move to logger!
 
   strict protected
     function GetConnected: Boolean; override;
@@ -52,10 +51,6 @@ implementation
 procedure TWinIPCChannel.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FClearMessage.MsgType := Integer(lmtClear);
-  FClearMessage.MsgText := '';
-  FClearMessage.MsgTime := Now;
-  FClearMessage.Data    := nil;
   FBuffer := TMemoryStream.Create;
   FClient := TWinIPCClient.Create;
   FClient.Connect;
