@@ -282,8 +282,8 @@ type
   TBCEditorMatchingPairOptions = set of TBCEditorMatchingPairOption;
 
   TBCEditorMinimapOption = (
-    moShowIndentGuides,
-    moShowBookmarks
+    moShowBookmarks,
+    moShowIndentGuides
   );
   TBCEditorMinimapOptions = set of TBCEditorMinimapOption;
 
@@ -331,6 +331,13 @@ type
 
   TBCEditorIndicatorOption = (ioInvertBlending, ioShowBorder, ioUseBlending);
   TBCEditorIndicatorOptions = set of TBCEditorIndicatorOption;
+
+  TBCEditorQuadColor = packed record
+  case Boolean of
+    True: (Blue, Green, Red, Alpha: Byte);
+    False: (Quad: Cardinal);
+  end;
+  PBCEditorQuadColor = ^TBCEditorQuadColor;
 
 implementation
 

@@ -236,6 +236,9 @@
         <DelphiCompile Include="..\Source\BCEditor.Editor.Minimap.pas">
             <BuildOrder>40</BuildOrder>
         </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Minimap.Shadow.pas">
+            <BuildOrder>40</BuildOrder>
+        </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.PopupWindow.pas">
             <BuildOrder>92</BuildOrder>
         </DelphiCompile>

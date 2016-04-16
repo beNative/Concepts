@@ -56,6 +56,7 @@ const
     ZMQ_VERSION_MINOR * 100 +
     ZMQ_VERSION_PATCH;
 
+{$WARN SYMBOL_PLATFORM OFF}
 (*  Run-time API version detection                                            *)
 procedure zmq_version(major, minor, patch: PInteger); cdecl; external LIBZEROMQ delayed;
 
@@ -388,6 +389,7 @@ function zmq_threadstart(func: TZmqThreadFn; arg: Pointer): Pointer; cdecl; exte
 
 (* Wait for thread to complete then free up resources.                        *)
 procedure zmq_threadclose(thread: Pointer); cdecl; external LIBZEROMQ delayed;
+{$WARN SYMBOL_PLATFORM ON}
 
 implementation
 

@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, System.UITypes, Vcl.Graphics, BCEditor.Types, BCEditor.Editor.Minimap.Indicator,
-  BCEditor.Editor.Minimap.Colors;
+  BCEditor.Editor.Minimap.Colors, BCEditor.Editor.Minimap.Shadow;
 
 type
   TBCEditorMinimap = class(TPersistent)
@@ -19,6 +19,7 @@ type
     FIndicator: TBCEditorMinimapIndicator;
     FOnChange: TNotifyEvent;
     FOptions: TBCEditorMinimapOptions;
+    FShadow: TBCEditorMinimapShadow;
     FTopLine: Integer;
     FVisible: Boolean;
     FVisibleLines: Integer;
@@ -49,6 +50,7 @@ type
     property Indicator: TBCEditorMinimapIndicator read FIndicator write FIndicator;
     property OnChange: TNotifyEvent read FOnChange write SetOnChange;
     property Options: TBCEditorMinimapOptions read FOptions write FOptions default [];
+    property Shadow: TBCEditorMinimapShadow read FShadow write FShadow;
     property Visible: Boolean read FVisible write SetVisible default False;
     property Width: Integer read FWidth write SetWidth default 100;
   end;
@@ -83,6 +85,7 @@ begin
 
   FIndicator := TBCEditorMinimapIndicator.Create;
   FColors := TBCEditorMinimapColors.Create;
+  FShadow := TBCEditorMinimapShadow.Create;
 end;
 
 destructor TBCEditorMinimap.Destroy;
@@ -90,6 +93,8 @@ begin
   FFont.Free;
   FIndicator.Free;
   FColors.Free;
+  FShadow.Free;
+
   inherited Destroy;
 end;
 
@@ -100,6 +105,7 @@ begin
   begin
     Self.FAlign := FAlign;
     Self.FColors.Assign(FColors);
+    Self.FShadow.Assign(FShadow);
     Self.FFont.Assign(FFont);
     Self.FOptions := FOptions;
     Self.FVisible := FVisible;
@@ -116,6 +122,7 @@ begin
   FFont.OnChange := AValue;
   FColors.OnChange := AValue;
   FIndicator.OnChange := AValue;
+  FShadow.OnChange := AValue;
 end;
 
 procedure TBCEditorMinimap.DoChange;
