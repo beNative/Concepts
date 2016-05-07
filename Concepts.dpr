@@ -214,7 +214,6 @@ uses
   Spring.Persistence.Core.AbstractSession in 'Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.AbstractSession.pas',
   Spring.Persistence.Core.Base in 'Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Base.pas',
   Spring.Persistence.Core.ConnectionFactory in 'Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ConnectionFactory.pas',
-  Spring.Persistence.Core.Consts in 'Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Consts.pas',
   Spring.Persistence.Core.DatabaseManager in 'Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.DatabaseManager.pas',
   Spring.Persistence.Core.DetachedSession in 'Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.DetachedSession.pas',
   Spring.Persistence.Core.EmbeddedEntity in 'Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EmbeddedEntity.pas',
