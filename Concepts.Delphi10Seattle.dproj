@@ -7,7 +7,7 @@
         <ProjectVersion>18.0</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
     </PropertyGroup>
@@ -372,7 +372,6 @@
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.AbstractSession.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Base.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ConnectionFactory.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Consts.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.DatabaseManager.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.DetachedSession.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EmbeddedEntity.pas"/>
