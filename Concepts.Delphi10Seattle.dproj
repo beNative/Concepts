@@ -317,7 +317,6 @@
         <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.ComponentActivator.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.Core.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.CreationContext.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.DecoratorExtension.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.Extensions.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.Injection.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Core\Container\Spring.Container.LifetimeManager.pas"/>
@@ -386,6 +385,7 @@
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ListSession.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Repository.Proxy.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Repository.Simple.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ResourceStrings.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Session.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ValueConverters.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.pas"/>
@@ -658,16 +658,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployClass Name="DependencyModule">
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.dll;.bpl</Extensions>
-                    </Platform>
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
                         <RemoteDir>Contents\Resources</RemoteDir>
@@ -981,7 +972,16 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
