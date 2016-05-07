@@ -77,7 +77,7 @@ implementation
 {$IFDEF MSWINDOWS}
 uses
   Spring.Persistence.Core.ConnectionFactory,
-  Spring.Persistence.Core.Consts,
+  Spring.Persistence.Core.ResourceStrings,
   Spring.Persistence.SQL.Generators.MSSQL,
   Spring.Persistence.SQL.Interfaces;
 

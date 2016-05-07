@@ -10,7 +10,8 @@ procedure RegisterTypes(const container: TContainer);
 implementation
 
 uses
-  Spring.Container.DecoratorExtension,
+  Spring.Container.Core,
+  Spring.Reflection,
   uOrderInterfaces,
   uOrderEntry,
   uOrderEntryDecorator,
@@ -19,14 +20,19 @@ uses
 
 procedure RegisterTypes(const container: TContainer);
 begin
-  container.AddExtension<TDecoratorContainerExtension>;
-
-  container.RegisterType<TOrderEntryTransactionDecorator>;
-  container.RegisterType<TOrderEntryLoggingDecorator>;
   container.RegisterType<TOrderEntry>;
-  container.RegisterType<TOrderValidatorLoggingDecorator>;
   container.RegisterType<TOrderValidator>;
   container.RegisterType<TOrderProcessor>;
+
+  container.RegisterDecorator<IOrderEntry, TOrderEntryLoggingDecorator>;
+  container.RegisterDecorator<IOrderValidator, TOrderValidatorLoggingDecorator>;
+
+  container.RegisterDecorator<IOrderEntry, TOrderEntryTransactionDecorator>(
+    function(const m: TComponentModel): Boolean
+    begin
+      Result := m.ComponentType.HasCustomAttribute<TransactionAttribute>;
+    end
+  );
 
   container.Build;
 end;

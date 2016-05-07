@@ -38,7 +38,7 @@ uses
 type
   TInjectionBase = class abstract(TInterfacedObject, IInjection)
   private
-    {$IFDEF WEAKREF}[Weak]{$ENDIF}
+    {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fTarget: TRttiMember;
     fTargetName: string;
     fDependencies: TArray<TDependencyModel>;

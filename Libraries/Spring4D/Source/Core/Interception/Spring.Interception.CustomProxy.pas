@@ -96,8 +96,6 @@ end;
 
 function TCustomProxy.HandleInvoke(addr: Pointer;
   const args: array of TValue): TValue;
-type
-  PValue = ^TValue;
 var
   method: TRttiMethod;
   i: Integer;

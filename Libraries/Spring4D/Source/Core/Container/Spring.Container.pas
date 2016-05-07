@@ -30,6 +30,7 @@ interface
 
 uses
   Rtti,
+  SysUtils,
   Spring,
   Spring.Collections,
   Spring.Container.Common,
@@ -57,6 +58,9 @@ type
     procedure HandleBuild(Sender: TObject; const model: TComponentModel);
     procedure HandleRegistryChanged(Sender: TObject;
       const model: TComponentModel; action: TCollectionChangedAction);
+    procedure InternalRegisterDecorator(serviceType: PTypeInfo;
+      const decoratorModel: TComponentModel;
+      const condition: TPredicate<TComponentModel>);
     class var GlobalInstance: TContainer;
     function GetKernel: IKernel;
     type
@@ -84,6 +88,10 @@ type
 
     procedure AddExtension(const extension: IContainerExtension); overload;
     procedure AddExtension<T: IContainerExtension, constructor>; overload;
+
+    function RegisterDecorator<TService; TDecorator: TService>: TRegistration<TDecorator>; overload;
+    function RegisterDecorator<TService; TDecorator: TService>(
+      const condition: TPredicate<TComponentModel>): TRegistration<TDecorator>; overload;
 
 {$IFDEF DELPHIXE_UP}
     function RegisterFactory<TFactoryType: IInterface>(
@@ -143,7 +151,7 @@ type
   /// </summary>
   TServiceLocatorAdapter = class(TInterfacedObject, IServiceLocator)
   private
-    {$IFDEF WEAKREF}[Weak]{$ENDIF}
+    {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fContainer: TContainer;
     class var GlobalInstance: IServiceLocator;
     class procedure Init; static;
@@ -183,10 +191,10 @@ function GlobalContainer: TContainer; {$IFNDEF AUTOREFCOUNT}inline;{$ENDIF}
 implementation
 
 uses
-  SysUtils,
   TypInfo,
   Spring.Container.Builder,
   Spring.Container.CreationContext,
+  Spring.Container.ComponentActivator,
   Spring.Container.Injection,
   Spring.Container.LifetimeManager,
 {$IFDEF DELPHIXE_UP}
@@ -346,6 +354,23 @@ begin
     fBuilder.AddInspector(inspector);
 end;
 
+procedure TContainer.InternalRegisterDecorator(serviceType: PTypeInfo;
+  const decoratorModel: TComponentModel;
+  const condition: TPredicate<TComponentModel>);
+var
+  model: TComponentModel;
+begin
+  Build; // need to run the inspectors to fully initialize the component models
+  for model in Kernel.Registry.FindAll.Where(
+    function(const model: TComponentModel): Boolean
+    begin
+      Result := model.HasService(serviceType)
+        and (not Assigned(condition) or condition(model));
+    end) do
+    model.ComponentActivator := TDecoratorComponentActivator.Create(
+      Kernel, decoratorModel, model.ComponentActivator, serviceType);
+end;
+
 function TContainer.GetBuilder: IComponentBuilder;
 begin
   Result := fBuilder;
@@ -390,6 +415,19 @@ procedure TContainer.HandleRegistryChanged(Sender: TObject;
   const model: TComponentModel; action: TCollectionChangedAction);
 begin
   fChangedModels.Add(model);
+end;
+
+function TContainer.RegisterDecorator<TService, TDecorator>: TRegistration<TDecorator>;
+begin
+  Result := RegisterType<TDecorator,TDecorator>;
+  InternalRegisterDecorator(TypeInfo(TService), Result.Model, nil);
+end;
+
+function TContainer.RegisterDecorator<TService, TDecorator>(
+  const condition: TPredicate<TComponentModel>): TRegistration<TDecorator>;
+begin
+  Result := RegisterType<TDecorator,TDecorator>;
+  InternalRegisterDecorator(TypeInfo(TService), Result.Model, condition);
 end;
 
 {$IFDEF DELPHIXE_UP}

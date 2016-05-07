@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-{$IF Defined(DELPHIXE2_UP) AND NOT Defined(NEXTGEN)}
+{$IF Defined(DELPHIXE4_UP) AND NOT Defined(NEXTGEN)}
   AnsiStrings,
 {$ELSE}
   SysUtils,
@@ -168,7 +168,7 @@ begin
       GraphicClass := TMetafile
     else if (LongWords[0] = 1) and (LongWords[10] = $464D4520) then
       GraphicClass := TMetafile
-    else if {$IFDEF DELPHIXE2_UP}AnsiStrings.{$ENDIF}StrLComp(PAnsiChar(@Buffer), 'GIF', 3) = 0 then
+    else if {$IFDEF DELPHIXE4_UP}AnsiStrings.{$ENDIF}StrLComp(PAnsiChar(@Buffer), 'GIF', 3) = 0 then
       GraphicClass := TGIFImage
     else if Words[1] = 1 then
       GraphicClass := TIcon;

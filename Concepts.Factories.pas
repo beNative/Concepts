@@ -33,6 +33,7 @@ uses
 
   DSharp.Windows.TreeViewPresenter, DSharp.Bindings.Collections,
   DSharp.Core.DataTemplates, DSharp.Windows.CustomPresenter,
+  DSharp.Windows.ColumnDefinitions,
   {$IFDEF DEVEXPRESS}
   DSharp.DevExpress.GridViewPresenter, DSharp.DevExpress.PresenterDataSource,
   DSharp.DevExpress.TreeListPresenter,
@@ -56,10 +57,11 @@ type
   TConceptFactories = record
   strict private
     class procedure InitializePresenter(
-      APresenter: TCustomPresenter;
-      ASource   : IObjectList = nil;
-      ATemplate : IDataTemplate = nil;
-      AFilter   : TFilterEvent = nil
+      APresenter  : TCustomPresenter;
+      ASource     : IObjectList = nil;
+      ATemplate   : IDataTemplate = nil;
+      AFilter     : TFilterEvent = nil;
+      ACustomDraw : TCustomDrawEvent = nil
     ); static;
 
   public
@@ -79,12 +81,13 @@ type
     ): TVirtualStringTree; static;
 
     class function CreateTreeViewPresenter(
-      AOwner      : TComponent;
-      AVST        : TVirtualStringTree = nil;
-      ASource     : IObjectList = nil;
-      ATemplate   : IDataTemplate = nil;
-      AFilter     : TFilterEvent = nil;
-      const AName : string = ''
+      AOwner            : TComponent;
+      AVST              : TVirtualStringTree = nil;
+      ASource           : IObjectList = nil;
+      ATemplate         : IDataTemplate = nil;
+      AFilter           : TFilterEvent = nil;
+      ACustomDraw       : TCustomDrawEvent = nil;
+      const AName       : string = ''
     ): TTreeViewPresenter; static;
 
     {$IFDEF DEVEXPRESS}
@@ -136,7 +139,6 @@ type
       const AName : string = ''
     ): TzObjectInspector; static;
     {$ENDIF}
-
   end;
 
 type
@@ -435,9 +437,15 @@ begin
 end;
 {$ENDIF}
 
-class function TConceptFactories.CreateTreeViewPresenter(AOwner: TComponent;
-  AVST: TVirtualStringTree; ASource: IObjectList; ATemplate: IDataTemplate;
-  AFilter: TFilterEvent; const AName: string): TTreeViewPresenter;
+class function TConceptFactories.CreateTreeViewPresenter(
+      AOwner            : TComponent;
+      AVST              : TVirtualStringTree = nil;
+      ASource           : IObjectList = nil;
+      ATemplate         : IDataTemplate = nil;
+      AFilter           : TFilterEvent = nil;
+      ACustomDraw       : TCustomDrawEvent = nil;
+      const AName       : string = ''
+    ): TTreeViewPresenter;
 var
   TVP: TTreeViewPresenter;
 begin
@@ -445,7 +453,7 @@ begin
   TVP.TreeView := AVST;
   TVP.SyncMode := True;
   TVP.ListMode := False;
-  InitializePresenter(TVP, ASource, ATemplate, AFilter);
+  InitializePresenter(TVP, ASource, ATemplate, AFilter, ACustomDraw);
   Result := TVP;
 end;
 
@@ -568,8 +576,12 @@ begin
 end;
 
 class procedure TConceptFactories.InitializePresenter(
-  APresenter: TCustomPresenter; ASource: IObjectList; ATemplate: IDataTemplate;
-  AFilter: TFilterEvent);
+      APresenter  : TCustomPresenter;
+      ASource     : IObjectList = nil;
+      ATemplate   : IDataTemplate = nil;
+      AFilter     : TFilterEvent = nil;
+      ACustomDraw : TCustomDrawEvent = nil
+);
 var
   P : TRttiProperty;
   C : TRttiContext;
@@ -582,6 +594,7 @@ begin
       with APresenter.ColumnDefinitions.Add(P.Name) do
       begin
         ValuePropertyName := P.Name;
+        OnCustomDraw := ACustomDraw;
       end;
     end;
   end;

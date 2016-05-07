@@ -212,7 +212,11 @@ type
   /// <summary>
   ///   Defines a many-valued association with one-to-many multiplicity.
   /// </summary>
-  OneToManyAttribute = class(AssociationAttribute);
+  OneToManyAttribute = class(AssociationAttribute)
+  public
+    constructor Create(required: Boolean = False;
+      cascade: TCascadeKinds = [ckCascadeAll]);
+  end;
 
   /// <summary>
   ///   This annotation defines a single-valued association to another entity
@@ -390,10 +394,9 @@ end;
 
 function TableAttribute.GetNamespace: string;
 begin
-  Result := '';
-  if Schema <> '' then
-    Result := Schema + '.';
-  Result := Result + TableName;
+  Result := TableName;
+  if fSchema <> '' then
+    Result := fSchema + '.' + Result;
 end;
 
 function TableAttribute.GetTableName: string;
@@ -412,7 +415,8 @@ end;
 
 {$REGION 'SequenceAttribute'}
 
-constructor SequenceAttribute.Create(const sequenceName: string; initialValue: NativeInt; increment: Integer);
+constructor SequenceAttribute.Create(const sequenceName: string;
+  initialValue: NativeInt; increment: Integer);
 begin
   inherited Create;
   fSequenceName := sequenceName;
@@ -470,6 +474,17 @@ begin
   fMappedByMember := rttiType.GetField(fMappedBy);
   if not Assigned(fMappedByMember) then
     fMappedByMember := rttiType.GetProperty(fMappedBy);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'OneToManyAttribute'}
+
+constructor OneToManyAttribute.Create(required: Boolean;
+  cascade: TCascadeKinds);
+begin
+  inherited;
 end;
 
 {$ENDREGION}

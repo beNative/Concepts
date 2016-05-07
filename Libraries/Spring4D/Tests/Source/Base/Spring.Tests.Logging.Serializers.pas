@@ -319,7 +319,7 @@ begin
   fSerializer := TReflectionTypeSerializer.Create([mvPublic], True);
   o := TSampleObject.Create;
   try
-{$IFDEF WEAKREF}
+{$IFDEF AUTOREFCOUNT}
     //We're also testing how WeakRefs work
     CheckEquals(1, TSampleObject.Instances);
 {$ENDIF}
@@ -364,7 +364,7 @@ begin
   end;
 
   CheckEquals(s, result);
-{$IFDEF WEAKREF}
+{$IFDEF AUTOREFCOUNT}
   //Lets make sure we're not leaking (ie. the instance was freed and all
   //references removed)
   CheckEquals(0, TSampleObject.Instances, 'Leak detected!');

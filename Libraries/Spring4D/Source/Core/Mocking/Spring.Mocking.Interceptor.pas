@@ -91,6 +91,7 @@ type
 implementation
 
 uses
+  Generics.Collections,
   TypInfo,
   Spring.Mocking.Core,
   Spring.Reflection,

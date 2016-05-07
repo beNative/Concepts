@@ -67,6 +67,7 @@ type
   PInterface = ^IInterface;
 
   TValue = Rtti.TValue;
+  PValue = ^TValue;
 
   TAttributeClass = class of TCustomAttribute;
 
@@ -520,24 +521,27 @@ type
 
   {$REGION 'TRttiMethodHelper'}
 
+{$IF CompilerVersion < 31}
   {$HINTS OFF}
   TRttiMethodHack = class(TRttiMethod)
   private
     function GetParameters: TArray<TRttiParameter>; override;
   end;
   {$HINTS ON}
+{$IFEND}
 
   TRttiMethodHelper = class helper for TRttiMethod
   private
+    function GetReturnTypeHandle: PTypeInfo;
+{$IF CompilerVersion < 31}
     procedure DispatchValue(const value: TValue; typeInfo: PTypeInfo);
     procedure FixParameters(const parameters: TArray<TRttiParameter>);
-    function GetReturnTypeHandle: PTypeInfo;
   public
     /// <summary>
     ///   Returns the parameters of the method
     /// </summary>
     /// <remarks>
-    ///   This fixes RSP-9824
+    ///   This fixes the incorrect Parent property of TRttiParameter (RSP-9824).
     /// </remarks>
     function GetParameters: TArray<TRttiParameter>; inline;
 
@@ -545,7 +549,7 @@ type
     ///   Invokes the method.
     /// </summary>
     /// <remarks>
-    ///   This method fixes the missing interface cast support in TValue.
+    ///   This fixes the missing interface cast support in TValue (QC#123729).
     /// </remarks>
     function Invoke(Instance: TObject; const Args: array of TValue): TValue; overload;
 
@@ -553,7 +557,7 @@ type
     ///   Invokes the method.
     /// </summary>
     /// <remarks>
-    ///   This method fixes the missing interface cast support in TValue.
+    ///   This fixes the missing interface cast support in TValue (QC#123729).
     /// </remarks>
     function Invoke(Instance: TClass; const Args: array of TValue): TValue; overload;
 
@@ -561,9 +565,11 @@ type
     ///   Invokes the method.
     /// </summary>
     /// <remarks>
-    ///   This method fixes the missing interface cast support in TValue.
+    ///   This fixes the missing interface cast support in TValue (QC#123729).
     /// </remarks>
     function Invoke(Instance: TValue; const Args: array of TValue): TValue; overload;
+{$IFEND}
+  public
 
     /// <summary>
     ///   Returns the PTypeInfo of the ReturnType if assigned; otherwise
@@ -1141,7 +1147,7 @@ type
 
     class operator Implicit(const value: Nullable): Nullable<T>; inline;
     class operator Implicit(const value: Nullable<T>): T; inline;
-    class operator Implicit(const value: T): Nullable<T>;
+    class operator Implicit(const value: T): Nullable<T>; inline;
     class operator Implicit(const value: Nullable<T>): Variant;
     class operator Implicit(const value: Variant): Nullable<T>;
     class operator Explicit(const value: Nullable<T>): T; inline;
@@ -1887,6 +1893,32 @@ type
 
   TArray = class(Generics.Collections.TArray)
   public
+
+    /// <summary>
+    ///   Searches a range of elements in a sorted array for the given value,
+    ///   using a binary search algorithm returning the index for the last
+    ///   found value using the specified comparer.
+    /// </summary>
+    class function BinarySearchUpperBound<T>(const values: array of T;
+      const item: T; out foundIndex: Integer; const comparer: IComparer<T>;
+      index, count: Integer): Boolean; overload; static;
+
+    /// <summary>
+    ///   Searches a sorted array for the given value, using a binary search
+    ///   algorithm returning the index for the last found value using the
+    ///   specified comparer.
+    /// </summary>
+    class function BinarySearchUpperBound<T>(const values: array of T;
+      const item: T; out foundIndex: Integer;
+      const comparer: IComparer<T>): Boolean; overload; static;
+
+    /// <summary>
+    ///   Searches a sorted array for the given value, using a binary search
+    ///   algorithm returning the index for the last found value.
+    /// </summary>
+    class function BinarySearchUpperBound<T>(const values: array of T;
+      const item: T; out foundIndex: Integer): Boolean; overload; static; static;
+
     /// <summary>
     ///   Concatenates an array of arrays to one array
     /// </summary>
@@ -1896,7 +1928,8 @@ type
     ///   Determines whether the specified item exists as an element in an
     ///   array.
     /// </summary>
-    class function Contains<T>(const values: array of T; const item: T): Boolean; static;
+    class function Contains<T>(const values: array of T;
+      const item: T): Boolean; static;
 
     /// <summary>
     ///   Copies an open array to a dynamic array.
@@ -1906,16 +1939,18 @@ type
     /// <summary>
     ///   Executes the specified action for each item in the specified array.
     /// </summary>
-    class procedure ForEach<T>(const values: array of T; const action: TAction<T>); static;
+    class procedure ForEach<T>(const values: array of T;
+      const action: TAction<T>); static;
 
     /// <summary>
-    ///   Searches for the specified object and returns the index of the first
+    ///   Searches for the specified element and returns the index of the first
     ///   occurrence within the entire array.
     /// </summary>
-    class function IndexOf<T>(const values: array of T; const item: T): Integer; overload; static;
+    class function IndexOf<T>(const values: array of T;
+      const item: T): Integer; overload; static;
 
     /// <summary>
-    ///   Searches for the specified object and returns the index of the first
+    ///   Searches for the specified element and returns the index of the first
     ///   occurrence within the range of elements in the array that extends
     ///   from the specified index to the last element.
     /// </summary>
@@ -1923,7 +1958,7 @@ type
       index: Integer): Integer; overload; static;
 
     /// <summary>
-    ///   Searches for the specified object and returns the index of the first
+    ///   Searches for the specified element and returns the index of the first
     ///   occurrence within the range of elements in the array that starts at
     ///   the specified index and contains the specified number of elements.
     /// </summary>
@@ -1931,12 +1966,45 @@ type
       index, count: Integer): Integer; overload; static;
 
     /// <summary>
-    ///   Searches for the specified object and returns the index of the first
+    ///   Searches for the specified element and returns the index of the first
     ///   occurrence within the range of elements in the array that starts at
     ///   the specified index and contains the specified number of elements
     ///   using the specified equality comparer.
     /// </summary>
     class function IndexOf<T>(const values: array of T; const item: T;
+      index, count: Integer;
+      const comparer: IEqualityComparer<T>): Integer; overload; static;
+
+    /// <summary>
+    ///   Searches for the specified element and returns the index of the last
+    ///   occurrence within the entire array.
+    /// </summary>
+    class function LastIndexOf<T>(const values: array of T;
+      const item: T): Integer; overload; static;
+
+    /// <summary>
+    ///   Searches for the specified element and returns the index of the last
+    ///   occurrence within the range of elements in the array that extends
+    ///   from the specified index to the last element.
+    /// </summary>
+    class function LastIndexOf<T>(const values: array of T; const item: T;
+      index: Integer): Integer; overload; static;
+
+    /// <summary>
+    ///   Searches for the specified element and returns the index of the last
+    ///   occurrence within the range of elements in the array that starts at
+    ///   the specified index and contains the specified number of elements.
+    /// </summary>
+    class function LastIndexOf<T>(const values: array of T; const item: T;
+      index, count: Integer): Integer; overload; static;
+
+    /// <summary>
+    ///   Searches for the specified element and returns the index of the last
+    ///   occurrence within the range of elements in the array that starts at
+    ///   the specified index and contains the specified number of elements
+    ///   using the specified equality comparer.
+    /// </summary>
+    class function LastIndexOf<T>(const values: array of T; const item: T;
       index, count: Integer;
       const comparer: IEqualityComparer<T>): Integer; overload; static;
   end;
@@ -3472,6 +3540,10 @@ var
   leftRec, rightRec: Pointer;
   leftValue, rightValue: TValue;
 begin
+  if (left.TypeInfo = TypeInfo(TValue)) and (right.TypeInfo = TypeInfo(TValue)) then
+    Exit(PValue(left.GetReferenceToRawData).Equals(
+      PValue(right.GetReferenceToRawData)^));
+
   recordType := left.TypeInfo.RttiType;
   for method in recordType.GetMethods('&op_Equality') do
   begin
@@ -3870,6 +3942,7 @@ class function TValueHelper.FromVariant(const value: Variant): TValue;
   var
     typeName: string;
     i: Integer;
+    tmp: Int64;
     info: PCustomVariantTypeInfo;
   begin
     typeName := VarTypeAsText(TVarData(value).VType);
@@ -3880,8 +3953,11 @@ class function TValueHelper.FromVariant(const value: Variant): TValue;
       begin
         case info.VType of
           varDouble: result := Double(value);
-          varInt64: result := {$IFDEF DELPHIXE6_UP}Int64(value);
-            {$ELSE}StrToInt64(VarToStr(value));{$ENDIF} // see QC#117696
+          varInt64:
+            if TryStrToInt64(VarToStr(value), tmp) then
+              Result := tmp
+            else
+              Result := Double(value);
         else
           raise EVariantTypeCastError.CreateRes(@SInvalidVarCast);
         end;
@@ -4724,7 +4800,14 @@ var
 begin
   Result := TryConvert(System.TypeInfo(T), value);
   if Result then
-    value.Get<T>(targetValue);
+  begin
+    if TValueData(Self).FTypeInfo = nil then
+    begin
+      FillChar(Pointer(@targetValue)^, SizeOf(T), 0);
+      Exit;
+    end;
+    ExtractRawData(@targetValue);
+  end;
 end;
 
 {$ENDREGION}
@@ -4732,6 +4815,18 @@ end;
 
 {$REGION 'TRttiMethodHelper'}
 
+function TRttiMethodHelper.GetReturnTypeHandle: PTypeInfo;
+var
+  returnType: TRttiType;
+begin
+  returnType := Self.ReturnType;
+  if Assigned(returnType) then
+    Result := returnType.Handle
+  else
+    Result := nil;
+end;
+
+{$IF CompilerVersion < 31}
 procedure TRttiMethodHelper.DispatchValue(const value: TValue;
   typeInfo: PTypeInfo);
 type
@@ -4773,17 +4868,6 @@ begin
   FixParameters(Result);
 end;
 
-function TRttiMethodHelper.GetReturnTypeHandle: PTypeInfo;
-var
-  returnType: TRttiType;
-begin
-  returnType := Self.ReturnType;
-  if Assigned(returnType) then
-    Result := returnType.Handle
-  else
-    Result := nil;
-end;
-
 function TRttiMethodHelper.Invoke(Instance: TObject;
   const Args: array of TValue): TValue;
 begin
@@ -4813,6 +4897,7 @@ begin
   else
     Result := Self.DispatchInvoke(Instance, Args);
 end;
+{$IFEND}
 
 {$ENDREGION}
 
@@ -5410,12 +5495,12 @@ begin
     Result.fHasValue := Nullable.HasValue;
   end
   else
-    Result.fValue := Default(T);
+    Result := Default(Nullable<T>);
 end;
 
 class operator Nullable<T>.Implicit(const value: Nullable): Nullable<T>;
 begin
-  Result.fValue := Default(T);
+  Result := Default(Nullable<T>);
 end;
 
 class operator Nullable<T>.Explicit(const value: Nullable<T>): T;
@@ -6753,6 +6838,58 @@ end;
 
 {$REGION 'TArray'}
 
+class function TArray.BinarySearchUpperBound<T>(const values: array of T;
+  const item: T; out foundIndex: Integer; const comparer: IComparer<T>;
+  index, count: Integer): Boolean;
+var
+  lo, hi, i, c: Integer;
+begin
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckNotNull(Assigned(comparer), 'comparer');
+  Guard.CheckRange((index >= 0) and (index <= Length(values)), 'index');
+  Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
+{$ENDIF}
+
+  if count = 0 then
+  begin
+    foundIndex := index;
+    Exit(False);
+  end;
+
+  Result := False;
+  lo := index;
+  hi := index + count - 1;
+  while lo <= hi do
+  begin
+    i := lo + (hi - lo) shr 1;
+    c := comparer.Compare(values[i], item);
+    if c > 0 then
+      hi := i - 1
+    else
+    begin
+      lo := i + 1;
+      if c = 0 then
+        Result := True;
+    end;
+  end;
+  foundIndex := hi;
+end;
+
+class function TArray.BinarySearchUpperBound<T>(const values: array of T;
+  const item: T; out foundIndex: Integer;
+  const comparer: IComparer<T>): Boolean;
+begin
+  Result := BinarySearchUpperBound<T>(values, item, foundIndex, comparer,
+    Low(values), Length(values));
+end;
+
+class function TArray.BinarySearchUpperBound<T>(const values: array of T;
+  const item: T; out foundIndex: Integer): Boolean;
+begin
+  Result := BinarySearchUpperBound<T>(values, item, foundIndex,
+    TComparer<T>.Default, Low(values), Length(values));
+end;
+
 class function TArray.Concat<T>(const values: array of TArray<T>): TArray<T>;
 var
   i, k, n: Integer;
@@ -6804,23 +6941,64 @@ end;
 class function TArray.IndexOf<T>(const values: array of T;
   const item: T): Integer;
 begin
-  Result := IndexOf<T>(values, item, 0, Length(values));
+  Result := IndexOf<T>(values, item,
+    0, Length(values), TEqualityComparer<T>.Default);
 end;
 
 class function TArray.IndexOf<T>(const values: array of T; const item: T;
   index: Integer): Integer;
 begin
-  Result := IndexOf<T>(values, item, index, Length(values) - index);
+  Result := IndexOf<T>(values, item,
+    index, Length(values) - index, TEqualityComparer<T>.Default);
 end;
 
-class function TArray.IndexOf<T>(const values: array of T; const item: T; index,
-  count: Integer): Integer;
+class function TArray.IndexOf<T>(const values: array of T; const item: T;
+  index, count: Integer): Integer;
 begin
-  Result := IndexOf<T>(values, item, index, count, TEqualityComparer<T>.Default);
+  Result := IndexOf<T>(values, item,
+    index, count, TEqualityComparer<T>.Default);
 end;
 
-class function TArray.IndexOf<T>(const values: array of T; const item: T; index,
-  count: Integer; const comparer: IEqualityComparer<T>): Integer;
+class function TArray.IndexOf<T>(const values: array of T; const item: T;
+  index, count: Integer; const comparer: IEqualityComparer<T>): Integer;
+var
+  i: Integer;
+begin
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckNotNull(Assigned(comparer), 'comparer');
+  Guard.CheckRange((index >= 0) and (index <= Length(values)), 'index');
+  Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
+{$ENDIF}
+
+  for i := index to index + count - 1 do
+    if comparer.Equals(values[i], item) then
+      Exit(i);
+  Result := -1;
+end;
+
+class function TArray.LastIndexOf<T>(const values: array of T;
+  const item: T): Integer;
+begin
+  Result := LastIndexOf<T>(values, item,
+    0, Length(values), TEqualityComparer<T>.Default);
+end;
+
+class function TArray.LastIndexOf<T>(const values: array of T; const item: T;
+  index: Integer): Integer;
+begin
+  Result := LastIndexOf<T>(values, item,
+    index, Length(values) - index, TEqualityComparer<T>.Default);
+end;
+
+class function TArray.LastIndexOf<T>(const values: array of T; const item: T;
+  index, count: Integer): Integer;
+begin
+  Result := LastIndexOf<T>(values, item,
+    index, count, TEqualityComparer<T>.Default);
+end;
+
+class function TArray.LastIndexOf<T>(const values: array of T; const item: T;
+  index, count: Integer; const comparer: IEqualityComparer<T>): Integer;
 var
   i: Integer;
 begin
@@ -6829,7 +7007,7 @@ begin
   Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
 {$ENDIF}
 
-  for i := index to index + count - 1 do
+  for i := index + count - 1 downto index do
     if comparer.Equals(values[i], item) then
       Exit(i);
   Result := -1;
@@ -7480,5 +7658,12 @@ end;
 
 {$ENDREGION}
 
+
+initialization
+
+finalization
+  // make sure this properly gets freed because it appears
+  // the class destructor is not running all the time
+  TType.fContext.Free;
 
 end.

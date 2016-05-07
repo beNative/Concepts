@@ -79,6 +79,8 @@ type
     procedure Mixin;
 
     procedure CustomProxyWithSafecallMethod;
+
+    procedure CastingToImplementingObjectWorks;
   end;
 
   TStorageTests = class(TTestCase)
@@ -490,6 +492,16 @@ begin
   mock.Instance.SomeProcedure;
   mock.Received(Times.Once).SomeProcedure;
 
+  Pass;
+end;
+
+procedure TProxyTest.CastingToImplementingObjectWorks;
+var
+  storage: IStorage;
+begin
+  storage := TPrimaryStorage.Create;
+  storage := TProxyGenerator.CreateInterfaceProxyWithTarget(storage, []);
+  (storage as TPrimaryStorage).Save('');
   Pass;
 end;
 

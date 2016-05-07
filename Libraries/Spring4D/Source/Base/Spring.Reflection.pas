@@ -177,34 +177,6 @@ type
   {$ENDREGION}
 
 
-  {$REGION 'TRttiMemberIterator<T>'}
-
-  TRttiMemberIterator<T: TRttiMember> = class(TIterator<T>)
-  private
-    fParentType: TRttiType;
-    fSelector: TFunc<TRttiType,TArray<T>>;
-    fInherit: Boolean;
-    fPredicate: TPredicate<T>;
-    fTargetType: TRttiType;
-    fMembers: TArray<T>;
-    fIndex: Integer;
-    procedure Initialize(const targetType: TRttiType);
-  public
-    constructor Create(const parentType: TRttiType;
-      const selector: TFunc<TRttiType,TArray<T>>;
-      inherit: Boolean); overload;
-    constructor Create(const parentType: TRttiType;
-      const selector: TFunc<TRttiType,TArray<T>>;
-      inherit: Boolean;
-      const predicate: TPredicate<T>); overload;
-
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
-  end;
-
-  {$ENDREGION}
-
-
   {$REGION 'TRttiObjectHelper'}
 
   TRttiObjectHelper = class helper for TRttiObject
@@ -272,6 +244,11 @@ type
     function GetDefaultName: string;
     function GetAncestorCount: Integer;
   public
+
+    /// <summary>
+    ///   Returns all constructors
+    /// </summary>
+    function GetConstructors: TArray<TRttiMethod>;
 
     /// <summary>
     ///   Returns an enumerable collection which contains all the interface
@@ -479,12 +456,12 @@ type
     function GetIsGetter: Boolean;
     function GetIsSetter: Boolean;
     function GetParameterCount: Integer;
-    function InternalGetParameters: IEnumerable<TRttiParameter>;
+    function GetParametersList: IReadOnlyList<TRttiParameter>;
   public
     property IsGetter: Boolean read GetIsGetter;
     property IsSetter: Boolean read GetIsSetter;
     property ParameterCount: Integer read GetParameterCount;
-    property Parameters: IEnumerable<TRttiParameter> read InternalGetParameters;
+    property Parameters: IReadOnlyList<TRttiParameter> read GetParametersList;
   end;
 
   {$ENDREGION}
@@ -994,75 +971,6 @@ end;
 {$ENDREGION}
 
 
-{$REGION 'TRttiMemberIterator<T>'}
-
-constructor TRttiMemberIterator<T>.Create(const parentType: TRttiType;
-  const selector: TFunc<TRttiType,TArray<T>>; inherit: Boolean);
-begin
-  Create(parentType, selector, inherit, nil);
-end;
-
-constructor TRttiMemberIterator<T>.Create(const parentType: TRttiType;
-  const selector: TFunc<TRttiType, TArray<T>>; inherit: Boolean;
-  const predicate: TPredicate<T>);
-begin
-  inherited Create;
-  fParentType := parentType;
-  fSelector := selector;
-  fInherit := inherit;
-  fPredicate := predicate;
-end;
-
-function TRttiMemberIterator<T>.Clone: TIterator<T>;
-begin
-  Result := TRttiMemberIterator<T>.Create(
-    fParentType, fSelector, fInherit, fPredicate);
-end;
-
-procedure TRttiMemberIterator<T>.Initialize(const targetType: TRttiType);
-begin
-  fIndex := -1;
-  fTargetType := targetType;
-  if Assigned(fTargetType) then
-    fMembers := fSelector(fTargetType)
-  else
-    fMembers := nil;
-end;
-
-function TRttiMemberIterator<T>.MoveNext: Boolean;
-begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
-  begin
-    Initialize(fParentType);
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    repeat
-      while fIndex < High(fMembers) do
-      begin
-        Inc(fIndex);
-        if Assigned(fPredicate) and not fPredicate(fMembers[fIndex]) then
-          Continue;
-        fCurrent := fMembers[fIndex];
-        Exit(True);
-      end;
-      if fInherit then
-        Initialize(fTargetType.BaseType)
-      else
-        Initialize(nil);
-    until not Assigned(fTargetType);
-    fCurrent := Default(T);
-    fState := STATE_FINISHED;
-  end;
-end;
-
-{$ENDREGION}
-
-
 {$REGION 'TRttiTypeIterator<T>'}
 
 function TRttiTypeIterator<T>.Clone: TIterator<T>;
@@ -1086,10 +994,11 @@ begin
     while fIndex < High(fTypes) do
     begin
       Inc(fIndex);
-      if not fTypes[fIndex].InheritsFrom(T) then
-        Continue;
-      fCurrent := T(fTypes[fIndex]);
-      Exit(True);
+      if fTypes[fIndex].InheritsFrom(T) then
+      begin
+        fCurrent := T(fTypes[fIndex]);
+        Exit(True);
+      end;
     end;
   end;
 end;
@@ -1182,40 +1091,40 @@ end;
 
 {$REGION 'TRttiTypeHelper'}
 
+function TRttiTypeHelper.GetConstructors: TArray<TRttiMethod>;
+var
+  i, n: Integer;
+begin
+  n := 0;
+  Result := GetMethods;
+  for i := 0 to High(Result) do
+    if Result[i].IsConstructor then
+    begin
+      if i > n then
+        Result[n] := Result[i];
+      Inc(n);
+    end;
+  SetLength(Result, n);
+end;
+
 function TRttiTypeHelper.GetConstructorsEnumerable: IEnumerable<TRttiMethod>;
 begin
-  Result := TRttiMemberIterator<TRttiMethod>.Create(Self,
-    function(targetType: TRttiType): TArray<TRttiMethod>
-    begin
-      Result := targetType.GetDeclaredMethods;
-    end, True, TMethodFilters.IsConstructor());
+  Result := TArrayIterator<TRttiMethod>.Create(GetConstructors());
 end;
 
 function TRttiTypeHelper.GetMethodsEnumerable: IEnumerable<TRttiMethod>;
 begin
-  Result := TRttiMemberIterator<TRttiMethod>.Create(Self,
-    function(targetType: TRttiType): TArray<TRttiMethod>
-    begin
-      Result := targetType.GetDeclaredMethods;
-    end, True);
+  Result := TArrayIterator<TRttiMethod>.Create(GetMethods());
 end;
 
 function TRttiTypeHelper.GetPropertiesEnumerable: IEnumerable<TRttiProperty>;
 begin
-  Result := TRttiMemberIterator<TRttiProperty>.Create(Self,
-    function(targetType: TRttiType): TArray<TRttiProperty>
-    begin
-      Result := targetType.GetDeclaredProperties;
-    end, True);
+  Result := TArrayIterator<TRttiProperty>.Create(GetProperties());
 end;
 
 function TRttiTypeHelper.GetFieldsEnumerable: IEnumerable<TRttiField>;
 begin
-  Result := TRttiMemberIterator<TRttiField>.Create(Self,
-    function(targetType: TRttiType): TArray<TRttiField>
-    begin
-      Result := targetType.GetDeclaredFields;
-    end, True);
+  Result := TArrayIterator<TRttiField>.Create(GetFields());
 end;
 
 function TRttiTypeHelper.GetDefaultName: string;
@@ -1223,7 +1132,13 @@ begin
   if IsPublicType then
     Result := QualifiedName
   else
-    Result := Name;
+    case TypeKind of
+      tkClass: Result := TRttiInstanceType(Self).DeclaringUnitName + '.' + Name;
+      tkInterface: Result := TRttiInterfaceType(Self).DeclaringUnitName + '.' + Name;
+      tkDynArray: Result := TRttiDynamicArrayType(Self).DeclaringUnitName + '.' + Name;
+    else
+      Result := Name;
+    end;
 end;
 
 function TRttiTypeHelper.GetMember(const name: string): TRttiMember;
@@ -1687,9 +1602,9 @@ begin
   Result := Length(GetParameters);
 end;
 
-function TRttiMethodHelper.InternalGetParameters: IEnumerable<TRttiParameter>;
+function TRttiMethodHelper.GetParametersList: IReadOnlyList<TRttiParameter>;
 begin
-  Result := TEnumerable.Query<TRttiParameter>(GetParameters);
+  Result := TArrayIterator<TRttiParameter>.Create(GetParameters());
 end;
 
 {$ENDREGION}

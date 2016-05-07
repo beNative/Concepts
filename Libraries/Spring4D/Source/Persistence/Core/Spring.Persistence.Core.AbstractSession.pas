@@ -63,7 +63,7 @@ type
         const resultSet: IDBResultSet);
       procedure SetEntityFromColumns(const entity: IEntityWrapper;
         const resultSet: IDBResultSet);
-      procedure SetLazyColumns(const entity: IEntityWrapper);
+      procedure SetOneToManyColumns(const entity: IEntityWrapper);
 
       procedure MapAssociation(const baseEntity: IEntityWrapper;
         const resultSet: IDBResultSet); overload;
@@ -85,7 +85,7 @@ type
     function MapAggregatedObject(const resultSet: IDBResultSet;
       const baseEntity: TObject; entityClass: TClass): TObject;
 
-    function DoGetLazy(const id: TValue; const entity: TObject;
+    function LoadOneToManyAssociation(const id: TValue; const entity: TObject;
       const column: ColumnAttribute; entityClass: TClass): IDBResultSet;
 
     function GetLazyValueAsInterface(const id: TValue; const entity: TObject;
@@ -167,10 +167,10 @@ uses
   Classes,
   SysUtils,
   Variants,
-  Spring.Persistence.Core.Consts,
   Spring.Persistence.Core.EntityMap,
   Spring.Persistence.Core.EntityWrapper,
   Spring.Persistence.Core.Exceptions,
+  Spring.Persistence.Core.ResourceStrings,
   Spring.Persistence.SQL.Commands.Delete,
   Spring.Persistence.SQL.Commands.Insert,
   Spring.Persistence.SQL.Commands.Select,
@@ -218,8 +218,9 @@ begin
   DetachEntity(entity);
 end;
 
-function TAbstractSession.DoGetLazy(const id: TValue; const entity: TObject;
-  const column: ColumnAttribute; entityClass: TClass): IDBResultSet;
+function TAbstractSession.LoadOneToManyAssociation(const id: TValue;
+  const entity: TObject; const column: ColumnAttribute;
+  entityClass: TClass): IDBResultSet;
 var
   baseEntityClass,
   entityToLoadClass: TClass;
@@ -323,7 +324,7 @@ begin
   if not Assigned(entity) or id.IsEmpty then
     Exit(nil);
 
-  results := DoGetLazy(id, entity, column, entityClass);
+  results := LoadOneToManyAssociation(id, entity, column, entityClass);
   Result := TCollections.CreateObjectList<TObject>(True);
   MapEntitiesFromResultSet(results, Result as IObjectList, entityClass);
 end;
@@ -337,7 +338,7 @@ begin
   if not Assigned(entity) or id.IsEmpty then
     Exit(nil);
 
-  results := DoGetLazy(id, entity, column, entityClass);
+  results := LoadOneToManyAssociation(id, entity, column, entityClass);
   Result := MapAggregatedObject(results, entity, entityClass);
 end;
 
@@ -409,11 +410,7 @@ begin
       with TAbstractSession(capturedSelf) do
 {$ENDIF}
         Result := GetLazyValueAsInterface(capturedId,
-{$IFNDEF AUTOREFCOUNT}
-          entity,
-{$ELSE}
-          capturedEntity,
-{$ENDIF}
+          {$IFNDEF AUTOREFCOUNT}entity,{$ELSE}capturedEntity,{$ENDIF}
           column, entityClass);
     end;
   Result := TValue.From<Lazy<IInterface>>(TLazy<IInterface>.Create(factory));
@@ -444,11 +441,7 @@ begin
       with TAbstractSession(capturedSelf) do
 {$ENDIF}
         Result := GetLazyValueAsObject(capturedId,
-{$IFNDEF AUTOREFCOUNT}
-          entity,
-{$ELSE}
-          capturedEntity,
-{$ENDIF}
+          {$IFNDEF AUTOREFCOUNT}entity,{$ELSE}capturedEntity,{$ENDIF}
           column, entityClass);
     end;
   Result := TValue.From<Lazy<TObject>>(TLazy<TObject>.Create(factory, True));
@@ -610,7 +603,7 @@ procedure TAbstractSession.TRowMapperInternal.MapEntityFromColumns(
   const entity: IEntityWrapper; const resultSet: IDBResultSet);
 begin
   SetEntityFromColumns(entity, resultSet);
-  SetLazyColumns(entity);
+  SetOneToManyColumns(entity);
   SetAssociations(entity, resultSet);
   fSession.AttachEntity(entity.Entity);
 end;
@@ -686,7 +679,7 @@ begin
       try
         fieldValue := resultSet.GetFieldValue(columnData.ColumnName);
       except
-        raise EORMColumnNotFound.CreateFmt(EXCEPTION_COLUMN_NOTFOUND, [columnData.ColumnName]);
+        raise EORMColumnNotFound.CreateResFmt(@SColumnNotFound, [columnData.ColumnName]);
       end;
       value := TValue.FromVariant(fieldValue);
       value := value.ConvertTo(columnData.Member.MemberType.Handle);
@@ -695,19 +688,35 @@ begin
   end;
 end;
 
-procedure TAbstractSession.TRowMapperInternal.SetLazyColumns(
+procedure TAbstractSession.TRowMapperInternal.SetOneToManyColumns(
   const entity: IEntityWrapper);
 var
   column: OneToManyAttribute;
   value: TValue;
+  items: IObjectList;
+  entityClass: TClass;
+  id: TValue;
+  results: IDBResultSet;
 begin
-  if not entity.HasOneToManyRelations then
-    Exit;
   for column in entity.OneToManyColumns do
   begin
-    value := ResolveLazyValue(entity, column.Member);
-    if not value.IsEmpty then
-      entity.SetValue(column.Member, value);
+    if column.Member.IsField then
+    begin
+      value := ResolveLazyValue(entity, column.Member);
+      if not value.IsEmpty then
+        entity.SetValue(column.Member, value);
+    end;
+    if column.Member.IsProperty then
+    begin
+      if not column.Member.MemberType.IsInterface
+        or not Supports(entity.GetValue(column.Member).AsInterface, IObjectList, items) then
+        raise EORMUnsupportedType.CreateFmt(
+          'Unsupported type: %s - expected IList<T: class>', [column.Member.MemberType.Name]);
+      entityClass := items.ElementType.TypeData.ClassType;
+      id := entity.PrimaryKeyValue;
+      results := fSession.GetResultSetById(entityClass, id, entity.Entity.ClassType);
+      fSession.MapEntitiesFromResultSet(results, items, entityClass);
+    end;
   end;
 end;
 

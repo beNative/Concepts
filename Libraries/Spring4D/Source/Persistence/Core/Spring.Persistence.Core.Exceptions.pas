@@ -281,9 +281,18 @@ type
     procedure SetAcquireInnerException;
   end;
 
+  ExceptionHack = class(TObject)
+  protected
+    FMessage: string;
+    FHelpContext: Integer;
+    FInnerException: Exception;
+    FStackInfo: Pointer;
+    FAcquireInnerException: Boolean;
+  end;
+
 procedure ExceptionHelper.SetAcquireInnerException;
 begin
-  Self.FAcquireInnerException := True;
+  ExceptionHack(Self).FAcquireInnerException := True;
 end;
 
 function TORMExceptionHandler.HandleException(const defaultMsg: string): Exception;

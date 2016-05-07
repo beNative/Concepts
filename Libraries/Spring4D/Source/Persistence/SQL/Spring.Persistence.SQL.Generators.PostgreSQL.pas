@@ -65,8 +65,8 @@ var
 begin
   sequence := command.Sequence;
 
-  Result := Format('DROP SEQUENCE IF EXISTS %0:S; ', [sequence.SequenceName]);
-  Result := Result + Format('CREATE SEQUENCE %0:S INCREMENT %1:D MINVALUE %2:D;',
+  Result := Format('DROP SEQUENCE IF EXISTS %0:s; ', [sequence.SequenceName]);
+  Result := Result + Format('CREATE SEQUENCE %0:s INCREMENT %1:d MINVALUE %2:d;',
     [sequence.SequenceName, sequence.Increment, sequence.InitialValue]);
 end;
 
@@ -79,7 +79,7 @@ end;
 function TPostgreSQLGenerator.GenerateGetNextSequenceValue(
   const sequence: SequenceAttribute): string;
 begin
-  Result := Format('SELECT nextval(%0:S);', [QuotedStr(sequence.SequenceName)]);
+  Result := Format('SELECT nextval(%0:s);', [QuotedStr(sequence.SequenceName)]);
 end;
 
 function TPostgreSQLGenerator.GetQueryLanguage: TQueryLanguage;

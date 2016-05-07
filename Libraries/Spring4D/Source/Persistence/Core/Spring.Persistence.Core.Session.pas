@@ -277,15 +277,16 @@ implementation
 uses
   TypInfo,
   Spring.Persistence.Core.Base,
-  Spring.Persistence.Core.Consts,
   Spring.Persistence.Core.EntityCache,
   Spring.Persistence.Core.Exceptions,
   Spring.Persistence.Core.ListSession,
+  Spring.Persistence.Core.ResourceStrings,
   Spring.Persistence.Criteria,
   Spring.Persistence.Mapping.Attributes,
   Spring.Persistence.SQL.Interfaces,
   Spring.Persistence.SQL.Register,
-  Spring.Reflection;
+  Spring.Reflection,
+  Spring.ResourceStrings;
 
 
 {$REGION 'TSession'}
@@ -346,7 +347,7 @@ begin
 
     value := TValue.FromVariant(fieldValue);
     if not value.TryConvert(TypeInfo(T), convertedValue) then
-      raise EORMCannotConvertValue.CreateFmt(EXCEPTION_CANNOT_CONVERT_TYPE,
+      raise EORMCannotConvertValue.CreateResFmt(@SIncompatibleTypes,
         [value.TypeInfo.Name, PTypeInfo(TypeInfo(T)).Name]);
     Result := convertedValue.AsType<T>;
   end
@@ -386,7 +387,7 @@ end;
 function TSession.First<T>(const sql: string; const params: array of const): T;
 begin
   if not TryFirst<T>(sql, params, Result) then
-    raise EORMRecordNotFoundException.Create(EXCEPTION_QUERY_NO_RECORDS);
+    raise EORMRecordNotFoundException.CreateRes(@SRecordNotFound);
 end;
 
 function TSession.FirstOrDefault<T>(const sql: string; const params: array of const): T;

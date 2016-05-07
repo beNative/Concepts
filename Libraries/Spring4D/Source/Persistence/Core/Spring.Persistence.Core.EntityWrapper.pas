@@ -76,7 +76,7 @@ uses
   SysUtils,
   TypInfo,
   Spring,
-  Spring.Persistence.Core.Consts,
+  Spring.Persistence.Core.ResourceStrings,
   Spring.Persistence.Core.EmbeddedEntity,
   Spring.Persistence.Core.Exceptions,
   Spring.Reflection;
@@ -151,7 +151,7 @@ begin
   try
     value := resultSet.GetFieldValue(fColumnsData.PrimaryKeyColumn.ColumnName);
   except
-    raise EORMPrimaryKeyColumnNotFound.CreateFmt(EXCEPTION_PRIMARYKEY_NOTFOUND,
+    raise EORMPrimaryKeyColumnNotFound.CreateResFmt(@SPrimaryKeyNotFound,
       [columnData.ColumnName]);
   end;
   Result := TValue.FromVariant(value);

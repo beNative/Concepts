@@ -383,7 +383,6 @@ type
     fLifetimeWatcher: IInterface;
     fValue: TValue;
     type
-      PValue = ^TValue;
       TComponentHolder = class(TComponent, IInterface)
       private
         fRefCount: Integer;

@@ -54,7 +54,7 @@ type
 
       TKeyCollection = class(TContainedReadOnlyCollection<TKey>)
       private
-        {$IFDEF WEAKREF}[Weak]{$ENDIF}
+        {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
         fDictionary: TGenericDictionary;
       protected
       {$REGION 'Property Accessors'}
@@ -74,7 +74,7 @@ type
 
       TValueCollection = class(TContainedReadOnlyCollection<TValue>)
       private
-        {$IFDEF WEAKREF}[Weak]{$ENDIF}
+        {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
         fDictionary: TGenericDictionary;
       protected
       {$REGION 'Property Accessors'}
@@ -94,7 +94,7 @@ type
 
       TOrderedEnumerable = class(TContainedIterator<TGenericPair>)
       private
-        {$IFDEF WEAKREF}[Weak]{$ENDIF}
+        {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
         fDictionary: TGenericDictionary;
         fComparer: IComparer<TKey>;
         fSortedKeys: TArray<TKey>;

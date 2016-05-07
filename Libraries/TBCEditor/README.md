@@ -1,5 +1,3 @@
-![image](https://cloud.githubusercontent.com/assets/11475177/13923967/396856d2-ef8b-11e5-89f9-1b79c4ea9fdd.png)
-
 Version 1.5.2. Use the Issues page to report bugs or send them directly to lasse@bonecode.com.
 
 <b>Note!</b> Current trunk should never be considered as a stable version. Use the latest <a href="https://github.com/bonecode/TBCEditor/releases">release</a> version instead. 
@@ -11,7 +9,7 @@ A syntax highlighting edit control for RAD Studio (Delphi/C++ Builder) with code
 <h3>Build requirements</h3>
 
 * <a href="https://github.com/ahausladen/JsonDataObjects">Json Data Objects</a> (included)
-* Delphi versions XE4, XE5, XE6, XE7, XE8, and Seattle are supported 
+* Delphi versions XE4, XE5, XE6, XE7, XE8, Seattle, and Berlin are supported 
 * Delphi XE7: Update 1 required
 * C++ Builder versions XE7, XE8, and Seattle are supported
 
@@ -27,7 +25,7 @@ USE_VCL_STYLES | Use VCL styles. A set of graphical details that define the look
 <h3>Usage example</h3>
 
 ```objectpascal
-  with Editor do 
+  with BCEditor1 do 
   begin
     Highlighter.LoadFromFile('JSON.json');
     Highlighter.Colors.LoadFromFile('Default.json'); 
@@ -36,7 +34,7 @@ USE_VCL_STYLES | Use VCL styles. A set of graphical details that define the look
     Lines.Text := Highlighter.Info.General.Sample; 
   end;
 ```
-Note! LoadFromStream does not support multi-highlighters (for example HTML with Scripts.json). Override TBCBaseEditor.CreateFileStream function, if you want to load multi-highlighters from a stream. 
+<b>Note!</b> LoadFromStream does not support multi-highlighters (for example HTML with Scripts.json). Override TBCBaseEditor.CreateFileStream function, if you want to load multi-highlighters from a stream. 
 
 <h3>Demo</h3>
 
@@ -47,7 +45,12 @@ TBCEditor Control Demo v. 1.5.2.
 
 The latest update: 21.03.2016 17:33, UTC+02:00
 
-Demo source build requires <a href="http://www.alphaskins.com/">AlphaSkins</a> and <a href="http://www.ehlib.com/">EhLib</a>. 
+Demo source build requires 
+
+- <a href="http://www.alphaskins.com/">AlphaSkins</a>  
+- <a href="http://www.ehlib.com/">EhLib</a>
+- <a href="https://github.com/bonecode/Common">Common</a>
+
 <h3>Documentation</h3>
 
 Documentation will be written after the project stabilizes and dust settles. This project is developed in my spare time without sources of income and as long as this is the case there is no timetable for anything. 

@@ -40,7 +40,7 @@ type
   TComponentActivatorBase = class abstract(TInterfacedObject, IComponentActivator)
   private
     fKernel: IKernel;
-    {$IFDEF WEAKREF}[Weak]{$ENDIF}
+    {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fModel: TComponentModel;
   protected
     procedure ExecuteInjections(var instance: TValue; const context: ICreationContext); overload;
@@ -74,11 +74,27 @@ type
     function CreateInstance(const context: ICreationContext): TValue; override;
   end;
 
+  /// <summary>
+  ///   Activates an instance and wraps it into a decorator.
+  /// </summary>
+  TDecoratorComponentActivator = class(TComponentActivatorBase)
+  private
+    fComponentActivator: IComponentActivator;
+    fServiceType: PTypeInfo;
+  public
+    constructor Create(const kernel: IKernel; const model: TComponentModel;
+      const componentActivator: IComponentActivator; serviceType: PTypeInfo);
+
+    function CreateInstance(const context: ICreationContext): TValue; override;
+  end;
+
+
 implementation
 
 uses
   Rtti,
   SysUtils,
+  TypInfo,
   Spring.Container.Common,
   Spring.Container.ResourceStrings,
   Spring.Reflection;
@@ -207,6 +223,43 @@ begin
     raise EActivatorException.CreateRes(@SActivatorDelegateExpected);
   Result := Model.ActivatorDelegate();
   ExecuteInjections(Result, context);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TDecoratorComponentActivator'}
+
+constructor TDecoratorComponentActivator.Create(const kernel: IKernel;
+  const model: TComponentModel; const componentActivator: IComponentActivator;
+  serviceType: PTypeInfo);
+begin
+  inherited Create(kernel, model);
+  fComponentActivator := componentActivator;
+  fServiceType := serviceType;
+end;
+
+function TDecoratorComponentActivator.CreateInstance(
+  const context: ICreationContext): TValue;
+
+{$IFDEF DELPHI2010}
+  function ConvClass2Inf(const AObject: TObject; ATarget: PTypeInfo): TValue;
+  var
+    intf: Pointer;
+  begin
+    if AObject.GetInterface(ATarget.TypeData.Guid, intf) then
+      TValue.MakeWithoutCopy(@intf, ATarget, Result);
+  end;
+{$ENDIF}
+
+begin
+  Result := fComponentActivator.CreateInstance(context);
+{$IFDEF DELPHI2010}
+  if Result.IsObject and (fServiceType.Kind = tkInterface) then
+    Result := ConvClass2Inf(Result.AsObject, fServiceType);
+{$ENDIF}
+  context.AddArgument(TTypedValue.Create(fServiceType, Result));
+  Result := fModel.ComponentActivator.CreateInstance(context);
 end;
 
 {$ENDREGION}

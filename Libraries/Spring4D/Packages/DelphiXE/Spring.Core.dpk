@@ -41,7 +41,6 @@ contains
   Spring.Container.ComponentActivator in '..\..\Source\Core\Container\Spring.Container.ComponentActivator.pas',
   Spring.Container.Core in '..\..\Source\Core\Container\Spring.Container.Core.pas',
   Spring.Container.CreationContext in '..\..\Source\Core\Container\Spring.Container.CreationContext.pas',
-  Spring.Container.DecoratorExtension in '..\..\Source\Core\Container\Spring.Container.DecoratorExtension.pas',
   Spring.Container.Extensions in '..\..\Source\Core\Container\Spring.Container.Extensions.pas',
   Spring.Container.Injection in '..\..\Source\Core\Container\Spring.Container.Injection.pas',
   Spring.Container.LifetimeManager in '..\..\Source\Core\Container\Spring.Container.LifetimeManager.pas',

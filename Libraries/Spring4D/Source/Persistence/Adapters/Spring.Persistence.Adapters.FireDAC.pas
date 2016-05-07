@@ -102,7 +102,7 @@ uses
   StrUtils,
   Variants,
   Spring.Persistence.Core.ConnectionFactory,
-  Spring.Persistence.Core.Consts;
+  Spring.Persistence.Core.ResourceStrings;
 
 
 {$REGION 'TFireDACStatementAdapter'}
@@ -148,7 +148,7 @@ begin
     on E:Exception do
     begin
       query.Free;
-      raise HandleException(Format(EXCEPTION_CANNOT_OPEN_QUERY, [E.Message]));
+      raise HandleException(Format(SCannotOpenQuery, [E.Message]));
     end;
   end;
 end;

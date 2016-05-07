@@ -65,29 +65,29 @@ end;
 function TASASQLGenerator.GeneratePagedQuery(const sql: string;
   limit, offset: Integer): string;
 var
-  LBuilder: TStringBuilder;
-  LSQL: string;
+  sqlBuilder: TStringBuilder;
+  s: string;
 begin
-  LBuilder := TStringBuilder.Create;
-  LSQL := sql;
+  sqlBuilder := TStringBuilder.Create;
+  s := sql;
   try
-    if EndsStr(';', LSQL) then
-      SetLength(LSQL, Length(LSQL)-1);
+    if EndsStr(';', s) then
+      SetLength(s, Length(s) - 1);
 
-    LBuilder.Append('SELECT * FROM (')
+    sqlBuilder.Append('SELECT * FROM (')
       .AppendLine
       .Append('  SELECT *, ROW_NUMBER() OVER (ORDER BY (NULL)) AS ORM_ROW_NUM FROM (')
       .AppendLine.Append('    ')
-      .Append(LSQL)
+      .Append(s)
       .Append(') AS ORM_TOTAL_1')
       .AppendLine
       .Append('  ) AS ORM_TOTAL_2')
       .AppendLine
-      .AppendFormat(' WHERE (ORM_ROW_NUM>%0:D) AND (ORM_ROW_NUM <= %0:D+%1:D);', [offset, limit]);
+      .AppendFormat(' WHERE (ORM_ROW_NUM>%0:d) AND (ORM_ROW_NUM <= %0:d+%1:d);', [offset, limit]);
 
-    Result := LBuilder.ToString;
+    Result := sqlBuilder.ToString;
   finally
-    LBuilder.Free;
+    sqlBuilder.Free;
   end;
 end;
 
@@ -95,7 +95,6 @@ function TASASQLGenerator.GetQueryLanguage: TQueryLanguage;
 begin
   Result := qlASA;
 end;
-
 
 function TASASQLGenerator.GetSQLDataTypeName(const field: TSQLCreateField): string;
 begin

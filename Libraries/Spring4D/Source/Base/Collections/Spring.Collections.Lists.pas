@@ -115,6 +115,7 @@ type
     procedure Sort(const comparer: IComparer<T>); override;
 
     procedure CopyTo(var values: TArray<T>; index: Integer); override;
+    procedure MoveTo(const collection: ICollection<T>; const predicate: TPredicate<T>); override;
     function ToArray: TArray<T>; override;
   end;
 
@@ -151,6 +152,23 @@ type
 
     procedure Exchange(index1, index2: Integer); override;
     procedure Move(currentIndex, newIndex: Integer); override;
+  end;
+
+  TSortedObjectList<T: class> = class(TSortedList<T>, ICollectionOwnership)
+  private
+    fOwnsObjects: Boolean;
+  {$REGION 'Property Accessors'}
+    function GetOwnsObjects: Boolean;
+    procedure SetOwnsObjects(const value: Boolean);
+  {$ENDREGION}
+  protected
+    procedure Changed(const item: T; action: TCollectionChangedAction); override;
+  public
+    constructor Create; override;
+    constructor Create(ownsObjects: Boolean); overload;
+    constructor Create(const comparer: IComparer<T>; ownsObjects: Boolean = True); overload;
+
+    property OwnsObjects: Boolean read GetOwnsObjects write SetOwnsObjects;
   end;
 
   TCollectionList<T: TCollectionItem> = class(TListBase<T>)
@@ -232,7 +250,33 @@ type
   protected
     function GetElementType: PTypeInfo; override;
   end;
+
+  TFoldedSortedObjectList<T{: class}> = class(TSortedObjectList<TObject>)
+  protected
+    function GetElementType: PTypeInfo; override;
+  end;
+
+  TFoldedSortedInterfaceList<T{: IInterface}> = class(TSortedList<IInterface>)
+  protected
+    function GetElementType: PTypeInfo; override;
+  end;
 {$ENDIF}
+
+  TObservableList<T: class> = class(
+    {$IFDEF DELPHIXE_UP}TFoldedObjectList<T>{$ELSE}TObjectList<T>{$ENDIF},
+    INotifyPropertyChanged)
+  private
+    fOnPropertyChanged: Event<TPropertyChangedEvent>;
+    function GetOnPropertyChanged: IEvent<TPropertyChangedEvent>;
+  protected
+    procedure DoItemPropertyChanged(sender: TObject;
+      const eventArgs: IPropertyChangedEventArgs);
+    procedure DoPropertyChanged(const propertyName: string);
+    procedure Changed(const value: {$IFDEF DELPHIXE_UP}TObject{$ELSE}T{$ENDIF};
+      action: TCollectionChangedAction); override;
+  public
+    property OnPropertyChanged: IEvent<TPropertyChangedEvent> read GetOnPropertyChanged;
+  end;
 
 implementation
 
@@ -568,6 +612,28 @@ begin
   Changed(temp, caMoved);
 end;
 
+procedure TList<T>.MoveTo(const collection: ICollection<T>;
+  const predicate: TPredicate<T>);
+var
+  i: Integer;
+  item: T;
+begin
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckNotNull(Assigned(collection), 'collection');
+{$ENDIF}
+
+  i := 0;
+  while i < fCount do
+    if not Assigned(predicate) or predicate(fItems[i]) then
+    begin
+      item := fItems[i];
+      DeleteInternal(i, caExtracted);
+      collection.Add(item);
+    end
+    else
+      Inc(i);
+end;
+
 procedure TList<T>.Clear;
 begin
   inherited Clear;
@@ -841,17 +907,17 @@ end;
 
 function TSortedList<T>.Add(const item: T): Integer;
 var
-  lComparer: IComparer<T>;
+  comparer: IComparer<T>;
 begin
   Result := fCount;
   // This block improves performance when adding a sequence of an already sorted
   // collection at a cost of one comparison.
   if Result > 0 then
   begin
-    lComparer := fComparer;
+    comparer := fComparer;
     // Is new item greater than the last one?
-    if lComparer.Compare(fItems[Result - 1], item) > 0 then
-      TArray.BinarySearch<T>(fItems, item, Result, lComparer, 0, fCount);
+    if comparer.Compare(fItems[Result - 1], item) > 0 then
+      TArray.BinarySearch<T>(fItems, item, Result, comparer, 0, fCount);
     // If so, fCount is our insertion point
   end;
   inherited Insert(Result, item);
@@ -913,8 +979,9 @@ begin
   Guard.CheckRange((count >= 0) and (count <= index + 1), 'count');
 {$ENDIF}
 
-  Result := inherited;
-//  TArray.BinarySearch<T>(fItems, item, Result, fComparer, index - count + 1, count);
+  if not TArray.BinarySearchUpperBound<T>(
+    fItems, item, Result, fComparer, index, count) then
+    Result := -1;
 end;
 
 procedure TSortedList<T>.Move(currentIndex, newIndex: Integer);
@@ -924,8 +991,52 @@ end;
 
 procedure TSortedList<T>.SetItem(index: Integer; const value: T);
 begin
-  Delete(index);
-  Add(value);
+  raise EInvalidOperationException.Create('SetItem');
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TSortedObjectList<T>'}
+
+constructor TSortedObjectList<T>.Create;
+begin
+  Create(True);
+end;
+
+constructor TSortedObjectList<T>.Create(ownsObjects: Boolean);
+begin
+  inherited Create;
+  fOwnsObjects := ownsObjects;
+end;
+
+constructor TSortedObjectList<T>.Create(const comparer: IComparer<T>;
+  ownsObjects: Boolean);
+begin
+  inherited Create(comparer);
+  fOwnsObjects := ownsObjects;
+end;
+
+procedure TSortedObjectList<T>.Changed(const item: T;
+  action: TCollectionChangedAction);
+begin
+  inherited Changed(item, action);
+  if OwnsObjects and (action = caRemoved) then
+{$IFNDEF AUTOREFCOUNT}
+    item.Free;
+{$ELSE}
+    item.DisposeOf;
+{$ENDIF}
+end;
+
+function TSortedObjectList<T>.GetOwnsObjects: Boolean;
+begin
+  Result := fOwnsObjects;
+end;
+
+procedure TSortedObjectList<T>.SetOwnsObjects(const value: Boolean);
+begin
+  fOwnsObjects := value;
 end;
 
 {$ENDREGION}
@@ -1232,6 +1343,73 @@ begin
   Result := TypeInfo(T);
 end;
 {$ENDIF}
+
+{$ENDREGION}
+
+
+{$REGION 'TFoldedSortedObjectList<T>'}
+
+{$IFDEF DELPHIXE_UP}
+function TFoldedSortedObjectList<T>.GetElementType: PTypeInfo;
+begin
+  Result := TypeInfo(T);
+end;
+{$ENDIF}
+
+{$ENDREGION}
+
+
+{$REGION 'TFoldedSortedInterfaceList<T>'}
+
+{$IFDEF DELPHIXE_UP}
+function TFoldedSortedInterfaceList<T>.GetElementType: PTypeInfo;
+begin
+  Result := TypeInfo(T);
+end;
+{$ENDIF}
+
+{$ENDREGION}
+
+
+{$REGION 'TObservableList<T> }
+
+procedure TObservableList<T>.DoItemPropertyChanged(sender: TObject;
+  const eventArgs: IPropertyChangedEventArgs);
+begin
+  inherited Changed(T(sender), caChanged);
+end;
+
+procedure TObservableList<T>.DoPropertyChanged(const propertyName: string);
+begin
+  fOnPropertyChanged.Invoke(Self,
+    TPropertyChangedEventArgs.Create(propertyName) as IPropertyChangedEventArgs);
+end;
+
+function TObservableList<T>.GetOnPropertyChanged: IEvent<TPropertyChangedEvent>;
+begin
+  Result := fOnPropertyChanged;
+end;
+
+procedure TObservableList<T>.Changed(
+  const value: {$IFDEF DELPHIXE_UP}TObject{$ELSE}T{$ENDIF};
+  action: TCollectionChangedAction);
+var
+  notifyPropertyChanged: INotifyPropertyChanged;
+  propertyChanged: IEvent<TPropertyChangedEvent>;
+begin
+  if Supports({$IFDEF DELPHIXE_UP}value{$ELSE}PObject(@value)^{$ENDIF},
+    INotifyPropertyChanged, notifyPropertyChanged) then
+  begin
+    propertyChanged := notifyPropertyChanged.OnPropertyChanged;
+    case Action of
+      caAdded: propertyChanged.Add(DoItemPropertyChanged);
+      caRemoved, caExtracted: propertyChanged.Remove(DoItemPropertyChanged);
+    end;
+  end;
+
+  inherited;
+  DoPropertyChanged('Count');
+end;
 
 {$ENDREGION}
 

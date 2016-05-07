@@ -5,16 +5,15 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics, Vcl.Controls,
   BCCommon.Form.Base, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls, BCEditor.Editor, BCEditor.Highlighter,
-  BCEditor.Editor.Base, Vcl.Buttons, Vcl.AppEvnts, System.Actions, Vcl.ActnList, BCEditor.Print,
-  BCCommon.Images, BCComponent.SkinProvider, BCComponent.SkinManager, BCControl.Panel, BCControl.StatusBar,
-  BCComponent.TitleBar, Vcl.Menus, ToolCtrlsEh, DBGridEhToolCtrls, EhLibVCL, DBAxisGridsEh, ObjectInspectorEh,
-  BCControl.Splitter, GridsEh, BCCommon.Frame.Base, sPanel, BCComponent.MultiStringHolder, sSkinManager, sStatusBar,
-  sSplitter, acTitleBar, sSkinProvider, System.Win.TaskbarCore, Vcl.Taskbar, sDialogs, Vcl.StdCtrls, sButton,
-  BCControl.Button, System.Diagnostics, BCCommon.Dialog.Popup.Highlighter, BCCommon.Dialog.Popup.Highlighter.Color,
-  sSpeedButton, BCControl.SpeedButton, sComboBox, BCControl.ComboBox, sLabel, sMemo;
+  BCEditor.Editor.Base, Vcl.Buttons, Vcl.AppEvnts, System.Actions, Vcl.ActnList, BCEditor.Print, BCCommon.Images,
+  BCComponent.SkinProvider, BCComponent.SkinManager, BCControl.Panel, BCControl.StatusBar, BCComponent.TitleBar,
+  Vcl.Menus, ToolCtrlsEh, DBGridEhToolCtrls, EhLibVCL, DBAxisGridsEh, ObjectInspectorEh, BCControl.Splitter, GridsEh,
+  sPanel, BCComponent.MultiStringHolder, sSkinManager, sStatusBar, sSplitter, acTitleBar, sSkinProvider, sDialogs,
+  Vcl.StdCtrls, System.Diagnostics, BCCommon.Dialog.Popup.Highlighter, BCCommon.Dialog.Popup.Highlighter.Color,
+  sSpeedButton, BCControl.SpeedButton, sComboBox, BCControl.ComboBox, sLabel;
 
 const
-  BCEDITORDEMO_CAPTION = 'TBCEditor Control Demo v1.3';
+  BCEDITORDEMO_CAPTION = 'TBCEditor Control Demo v1.5.2';
   TITLE_BAR_CAPTION = 1;
   TITLE_BAR_HIGHLIGHTER = 2;
   TITLE_BAR_COLORS = 4;
@@ -54,11 +53,6 @@ type
     ActionOptions: TAction;
     ActionClose: TAction;
     LabelSearchResultCount: TsLabel;
-    SplitterUndo: TBCSplitter;
-    PanelUndo: TBCPanel;
-    MemoRedo: TsMemo;
-    BCSplitter3: TBCSplitter;
-    MemoUndo: TsMemo;
     procedure ActionFileOpenExecute(Sender: TObject);
     procedure ActionPreviewExecute(Sender: TObject);
     procedure ActionSearchExecute(Sender: TObject);
@@ -88,7 +82,6 @@ type
     procedure ClearText;
     procedure InitializeEditorPrint(EditorPrint: TBCEditorPrint);
     procedure LockFormPaint;
-    procedure PopulateUndoList(AMemo: TsMemo);
     procedure PrintPreview;
     procedure SetMatchesFound;
     procedure UnlockFormPaint;
@@ -102,9 +95,8 @@ implementation
 {$R *.dfm}
 
 uses
-  BCCommon.Language.Strings, BCCommon.Form.Print.Preview, BCEditor.Print.Types, BCCommon.StringUtils,
-  BCCommon.Dialog.SkinSelect, BCCommon.FileUtils, BCEditor.Types, BCCommon.Dialog.Options.Search,
-  BCEditor.Editor.Undo.Item, BCEditor.Editor.Undo.List;
+  BCCommon.Form.Print.Preview, BCEditor.Print.Types, BCCommon.Dialog.SkinSelect, BCCommon.FileUtils, BCEditor.Types,
+  BCCommon.Dialog.Options.Search;
 
 procedure TMainForm.ActionSkinsExecute(Sender: TObject);
 begin
@@ -123,18 +115,18 @@ begin
   else
     Editor.Margins.Bottom := 5;
   if Editor.Modified then
-    InfoText := LanguageDataModule.GetConstant('Modified')
+    InfoText := 'Modified'
   else
     InfoText := '';
   if StatusBar.Panels[2].Text <> InfoText then
     StatusBar.Panels[2].Text := InfoText;
   GetKeyboardState(KeyState);
   if KeyState[VK_INSERT] = 0 then
-    if StatusBar.Panels[1].Text <> LanguageDataModule.GetConstant('Insert') then
-      StatusBar.Panels[1].Text := LanguageDataModule.GetConstant('Insert');
+    if StatusBar.Panels[1].Text <> 'Insert' then
+      StatusBar.Panels[1].Text := 'Insert';
   if KeyState[VK_INSERT] = 1 then
-    if StatusBar.Panels[1].Text <> LanguageDataModule.GetConstant('Overwrite') then
-      StatusBar.Panels[1].Text := LanguageDataModule.GetConstant('Overwrite');
+    if StatusBar.Panels[1].Text <> 'Overwrite' then
+      StatusBar.Panels[1].Text := 'Overwrite';
 end;
 
 procedure TMainForm.ComboBoxSearchTextChange(Sender: TObject);
@@ -169,9 +161,9 @@ begin
   s := '';
 
   if Assigned(Editor) and (Editor.SearchResultCount > 1) then
-    s := LanguageDataModule.GetConstant('MatchFoundPluralExtension');
+    s := 'es';
   if Assigned(Editor) and (Editor.SearchResultCount > 0) then
-    s := Format(LanguageDataModule.GetConstant('MatchFound'), [Editor.SearchResultCount, s]);
+    s := Format('%d match%s found', [Editor.SearchResultCount, s]);
 
   LabelSearchResultCount.Caption := s;
 end;
@@ -192,10 +184,6 @@ begin
   InfoText := Format('%d: %d', [Y, X]);
   if StatusBar.Panels[0].Text <> InfoText then
     StatusBar.Panels[0].Text := InfoText;
-  {$IFDEF DEBUG}
-  PopulateUndoList(MemoUndo);
-  PopulateUndoList(MemoRedo);
-  {$ENDIF}
 end;
 
 procedure TMainForm.InitializeEditorPrint(EditorPrint: TBCEditorPrint);
@@ -234,8 +222,8 @@ begin
   EditorPrint.Header.Clear;
   EditorPrint.Footer.Clear;
 
-  SetHeaderFooter(0, Format(LanguageDataModule.GetConstant('PrintedBy'), [Application.Title]));
-  SetHeaderFooter(1, LanguageDataModule.GetConstant('PreviewDocumentPage'));
+  SetHeaderFooter(0, Format('Printed by', [Application.Title]));
+  SetHeaderFooter(1, 'Page: $PAGENUM$ of $PAGECOUNT$');
   SetHeaderFooter(2, Editor.DocumentName);
   SetHeaderFooter(3, '$DATE$ $TIME$');
 
@@ -323,14 +311,6 @@ begin
 
   SelectedHighlighterClick('Object Pascal');
   SelectedHighlighterColorClick('Default');
-
-  {$IFDEF DEBUG}
-  PanelUndo.Visible := True;
-  SplitterUndo.Visible := True;
-  {$ELSE}
-  ClientWidth := 1100;
-  ClientHeight := 644;
-  {$ENDIF}
 end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
@@ -432,6 +412,7 @@ procedure TMainForm.ActionSearchExecute(Sender: TObject);
 begin
   Editor.Search.Enabled := True;
   Application.ProcessMessages; { search frame visible }
+  ComboBoxSearchText.Text := Editor.Search.SearchText;
   ComboBoxSearchText.SetFocus;
 end;
 
@@ -470,62 +451,6 @@ begin
     FPopupHighlighterColorDialog.Visible := False;
     FPopupHighlighterColorDialog := nil;
   end;
-end;
-
-procedure TMainForm.PopulateUndoList(AMemo: TsMemo);
-var
-  i: Integer;
-  LUndoItem: TBCEditorUndoItem;
-  LUndoList: TBCEditorUndoList;
-  LMemo: TsMemo;
-
-  function GetReasonText(AReason: TBCEditorChangeReason): string;
-  begin
-    case AReason of
-      crInsert: Result := 'Insert';
-      crPaste: Result := 'Paste';
-      crDragDropInsert: Result := 'DragDropInsert';
-      crDelete: Result := 'Delete';
-      crLineBreak: Result := 'LineBreak';
-      crIndent: Result := 'Indent';
-      crUnindent: Result := 'Unindent';
-      crCaret: Result := 'Caret';
-      crSelection: Result := 'Selection';
-      crNothing: Result := 'Nothing';
-      crGroupBreak: Result := 'GroupBreak';
-    end;
-  end;
-
-begin
-  LUndoList := nil;
-  LMemo := AMemo;
-  if LMemo = MemoUndo then
-    LUndoList := Editor.UndoList
-  else
-  if LMemo = MemoRedo then
-    LUndoList := Editor.RedoList;
-
-  if LMemo.Lines.Count = LUndoList.ItemCount then
-    Exit;
-
-  LMemo.Lines.BeginUpdate;
-  LMemo.Clear;
-  if Assigned(LUndoList) then
-  for i := 0 to LUndoList.ItemCount - 1 do
-  begin
-    LUndoItem := LUndoList.Items[i];
-    LMemo.Lines.Add(Format('%d: %s c: (%d, %d) b: (%d, %d), e: (%d, %d), s: %s',
-      [LUndoItem.ChangeBlockNumber,
-      GetReasonText(LUndoItem.ChangeReason),
-      LUndoItem.ChangeCaretPosition.Char,
-      LUndoItem.ChangeCaretPosition.Line,
-      LUndoItem.ChangeBeginPosition.Char,
-      LUndoItem.ChangeBeginPosition.Line,
-      LUndoItem.ChangeEndPosition.Char,
-      LUndoItem.ChangeEndPosition.Line,
-      LUndoItem.ChangeString]));
-  end;
-  LMemo.Lines.EndUpdate;
 end;
 
 procedure TMainForm.LockFormPaint;

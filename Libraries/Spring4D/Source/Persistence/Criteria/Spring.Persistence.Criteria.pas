@@ -45,7 +45,7 @@ type
     fEntityClass: TClass;
     fCriterions: IList<ICriterion>;
     fOrderBy: IList<IOrderBy>;
-    {$IFDEF WEAKREF}[Weak]{$ENDIF}
+    {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fSession: TSession;
     function GetCount: Integer;
   protected

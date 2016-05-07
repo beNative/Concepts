@@ -6,6 +6,8 @@ uses
   uOrder;
 
 type
+  TransactionAttribute = class(TCustomAttribute);
+
   IOrderValidator = interface
   ['{6D0F52B4-A96F-4C96-97A4-DE45324FDE1B}']
     function ValidateOrder(aOrder: TOrder): Boolean;

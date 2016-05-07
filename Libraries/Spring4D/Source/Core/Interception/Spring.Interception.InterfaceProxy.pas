@@ -182,12 +182,17 @@ begin
 end;
 
 function TInterfaceProxy.QueryInterface(const IID: TGUID; out Obj): HResult;
+const
+  ObjCastGUID: TGUID = '{CEDF24DE-80A4-447D-8C75-EB871DC121FD}';
 var
   i: Integer;
 begin
-  Result := inherited;
-  if Result = S_OK then
-    Exit;
+  if (IID <> ObjCastGUID) or fTarget.IsEmpty then
+  begin
+    Result := inherited;
+    if Result = S_OK then
+      Exit;
+  end;
   if not fTarget.IsEmpty then
   begin
     Result := fTarget.AsInterface.QueryInterface(IID, Obj);
@@ -197,6 +202,7 @@ begin
   for i := 0 to fAdditionalInterfaces.Count - 1 do
     if fAdditionalInterfaces[i].QueryInterface(IID, obj) = S_OK then
       Exit(S_OK);
+  Result := E_NOINTERFACE;
 end;
 
 {$ENDREGION}

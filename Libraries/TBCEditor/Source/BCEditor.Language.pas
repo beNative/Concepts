@@ -3,9 +3,6 @@ unit BCEditor.Language;
 interface
 
 resourcestring
-  { BCEditor.CompletionProposal }
-  SBCEditorCannotInsertItemAtPosition = 'Cannot insert item at position %d.';
-
   { BCEditor.Editor.Base }
   SBCEditorScrollInfoTopLine = 'Top line: %d';
   SBCEditorScrollInfo = '%d - %d';
@@ -32,10 +29,8 @@ resourcestring
   SBCEditorInvalidCapacity = 'Stringlist capacity cannot be smaller than count';
 
   { BCEditor.Highlighter.Import.JSON }
-  SBCEditorImporterFileNotFound = 'File ''%s'' not found';
   SBCEditorErrorInHighlighterParse = 'JSON parse error on line %d column %d: %s';
   SBCEditorErrorInHighlighterImport = 'Error in highlighter import: %s';
-  SBCEditorErrorInHighlighterColorImport = 'Error in highlighter color import: ';
 
   { BCEditor.Search }
   SBCEditorPatternIsEmpty = 'Pattern is empty';

@@ -116,7 +116,7 @@ uses
   Variants,
   Spring,
   Spring.Persistence.Core.ConnectionFactory,
-  Spring.Persistence.Core.Consts;
+  Spring.Persistence.Core.ResourceStrings;
 
 
 {$REGION 'TADOStatementAdapter'}
@@ -158,7 +158,7 @@ begin
     on E: Exception do
     begin
       dataSet.Free;
-      raise HandleException(Format(EXCEPTION_CANNOT_OPEN_QUERY, [E.Message]));
+      raise HandleException(Format(SCannotOpenQuery, [E.Message]));
     end;
   end;
 end;

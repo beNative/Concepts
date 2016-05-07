@@ -128,6 +128,8 @@ uses
   {$ENDIF}
   {$ENDREGION}
 
+  Concepts.Synapse.Serial.Form,
+
   Concepts.Manager;
 
 const
@@ -466,6 +468,13 @@ begin
     'Reflection-like overview using the enhanced RTTI'
   );
   {$ENDIF}
+
+  ConceptManager.Register(
+    TfrmSynapseSerial,
+    'Synapse',
+    'Serial',
+    'Serial communication with Synapse'
+  );
 
   RegisterSpringConcepts;
   RegisterDSharpConcepts;

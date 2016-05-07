@@ -154,7 +154,7 @@ var
   query: string;
 begin
   Inc(fCurrentCallIndex);
-  query := callInfo.Arguments[0].ToString;
+  query := callInfo[0].ToString;
   try
     if fCurrentCallIndex < fQueries.Count then
       fTestCase.CheckEquals(fQueries[fCurrentCallIndex], query,

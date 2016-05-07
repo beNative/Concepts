@@ -47,14 +47,9 @@ type
   ///   Represents Unified Interbase resultset.
   /// </summary>
   TUIBResultSetAdapter = class(TDriverResultSetAdapter<TUIBDataSet>)
-  private
-    fIsNewTransaction: Boolean;
   public
     constructor Create(const dataSet: TUIBDataSet;
       const exceptionHandler: IORMExceptionHandler);
-    destructor Destroy; override;
-
-    property IsNewTransaction: Boolean read fIsNewTransaction write fIsNewTransaction;
   end;
 
   /// <summary>
@@ -116,7 +111,7 @@ uses
   DB,
   StrUtils,
   Spring.Persistence.Core.ConnectionFactory,
-  Spring.Persistence.Core.Consts,
+  Spring.Persistence.Core.ResourceStrings,
   Spring.Persistence.SQL.Generators.Firebird,
   Spring.Persistence.SQL.Interfaces;
 
@@ -126,15 +121,8 @@ uses
 constructor TUIBResultSetAdapter.Create(const dataSet: TUIBDataSet;
   const exceptionHandler: IORMExceptionHandler);
 begin
-  Dataset.OnClose := etmStayIn;
+  dataset.OnClose := etmStayIn;
   inherited Create(dataSet, exceptionHandler);
-end;
-
-destructor TUIBResultSetAdapter.Destroy;
-begin
-  if fIsNewTransaction then
-    DataSet.Transaction.Free;
-  inherited;
 end;
 
 {$ENDREGION}
@@ -163,7 +151,10 @@ begin
     Statement.Prepare;
     Statement.ExecSQL;
     Result := Statement.RowsAffected;
-    Statement.Close(etmStayIn);
+    if Statement.Transaction = Statement.DataBase.Transactions[0] then
+      Statement.Close(etmCommit)
+    else
+      Statement.Close(etmStayIn);
   except
     raise HandleException;
   end;
@@ -172,40 +163,25 @@ end;
 function TUIBStatementAdapter.ExecuteQuery(serverSideCursor: Boolean): IDBResultSet;
 var
   query: TUIBDataSet;
-  isNewTransaction: Boolean;
-  transaction: TUIBTransaction;
   adapter: TUIBResultSetAdapter;
 begin
   inherited;
   query := TUIBDataSet.Create(nil);
-  isNewTransaction := Statement.DataBase.TransactionsCount < 1;
-  if not isNewTransaction then
-    transaction := Statement.DataBase.Transactions[0]
-  else
-  begin
-    transaction := TUIBTransaction.Create(nil);
-    transaction.DefaultAction := etmRollback;
-    transaction.DataBase := Statement.DataBase;
-  end;
-  transaction.DefaultAction := etmRollback;
-  query.DisableControls;
-  query.Transaction := transaction;
   query.Database := Statement.DataBase;
+  query.Transaction := Statement.Transaction;
+  query.DisableControls;
   query.UniDirectional := True;
   query.SQL.Text := Statement.SQL.Text;
   AssignParams(Statement.Params, query.Params);
   try
     query.Open;
     adapter := TUIBResultSetAdapter.Create(query, ExceptionHandler);
-    adapter.IsNewTransaction := isNewTransaction;
     Result := adapter;
   except
     on E: Exception do
     begin
       query.Free;
-      if isNewTransaction then
-        transaction.Free;
-      raise HandleException(Format(EXCEPTION_CANNOT_OPEN_QUERY, [E.Message]));
+      raise HandleException(Format(SCannotOpenQuery, [E.Message]));
     end;
   end;
 end;
@@ -238,15 +214,25 @@ end;
 
 {$REGION 'TUIBConnectionAdapter'}
 
+constructor TUIBConnectionAdapter.Create(const connection: TUIBDataBase);
+var
+  transaction: TUIBTransaction;
+begin
+  Create(connection, TUIBExceptionHandler.Create);
+  if connection.TransactionsCount = 0 then
+  begin
+    transaction := TUIBTransaction.Create(nil);
+    transaction.DataBase := connection;
+  end;
+end;
+
 destructor TUIBConnectionAdapter.Destroy;
 var
   i: Integer;
 begin
   if Assigned(Connection) then
-  begin
-    for i := 0 to Connection.TransactionsCount - 1 do
+    for i := Connection.TransactionsCount - 1 downto 0 do
       Connection.Transactions[i].Free;
-  end;
   inherited Destroy;
 end;
 
@@ -287,31 +273,16 @@ begin
   end;
 end;
 
-constructor TUIBConnectionAdapter.Create(const connection: TUIBDataBase);
-begin
-  Create(connection, TUIBExceptionHandler.Create);
-end;
-
 function TUIBConnectionAdapter.CreateStatement: IDBStatement;
 var
   statement: TUIBStatement;
-  transaction: TUIBTransaction;
   adapter: TUIBStatementAdapter;
 begin
   if Assigned(Connection) then
   begin
     statement := TUIBStatement.Create(nil);
-    if Connection.TransactionsCount > 0 then
-      transaction := Connection.Transactions[Connection.TransactionsCount - 1]
-    else
-    begin
-      transaction := TUIBTransaction.Create(nil);
-      transaction.DefaultAction := etmRollback;
-      transaction.DataBase := Connection;
-    end;
-
     statement.DataBase := Connection;
-    statement.Transaction := transaction;
+    statement.Transaction := Connection.Transactions[Connection.TransactionsCount - 1];
 
     adapter := TUIBStatementAdapter.Create(statement, ExceptionHandler);
     adapter.ExecutionListeners := ExecutionListeners;
@@ -341,16 +312,6 @@ end;
 
 {$REGION 'TUIBTransactionAdapter'}
 
-procedure TUIBTransactionAdapter.Commit;
-begin
-  if Assigned(fTransaction) then
-  try
-    fTransaction.Commit;
-  except
-    raise HandleException;
-  end;
-end;
-
 constructor TUIBTransactionAdapter.Create(const transaction: TUIBTransaction;
   const exceptionHandler: IORMExceptionHandler);
 begin
@@ -368,6 +329,16 @@ destructor TUIBTransactionAdapter.Destroy;
 begin
   fTransaction.Free;
   inherited Destroy;
+end;
+
+procedure TUIBTransactionAdapter.Commit;
+begin
+  if Assigned(fTransaction) then
+  try
+    fTransaction.Commit;
+  except
+    raise HandleException;
+  end;
 end;
 
 function TUIBTransactionAdapter.InTransaction: Boolean;

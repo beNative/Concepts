@@ -101,7 +101,7 @@ uses
   DB,
   StrUtils,
   Spring.Persistence.Core.ConnectionFactory,
-  Spring.Persistence.Core.Consts;
+  Spring.Persistence.Core.ResourceStrings;
 
 
 {$REGION 'TZeosStatementAdapter' }
@@ -141,7 +141,7 @@ begin
     on E: Exception do
     begin
       query.Free;
-      raise HandleException(Format(EXCEPTION_CANNOT_OPEN_QUERY, [E.Message]));
+      raise HandleException(Format(SCannotOpenQuery, [E.Message]));
     end;
   end;
 end;

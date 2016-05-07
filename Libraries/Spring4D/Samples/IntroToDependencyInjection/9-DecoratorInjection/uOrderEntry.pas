@@ -7,6 +7,7 @@ uses
   uOrderInterfaces;
 
 type
+  [Transaction]
   TOrderEntry = class(TInterfacedObject, IOrderEntry)
   public
     function EnterOrderIntoDatabase(aOrder: TOrder): Boolean;

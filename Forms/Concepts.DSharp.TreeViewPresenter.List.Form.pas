@@ -19,13 +19,14 @@
 unit Concepts.DSharp.TreeViewPresenter.List.Form;
 
 { Form demonstrating the usage of the DSharp TTreeViewPresenter which simplifies
-  the process of representing data in a TVirtualStringTree control. }
+  the process of representing data in a TVirtualStringTree control.
+  This demo shows also how some custom drawing can be performed. }
 
 interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes, System.Actions,
+  System.SysUtils, System.Variants, System.Classes, System.Actions, System.Rtti,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.ExtCtrls, Vcl.ActnList,
 
@@ -64,6 +65,23 @@ type
     procedure FTVPColumnsSelectionChanged(Sender: TObject);
     procedure FTVPSelectionChanged(Sender: TObject);
 
+    function FTVPColumnDefinitionsCustomDraw(
+      Sender           : TObject;
+      ColumnDefinition : TColumnDefinition;
+      Item             : TObject;
+      TargetCanvas     : TCanvas;
+      CellRect         : TRect;
+      ImageList        : TCustomImageList;
+      DrawMode         : TDrawMode;
+      Selected         : Boolean
+    ): Boolean;
+
+    function FOIItemSetValue(
+      Sender      : TControl;
+      PItem       : PPropItem;
+      var NewValue: TValue
+    ): Boolean;
+
     procedure CreateColumnDefinitionsView;
 
   public
@@ -77,6 +95,7 @@ implementation
 
 uses
   DSharp.Windows.ColumnDefinitions.ControlTemplate,
+  DSharp.Windows.ControlTemplates,
 
   Concepts.Factories;
 
@@ -86,16 +105,67 @@ begin
   inherited AfterConstruction;
   FList := TConceptFactories.CreateContactList(10000) as IObjectList;
   FVST  := TConceptFactories.CreateVirtualStringTree(Self, pnlTop);
-  FTVP  := TConceptFactories.CreateTreeViewPresenter(Self, FVST, FList);
-  FOI   := TConceptFactories.CreatezObjectInspector(Self, pnlLeftTop, FTVP);
+  FTVP  := TConceptFactories.CreateTreeViewPresenter(
+    Self,
+    FVST,
+    FList,
+    nil,
+    nil,
+    FTVPColumnDefinitionsCustomDraw
+  );
   FTVP.View.ItemTemplate := TColumnDefinitionsControlTemplate.Create(FTVP.ColumnDefinitions);
-  FTVP.OnSelectionChanged := FTVPSelectionChanged;
-
+  FOI   := TConceptFactories.CreatezObjectInspector(Self, pnlLeftTop, FTVP);
+  FOI.OnItemSetValue := FOIItemSetValue;
   CreateColumnDefinitionsView;
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
+function TfrmTreeViewPresenterList.FOIItemSetValue(Sender: TControl;
+  PItem: PPropItem; var NewValue: TValue): Boolean;
+begin
+  Result := True; // allow assigning NewValue to the property.
+  FTVP.TreeView.Invalidate;
+end;
+
+function TfrmTreeViewPresenterList.FTVPColumnDefinitionsCustomDraw(
+  Sender: TObject; ColumnDefinition: TColumnDefinition; Item: TObject;
+  TargetCanvas: TCanvas; CellRect: TRect; ImageList: TCustomImageList;
+  DrawMode: TDrawMode; Selected: Boolean): Boolean;
+begin
+  { dmBeforeCellPaint
+      Called before any painting is performed. This is commonly used to paint
+      the cell background or custom cell borders.
+    dmPaintText
+      Called just before the celltext is painted. This is commonly used to
+      setup custom font styles or colors on the target canvas.
+    dmAfterCellPaint
+      Called after cell text is drawn. Used to draw additional stuff in the
+      cell.
+  }
+  if ColumnDefinition.DisplayName = 'FirstName' then
+  begin
+    if DrawMode = dmBeforeCellPaint then
+    begin
+      TargetCanvas.Brush.Color := clWebPaleGoldenrod;
+      TargetCanvas.FillRect(CellRect);
+    end
+    else if DrawMode = dmPaintText then
+    begin
+      TargetCanvas.Font.Color := clRed;
+    end
+    else if DrawMode = dmAfterCellPaint then
+    begin
+      TargetCanvas.Pen.Width := 2;
+      TargetCanvas.Pen.Color := clBlue;
+      TargetCanvas.Chord(16, 16, 4, 4, 8, 8, 16, 16);
+    end;
+  end;
+  // intended just to report that some custom drawing occured. This value is
+  // not used by the presenter component.
+  Result := True;
+end;
+
 procedure TfrmTreeViewPresenterList.FTVPColumnsSelectionChanged(Sender: TObject);
 begin
   if Assigned(FTVPColumns.SelectedItem) then
@@ -104,7 +174,8 @@ end;
 
 procedure TfrmTreeViewPresenterList.FTVPSelectionChanged(Sender: TObject);
 begin
-  FOI.Component := FTVP;
+  if Assigned(FTVP) then
+    FOI.Component := FTVP;
 end;
 {$ENDREGION}
 
@@ -130,5 +201,3 @@ end;
 {$ENDREGION}
 
 end.
-
-

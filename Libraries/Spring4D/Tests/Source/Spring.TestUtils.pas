@@ -35,7 +35,7 @@ uses
 type
   TAbstractTestHelper = class helper for TAbstractTest
   protected
-  {$IFDEF DELPHI2010}
+  {$IFNDEF DELPHIXE2_UP}
     procedure CheckEquals(expected, actual: UInt64; msg: string = ''); overload;
   {$ENDIF}
   public
@@ -83,8 +83,8 @@ end;
 
 {$REGION 'TAbstractTestHelper'}
 
-{$IFDEF DELPHI2010}
-procedure TAbstractTestHelper.CheckEquals(expected, actual: UInt64; msg: string = '');
+{$IFNDEF DELPHIXE2_UP}
+procedure TAbstractTestHelper.CheckEquals(expected, actual: UInt64; msg: string);
 begin
   FCheckCalled := True;
   if expected <> actual then

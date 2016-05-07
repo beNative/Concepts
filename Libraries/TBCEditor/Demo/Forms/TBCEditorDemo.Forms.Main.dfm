@@ -1,7 +1,7 @@
 inherited MainForm: TMainForm
   Caption = ''
   ClientHeight = 644
-  ClientWidth = 1348
+  ClientWidth = 1100
   Color = clWhite
   Position = poScreenCenter
   ShowHint = True
@@ -9,7 +9,7 @@ inherited MainForm: TMainForm
   PixelsPerInch = 96
   TextHeight = 13
   object Splitter: TBCSplitter [0]
-    Left = 1002
+    Left = 754
     Top = 0
     Height = 625
     Align = alRight
@@ -17,7 +17,7 @@ inherited MainForm: TMainForm
   end
   inherited StatusBar: TBCStatusBar
     Top = 625
-    Width = 1348
+    Width = 1100
     Panels = <
       item
         Alignment = taCenter
@@ -34,7 +34,7 @@ inherited MainForm: TMainForm
       end>
   end
   object PanelProperty: TBCPanel [2]
-    Left = 1008
+    Left = 760
     Top = 0
     Width = 340
     Height = 625
@@ -67,7 +67,7 @@ inherited MainForm: TMainForm
     AlignWithMargins = True
     Left = 6
     Top = 0
-    Width = 996
+    Width = 748
     Height = 625
     Margins.Left = 6
     Margins.Top = 0
@@ -78,19 +78,11 @@ inherited MainForm: TMainForm
     ParentColor = True
     TabOrder = 2
     SkinData.SkinSection = 'TRANSPARENT'
-    object SplitterUndo: TBCSplitter
-      Left = 593
-      Top = 0
-      Height = 598
-      Align = alRight
-      Visible = False
-      SkinData.SkinSection = 'SPLITTER'
-    end
     object Editor: TBCEditor
       AlignWithMargins = True
       Left = 0
       Top = 5
-      Width = 593
+      Width = 748
       Height = 593
       Cursor = crIBeam
       Margins.Left = 0
@@ -107,7 +99,6 @@ inherited MainForm: TMainForm
       CodeFolding.Hint.Font.Height = -11
       CodeFolding.Hint.Font.Name = 'Courier New'
       CodeFolding.Hint.Font.Style = []
-      CodeFolding.Visible = True
       CompletionProposal.CloseChars = '()[]. '
       CompletionProposal.Columns = <
         item
@@ -148,6 +139,7 @@ inherited MainForm: TMainForm
       RightMargin.Position = 80
       RightMargin.Visible = True
       Search.Enabled = False
+      SpecialChars.EndOfLine.Visible = True
       SpecialChars.Style = scsDot
       SyncEdit.ShortCut = 24650
       TabOrder = 0
@@ -183,14 +175,14 @@ inherited MainForm: TMainForm
         FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00
         FF00}
       WordWrap.Indicator.MaskColor = clFuchsia
-      WordWrap.Position = 80
-      WordWrap.Style = wwsClientWidth
+      WordWrap.Position = 20
+      WordWrap.Style = wwsSpecified
     end
     object PanelSearch: TBCPanel
       AlignWithMargins = True
       Left = 0
       Top = 601
-      Width = 996
+      Width = 748
       Height = 21
       Margins.Left = 0
       Margins.Right = 0
@@ -257,7 +249,7 @@ inherited MainForm: TMainForm
         ImageIndex = 78
       end
       object SpeedButtonClose: TBCSpeedButton
-        Left = 975
+        Left = 727
         Top = 0
         Width = 21
         Height = 21
@@ -347,7 +339,7 @@ inherited MainForm: TMainForm
       object PanelRight: TBCPanel
         Left = 279
         Top = 0
-        Width = 696
+        Width = 448
         Height = 21
         Align = alClient
         BevelOuter = bvNone
@@ -356,7 +348,7 @@ inherited MainForm: TMainForm
         SkinData.SkinSection = 'CHECKBOX'
         object LabelSearchResultCount: TsLabel
           AlignWithMargins = True
-          Left = 689
+          Left = 441
           Top = 0
           Width = 4
           Height = 21
@@ -372,58 +364,6 @@ inherited MainForm: TMainForm
           Font.Name = 'Tahoma'
           Font.Style = []
         end
-      end
-    end
-    object PanelUndo: TBCPanel
-      Left = 599
-      Top = 0
-      Width = 397
-      Height = 598
-      Align = alRight
-      BevelOuter = bvNone
-      TabOrder = 2
-      Visible = False
-      SkinData.SkinSection = 'CHECKBOX'
-      object BCSplitter3: TBCSplitter
-        Left = 0
-        Top = 293
-        Width = 397
-        Height = 6
-        Cursor = crVSplit
-        Align = alTop
-        Color = clBtnFace
-        ParentColor = False
-        SkinData.SkinSection = 'SPLITTER'
-      end
-      object MemoRedo: TsMemo
-        AlignWithMargins = True
-        Left = 0
-        Top = 299
-        Width = 397
-        Height = 294
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Margins.Bottom = 5
-        Align = alClient
-        ScrollBars = ssBoth
-        TabOrder = 0
-        WordWrap = False
-      end
-      object MemoUndo: TsMemo
-        AlignWithMargins = True
-        Left = 0
-        Top = 5
-        Width = 397
-        Height = 288
-        Margins.Left = 0
-        Margins.Top = 5
-        Margins.Right = 0
-        Margins.Bottom = 0
-        Align = alTop
-        ScrollBars = ssBoth
-        TabOrder = 1
-        WordWrap = False
       end
     end
   end

@@ -76,6 +76,7 @@ contains
   BCEditor.Editor.Minimap in '..\Source\BCEditor.Editor.Minimap.pas',
   BCEditor.Editor.Minimap.Colors in '..\Source\BCEditor.Editor.Minimap.Colors.pas',
   BCEditor.Editor.Minimap.Indicator in '..\Source\BCEditor.Editor.Minimap.Indicator.pas',
+  BCEditor.Editor.Minimap.Shadow in '..\Source\BCEditor.Editor.Minimap.Shadow.pas',
   BCEditor.Editor.PopupWindow in '..\Source\BCEditor.Editor.PopupWindow.pas',
   BCEditor.Editor.Replace in '..\Source\BCEditor.Editor.Replace.pas',
   BCEditor.Editor.RightMargin in '..\Source\BCEditor.Editor.RightMargin.pas',

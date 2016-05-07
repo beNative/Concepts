@@ -94,16 +94,16 @@ end;
 function TOracleSQLGenerator.GenerateCreateSequence(
   const command: TCreateSequenceCommand): string;
 var
-  LSequence: SequenceAttribute;
+  sequence: SequenceAttribute;
 begin
-  LSequence := command.Sequence;
+  sequence := command.Sequence;
   Result := 'BEGIN ';
   if command.SequenceExists then
-    Result := Result + 'EXECUTE IMMEDIATE ' + QuotedStr(Format('DROP SEQUENCE "%0:S" ', [LSequence.SequenceName])) + ';';
+    Result := Result + 'EXECUTE IMMEDIATE ' + QuotedStr(Format('DROP SEQUENCE "%0:s" ', [sequence.SequenceName])) + ';';
 
-  Result := Result + ' EXECUTE IMMEDIATE ' + QuotedStr(Format('CREATE SEQUENCE "%0:S" '+
-    ' MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY %2:D START WITH %1:D CACHE 20 NOORDER NOCYCLE',
-    [LSequence.SequenceName, LSequence.InitialValue, LSequence.Increment])) + ';';
+  Result := Result + ' EXECUTE IMMEDIATE ' + QuotedStr(Format('CREATE SEQUENCE "%0:s" '+
+    ' MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY %2:d START WITH %1:d CACHE 20 NOORDER NOCYCLE',
+    [sequence.SequenceName, sequence.InitialValue, sequence.Increment])) + ';';
 
   Result := Result + ' END;';
 end;
@@ -118,56 +118,56 @@ function TOracleSQLGenerator.GenerateGetNextSequenceValue(
   const sequence: SequenceAttribute): string;
 begin
   Assert(Assigned(sequence));
-  Result := Format('select %0:S.nextval from dual', [sequence.SequenceName]);
+  Result := Format('select %0:s.nextval from dual', [sequence.SequenceName]);
 end;
 
 function TOracleSQLGenerator.GenerateGetQueryCount(const sql: string): string;
 var
-  LBuilder: TStringBuilder;
-  LSQL: string;
+  sqlBuilder: TStringBuilder;
+  s: string;
 begin
-  LBuilder := TStringBuilder.Create;
+  sqlBuilder := TStringBuilder.Create;
   try
-    LSQL := sql;
-    if EndsStr(';', LSQL) then
-      SetLength(LSQL, Length(LSQL)-1);
+    s := sql;
+    if EndsStr(';', s) then
+      SetLength(s, Length(s) - 1);
 
-    LBuilder.Append('SELECT COUNT(*) FROM (')
+    sqlBuilder.Append('SELECT COUNT(*) FROM (')
       .AppendLine
-      .Append(LSQL)
+      .Append(s)
       .AppendLine
-      .Append(')').Append(GetSplitStatementSymbol)
-      ;
+      .Append(')')
+      .Append(GetSplitStatementSymbol);
 
-    Result := LBuilder.ToString;
+    Result := sqlBuilder.ToString;
   finally
-    LBuilder.Free;
+    sqlBuilder.Free;
   end;
 end;
 
 function TOracleSQLGenerator.GeneratePagedQuery(const sql: string;
   limit, offset: Integer): string;
 var
-  LBuilder: TStringBuilder;
-  LSQL: string;
+  sqlBuilder: TStringBuilder;
+  s: string;
 begin
-  LBuilder := TStringBuilder.Create;
-  LSQL := sql;
+  sqlBuilder := TStringBuilder.Create;
+  s := sql;
   try
-    if EndsStr(';', LSQL) then
-      SetLength(LSQL, Length(LSQL)-1);
+    if EndsStr(';', s) then
+      SetLength(s, Length(s) - 1);
 
-    LBuilder.Append('SELECT * FROM (')
+    sqlBuilder.Append('SELECT * FROM (')
       .AppendLine.Append(' SELECT AROWNUM.*, ROWNUM r___  FROM (  ')
-      .Append(LSQL)
+      .Append(s)
       .Append(') AROWNUM ')
-      .AppendFormat('WHERE ROWNUM < (%0:D+%1:D) )', [offset+1, limit])
+      .AppendFormat('WHERE ROWNUM < (%0:d+%1:d) )', [offset + 1, limit])
       .AppendLine
-      .AppendFormat(' WHERE r___ > = %0:D', [offset+1]);
+      .AppendFormat(' WHERE r___ > = %0:d', [offset + 1]);
 
-    Result := LBuilder.ToString;
+    Result := sqlBuilder.ToString;
   finally
-    LBuilder.Free;
+    sqlBuilder.Free;
   end;
 end;
 
@@ -204,21 +204,19 @@ end;
 
 function TOracleSQLGenerator.GetSQLSequenceCount(const sequenceName: string): string;
 begin
-  Result := Format('SELECT COUNT(*) FROM USER_SEQUENCES WHERE SEQUENCE_NAME = %0:S ',
+  Result := Format('SELECT COUNT(*) FROM USER_SEQUENCES WHERE SEQUENCE_NAME = %0:s ',
     [QuotedStr(sequenceName)]);
 end;
 
 function TOracleSQLGenerator.GetSQLTableExists(const tableName: string): string;
 var
-  LSchema, LTable: string;
+  schema, table: string;
 begin
-  ParseFullTablename(tableName, LTable, LSchema);
-  if (LSchema <> '') then
-    Result := Format('SELECT COUNT(*) FROM ALL_OBJECTS WHERE OBJECT_TYPE = (''TABLE'') AND UPPER(OBJECT_NAME) = %0:S AND UPPER(OWNER) = %1:S'
-    , [QuotedStr(UpperCase(LTable)), QuotedStr(UpperCase(LSchema))])
-  else
-    Result := Format('SELECT COUNT(*) FROM ALL_OBJECTS WHERE OBJECT_TYPE = (''TABLE'') AND UPPER(OBJECT_NAME) = %0:S'
-    , [QuotedStr(UpperCase(LTable))]);
+  ParseFullTableName(tableName, table, schema);
+  Result := 'SELECT COUNT(*) FROM ALL_OBJECTS WHERE OBJECT_TYPE = ''TABLE''' +
+    'AND UPPER(OBJECT_NAME) = ' + QuotedStr(UpperCase(table));
+  if schema <> '' then
+    Result := Result + ' AND UPPER(OWNER) = ' + QuotedStr(UpperCase(schema));
 end;
 
 {$ENDREGION}

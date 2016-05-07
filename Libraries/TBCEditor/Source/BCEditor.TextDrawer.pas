@@ -3,8 +3,7 @@ unit BCEditor.TextDrawer;
 interface
 
 uses
-  Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics, System.Math, System.Types, System.UITypes,
-  BCEditor.Utils;
+  Winapi.Windows, System.SysUtils, System.Classes, Vcl.Graphics, System.Math, System.Types, System.UITypes;
 
 const
   CFontStyleCount = Ord(High(TFontStyle)) + 1;

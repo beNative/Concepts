@@ -76,7 +76,8 @@ begin
     TTestTuplesQuadruple.Suite,
     TTestOwned.Suite,
     TTestVector.Suite,
-    TTestValueHelper.Suite
+    TTestValueHelper.Suite,
+    TArrayTest.Suite
   ]);
 
 {$IFNDEF DELPHI2010}
@@ -237,8 +238,8 @@ begin
     TTestRegisterInterfaceTypes.Suite,
     TTestLazyDependencies.Suite,
     TTestLazyDependenciesDetectRecursion.Suite,
-    TTestDecoratorExtension.Suite,
-    TTestManyDependencies.Suite
+    TTestManyDependencies.Suite,
+    TTestDecorators.Suite
   ]);
 
   RegisterTests('Spring.Core.Logging', [

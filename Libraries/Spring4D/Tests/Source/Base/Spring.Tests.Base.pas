@@ -60,6 +60,7 @@ type
     procedure TestAssignStringNonInt;
     procedure TestAssignStringInt;
     procedure TestNullableNull;
+    procedure TestAssignNull;
   end;
 
   TTestNullableBoolean = class(TTestCase)
@@ -435,10 +436,14 @@ type
     procedure EqualsReturnsTrueForEqualPointers;
     procedure EqualsReturnsFalseForUnequalPointers;
 
+    procedure EqualsReturnsTrueForEqualTValue;
+
     procedure FromVariantProperlyHandlesVariantArrays;
 
     procedure ConvertStringToIntegerFailsForInvalidString;
     procedure ConvertStringToFloatFailsForInvalidString;
+
+    procedure FromCustomVariantFmtBcd;
   end;
 
 {$IFNDEF DELPHI2010}
@@ -501,11 +506,21 @@ type
   end;
 {$ENDIF}
 
+  TArrayTest = class(TTestCase)
+  published
+    procedure TestBinarySearchUpperBound;
+    procedure TestBinarySearchUpperBoundSubRange;
+
+    procedure TestLastIndexOf;
+    procedure TestLastIndexOfSubRange;
+  end;
+
 implementation
 
 uses
   DateUtils,
   FmtBcd,
+  Generics.Defaults,
   SqlTimSt,
   SysUtils,
   Variants,
@@ -548,6 +563,15 @@ procedure TTestNullableInteger.TestAssignFloat;
 begin
   ExpectedException := EInvalidCast;
   fInteger := 99.9;
+end;
+
+procedure TTestNullableInteger.TestAssignNull;
+var
+  n: Nullable<Integer>;
+begin
+  n := 5;
+  n := Null;
+  Check(not n.HasValue);
 end;
 
 procedure TTestNullableInteger.TestAssignStringInt;
@@ -2552,6 +2576,16 @@ begin
   DoCheckEquals;
 end;
 
+procedure TTestValueHelper.EqualsReturnsTrueForEqualTValue;
+var
+  nums: TArray<Integer>;
+begin
+  nums := TArray<Integer>.Create(42);
+  fSUT := TValue.From(TValue.From(nums));
+  fValue := TValue.From(TValue.From(nums));
+  DoCheckEquals;
+end;
+
 procedure TTestValueHelper.EqualsReturnsTrueForEqualVariantArrayOfVariantArray;
 var
   v1, v2: Variant;
@@ -2651,6 +2685,21 @@ begin
   fSUT := TValue.From(Unassigned);
   fValue := TValue.From(Unassigned);
   DoCheckEquals;
+end;
+
+procedure TTestValueHelper.FromCustomVariantFmtBcd;
+var
+  v: Variant;
+begin
+  v := VarFMTBcdCreate('999999999999999999', 19, 0);
+  fSUT := TValue.FromVariant(v);
+  Check(fSUT.Kind = tkInt64);
+  CheckEquals(999999999999999999, fSUT.AsInt64);
+
+  v := VarFMTBcdCreate(12.5);
+  fSUT := TValue.FromVariant(v);
+  Check(fSUT.Kind = tkFloat);
+  CheckEquals(12.5, fSUT.AsType<Double>);
 end;
 
 procedure TTestValueHelper.FromVariantProperlyHandlesVariantArrays;
@@ -2880,6 +2929,52 @@ begin
   end;
 end;
 {$ENDIF}
+
+{$ENDREGION}
+
+
+{$REGION 'TArrayTest'}
+
+procedure TArrayTest.TestBinarySearchUpperBound;
+var
+  values: TArray<Integer>;
+  index: Integer;
+begin
+  values := TArray<Integer>.Create(1, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9);
+  CheckTrue(TArray.BinarySearchUpperBound<Integer>(values, 5, index));
+  CheckEquals(6, index);
+end;
+
+procedure TArrayTest.TestBinarySearchUpperBoundSubRange;
+var
+  values: TArray<Integer>;
+  index: Integer;
+begin
+  values := TArray<Integer>.Create(1, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9);
+  CheckTrue(TArray.BinarySearchUpperBound<Integer>(values, 5, index,
+    TComparer<Integer>.Default, 0, 6));
+  CheckEquals(5, index);
+end;
+
+procedure TArrayTest.TestLastIndexOf;
+var
+  values: TArray<Integer>;
+  index: Integer;
+begin
+  values := TArray<Integer>.Create(1, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9);
+  index := TArray.LastIndexOf<Integer>(values, 5);
+  CheckEquals(6, index);
+end;
+
+procedure TArrayTest.TestLastIndexOfSubRange;
+var
+  values: TArray<Integer>;
+  index: Integer;
+begin
+  values := TArray<Integer>.Create(1, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9);
+  index := TArray.LastIndexOf<Integer>(values, 5, 0, 6);
+  CheckEquals(5, index);
+end;
 
 {$ENDREGION}
 

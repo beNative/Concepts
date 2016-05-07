@@ -83,14 +83,12 @@ end;
 function TFirebirdSQLGenerator.GenerateCreateSequence(
   const command: TCreateSequenceCommand): string;
 var
-  LSequence: SequenceAttribute;
+  sequence: SequenceAttribute;
 begin
-  LSequence := command.Sequence;
-  Result := '';
+  sequence := command.Sequence;
+  Result := Format('CREATE SEQUENCE %0:s;', [sequence.SequenceName]);
   if command.SequenceExists then
-    Result := Format('DROP SEQUENCE %0:S; ', [LSequence.SequenceName]);
-
-  Result := Result + Format('CREATE SEQUENCE %0:S;', [LSequence.SequenceName]);
+    Result := Format('DROP SEQUENCE %0:s;', [sequence.SequenceName]) + sLineBreak + Result;
 end;
 
 function TFirebirdSQLGenerator.GenerateGetLastInsertId(
@@ -102,20 +100,21 @@ end;
 function TFirebirdSQLGenerator.GenerateGetNextSequenceValue(
   const sequence: SequenceAttribute): string;
 begin
-  Assert(Assigned(sequence));
-  Result := Format('SELECT NEXT VALUE FOR %0:S FROM RDB$DATABASE;', [sequence.SequenceName]);
+  Result := Format('SELECT NEXT VALUE FOR %0:s FROM RDB$DATABASE;', [sequence.SequenceName]);
 end;
 
 function TFirebirdSQLGenerator.GeneratePagedQuery(const sql: string;
   limit, offset: Integer): string;
 var
-  LSQL: string;
+  s: string;
 begin
-  LSQL := sql;
-  if EndsStr(';', LSQL) then
-    SetLength(LSQL, Length(LSQL)-1);
+  s := sql;
+  if EndsStr(';', s) then
+    SetLength(s, Length(s) - 1);
 
-  Result := LSQL + Format(' ROWS %1:D TO %0:D;', [offset + limit, offset]);
+  // Row numbers are 1-based
+  // see http://www.firebirdsql.org/refdocs/langrefupd20-select.html#langrefupd20-select-rows
+  Result := s + Format(' ROWS %0:d TO %1:d;', [offset + 1, offset + limit]);
 end;
 
 function TFirebirdSQLGenerator.GetQueryLanguage: TQueryLanguage;
@@ -135,16 +134,15 @@ end;
 
 function TFirebirdSQLGenerator.GetSQLSequenceCount(const sequenceName: string): string;
 begin
-  Result := Format('SELECT COUNT(*) '+
-    'FROM RDB$GENERATORS '+
-    'WHERE (RDB$SYSTEM_FLAG=0) AND (RDB$GENERATOR_NAME = %0:S); ', [QuotedStr(sequenceName)]);
+  Result := Format('SELECT COUNT(*) FROM RDB$GENERATORS WHERE RDB$GENERATOR_NAME = %0:s ' +
+    ' AND RDB$SYSTEM_FLAG = 0;', [QuotedStr(sequenceName)]);
 end;
 
 function TFirebirdSQLGenerator.GetSQLTableExists(const tableName: string): string;
 begin
-  Result := Format('select count(*) from rdb$relations where rdb$relation_name = %0:S '+
-    ' and rdb$view_blr is null and (rdb$system_flag is null or rdb$system_flag = 0)'
-    , [QuotedStr(tableName)]);
+  Result := Format('SELECT COUNT(*) FROM RDB$RELATIONS WHERE RDB$RELATION_NAME = %0:s ' +
+    ' AND RDB$VIEW_BLR IS NULL AND (RDB$SYSTEM_FLAG IS NULL OR RDB$SYSTEM_FLAG = 0);', [
+    QuotedStr(tableName)]);
 end;
 
 {$ENDREGION}

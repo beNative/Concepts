@@ -109,8 +109,6 @@ uses
 
 class function TMatcherFactory.CreateMatchers(
   const indizes: TArray<TValue>): TPredicate<TArray<TValue>>;
-type
-  PValue = ^TValue;
 var
   capturedConditions: TArray<TPredicate<TValue>>;
   idxArr: TArray<Integer>;

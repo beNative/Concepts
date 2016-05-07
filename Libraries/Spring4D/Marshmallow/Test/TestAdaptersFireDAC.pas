@@ -11,10 +11,10 @@ uses
   Spring.Mocking,
   Spring.Persistence.Adapters.FireDAC,
   Spring.Persistence.Core.Base,
-  Spring.Persistence.Core.Consts,
   Spring.Persistence.Core.Exceptions,
   Spring.Persistence.Core.Interfaces,
   Spring.Persistence.Core.Session,
+  Spring.Persistence.Core.ResourceStrings,
   Spring.Persistence.Mapping.Attributes,
   Spring.Persistence.SQL.Generators.Ansi,
   Spring.Persistence.SQL.Params,
@@ -431,7 +431,7 @@ begin
     begin
       CheckIs(E, EFireDACAdapterException);
       CheckNotNull(E.InnerException);
-      CheckEqualsString(Format(EXCEPTION_CANNOT_OPEN_QUERY,
+      CheckEqualsString(Format(SCannotOpenQuery,
         [E.InnerException.Message]), E.Message);
       resultSet := nil;
     end;

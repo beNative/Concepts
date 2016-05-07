@@ -67,7 +67,7 @@ type
   /// </summary>
   TLoggerResolver = class(TSubDependencyResolverBase)
   private
-    {$IFDEF WEAKREF}[Unsafe]{$ENDIF}
+    {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fConfiguration: TLoggingConfiguration;
     procedure EnsureConfiguration; inline;
   public

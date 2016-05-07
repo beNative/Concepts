@@ -290,7 +290,8 @@ type
     procedure ExtractRange(const collection: IEnumerable<T>); overload; virtual;
 
     procedure CopyTo(var values: TArray<T>; index: Integer); virtual;
-    procedure MoveTo(const collection: ICollection<T>); virtual;
+    procedure MoveTo(const collection: ICollection<T>); overload;
+    procedure MoveTo(const collection: ICollection<T>; const predicate: TPredicate<T>); overload; virtual;
 
     property IsReadOnly: Boolean read GetIsReadOnly;
     property OnChanged: ICollectionChangedEvent<T> read GetOnChanged;
@@ -1504,6 +1505,12 @@ begin
 end;
 
 procedure TCollectionBase<T>.MoveTo(const collection: ICollection<T>);
+begin
+  MoveTo(collection, nil);
+end;
+
+procedure TCollectionBase<T>.MoveTo(const collection: ICollection<T>;
+  const predicate: TPredicate<T>);
 var
   values: TArray<T>;
   i: Integer;
@@ -1514,10 +1521,11 @@ begin
 
   values := ToArray;
   for i := Low(values) to High(values) do
-  begin
-    Extract(values[i]);
-    collection.Add(values[i]);
-  end;
+    if not Assigned(predicate) or predicate(values[i]) then
+    begin
+      Extract(values[i]);
+      collection.Add(values[i]);
+    end;
 end;
 
 procedure TCollectionBase<T>.RemoveRange(const values: array of T);

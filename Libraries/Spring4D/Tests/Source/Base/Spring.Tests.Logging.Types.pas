@@ -155,7 +155,7 @@ type
   private
     FROProp: Boolean;
   public
-    {$IFDEF WEAKREF}[Weak]{$ENDIF}
+    {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fObject: TObject;
     fString: string;
     property PObject: TObject read fObject;

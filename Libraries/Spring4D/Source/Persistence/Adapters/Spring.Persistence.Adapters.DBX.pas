@@ -101,7 +101,7 @@ uses
   DB,
   SysConst,
   Spring.Persistence.Core.ConnectionFactory,
-  Spring.Persistence.Core.Consts;
+  Spring.Persistence.Core.ResourceStrings;
 
 
 {$REGION 'TDBXStatementAdapter'}
@@ -130,7 +130,7 @@ begin
   query := TSQLQuery.Create(nil);
   query.SQLConnection := Statement.SQLConnection;
   query.SQL.Text := Statement.SQL.Text;
-  query.Params.AssignValues(query.Params);
+  query.Params.AssignValues(Statement.Params);
   query.DisableControls;
   try
     query.Open;
@@ -139,7 +139,7 @@ begin
     on E: Exception do
     begin
       query.Free;
-      raise HandleException(Format(EXCEPTION_CANNOT_OPEN_QUERY, [E.Message]));
+      raise HandleException(Format(SCannotOpenQuery, [E.Message]));
     end;
   end;
 end;

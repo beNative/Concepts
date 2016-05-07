@@ -110,7 +110,7 @@ type
 implementation
 
 uses
-  Spring.Persistence.Core.Consts,
+  Spring.Persistence.Core.ResourceStrings,
   TestExceptions;
 
 type
@@ -379,7 +379,7 @@ begin
     begin
       CheckIs(E, EDBXAdapterException);
       CheckNotNull(E.InnerException);
-      CheckEqualsString(Format(EXCEPTION_CANNOT_OPEN_QUERY,
+      CheckEqualsString(Format(SCannotOpenQuery,
         [E.InnerException.Message]), E.Message);
       resultSet := nil;
     end;

@@ -70,7 +70,7 @@ type
     function GetTempTableName: string; virtual;
     function GetPrimaryKeyDefinition(const field: TSQLCreateField): string; virtual;
     function GetSplitStatementSymbol: string; virtual;
-    procedure ParseFullTablename(const fullTableName: string;
+    procedure ParseFullTableName(const fullTableName: string;
       out tableName, schemaName: string); virtual;
     function GetEscapeChar: Char; override;
     function GetUpdateVersionFieldQuery(const command: TUpdateCommand;
@@ -126,20 +126,20 @@ function TAnsiSQLGenerator.DoGenerateBackupTable(
 begin
   //select old data to temporary table
   SetLength(Result, 2);
-  Result[0] := Format('SELECT * INTO %0:S FROM %1:S',
+  Result[0] := Format('SELECT * INTO %0:s FROM %1:s',
     [GetTempTableName, tableName]);
   //drop table
-  Result[1] := Format('DROP TABLE %0:S ', [tableName]);
+  Result[1] := Format('DROP TABLE %0:s ', [tableName]);
 end;
 
 function TAnsiSQLGenerator.DoGenerateBackupTableUsingCreate(
   const tableName: string): TArray<string>;
 begin
   SetLength(Result, 2);
-  Result[0] := Format('CREATE TABLE %0:S AS SELECT * FROM %1:S',
+  Result[0] := Format('CREATE TABLE %0:s AS SELECT * FROM %1:s',
     [GetTempTableName, tableName]);
   //drop table
-  Result[1] := Format('DROP TABLE %0:S ', [tableName]);
+  Result[1] := Format('DROP TABLE %0:s ', [tableName]);
 end;
 
 function TAnsiSQLGenerator.DoGenerateCreateTable(const tableName: string;
@@ -151,7 +151,7 @@ var
 begin
   sqlBuilder := TStringBuilder.Create;
   try
-    sqlBuilder.AppendFormat('CREATE TABLE %0:S ', [tableName])
+    sqlBuilder.AppendFormat('CREATE TABLE %0:s ', [tableName])
       .Append('(')
       .AppendLine;
     for i := 0 to columns.Count - 1 do
@@ -161,7 +161,7 @@ begin
         sqlBuilder.Append(', ').AppendLine;
 
       //0 - Column name, 1 - Column data type name, 2 - NOT NULL condition
-      sqlBuilder.AppendFormat('%0:S %1:S %2:S %3:S', [
+      sqlBuilder.AppendFormat('%0:s %1:s %2:s %3:s', [
         GetEscapedFieldName(field),
         GetSQLDataTypeName(field),
         IfThen(cpNotNull in field.Properties, 'NOT NULL', 'NULL'),
@@ -182,12 +182,12 @@ function TAnsiSQLGenerator.DoGenerateRestoreTable(const tableName: string;
 begin
   SetLength(Result, 2);
 
-  Result[0] := Format('INSERT INTO %0:S (%2:S) SELECT %3:S FROM %1:S' + sLineBreak,
+  Result[0] := Format('INSERT INTO %0:s (%2:s) SELECT %3:s FROM %1:s' + sLineBreak,
     [tableName, GetTempTableName, GetCreateFieldsAsString(createColumns),
     GetCopyFieldsAsString(createColumns, dbColumns)]);
 
   //drop temporary table
-  Result[1] := Format('DROP TABLE %0:S', [GetTempTableName]);
+  Result[1] := Format('DROP TABLE %0:s', [GetTempTableName]);
 end;
 
 function TAnsiSQLGenerator.GenerateCreateForeignKey(
@@ -202,13 +202,13 @@ begin
     for field in command.ForeignKeys do
     begin
       sqlBuilder.Clear;
-      sqlBuilder.AppendFormat('ALTER TABLE %0:S ', [command.Table.Name])
+      sqlBuilder.AppendFormat('ALTER TABLE %0:s ', [command.Table.Name])
         .AppendLine
-        .AppendFormat('ADD CONSTRAINT %0:S', [field.ForeignKeyName])
+        .AppendFormat('ADD CONSTRAINT %0:s', [field.ForeignKeyName])
         .AppendLine
-        .AppendFormat('FOREIGN KEY(%0:S)', [GetEscapedFieldName(field)])
+        .AppendFormat('FOREIGN KEY(%0:s)', [GetEscapedFieldName(field)])
         .AppendLine
-        .AppendFormat(' REFERENCES %0:S (%1:S)', [field.ReferencedTableName,
+        .AppendFormat(' REFERENCES %0:s (%1:s)', [field.ReferencedTableName,
           AnsiQuotedStr(field.ReferencedColumnName, GetEscapeChar)])
         .AppendLine
         .Append(field.ConstraintsAsString);
@@ -252,7 +252,7 @@ begin
 
   sqlBuilder := TStringBuilder.Create;
   try
-    sqlBuilder.AppendFormat('DELETE FROM %0:S', [command.Table.Name]);
+    sqlBuilder.AppendFormat('DELETE FROM %0:s', [command.Table.Name]);
 
     for i := 0 to command.WhereFields.Count - 1 do
     begin
@@ -264,7 +264,7 @@ begin
 
       {TODO -oLinas -cGeneral : implement where operators}
 
-      sqlBuilder.AppendFormat('%0:S = %1:S',
+      sqlBuilder.AppendFormat('%0:s = %1:s',
         [GetEscapedFieldName(field), field.ParamName]);
     end;
 
@@ -349,9 +349,9 @@ var
 begin
   sqlStatement := sql;
   if EndsStr(';', sqlStatement) then
-    SetLength(sqlStatement, Length(sqlStatement)-1);
+    SetLength(sqlStatement, Length(sqlStatement) - 1);
 
-  Result := sqlStatement + Format(' LIMIT %1:D,%0:D %2:S',
+  Result := sqlStatement + Format(' LIMIT %1:d,%0:d %2:s',
     [limit, offset, GetSplitStatementSymbol]);
 end;
 
@@ -403,7 +403,7 @@ begin
       if i > 0 then
         sqlBuilder.Append(', ');
 
-      sqlBuilder.AppendFormat('%0:S = %1:S',
+      sqlBuilder.AppendFormat('%0:s = %1:s',
         [GetEscapedFieldName(updateField), updateField.ParamName]);
     end;
 
@@ -415,7 +415,7 @@ begin
       else
         sqlBuilder.Append(' AND ');
 
-      sqlBuilder.AppendFormat('%0:S = %1:S',
+      sqlBuilder.AppendFormat('%0:s = %1:s',
         [GetEscapedFieldName(whereField), whereField.ParamName]);
     end;
 
@@ -617,17 +617,21 @@ begin
   Result := qlAnsiSQL;
 end;
 
-procedure TAnsiSQLGenerator.ParseFullTablename(const fullTableName: string; out tableName, schemaName: string);
+procedure TAnsiSQLGenerator.ParseFullTableName(const fullTableName: string;
+  out tableName, schemaName: string);
 var
   i: Integer;
 begin
   i := Pos('.', fullTableName);
-  tableName := fullTableName;
-  schemaName := '';
   if i > 1 then
   begin
     schemaName := Copy(fullTableName, 1, i - 1);
-    tableName := Copy(fullTableName, i + 1, Length(fullTableName) - 1);
+    tableName := Copy(fullTableName, i + 1);
+  end
+  else
+  begin
+    tableName := fullTableName;
+    schemaName := '';
   end;
 end;
 
@@ -666,7 +670,7 @@ begin
     tkUnknown: ;
     tkInteger, tkInt64, tkEnumeration, tkSet:
       if field.Precision > 0 then
-        Result := Format('NUMERIC(%0:D, %1:D)', [field.Precision, field.Scale])
+        Result := Format('NUMERIC(%0:d, %1:d)', [field.Precision, field.Scale])
       else
         if typeInfo = System.TypeInfo(Boolean) then
           Result := 'BIT'
@@ -682,7 +686,7 @@ begin
         Result := 'TIME'
       else
         if field.Precision > 0 then
-          Result := Format('NUMERIC(%0:D, %1:D)', [field.Precision, field.Scale])
+          Result := Format('NUMERIC(%0:d, %1:d)', [field.Precision, field.Scale])
         else
           Result := 'FLOAT';
     tkString, tkLString: Result := Format('VARCHAR(%D)', [field.Length]);
@@ -715,7 +719,7 @@ end;
 
 function TAnsiSQLGenerator.GetSQLTableCount(const tableName: string): string;
 begin
-  Result := Format('SELECT COUNT(*) FROM %0:S %1:S', [tableName, GetSplitStatementSymbol]);
+  Result := Format('SELECT COUNT(*) FROM %0:s %1:s', [tableName, GetSplitStatementSymbol]);
 end;
 
 function TAnsiSQLGenerator.GetSQLTableExists(const tableName: string): string;
@@ -725,7 +729,7 @@ end;
 
 function TAnsiSQLGenerator.GetTableColumns(const tableName: string): string;
 begin
-  Result := Format('SELECT * FROM %0:S WHERE 1<>2 %1:S', [tableName, GetSplitStatementSymbol]);
+  Result := Format('SELECT * FROM %0:s WHERE 1<>2 %1:s', [tableName, GetSplitStatementSymbol]);
 end;
 
 function TAnsiSQLGenerator.GetTableNameWithAlias(const table: TSQLTable): string;
@@ -742,7 +746,7 @@ function TAnsiSQLGenerator.GetUpdateVersionFieldQuery(
   const command: TUpdateCommand; const versionColumn: VersionAttribute;
   const version, primaryKey: Variant): Variant;
 begin
-  Result := Format('UPDATE %0:S SET %1:S = coalesce(%1:S,0) + 1 WHERE (%2:S = %3:S) AND (coalesce(%1:S,0) = %4:S)',
+  Result := Format('UPDATE %0:s SET %1:s = coalesce(%1:s,0) + 1 WHERE (%2:s = %3:s) AND (coalesce(%1:s,0) = %4:s)',
     [command.Table.Name, versionColumn.ColumnName,
     command.PrimaryKeyColumn.ColumnName, VarToStr(primaryKey), VarToStr(version)]);
 end;

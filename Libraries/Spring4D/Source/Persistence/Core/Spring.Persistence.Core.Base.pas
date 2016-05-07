@@ -227,7 +227,6 @@ uses
   Variants,
   Spring,
   Spring.Persistence.Adapters.FieldCache,
-  Spring.Persistence.Core.Consts,
   Spring.Persistence.SQL.Register,
   Spring.Reflection;
 
@@ -243,7 +242,7 @@ end;
 
 function TDriverAdapterBase.HandleException(const defaultMsg: string): Exception;
 begin
-  Result := ExceptionHandler.HandleException(defaultMsg);
+  Result := fExceptionHandler.HandleException(defaultMsg);
 end;
 
 {$ENDREGION}

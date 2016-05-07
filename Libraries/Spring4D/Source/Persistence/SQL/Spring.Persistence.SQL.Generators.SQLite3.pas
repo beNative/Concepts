@@ -71,49 +71,49 @@ uses
 function TSQLiteSQLGenerator.DoGenerateBackupTable(const tableName: string): TArray<string>;
 begin
   SetLength(Result, 3);
-  Result[0] := Format(' DROP TABLE IF EXISTS %0:S ', [TBL_TEMP]);
+  Result[0] := Format(' DROP TABLE IF EXISTS %0:s ', [TBL_TEMP]);
   //select old data to temporary table
-  Result[1] := Format(' CREATE TEMPORARY TABLE %0:S AS SELECT * FROM %1:S ',
+  Result[1] := Format(' CREATE TEMPORARY TABLE %0:s AS SELECT * FROM %1:s ',
     [TBL_TEMP, tableName]);
   //drop table
-  Result[2] := Format(' DROP TABLE IF EXISTS %0:S ', [tableName]);
+  Result[2] := Format(' DROP TABLE IF EXISTS %0:s ', [tableName]);
 end;
 
 function TSQLiteSQLGenerator.DoGenerateCreateTable(const tableName: string;
   const columns: IList<TSQLCreateField>): string;
 var
-  LSqlBuilder: TStringBuilder;
+  sqlBuilder: TStringBuilder;
   i: Integer;
-  LField: TSQLCreateField;
+  field: TSQLCreateField;
 begin
-  LSqlBuilder := TStringBuilder.Create;
+  sqlBuilder := TStringBuilder.Create;
   try
-    LSqlBuilder.AppendFormat(' CREATE TABLE %0:S ', [tableName])
+    sqlBuilder.AppendFormat(' CREATE TABLE %0:s ', [tableName])
       .Append('(')
       .AppendLine;
     for i := 0 to columns.Count - 1 do
     begin
-      LField := columns[i];
+      field := columns[i];
       if i > 0 then
-        LSqlBuilder.Append(',').AppendLine;
+        sqlBuilder.Append(',').AppendLine;
 
       //0 - Column name, 1 - Column data type name, 2 - NOT NULL condition
-      LSqlBuilder.AppendFormat(' %0:S %1:S %2:S %3:S %4:S %5:S',
+      sqlBuilder.AppendFormat(' %0:s %1:s %2:s %3:s %4:s %5:s',
         [
-          LField.Name
-          ,GetSQLDataTypeName(LField)
-          ,IfThen(cpPrimaryKey in LField.Properties, 'PRIMARY KEY')
-          ,IfThen(LField.IsIdentity, 'AUTOINCREMENT')
-          ,IfThen(cpUnique in LField.Properties, 'UNIQUE')
-          ,IfThen(cpNotNull in LField.Properties, 'NOT NULL', 'NULL')
+          field.Name
+          ,GetSQLDataTypeName(field)
+          ,IfThen(cpPrimaryKey in field.Properties, 'PRIMARY KEY')
+          ,IfThen(field.IsIdentity, 'AUTOINCREMENT')
+          ,IfThen(cpUnique in field.Properties, 'UNIQUE')
+          ,IfThen(cpNotNull in field.Properties, 'NOT NULL', 'NULL')
         ]
       );
     end;
-    LSqlBuilder.Append(')');
+    sqlBuilder.Append(')');
 
-    Result := LSqlBuilder.ToString;
+    Result := sqlBuilder.ToString;
   finally
-    LSqlBuilder.Free;
+    sqlBuilder.Free;
   end;
 end;
 
@@ -122,22 +122,22 @@ function TSQLiteSQLGenerator.DoGenerateRestoreTable(const tableName: string;
   const dbColumns: IList<string>): TArray<string>;
 begin
   SetLength(Result, 2);
-  Result[0] := Format(' INSERT INTO %0:S (%2:S) SELECT %3:S FROM %1:S',
+  Result[0] := Format(' INSERT INTO %0:s (%2:s) SELECT %3:s FROM %1:s',
     [tableName, TBL_TEMP, GetCreateFieldsAsString(createColumns),
     GetCopyFieldsAsString(createColumns, dbColumns)]);
 
   //drop temporary table
-  Result[1] := Format(' DROP TABLE IF EXISTS %0:S', [TBL_TEMP]);
+  Result[1] := Format(' DROP TABLE IF EXISTS %0:s', [TBL_TEMP]);
 end;
 
 function TSQLiteSQLGenerator.GenerateCreateForeignKey(
   const command: TCreateForeignKeyCommand): IList<string>;
 var
-  LSqlBuilder: TStringBuilder;
-  LCreateTableString: string;
+  sqlBuilder: TStringBuilder;
+  createTableString: string;
   i: Integer;
-  LField: TSQLForeignKeyField;
-  LRes: TArray<string>;
+  field: TSQLForeignKeyField;
+  backup: TArray<string>;
 begin
   Assert(Assigned(command));
   Result := TCollections.CreateList<string>;
@@ -145,34 +145,34 @@ begin
   if not command.ForeignKeys.Any then
     Exit;
 
-  LSqlBuilder := TStringBuilder.Create;
+  sqlBuilder := TStringBuilder.Create;
   try
-    LRes := DoGenerateBackupTable(command.Table.Name);
-    Result.AddRange(LRes);
+    backup := DoGenerateBackupTable(command.Table.Name);
+    Result.AddRange(backup);
     //recreate table with foreign keys
-    LCreateTableString := DoGenerateCreateTable(command.Table.Name, command.Columns);
+    createTableString := DoGenerateCreateTable(command.Table.Name, command.Columns);
     //remove ")" from the end of the string
-    SetLength(LCreateTableString, Length(LCreateTableString)-1);
+    SetLength(createTableString, Length(createTableString) - 1);
 
-    LSqlBuilder.Append(LCreateTableString).Append(',').AppendLine;
+    sqlBuilder.Append(createTableString).Append(',').AppendLine;
     for i := 0 to command.ForeignKeys.Count - 1 do
     begin
-      LField := command.ForeignKeys[i];
+      field := command.ForeignKeys[i];
       if i > 0 then
-        LSqlBuilder.Append(',').AppendLine;
+        sqlBuilder.Append(',').AppendLine;
 
-      LSqlBuilder.AppendFormat(' CONSTRAINT %0:S FOREIGN KEY (%1:S) REFERENCES %2:S (%3:S)',
-        [LField.ForeignKeyName, LField.Name, LField.ReferencedTableName, LField.ReferencedColumnName]);
+      sqlBuilder.AppendFormat(' CONSTRAINT %0:s FOREIGN KEY (%1:s) REFERENCES %2:s (%3:s)',
+        [field.ForeignKeyName, field.Name, field.ReferencedTableName, field.ReferencedColumnName]);
 
     end;
-    LSqlBuilder.Append(');');
+    sqlBuilder.Append(');');
 
-    Result.Add(LSqlBuilder.ToString);
+    Result.Add(sqlBuilder.ToString);
 
-    LRes := DoGenerateRestoreTable(command.Table.Name, command.Columns, command.ColumnNames);
-    Result.AddRange(LRes);
+    backup := DoGenerateRestoreTable(command.Table.Name, command.Columns, command.ColumnNames);
+    Result.AddRange(backup);
   finally
-    LSqlBuilder.Free;
+    sqlBuilder.Free;
   end;
 end;
 

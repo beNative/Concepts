@@ -133,8 +133,8 @@ object frmMain: TfrmMain
   end
   object aclMain: TActionList
     Images = dmResources.imlMain
-    Left = 192
-    Top = 128
+    Left = 24
+    Top = 40
     object actExecute: TAction
       Caption = 'Execute'
       ImageIndex = 519
@@ -154,7 +154,7 @@ object frmMain: TfrmMain
   object tbrMain: TTaskbar
     TaskBarButtons = <>
     TabProperties = []
-    Left = 272
-    Top = 144
+    Left = 88
+    Top = 40
   end
 end

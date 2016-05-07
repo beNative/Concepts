@@ -68,29 +68,29 @@ end;
 function TMSSQLServerSQLGenerator.GeneratePagedQuery(const sql: string;
   limit, offset: Integer): string;
 var
-  LBuilder: TStringBuilder;
-  LSQL: string;
+  sqlBuilder: TStringBuilder;
+  s: string;
 begin
-  LBuilder := TStringBuilder.Create;
-  LSQL := sql;
+  sqlBuilder := TStringBuilder.Create;
+  s := sql;
   try
-    if EndsStr(';', LSQL) then
-      SetLength(LSQL, Length(LSQL)-1);
+    if EndsStr(';', s) then
+      SetLength(s, Length(s) - 1);
 
-    LBuilder.Append('SELECT * FROM (')
+    sqlBuilder.Append('SELECT * FROM (')
       .AppendLine
       .Append('  SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS ORM_ROW_NUM FROM (')
       .AppendLine.Append('    ')
-      .Append(LSQL)
+      .Append(s)
       .Append(') AS ORM_TOTAL_1')
       .AppendLine
       .Append('  ) AS ORM_TOTAL_2')
       .AppendLine
       .AppendFormat(' WHERE (ORM_ROW_NUM > %0:d) AND (ORM_ROW_NUM <= %0:d + %1:d);', [offset, limit]);
 
-    Result := LBuilder.ToString;
+    Result := sqlBuilder.ToString;
   finally
-    LBuilder.Free;
+    sqlBuilder.Free;
   end;
 end;
 
@@ -121,15 +121,12 @@ end;
 
 function TMSSQLServerSQLGenerator.GetSQLTableExists(const tableName: string): string;
 var
-  LSchema, LTable: string;
+  schema, table: string;
 begin
-  ParseFullTablename(tableName, LTable, LSchema);
-  if (LSchema <> '') then
-    Result := Format('SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = %1:s AND TABLE_NAME = %0:s '
-    , [QuotedStr(LTable), QuotedStr(LSchema)])
-  else
-    Result := Format('SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = %0:s'
-    , [QuotedStr(LTable)]);
+  ParseFullTableName(tableName, table, schema);
+  Result := 'SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ' + QuotedStr(table);
+  if schema <> '' then
+    Result := Result + ' AND TABLE_SCHEMA = ' + QuotedStr(schema);
 end;
 
 function TMSSQLServerSQLGenerator.GetTempTableName: string;

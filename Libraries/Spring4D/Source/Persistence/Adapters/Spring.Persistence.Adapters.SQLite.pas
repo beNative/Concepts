@@ -106,7 +106,7 @@ implementation
 
 uses
   Spring.Persistence.Core.ConnectionFactory,
-  Spring.Persistence.Core.Consts,
+  Spring.Persistence.Core.ResourceStrings,
   Spring.Persistence.SQL.Generators.SQLite3,
   Spring.Persistence.SQL.Interfaces;
 

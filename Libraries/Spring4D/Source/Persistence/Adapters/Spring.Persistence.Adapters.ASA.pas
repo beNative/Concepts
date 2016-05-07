@@ -66,7 +66,7 @@ implementation
 
 uses
   Spring.Persistence.Core.ConnectionFactory,
-  Spring.Persistence.Core.Consts,
+  Spring.Persistence.Core.ResourceStrings,
   Spring.Persistence.SQL.Generators.ASA,
   Spring.Persistence.SQL.Interfaces;
 

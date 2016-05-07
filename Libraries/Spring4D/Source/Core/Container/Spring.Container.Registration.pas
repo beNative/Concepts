@@ -161,6 +161,7 @@ type
     // records containing only one field of an interface type
     {$IFDEF DELPHI2010}{$HINTS OFF}fDummy: Pointer;{$ENDIF}
     constructor Create(const kernel: IKernel);
+    function GetModel: TComponentModel;
   public
     function Implements(serviceType: PTypeInfo): TRegistration<T>; overload;
     function Implements(serviceType: PTypeInfo; const serviceName: string): TRegistration<T>; overload;
@@ -214,6 +215,8 @@ type
     function InterceptedBy<TInterceptorType>(
       where: TWhere = TWhere.Last): TRegistration<T>; overload;
 {$ENDIF}
+
+    property Model: TComponentModel read GetModel;
   end;
 
   /// <summary>
@@ -837,6 +840,11 @@ begin
       Result := TValue.From<T>(delegate());
     end);
   Result := Self;
+end;
+
+function TRegistration<T>.GetModel: TComponentModel;
+begin
+  Result := (fRegistration as TRegistration).fModel;
 end;
 
 function TRegistration<T>.InjectConstructor: TRegistration<T>;

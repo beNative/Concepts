@@ -60,7 +60,7 @@ uses
 
 { TBCEditorCodeFoldingHintForm }
 
-constructor TBCEditorCodeFoldingHintForm.Create(AOwner: TComponent);
+constructor TBCEditorCodeFoldingHintForm.Create(AOwner: TComponent); //FI:W525 FixInsight ignore
 {$IFDEF USE_ALPHASKINS}
 var
   LSkinProvider: TsSkinProvider;
