@@ -31,7 +31,6 @@ type
     property ActiveLine;
     property Align;
     property Anchors;
-    property BackgroundColor;
     property BorderStyle;
     property Caret;
     property CodeFolding;
@@ -56,9 +55,10 @@ type
     property OnAfterBookmarkPlaced;
     property OnAfterClearBookmark;
     property OnAfterLinePaint;
+    property OnBeforeBookmarkPanelPaint;
     property OnBeforeBookmarkPlaced;
     property OnBeforeClearBookmark;
-    property OnBeforeBookmarkPanelPaint;
+    property OnBeforeCompletionProposalExecute;
     property OnBookmarkPanelLinePaint;
     property OnCaretChanged;
     property OnChange;

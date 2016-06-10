@@ -130,6 +130,8 @@
         <DCCReference Include="..\Source\BCEditor.Editor.Base.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Bookmarks.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Caret.pas"/>
+				<DCCReference Include="..\Source\BCEditor.Editor.Caret.MultiEdit.pas"/>
+        <DCCReference Include="..\Source\BCEditor.Editor.Caret.MultiEdit.Colors.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Caret.NonBlinking.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Caret.NonBlinking.Colors.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Caret.Offsets.pas"/>
@@ -602,13 +604,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

@@ -42,6 +42,8 @@ contains
   BCEditor.Editor.Base in '..\Source\BCEditor.Editor.Base.pas',
   BCEditor.Editor.Bookmarks in '..\Source\BCEditor.Editor.Bookmarks.pas',
   BCEditor.Editor.Caret in '..\Source\BCEditor.Editor.Caret.pas',
+	BCEditor.Editor.Caret.MultiEdit in '..\Source\BCEditor.Editor.Caret.MultiEdit.pas',
+  BCEditor.Editor.Caret.MultiEdit.Colors in '..\Source\BCEditor.Editor.Caret.MultiEdit.Colors.pas',
   BCEditor.Editor.Caret.NonBlinking in '..\Source\BCEditor.Editor.Caret.NonBlinking.pas',
   BCEditor.Editor.Caret.NonBlinking.Colors in '..\Source\BCEditor.Editor.Caret.NonBlinking.Colors.pas',
   BCEditor.Editor.Caret.Offsets in '..\Source\BCEditor.Editor.Caret.Offsets.pas',

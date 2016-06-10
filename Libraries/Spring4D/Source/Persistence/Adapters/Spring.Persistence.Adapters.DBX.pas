@@ -309,3 +309,4 @@ initialization
   TConnectionFactory.RegisterConnection<TDBXConnectionAdapter>(dtDBX);
 
 end.
+

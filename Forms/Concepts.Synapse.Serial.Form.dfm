@@ -36,7 +36,7 @@ object frmSynapseSerial: TfrmSynapseSerial
     TabOrder = 0
     object splLeftHorizontal: TSplitter
       Left = 0
-      Top = 309
+      Top = 370
       Width = 313
       Height = 6
       Cursor = crVSplit
@@ -48,7 +48,7 @@ object frmSynapseSerial: TfrmSynapseSerial
       Left = 0
       Top = 0
       Width = 313
-      Height = 309
+      Height = 370
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 0
@@ -56,13 +56,13 @@ object frmSynapseSerial: TfrmSynapseSerial
         Left = 0
         Top = 0
         Width = 313
-        Height = 97
+        Height = 114
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
         DesignSize = (
           313
-          97)
+          114)
         object lblCOMPort: TLabel
           Left = 3
           Top = 4
@@ -84,18 +84,12 @@ object frmSynapseSerial: TfrmSynapseSerial
           Height = 13
           Caption = 'Parity:'
         end
-        object lbl1: TLabel
-          Left = 38
-          Top = 75
-          Width = 16
-          Height = 13
-          Caption = 'lbl1'
-        end
         object cbxCOMPort: TComboBox
           Left = 60
           Top = 1
           Width = 79
           Height = 21
+          Hint = 'COM ports will be scanned on dropdown.'
           Style = csDropDownList
           Anchors = [akLeft, akTop, akRight]
           DropDownCount = 30
@@ -155,37 +149,51 @@ object frmSynapseSerial: TfrmSynapseSerial
           Top = 25
           Width = 79
           Height = 21
+          Hint = 'Baudrate in bps.'
           TabOrder = 3
           Text = '9600'
           Items.Strings = (
+            '110'
             '300'
+            '600'
             '1200'
             '2400'
+            '4800'
             '9600'
+            '14400'
             '19200'
-            '115200')
+            '38400'
+            '56000'
+            '57600'
+            '115200'
+            '128000'
+            '153600'
+            '230400'
+            '256000'
+            '460800'
+            '921600')
         end
         object grpFlowControl: TGroupBox
           Left = 145
           Top = 28
           Width = 165
-          Height = 63
+          Height = 41
           Caption = 'Flow control'
           TabOrder = 4
           object chkSoftwareFlowControl: TCheckBox
             Left = 16
             Top = 18
-            Width = 135
+            Width = 65
             Height = 17
-            Caption = 'Software flow control'
+            Caption = 'Software'
             TabOrder = 0
           end
           object chkHardwareFlowControl: TCheckBox
-            Left = 16
-            Top = 38
-            Width = 135
+            Left = 87
+            Top = 18
+            Width = 65
             Height = 17
-            Caption = 'Hardware flow control'
+            Caption = 'Hardware'
             TabOrder = 1
           end
         end
@@ -196,37 +204,60 @@ object frmSynapseSerial: TfrmSynapseSerial
           Height = 21
           TabOrder = 5
           Text = 'Even'
+          Items.Strings = (
+            'None'
+            'Odd'
+            'Even'
+            'Mark'
+            'Space')
+        end
+        object rgpDataBits: TRadioGroup
+          Left = 3
+          Top = 69
+          Width = 136
+          Height = 40
+          Caption = 'Data bits'
+          Columns = 2
+          ItemIndex = 1
+          Items.Strings = (
+            '7'
+            '8')
+          TabOrder = 6
         end
       end
     end
     object pnlLeftBottom: TPanel
       AlignWithMargins = True
       Left = 3
-      Top = 318
+      Top = 379
       Width = 307
-      Height = 284
+      Height = 223
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitTop = 318
+      ExplicitHeight = 284
       DesignSize = (
         307
-        284)
+        223)
       object btnSendMultiLine: TButton
         Left = 0
-        Top = 258
-        Width = 310
+        Top = 197
+        Width = 306
         Height = 25
         Action = actSendMultiLine
         Anchors = [akLeft, akRight, akBottom]
         TabOrder = 0
+        ExplicitTop = 258
       end
       object mmoSend: TMemo
-        Left = 2
+        Left = 0
         Top = 1
-        Width = 305
-        Height = 251
+        Width = 306
+        Height = 190
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 1
+        ExplicitHeight = 251
       end
     end
   end
@@ -509,12 +540,26 @@ object frmSynapseSerial: TfrmSynapseSerial
       end
     end
   end
+  object rgpStopBits: TRadioGroup
+    Left = 148
+    Top = 73
+    Width = 165
+    Height = 39
+    Caption = 'Stop bits'
+    Columns = 3
+    ItemIndex = 0
+    Items.Strings = (
+      '1'
+      '1,5'
+      '2')
+    TabOrder = 2
+  end
   object ilMain: TImageList
     ColorDepth = cd32Bit
     Left = 112
     Top = 352
     Bitmap = {
-      494C010105000900040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010105000900080010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -826,8 +871,8 @@ object frmSynapseSerial: TfrmSynapseSerial
   object dlgSave: TSaveDialog
     DefaultExt = 'log'
     FileName = 'CimTools.log'
-    Left = 240
-    Top = 184
+    Left = 248
+    Top = 208
   end
   object ppmReceivedText: TPopupMenu
     Left = 160

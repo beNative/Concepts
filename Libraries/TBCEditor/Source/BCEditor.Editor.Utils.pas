@@ -65,7 +65,7 @@ begin
     Stream.Seek(-BufferSize, soFromCurrent);
 
     { first search for BOM }
-    if (BufferSize >= Length(UTF8BOM)) and CompareMem(@Buffer[0], @UTF8BOM[0], Length(UTF8BOM)) then
+    if (BufferSize >= Length(BCEDITOR_UTF8BOM)) and CompareMem(@Buffer[0], @BCEDITOR_UTF8BOM[0], Length(BCEDITOR_UTF8BOM)) then
     begin
       WithBOM := True;
       Result := True;

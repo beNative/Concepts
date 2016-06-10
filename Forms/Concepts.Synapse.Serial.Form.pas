@@ -29,9 +29,6 @@ uses
      - Receive terminated
          - terminate character (used to seperate incoming data)
      - Receive fixed
-
-
-
 }
 
 type
@@ -90,8 +87,9 @@ type
     cbxParity              : TComboBox;
     lblSpeed               : TLabel;
     lblParity              : TLabel;
-    lbl1                   : TLabel;
     tmrPoll                : TTimer;
+    rgpStopBits: TRadioGroup;
+    rgpDataBits: TRadioGroup;
     {$ENDREGION}
 
     procedure actClearReceivedExecute(Sender: TObject);

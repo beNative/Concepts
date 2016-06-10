@@ -9,7 +9,7 @@ uses
   BCEditor.Print;
 
 type
-  TBCEditorPreviewPageEvent = procedure(Sender: TObject; PageNumber: Integer) of object;
+  TBCEditorPreviewPageEvent = procedure(ASender: TObject; APageNumber: Integer) of object;
   TBCEditorPreviewScale = (pscWholePage, pscPageWidth, pscUserScaled);
 
   TBCEditorPrintPreview = class(TCustomControl)

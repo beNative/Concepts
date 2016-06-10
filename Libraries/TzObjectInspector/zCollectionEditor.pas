@@ -233,8 +233,8 @@ begin
 
 
       // TODO : does not work anymore!
-      //Reflect.Properties<TCollectionItem>(FCollection.Items[I]).Values[PItem.Name] := NewValue;
-      //.Values[PItem.Name] := NewValue;
+//      Reflect.Properties<TCollectionItem>(FCollection.Items[I]).Values[PItem.Name] := NewValue;
+//      .Values[PItem.Name] := NewValue;
 
     end;
   end;

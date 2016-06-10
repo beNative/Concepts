@@ -3,19 +3,21 @@ unit BCEditor.Editor.Caret;
 interface
 
 uses
-  System.Classes, BCEditor.Editor.Caret.NonBlinking, BCEditor.Editor.Caret.Styles, BCEditor.Editor.Caret.Offsets,
-  BCEditor.Types;
+  System.Classes, BCEditor.Editor.Caret.NonBlinking, BCEditor.Editor.Caret.MultiEdit, BCEditor.Editor.Caret.Styles,
+  BCEditor.Editor.Caret.Offsets, BCEditor.Types;
 
 type
   TBCEditorCaret = class(TPersistent)
   strict private
+    FMultiEdit: TBCEditorCaretMultiEdit;
     FNonBlinking: TBCEditorCaretNonBlinking;
     FOffsets: TBCEditorCaretOffsets;
     FOnChange: TNotifyEvent;
     FOptions: TBCEditorCaretOptions;
     FStyles: TBCEditorCaretStyles;
     FVisible: Boolean;
-    procedure DoChange(Sender: TObject);
+    procedure DoChange(ASender: TObject);
+    procedure SetMultiEdit(AValue: TBCEditorCaretMultiEdit);
     procedure SetNonBlinking(AValue: TBCEditorCaretNonBlinking);
     procedure SetOffsets(AValue: TBCEditorCaretOffsets);
     procedure SetOnChange(AValue: TNotifyEvent);
@@ -27,6 +29,7 @@ type
     destructor Destroy; override;
     procedure Assign(ASource: TPersistent); override;
   published
+    property MultiEdit: TBCEditorCaretMultiEdit read FMultiEdit write SetMultiEdit;
     property NonBlinking: TBCEditorCaretNonBlinking read FNonBlinking write SetNonBlinking;
     property Offsets: TBCEditorCaretOffsets read FOffsets write SetOffsets;
     property OnChange: TNotifyEvent read FOnChange write SetOnChange;
@@ -43,6 +46,7 @@ constructor TBCEditorCaret.Create;
 begin
   inherited;
 
+  FMultiEdit := TBCEditorCaretMultiEdit.Create;
   FNonBlinking := TBCEditorCaretNonBlinking.Create;
   FOffsets := TBCEditorCaretOffsets.Create;
   FStyles := TBCEditorCaretStyles.Create;
@@ -51,6 +55,7 @@ end;
 
 destructor TBCEditorCaret.Destroy;
 begin
+  FMultiEdit.Free;
   FNonBlinking.Free;
   FOffsets.Free;
   FStyles.Free;
@@ -64,6 +69,7 @@ begin
   with ASource as TBCEditorCaret do
   begin
     Self.FStyles.Assign(FStyles);
+    Self.FMultiEdit.Assign(FMultiEdit);
     Self.FNonBlinking.Assign(FNonBlinking);
     Self.FOffsets.Assign(FOffsets);
     Self.FOptions := FOptions;
@@ -79,18 +85,24 @@ begin
   FOnChange := AValue;
   FOffsets.OnChange := AValue;
   FStyles.OnChange := AValue;
+  FMultiEdit.OnChange := AValue;
   FNonBlinking.OnChange := AValue;
 end;
 
-procedure TBCEditorCaret.DoChange(Sender: TObject);
+procedure TBCEditorCaret.DoChange(ASender: TObject);
 begin
   if Assigned(FOnChange) then
-    FOnChange(Sender);
+    FOnChange(ASender);
 end;
 
 procedure TBCEditorCaret.SetStyles(const AValue: TBCEditorCaretStyles);
 begin
   FStyles.Assign(AValue);
+end;
+
+procedure TBCEditorCaret.SetMultiEdit(AValue: TBCEditorCaretMultiEdit);
+begin
+  FMultiEdit.Assign(AValue);
 end;
 
 procedure TBCEditorCaret.SetNonBlinking(AValue: TBCEditorCaretNonBlinking);
