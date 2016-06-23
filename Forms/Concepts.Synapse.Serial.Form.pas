@@ -30,8 +30,6 @@ uses
          - terminate character (used to seperate incoming data)
      - Receive fixed
 
-
-
 }
 
 type
@@ -85,13 +83,19 @@ type
     tsSentText             : TTabSheet;
     cbxBaudRate            : TComboBox;
     grpFlowControl         : TGroupBox;
-    chkSoftwareFlowControl : TCheckBox;
-    chkHardwareFlowControl : TCheckBox;
+    chkSoftwareHandshaking : TCheckBox;
+    chkHardwareHandshaking : TCheckBox;
     cbxParity              : TComboBox;
     lblSpeed               : TLabel;
     lblParity              : TLabel;
-    lbl1                   : TLabel;
     tmrPoll                : TTimer;
+    pnlIndicators          : TGridPanel;
+    pnlRTS                 : TPanel;
+    pnlCTS                 : TPanel;
+    pnlDTR                 : TPanel;
+    pnlDSR                 : TPanel;
+    pnlCarrier             : TPanel;
+    pnlRing                : TPanel;
     {$ENDREGION}
 
     procedure actClearReceivedExecute(Sender: TObject);
@@ -137,6 +141,7 @@ type
     procedure DoStringReceived(const AString: RawByteString); virtual;
     procedure UpdateActions; override;
     procedure UpdateControls; virtual;
+    procedure UpdateIndicators;
     procedure SendString(const AString: RawByteString); virtual;
 
     procedure Modified;
@@ -168,6 +173,7 @@ implementation
 
 uses
   System.AnsiStrings,
+  Vcl.Graphics,
 
   VirtualTrees,
 
@@ -213,6 +219,12 @@ const
   SON  = '<font-color=clBlack><b>ON</b></font-color>';
   SOFF = '<font-color=clRed><b>OFF</b></font-color>';
 
+  ALPHA_NUM = 'ABCDEFGHIJKLMN' + //#13#10 +
+              'OPQRSTUVWXYZ  ' + //#13#10 +
+              'abcdefghijklmn' + //#13#10 +
+              'opqrstuvwxyz  ' + //#13#10 +
+              '0123456789    ' + #13#10;
+
 function CreateLogTree(AOwner : TComponent; AParent : TWinControl): TLogTree;
 var
   VLT : TLogTree;
@@ -232,6 +244,8 @@ end;
 
 {$REGION 'construction and destruction'}
 procedure TfrmSynapseSerial.AfterConstruction;
+var
+  I : Integer;
 begin
   inherited AfterConstruction;
   FComPort                   := CreateComPort;
@@ -250,6 +264,7 @@ begin
   FLogOut.DateTimeFormat     := 'hh:nn:ss.zzz';
   Modified;
   LoadSettings;
+  mmoSend.Lines.Text := ALPHA_NUM;
 end;
 
 procedure TfrmSynapseSerial.BeforeDestruction;
@@ -278,11 +293,11 @@ end;
 
 procedure TfrmSynapseSerial.tmrPollTimer(Sender: TObject);
 begin
-    while FComPort.WaitingData <> 0 do
-    begin
-      DoStringReceived(FComPort.RecvTerminated(0, #13#10));
-      UpdateControls;
-    end;
+  while FComPort.WaitingData <> 0 do
+  begin
+    DoStringReceived(FComPort.RecvTerminated(0, #13#10));
+    UpdateControls;
+  end;
 end;
 
 function TfrmSynapseSerial.GetConnected: Boolean;
@@ -298,17 +313,18 @@ begin
     FComPort.Connect(Port);
     FComPort.Config(
       StrToIntDef(cbxBaudRate.Text, 9600),
-      SB1,
+      8,
       'N',
       0,
-      chkSoftwareFlowControl.Checked,
-      chkHardwareFlowControl.Checked
+      chkSoftwareHandshaking.Checked,
+      chkHardwareHandshaking.Checked
     );
   end
   else
   begin
     FComPort.CloseSocket;
   end;
+  tmrPoll.Enabled := FComPort.InstanceActive;
   Modified;
 end;
 {$ENDREGION}
@@ -440,6 +456,7 @@ begin
   Result.OnStatus := ComPortStatus;
   Result.EnableRTSToggle(True);
   Result.ConvertLineEnd := True;
+  Result.RaiseExcept := True;
 end;
 
 procedure TfrmSynapseSerial.DoStringReceived(const AString: RawByteString);
@@ -501,15 +518,40 @@ end;
 {$REGION 'protected methods'}
 procedure TfrmSynapseSerial.UpdateControls;
 begin
-  actConnect.Enabled    := not Connected;
-  actDisconnect.Enabled := Connected;
-  actSend.Enabled       := Connected;
+  actConnect.Enabled       := not Connected;
+  actDisconnect.Enabled    := Connected;
+  actSend.Enabled          := Connected;
+  actSendMultiLine.Enabled := Connected;
   FInspector.UpdateProperties;
+  UpdateIndicators;
+end;
+
+procedure TfrmSynapseSerial.UpdateIndicators;
+
+  procedure ColorPanel(APanel : TPanel; AActive: Boolean);
+  begin
+    if AActive then
+      APanel.Color := clLime
+    else
+      APanel.Color := clBtnFace;
+  end;
+
+begin
+  if Connected then
+  begin
+    //ColorPanel(pnlRTS, FComPort.RTS);
+    ColorPanel(pnlCTS, FComPort.CTS);
+    //ColorPanel(pnlDTR, FComPort.DTR);
+    ColorPanel(pnlDSR, FComPort.DSR);
+    ColorPanel(pnlCarrier, FComPort.Carrier);
+    ColorPanel(pnlRing, FComPort.Ring);
+  end;
 end;
 
 procedure TfrmSynapseSerial.UpdateActions;
 begin
   inherited UpdateActions;
+  UpdateIndicators;
   if FUpdate then
   begin
     UpdateControls;

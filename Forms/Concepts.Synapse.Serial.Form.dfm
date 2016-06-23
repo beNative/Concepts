@@ -1,8 +1,8 @@
 object frmSynapseSerial: TfrmSynapseSerial
   Left = 265
   Top = 279
-  ClientHeight = 611
-  ClientWidth = 943
+  ClientHeight = 607
+  ClientWidth = 952
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -21,7 +21,7 @@ object frmSynapseSerial: TfrmSynapseSerial
     Left = 319
     Top = 0
     Width = 6
-    Height = 611
+    Height = 607
     ResizeStyle = rsUpdate
     ExplicitHeight = 541
   end
@@ -30,25 +30,27 @@ object frmSynapseSerial: TfrmSynapseSerial
     Left = 3
     Top = 3
     Width = 313
-    Height = 605
+    Height = 601
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitHeight = 605
     object splLeftHorizontal: TSplitter
       Left = 0
-      Top = 309
+      Top = 395
       Width = 313
       Height = 6
       Cursor = crVSplit
       Align = alTop
       ResizeStyle = rsUpdate
-      ExplicitTop = 278
+      ExplicitLeft = -3
+      ExplicitTop = 307
     end
     object pnlLeftTop: TPanel
       Left = 0
       Top = 0
       Width = 313
-      Height = 309
+      Height = 395
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 0
@@ -56,13 +58,13 @@ object frmSynapseSerial: TfrmSynapseSerial
         Left = 0
         Top = 0
         Width = 313
-        Height = 97
+        Height = 137
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
         DesignSize = (
           313
-          97)
+          137)
         object lblCOMPort: TLabel
           Left = 3
           Top = 4
@@ -83,13 +85,6 @@ object frmSynapseSerial: TfrmSynapseSerial
           Width = 32
           Height = 13
           Caption = 'Parity:'
-        end
-        object lbl1: TLabel
-          Left = 38
-          Top = 75
-          Width = 16
-          Height = 13
-          Caption = 'lbl1'
         end
         object cbxCOMPort: TComboBox
           Left = 60
@@ -155,6 +150,12 @@ object frmSynapseSerial: TfrmSynapseSerial
           Top = 25
           Width = 79
           Height = 21
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
           TabOrder = 3
           Text = '9600'
           Items.Strings = (
@@ -169,23 +170,25 @@ object frmSynapseSerial: TfrmSynapseSerial
           Left = 145
           Top = 28
           Width = 165
-          Height = 63
-          Caption = 'Flow control'
+          Height = 41
+          Caption = 'Flow control - handshaking'
           TabOrder = 4
-          object chkSoftwareFlowControl: TCheckBox
+          object chkSoftwareHandshaking: TCheckBox
             Left = 16
             Top = 18
-            Width = 135
+            Width = 73
             Height = 17
-            Caption = 'Software flow control'
+            Hint = 'Software flow control with XON and XOFF characters.'
+            Caption = 'Software'
             TabOrder = 0
           end
-          object chkHardwareFlowControl: TCheckBox
-            Left = 16
-            Top = 38
-            Width = 135
+          object chkHardwareHandshaking: TCheckBox
+            Left = 88
+            Top = 18
+            Width = 65
             Height = 17
-            Caption = 'Hardware flow control'
+            Hint = 'Hardware handshaking using DTR and DSR signal lines.'
+            Caption = 'Hardware'
             TabOrder = 1
           end
         end
@@ -194,39 +197,241 @@ object frmSynapseSerial: TfrmSynapseSerial
           Top = 48
           Width = 79
           Height = 21
+          Hint = 'Parity bit setting'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
           TabOrder = 5
-          Text = 'Even'
+          Text = 'None'
+          Items.Strings = (
+            'None'
+            'Odd'
+            'Even'
+            'Mark'
+            'Space')
+        end
+        object pnlIndicators: TGridPanel
+          Left = 5
+          Top = 71
+          Width = 305
+          Height = 41
+          Anchors = [akLeft, akTop, akRight]
+          BevelOuter = bvNone
+          ColumnCollection = <
+            item
+              Value = 16.666666666666660000
+            end
+            item
+              Value = 16.666666666666660000
+            end
+            item
+              Value = 16.666666666666660000
+            end
+            item
+              Value = 16.666666666666660000
+            end
+            item
+              Value = 16.666666666666660000
+            end
+            item
+              Value = 16.666666666666660000
+            end>
+          ControlCollection = <
+            item
+              Column = 0
+              Control = pnlRTS
+              Row = 0
+            end
+            item
+              Column = 1
+              Control = pnlCTS
+              Row = 0
+            end
+            item
+              Column = 2
+              Control = pnlDTR
+              Row = 0
+            end
+            item
+              Column = 3
+              Control = pnlDSR
+              Row = 0
+            end
+            item
+              Column = 4
+              Control = pnlCarrier
+              Row = 0
+            end
+            item
+              Column = 5
+              Control = pnlRing
+              Row = 0
+            end>
+          RowCollection = <
+            item
+              Value = 100.000000000000000000
+            end>
+          TabOrder = 6
+          DesignSize = (
+            305
+            41)
+          object pnlRTS: TPanel
+            AlignWithMargins = True
+            Left = 3
+            Top = 4
+            Width = 44
+            Height = 33
+            Anchors = []
+            BevelKind = bkFlat
+            BevelOuter = bvNone
+            Caption = 'RTS'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 0
+            ExplicitLeft = 4
+          end
+          object pnlCTS: TPanel
+            AlignWithMargins = True
+            Left = 53
+            Top = 4
+            Width = 44
+            Height = 33
+            Anchors = []
+            BevelKind = bkFlat
+            BevelOuter = bvNone
+            Caption = 'CTS'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 1
+            ExplicitLeft = 54
+          end
+          object pnlDTR: TPanel
+            AlignWithMargins = True
+            Left = 103
+            Top = 4
+            Width = 44
+            Height = 33
+            Anchors = []
+            BevelKind = bkFlat
+            BevelOuter = bvNone
+            Caption = 'DTR'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 2
+            ExplicitLeft = 104
+          end
+          object pnlDSR: TPanel
+            AlignWithMargins = True
+            Left = 153
+            Top = 4
+            Width = 44
+            Height = 33
+            Anchors = []
+            BevelKind = bkFlat
+            BevelOuter = bvNone
+            Caption = 'DSR'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 3
+            ExplicitLeft = 154
+          end
+          object pnlCarrier: TPanel
+            AlignWithMargins = True
+            Left = 203
+            Top = 4
+            Width = 44
+            Height = 33
+            Anchors = []
+            BevelKind = bkFlat
+            BevelOuter = bvNone
+            Caption = 'Carrier'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 4
+            ExplicitLeft = 204
+          end
+          object pnlRing: TPanel
+            AlignWithMargins = True
+            Left = 254
+            Top = 4
+            Width = 47
+            Height = 33
+            Anchors = []
+            BevelKind = bkFlat
+            BevelOuter = bvNone
+            Caption = 'Ring'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 5
+          end
         end
       end
     end
     object pnlLeftBottom: TPanel
       AlignWithMargins = True
       Left = 3
-      Top = 318
+      Top = 404
       Width = 307
-      Height = 284
+      Height = 194
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitTop = 318
+      ExplicitHeight = 284
       DesignSize = (
         307
-        284)
+        194)
       object btnSendMultiLine: TButton
         Left = 0
-        Top = 258
-        Width = 310
+        Top = 168
+        Width = 307
         Height = 25
         Action = actSendMultiLine
         Anchors = [akLeft, akRight, akBottom]
         TabOrder = 0
+        ExplicitTop = 258
       end
       object mmoSend: TMemo
         Left = 2
-        Top = 1
+        Top = 3
         Width = 305
-        Height = 251
+        Height = 163
         Anchors = [akLeft, akTop, akRight, akBottom]
+        Font.Charset = OEM_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Consolas'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 1
+        ExplicitHeight = 253
       end
     end
   end
@@ -234,8 +439,8 @@ object frmSynapseSerial: TfrmSynapseSerial
     AlignWithMargins = True
     Left = 328
     Top = 3
-    Width = 612
-    Height = 605
+    Width = 621
+    Height = 601
     Align = alClient
     BevelOuter = bvNone
     Font.Charset = DEFAULT_CHARSET
@@ -245,10 +450,12 @@ object frmSynapseSerial: TfrmSynapseSerial
     Font.Style = []
     ParentFont = False
     TabOrder = 1
+    ExplicitWidth = 612
+    ExplicitHeight = 605
     object splRightHorizontal: TSplitter
       Left = 0
       Top = 280
-      Width = 612
+      Width = 621
       Height = 6
       Cursor = crVSplit
       Align = alTop
@@ -259,7 +466,7 @@ object frmSynapseSerial: TfrmSynapseSerial
     object pnlRightTop: TPanel
       Left = 0
       Top = 0
-      Width = 612
+      Width = 621
       Height = 280
       Align = alTop
       BevelOuter = bvNone
@@ -270,11 +477,12 @@ object frmSynapseSerial: TfrmSynapseSerial
       Font.Style = []
       ParentFont = False
       TabOrder = 0
+      ExplicitWidth = 612
       object pnlSent: TPanel
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 606
+        Width = 615
         Height = 20
         Align = alTop
         BevelKind = bkFlat
@@ -290,8 +498,9 @@ object frmSynapseSerial: TfrmSynapseSerial
         ParentFont = False
         TabOrder = 0
         StyleElements = [seFont, seBorder]
+        ExplicitWidth = 606
         object btnClearSent: TSpeedButton
-          Left = 556
+          Left = 565
           Top = 0
           Width = 46
           Height = 16
@@ -311,34 +520,35 @@ object frmSynapseSerial: TfrmSynapseSerial
       object pnlSend: TPanel
         Left = 0
         Top = 256
-        Width = 612
+        Width = 621
         Height = 24
         Align = alBottom
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitWidth = 612
         object cbxSent: TComboBox
           Left = 3
           Top = 2
-          Width = 530
-          Height = 20
+          Width = 539
+          Height = 22
           Hint = 'Sent bytestrings on COM port.'
           Align = alCustom
           AutoComplete = False
           AutoCloseUp = True
           Anchors = [akLeft, akTop, akRight, akBottom]
           DropDownCount = 32
-          Font.Charset = DEFAULT_CHARSET
+          Font.Charset = OEM_CHARSET
           Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Terminal_HexTall'
+          Font.Height = -12
+          Font.Name = 'Consolas'
           Font.Style = []
           ParentFont = False
           Sorted = True
           TabOrder = 0
         end
         object btnSendString: TButton
-          Left = 539
+          Left = 548
           Top = 0
           Width = 73
           Height = 24
@@ -346,12 +556,13 @@ object frmSynapseSerial: TfrmSynapseSerial
           Align = alRight
           Default = True
           TabOrder = 1
+          ExplicitLeft = 539
         end
       end
       object pgcSent: TPageControl
         Left = 0
         Top = 26
-        Width = 612
+        Width = 621
         Height = 230
         ActivePage = tsSentLog
         Align = alClient
@@ -362,6 +573,7 @@ object frmSynapseSerial: TfrmSynapseSerial
         Font.Style = []
         ParentFont = False
         TabOrder = 2
+        ExplicitWidth = 612
         object tsSentLog: TTabSheet
           Caption = 'Log'
           Font.Charset = DEFAULT_CHARSET
@@ -370,6 +582,7 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
+          ExplicitWidth = 604
         end
         object tsSentText: TTabSheet
           Caption = 'Text'
@@ -380,10 +593,11 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
+          ExplicitWidth = 604
           object mmoSentText: TMemo
             Left = 0
             Top = 0
-            Width = 604
+            Width = 613
             Height = 202
             Align = alClient
             BorderStyle = bsNone
@@ -398,6 +612,7 @@ object frmSynapseSerial: TfrmSynapseSerial
             PopupMenu = ppmReceivedText
             ScrollBars = ssVertical
             TabOrder = 0
+            ExplicitWidth = 604
           end
         end
       end
@@ -405,8 +620,8 @@ object frmSynapseSerial: TfrmSynapseSerial
     object pnlRightBottom: TPanel
       Left = 0
       Top = 286
-      Width = 612
-      Height = 319
+      Width = 621
+      Height = 315
       Align = alClient
       BevelOuter = bvNone
       Font.Charset = DEFAULT_CHARSET
@@ -416,11 +631,13 @@ object frmSynapseSerial: TfrmSynapseSerial
       Font.Style = []
       ParentFont = False
       TabOrder = 1
+      ExplicitWidth = 612
+      ExplicitHeight = 319
       object pnlReceived: TPanel
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 606
+        Width = 615
         Height = 20
         Align = alTop
         BevelKind = bkFlat
@@ -436,8 +653,9 @@ object frmSynapseSerial: TfrmSynapseSerial
         ParentFont = False
         TabOrder = 0
         StyleElements = [seFont, seBorder]
+        ExplicitWidth = 606
         object btnClearReceived: TSpeedButton
-          Left = 556
+          Left = 565
           Top = 0
           Width = 46
           Height = 16
@@ -458,8 +676,8 @@ object frmSynapseSerial: TfrmSynapseSerial
       object pgcReceived: TPageControl
         Left = 0
         Top = 26
-        Width = 612
-        Height = 293
+        Width = 621
+        Height = 289
         ActivePage = tsReceivedLog
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
@@ -469,6 +687,8 @@ object frmSynapseSerial: TfrmSynapseSerial
         Font.Style = []
         ParentFont = False
         TabOrder = 1
+        ExplicitWidth = 612
+        ExplicitHeight = 293
         object tsReceivedLog: TTabSheet
           Caption = 'Log'
           Font.Charset = DEFAULT_CHARSET
@@ -477,6 +697,8 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
+          ExplicitWidth = 604
+          ExplicitHeight = 265
         end
         object tsReceivedText: TTabSheet
           Caption = 'Text'
@@ -487,11 +709,13 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
+          ExplicitWidth = 604
+          ExplicitHeight = 265
           object mmoReceivedText: TMemo
             Left = 0
             Top = 0
-            Width = 604
-            Height = 265
+            Width = 613
+            Height = 261
             Align = alClient
             BorderStyle = bsNone
             Font.Charset = DEFAULT_CHARSET
@@ -504,6 +728,8 @@ object frmSynapseSerial: TfrmSynapseSerial
             ParentFont = False
             ScrollBars = ssVertical
             TabOrder = 0
+            ExplicitWidth = 604
+            ExplicitHeight = 265
           end
         end
       end
@@ -786,8 +1012,8 @@ object frmSynapseSerial: TfrmSynapseSerial
       000000000000}
   end
   object aclMain: TActionList
-    Left = 184
-    Top = 200
+    Left = 224
+    Top = 352
     object actClearReceived: TAction
       Caption = 'Clear'
       OnExecute = actClearReceivedExecute
@@ -825,9 +1051,9 @@ object frmSynapseSerial: TfrmSynapseSerial
   end
   object dlgSave: TSaveDialog
     DefaultExt = 'log'
-    FileName = 'CimTools.log'
-    Left = 240
-    Top = 184
+    FileName = 'COM.log'
+    Left = 272
+    Top = 360
   end
   object ppmReceivedText: TPopupMenu
     Left = 160
@@ -840,9 +1066,10 @@ object frmSynapseSerial: TfrmSynapseSerial
     end
   end
   object tmrPoll: TTimer
-    Interval = 5
+    Enabled = False
+    Interval = 50
     OnTimer = tmrPollTimer
-    Left = 96
-    Top = 200
+    Left = 48
+    Top = 360
   end
 end

@@ -3,7 +3,7 @@ object frmSpringUtils: TfrmSpringUtils
   Top = 0
   Caption = 'Spring utils'
   ClientHeight = 662
-  ClientWidth = 934
+  ClientWidth = 939
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,7 +17,7 @@ object frmSpringUtils: TfrmSpringUtils
     AlignWithMargins = True
     Left = 3
     Top = 74
-    Width = 928
+    Width = 933
     Height = 585
     Align = alClient
     BevelInner = bvNone
@@ -33,14 +33,13 @@ object frmSpringUtils: TfrmSpringUtils
     ScrollBars = ssVertical
     ShowHint = False
     TabOrder = 0
-    ExplicitTop = 79
-    ExplicitHeight = 580
+    ExplicitWidth = 928
   end
   object pnlTop: TGridPanel
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 928
+    Width = 933
     Height = 65
     Align = alTop
     BevelOuter = bvNone
@@ -101,101 +100,88 @@ object frmSpringUtils: TfrmSpringUtils
         Value = 50.000000000000000000
       end>
     TabOrder = 1
+    ExplicitLeft = -2
+    ExplicitWidth = 928
     object btnFileVersionInfo: TButton
       AlignWithMargins = True
-      Left = 697
+      Left = 702
       Top = 3
       Width = 228
       Height = 26
       Action = actApplicationVersionInfo
       Align = alClient
       TabOrder = 3
-      ExplicitLeft = 667
-      ExplicitWidth = 318
-      ExplicitHeight = 29
+      ExplicitLeft = 697
     end
     object btnOperatingSystem: TButton
       AlignWithMargins = True
-      Left = 235
+      Left = 237
       Top = 3
-      Width = 225
+      Width = 227
       Height = 26
       Action = actOperatingSystem
       Align = alClient
       TabOrder = 1
-      ExplicitLeft = 317
-      ExplicitWidth = 309
-      ExplicitHeight = 29
+      ExplicitLeft = 235
+      ExplicitWidth = 225
     end
     object btnApplicationVersion: TButton
       AlignWithMargins = True
-      Left = 466
+      Left = 470
       Top = 3
-      Width = 225
+      Width = 226
       Height = 26
       Action = actApplicationVersion
       Align = alClient
       TabOrder = 2
-      ExplicitLeft = 3
-      ExplicitTop = 38
-      ExplicitWidth = 308
-      ExplicitHeight = 29
+      ExplicitLeft = 466
+      ExplicitWidth = 225
     end
     object btnEnvironment: TButton
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 226
+      Width = 228
       Height = 26
       Action = actEnvironment
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 317
-      ExplicitTop = 38
-      ExplicitWidth = 309
-      ExplicitHeight = 29
+      ExplicitWidth = 226
     end
     object btnGetCommandLineArgs: TButton
       AlignWithMargins = True
       Left = 3
       Top = 35
-      Width = 226
+      Width = 228
       Height = 27
       Action = actGetCommandLineArgs
       Align = alClient
       TabOrder = 4
-      ExplicitLeft = 448
-      ExplicitTop = 40
-      ExplicitWidth = 75
-      ExplicitHeight = 25
+      ExplicitWidth = 226
     end
     object btnGetEnvironmentVariables: TButton
       AlignWithMargins = True
-      Left = 235
+      Left = 237
       Top = 35
-      Width = 225
+      Width = 227
       Height = 27
       Action = actGetEnvironmentVariables
       Align = alClient
       TabOrder = 5
-      ExplicitLeft = 773
-      ExplicitTop = 40
-      ExplicitWidth = 75
-      ExplicitHeight = 25
+      ExplicitLeft = 235
+      ExplicitWidth = 225
     end
     object btnGetLogicalDrives: TButton
       AlignWithMargins = True
-      Left = 466
+      Left = 470
       Top = 35
-      Width = 225
+      Width = 226
       Height = 27
       Action = actGetLogicalDrives
       Align = alClient
       TabOrder = 6
-      ExplicitLeft = 448
-      ExplicitTop = 24
-      ExplicitWidth = 75
-      ExplicitHeight = 25
+      ExplicitLeft = 466
+      ExplicitWidth = 225
     end
   end
   object aclMain: TActionList
