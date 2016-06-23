@@ -91,6 +91,7 @@ inherited MainForm: TMainForm
       Margins.Bottom = 0
       ActiveLine.Indicator.Visible = False
       Align = alClient
+      Caret.MultiEdit.Enabled = True
       Caret.NonBlinking.Enabled = False
       Caret.Options = []
       CodeFolding.Colors.Indent = clBlack
@@ -366,6 +367,15 @@ inherited MainForm: TMainForm
         end
       end
     end
+    object Button1: TButton
+      Left = 556
+      Top = 240
+      Width = 75
+      Height = 25
+      Caption = 'Button1'
+      TabOrder = 2
+      OnClick = Button1Click
+    end
   end
   inherited SkinManager: TBCSkinManager
     Effects.AllowGlowing = False
@@ -471,7 +481,7 @@ inherited MainForm: TMainForm
     Left = 88
     Top = 22
   end
-  inherited SkinProvider: TBCSkinProvider
+  inherited SkinProvider: TsSkinProvider
     Left = 250
     Top = 30
   end

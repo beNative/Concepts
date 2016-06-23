@@ -36,7 +36,7 @@ type
     property Visible: Boolean read FVisible write SetVisible;
   end;
 
-  TBCEditorBookmarkEvent = procedure(Sender: TObject; var Mark: TBCEditorBookmark) of object;
+  TBCEditorBookmarkEvent = procedure(ASender: TObject; var AMark: TBCEditorBookmark) of object;
   TBCEditorBookmarks = array [1 .. BCEDITOR_MAX_BOOKMARKS] of TBCEditorBookmark;
 
   TBCEditorBookmarkList = class(TObjectList)

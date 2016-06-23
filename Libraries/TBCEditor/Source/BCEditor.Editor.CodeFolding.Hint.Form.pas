@@ -21,8 +21,8 @@ type
     FMargin: Integer;
     FVisibleLines: Integer;
     procedure AdjustMetrics;
-    procedure FontChange(Sender: TObject);
-    procedure RecalcItemHeight;
+    procedure FontChange(ASender: TObject);
+    procedure RecalculateItemHeight;
     procedure SetFont(const AValue: TFont);
     procedure SetItemHeight(const AValue: Integer);
     procedure SetItemList(const AValue: TStrings);
@@ -92,7 +92,7 @@ begin
   FItemHeight := 0;
   FMargin := 2;
   FEffectiveItemHeight := 0;
-  RecalcItemHeight;
+  RecalculateItemHeight;
 
   FHeightBuffer := 0;
   FFont.OnChange := FontChange;
@@ -205,11 +205,11 @@ begin
   if FItemHeight <> AValue then
   begin
     FItemHeight := AValue;
-    RecalcItemHeight;
+    RecalculateItemHeight;
   end;
 end;
 
-procedure TBCEditorCodeFoldingHintForm.RecalcItemHeight;
+procedure TBCEditorCodeFoldingHintForm.RecalculateItemHeight;
 begin
   Canvas.Font.Assign(FFont);
   FFontHeight := TextHeight(Canvas, 'X');
@@ -233,13 +233,13 @@ end;
 procedure TBCEditorCodeFoldingHintForm.SetFont(const AValue: TFont);
 begin
   FFont.Assign(AValue);
-  RecalcItemHeight;
+  RecalculateItemHeight;
   AdjustMetrics;
 end;
 
-procedure TBCEditorCodeFoldingHintForm.FontChange(Sender: TObject);
+procedure TBCEditorCodeFoldingHintForm.FontChange(ASender: TObject);
 begin
-  RecalcItemHeight;
+  RecalculateItemHeight;
   AdjustMetrics;
 end;
 
@@ -255,7 +255,7 @@ procedure TBCEditorCodeFoldingHintForm.Execute(const ACurrentString: string; X, 
     Result := Screen.DesktopHeight;
   end;
 
-  procedure RecalcFormPlacement;
+  procedure RecalculateFormPlacement;
   var
     i: Integer;
     LWidth: Integer;
@@ -305,7 +305,7 @@ procedure TBCEditorCodeFoldingHintForm.Execute(const ACurrentString: string; X, 
   end;
 
 begin
-  RecalcFormPlacement;
+  RecalculateFormPlacement;
   AdjustMetrics;
   Visible := True;
 end;

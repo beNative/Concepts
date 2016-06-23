@@ -2,8 +2,8 @@
    "Highlighter": {
       "Info": {
          "General": {
-            "Version": "1.5.2",
-            "Date": "03.05.2016",
+            "Version": "1.6.0",
+            "Date": "21.05.2016",
             "Sample": [
                "// GLSL example\r\n",
                "void mainImage( out vec4 fragColor, in vec2 fragCoord )\r\n",

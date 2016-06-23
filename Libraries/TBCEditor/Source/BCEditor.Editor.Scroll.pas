@@ -51,7 +51,7 @@ begin
   FMaxWidth := 1024;
   FBars := System.UITypes.TScrollStyle.ssBoth;
   FHint := TBCEditorScrollHint.Create;
-  FIndicator := TBCEditorGlyph.Create(HINSTANCE, BCEDITOR_MOUSE_MOVE_SCROLL, clFuchsia);
+  FIndicator := TBCEditorGlyph.Create(HInstance, BCEDITOR_MOUSE_MOVE_SCROLL, clFuchsia);
 end;
 
 destructor TBCEditorScroll.Destroy;

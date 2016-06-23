@@ -1,160 +1,160 @@
 {
-   "Colors":{
-      "Info":{
-         "General":{
-            "Version":"1.5.2",
-            "Date":"05.05.2016"
+   "Colors": {
+      "Info": {
+         "General": {
+            "Version": "1.6.0",
+            "Date": "21.05.2016"
          },
-         "Author":{
-            "Name":"Lasse Rautiainen",
-            "Mail":"lasse@bonecode.com"
+         "Author": {
+            "Name": "Lasse Rautiainen",
+            "Mail": "lasse@bonecode.com"
          }
       },
-      "Editor":{
-         "Colors":{
-            "Background":"clBlack",
-            "ActiveLineBackground":"$00505050",
-            "CodeFoldingActiveLineBackground":"$00505050",
-            "CodeFoldingBackground":"clBlack",
-            "CodeFoldingCollapsedLine":"clLime",
-            "CodeFoldingFoldingLine":"clLime",
-            "CodeFoldingFoldingLineHighlight":"clLime",
-            "CodeFoldingIndent":"clLime",
-            "CodeFoldingIndentHighlight":"clLime",
-            "CodeFoldingHintBackground":"clBlack",
-            "CodeFoldingHintBorder":"clLime",
-            "CodeFoldingHintText":"clWhite",
-            "CompletionProposalBackground":"clBlack",
-            "CompletionProposalForeground":"clWhite",
-            "CompletionProposalSelectedBackground":"clBlue",
-            "CompletionProposalSelectedText":"clWhite",
-            "LeftMarginActiveLineBackground":"$00505050",
-            "LeftMarginBackground":"clBlack",
-            "LeftMarginBorder":"clBlack",
-            "LeftMarginLineNumberLine":"clLime",
-            "LeftMarginLineNumbers":"clLime",
-            "LeftMarginLineStateModified":"clYellow",
-            "LeftMarginLineStateNormal":"clLime",
-            "LeftMarginBookmarkPanel":"clBlack",
-            "MatchingPairMatched":"clAqua",
-            "MatchingPairUnderline":"clLime",
-            "MatchingPairUnmatched":"clYellow",
-						"MinimapBackground":"clNone",
-            "MinimapBookmark":"clLime",
-            "MinimapVisibleLines":"$00505050",
-            "RightMargin":"clSilver",
-            "RightMovingEdge":"clSilver",
-            "SearchHighlighterBackground":"$00FCFDCD",
-            "SearchHighlighterForeground":"clBlack",
-            "SearchMapActiveLine":"$00F0F0F0",
-            "SearchMapBackground":"$001A1A1A",
-            "SearchMapForeground":"clYellow",
-            "SelectionBackground":"clBlue",
-            "SelectionForeground":"clWhite",
-            "SyncEditBackground":"$00808080",
-            "SyncEditEditBorder":"clWhite",
-            "SyncEditWordBorder":"clBlue",
+      "Editor": {
+         "Colors": {
+            "Background": "clBlack",
+            "ActiveLineBackground": "$00505050",
+            "CodeFoldingActiveLineBackground": "$00505050",
+            "CodeFoldingBackground": "clBlack",
+            "CodeFoldingCollapsedLine": "clLime",
+            "CodeFoldingFoldingLine": "clLime",
+            "CodeFoldingFoldingLineHighlight": "clLime",
+            "CodeFoldingIndent": "clLime",
+            "CodeFoldingIndentHighlight": "clLime",
+            "CodeFoldingHintBackground": "clBlack",
+            "CodeFoldingHintBorder": "clLime",
+            "CodeFoldingHintText": "clWhite",
+            "CompletionProposalBackground": "clBlack",
+            "CompletionProposalForeground": "clWhite",
+            "CompletionProposalSelectedBackground": "clBlue",
+            "CompletionProposalSelectedText": "clWhite",
+            "LeftMarginActiveLineBackground": "$00505050",
+            "LeftMarginBackground": "clBlack",
+            "LeftMarginBorder": "clBlack",
+            "LeftMarginLineNumberLine": "clLime",
+            "LeftMarginLineNumbers": "clLime",
+            "LeftMarginLineStateModified": "clYellow",
+            "LeftMarginLineStateNormal": "clLime",
+            "LeftMarginBookmarkPanel": "clBlack",
+            "MatchingPairMatched": "clAqua",
+            "MatchingPairUnderline": "clLime",
+            "MatchingPairUnmatched": "clYellow",
+            "MinimapBackground": "clNone",
+            "MinimapBookmark": "clLime",
+            "MinimapVisibleLines": "$00505050",
+            "RightMargin": "clSilver",
+            "RightMovingEdge": "clSilver",
+            "SearchHighlighterBackground": "$00FCFDCD",
+            "SearchHighlighterForeground": "clBlack",
+            "SearchMapActiveLine": "$00F0F0F0",
+            "SearchMapBackground": "$001A1A1A",
+            "SearchMapForeground": "clYellow",
+            "SelectionBackground": "clBlue",
+            "SelectionForeground": "clWhite",
+            "SyncEditBackground": "$00808080",
+            "SyncEditEditBorder": "clWhite",
+            "SyncEditWordBorder": "clBlue",
             "WordWrapIndicatorArrow": "clWhite",
             "WordWrapIndicatorLines": "clAqua"
          },
-         "Fonts":{
-            "LineNumbers":"Courier New",
-            "Text":"Courier New",
-            "Minimap":"Courier New",
-            "CodeFoldingHint":"Courier New",
-            "CompletionProposal":"Courier New"
+         "Fonts": {
+            "LineNumbers": "Courier New",
+            "Text": "Courier New",
+            "Minimap": "Courier New",
+            "CodeFoldingHint": "Courier New",
+            "CompletionProposal": "Courier New"
          },
-         "FontSizes":{
-            "LineNumbers":"8",
-            "Text":"9",
-            "Minimap":"1",
-            "CodeFoldingHint":"8",
-            "CompletionProposal":"8"
+         "FontSizes": {
+            "LineNumbers": "8",
+            "Text": "9",
+            "Minimap": "1",
+            "CodeFoldingHint": "8",
+            "CompletionProposal": "8"
          }
       },
-      "Elements":[
+      "Elements": [
          {
-            "Name":"Editor",
-            "Foreground":"clWhite",
-            "Background":"clBlack"
+            "Name": "Editor",
+            "Foreground": "clWhite",
+            "Background": "clBlack"
          },
          {
-            "Name":"Comment",
-            "Foreground":"clLime",
-            "Background":"clBlack",
-            "Style":"Italic"
+            "Name": "Comment",
+            "Foreground": "clLime",
+            "Background": "clBlack",
+            "Style": "Italic"
          },
          {
-            "Name":"String",
-            "Foreground":"clYellow",
-            "Background":"clBlack"
+            "Name": "String",
+            "Foreground": "clYellow",
+            "Background": "clBlack"
          },
          {
-            "Name":"Directive",
-            "Foreground":"clGreen",
-            "Background":"clWhite",
-            "Style":"Italic"
+            "Name": "Directive",
+            "Foreground": "clGreen",
+            "Background": "clWhite",
+            "Style": "Italic"
          },
          {
-            "Name":"Character",
-            "Foreground":"clYellow",
-            "Background":"clBlack"
+            "Name": "Character",
+            "Foreground": "clYellow",
+            "Background": "clBlack"
          },
          {
-            "Name":"ReservedWord",
-            "Foreground":"clAqua",
-            "Background":"clBlack"
+            "Name": "ReservedWord",
+            "Foreground": "clAqua",
+            "Background": "clBlack"
          },
          {
-            "Name":"Symbol",
-            "Foreground":"clSilver",
-            "Background":"clBlack"
+            "Name": "Symbol",
+            "Foreground": "clSilver",
+            "Background": "clBlack"
          },
          {
-            "Name":"Number",
-            "Foreground":"clFuchsia",
-            "Background":"clBlack"
+            "Name": "Number",
+            "Foreground": "clFuchsia",
+            "Background": "clBlack"
          },
          {
-            "Name":"HexNumber",
-            "Foreground":"clFuchsia",
-            "Background":"clBlack"
+            "Name": "HexNumber",
+            "Foreground": "clFuchsia",
+            "Background": "clBlack"
          },
          {
-            "Name":"HighlightedBlock",
-            "Foreground":"clLime",
-            "Background":"clBlack"
+            "Name": "HighlightedBlock",
+            "Foreground": "clLime",
+            "Background": "clBlack"
          },
          {
-            "Name":"HighlightedBlockSymbol",
-            "Foreground":"clSilver",
-            "Background":"clBlack"
+            "Name": "HighlightedBlockSymbol",
+            "Foreground": "clSilver",
+            "Background": "clBlack"
          },
          {
-            "Name":"AssemblerComment",
-            "Foreground":"clLime",
-            "Background":"clBlack",
-            "Style":"Italic"
+            "Name": "AssemblerComment",
+            "Foreground": "clLime",
+            "Background": "clBlack",
+            "Style": "Italic"
          },
          {
-            "Name":"AssemblerReservedWord",
-            "Foreground":"clAqua",
-            "Background":"clBlack"
+            "Name": "AssemblerReservedWord",
+            "Foreground": "clAqua",
+            "Background": "clBlack"
          },
          {
-            "Name":"Attribute",
-            "Foreground":"clWhite",
-            "Background":"clWhite"
+            "Name": "Attribute",
+            "Foreground": "clWhite",
+            "Background": "clWhite"
          },
          {
-            "Name":"Method",
-            "Foreground":"clAqua",
-            "Background":"clBlack"
+            "Name": "Method",
+            "Foreground": "clAqua",
+            "Background": "clBlack"
          },
          {
-            "Name":"MethodName",
-            "Foreground":"clWhite",
-            "Background":"clBlack"
+            "Name": "MethodName",
+            "Foreground": "clWhite",
+            "Background": "clBlack"
          }
       ]
    }

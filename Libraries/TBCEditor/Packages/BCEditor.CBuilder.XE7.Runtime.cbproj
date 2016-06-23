@@ -131,6 +131,12 @@
         <DelphiCompile Include="..\Source\BCEditor.Editor.Bookmarks.pas">
             <BuildOrder>6</BuildOrder>
         </DelphiCompile>
+				<DelphiCompile Include="..\Source\BCEditor.Editor.Caret.MultiEdit.Colors.pas">
+            <BuildOrder>7</BuildOrder>
+        </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Caret.MultiEdit.pas">
+            <BuildOrder>8</BuildOrder>
+        </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.Caret.NonBlinking.Colors.pas">
             <BuildOrder>7</BuildOrder>
         </DelphiCompile>

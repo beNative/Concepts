@@ -129,7 +129,9 @@
         <DCCReference Include="..\Source\BCEditor.Editor.Base.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Bookmarks.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Caret.pas"/>
-        <DCCReference Include="..\Source\BCEditor.Editor.Caret.NonBlinking.pas"/>
+        <DCCReference Include="..\Source\BCEditor.Editor.Caret.MultiEdit.pas"/>
+        <DCCReference Include="..\Source\BCEditor.Editor.Caret.MultiEdit.Colors.pas"/>
+				<DCCReference Include="..\Source\BCEditor.Editor.Caret.NonBlinking.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Caret.NonBlinking.Colors.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Caret.Offsets.pas"/>
         <DCCReference Include="..\Source\BCEditor.Editor.Caret.Styles.pas"/>

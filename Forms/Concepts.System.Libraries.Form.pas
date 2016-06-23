@@ -27,10 +27,31 @@ interface
 }
 
 uses
-  Vcl.Forms;
+  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls,
+  System.Bluetooth, System.Classes, System.Bluetooth.Components, System.Actions,
+  Vcl.ActnList;
 
 type
   TfrmLibraries = class(TForm)
+    aclMain              : TActionList;
+    actStartDiscoverable : TAction;
+    bltBluetooth         : TBluetooth;
+    chkEnabled           : TCheckBox;
+    actDiscoverDevices   : TAction;
+    mmoDevices           : TMemo;
+    btnDiscoverDevices   : TButton;
+    btnStartDiscoverable : TButton;
+
+    procedure bltBluetoothRemoteRequestPair(const ADevice: TBluetoothDevice);
+    procedure bltBluetoothDiscoveryEnd(const Sender: TObject;
+      const ADeviceList: TBluetoothDeviceList);
+    procedure bltBluetoothDiscoverableEnd(const Sender: TObject);
+
+    procedure actStartDiscoverableExecute(Sender: TObject);
+
+    procedure chkEnabledClick(Sender: TObject);
+    procedure actDiscoverDevicesExecute(Sender: TObject);
+
   public
     procedure AfterConstruction; override;
 
@@ -47,7 +68,62 @@ begin
 //  LoadLibrary()
 //  FreeLibrary()
 //  GetModuleHandle()
+
 end;
 {$ENDREGION}
+
+{$REGION 'event handlers'}
+procedure TfrmLibraries.bltBluetoothDiscoverableEnd(const Sender: TObject);
+begin
+//
+end;
+
+procedure TfrmLibraries.bltBluetoothDiscoveryEnd(const Sender: TObject;
+  const ADeviceList: TBluetoothDeviceList);
+var
+  BTD: TBluetoothDevice;
+begin
+  mmoDevices.Clear;
+  if ADeviceList.Count > 0 then
+  begin
+    for BTD in ADeviceList do
+    begin
+      mmoDevices.Lines.Add(BTD.DeviceName);
+    end;
+  end
+  else
+  begin
+    mmoDevices.Text := 'No devices found';
+  end;
+end;
+
+procedure TfrmLibraries.bltBluetoothRemoteRequestPair(const ADevice: TBluetoothDevice);
+begin
+
+
+  bltBluetooth.Pair(ADevice);
+  //ADevice.
+end;
+
+procedure TfrmLibraries.chkEnabledClick(Sender: TObject);
+begin
+  bltBluetooth.Enabled := chkEnabled.Checked;
+end;
+{$ENDREGION}
+
+{$REGION 'action handlers'}
+procedure TfrmLibraries.actStartDiscoverableExecute(Sender: TObject);
+begin
+  bltBluetooth.StartDiscoverable(5000);
+end;
+
+procedure TfrmLibraries.actDiscoverDevicesExecute(Sender: TObject);
+begin
+  mmoDevices.Clear;
+  bltBluetooth.DiscoverDevices(5000);
+end;
+{$ENDREGION}
+
+
 
 end.

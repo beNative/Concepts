@@ -38,7 +38,7 @@ type
   PEditorStringRecordList = ^TBCEditorStringRecordList;
   TBCEditorStringRecordList = array [0 .. CMAXSTRINGS - 1] of TBCEditorStringRecord;
 
-  TStringListChangeEvent = procedure(Sender: TObject; AIndex: Integer; ACount: Integer) of object;
+  TStringListChangeEvent = procedure(ASender: TObject; AIndex: Integer; ACount: Integer) of object;
 
   TBCEditorLines = class(TStrings)
   strict private

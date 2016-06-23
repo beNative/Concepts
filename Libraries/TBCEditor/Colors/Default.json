@@ -2,8 +2,8 @@
    "Colors": {
       "Info": {
          "General": {
-            "Version": "1.5.2",
-            "Date": "05.05.2016"
+            "Version": "1.6.0",
+            "Date": "21.05.2016"
          },
          "Author": {
             "Name": "Lasse Rautiainen",
@@ -40,7 +40,7 @@
             "MatchingPairMatched": "clAqua",
             "MatchingPairUnderline": "$00CC9999",
             "MatchingPairUnmatched": "clYellow",
-						"MinimapBackground":"clNone",
+            "MinimapBackground": "clNone",
             "MinimapBookmark": "clGreen",
             "MinimapVisibleLines": "$00E6FAFF",
             "RightMargin": "clSilver",

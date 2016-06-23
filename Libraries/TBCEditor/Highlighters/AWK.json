@@ -2,8 +2,8 @@
    "Highlighter": {
       "Info": {
          "General": {
-            "Version": "1.5.2",
-            "Date": "21.03.2016",
+            "Version": "1.6.0",
+            "Date": "21.05.2016",
             "Sample": [
                "# Hello World in AWK\r\n",
                "BEGIN { print \"Hello, world!\" }"

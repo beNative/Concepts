@@ -423,7 +423,6 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     property BorderStyle: TBorderStyle read FBorderStyle write SetBorderStyle;
     property ReadOnly: Boolean read FReadOnly write FReadOnly;
   end;
@@ -450,7 +449,6 @@ type
     procedure Paint; override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     property SplitterColor: TColor read FSplitterColor write SetSplitterColor;
     property SplitterPos: Integer read FSplitterPos write SetSplitterPos;
     property FixedSplitter: Boolean read FFixedSplitter write FFixedSplitter;
@@ -519,7 +517,6 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     property VisiblePropCount: Integer read GetVisiblePropCount;
   end;
 
@@ -632,7 +629,6 @@ type
     function ExpandItem(PItem: PPropItem): Boolean;
     function CollapseItem(PItem: PPropItem): Boolean;
     constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     property PlusMinBtnRect[Index: Integer]: TRect read GetPlusMinBtnRect;
     property PropTextRect[Index: Integer]: TRect read GetPropTextRect;
     property ValueTextRect[Index: Integer]: TRect read GetValueTextRect;
@@ -710,14 +706,14 @@ type
     property ShowGridLines;
     property GridColor;
     property SplitterColor;
-    property ReadOnlyColor; 
+    property ReadOnlyColor;
     property FixedSplitter;
     property ReadOnly;
     property TrackChange;
     property GutterWidth;
     property ShowItemHint;
     property SortByCategory;
-    property SplitterPos; 
+    property SplitterPos;
     property HeaderPropText;
     property HeaderValueText;
     property OnClick;
@@ -759,7 +755,6 @@ uses
   zStringsDialog,
   zGraphicDialog,
   zCollectionEditor;
-  //DDuce.Logger;
 
 resourcestring
   SDialogDerivedErr =
@@ -1789,12 +1784,6 @@ begin
     Params.Style := Params.Style or WS_BORDER;
 end;
 
-destructor TzObjInspectorList.Destroy;
-begin
-
-  inherited;
-end;
-
 procedure TzObjInspectorList.SetBorderStyle(const Value: TBorderStyle);
 begin
   if FBorderStyle <> Value then
@@ -1815,12 +1804,6 @@ begin
   FSplitterDown := False;
   FSplitterColor := clGray;
   FSplitterPos := 100;
-end;
-
-destructor TzObjInspectorSizing.Destroy;
-begin
-
-  inherited;
 end;
 
 procedure TzObjInspectorSizing.DrawSplitter(Canvas: TCanvas);
@@ -2091,12 +2074,6 @@ procedure TzScrollObjInspectorList.CreateParams(var Params: TCreateParams);
 begin
   inherited CreateParams(Params);
   Params.Style := Params.Style or WS_VSCROLL;
-end;
-
-destructor TzScrollObjInspectorList.Destroy;
-begin
-
-  inherited;
 end;
 
 function TzScrollObjInspectorList.GetFirstItemIndex: Integer;
@@ -2431,11 +2408,6 @@ begin
   FSelectedIndex := -1;
   if not(csDesigning in ComponentState) then
     RegisterHotKey(Handle, 0, 0, VK_TAB);
-end;
-
-destructor TzCustomObjInspector.Destroy;
-begin
-  inherited;
 end;
 
 function TzCustomObjInspector.DoCollapseItem(PItem: PPropItem): Boolean;
@@ -3026,7 +2998,6 @@ var
   LColor: TColor;
   HorzDotLeft: Integer;
 begin
-
   if Index = GetFirstItemIndex then
   begin
     FPropsNeedHint := False;
@@ -4441,7 +4412,6 @@ end;
 
 class function TzCustomValueManager.HasDialog(const PItem: PPropItem): Boolean;
 begin
-//  Logger.Enter('TzCustomValueManager.HasDialog');
   Result := False;
   case GetValueType(PItem) of
     vtObj:
@@ -4462,12 +4432,10 @@ begin
         Result := True;
       end;
   end;
-//  Logger.Leave('TzCustomValueManager.HasDialog');
 end;
 
 class function TzCustomValueManager.HasList(const PItem: PPropItem): Boolean;
 begin
-//  Logger.Enter('TzCustomValueManager.HasList');
   Result := False;
 
   case GetValueType(PItem) of
@@ -4481,7 +4449,6 @@ begin
         Result := True;
       end;
   end;
-//  Logger.Leave('TzCustomValueManager.HasList');
 end;
 
 class procedure TzCustomValueManager.PaintValue(Canvas: TCanvas; Index: Integer;

@@ -6,14 +6,14 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics, Vcl.Controls,
   BCCommon.Form.Base, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls, BCEditor.Editor, BCEditor.Highlighter,
   BCEditor.Editor.Base, Vcl.Buttons, Vcl.AppEvnts, System.Actions, Vcl.ActnList, BCEditor.Print, BCCommon.Images,
-  BCComponent.SkinProvider, BCComponent.SkinManager, BCControl.Panel, BCControl.StatusBar, BCComponent.TitleBar,
+  BCComponent.SkinManager, BCControl.Panel, BCControl.StatusBar, BCComponent.TitleBar,
   Vcl.Menus, ToolCtrlsEh, DBGridEhToolCtrls, EhLibVCL, DBAxisGridsEh, ObjectInspectorEh, BCControl.Splitter, GridsEh,
   sPanel, BCComponent.MultiStringHolder, sSkinManager, sStatusBar, sSplitter, acTitleBar, sSkinProvider, sDialogs,
   Vcl.StdCtrls, System.Diagnostics, BCCommon.Dialog.Popup.Highlighter, BCCommon.Dialog.Popup.Highlighter.Color,
   sSpeedButton, BCControl.SpeedButton, sComboBox, BCControl.ComboBox, sLabel;
 
 const
-  BCEDITORDEMO_CAPTION = 'TBCEditor Control Demo v1.5.2';
+  BCEDITORDEMO_CAPTION = 'TBCEditor Control Demo v1.6.0';
   TITLE_BAR_CAPTION = 1;
   TITLE_BAR_HIGHLIGHTER = 2;
   TITLE_BAR_COLORS = 4;
@@ -53,6 +53,7 @@ type
     ActionOptions: TAction;
     ActionClose: TAction;
     LabelSearchResultCount: TsLabel;
+    Button1: TButton;
     procedure ActionFileOpenExecute(Sender: TObject);
     procedure ActionPreviewExecute(Sender: TObject);
     procedure ActionSearchExecute(Sender: TObject);
@@ -72,6 +73,7 @@ type
     procedure ActionCloseExecute(Sender: TObject);
     procedure ComboBoxSearchTextChange(Sender: TObject);
     procedure ComboBoxSearchTextKeyPress(Sender: TObject; var Key: Char);
+    procedure Button1Click(Sender: TObject);
   private
     FStopWatch: TStopWatch;
     FPopupHighlighterDialog: TPopupHighlighterDialog;
@@ -127,6 +129,12 @@ begin
   if KeyState[VK_INSERT] = 1 then
     if StatusBar.Panels[1].Text <> 'Overwrite' then
       StatusBar.Panels[1].Text := 'Overwrite';
+end;
+
+procedure TMainForm.Button1Click(Sender: TObject);
+begin
+  inherited;
+  Editor.Lines.add('test'#13#10'test');
 end;
 
 procedure TMainForm.ComboBoxSearchTextChange(Sender: TObject);

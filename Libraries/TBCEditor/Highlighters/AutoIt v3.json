@@ -2,8 +2,8 @@
    "Highlighter": {
       "Info": {
          "General": {
-            "Version": "1.5.2",
-            "Date": "06.05.2016",
+            "Version": "1.6.0",
+            "Date": "21.05.2016",
             "Sample": [
                "MsgBox(64, \"Tutorial\", \"Hello World!\")"
             ]
@@ -606,19 +606,31 @@
                   "OpenToken": "FUNC",
                   "CloseToken": "ENDFUNC"
                },
-							 {
+               {
                   "OpenToken": "IF",
                   "CloseToken": "ENDIF",
-									"Properties": {
+                  "Properties": {
                      "SharedClose": true
                   }
                },
                {
                   "OpenToken": "ELSE",
                   "CloseToken": "ENDIF",
-									"Properties": {
+                  "Properties": {
                      "SharedClose": true
                   }
+               },
+               {
+                  "OpenToken": "FOR",
+                  "CloseToken": "NEXT"
+               },
+							 {
+                  "OpenToken": "WHILE",
+                  "CloseToken": "WEND"
+               },
+							 {
+                  "OpenToken": "DO",
+                  "CloseToken": "UNTIL"
                }
             ]
          }
