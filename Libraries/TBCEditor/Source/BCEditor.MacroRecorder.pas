@@ -122,9 +122,9 @@ type
     function GetIsEmpty: Boolean;
     procedure DoAddEditor(AEditor: TBCBaseEditor);
     procedure DoRemoveEditor(AEditor: TBCBaseEditor);
-    procedure Notification(AComponent: TComponent; aOperation: TOperation); override;
-    procedure OnCommand(ASender: TObject; AAfterProcessing: Boolean; var AHandled: Boolean; var ACommand: TBCEditorCommand;
-      var AChar: Char; AData: Pointer; AHandlerData: Pointer);
+    procedure Notification(aComponent: TComponent; aOperation: TOperation); override;
+    procedure OnCommand(Sender: TObject; AfterProcessing: Boolean; var Handled: Boolean; var Command: TBCEditorCommand;
+      var AChar: Char; Data: Pointer; HandlerData: Pointer);
     procedure SetPlaybackShortCut(const AValue: TShortCut);
     procedure SetRecordShortCut(const AValue: TShortCut);
     procedure StateChanged;
@@ -465,19 +465,19 @@ begin
   end;
 end;
 
-procedure TBCBaseEditorMacroRecorder.OnCommand(ASender: TObject; AAfterProcessing: Boolean; var AHandled: Boolean;
-  var ACommand: TBCEditorCommand; var AChar: Char; AData, AHandlerData: Pointer);
+procedure TBCBaseEditorMacroRecorder.OnCommand(Sender: TObject; AfterProcessing: Boolean; var Handled: Boolean;
+  var Command: TBCEditorCommand; var AChar: Char; Data, HandlerData: Pointer);
 var
   LEvent: TBCEditorMacroEvent;
 begin
-  if AAfterProcessing then
+  if AfterProcessing then
   begin
-    if (ASender = FCurrentEditor) and (State = msRecording) and (not AHandled) then
+    if (Sender = FCurrentEditor) and (State = msRecording) and (not Handled) then
     begin
-      LEvent := CreateMacroEvent(ACommand);
-      LEvent.Initialize(ACommand, AChar, AData);
+      LEvent := CreateMacroEvent(Command);
+      LEvent.Initialize(Command, AChar, Data);
       FEvents.Add(LEvent);
-      if SaveMarkerPos and (ACommand >= ecSetBookmark1) and (ACommand <= ecSetBookmark9) and not Assigned(AData) then
+      if SaveMarkerPos and (Command >= ecSetBookmark1) and (Command <= ecSetBookmark9) and not Assigned(Data) then
         TBCEditorPositionEvent(LEvent).Position := FCurrentEditor.TextCaretPosition;
     end;
   end
@@ -486,36 +486,36 @@ begin
     { not AfterProcessing }
     case State of
       msStopped:
-        if ACommand = RecordCommandID then
+        if Command = RecordCommandID then
         begin
-          RecordMacro(TBCBaseEditor(ASender));
-          AHandled := True;
+          RecordMacro(TBCBaseEditor(Sender));
+          Handled := True;
         end
         else
-        if ACommand = PlaybackCommandID then
+        if Command = PlaybackCommandID then
         begin
-          PlaybackMacro(TBCBaseEditor(ASender));
-          AHandled := True;
+          PlaybackMacro(TBCBaseEditor(Sender));
+          Handled := True;
         end;
       msPlaying:
         ;
       msPaused:
-        if ACommand = PlaybackCommandID then
+        if Command = PlaybackCommandID then
         begin
           Resume;
-          AHandled := True;
+          Handled := True;
         end;
       msRecording:
-        if ACommand = PlaybackCommandID then
+        if Command = PlaybackCommandID then
         begin
           Pause;
-          AHandled := True;
+          Handled := True;
         end
         else
-        if ACommand = RecordCommandID then
+        if Command = RecordCommandID then
         begin
           Stop;
-          AHandled := True;
+          Handled := True;
         end;
     end;
   end;

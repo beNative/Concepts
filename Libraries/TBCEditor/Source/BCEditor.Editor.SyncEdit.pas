@@ -23,7 +23,7 @@ type
     FShortCut: TShortCut;
     FSyncItems: TList;
     FOptions: TBCEditorSyncEditOptions;
-    procedure DoChange(ASender: TObject);
+    procedure DoChange(Sender: TObject);
     procedure SetActive(AValue: Boolean);
     procedure SetActivator(const AValue: TBCEditorGlyph);
   public
@@ -73,7 +73,7 @@ begin
   FOptions := [seCaseSensitive];
   FSyncItems := TList.Create;
   FColors := TBCEditorSyncEditColors.Create;
-  FActivator := TBCEditorGlyph.Create(HInstance, BCEDITOR_SYNCEDIT, clFuchsia);
+  FActivator := TBCEditorGlyph.Create(HINSTANCE, BCEDITOR_SYNCEDIT, clFuchsia);
 end;
 
 destructor TBCEditorSyncEdit.Destroy;
@@ -108,10 +108,10 @@ begin
     inherited Assign(ASource);
 end;
 
-procedure TBCEditorSyncEdit.DoChange(ASender: TObject);
+procedure TBCEditorSyncEdit.DoChange(Sender: TObject);
 begin
   if Assigned(FOnChange) then
-    FOnChange(ASender);
+    FOnChange(Sender);
 end;
 
 procedure TBCEditorSyncEdit.SetActive(AValue: Boolean);

@@ -34,7 +34,6 @@ object frmSynapseSerial: TfrmSynapseSerial
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitHeight = 605
     object splLeftHorizontal: TSplitter
       Left = 0
       Top = 395
@@ -58,13 +57,13 @@ object frmSynapseSerial: TfrmSynapseSerial
         Left = 0
         Top = 0
         Width = 313
-        Height = 137
+        Height = 113
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
         DesignSize = (
           313
-          137)
+          113)
         object lblCOMPort: TLabel
           Left = 3
           Top = 4
@@ -295,7 +294,6 @@ object frmSynapseSerial: TfrmSynapseSerial
             Font.Style = [fsBold]
             ParentFont = False
             TabOrder = 0
-            ExplicitLeft = 4
           end
           object pnlCTS: TPanel
             AlignWithMargins = True
@@ -314,7 +312,6 @@ object frmSynapseSerial: TfrmSynapseSerial
             Font.Style = [fsBold]
             ParentFont = False
             TabOrder = 1
-            ExplicitLeft = 54
           end
           object pnlDTR: TPanel
             AlignWithMargins = True
@@ -333,7 +330,6 @@ object frmSynapseSerial: TfrmSynapseSerial
             Font.Style = [fsBold]
             ParentFont = False
             TabOrder = 2
-            ExplicitLeft = 104
           end
           object pnlDSR: TPanel
             AlignWithMargins = True
@@ -352,7 +348,6 @@ object frmSynapseSerial: TfrmSynapseSerial
             Font.Style = [fsBold]
             ParentFont = False
             TabOrder = 3
-            ExplicitLeft = 154
           end
           object pnlCarrier: TPanel
             AlignWithMargins = True
@@ -371,7 +366,6 @@ object frmSynapseSerial: TfrmSynapseSerial
             Font.Style = [fsBold]
             ParentFont = False
             TabOrder = 4
-            ExplicitLeft = 204
           end
           object pnlRing: TPanel
             AlignWithMargins = True
@@ -403,8 +397,6 @@ object frmSynapseSerial: TfrmSynapseSerial
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitTop = 318
-      ExplicitHeight = 284
       DesignSize = (
         307
         194)
@@ -416,7 +408,6 @@ object frmSynapseSerial: TfrmSynapseSerial
         Action = actSendMultiLine
         Anchors = [akLeft, akRight, akBottom]
         TabOrder = 0
-        ExplicitTop = 258
       end
       object mmoSend: TMemo
         Left = 2
@@ -431,7 +422,6 @@ object frmSynapseSerial: TfrmSynapseSerial
         Font.Style = []
         ParentFont = False
         TabOrder = 1
-        ExplicitHeight = 253
       end
     end
   end
@@ -450,8 +440,6 @@ object frmSynapseSerial: TfrmSynapseSerial
     Font.Style = []
     ParentFont = False
     TabOrder = 1
-    ExplicitWidth = 612
-    ExplicitHeight = 605
     object splRightHorizontal: TSplitter
       Left = 0
       Top = 280
@@ -477,7 +465,6 @@ object frmSynapseSerial: TfrmSynapseSerial
       Font.Style = []
       ParentFont = False
       TabOrder = 0
-      ExplicitWidth = 612
       object pnlSent: TPanel
         AlignWithMargins = True
         Left = 3
@@ -498,7 +485,6 @@ object frmSynapseSerial: TfrmSynapseSerial
         ParentFont = False
         TabOrder = 0
         StyleElements = [seFont, seBorder]
-        ExplicitWidth = 606
         object btnClearSent: TSpeedButton
           Left = 565
           Top = 0
@@ -526,7 +512,6 @@ object frmSynapseSerial: TfrmSynapseSerial
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitWidth = 612
         object cbxSent: TComboBox
           Left = 3
           Top = 2
@@ -556,7 +541,6 @@ object frmSynapseSerial: TfrmSynapseSerial
           Align = alRight
           Default = True
           TabOrder = 1
-          ExplicitLeft = 539
         end
       end
       object pgcSent: TPageControl
@@ -573,7 +557,6 @@ object frmSynapseSerial: TfrmSynapseSerial
         Font.Style = []
         ParentFont = False
         TabOrder = 2
-        ExplicitWidth = 612
         object tsSentLog: TTabSheet
           Caption = 'Log'
           Font.Charset = DEFAULT_CHARSET
@@ -582,7 +565,6 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          ExplicitWidth = 604
         end
         object tsSentText: TTabSheet
           Caption = 'Text'
@@ -593,7 +575,6 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
-          ExplicitWidth = 604
           object mmoSentText: TMemo
             Left = 0
             Top = 0
@@ -612,7 +593,6 @@ object frmSynapseSerial: TfrmSynapseSerial
             PopupMenu = ppmReceivedText
             ScrollBars = ssVertical
             TabOrder = 0
-            ExplicitWidth = 604
           end
         end
       end
@@ -631,8 +611,6 @@ object frmSynapseSerial: TfrmSynapseSerial
       Font.Style = []
       ParentFont = False
       TabOrder = 1
-      ExplicitWidth = 612
-      ExplicitHeight = 319
       object pnlReceived: TPanel
         AlignWithMargins = True
         Left = 3
@@ -653,7 +631,6 @@ object frmSynapseSerial: TfrmSynapseSerial
         ParentFont = False
         TabOrder = 0
         StyleElements = [seFont, seBorder]
-        ExplicitWidth = 606
         object btnClearReceived: TSpeedButton
           Left = 565
           Top = 0
@@ -687,8 +664,6 @@ object frmSynapseSerial: TfrmSynapseSerial
         Font.Style = []
         ParentFont = False
         TabOrder = 1
-        ExplicitWidth = 612
-        ExplicitHeight = 293
         object tsReceivedLog: TTabSheet
           Caption = 'Log'
           Font.Charset = DEFAULT_CHARSET
@@ -697,8 +672,6 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          ExplicitWidth = 604
-          ExplicitHeight = 265
         end
         object tsReceivedText: TTabSheet
           Caption = 'Text'
@@ -709,8 +682,6 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
-          ExplicitWidth = 604
-          ExplicitHeight = 265
           object mmoReceivedText: TMemo
             Left = 0
             Top = 0
@@ -728,8 +699,6 @@ object frmSynapseSerial: TfrmSynapseSerial
             ParentFont = False
             ScrollBars = ssVertical
             TabOrder = 0
-            ExplicitWidth = 604
-            ExplicitHeight = 265
           end
         end
       end

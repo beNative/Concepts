@@ -1,8 +1,7 @@
-//FI:Ignore
 (*****************************************************************************
 The MIT License (MIT)
 
-Copyright (c) 2015-2016 Andreas Hausladen
+Copyright (c) 2015 Andreas Hausladen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,30 +30,24 @@ SOFTWARE.
 
 unit BCEditor.JsonDataObjects;
 
+
 {$IFDEF VER200}
   // Delphi 2009's ErrorInsight parser uses the CompilerVersion's memory address instead of 20.0, failing all the
   // IF CompilerVersion compiler directives
   {$DEFINE CPUX86}
 {$ELSE}
-  {$IF CompilerVersion >= 24.0} // XE3 or newer
+  {$IF CompilerVersion >= 24.0} // XE3 and newer
     {$LEGACYIFEND ON}
   {$IFEND}
   {$IF CompilerVersion >= 23.0}
     {$DEFINE HAS_UNIT_SCOPE}
     {$DEFINE HAS_RETURN_ADDRESS}
   {$IFEND}
-  {$IF CompilerVersion <= 22.0} // XE or older
+  {$IF CompilerVersion <= 22.0} // XE and older
     {$DEFINE CPUX86}
   {$IFEND}
 {$ENDIF VER200}
 
-{$IFDEF NEXTGEN}
-  {$IF CompilerVersion >= 31.0} // 10.1 Berlin or newer
-    {$DEFINE SUPPORTS_UTF8STRING} // Delphi 10.1 Berlin supports UTF8String for mobile compilers
-  {$IFEND}
-{$ELSE}
-  {$DEFINE SUPPORTS_UTF8STRING}
-{$ENDIF}
 
 // Enables the progress callback feature
 {$DEFINE SUPPORT_PROGRESS}
@@ -76,7 +69,7 @@ unit BCEditor.JsonDataObjects;
 // and seals the TJsonArray and TJsonObject classes because it isn't safe to derive from them.
 {$DEFINE USE_FAST_NEWINSTANCE}
 
-//{$IF CompilerVersion < 28.0} // XE6 or older
+//{$IF CompilerVersion < 28.0} // XE6 and older
   // The XE7 compiler is broken. It doesn't collapse duplicate string literals anymore. (RSP-10015)
   // But if the string literals are used in loops this optimization still helps.
 
@@ -125,12 +118,6 @@ type
   TJsonBaseObject = class;
   TJsonObject = class;
   TJsonArray = class;
-
-  {$IFDEF NEXTGEN}
-  // Mobile compilers have PAnsiChar but it is hidden and then published under a new name. This alias
-  // allows us to remove some IFDEFs.
-  PAnsiChar = MarshaledAString;
-  {$ENDIF NEXTGEN}
 
   EJsonException = class(Exception);
   EJsonCastException = class(EJsonException);
@@ -229,7 +216,7 @@ type
 
     procedure Indent(const S: string);
     procedure Unindent(const S: string);
-    procedure AppendIntro(P: PChar; Len: Integer);
+    procedure AppendIntro(P: PChar; Len: Integer); overload;
     procedure AppendValue(const S: string); overload;
     procedure AppendValue(P: PChar; Len: Integer); overload;
     procedure AppendStrValue(P: PChar; Len: Integer);
@@ -478,11 +465,11 @@ type
     // ParseXxx returns nil if the JSON string is empty or consists only of white chars.
     // If the JSON string starts with a "[" then the returned object is a TJsonArray otherwise
     // it is a TJsonObject.
+    {$IFNDEF NEXTGEN}
     class function ParseUtf8(S: PAnsiChar; Len: Integer = -1{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec = nil{$ENDIF}): TJsonBaseObject; overload; static; inline;
-    {$IFDEF SUPPORTS_UTF8STRING}
     class function ParseUtf8(const S: UTF8String{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec = nil{$ENDIF}): TJsonBaseObject; overload; static; inline;
-    {$ENDIF SUPPORTS_UTF8STRING}
-    class function ParseUtf8Bytes(S: PByte; Len: Integer = -1{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec = nil{$ENDIF}): TJsonBaseObject; static;
+    {$ENDIF ~NEXTGEN}
+    class function ParseUtf8Bytes(S: PByte; Len: Integer = -1{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec = nil{$ENDIF}): TJsonBaseObject; overload; static;
     class function Parse(S: PWideChar; Len: Integer = -1{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec = nil{$ENDIF}): TJsonBaseObject; overload; static;
     class function Parse(const S: UnicodeString{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec = nil{$ENDIF}): TJsonBaseObject; overload; static; inline;
     class function Parse(const Bytes: TBytes; Encoding: TEncoding = nil; ByteIndex: Integer = 0;
@@ -498,19 +485,19 @@ type
 
     // FromXxxJSON() raises an EJsonParserException if you try to parse an array JSON string into a
     // TJsonObject or a object JSON string into a TJsonArray.
-    {$IFDEF SUPPORTS_UTF8STRING}
+    {$IFNDEF NEXTGEN}
     procedure FromUtf8JSON(const S: UTF8String{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec = nil{$ENDIF}); overload; inline;
-    {$ENDIF SUPPORTS_UTF8STRING}
     procedure FromUtf8JSON(S: PAnsiChar; Len: Integer = -1{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec = nil{$ENDIF}); overload; inline;
+    {$ENDIF ~NEXTGEN}
     procedure FromUtf8JSON(S: PByte; Len: Integer = -1{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec = nil{$ENDIF}); overload;
     procedure FromJSON(const S: UnicodeString{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec = nil{$ENDIF}); overload;
     procedure FromJSON(S: PWideChar; Len: Integer = -1{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec = nil{$ENDIF}); overload;
 
     function ToJSON(Compact: Boolean = True): string;
-    {$IFDEF SUPPORTS_UTF8STRING}
+    {$IFNDEF NEXTGEN}
     function ToUtf8JSON(Compact: Boolean = True): UTF8String; overload;
-    {$ENDIF SUPPORTS_UTF8STRING}
-    procedure ToUtf8JSON(var Bytes: TBytes; Compact: Boolean = True); {$IFDEF SUPPORTS_UTF8STRING}overload;{$ENDIF}
+    {$ENDIF ~NEXTGEN}
+    procedure ToUtf8JSON(var Bytes: TBytes; Compact: Boolean = True); overload;
     // ToString() returns a compact JSON string
     function ToString: string; override;
 
@@ -814,7 +801,8 @@ uses
   {$ENDIF HAS_UNIT_SCOPE}
 
 {$IF SizeOf(LongWord) <> 4}
-// Make LongWord on all platforms a UInt32.
+// Make LongWord on all platforms a UInt32. Why does the programming language need to use a different
+// interpretation for different platforms. This makes working with it a mess.
 type
   LongWord = UInt32;
   PLongWord = ^LongWord;
@@ -976,7 +964,7 @@ type
     procedure FreeInstance; override;
     {$ENDIF USE_FAST_NEWINSTANCE}
 
-    constructor Create(AStart: Pointer{$IFDEF SUPPORT_PROGRESS}; ASize: NativeInt; AProgress: PJsonReaderProgressRec{$ENDIF});
+    constructor Create(AStart: Pointer; {$IFDEF SUPPORT_PROGRESS}ASize: NativeInt; AProgress: PJsonReaderProgressRec{$ENDIF});
     destructor Destroy; override;
     procedure Parse(Data: TJsonBaseObject);
   end;
@@ -1015,7 +1003,7 @@ type
 
   TMemoryStreamAccess = class(TMemoryStream);
 
-  {$IFDEF SUPPORTS_UTF8STRING}
+  {$IFNDEF NEXTGEN}
   TJsonUTF8StringStream = class(TMemoryStream)
   private
     FDataString: UTF8String;
@@ -1025,7 +1013,7 @@ type
     constructor Create;
     property DataString: UTF8String read FDataString;
   end;
-  {$ENDIF SUPPORTS_UTF8STRING}
+  {$ENDIF ~NEXTGEN}
 
   TJsonBytesStream = class(TMemoryStream)
   private
@@ -1465,7 +1453,7 @@ begin
     Exit;
   SetLength(S, Len);
 
-  L := Utf8ToUnicode(PWideChar(Pointer(S)), Len + 1, PAnsiChar(P), Len);
+  L := Utf8ToUnicode(PWideChar(Pointer(S)), Len + 1, {$IFDEF NEXTGEN}Pointer(P){$ELSE}PAnsiChar(P){$ENDIF}, Len);
   if L > 0 then
   begin
     if L - 1 <> Len then
@@ -1495,7 +1483,7 @@ begin
   OldLen := Length(S);
   SetLength(S, OldLen + Len);
 
-  L := Utf8ToUnicode(PWideChar(Pointer(S)) + OldLen, Len + 1, PAnsiChar(P), Len);
+  L := Utf8ToUnicode(PWideChar(Pointer(S)) + OldLen, Len + 1, {$IFDEF NEXTGEN}Pointer(P){$ELSE}PAnsiChar(P){$ENDIF}, Len);
   if L > 0 then
   begin
     if L - 1 <> Len then
@@ -1536,7 +1524,7 @@ begin
 end;
 {$ENDIF ~USE_FAST_NEWINSTANCE}
 
-constructor TJsonReader.Create(AStart: Pointer{$IFDEF SUPPORT_PROGRESS}; ASize: NativeInt; AProgress: PJsonReaderProgressRec{$ENDIF});
+constructor TJsonReader.Create(AStart: Pointer; {$IFDEF SUPPORT_PROGRESS}ASize: NativeInt; AProgress: PJsonReaderProgressRec{$ENDIF});
 begin
   //inherited Create;
   {$IFDEF USE_FAST_NEWINSTANCE}
@@ -2840,17 +2828,17 @@ begin
   end;
 end;
 
-class function TJsonBaseObject.ParseUtf8(S: PAnsiChar; Len: Integer{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec{$ENDIF}): TJsonBaseObject;
-begin
-  Result := ParseUtf8Bytes(PByte(S), Len{$IFDEF SUPPORT_PROGRESS}, AProgress{$ENDIF});
-end;
-
-{$IFDEF SUPPORTS_UTF8STRING}
+{$IFNDEF NEXTGEN}
 class function TJsonBaseObject.ParseUtf8(const S: UTF8String{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec{$ENDIF}): TJsonBaseObject;
 begin
   Result := ParseUtf8Bytes(PByte(S), Length(S){$IFDEF SUPPORT_PROGRESS}, AProgress{$ENDIF});
 end;
-{$ENDIF SUPPORTS_UTF8STRING}
+
+class function TJsonBaseObject.ParseUtf8(S: PAnsiChar; Len: Integer{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec{$ENDIF}): TJsonBaseObject;
+begin
+  Result := ParseUtf8Bytes(PByte(S), Len{$IFDEF SUPPORT_PROGRESS}, AProgress{$ENDIF});
+end;
+{$ENDIF ~NEXTGEN}
 
 class function TJsonBaseObject.ParseUtf8Bytes(S: PByte; Len: Integer{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec{$ENDIF}): TJsonBaseObject;
 var
@@ -2867,7 +2855,7 @@ begin
       Len := Utf8StrLen(S);
       {$ELSE}
       Len := StrLen(PAnsiChar(S));
-      {$ENDIF NEXTGEN}
+      {$ENDIF ~NEXTGEN}
     end;
     P := S;
     L := Len;
@@ -3010,17 +2998,17 @@ begin
   end;
 end;
 
-{$IFDEF SUPPORTS_UTF8STRING}
+{$IFNDEF NEXTGEN}
 procedure TJsonBaseObject.FromUtf8JSON(const S: UTF8String{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec{$ENDIF});
 begin
   FromUtf8JSON(PAnsiChar(Pointer(S)), Length(S){$IFDEF SUPPORT_PROGRESS}, AProgress{$ENDIF});
 end;
-{$ENDIF SUPPORTS_UTF8STRING}
 
 procedure TJsonBaseObject.FromUtf8JSON(S: PAnsiChar; Len: Integer{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec{$ENDIF});
 begin
   FromUtf8JSON(PByte(S), Len{$IFDEF SUPPORT_PROGRESS}, AProgress{$ENDIF});
 end;
+{$ENDIF ~NEXTGEN}
 
 procedure TJsonBaseObject.FromUtf8JSON(S: PByte; Len: Integer{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec{$ENDIF});
 var
@@ -3032,7 +3020,7 @@ begin
     Len := Utf8StrLen(S);
     {$ELSE}
     Len := StrLen(PAnsiChar(S));
-    {$ENDIF NEXTGEN}
+    {$ENDIF ~NEXTGEN}
   end;
   Reader := TUtf8JsonReader.Create(S, Len{$IFDEF SUPPORT_PROGRESS}, AProgress{$ENDIF});
   try
@@ -3112,7 +3100,7 @@ begin
         if (Stream is THandleStream) and (Size > MaxBufSize) then
         begin
           ReadCount := Size;
-          // Read in 20 MB blocks to work around a network limitation in Windows 2003 or older (INSUFFICIENT RESOURCES)
+          // Read in 20 MB blocks to work around a network limitation in Windows 2003 and older (INSUFFICIENT RESOURCES)
           while ReadCount > 0 do
           begin
             ReadBufSize := ReadCount;
@@ -3278,7 +3266,7 @@ begin
   end;
 end;
 
-{$IFDEF SUPPORTS_UTF8STRING}
+{$IFNDEF NEXTGEN}
 function TJsonBaseObject.ToUtf8JSON(Compact: Boolean = True): UTF8String;
 var
   Stream: TJsonUtf8StringStream;
@@ -3295,7 +3283,7 @@ begin
   if Length(Result) <> Size then
     SetLength(Result, Size);
 end;
-{$ENDIF SUPPORTS_UTF8STRING}
+{$ENDIF ~NEXTGEN}
 
 procedure TJsonBaseObject.ToUtf8JSON(var Bytes: TBytes; Compact: Boolean = True);
 var
@@ -5540,7 +5528,7 @@ end;
 
 constructor TUtf8JsonReader.Create(S: PByte; Len: NativeInt{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec{$ENDIF});
 begin
-  inherited Create(S{$IFDEF SUPPORT_PROGRESS}, Len * SizeOf(Byte), AProgress{$ENDIF});
+  inherited Create(S, {$IFDEF SUPPORT_PROGRESS}Len * SizeOf(Byte), AProgress{$ENDIF});
   FText := S;
   FTextEnd := S + Len;
 end;
@@ -5559,11 +5547,7 @@ var
 begin
   P := FText;
   EndP := FTextEnd;
-  {$IF CompilerVersion <= 30.0} // Delphi 10 Seattle or older
-    {$IFNDEF CPUX64}
   Ch := 0; // silence compiler warning
-    {$ENDIF ~CPUX64}
-  {$IFEND}
   while True do
   begin
     while True do
@@ -6105,7 +6089,7 @@ end;
 
 constructor TStringJsonReader.Create(S: PChar; Len: Integer{$IFDEF SUPPORT_PROGRESS}; AProgress: PJsonReaderProgressRec{$ENDIF});
 begin
-  inherited Create(S{$IFDEF SUPPORT_PROGRESS}, Len * SizeOf(WideChar), AProgress{$ENDIF});
+  inherited Create(S, {$IFDEF SUPPORT_PROGRESS}Len * SizeOf(WideChar), AProgress{$ENDIF});
   FText := S;
   FTextEnd := S + Len;
 end;
@@ -7742,7 +7726,7 @@ end;
 
 { TJsonUTF8StringStream }
 
-{$IFDEF SUPPORTS_UTF8STRING}
+{$IFNDEF NEXTGEN}
 constructor TJsonUTF8StringStream.Create;
 begin
   inherited Create;
@@ -7777,7 +7761,7 @@ begin
   end;
   Result := Pointer(FDataString);
 end;
-{$ENDIF SUPPORTS_UTF8STRING}
+{$ENDIF ~NEXTGEN}
 
 { TJsonBytesStream }
 

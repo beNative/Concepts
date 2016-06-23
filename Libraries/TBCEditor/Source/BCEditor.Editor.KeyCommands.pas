@@ -16,7 +16,7 @@ const
   ecDown = 4;
   ecWordLeft = 5;
   ecWordRight = 6;
-  ecLineBegin = 7;
+  ecLineStart = 7;
   ecLineEnd = 8;
   ecPageUp = 9;
   ecPageDown = 10;
@@ -35,7 +35,7 @@ const
   ecSelectionDown = ecDown + ecSelection;
   ecSelectionWordLeft = ecWordLeft + ecSelection;
   ecSelectionWordRight = ecWordRight + ecSelection;
-  ecSelectionLineBegin = ecLineBegin + ecSelection;
+  ecSelectionLineStart = ecLineStart + ecSelection;
   ecSelectionLineEnd = ecLineEnd + ecSelection;
   ecSelectionPageUp = ecPageUp + ecSelection;
   ecSelectionPageDown = ecPageDown + ecSelection;
@@ -145,9 +145,9 @@ const
 type
   TBCEditorCommand = type Word;
 
-  TBCEditorHookedCommandEvent = procedure(ASender: TObject; AAfterProcessing: Boolean; var AHandled: Boolean;
+  TBCEditorHookedCommandEvent = procedure(Sender: TObject; AfterProcessing: Boolean; var AHandled: Boolean;
     var ACommand: TBCEditorCommand; var AChar: Char; Data: Pointer; AHandlerData: Pointer) of object;
-  TBCEditorProcessCommandEvent = procedure(ASender: TObject; var ACommand: TBCEditorCommand; var AChar: Char;
+  TBCEditorProcessCommandEvent = procedure(Sender: TObject; var ACommand: TBCEditorCommand; var AChar: Char;
     AData: Pointer) of object;
 
   TBCEditorHookedCommandHandler = class(TObject)
@@ -239,7 +239,7 @@ const
     (Value: ecDown; Name: 'ecDown'),
     (Value: ecWordLeft; Name: 'ecWordLeft'),
     (Value: ecWordRight; Name: 'ecWordRight'),
-    (Value: ecLineBegin; Name: 'ecLineBegin'),
+    (Value: ecLineStart; Name: 'ecLineStart'),
     (Value: ecLineEnd; Name: 'ecLineEnd'),
     (Value: ecPageUp; Name: 'ecPageUp'),
     (Value: ecPageDown; Name: 'ecPageDown'),
@@ -256,7 +256,7 @@ const
     (Value: ecSelectionDown; Name: 'ecSelectionDown'),
     (Value: ecSelectionWordLeft; Name: 'ecSelectionWordLeft'),
     (Value: ecSelectionWordRight; Name: 'ecSelectionWordRight'),
-    (Value: ecSelectionLineBegin; Name: 'ecSelectionLineBegin'),
+    (Value: ecSelectionLineStart; Name: 'ecSelectionLineStart'),
     (Value: ecSelectionLineEnd; Name: 'ecSelectionLineEnd'),
     (Value: ecSelectionPageUp; Name: 'ecSelectionPageUp'),
     (Value: ecSelectionPageDown; Name: 'ecSelectionPageDown'),
@@ -645,8 +645,8 @@ begin
   Add(ecSelectionPageUp, [ssShift], VK_PRIOR);
   Add(ecPageTop, [ssCtrl], VK_PRIOR);
   Add(ecSelectionPageTop, [ssShift, ssCtrl], VK_PRIOR);
-  Add(ecLineBegin, [], VK_HOME);
-  Add(ecSelectionLineBegin, [ssShift], VK_HOME);
+  Add(ecLineStart, [], VK_HOME);
+  Add(ecSelectionLineStart, [ssShift], VK_HOME);
   Add(ecEditorTop, [ssCtrl], VK_HOME);
   Add(ecSelectionEditorTop, [ssShift, ssCtrl], VK_HOME);
   Add(ecLineEnd, [], VK_END);

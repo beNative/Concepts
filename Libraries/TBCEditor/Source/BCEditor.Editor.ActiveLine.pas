@@ -12,7 +12,7 @@ type
     FIndicator: TBCEditorGlyph;
     FOnChange: TNotifyEvent;
     FVisible: Boolean;
-    procedure DoChange(ASender: TObject);
+    procedure DoChange(Sender: TObject);
     procedure SetColor(const AValue: TColor);
     procedure SetIndicator(const AValue: TBCEditorGlyph);
     procedure SetOnChange(AValue: TNotifyEvent);
@@ -37,7 +37,7 @@ begin
   inherited;
 
   FColor := clActiveLineBackground;
-  FIndicator := TBCEditorGlyph.Create(HInstance, BCEDITOR_ACTIVE_LINE, clFuchsia);
+  FIndicator := TBCEditorGlyph.Create(HINSTANCE, BCEDITOR_ACTIVE_LINE, clFuchsia);
   FIndicator.Visible := False;
   FVisible := True;
 end;
@@ -69,10 +69,10 @@ begin
   FIndicator.OnChange := AValue;
 end;
 
-procedure TBCEditorActiveLine.DoChange(ASender: TObject);
+procedure TBCEditorActiveLine.DoChange(Sender: TObject);
 begin
   if Assigned(FOnChange) then
-    FOnChange(ASender);
+    FOnChange(Sender);
 end;
 
 procedure TBCEditorActiveLine.SetColor(const AValue: TColor);

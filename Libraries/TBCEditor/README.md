@@ -1,15 +1,16 @@
-Version 1.6.0. Use the Issues page to report bugs or send them directly to lasse@bonecode.com.
+Version 1.5.2. Use the Issues page to report bugs or send them directly to lasse@bonecode.com.
 
 <b>Note!</b> Current trunk should never be considered as a stable version. Use the latest <a href="https://github.com/bonecode/TBCEditor/releases">release</a> version instead. 
 
 <h3>Description</h3>
 
-A syntax highlighting edit control for RAD Studio (Delphi/C++ Builder) with code folding, completion proposal, matching pair, minimap, sync edit, multi-caret editing, word wrap, etc. External highlighter and color scheme files are in JSON format which can be also loaded from a stream.
+A syntax highlighting edit control for RAD Studio (Delphi/C++ Builder) with code folding, completion proposal, matching pair, minimap, sync edit, word wrap, etc. External highlighter and color scheme files are in JSON format which can be also loaded from a stream.
 
 <h3>Build requirements</h3>
 
 * <a href="https://github.com/ahausladen/JsonDataObjects">Json Data Objects</a> (included)
 * Delphi versions XE4, XE5, XE6, XE7, XE8, Seattle, and Berlin are supported 
+* Delphi XE7: Update 1 required
 * C++ Builder versions XE7, XE8, and Seattle are supported
 
 <b>Note!</b> Do not offer me older versions to support. I don't have time to keep up with those.
@@ -37,12 +38,12 @@ USE_VCL_STYLES | Use VCL styles. A set of graphical details that define the look
 
 <h3>Demo</h3>
 
-TBCEditor Control Demo v. 1.6.0. 
+TBCEditor Control Demo v. 1.5.2. 
 
   * <a href="http://www.bonecode.com/downloads/BCEditorComponentDemo32.zip">32-bit Windows</a>
   * <a href="http://www.bonecode.com/downloads/BCEditorComponentDemo64.zip">64-bit Windows</a>
 
-The latest update: 29.05.2016 20:35, UTC+02:00
+The latest update: 21.03.2016 17:33, UTC+02:00
 
 Demo source build requires 
 

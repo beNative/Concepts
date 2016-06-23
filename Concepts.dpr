@@ -407,8 +407,6 @@ uses
   BCEditor.Highlighter.Import.JSON in 'Libraries\TBCEditor\Source\BCEditor.Highlighter.Import.JSON.pas',
   BCEditor.Editor.SyncEdit in 'Libraries\TBCEditor\Source\BCEditor.Editor.SyncEdit.pas',
   BCEditor.Editor.SyncEdit.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.SyncEdit.Colors.pas',
-  BCEditor.Editor.Caret.MultiEdit in 'Libraries\TBCEditor\Source\BCEditor.Editor.Caret.MultiEdit.pas',
-  BCEditor.Editor.Caret.MultiEdit.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.Caret.MultiEdit.Colors.pas',
   BCEditor.Export.HTML in 'Libraries\TBCEditor\Source\BCEditor.Export.HTML.pas',
   {$ENDIF }
   Concepts.BCEditor.Form in 'Forms\Concepts.BCEditor.Form.pas' {frmBCEditor},

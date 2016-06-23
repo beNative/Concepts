@@ -17,7 +17,7 @@ type
     FStyle: TBCEditorWordWrapStyle;
     procedure CreateInternalBitmap;
     procedure DoChange;
-    procedure OnColorsChange(ASender: TObject);
+    procedure OnColorsChange(Sender: TObject);
     procedure SetColors(const AValue: TBCEditorWordWrapColors);
     procedure SetEnabled(const AValue: Boolean);
     procedure SetIndicator(const AValue: TBCEditorGlyph);
@@ -49,7 +49,7 @@ begin
 
   FEnabled := False;
   FPosition := 80;
-  FIndicator := TBCEditorGlyph.Create(HInstance, '', clFuchsia);
+  FIndicator := TBCEditorGlyph.Create(HINSTANCE, '', clFuchsia);
   CreateInternalBitmap;
   FStyle := wwsClientWidth;
 end;
@@ -167,7 +167,7 @@ begin
   FColors.Assign(AValue);
 end;
 
-procedure TBCEditorWordWrap.OnColorsChange(ASender: TObject);
+procedure TBCEditorWordWrap.OnColorsChange(Sender: TObject);
 begin
   CreateInternalBitmap;
 end;

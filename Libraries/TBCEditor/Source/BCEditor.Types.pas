@@ -12,33 +12,31 @@ type
 
   TBCEditorCaretStyle = (csVerticalLine, csThinVerticalLine, csHorizontalLine, csThinHorizontalLine, csHalfBlock, csBlock);
 
-  TBCEditorCompletionProposalEvent = procedure(Sender: TObject; AItems: TStrings; const AInput: string) of object;
+  TBCEditorDropFilesEvent = procedure(Sender: TObject; Pos: TPoint; AFiles: TStrings) of object;
 
-  TBCEditorDropFilesEvent = procedure(ASender: TObject; APos: TPoint; AFiles: TStrings) of object;
-
-  TBCEditorPaintEvent = procedure(ASender: TObject; ACanvas: TCanvas) of object;
+  TBCEditorPaintEvent = procedure(Sender: TObject; ACanvas: TCanvas) of object;
 
   TBCEditorReplaceAction = (raCancel, raSkip, raReplace, raReplaceAll);
 
-  TBCEditorReplaceTextEvent = procedure(ASender: TObject; const ASearch, AReplace: string; ALine, AColumn: Integer;
+  TBCEditorReplaceTextEvent = procedure(Sender: TObject; const ASearch, AReplace: string; ALine, AColumn: Integer;
     ADeleteLine: Boolean; var AAction: TBCEditorReplaceAction) of object;
 
-  TBCEditorScrollEvent = procedure(ASender: TObject; AScrollBar: TScrollBarKind) of object;
+  TBCEditorScrollEvent = procedure(Sender: TObject; ScrollBar: TScrollBarKind) of object;
 
-  TBCEditorCaretChangedEvent = procedure(ASender: TObject; X, Y: Integer) of object;
+  TBCEditorCaretChangedEvent = procedure(Sender: TObject; X, Y: Integer) of object;
 
-  TBCEditorBookmarkPanelPaintEvent = procedure(ASender: TObject; ACanvas: TCanvas; ARect: TRect; AFirstLine: Integer; ALastLine: Integer) of object;
-  TBCEditorBookmarkPanelLinePaintEvent = procedure(ASender: TObject; ACanvas: TCanvas; ARect: TRect; ALineNumber: Integer) of object;
+  TBCEditorBookmarkPanelPaintEvent = procedure(Sender: TObject; ACanvas: TCanvas; ARect: TRect; AFirstLine: Integer; ALastLine: Integer) of object;
+  TBCEditorBookmarkPanelLinePaintEvent = procedure(Sender: TObject; ACanvas: TCanvas; ARect: TRect; ALineNumber: Integer) of object;
 
-  TBCEditorLinePaintEvent = procedure(ASender: TObject; ACanvas: TCanvas; ARect: TRect; ALineNumber: Integer; const AIsMinimapLine: Boolean) of object;
+  TBCEditorLinePaintEvent = procedure(Sender: TObject; ACanvas: TCanvas; ARect: TRect; ALineNumber: Integer; const AIsMinimapLine: Boolean) of object;
 
-  TBCEditorCustomLineColorsEvent = procedure(ASender: TObject; ALine: Integer; var AUseColors: Boolean;
+  TBCEditorCustomLineColorsEvent = procedure(Sender: TObject; ALine: Integer; var AUseColors: Boolean;
     var AForeground: TColor; var ABackground: TColor) of object;
 
-  TBCEditorCustomTokenAttributeEvent = procedure(ASender: TObject; const AText: string; const ALine: Integer;
+  TBCEditorCustomTokenAttributeEvent = procedure(Sender: TObject; const AText: string; const ALine: Integer;
     const APosition: Integer; var AForegroundColor: TColor; var ABackgroundColor: TColor; var AStyles: TFontStyles) of object;
 
-  TBCEditorCreateFileStreamEvent = procedure(ASender: TObject; const AFileName: string; var AStream: TStream) of object;
+  TBCEditorCreateFileStreamEvent = procedure(Sender: TObject; const AFileName: string; var AStream: TStream) of object;
 
   TBCEditorStateFlag = (sfCaretChanged, sfScrollBarChanged, sfLinesChanging, sfIgnoreNextChar, sfCaretVisible, sfDblClicked,
     sfWaitForDragging, sfCodeFoldingInfoClicked, sfInSelection, sfDragging);
@@ -53,15 +51,9 @@ type
   TBCEditorOptions = set of TBCEditorOption;
 
   TBCEditorCaretOption = (
-    coRightMouseClickMove { When clicking with the right mouse for a popup menu, move the cursor to that location }
+    coRightMouseClickMovesCaret { When clicking with the right mouse for a popup menu, move the cursor to that location }
   );
   TBCEditorCaretOptions = set of TBCEditorCaretOption;
-
-  TBCEditorCaretMultiEditOption = (
-    meoShowActiveLine,
-    meoShowGhost { Ghost caret follows mouse cursor when moved }
-  );
-  TBCEditorCaretMultiEditOptions = set of TBCEditorCaretMultiEditOption;
 
   TBCEditorScrollOption = (
     soAutosizeMaxWidth, { Automatically resizes the MaxScrollWidth property when inserting text }
@@ -90,10 +82,8 @@ type
 
   TBCEditorSelectionOption = (
     soALTSetsColumnMode,
-    soExpandRealNumbers,
     soFromEndOfLine,
     soHighlightSimilarTerms,
-    soTermsCaseSensitive,
     soToEndOfLastLine,
     soToEndOfLine,
     soTripleClickRowSelect
@@ -183,7 +173,6 @@ type
     Column: Integer;
     Row: Integer;
   end;
-  PBCEditorDisplayPosition = ^TBCEditorDisplayPosition;
 
   TBCEditorMatchingPairTokenMatch = record
     Position: TBCEditorTextPosition;
@@ -240,11 +229,11 @@ type
     TokenAttribute: TBCEditorHighlighterAttribute;
   end;
 
-  TBCEditorKeyPressWEvent = procedure(ASender: TObject; var AKey: Char) of object;
+  TBCEditorKeyPressWEvent = procedure(Sender: TObject; var Key: Char) of object;
 
-  TBCEditorContextHelpEvent = procedure(ASender: TObject; AWord: string) of object;
+  TBCEditorContextHelpEvent = procedure(Sender: TObject; Word: string) of object;
 
-  TBCEditorMouseCursorEvent = procedure(ASender: TObject; const ALineCharPos: TBCEditorTextPosition; var ACursor: TCursor) of object;
+  TBCEditorMouseCursorEvent = procedure(Sender: TObject; const aLineCharPos: TBCEditorTextPosition; var aCursor: TCursor) of object;
 
   TBCEditorTokenHelper = record
     Position: Integer;
@@ -275,7 +264,7 @@ type
   TBCEditorByteArray = array of Byte;
   PBCEditorByteArray = ^TBCEditorByteArray; { Can't use System.SysUtils PByteArray because it isn't dynamic }
 
-  TBCEditorTabConvertProc = function(const ALine: string; ATabWidth: Integer; var AHasTabs: Boolean): string;
+  TBCEditorTabConvertProc = function(const Line: string; TabWidth: Integer; var HasTabs: Boolean): string;
 
   TBCEditorLeftMarginLineNumberOption = (
     lnoIntens,
