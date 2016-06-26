@@ -444,6 +444,7 @@ uses
   DDuce.WinIPC.Client in 'Libraries\DDuce\DDuce.WinIPC.Client.pas',
   DDuce.WinIPC.Server in 'Libraries\DDuce\DDuce.WinIPC.Server.pas',
   Concepts.ZeroMQ.Data in 'Forms\Concepts.ZeroMQ.Data.pas',
+  Concepts.Settings in 'Concepts.Settings.pas',
   DDuce.Logger.Base in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Base.pas',
   DDuce.Logger.Channels.Base in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.Base.pas',
   DDuce.Logger.Channels.LogFile in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.LogFile.pas',

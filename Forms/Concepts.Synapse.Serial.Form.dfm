@@ -36,7 +36,7 @@ object frmSynapseSerial: TfrmSynapseSerial
     TabOrder = 0
     object splLeftHorizontal: TSplitter
       Left = 0
-      Top = 395
+      Top = 337
       Width = 313
       Height = 6
       Cursor = crVSplit
@@ -49,7 +49,7 @@ object frmSynapseSerial: TfrmSynapseSerial
       Left = 0
       Top = 0
       Width = 313
-      Height = 395
+      Height = 337
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 0
@@ -149,6 +149,7 @@ object frmSynapseSerial: TfrmSynapseSerial
           Top = 25
           Width = 79
           Height = 21
+          DropDownCount = 30
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -159,11 +160,21 @@ object frmSynapseSerial: TfrmSynapseSerial
           Text = '9600'
           Items.Strings = (
             '300'
+            '600'
             '1200'
+            '1800'
             '2400'
+            '3600'
+            '4800'
+            '7200'
             '9600'
+            '14400'
             '19200'
-            '115200')
+            '28800'
+            '38400'
+            '57600'
+            '115200'
+            '230400')
         end
         object grpFlowControl: TGroupBox
           Left = 145
@@ -197,6 +208,7 @@ object frmSynapseSerial: TfrmSynapseSerial
           Width = 79
           Height = 21
           Hint = 'Parity bit setting'
+          DropDownCount = 30
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -221,22 +233,22 @@ object frmSynapseSerial: TfrmSynapseSerial
           BevelOuter = bvNone
           ColumnCollection = <
             item
-              Value = 16.666666666666660000
+              Value = 16.666666666666670000
             end
             item
-              Value = 16.666666666666660000
+              Value = 16.666666666666670000
             end
             item
-              Value = 16.666666666666660000
+              Value = 16.666666666666670000
             end
             item
-              Value = 16.666666666666660000
+              Value = 16.666666666666670000
             end
             item
-              Value = 16.666666666666660000
+              Value = 16.666666666666670000
             end
             item
-              Value = 16.666666666666660000
+              Value = 16.666666666666670000
             end>
           ControlCollection = <
             item
@@ -391,37 +403,89 @@ object frmSynapseSerial: TfrmSynapseSerial
     object pnlLeftBottom: TPanel
       AlignWithMargins = True
       Left = 3
-      Top = 404
+      Top = 346
       Width = 307
-      Height = 194
+      Height = 252
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      DesignSize = (
-        307
-        194)
-      object btnSendMultiLine: TButton
+      ExplicitTop = 404
+      ExplicitHeight = 194
+      object pgcSend: TPageControl
         Left = 0
-        Top = 168
+        Top = 0
         Width = 307
-        Height = 25
-        Action = actSendMultiLine
-        Anchors = [akLeft, akRight, akBottom]
+        Height = 252
+        ActivePage = tsCommands
+        Align = alClient
         TabOrder = 0
-      end
-      object mmoSend: TMemo
-        Left = 2
-        Top = 3
-        Width = 305
-        Height = 163
-        Anchors = [akLeft, akTop, akRight, akBottom]
-        Font.Charset = OEM_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Consolas'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 1
+        object tsMemo: TTabSheet
+          Caption = 'Memo'
+          ExplicitHeight = 166
+          object mmoSend: TMemo
+            Left = 0
+            Top = 0
+            Width = 299
+            Height = 224
+            Align = alClient
+            TabOrder = 0
+            ExplicitLeft = 56
+            ExplicitTop = 72
+            ExplicitWidth = 185
+            ExplicitHeight = 89
+          end
+        end
+        object tsCommands: TTabSheet
+          Caption = 'Commands'
+          ImageIndex = 1
+          ExplicitHeight = 166
+          object pnlCommands: TGridPanel
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 293
+            Height = 218
+            Align = alClient
+            BevelOuter = bvNone
+            ColumnCollection = <
+              item
+                Value = 33.333333333333340000
+              end
+              item
+                Value = 33.333333333333340000
+              end
+              item
+                Value = 33.333333333333340000
+              end>
+            ControlCollection = <>
+            ParentBackground = False
+            ParentColor = True
+            RowCollection = <
+              item
+                Value = 16.666666666666670000
+              end
+              item
+                Value = 16.666666666666670000
+              end
+              item
+                Value = 16.666666666666670000
+              end
+              item
+                Value = 16.666666666666670000
+              end
+              item
+                Value = 16.666666666666670000
+              end
+              item
+                Value = 16.666666666666670000
+              end>
+            TabOrder = 0
+            ExplicitLeft = 56
+            ExplicitTop = 96
+            ExplicitWidth = 185
+            ExplicitHeight = 41
+          end
+        end
       end
     end
   end
@@ -706,8 +770,8 @@ object frmSynapseSerial: TfrmSynapseSerial
   end
   object ilMain: TImageList
     ColorDepth = cd32Bit
-    Left = 112
-    Top = 352
+    Left = 72
+    Top = 136
     Bitmap = {
       494C010105000900040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
@@ -981,8 +1045,8 @@ object frmSynapseSerial: TfrmSynapseSerial
       000000000000}
   end
   object aclMain: TActionList
-    Left = 224
-    Top = 352
+    Left = 16
+    Top = 192
     object actClearReceived: TAction
       Caption = 'Clear'
       OnExecute = actClearReceivedExecute
@@ -1021,12 +1085,12 @@ object frmSynapseSerial: TfrmSynapseSerial
   object dlgSave: TSaveDialog
     DefaultExt = 'log'
     FileName = 'COM.log'
-    Left = 272
-    Top = 360
+    Left = 72
+    Top = 192
   end
   object ppmReceivedText: TPopupMenu
-    Left = 160
-    Top = 352
+    Left = 128
+    Top = 136
     object mniClearReceivedText: TMenuItem
       Caption = 'Clear'
     end
@@ -1038,7 +1102,7 @@ object frmSynapseSerial: TfrmSynapseSerial
     Enabled = False
     Interval = 50
     OnTimer = tmrPollTimer
-    Left = 48
-    Top = 360
+    Left = 16
+    Top = 136
   end
 end
