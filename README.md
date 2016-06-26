@@ -12,10 +12,11 @@
 * [TBCEditor](http://github.com/bonecode/TBCEditor)
 * [TzObjectInspector](http://github.com/MahdiSafsafi/zcontrols)
 * [JsonDataObjects](http://github.com/ahausladen/JsonDataObjects)
+* [Ararat Synapse](https://sourceforge.net/projects/synalist/)
 
 A copy of all libraries that the project depends on are included (except commercial ones of course) to avoid installation hassles for anyone who tries to compile the project. 
 In the [Concepts.inc](http://github.com/beNative/Concepts/blob/master/Concepts.inc) file you can specify which dependencies you want to have included in your build.
 
-Currently compilation has only been tested in Delphi XE5 and Delphi 10 Seattle, but it should not be difficult to get it compiled in  Delphi 2010 or later.
+Currently compilation has only been tested in Delphi 10 Seattle and later versions, but it should not be difficult to get it compiled in  Delphi 2010 or later.
 
 Check the [releases](http://github.com/beNative/Concepts/releases) to download a precompiled executable of the project.
