@@ -170,7 +170,7 @@ type
 implementation
 
 uses
-  System.Rtti,
+  System.Rtti, System.TypInfo,
   Vcl.Forms, Vcl.Graphics,
 
   BCEditor.Types,
@@ -493,6 +493,7 @@ begin
   OI.Name             := AName;
   OI.Component        := AObject;
   OI.SplitterPos      := OI.ClientWidth div 2;
+  OI.ObjectVisibility := mvPublished;
   Result := OI;
 end;
 {$ENDIF}
