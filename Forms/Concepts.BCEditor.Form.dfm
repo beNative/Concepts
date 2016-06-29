@@ -88,6 +88,10 @@
           TabOrder = 0
           object tsSampleCode: TTabSheet
             Caption = 'tsSampleCode'
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object pnlExampleCodeHeader: TPanel
               AlignWithMargins = True
               Left = 3
@@ -167,6 +171,10 @@
           TabOrder = 0
           object tsHighlighter: TTabSheet
             Caption = 'Highlighter definition'
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object pnlHighlighter: TPanel
               Left = 153
               Top = 0

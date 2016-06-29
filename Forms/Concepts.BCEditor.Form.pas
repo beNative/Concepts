@@ -257,7 +257,7 @@ begin
   );
 
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
-  FObjectInspector.Visibility := [mvPublished];
+  FObjectInspector.ObjectVisibility := mvPublic;
   FObjectInspector.Component := FBCEditor;
   FObjectInspector.ExpandAll;
   FHighlighters := TCollections.CreateList<string>;
