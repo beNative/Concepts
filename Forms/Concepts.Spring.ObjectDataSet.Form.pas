@@ -176,22 +176,7 @@ begin
   FObjectDataSet          := TObjectDataset.Create(Self);
   FObjectDataSet.DataList := FList as IObjectList;
 
-  FBindScope := TBindingsFactory.CreateBindScope(FTVP.SelectedItem, Self);
-  TBindingsFactory.CreateEditBinding(
-    FBindScope,
-    'FirstName',
-    edtFirstname
-  );
-  TBindingsFactory.CreateEditBinding(
-    FBindScope,
-    'LastName',
-    edtLastname
-  );
-  TBindingsFactory.CreateEditBinding(
-    FBindScope,
-    'CompanyName',
-    edtCompanyName
-  );
+
 
 end;
 
@@ -281,7 +266,7 @@ end;
 
 function TfrmObjectDataSet.GetPresenterEnabled: Boolean;
 begin
-  Result := Assigned(FTVP);
+  Result := Assigned(FTVP.View.ItemsSource);
 end;
 
 procedure TfrmObjectDataSet.SetPresenterEnabled(const Value: Boolean);
@@ -315,40 +300,31 @@ end;
 
 procedure TfrmObjectDataSet.ConnectPresenter;
 begin
-  if not Assigned(FTVP) then
-  begin
-    FTVP := TConceptFactories.CreateTreeViewPresenter(
-      Self,
-      FVST,
-      FList as IObjectList // IObjectList = IList<TObject>
-    );
-    FTVP.TreeView.Header.AutoFitColumns;
-    FreeAndNil(FBindScope);
-    FBindScope := TBindingsFactory.CreateBindScope(FTVP.SelectedItem, Self);
-    TBindingsFactory.CreateEditBinding(
-      FBindScope,
-      'FirstName',
-      edtFirstname
-    );
-    TBindingsFactory.CreateEditBinding(
-      FBindScope,
-      'LastName',
-      edtLastname
-    );
-    TBindingsFactory.CreateEditBinding(
-      FBindScope,
-      'CompanyName',
-      edtCompanyName
-    );
-    FTVP.OnSelectionChanged := FTVPSelectionChanged;
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Firstname', edtFirstname);
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Lastname', edtLastname);
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Address', edtAddress);
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.CompanyName', edtCompanyName);
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Email', edtEmail);
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Country', edtCountry);
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Number', edtNumber);
-  end;
+  FTVP.View.ItemsSource := FList as IObjectList;
+  FBindScope := TBindingsFactory.CreateBindScope(FTVP.SelectedItem, Self);
+  TBindingsFactory.CreateEditBinding(
+    FBindScope,
+    'FirstName',
+    edtFirstname
+  ).Active := True;
+  TBindingsFactory.CreateEditBinding(
+    FBindScope,
+    'LastName',
+    edtLastname
+  );
+  TBindingsFactory.CreateEditBinding(
+    FBindScope,
+    'CompanyName',
+    edtCompanyName
+  );
+////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Firstname', edtFirstname);
+////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Lastname', edtLastname);
+////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Address', edtAddress);
+////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.CompanyName', edtCompanyName);
+////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Email', edtEmail);
+////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Country', edtCountry);
+////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Number', edtNumber);
+//  end;
 end;
 
 procedure TfrmObjectDataSet.DisconnectDataSet;
@@ -359,8 +335,7 @@ end;
 
 procedure TfrmObjectDataSet.DisconnectPresenter;
 begin
-  FVST.Clear;
-  FreeAndNil(FTVP);
+  FTVP.View.ItemsSource := nil;
 end;
 {$ENDREGION}
 

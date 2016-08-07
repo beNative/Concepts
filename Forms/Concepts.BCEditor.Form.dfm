@@ -87,7 +87,7 @@
           Align = alClient
           TabOrder = 0
           object tsSampleCode: TTabSheet
-            Caption = 'tsSampleCode'
+            Caption = 'Sample code'
             object pnlExampleCodeHeader: TPanel
               AlignWithMargins = True
               Left = 3
@@ -106,24 +106,6 @@
               Font.Style = [fsBold]
               ParentBackground = False
               ParentFont = False
-              TabOrder = 0
-            end
-          end
-          object TabSheet1: TTabSheet
-            Caption = 'TabSheet1'
-            ImageIndex = 1
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
-            object mmo1: TMemo
-              Left = 0
-              Top = 0
-              Width = 425
-              Height = 266
-              Align = alClient
-              Lines.Strings = (
-                'mmo1')
               TabOrder = 0
             end
           end
@@ -212,10 +194,6 @@
           object tsColors: TTabSheet
             Caption = 'Color mappings'
             ImageIndex = 1
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
             object splVerticalRight: TSplitter
               Left = 475
               Top = 0

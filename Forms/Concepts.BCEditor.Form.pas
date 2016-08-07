@@ -42,45 +42,43 @@ uses
 type
   TfrmBCEditor = class(TForm)
     {$REGION 'designer controls'}
-    pnlMain               : TPanel;
-    pnlLeft               : TPanel;
-    pnlRight              : TPanel;
-    sbrStatusBar          : TStatusBar;
-    splSplitter           : TSplitter;
-    pnlRightTop           : TPanel;
-    pnlRightBottom        : TPanel;
-    spl1                  : TSplitter;
-    pgcMain               : TPageControl;
-    tsHighlighter         : TTabSheet;
-    tsColors              : TTabSheet;
     aclMain               : TActionList;
-    actSaveHighlighter    : TAction;
-    actSaveColorMap       : TAction;
-    pnlHighlighter        : TPanel;
-    pnlColors             : TPanel;
-    pnlHLLeft             : TPanel;
-    pnlHLRight            : TPanel;
-    pnlCMLeft             : TPanel;
-    pnlCMRight            : TPanel;
-    tlbComponentInspector : TToolBar;
     actCollapseAll        : TAction;
     actExpandAll          : TAction;
+    actSaveColorMap       : TAction;
+    actSaveHighlighter    : TAction;
+    actTest               : TAction;
     btnCollapseAll        : TToolButton;
     btnExpandAll          : TToolButton;
-    tlbHighlighter        : TToolBar;
-    btnSaveHighlighter    : TToolButton;
-    tlbColors             : TToolBar;
     btnSaveColorMap       : TToolButton;
-    pnlLeftBottom         : TPanel;
-    splLeftHorizontal     : TSplitter;
-    pnlCMRightRight       : TPanel;
-    splVerticalRight      : TSplitter;
+    btnSaveHighlighter    : TToolButton;
     pgcLeftBottoù         : TPageControl;
-    tsSampleCode          : TTabSheet;
+    pgcMain               : TPageControl;
+    pnlCMLeft             : TPanel;
+    pnlCMRight            : TPanel;
+    pnlCMRightRight       : TPanel;
+    pnlColors             : TPanel;
     pnlExampleCodeHeader  : TPanel;
-    TabSheet1             : TTabSheet;
-    mmo1                  : TMemo;
-    actTest: TAction;
+    pnlHighlighter        : TPanel;
+    pnlHLLeft             : TPanel;
+    pnlHLRight            : TPanel;
+    pnlLeft               : TPanel;
+    pnlLeftBottom         : TPanel;
+    pnlMain               : TPanel;
+    pnlRight              : TPanel;
+    pnlRightBottom        : TPanel;
+    pnlRightTop           : TPanel;
+    sbrStatusBar          : TStatusBar;
+    spl1                  : TSplitter;
+    splLeftHorizontal     : TSplitter;
+    splSplitter           : TSplitter;
+    splVerticalRight      : TSplitter;
+    tlbColors             : TToolBar;
+    tlbComponentInspector : TToolBar;
+    tlbHighlighter        : TToolBar;
+    tsColors              : TTabSheet;
+    tsHighlighter         : TTabSheet;
+    tsSampleCode          : TTabSheet;
     {$ENDREGION}
 
     procedure actSaveHighlighterExecute(Sender: TObject);
@@ -257,7 +255,7 @@ begin
   );
 
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
-  FObjectInspector.Visibility := [mvPublished];
+  FObjectInspector.ObjectVisibility := mvPublic;
   FObjectInspector.Component := FBCEditor;
   FObjectInspector.ExpandAll;
   FHighlighters := TCollections.CreateList<string>;

@@ -53,7 +53,8 @@ type
     procedure SetBehavior(const value: TMockBehavior);
     procedure SetCallBase(const value: Boolean);
     function CreateProxy(typeInfo: PTypeInfo;
-      const interceptor: TMockInterceptor): TValue;
+      const interceptor: TMockInterceptor;
+      const constructorArguments: array of TValue): TValue;
   public
     constructor Create(typeInfo: PTypeInfo; const interceptor: TMockInterceptor;
       const proxy: TValue) overload;
@@ -152,25 +153,11 @@ end;
 
 constructor TMock.Create(typeInfo: PTypeInfo; behavior: TMockBehavior;
   const args: array of TValue);
-var
-  types: array of PTypeInfo;
-  i: Integer;
-  ctor: TRttiMethod;
 begin
   inherited Create;
   fTypeInfo := typeInfo;
   fInterceptor := TMockInterceptor.Create(behavior);
-  fProxy := CreateProxy(typeInfo, fInterceptor);
-  if (fTypeInfo.Kind = tkClass) and (Length(args) > 0) then
-  begin
-    SetLength(types, Length(args));
-    for i := 0 to High(args) do
-      types[i] := args[i].TypeInfo;
-    if fTypeInfo.RttiType.Methods.TryGetFirst(ctor,
-      TMethodFilters.IsConstructor and
-      TMethodFilters.HasParameterTypes(types)) then
-      ctor.Invoke(fProxy, args);
-  end;
+  fProxy := CreateProxy(typeInfo, fInterceptor, args);
 end;
 
 constructor TMock.Create(typeInfo: PTypeInfo;
@@ -194,14 +181,15 @@ begin
 end;
 
 function TMock.CreateProxy(typeInfo: PTypeInfo;
-  const interceptor: TMockInterceptor): TValue;
+  const interceptor: TMockInterceptor;
+  const constructorArguments: array of TValue): TValue;
 var
   intf: IInterface;
 begin
   case typeInfo.Kind of
     tkClass:
       Result := TProxyGenerator.CreateClassProxy(
-        typeInfo.TypeData.ClassType, [interceptor]);
+        typeInfo.TypeData.ClassType, constructorArguments, [interceptor]);
     tkInterface:
     begin
       Supports(TProxyGenerator.CreateInterfaceProxyWithoutTarget(

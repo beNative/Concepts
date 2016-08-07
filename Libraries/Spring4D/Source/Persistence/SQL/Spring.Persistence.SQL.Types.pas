@@ -183,14 +183,16 @@ type
     fLeftSQL: string;
     fRightSQL: string;
     fParamName2: string;
+    fIgnoreCase: Boolean;
   public
-    constructor Create(const name: string; const table: TSQLTable); reintroduce; overload;
+    constructor Create(const name: string; const table: TSQLTable; ignoreCase: Boolean = False); reintroduce; overload;
     constructor Create(const leftSQL, rightSQL: string); reintroduce; overload;
 
     property WhereOperator: TWhereOperator read fWhereOperator write fWhereOperator;
     property LeftSQL: string read fLeftSQL write fLeftSQL;
     property RightSQL: string read fRightSQL write fRightSQL;
     property ParamName2: string read fParamName2 write fParamName2;
+    property IgnoreCase: Boolean read fIgnoreCase;
   end;
 
   /// <summary>
@@ -263,10 +265,10 @@ type
 
 const
   WhereOperatorNames: array[TWhereOperator] of string = (
-    {woEqual =} '=', {woNotEqual =} '<>', {woMore = }'>', {woLess = }'<', {woLike = }'LIKE', {woNotLike = }'NOT LIKE',
-    {woMoreOrEqual = }'>=', {woLessOrEqual = }'<=', {woIn = }'IN', {woNotIn = }'NOT IN', {woIsNull} 'IS NULL', {woIsNotNull} 'IS NOT NULL'
-    ,{woOr}'OR', {woOrEnd}'', {woAnd} 'AND', {woAndEnd}'', {woNot}'NOT', {woNotEnd}'',{woBetween}'BETWEEN', {woJunction} ''
-    );
+    {woEqual =}'=', {woNotEqual =}'<>', {woMore = }'>', {woLess = }'<', {woLike = }'LIKE', {woNotLike = }'NOT LIKE',
+    {woMoreOrEqual = }'>=', {woLessOrEqual = }'<=', {woIn = }'IN', {woNotIn = }'NOT IN', {woIsNull}'IS NULL', {woIsNotNull}'IS NOT NULL',
+    {woOr}'OR', {woOrEnd}'', {woAnd}'AND', {woAndEnd}'', {woNot}'NOT', {woNotEnd}'', {woBetween}'BETWEEN', {woJunction}''
+  );
 
   StartOperators: TStartOperators = [woOr, woAnd, woNot];
 
@@ -295,7 +297,8 @@ const
     ' ON UPDATE NO ACTION'    // fsOnUpdateNoAction
     );
 
-function GetMatchModeString(matchMode: TMatchMode; const pattern: string): string;
+function GetMatchModeString(matchMode: TMatchMode; const pattern: string;
+  ignoreCase: Boolean = True): string;
 function GetEndOperator(startOperator: TWhereOperator): TWhereOperator;
 
 implementation
@@ -309,7 +312,8 @@ uses
   Spring.Persistence.Core.Exceptions,
   Spring.Reflection;
 
-function GetMatchModeString(matchMode: TMatchMode; const pattern: string): string;
+function GetMatchModeString(matchMode: TMatchMode; const pattern: string;
+  ignoreCase: Boolean): string;
 const
   MATCH_CHAR = '%';
 begin
@@ -320,6 +324,8 @@ begin
     mmAnywhere: Result := MATCH_CHAR + pattern + MATCH_CHAR;
   end;
   Result := QuotedStr(Result);
+  if ignoreCase then
+    Result := AnsiUpperCase(Result);
 end;
 
 function GetEndOperator(startOperator: TWhereOperator): TWhereOperator;
@@ -447,10 +453,12 @@ end;
 
 {$REGION 'TSQLWhereField'}
 
-constructor TSQLWhereField.Create(const name: string; const table: TSQLTable);
+constructor TSQLWhereField.Create(const name: string; const table: TSQLTable;
+  ignoreCase: Boolean);
 begin
   inherited Create(name, table, nil, ':' + name);
   fWhereOperator := woEqual;
+  fIgnoreCase := ignoreCase;
 end;
 
 constructor TSQLWhereField.Create(const leftSQL, rightSQL: string);

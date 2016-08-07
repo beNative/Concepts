@@ -266,7 +266,7 @@ type
     {$IFDEF DELPHIXE_UP}TFoldedObjectList<T>{$ELSE}TObjectList<T>{$ENDIF},
     INotifyPropertyChanged)
   private
-    fOnPropertyChanged: Event<TPropertyChangedEvent>;
+    fOnPropertyChanged: IEvent<TPropertyChangedEvent>;
     function GetOnPropertyChanged: IEvent<TPropertyChangedEvent>;
   protected
     procedure DoItemPropertyChanged(sender: TObject;
@@ -275,6 +275,8 @@ type
     procedure Changed(const value: {$IFDEF DELPHIXE_UP}TObject{$ELSE}T{$ENDIF};
       action: TCollectionChangedAction); override;
   public
+    constructor Create; override;
+
     property OnPropertyChanged: IEvent<TPropertyChangedEvent> read GetOnPropertyChanged;
   end;
 
@@ -283,6 +285,7 @@ implementation
 uses
   TypInfo,
   Spring.Collections.Extensions,
+  Spring.Events,
   Spring.ResourceStrings;
 
 
@@ -868,7 +871,7 @@ end;
 
 constructor TObjectList<T>.Create(ownsObjects: Boolean);
 begin
-  inherited Create;
+  Create;
   fOwnsObjects := ownsObjects;
 end;
 
@@ -1373,6 +1376,12 @@ end;
 
 {$REGION 'TObservableList<T> }
 
+constructor TObservableList<T>.Create;
+begin
+  inherited Create;
+  fOnPropertyChanged := TPropertyChangedEventImpl.Create;
+end;
+
 procedure TObservableList<T>.DoItemPropertyChanged(sender: TObject;
   const eventArgs: IPropertyChangedEventArgs);
 begin
@@ -1381,8 +1390,9 @@ end;
 
 procedure TObservableList<T>.DoPropertyChanged(const propertyName: string);
 begin
-  fOnPropertyChanged.Invoke(Self,
-    TPropertyChangedEventArgs.Create(propertyName) as IPropertyChangedEventArgs);
+  if Assigned(fOnPropertyChanged) and fOnPropertyChanged.CanInvoke then
+    fOnPropertyChanged.Invoke(Self,
+      TPropertyChangedEventArgs.Create(propertyName) as IPropertyChangedEventArgs);
 end;
 
 function TObservableList<T>.GetOnPropertyChanged: IEvent<TPropertyChangedEvent>;

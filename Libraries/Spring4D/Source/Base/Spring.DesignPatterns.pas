@@ -369,7 +369,7 @@ var
 begin
   fLock.BeginRead;
   try
-    for observer in fObservers do
+    for observer in fObservers.ToArray do
       DoNotify(observer);
   finally
     fLock.EndRead;

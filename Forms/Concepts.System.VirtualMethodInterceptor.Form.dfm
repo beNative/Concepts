@@ -11,6 +11,16 @@ object frmVirtualMethodInterceptor: TfrmVirtualMethodInterceptor
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 13
+  object btn1: TButton
+    Left = 216
+    Top = 208
+    Width = 75
+    Height = 25
+    Caption = 'btn1'
+    TabOrder = 0
+    OnClick = btn1Click
+  end
 end

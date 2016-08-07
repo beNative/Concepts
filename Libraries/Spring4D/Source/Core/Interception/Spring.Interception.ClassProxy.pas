@@ -81,7 +81,8 @@ type
     destructor Destroy; override;
     class constructor Create;
 
-    function CreateInstance: TObject;
+    function CreateInstance: TObject; overload;
+    function CreateInstance(const constructorArguments: array of TValue): TObject; overload;
   end;
 
 implementation
@@ -102,7 +103,7 @@ constructor TClassProxy.Create(proxyType: TClass;
   const interceptors: array of IInterceptor);
 begin
   inherited Create(proxyType);
-  ClassProxyData.FreeInstance := ProxyFreeInstance;
+  ProxyClassData.FreeInstance := ProxyFreeInstance;
   fIntercepts := TCollections.CreateObjectList<TMethodIntercept>;
   fInterceptors := TCollections.CreateInterfaceList<IInterceptor>(interceptors);
   fInterceptorSelector := options.Selector;
@@ -112,7 +113,7 @@ end;
 
 destructor TClassProxy.Destroy;
 begin
-  FreeMem(ClassProxyData.IntfTable);
+  FreeMem(ProxyClassData.IntfTable);
   inherited;
 end;
 
@@ -122,14 +123,20 @@ begin
 end;
 
 function TClassProxy.CreateInstance: TObject;
+begin
+  Result := CreateInstance([]);
+end;
+
+function TClassProxy.CreateInstance(
+  const constructorArguments: array of TValue): TObject;
 var
   table: PInterfaceTable;
   i: Integer;
 begin
-  Result := ClassProxy.Create;
+  Result := TActivator.CreateInstance(ProxyClass, constructorArguments);
   fProxies.Add(Result, Self);
 
-  table := ClassProxyData.IntfTable;
+  table := ProxyClassData.IntfTable;
   for i := 1 to table.EntryCount - 1 do
     PPointer(@PByte(Result)[table.Entries[i].ImplGetter and $00FFFFFF])^ :=
       Pointer(fAdditionalInterfaces[i - 1]);
@@ -138,7 +145,7 @@ end;
 function TClassProxy.CollectInterceptableMethods(
   const hook: IProxyGenerationHook): IEnumerable<TRttiMethod>;
 begin
-  Result := TType.GetType(ClassProxy).Methods.Where(
+  Result := TType.GetType(ProxyClass).Methods.Where(
     function(const method: TRttiMethod): Boolean
     begin
       if not method.HasExtendedInfo then
@@ -186,14 +193,14 @@ var
   virtualMethodCount: Integer;
   intercept: TMethodIntercept;
 begin
-  virtualMethodCount := GetVirtualMethodCount(ClassProxy);
+  virtualMethodCount := GetVirtualMethodCount(ProxyClass);
   fIntercepts.Count := virtualMethodCount;
 
   for method in CollectInterceptableMethods(options.Hook) do
   begin
     intercept := TMethodIntercept.Create(method, HandleInvoke);
     fIntercepts[method.VirtualIndex] := intercept;
-    PVirtualMethodTable(ClassProxy)[method.VirtualIndex] := intercept.CodeAddress;
+    PVirtualMethodTable(ProxyClass)[method.VirtualIndex] := intercept.CodeAddress;
   end;
 {$IFDEF AUTOREFCOUNT}
   // Release reference created by passing closure to HandleInvoke (RSP-10176)
@@ -223,7 +230,7 @@ begin
 {$ENDIF}
   GetMem(table, size);
   table.EntryCount := entryCount;
-  ClassProxyData.IntfTable := table;
+  ProxyClassData.IntfTable := table;
 
   // add IProxyTargetAccessor
   table.Entries[0].IID := IProxyTargetAccessor;
@@ -233,8 +240,8 @@ begin
 
   SetLength(fAdditionalInterfaces, entryCount);
 
-  offset := ClassProxyData.InstanceSize - hfFieldSize;
-  Inc(ClassProxyData.InstanceSize, (entryCount - 1) * SizeOf(Pointer));
+  offset := ProxyClassData.InstanceSize - hfFieldSize;
+  Inc(ProxyClassData.InstanceSize, (entryCount - 1) * SizeOf(Pointer));
 
   // add other interfaces
   for i := 1 to Length(additionalInterfaces) do

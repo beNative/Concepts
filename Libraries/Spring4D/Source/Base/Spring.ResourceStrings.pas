@@ -57,6 +57,7 @@ resourcestring
   SFileNotFoundException          = 'File not found: %s';
   SDirectoryNotFoundException     = 'Directory not found: %s';
   SNullableHasNoValue             = 'Nullable must have a value.';
+  SValueDoesNotContainNullable    = 'Value does not contain a nullable value.';
   STypeNotRegistered              = '%s was not registered.';
   SServiceNotExists               = 'The service "%s" does not exist.';
   STimeoutException               = 'Timeout';

@@ -3,21 +3,21 @@ program Concepts;
 {$I Concepts.inc}
 
 uses
-  {$IFDEF FASTMM}
-  FastMM4 in 'Libraries\fastmm\FastMM4.pas',
-  FastMM4Messages in 'Libraries\fastmm\FastMM4Messages.pas',
-  {$ENDIF }
+//  {$IFDEF FASTMM}
+//  FastMM4 in 'Libraries\fastmm\FastMM4.pas',
+//  FastMM4Messages in 'Libraries\fastmm\FastMM4Messages.pas',
+//  {$ENDIF }
   Vcl.Themes,
   Vcl.Styles,
   Vcl.Forms,
-  {$IFNDEF HAS_UNIT_SYSTEM_IMAGELIST}
-  System.ImageList in 'Types\System.ImageList.pas',
-  {$ENDIF }
-  {$IFDEF BTMEMORYMODULE}
+//  {$IFNDEF HAS_UNIT_SYSTEM_IMAGELIST}
+//  System.ImageList in 'Types\System.ImageList.pas',
+//  {$ENDIF }
+//  {$IFDEF BTMEMORYMODULE}
   BTMemoryModule in 'Libraries\BTMemoryModule\BTMemoryModule.pas',
   Concepts.BTMemoryModule.Form in 'Forms\Concepts.BTMemoryModule.Form.pas' {frmBTMemoryModule},
-  {$ENDIF }
-  {$IFDEF CHROMETABS}
+//  {$ENDIF }
+//  {$IFDEF CHROMETABS}
   ChromeTabs in 'Libraries\TChromeTabs\Lib\ChromeTabs.pas',
   ChromeTabsClasses in 'Libraries\TChromeTabs\Lib\ChromeTabsClasses.pas',
   ChromeTabsControls in 'Libraries\TChromeTabs\Lib\ChromeTabsControls.pas',
@@ -27,10 +27,10 @@ uses
   ChromeTabsTypes in 'Libraries\TChromeTabs\Lib\ChromeTabsTypes.pas',
   ChromeTabsUtils in 'Libraries\TChromeTabs\Lib\ChromeTabsUtils.pas',
   Concepts.ChromeTabs.Form in 'Forms\Concepts.ChromeTabs.Form.pas' {frmChromeTabs},
-  {$ENDIF }
-  {$IFDEF DEVEXPRESS}
+//  {$ENDIF }
+//  {$IFDEF DEVEXPRESS}
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas',
-  {$ENDIF }
+//  {$ENDIF }
   Concepts.DSharp.Bindings.Form in 'Forms\Concepts.DSharp.Bindings.Form.pas' {frmBindings},
   Concepts.DSharp.TreeViewPresenter.Tree.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.Tree.Form.pas' {frmTreeViewPresenterTree},
   Concepts.Factories in 'Concepts.Factories.pas',
@@ -65,9 +65,10 @@ uses
   Concepts.Types.ValidationRules in 'Types\Concepts.Types.ValidationRules.pas',
   Concepts.Utils in 'Concepts.Utils.pas',
   Concepts.Vcl.GridPanel.Form in 'Forms\Concepts.Vcl.GridPanel.Form.pas' {frmGridPanel},
-  {$IFDEF DELPHIX_SEATTLE_UP}
+  Concepts.Indy.TCP.Form in 'Forms\Concepts.Indy.TCP.Form.pas' {frmIndyTCP},
+//  {$IFDEF DELPHIX_SEATTLE_UP}
   Concepts.Vcl.RelativePanel.Form in 'Forms\Concepts.Vcl.RelativePanel.Form.pas' {frmRelativePanel},
-  {$ENDIF }
+//  {$ENDIF }
   Concepts.WinApi.LockPaint.Form in 'Forms\Concepts.WinApi.LockPaint.Form.pas' {frmLockPaint},
   DDuce.Components.DBGridView in 'Libraries\DDuce\Components\DDuce.Components.DBGridView.pas',
   DDuce.Components.GridView in 'Libraries\DDuce\Components\DDuce.Components.GridView.pas',
@@ -116,7 +117,7 @@ uses
   DSharp.Windows.CustomPresenter in 'Libraries\DSharp\DSharp.Windows.CustomPresenter.pas',
   DSharp.Windows.CustomPresenter.Types in 'Libraries\DSharp\DSharp.Windows.CustomPresenter.Types.pas',
   DSharp.Windows.TreeViewPresenter in 'Libraries\DSharp\DSharp.Windows.TreeViewPresenter.pas',
-  {$IFDEF SQLBUILDER4D}
+//  {$IFDEF SQLBUILDER4D}
   Concepts.SQLBuilder4D.Form in 'Forms\Concepts.SQLBuilder4D.Form.pas' {frmSQLBuilder4D},
   SQLBuilder4D in 'Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.pas',
   SQLBuilder4D.Parser in 'Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.pas',
@@ -136,7 +137,7 @@ uses
   gaSQLSelectFieldParsers in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLSelectFieldParsers.pas',
   gaSQLTableRefParsers in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLTableRefParsers.pas',
   gaUpdateStm in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaUpdateStm.pas',
-  {$ENDIF }
+//  {$ENDIF }
   Spring in 'Libraries\Spring4D\Source\Base\Spring.pas',
   Spring.Collections in 'Libraries\Spring4D\Source\Base\Collections\Spring.Collections.pas',
   Spring.Collections.Adapters in 'Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Adapters.pas',
@@ -312,7 +313,7 @@ uses
   Spring.Reflection in 'Libraries\Spring4D\Source\Base\Spring.Reflection.pas',
   Spring.Mocking.Matching in 'Libraries\Spring4D\Source\Core\Mocking\Spring.Mocking.Matching.pas',
   Concepts.DSharp.TreeViewPresenter.List.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.List.Form.pas' {frmTreeViewPresenterList},
-  {$IFDEF BCEDITOR}
+//  {$IFDEF BCEDITOR}
   BCEditor.Consts in 'Libraries\TBCEditor\Source\BCEditor.Consts.pas',
   BCEditor.Editor.ActiveLine in 'Libraries\TBCEditor\Source\BCEditor.Editor.ActiveLine.pas',
   BCEditor.Editor.Base in 'Libraries\TBCEditor\Source\BCEditor.Editor.Base.pas',
@@ -408,20 +409,20 @@ uses
   BCEditor.Editor.SyncEdit in 'Libraries\TBCEditor\Source\BCEditor.Editor.SyncEdit.pas',
   BCEditor.Editor.SyncEdit.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.SyncEdit.Colors.pas',
   BCEditor.Export.HTML in 'Libraries\TBCEditor\Source\BCEditor.Export.HTML.pas',
-  {$ENDIF }
+//  {$ENDIF }
   Concepts.BCEditor.Form in 'Forms\Concepts.BCEditor.Form.pas' {frmBCEditor},
   Concepts.RTTEye.RttiTemplates in 'Types\Concepts.RTTEye.RttiTemplates.pas',
-  {$IFDEF DELPHIZMQ}
+//  {$IFDEF DELPHIZMQ}
   Concepts.ZeroMQ.Form in 'Forms\Concepts.ZeroMQ.Form.pas',
   ZeroMQ.API in 'Libraries\ZeroMQ\ZeroMQ.API.pas',
   ZeroMQ in 'Libraries\ZeroMQ\ZeroMQ.pas',
-  {$ENDIF }
+//  {$ENDIF }
   Concepts.Spring.ClassProxy.Form in 'Forms\Concepts.Spring.ClassProxy.Form.pas' {frmClassProxy},
-  {$IFDEF DDETOURS}
+//  {$IFDEF DDETOURS}
   CPUID in 'Libraries\DDetours\CPUID.pas',
   DDetours in 'Libraries\DDetours\DDetours.pas',
   InstDecode in 'Libraries\DDetours\InstDecode.pas',
-  {$ENDIF }
+//  {$ENDIF }
   Concepts.DDetours.Form in 'Forms\Concepts.DDetours.Form.pas' {frmDDetours},
   //{$IFDEF ZOBJECTINSPECTOR}
   zBase in 'Libraries\TzObjectInspector\zBase.pas',
@@ -454,7 +455,10 @@ uses
   DDuce.Logger.Channels.ZeroMQ in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.ZeroMQ.pas',
   DDuce.Logger.Factories in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Factories.pas',
   DDuce.Logger.Interfaces in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Interfaces.pas',
-  DDuce.Logger in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.pas';
+  DDuce.Logger in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.pas',
+  Parnassus.FMXContainer in 'Libraries\firemonkey-container\Parnassus.FMXContainer.pas',
+  Concepts.FMXContainer.Form in 'Forms\Concepts.FMXContainer.Form.pas' {frmFMXContainer},
+  FMXForm in 'Forms\FMXForm.pas' {FireMonkeyForm};
 
 {$R *.res}
 
@@ -467,7 +471,7 @@ begin
   Application.CreateForm(TdmResources, dmResources);
   if ConceptManager.ItemList.Count = 1 then
   begin
-    ConceptManager.Execute(ConceptManager.ItemList.First);
+    ConceptManager.Execute(ConceptManager.ItemList.Single);
   end
   else
   begin

@@ -73,6 +73,7 @@ uses
   StrUtils,
   SysUtils,
   Variants,
+  Spring,
   Spring.Persistence.SQL.Register;
 
 
@@ -80,10 +81,24 @@ uses
 
 function TOracleSQLGenerator.CreateParam(const paramField: TSQLParamField;
   const value: TValue): TDBParam;
+var
+  v: TValue;
 begin
-  Result := inherited;
-  if Assigned(paramField.Column) and (paramField.Column.Length > 1000) then
-    TOracleDBParam(Result).fParamType := ftWideMemo;
+  Result := inherited CreateParam(paramField, value);
+
+  // workaround for FireDAC issue
+  if Assigned(paramField.Column) and (paramField.Column.Length > 2000) then
+  begin
+    if IsNullable(value.TypeInfo) then
+      v := value.GetNullableValue
+    else
+      v := value;
+
+    if v.IsEmpty or (v.IsString and (v.AsString = '')) then
+      TOracleDBParam(Result).fParamType := ftOraBlob
+    else
+      TOracleDBParam(Result).fParamType := ftWideMemo;
+  end;
 end;
 
 function TOracleSQLGenerator.DoGenerateBackupTable(const tableName: string): TArray<string>;
