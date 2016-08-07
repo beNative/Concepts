@@ -150,7 +150,6 @@ begin
   ]);
 
   RegisterTests('Spring.Base.Helpers', [
-    TTestGuidHelper.Suite,
     TTestRttiTypeHelper.Suite
   ]);
 

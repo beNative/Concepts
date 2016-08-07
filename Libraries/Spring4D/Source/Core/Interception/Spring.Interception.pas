@@ -279,7 +279,7 @@ begin
   begin
     proxy := TClassProxy.Create(
       classType, additionalInterfaces, options, interceptors);
-    Result := proxy.CreateInstance;
+    Result := proxy.CreateInstance(constructorArguments);
   end;
 end;
 

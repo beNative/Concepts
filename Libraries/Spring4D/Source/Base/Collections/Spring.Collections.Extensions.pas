@@ -230,7 +230,10 @@ type
     function MoveNext: Boolean; override;
   end;
 
-  TRangeIterator<T{: Integer}> = class(TIterator<T>)
+{$IFDEF DELPHI2010}
+  TRangeIterator = Spring.Collections.Base.TRangeIterator;
+{$ELSE}
+  TRangeIterator = class(TIterator<Integer>)
   private
     fStart: Integer;
     fCount: Integer;
@@ -239,9 +242,12 @@ type
     function GetCount: Integer; override;
   public
     constructor Create(start, count: Integer);
-    function Clone: TIterator<T>; override;
+    function Clone: TIterator<Integer>; override;
     function MoveNext: Boolean; override;
+
+    function ToArray: TArray<Integer>; override;
   end;
+{$ENDIF}
 
   TExceptIterator<T> = class(TSourceIterator<T>)
   private
@@ -1487,9 +1493,10 @@ end;
 {$ENDREGION}
 
 
-{$REGION 'TRangeIterator<T>'}
+{$REGION 'TRangeIterator'}
 
-constructor TRangeIterator<T>.Create(start, count: Integer);
+{$IFNDEF DELPHI2010}
+constructor TRangeIterator.Create(start, count: Integer);
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckRange(count >= 0, 'count');
@@ -1501,17 +1508,17 @@ begin
   fCount := count;
 end;
 
-function TRangeIterator<T>.Clone: TIterator<T>;
+function TRangeIterator.Clone: TIterator<Integer>;
 begin
-  Result := TRangeIterator<T>.Create(fStart, fCount);
+  Result := TRangeIterator.Create(fStart, fCount);
 end;
 
-function TRangeIterator<T>.GetCount: Integer;
+function TRangeIterator.GetCount: Integer;
 begin
   Result := fCount;
 end;
 
-function TRangeIterator<T>.MoveNext: Boolean;
+function TRangeIterator.MoveNext: Boolean;
 begin
   Result := False;
 
@@ -1525,13 +1532,23 @@ begin
   begin
     if fIndex < fCount then
     begin
-      PInteger(@fCurrent)^ := fStart + fIndex;
+      fCurrent := fStart + fIndex;
       Inc(fIndex);
       Exit(True);
     end;
     fState := STATE_FINISHED;
   end;
 end;
+
+function TRangeIterator.ToArray: TArray<Integer>;
+var
+  i: Integer;
+begin
+  SetLength(Result, fCount);
+  for i := 0 to fCount - 1 do
+    Result[i] := fStart + i;
+end;
+{$ENDIF}
 
 {$ENDREGION}
 
@@ -2129,7 +2146,8 @@ end;
 
 constructor TLookup<TKey, TElement>.TGroupings.Create;
 begin
-  inherited Create(False);
+  inherited Create;
+  OwnsObjects := False;
 end;
 
 procedure TLookup<TKey, TElement>.TGroupings.Changed(const item: TGrouping;

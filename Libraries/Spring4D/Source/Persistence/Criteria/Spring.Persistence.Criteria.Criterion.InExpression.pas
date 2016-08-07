@@ -42,6 +42,7 @@ type
   TInExpression = class(TSimpleExpression)
   private
     fValues: TArray<TValue>;
+    fIgnoreCase: Boolean;
     function ValuesToSeparatedString: string;
   protected
     function ToSqlString(const params: IList<TDBParam>;
@@ -49,13 +50,13 @@ type
       addToCommand: Boolean): string; override;
   public
     constructor Create(const propertyName: string; const values: TArray<TValue>;
-      whereOperator: TWhereOperator); reintroduce;
+      whereOperator: TWhereOperator; ignoreCase: Boolean); reintroduce;
   end;
 
   TInExpression<T> = class(TInExpression)
   public
     constructor Create(const propertyName: string; const values: TArray<T>;
-      whereOperator: TWhereOperator); reintroduce;
+      whereOperator: TWhereOperator; caseSensitive: Boolean); reintroduce;
   end;
 
 implementation
@@ -68,10 +69,12 @@ uses
 {$REGION 'TInExpression'}
 
 constructor TInExpression.Create(const propertyName: string;
-  const values: TArray<TValue>; whereOperator: TWhereOperator);
+  const values: TArray<TValue>; whereOperator: TWhereOperator;
+  ignoreCase: Boolean);
 begin
   inherited Create(propertyName, TValue.Empty, whereOperator);
   fValues := values;
+  fIgnoreCase := ignoreCase;
 end;
 
 function TInExpression.ToSqlString(const params: IList<TDBParam>;
@@ -80,7 +83,7 @@ function TInExpression.ToSqlString(const params: IList<TDBParam>;
 var
   whereField: TSQLWhereField;
 begin
-  whereField := TSQLWhereField.Create(PropertyName, GetCriterionTable(command));
+  whereField := TSQLWhereField.Create(PropertyName, GetCriterionTable(command), fIgnoreCase);
   whereField.WhereOperator := WhereOperator;
   whereField.RightSQL := ValuesToSeparatedString;
 
@@ -112,6 +115,8 @@ begin
       s := QuotedStr(value.AsString)
     else
       s := value.ToString;
+    if fIgnoreCase then
+      s := AnsiUpperCase(s);
     Result := Result + s;
   end;
   Result := Result + ')';
@@ -123,11 +128,11 @@ end;
 {$REGION 'TInExpression<T>'}
 
 constructor TInExpression<T>.Create(const propertyName: string;
-  const values: TArray<T>; whereOperator: TWhereOperator);
+  const values: TArray<T>; whereOperator: TWhereOperator; caseSensitive: Boolean);
 var
   i: Integer;
 begin
-  inherited Create(propertyName, nil, whereOperator);
+  inherited Create(propertyName, nil, whereOperator, caseSensitive);
   SetLength(fValues, Length(values));
   for i := Low(values) to High(values) do
     fValues[i] := TValue.From<T>(values[i]);

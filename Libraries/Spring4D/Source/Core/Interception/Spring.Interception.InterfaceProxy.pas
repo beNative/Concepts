@@ -37,6 +37,8 @@ uses
   Spring.VirtualInterface;
 
 type
+  TAggregatedInterfaceProxy = class;
+
   TInterfaceProxy = class(TVirtualInterface, IProxyTargetAccessor, IDynamicProxy)
   private
     type
@@ -48,7 +50,7 @@ type
   private
     fInterceptors: IList<IInterceptor>;
     fInterceptorSelector: IInterceptorSelector;
-    fAdditionalInterfaces: IList<TInterfaceProxy>;
+    fAdditionalInterfaces: IList<TAggregatedInterfaceProxy>;
     fTarget: TValue;
     fTypeInfo: PTypeInfo;
     procedure AddAdditionalInterface(typeInfo: PTypeInfo;
@@ -72,7 +74,9 @@ type
 
   TAggregatedInterfaceProxy = class(TInterfaceProxy)
   private
-    fController: Pointer;
+    {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
+    fOwner: TInterfaceProxy;
+    function QueryInterfaceInternal(const IID: TGUID; out Obj): HResult;
   protected
     function _AddRef: Integer; override;
     function _Release: Integer; override;
@@ -82,7 +86,7 @@ type
       const options: TProxyGenerationOptions;
       const target: IInterface;
       const interceptors: array of IInterceptor;
-      const controller: IInterface);
+      const owner: TInterfaceProxy);
 
     function QueryInterface(const IID: TGUID; out Obj): HResult; override;
   end;
@@ -123,7 +127,7 @@ begin
   // this ctor). Calling DisposeOf will clear the internal data which makes the
   // object free its memory until all references are cleared, once they AR, they
   // could cause an AV. Normal release chain however is immune to that.
-  fAdditionalInterfaces := TCollections.CreateObjectList<TInterfaceProxy>
+  fAdditionalInterfaces := TCollections.CreateObjectList<TAggregatedInterfaceProxy>
     {$IFDEF AUTOREFCOUNT}(False){$ENDIF};
   GenerateInterfaces(additionalInterfaces, options);
 end;
@@ -132,7 +136,7 @@ procedure TInterfaceProxy.AddAdditionalInterface(typeInfo: PTypeInfo;
   const options: TProxyGenerationOptions);
 begin
   if not fAdditionalInterfaces.Any(
-    function(const proxy: TInterfaceProxy): Boolean
+    function(const proxy: TAggregatedInterfaceProxy): Boolean
     begin
       Result := proxy.fTypeInfo = typeInfo;
     end) then
@@ -200,7 +204,7 @@ begin
       Exit;
   end;
   for i := 0 to fAdditionalInterfaces.Count - 1 do
-    if fAdditionalInterfaces[i].QueryInterface(IID, obj) = S_OK then
+    if fAdditionalInterfaces[i].QueryInterfaceInternal(IID, obj) = S_OK then
       Exit(S_OK);
   Result := E_NOINTERFACE;
 end;
@@ -232,28 +236,37 @@ end;
 constructor TAggregatedInterfaceProxy.Create(proxyType: PTypeInfo;
   const additionalInterfaces: array of PTypeInfo;
   const options: TProxyGenerationOptions; const target: IInterface;
-  const interceptors: array of IInterceptor; const controller: IInterface);
+  const interceptors: array of IInterceptor;
+  const owner: TInterfaceProxy);
 begin
   inherited Create(proxyType, additionalInterfaces, options, target, interceptors);
-  fController := Pointer(controller);
+  fOwner := owner;
 end;
 
 function TAggregatedInterfaceProxy.QueryInterface(const IID: TGUID;
   out Obj): HResult;
 begin
+  if IID = IInterface then
+    Exit(fOwner.QueryInterface(IID, Obj));
   Result := inherited;
   if Result <> S_OK then
-    Result := IInterface(FController).QueryInterface(IID, Obj);
+    Result := fOwner.QueryInterface(IID, Obj);
+end;
+
+function TAggregatedInterfaceProxy.QueryInterfaceInternal(const IID: TGUID;
+  out Obj): HResult;
+begin
+  Result := inherited QueryInterface(IID, Obj);
 end;
 
 function TAggregatedInterfaceProxy._AddRef: Integer;
 begin
-  Result := IInterface(FController)._AddRef;
+  Result := fOwner._AddRef;
 end;
 
 function TAggregatedInterfaceProxy._Release: Integer;
 begin
-  Result := IInterface(FController)._Release;
+  Result := fOwner._Release;
 end;
 
 {$ENDREGION}

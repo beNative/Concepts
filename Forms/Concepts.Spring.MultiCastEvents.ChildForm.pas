@@ -52,8 +52,6 @@ implementation
 
 {$R *.dfm}
 
-
-
 {$REGION 'construction and destruction'}
 constructor TfrmMulticastEventsChild.Create(AOwner: TComponent;
   APosition: TPosition);

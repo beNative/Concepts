@@ -62,14 +62,14 @@ type
     grpLogEntry        : TGroupBox;
     imlLogLevels       : TImageList;
     imlMain            : TImageList;
-    lbl1               : TLabel;
+    lblMessage         : TLabel;
     lblData            : TLabel;
     pnlLeft            : TPanel;
     pnlLoggerInspector : TPanel;
     pnlRight           : TPanel;
     rgpLogEntryTypes   : TRadioGroup;
     rgpLogLevel        : TRadioGroup;
-    spl1               : TSplitter;
+    splVertical        : TSplitter;
     tsMain             : TTabSet;
 
     procedure actTrackThisExecute(Sender: TObject);

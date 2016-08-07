@@ -479,6 +479,8 @@ type
     procedure TearDown; override;
   published
     procedure TestAddPair;
+
+    procedure TestAddStringPair;
   end;
 
 implementation
@@ -2698,6 +2700,18 @@ begin
   SUT.Add(TPair<Integer,Integer>.Create(1,1));
   CheckEquals(1, SUT.Count);
   CheckEquals(1, SUT[1].First);
+end;
+
+procedure TTestMultiMap.TestAddStringPair;
+var
+  map: IMultiMap<string,TPair<string,string>>;
+  pair: TPair<string,string>;
+begin
+  map := TCollections.CreateMultiMap<string,TPair<string,string>>;
+  pair.Key := 'Hello';
+  pair.Value := 'World';
+  map.Add('Test', pair);
+  CheckEquals(1, map.Count);
 end;
 
 {$ENDREGION}

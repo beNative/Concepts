@@ -178,13 +178,13 @@ type
     function Gt(const value: TValue): ICriterion;
     function IsNull: ICriterion;
     function IsNotNull: ICriterion;
-    function Like(const value: string; matchMode: TMatchMode = mmExact): ICriterion;
-    function NotLike(const value: string; matchMode: TMatchMode = mmExact): ICriterion;
+    function Like(const value: string; matchMode: TMatchMode = mmExact; ignoreCase: Boolean = False): ICriterion;
+    function NotLike(const value: string; matchMode: TMatchMode = mmExact; ignoreCase: Boolean = False): ICriterion;
     function LEq(const value: TValue): ICriterion;
     function Lt(const value: TValue): ICriterion;
-    function &In(const values: TArray<string>): ICriterion; overload;
+    function &In(const values: TArray<string>; ignoreCase: Boolean = False): ICriterion; overload;
     function &In(const values: TArray<Integer>): ICriterion; overload;
-    function NotIn(const values: TArray<string>): ICriterion; overload;
+    function NotIn(const values: TArray<string>; ignoreCase: Boolean = False): ICriterion; overload;
     function NotIn(const values: TArray<Integer>): ICriterion; overload;
     function Between(const low, high: TValue): ICriterion;
 

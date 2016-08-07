@@ -21,14 +21,13 @@ unit Concepts.MainForm;
 interface
 
 uses
-  System.Actions, System.Classes,
-  Vcl.ActnList, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms,
-  Vcl.ExtCtrls, Vcl.ComCtrls,
+  System.Actions, System.Classes, System.Win.TaskbarCore,
+  Vcl.ActnList, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms, Vcl.ExtCtrls,
+  Vcl.ComCtrls, Vcl.Taskbar, Vcl.JumpList,
 
   VirtualTrees,
 
-  DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter,
-  System.Win.TaskbarCore, Vcl.Taskbar, Vcl.JumpList;
+  DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter;
 
 type
   TfrmMain = class(TForm)
@@ -44,17 +43,23 @@ type
     btnExecute      : TButton;
     btnClose        : TButton;
     btnExecuteModal : TButton;
-    tbrMain: TTaskbar;
+    tbrMain         : TTaskbar;
     {$ENDREGION}
 
     procedure actExecuteExecute(Sender: TObject);
     procedure actExecuteModalExecute(Sender: TObject);
     procedure actCloseExecute(Sender: TObject);
 
-    procedure edtFilterKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure edtFilterKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure edtFilterKeyDown(
+      Sender  : TObject;
+      var Key : Word;
+      Shift   : TShiftState
+    );
+    procedure edtFilterKeyUp(
+      Sender  : TObject;
+      var Key : Word;
+      Shift   : TShiftState
+    );
     procedure edtFilterChange(Sender: TObject);
 
   strict private
@@ -328,4 +333,3 @@ end;
 {$ENDREGION}
 
 end.
-

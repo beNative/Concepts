@@ -240,7 +240,7 @@ begin
     raise EListError.CreateRes(@SUnbalancedOperation);
   Dec(fCount);
   Result := fItems[fCount];
-  fItems[Count] := Default(T);
+  fItems[fCount] := Default(T);
   IncreaseVersion;
 
   Changed(Result, notification);

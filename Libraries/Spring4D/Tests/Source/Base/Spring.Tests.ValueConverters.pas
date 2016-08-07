@@ -31,6 +31,7 @@ interface
 uses
   SysUtils,
   TestFramework,
+  Spring.TestUtils,
   Spring.ValueConverters;
 
 type
@@ -89,6 +90,9 @@ type
     procedure TestStringToNullableDateTime;
     procedure TestStringToNullableDate;
     procedure TestStringToNullableTime;
+
+    procedure TestStringToGuid;
+    procedure TestStringToNullableGuid;
   end;
 
 {$IFNDEF NEXTGEN}
@@ -540,6 +544,7 @@ type
     procedure TestNullableShortIntToAnsiString;
 {$ENDIF}
     procedure TestNullableFloatToInteger;
+    procedure TestNullableFloatToIntger_ExceptionWhenDecimalPlaces;
     procedure TestNullableFloatToCardinal;
     procedure TestNullableFloatToSmallInt;
     procedure TestNullableFloatToShortInt;
@@ -600,6 +605,8 @@ type
   published
     procedure TestCustomFloatToString;
     procedure TestStringToCustomFloat;
+    procedure TestGuidToString;
+    procedure TestNullableGuidToString;
   end;
 
 type
@@ -636,6 +643,7 @@ const
   RedValue = clRed;
   BlueValue = clBlue;
 {$ENDIF HAS_UNIT_SYSTEM_UITYPES}
+  GuidString = '{AAEE5928-F8C7-405C-A85B-F9D863EED75F}';
 
 {$IFDEF HAS_UNIT_SYSTEM_UITYPES}
 function ColorToRGB(i : TColor) : Longint;
@@ -834,6 +842,35 @@ begin
   CheckTrue(outValue.TryAsType<Extended>(outFloat));
   CheckEquals(1.11, outFloat);
   CheckFalse(fConverter.TryConvertTo(TValue.From<string>('foo'), TypeInfo(Extended), outValue));
+end;
+
+procedure TTestFromString.TestStringToGuid;
+var
+  outValue: TValue;
+  outGuid: TGUID;
+begin
+  outValue := fConverter.ConvertTo(TValue.From<string>(GuidString),
+    TypeInfo(TGUID));
+  CheckFalse(outValue.IsEmpty);
+  CheckTrue(outValue.TryAsType<TGUID>(outGuid));
+{$IFDEF DELPHI2010}
+  CheckTrue(TGUID.Create(GuidString).Equals(outGuid));
+{$ELSE}
+  CheckTrue(TGUID.Create(GuidString) = outGuid);
+{$ENDIF}
+  CheckFalse(fConverter.TryConvertTo(TValue.From<string>('no-guid'), TypeInfo(TGUID), outValue));
+end;
+
+procedure TTestFromString.TestStringToNullableGuid;
+var
+  outValue: TValue;
+  outGuid: Nullable<TGUID>;
+begin
+  outValue := fConverter.ConvertTo(TValue.From<string>(GuidString),
+    TypeInfo(Nullable<TGUID>));
+  CheckFalse(outValue.IsEmpty);
+  CheckTrue(outValue.TryAsType<Nullable<TGUID>>(outGuid));
+  CheckTrue(TGUID.Create(GuidString) = outGuid);
 end;
 
 procedure TTestFromString.TestStringToEnum;
@@ -2556,7 +2593,7 @@ var
   outValue: TValue;
   outInt: Integer;
 begin
-  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.11),
+  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.00),
     TypeInfo(Integer));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<Integer>(outInt));
@@ -2568,7 +2605,7 @@ var
   outValue: TValue;
   outInt: Cardinal;
 begin
-  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.11),
+  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.00),
     TypeInfo(Cardinal));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<Cardinal>(outInt));
@@ -2580,7 +2617,7 @@ var
   outValue: TValue;
   outInt: SmallInt;
 begin
-  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.11),
+  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.00),
     TypeInfo(SmallInt));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<SmallInt>(outInt));
@@ -2592,7 +2629,7 @@ var
   outValue: TValue;
   outInt: ShortInt;
 begin
-  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.11),
+  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.00),
     TypeInfo(ShortInt));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<ShortInt>(outInt));
@@ -2704,7 +2741,7 @@ var
   outValue: TValue;
   outNullable: Nullable<Integer>;
 begin
-  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.11),
+  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.00),
     TypeInfo(Nullable<Integer>));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<Nullable<Integer>>(outNullable));
@@ -2716,7 +2753,7 @@ var
   outValue: TValue;
   outNullable: Nullable<Cardinal>;
 begin
-  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.11),
+  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.00),
     TypeInfo(Nullable<Cardinal>));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<Nullable<Cardinal>>(outNullable));
@@ -2728,7 +2765,7 @@ var
   outValue: TValue;
   outNullable: Nullable<SmallInt>;
 begin
-  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.11),
+  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.00),
     TypeInfo(Nullable<SmallInt>));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<Nullable<SmallInt>>(outNullable));
@@ -2740,7 +2777,7 @@ var
   outValue: TValue;
   outNullable: Nullable<ShortInt>;
 begin
-  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.11),
+  outValue := fConverter.ConvertTo(TValue.From<Extended>(1.00),
     TypeInfo(Nullable<ShortInt>));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<Nullable<ShortInt>>(outNullable));
@@ -3408,11 +3445,18 @@ var
   outValue: TValue;
   outInt: Integer;
 begin
-  outValue := fConverter.ConvertTo(TValue.From<Nullable<Extended>>(Nullable<Extended>.Create(1.11)),
+  outValue := fConverter.ConvertTo(TValue.From<Nullable<Extended>>(Nullable<Extended>.Create(1.00)),
     TypeInfo(Integer));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<Integer>(outInt));
   CheckEquals(1, outInt);
+end;
+
+procedure TTestFromNullable.TestNullableFloatToIntger_ExceptionWhenDecimalPlaces;
+begin
+  ExpectedException := EConvertError;
+  fConverter.ConvertTo(TValue.From<Nullable<Extended>>(Nullable<Extended>.Create(1.11)),
+    TypeInfo(Integer));
 end;
 
 procedure TTestFromNullable.TestNullableFloatToCardinal;
@@ -3420,7 +3464,7 @@ var
   outValue: TValue;
   outInt: Cardinal;
 begin
-  outValue := fConverter.ConvertTo(TValue.From<Nullable<Extended>>(Nullable<Extended>.Create(1.11)),
+  outValue := fConverter.ConvertTo(TValue.From<Nullable<Extended>>(Nullable<Extended>.Create(1.00)),
     TypeInfo(Cardinal));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<Cardinal>(outInt));
@@ -3432,7 +3476,7 @@ var
   outValue: TValue;
   outInt: SmallInt;
 begin
-  outValue := fConverter.ConvertTo(TValue.From<Nullable<Extended>>(Nullable<Extended>.Create(1.11)),
+  outValue := fConverter.ConvertTo(TValue.From<Nullable<Extended>>(Nullable<Extended>.Create(1.00)),
     TypeInfo(SmallInt));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<SmallInt>(outInt));
@@ -3444,7 +3488,7 @@ var
   outValue: TValue;
   outInt: ShortInt;
 begin
-  outValue := fConverter.ConvertTo(TValue.From<Nullable<Extended>>(Nullable<Extended>.Create(1.11)),
+  outValue := fConverter.ConvertTo(TValue.From<Nullable<Extended>>(Nullable<Extended>.Create(1.00)),
     TypeInfo(ShortInt));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<ShortInt>(outInt));
@@ -4706,6 +4750,28 @@ begin
   CheckEquals(FloatToStr(1.11), outStr);
 end;
 
+procedure TTestCustomTypes.TestGuidToString;
+var
+  outValue: TValue;
+  outString: string;
+begin
+  outValue := fConverter.ConvertTo(TValue.From<TGUID>(StringToGuid(GuidString)), TypeInfo(string));
+  CheckFalse(outValue.IsEmpty);
+  CheckTrue(outValue.TryAsType<string>(outString));
+  CheckEquals(GuidString, outString);
+end;
+
+procedure TTestCustomTypes.TestNullableGuidToString;
+var
+  outValue: TValue;
+  outString: string;
+begin
+  outValue := fConverter.ConvertTo(TValue.From<Nullable<TGUID>>(StringToGuid(GuidString)), TypeInfo(string));
+  CheckFalse(outValue.IsEmpty);
+  CheckTrue(outValue.TryAsType<string>(outString));
+  CheckEquals(GuidString, outString);
+end;
+
 procedure TTestCustomTypes.TestStringToCustomFloat;
 var
   outValue: TValue;
@@ -4944,5 +5010,6 @@ begin
 end;
 
 {$ENDREGION}
+
 
 end.

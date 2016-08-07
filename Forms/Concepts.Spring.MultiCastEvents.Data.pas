@@ -18,7 +18,7 @@
 
 unit Concepts.Spring.MultiCastEvents.Data;
 
-{ Test component with multicast TNotifyEvent support. }
+{ Test class with multicast TNotifyEvent support. }
 
 interface
 
@@ -34,9 +34,10 @@ type
     FPosition : Integer;
 
     function GetOnChange: IEvent<TNotifyEvent>;
-    procedure DoChange;
     function GetPosition: Integer;
     procedure SetPosition(const Value: Integer);
+
+    procedure DoChange;
 
   public
     property Position: Integer

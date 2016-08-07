@@ -162,6 +162,10 @@ begin
   end;
 
   parameters := injection.Target.AsMethod.GetParameters;
+  // RTTI cannot handle open array parameters
+  for i := Low(parameters) to High(parameters) do
+    if pfArray in parameters[i].Flags then
+      Exit(False);
   if Length(parameters) = fArguments.Count then
   begin
     // arguments for ctor are provided and count is correct

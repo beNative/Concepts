@@ -445,9 +445,16 @@ begin
   lazyKind := GetLazyKind(dependency.TypeInfo);
   targetType := dependency.TargetType.GetGenericArguments[0];
   dependencyModel := TDependencyModel.Create(targetType, dependency.Target);
+  if Kernel.Registry.HasService(targetType.Handle) then
+  begin
   componentModel := Kernel.Registry.FindOne(targetType.Handle, argument);
-
   hasEntered := context.EnterResolution(componentModel, Result);
+  end
+  else
+  begin
+    componentModel := nil;
+    hasEntered := False;
+  end;
   try
     case targetType.TypeKind of
       tkClass: Result := InternalResolveClass(
@@ -531,15 +538,17 @@ const
     'IList<>', 'IReadOnlyList<>', 'ICollection<>', 'IEnumerable<>');
 var
   targetType: TRttiType;
+  method: TRttiMethod;
   dependencyModel: TDependencyModel;
 begin
   targetType := dependency.TargetType;
   Result := inherited CanResolve(context, dependency, argument)
     and targetType.IsGenericType
-    and MatchText(targetType.GetGenericTypeDefinition, SupportedTypes);
+    and MatchText(targetType.GetGenericTypeDefinition, SupportedTypes)
+    and targetType.TryGetMethod('ToArray', method);
   if Result then
   begin
-    targetType := targetType.GetGenericArguments[0];
+    targetType := method.ReturnType.AsDynamicArray.ElementType;
     dependencyModel := TDependencyModel.Create(targetType, dependency.Target);
     Result := targetType.IsClassOrInterface
       and Kernel.Resolver.CanResolve(context, dependencyModel, TValue.From(tkDynArray));
@@ -549,13 +558,15 @@ end;
 function TListResolver.Resolve(const context: ICreationContext;
   const dependency: TDependencyModel; const argument: TValue): TValue;
 var
-  itemType: TRttiType;
   arrayType: TRttiType;
+  itemType: TRttiType;
+  dependencyModel: TDependencyModel;
   values: TValue;
 begin
-  itemType := dependency.TargetType.GetGenericArguments[0];
   arrayType := dependency.TargetType.GetMethod('ToArray').ReturnType;
-  values := (Kernel as IKernelInternal).Resolve(arrayType.Handle);
+  itemType := arrayType.AsDynamicArray.ElementType;
+  dependencyModel := TDependencyModel.Create(arrayType, dependency.Target);
+  values := Kernel.Resolver.Resolve(context, dependencyModel, argument);
   case itemType.TypeKind of
     tkClass:
     begin
