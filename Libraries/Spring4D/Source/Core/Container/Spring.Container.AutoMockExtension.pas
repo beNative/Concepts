@@ -43,6 +43,7 @@ uses
   Rtti,
   SysUtils,
   TypInfo,
+  Spring,
   Spring.Container.Common,
   Spring.Container.Core,
   Spring.Reflection,
@@ -95,7 +96,7 @@ begin
     and mockedType.IsInterface and not mockedType.IsType<IInterface> then
     Exit(True);
 
-  if dependency.TargetType.IsInterface then
+  if dependency.TargetType.IsInterface and not IsLazyType(dependency.TypeInfo) then
     if argument.IsEmpty then
       Exit(not fKernel.Registry.HasService(dependency.TypeInfo))
     else

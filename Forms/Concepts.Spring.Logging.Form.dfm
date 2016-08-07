@@ -15,7 +15,7 @@ object frmSpringLogging: TfrmSpringLogging
   OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 13
-  object spl1: TSplitter
+  object splVertical: TSplitter
     Left = 409
     Top = 0
     Width = 5
@@ -42,7 +42,7 @@ object frmSpringLogging: TfrmSpringLogging
       DesignSize = (
         394
         202)
-      object lbl1: TLabel
+      object lblMessage: TLabel
         Left = 12
         Top = 26
         Width = 46

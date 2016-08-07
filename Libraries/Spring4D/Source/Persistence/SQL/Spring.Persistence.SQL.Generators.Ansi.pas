@@ -440,10 +440,16 @@ begin
         Result := GetQualifiedFieldName(field) + ' ' + WhereOperatorNames[field.WhereOperator];
       woLike, woNotLike, woIn, woNotIn:
         // TODO: support parameter
-        Result := Format('%s %s %s', [
-          GetQualifiedFieldName(field),
-          WhereOperatorNames[field.WhereOperator],
-          field.RightSQL]);
+        if field.IgnoreCase then
+          Result := Format('UPPER(%s) %s %s', [
+            GetQualifiedFieldName(field),
+            WhereOperatorNames[field.WhereOperator],
+            field.RightSQL])
+        else
+          Result := Format('%s %s %s', [
+            GetQualifiedFieldName(field),
+            WhereOperatorNames[field.WhereOperator],
+            field.RightSQL]);
       woOr, woAnd:
         Result := Format('(%s %s %s)', [
           field.LeftSQL,

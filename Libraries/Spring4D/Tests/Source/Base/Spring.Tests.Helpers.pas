@@ -36,14 +36,6 @@ uses
   Spring.Helpers;
 
 type
-  TTestGuidHelper = class(TTestCase)
-  published
-    procedure TestNewGUID;
-    procedure TestEmpty;
-    procedure TestEquals;
-    procedure TestToString;
-  end;
-
   TTestRttiTypeHelper = class(TTestCase)
   published
     procedure TestGetGenericArguments;
@@ -62,55 +54,6 @@ implementation
 uses
   Rtti,
   Spring.Reflection;
-
-
-{$REGION 'TTestGuidHelper'}
-
-{$WARNINGS OFF}
-
-procedure TTestGuidHelper.TestNewGUID;
-var
-  guid: TGUID;
-begin
-  guid := TGUID.NewGUID;
-  CheckEquals(38, Length(guid.ToString));
-end;
-
-procedure TTestGuidHelper.TestEmpty;
-var
-  empty: TGUID;
-const
-  EmptyGuidString = '{00000000-0000-0000-0000-000000000000}';
-begin
-  empty := TGUID.Empty;
-  CheckEquals(EmptyGuidString, empty.ToString);
-  CheckTrue(empty.IsEmpty);
-end;
-
-procedure TTestGuidHelper.TestEquals;
-var
-  guid: TGUID;
-const
-  GuidString = '{93585BA2-B43B-4C55-AAAB-6DE6EB4C0E57}';
-begin
-  guid := TGUID.Create(GuidString);
-  Check(guid.Equals(guid));
-  CheckFalse(guid.Equals(TGUID.Empty));
-end;
-
-procedure TTestGuidHelper.TestToString;
-var
-  guid: TGUID;
-const
-  GuidString = '{93585BA2-B43B-4C55-AAAB-6DE6EB4C0E57}';
-begin
-  guid := TGuid.Create(GuidString);
-  CheckEquals(GuidString, guid.ToString);
-end;
-
-{$WARNINGS ON}
-
-{$ENDREGION}
 
 
 {$REGION 'TTestRttiTypeHelper'}

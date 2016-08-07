@@ -305,7 +305,7 @@ var
 begin
   if model.ConstructorInjections.Any then Exit;  // TEMP
   predicate := TMethodFilters.IsConstructor
-    and not TMethodFilters.HasParameterFlags([pfVar, pfOut]);
+    and not TMethodFilters.HasParameterFlags([pfVar, pfArray, pfOut]);
   for method in model.ComponentType.Methods.Where(predicate) do
   begin
     injection := kernel.Injector.InjectConstructor(model);
@@ -335,7 +335,7 @@ var
 begin
   condition := TMethodFilters.IsInstanceMethod
     and TMethodFilters.HasAttribute(InjectAttribute)
-    and not TMethodFilters.HasParameterFlags([pfOut, pfVar])
+    and not TMethodFilters.HasParameterFlags([pfVar, pfArray, pfOut])
     and not TMethodFilters.IsConstructor;
   for method in model.ComponentType.Methods.Where(condition) do
   begin

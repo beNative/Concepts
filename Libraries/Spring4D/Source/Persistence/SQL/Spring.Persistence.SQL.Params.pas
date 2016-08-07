@@ -143,6 +143,8 @@ begin
     tkRecord:
       if IsNullable(typeInfo) then
         Result := TypeInfoToFieldType(GetUnderlyingType(typeInfo))
+      else if typeInfo = System.TypeInfo(TGUID) then
+        Result := ftGuid
       else
         Result := ftBlob;
     tkClassRef, tkPointer: Result := ftReference;

@@ -77,13 +77,13 @@ type
     ///   Apply a <b>"like"</b> constraint to the named property.
     /// </summary>
     class function Like(const propertyName, value: string;
-      matchMode: TMatchMode = mmExact): ICriterion; static;
+      matchMode: TMatchMode = mmExact; ignoreCase: Boolean = False): ICriterion; static;
 
     /// <summary>
     ///   Apply a <b>"not like"</b> constraint to the named property.
     /// </summary>
     class function NotLike(const propertyName, value: string;
-      matchMode: TMatchMode = mmExact): ICriterion; static;
+      matchMode: TMatchMode = mmExact; ignoreCase: Boolean = False): ICriterion; static;
 
     /// <summary>
     ///   Apply a <b>"less than or equal"</b> constraint to the named property.
@@ -99,37 +99,37 @@ type
     ///   Apply an <b>"in"</b> constraint to the named property.
     /// </summary>
     class function &In(const propertyName: string;
-      const values: TArray<TValue>): ICriterion; overload; static;
+      const values: TArray<TValue>; ignoreCase: Boolean = False): ICriterion; overload; static;
 
     /// <summary>
     ///   Apply an <b>"in"</b> constraint to the named property.
     /// </summary>
     class function &In(const propertyName: string;
-      const values: array of const): ICriterion; overload; static;
+      const values: array of const; ignoreCase: Boolean = False): ICriterion; overload; static;
 
     /// <summary>
     ///   Apply an <b>"in"</b> constraint to the named property.
     /// </summary>
     class function &In<T>(const propertyName: string;
-      const values: TArray<T>): ICriterion; overload; static;
+      const values: TArray<T>; ignoreCase: Boolean = False): ICriterion; overload; static;
 
     /// <summary>
     ///   Apply an <b>"not in"</b> constraint to the named property.
     /// </summary>
     class function NotIn(const propertyName: string;
-      const values: TArray<TValue>): ICriterion; overload; static;
+      const values: TArray<TValue>; ignoreCase: Boolean = False): ICriterion; overload; static;
 
     /// <summary>
     ///   Apply an <b>"not in"</b> constraint to the named property.
     /// </summary>
     class function NotIn(const propertyName: string;
-      const values: array of const): ICriterion; overload; static;
+      const values: array of const; ignoreCase: Boolean = False): ICriterion; overload; static;
 
     /// <summary>
     ///   Apply an <b>"not in"</b> constraint to the named property.
     /// </summary>
     class function NotIn<T>(const propertyName: string;
-      const values: TArray<T>): ICriterion; overload; static;
+      const values: TArray<T>; ignoreCase: Boolean = False): ICriterion; overload; static;
 
     /// <summary>
     ///   Return the conjuction of two expressions.
@@ -293,21 +293,21 @@ begin
 end;
 
 class function Restrictions.&In(const propertyName: string;
-  const values: TArray<TValue>): ICriterion;
+  const values: TArray<TValue>; ignoreCase: Boolean): ICriterion;
 begin
-  Result := TInExpression.Create(propertyName, values, woIn);
+  Result := TInExpression.Create(propertyName, values, woIn, ignoreCase);
 end;
 
 class function Restrictions.&In(const propertyName: string;
-  const values: array of const): ICriterion;
+  const values: array of const; ignoreCase: Boolean): ICriterion;
 begin
-  Result := TInExpression.Create(propertyName, Copy(values), woIn);
+  Result := TInExpression.Create(propertyName, Copy(values), woIn, ignoreCase);
 end;
 
 class function Restrictions.&In<T>(const propertyName: string;
-  const values: TArray<T>): ICriterion;
+  const values: TArray<T>; ignoreCase: Boolean): ICriterion;
 begin
-  Result := TInExpression<T>.Create(propertyName, values, woIn);
+  Result := TInExpression<T>.Create(propertyName, values, woIn, ignoreCase);
 end;
 
 class function Restrictions.IsNotNull(const propertyName: string): ICriterion;
@@ -333,9 +333,9 @@ begin
 end;
 
 class function Restrictions.Like(const propertyName, value: string;
-  matchMode: TMatchMode): ICriterion;
+  matchMode: TMatchMode; ignoreCase: Boolean): ICriterion;
 begin
-  Result := TLikeExpression.Create(propertyName, value, woLike, matchMode);
+  Result := TLikeExpression.Create(propertyName, value, woLike, matchMode, ignoreCase);
 end;
 
 class function Restrictions.Lt(const propertyName: string;
@@ -357,27 +357,27 @@ begin
 end;
 
 class function Restrictions.NotIn(const propertyName: string;
-  const values: TArray<TValue>): ICriterion;
+  const values: TArray<TValue>; ignoreCase: Boolean): ICriterion;
 begin
-  Result := TInExpression.Create(propertyName, values, woNotIn);
+  Result := TInExpression.Create(propertyName, values, woNotIn, ignoreCase);
 end;
 
 class function Restrictions.NotIn(const propertyName: string;
-  const values: array of const): ICriterion;
+  const values: array of const; ignoreCase: Boolean): ICriterion;
 begin
-  Result := TInExpression.Create(propertyName, Copy(values), woNotIn);
+  Result := TInExpression.Create(propertyName, Copy(values), woNotIn, ignoreCase);
 end;
 
 class function Restrictions.NotIn<T>(const propertyName: string;
-  const values: TArray<T>): ICriterion;
+  const values: TArray<T>; ignoreCase: Boolean): ICriterion;
 begin
-  Result := TInExpression<T>.Create(propertyName, values, woNotIn);
+  Result := TInExpression<T>.Create(propertyName, values, woNotIn, ignoreCase);
 end;
 
 class function Restrictions.NotLike(const propertyName, value: string;
-  matchMode: TMatchMode): ICriterion;
+  matchMode: TMatchMode; ignoreCase: Boolean): ICriterion;
 begin
-  Result := TLikeExpression.Create(propertyName, value, woNotLike, matchMode);
+  Result := TLikeExpression.Create(propertyName, value, woNotLike, matchMode, ignoreCase);
 end;
 
 {$ENDREGION}

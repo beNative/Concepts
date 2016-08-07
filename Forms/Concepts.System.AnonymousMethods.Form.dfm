@@ -30,8 +30,8 @@ object frmAnonymousMethods: TfrmAnonymousMethods
     TabOrder = 1
   end
   object aclMain: TActionList
-    Left = 56
-    Top = 24
+    Left = 256
+    Top = 8
     object actAssignProcVariable: TAction
       Caption = 'Assign TProc variable'
       OnExecute = actAssignProcVariableExecute

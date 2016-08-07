@@ -245,6 +245,23 @@ type
     function GetEnumerator: IEnumerator<T>; override; final;
   end;
 
+{$IFDEF DELPHI2010}
+  TRangeIterator = class(TIterator<Integer>)
+  private
+    fStart: Integer;
+    fCount: Integer;
+    fIndex: Integer;
+  protected
+    function GetCount: Integer; override;
+  public
+    constructor Create(start, count: Integer);
+    function Clone: TIterator<Integer>; override;
+    function MoveNext: Boolean; override;
+
+    function ToArray: TArray<Integer>; override;
+  end;
+{$ENDIF}
+
   TSourceIterator<T> = class(TIterator<T>)
   protected
     fSource: IEnumerable<T>;
@@ -415,7 +432,7 @@ type
   public
     destructor Destroy; override;
 
-    function Add(const item: T): Integer; reintroduce; virtual; stdcall;
+    function Add(const item: T): Integer; reintroduce; virtual;
     procedure AddRange(const values: array of T); override;
     procedure AddRange(const collection: IEnumerable<T>); override;
 
@@ -1389,6 +1406,66 @@ begin
     Result := iterator;
   end;
 end;
+
+{$ENDREGION}
+
+
+{$REGION 'TRangeIterator'}
+
+{$IFDEF DELPHI2010}
+constructor TRangeIterator.Create(start, count: Integer);
+begin
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckRange(count >= 0, 'count');
+  Guard.CheckRange(Int64(start) + Int64(count) - 1 <= Int64(MaxInt), 'count');
+{$ENDIF}
+
+  inherited Create;
+  fStart := start;
+  fCount := count;
+end;
+
+function TRangeIterator.Clone: TIterator<Integer>;
+begin
+  Result := TRangeIterator.Create(fStart, fCount);
+end;
+
+function TRangeIterator.GetCount: Integer;
+begin
+  Result := fCount;
+end;
+
+function TRangeIterator.MoveNext: Boolean;
+begin
+  Result := False;
+
+  if fState = STATE_ENUMERATOR then
+  begin
+    fIndex := 0;
+    fState := STATE_RUNNING;
+  end;
+
+  if fState = STATE_RUNNING then
+  begin
+    if fIndex < fCount then
+    begin
+      fCurrent := fStart + fIndex;
+      Inc(fIndex);
+      Exit(True);
+    end;
+    fState := STATE_FINISHED;
+  end;
+end;
+
+function TRangeIterator.ToArray: TArray<Integer>;
+var
+  i: Integer;
+begin
+  SetLength(Result, fCount);
+  for i := 0 to fCount - 1 do
+    Result[i] := fStart + i;
+end;
+{$ENDIF}
 
 {$ENDREGION}
 

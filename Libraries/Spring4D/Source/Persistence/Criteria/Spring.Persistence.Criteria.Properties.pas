@@ -51,13 +51,13 @@ type
     function Gt(const value: TValue): ICriterion;
     function IsNull: ICriterion;
     function IsNotNull: ICriterion;
-    function Like(const value: string; matchMode: TMatchMode = mmExact): ICriterion;
-    function NotLike(const value: string; matchMode: TMatchMode = mmExact): ICriterion;
+    function Like(const value: string; matchMode: TMatchMode = mmExact; ignoreCase: Boolean = False): ICriterion;
+    function NotLike(const value: string; matchMode: TMatchMode = mmExact; ignoreCase: Boolean = False): ICriterion;
     function LEq(const value: TValue): ICriterion;
     function Lt(const value: TValue): ICriterion;
-    function &In(const value: TArray<string>): ICriterion; overload;
+    function &In(const value: TArray<string>; ignoreCase: Boolean = False): ICriterion; overload;
     function &In(const value: TArray<Integer>): ICriterion; overload;
-    function NotIn(const value: TArray<string>): ICriterion; overload;
+    function NotIn(const value: TArray<string>; ignoreCase: Boolean = False): ICriterion; overload;
     function NotIn(const value: TArray<Integer>): ICriterion; overload;
     function Between(const low, high: TValue): ICriterion;
     function Asc: IOrderBy;
@@ -148,8 +148,8 @@ type
 
     function IsNull: ICriterion;
     function IsNotNull: ICriterion;
-    function Like(const value: string; matchMode: TMatchMode = mmExact): ICriterion;
-    function NotLike(const value: string; matchMode: TMatchMode = mmExact): ICriterion;
+    function Like(const value: string; matchMode: TMatchMode = mmExact; ignoreCase: Boolean = False): ICriterion;
+    function NotLike(const value: string; matchMode: TMatchMode = mmExact; ignoreCase: Boolean = False): ICriterion;
     function Between(const low, high: TValue): ICriterion;
 
     function Asc: IOrderBy;
@@ -277,9 +277,9 @@ begin
   Result.SetEntityClass(GetEntityClass);
 end;
 
-function TProperty.&In(const value: TArray<string>): ICriterion;
+function TProperty.&In(const value: TArray<string>; ignoreCase: Boolean): ICriterion;
 begin
-  Result := Restrictions.In<string>(fPropertyName, value);
+  Result := Restrictions.In<string>(fPropertyName, value, ignoreCase);
   Result.SetEntityClass(GetEntityClass);
 end;
 
@@ -318,9 +318,10 @@ begin
   Result.SetEntityClass(GetEntityClass);
 end;
 
-function TProperty.Like(const value: string; matchMode: TMatchMode): ICriterion;
+function TProperty.Like(const value: string; matchMode: TMatchMode;
+  ignoreCase: Boolean): ICriterion;
 begin
-  Result := Restrictions.Like(fPropertyName, value, matchMode);
+  Result := Restrictions.Like(fPropertyName, value, matchMode, ignoreCase);
   Result.SetEntityClass(GetEntityClass);
 end;
 
@@ -376,15 +377,16 @@ begin
   Result.SetEntityClass(GetEntityClass);
 end;
 
-function TProperty.NotIn(const value: TArray<string>): ICriterion;
+function TProperty.NotIn(const value: TArray<string>; ignoreCase: Boolean): ICriterion;
 begin
-  Result := Restrictions.NotIn<string>(fPropertyName, value);
+  Result := Restrictions.NotIn<string>(fPropertyName, value, ignoreCase);
   Result.SetEntityClass(GetEntityClass);
 end;
 
-function TProperty.NotLike(const value: string; matchMode: TMatchMode): ICriterion;
+function TProperty.NotLike(const value: string; matchMode: TMatchMode;
+  ignoreCase: Boolean): ICriterion;
 begin
-  Result := Restrictions.NotLike(fPropertyName, value, matchMode);
+  Result := Restrictions.NotLike(fPropertyName, value, matchMode, ignoreCase);
   Result.SetEntityClass(GetEntityClass);
 end;
 
@@ -440,14 +442,14 @@ end;
 
 class operator Prop.In(const left: Prop; const right: TSetNumbers): TExpr;
 var
+  capturedRight: TSetNumbers;
   rightArray: TArray<Integer>;
-  lright: TSetNumbers;
 begin
-  lright := right;
+  capturedRight := right;
   rightArray := TEnumerable.Range(0, 256)
     .Where(function(const value: Integer): Boolean
     begin
-      Result := value in lright;
+      Result := value in capturedRight;
     end).ToArray;
   Result.fCriterion := left.fProp.&In(rightArray);
 end;
@@ -462,14 +464,16 @@ begin
   Result := fProp.IsNotNull;
 end;
 
-function Prop.Like(const value: string; matchMode: TMatchMode): ICriterion;
+function Prop.Like(const value: string; matchMode: TMatchMode;
+  ignoreCase: Boolean): ICriterion;
 begin
-  Result := fProp.Like(value, matchMode);
+  Result := fProp.Like(value, matchMode, ignoreCase);
 end;
 
-function Prop.NotLike(const value: string; matchMode: TMatchMode): ICriterion;
+function Prop.NotLike(const value: string; matchMode: TMatchMode;
+  ignoreCase: Boolean): ICriterion;
 begin
-  Result := fProp.NotLike(value, matchMode);
+  Result := fProp.NotLike(value, matchMode, ignoreCase);
 end;
 
 function Prop.Between(const low, high: TValue): ICriterion;

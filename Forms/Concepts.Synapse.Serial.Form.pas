@@ -53,6 +53,25 @@ uses
 }
 
 type
+  TSynapseSerial = class(TBlockSerial)
+    function GetDTR: Boolean;
+    function GetRTS: Boolean;
+    procedure SetDTRF(Value: Boolean); override;
+    procedure SetRTSF(Value: Boolean); override;
+
+    property RTS: Boolean
+      read GetRTS write SetRTSF;
+
+    {:Use this property to set the value of the DTR signal.}
+    property DTR: Boolean
+      read GetDTR write SetDTRF;
+
+
+
+  end;
+
+
+type
   TfrmSynapseSerial = class(TForm)
     {$REGION 'designer controls'}
     aclMain                : TActionList;
@@ -118,7 +137,8 @@ type
     tsMemo                 : TTabSheet;
     tsCommands             : TTabSheet;
     pnlCommands            : TGridPanel;
-    mmoSend: TMemo;
+    mmoSend                : TMemo;
+    sbrMain: TStatusBar;
     {$ENDREGION}
 
     procedure actClearReceivedExecute(Sender: TObject);
@@ -139,7 +159,7 @@ type
     FLogIn     : TLogTree;
     FLogOut    : TLogTree;
     FInspector : TzObjectInspector;
-    FComPort   : TBlockSerial;
+    FComPort   : TSynapseSerial;
     FUpdate    : Boolean;
     FPort      : string;
     FButtons   : IList<TButton>;
@@ -163,7 +183,7 @@ type
     );
     procedure FCommandExecute(Sender: TObject);
 
-    function CreateComPort: TBlockSerial;
+    function CreateComPort: TSynapseSerial;
     procedure CreateControls;
 
     function MakeLogString(const AString: string): string;
@@ -180,7 +200,7 @@ type
 
     procedure Modified;
 
-    property ComPort: TBlockSerial
+    property ComPort: TSynapseSerial
       read FComPort;
 
     property Port: string
@@ -508,6 +528,7 @@ begin
   end;
   if S <> '' then
   begin
+    sbrMain.SimpleText := Format('%s %s', [S, Value]);
 //    FLogIn.LogFmt(
 //      '%s %s',
 //      [S, Value]
@@ -530,9 +551,9 @@ softflow
 hardflow
     Enable CTS/RTS handshake.   }
 
-function TfrmSynapseSerial.CreateComPort: TBlockSerial;
+function TfrmSynapseSerial.CreateComPort: TSynapseSerial;
 begin
-  Result := TBlockSerial.Create;
+  Result := TSynapseSerial.Create;
   Result.OnStatus := ComPortStatus;
   Result.EnableRTSToggle(True);
   Result.ConvertLineEnd := False;
@@ -714,5 +735,27 @@ begin
   mmoSentText.Lines.Add(string(AString));
 end;
 {$ENDREGION}
+
+{ TSynapseSerial }
+
+function TSynapseSerial.GetDTR: Boolean;
+begin
+  Result := False;
+end;
+
+function TSynapseSerial.GetRTS: Boolean;
+begin
+  Result := False;
+end;
+
+procedure TSynapseSerial.SetDTRF(Value: Boolean);
+begin
+  inherited SetDTRF(Value);
+end;
+
+procedure TSynapseSerial.SetRTSF(Value: Boolean);
+begin
+  inherited SetRTSF(Value);
+end;
 
 end.

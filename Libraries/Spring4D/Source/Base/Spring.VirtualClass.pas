@@ -122,14 +122,14 @@ type
 
   TVirtualClass = class
   private
-    fClassProxy: TClass;
+    fProxyClass: TClass;
     function GetClassProxyData: PClassData; inline;
   public
     constructor Create(classType: TClass);
     destructor Destroy; override;
 
-    property ClassProxy: TClass read fClassProxy;
-    property ClassProxyData: PClassData read GetClassProxyData;
+    property ProxyClass: TClass read fProxyClass;
+    property ProxyClassData: PClassData read GetClassProxyData;
   end;
 
 function CreateVirtualClass(classType: TClass): TClass;
@@ -337,18 +337,18 @@ end;
 constructor TVirtualClass.Create(classType: TClass);
 begin
   inherited Create;
-  fClassProxy := CreateVirtualClass(classType);
+  fProxyClass := CreateVirtualClass(classType);
 end;
 
 destructor TVirtualClass.Destroy;
 begin
-  DestroyVirtualClass(fClassProxy);
+  DestroyVirtualClass(fProxyClass);
   inherited;
 end;
 
 function TVirtualClass.GetClassProxyData: PClassData;
 begin
-  Result := GetClassData(fClassProxy);
+  Result := GetClassData(fProxyClass);
 end;
 
 {$ENDREGION}

@@ -165,6 +165,23 @@ type
 
   {$ENDREGION}
 
+
+  {$REGION 'TPropertyChangedEventImpl'}
+
+  TPropertyChangedEventImpl = class(TEventBase, IPropertyChangedEvent)
+  private
+    function GetInvoke: TPropertyChangedEvent;
+    procedure Add(handler: TPropertyChangedEvent);
+    procedure Remove(handler: TPropertyChangedEvent);
+    procedure InternalInvoke(Sender: TObject;
+      const EventArgs: IPropertyChangedEventArgs);
+  public
+    constructor Create;
+  end;
+
+  {$ENDREGION}
+
+
 implementation
 
 uses
@@ -311,7 +328,7 @@ var
 begin
   P := AdditionalInfoOf(typeData);
   CallConvention := TCallConv(PByte(p)^);
-  ParamInfos := PParameterInfos(Cardinal(P) + 1);
+  ParamInfos := PParameterInfos(UIntPtr(P) + 1);
 
   StackSize := SizeOf(Pointer); // Self in stack
 {$IFNDEF CPUX64}
@@ -748,6 +765,42 @@ begin
 end;
 
 procedure TNotifyEventImpl<T>.Remove(handler: TNotifyEvent<T>);
+begin
+  inherited Remove(TMethodPointer(handler));
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TPropertyChangedEventImpl'}
+
+constructor TPropertyChangedEventImpl.Create;
+begin
+  inherited;
+  TPropertyChangedEvent(fInvoke) := InternalInvoke;
+end;
+
+procedure TPropertyChangedEventImpl.Add(handler: TPropertyChangedEvent);
+begin
+  inherited Add(TMethodPointer(handler));
+end;
+
+function TPropertyChangedEventImpl.GetInvoke: TPropertyChangedEvent;
+begin
+  Result := TPropertyChangedEvent(inherited Invoke);
+end;
+
+procedure TPropertyChangedEventImpl.InternalInvoke(Sender: TObject;
+  const EventArgs: IPropertyChangedEventArgs);
+var
+  handler: TMethodPointer;
+begin
+  if Enabled then
+    for handler in Handlers do
+      TPropertyChangedEvent(handler)(Sender, EventArgs);
+end;
+
+procedure TPropertyChangedEventImpl.Remove(handler: TPropertyChangedEvent);
 begin
   inherited Remove(TMethodPointer(handler));
 end;
