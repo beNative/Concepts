@@ -143,10 +143,21 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Libraries\fastmm\FastMM4.pas"/>
-        <DCCReference Include="Types\System.ImageList.pas"/>
         <DCCReference Include="Libraries\BTMemoryModule\BTMemoryModule.pas"/>
+        <DCCReference Include="Forms\Concepts.BTMemoryModule.Form.pas">
+            <Form>frmBTMemoryModule</Form>
+        </DCCReference>
         <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabs.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsClasses.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsControls.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsGlassForm.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsLog.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsThreadTimer.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsTypes.pas"/>
+        <DCCReference Include="Libraries\TChromeTabs\Lib\ChromeTabsUtils.pas"/>
+        <DCCReference Include="Forms\Concepts.ChromeTabs.Form.pas">
+            <Form>frmChromeTabs</Form>
+        </DCCReference>
         <DCCReference Include="Forms\Concepts.DevExpress.cxEditors.Form.pas"/>
         <DCCReference Include="Forms\Concepts.DSharp.Bindings.Form.pas">
             <Form>frmBindings</Form>
@@ -292,6 +303,24 @@
         <DCCReference Include="Forms\Concepts.SQLBuilder4D.Form.pas">
             <Form>frmSQLBuilder4D</Form>
         </DCCReference>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.GaSQLParser.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaAdvancedSQLParser.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaBasicSQLParser.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaDeleteStm.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaInsertStm.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaLnkList.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaParserVisitor.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaQueryParsersReg.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSelectStm.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLExpressionParsers.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLFieldRefParsers.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLParserConsts.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLParserHelperClasses.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLSelectFieldParsers.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLTableRefParsers.pas"/>
+        <DCCReference Include="Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaUpdateStm.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Adapters.pas"/>
@@ -470,15 +499,113 @@
             <Form>frmTreeViewPresenterList</Form>
         </DCCReference>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Consts.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.ActiveLine.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Base.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Bookmarks.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.NonBlinking.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.NonBlinking.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.Offsets.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.Styles.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.Form.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Ranges.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Regions.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.Columns.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.PopupWindow.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CompletionProposal.Trigger.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.DB.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Directories.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Glyph.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.InternalImage.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.KeyCommands.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Bookmarks.Panel.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Bookmarks.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Border.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.LineNumbers.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.LineState.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LineSpacing.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.MatchingPair.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.MatchingPair.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.Indicator.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.PopupWindow.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Replace.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.RightMargin.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.RightMargin.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Scroll.Hint.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Scroll.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Search.Highlighter.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Search.Highlighter.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Search.Map.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Search.Map.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Search.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Selection.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Selection.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.SkipRegions.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.SpecialChars.EndOfLine.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.SpecialChars.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.SpecialChars.Selection.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Tabs.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Undo.Item.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Undo.List.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Undo.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Utils.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.WordWrap.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.WordWrap.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Encoding.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.Attributes.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.Info.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.Rules.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.Token.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.Comments.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.JsonDataObjects.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.KeyboardHandler.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Language.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Lines.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.MacroRecorder.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Print.HeaderFooter.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Print.Margins.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Print.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Print.Preview.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Print.PrinterInfo.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Print.Types.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Search.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Search.RegularExpressions.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Search.Wildcard.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.StyleHooks.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.TextDrawer.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Types.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Utils.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.Shadow.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Highlighter.Import.JSON.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.SyncEdit.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.SyncEdit.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Export.HTML.pas"/>
         <DCCReference Include="Forms\Concepts.BCEditor.Form.pas">
             <Form>frmBCEditor</Form>
         </DCCReference>
         <DCCReference Include="Types\Concepts.RTTEye.RttiTemplates.pas"/>
         <DCCReference Include="Forms\Concepts.ZeroMQ.Form.pas"/>
+        <DCCReference Include="Libraries\ZeroMQ\ZeroMQ.API.pas"/>
+        <DCCReference Include="Libraries\ZeroMQ\ZeroMQ.pas"/>
         <DCCReference Include="Forms\Concepts.Spring.ClassProxy.Form.pas">
             <Form>frmClassProxy</Form>
         </DCCReference>
         <DCCReference Include="Libraries\DDetours\CPUID.pas"/>
+        <DCCReference Include="Libraries\DDetours\DDetours.pas"/>
+        <DCCReference Include="Libraries\DDetours\InstDecode.pas"/>
         <DCCReference Include="Forms\Concepts.DDetours.Form.pas">
             <Form>frmDDetours</Form>
         </DCCReference>
@@ -506,7 +633,6 @@
         </DCCReference>
         <DCCReference Include="Forms\Concepts.Spring.Persistence.Form.pas">
             <Form>frmSpringPersistence</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.Synapse.Serial.Form.pas">
             <Form>frmSynapseSerial</Form>
@@ -994,3 +1120,11 @@
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
 </Project>
+
+<!-- EurekaLog First Line
+[Exception Log]
+EurekaLog Version=7007
+Activate=0
+DeleteMapAfterCompile=0
+Encrypt Password=""
+EurekaLog Last Line -->

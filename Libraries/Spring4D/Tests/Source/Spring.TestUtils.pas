@@ -34,6 +34,8 @@ uses
 
 type
   TAbstractTestHelper = class helper for TAbstractTest
+  private
+    function GetExpectedException: ExceptionClass; inline;
   protected
   {$IFNDEF DELPHIXE2_UP}
     procedure CheckEquals(expected, actual: UInt64; msg: string = ''); overload;
@@ -43,6 +45,9 @@ type
     procedure CheckException(expected: ExceptionClass; const method: TProc; const msg: string = '');
     procedure Pass; inline;
     function RegisterExpectedMemoryLeak(p: Pointer): Boolean; inline;
+    procedure StartExpectingException(e: ExceptionClass);
+    property ExpectedException: ExceptionClass
+      read GetExpectedException write StartExpectingException;
   end;
 
   TTestCase<T: class, constructor> = class(TTestCase)
@@ -140,6 +145,11 @@ begin
     FailNotEquals(expected.ClassName, 'nothing', msg, ReturnAddress);
 end;
 
+function TAbstractTestHelper.GetExpectedException: ExceptionClass;
+begin
+  Result := FExpectedException;
+end;
+
 procedure TAbstractTestHelper.Pass;
 begin
   FCheckCalled := True;
@@ -160,6 +170,13 @@ begin
   else
     Result := False;
 {$ENDIF}
+end;
+
+procedure TAbstractTestHelper.StartExpectingException(e: ExceptionClass);
+begin
+  StopExpectingException;
+  FExpectedException := e;
+  FCheckCalled := True;
 end;
 
 {$ENDREGION}

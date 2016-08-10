@@ -41,13 +41,15 @@ type
   TLikeExpression = class(TSimpleExpression)
   private
     fMatchMode: TMatchMode;
+    fIgnoreCase: Boolean;
   protected
     function ToSqlString(const params: IList<TDBParam>;
       const command: TWhereCommand; const generator: ISQLGenerator;
       addToCommand: Boolean): string; override;
   public
     constructor Create(const propertyName: string; const value: TValue;
-      whereOperator: TWhereOperator; matchMode: TMatchMode); reintroduce; overload;
+      whereOperator: TWhereOperator; matchMode: TMatchMode;
+      ignoreCase: Boolean); reintroduce; overload;
   end;
 
 implementation
@@ -56,10 +58,12 @@ implementation
 {$REGION 'TLikeExpression'}
 
 constructor TLikeExpression.Create(const propertyName: string;
-  const value: TValue; whereOperator: TWhereOperator; matchMode: TMatchMode);
+  const value: TValue; whereOperator: TWhereOperator; matchMode: TMatchMode;
+  ignoreCase: Boolean);
 begin
   inherited Create(propertyName, value, whereOperator);
   fMatchMode := matchMode;
+  fIgnoreCase := ignoreCase;
 end;
 
 function TLikeExpression.ToSqlString(const params: IList<TDBParam>;
@@ -68,9 +72,9 @@ function TLikeExpression.ToSqlString(const params: IList<TDBParam>;
 var
   whereField: TSQLWhereField;
 begin
-  whereField := TSQLWhereField.Create(PropertyName, GetCriterionTable(command));
+  whereField := TSQLWhereField.Create(PropertyName, GetCriterionTable(command), fIgnoreCase);
   whereField.WhereOperator := WhereOperator;
-  whereField.RightSQL := GetMatchModeString(fMatchMode, Value.AsString);
+  whereField.RightSQL := GetMatchModeString(fMatchMode, Value.AsString, fIgnoreCase);
 
   Result := generator.GenerateWhere(whereField);
 

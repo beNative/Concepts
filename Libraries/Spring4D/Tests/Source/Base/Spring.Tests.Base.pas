@@ -472,6 +472,10 @@ type
     fDoubleValue: Double;
     [Default('2015-09-30 17:30:00')]
     fDateTime: TDateTime;
+    [Default('2015-09-30')]
+    fDate: TDate;
+    [Default('17:30:00')]
+    fTime: TTime;
     [Managed]
     fObjValue: TObject;
     [Managed(TPersistent)]
@@ -2908,6 +2912,8 @@ begin
     CheckTrue(obj.fBoolValue);
     CheckEquals(20.5, obj.fDoubleValue);
     CheckEquals(EncodeDateTime(2015, 9, 30, 17, 30, 0, 0), obj.fDateTime);
+    CheckEquals(EncodeDate(2015, 9, 30), obj.fDate);
+    CheckEquals(EncodeTime(17, 30, 0, 0), obj.fTime);
     CheckIs(obj.fObjValue, TObject);
     CheckIs(obj.fObjValue2, TPersistent);
     CheckIs(obj.fObjValue3, TObject);

@@ -130,6 +130,10 @@ uses
 
   Concepts.Synapse.Serial.Form,
 
+  Concepts.Indy.TCP.Form,
+
+  Concepts.FMXContainer.Form,
+
   Concepts.Manager;
 
 const
@@ -445,7 +449,7 @@ begin
   {$IFDEF SQLBUILDER4D}
   ConceptManager.Register(
     TfrmSQLBuilder4D,
-    'TfrmSQLBuilder4D demo',
+    'TfrmSQLBuilder4D',
     'TfrmSQLBuilder4D',
     'Demonstrates the SQLBuilder4D library'
   );
@@ -474,6 +478,20 @@ begin
     'Synapse',
     'Serial',
     'Serial communication with Synapse'
+  );
+
+  ConceptManager.Register(
+    TfrmIndyTCP,
+    'Indy',
+    'TCP',
+    'Indy TCP client'
+  );
+
+  ConceptManager.Register(
+    TfrmFMXContainer,
+    'TFireMonkeyContainer',
+    'FMXContainer',
+    'Parnassus TFireMonkeyContainer component'
   );
 
   RegisterSpringConcepts;

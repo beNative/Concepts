@@ -65,10 +65,13 @@
   // so until that happens Events cannot be supported on non-Intel architectures
 {$ENDIF}
 
-{$IFDEF DELPHIXE_UP}
-  // This will enable using only one generic instantiation each for lists that
-  // contain objects or interfaces
-  {.$DEFINE SUPPORTS_GENERIC_FOLDING}
+{$IFDEF MSWINDOWS}
+  // Use the unused vmtAutoTable slot in the class VMT to store the init table
+  // otherwise a global dictionary will be used which is slightly slower
+  {$DEFINE USE_VMTAUTOTABLE}
+{$ELSE}
+  // cannot use the vmtAutoTable slot on any platform except Windows (yet)
+  {$UNDEF USE_VMTAUTOTABLE}
 {$ENDIF}
 
 // This will disable the execution of guard code when assertions are turned off

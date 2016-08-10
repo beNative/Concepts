@@ -30,8 +30,6 @@ interface
 
 uses
   Rtti,
-  SysUtils,
-  Spring,
   Spring.Collections,
   Spring.Interception,
   Spring.Mocking,
@@ -67,8 +65,11 @@ type
     fExpectedCalls: IMultiMap<TRttiMethod,TMethodCall>;
     fReceivedCalls: IMultiMap<TRttiMethod,TArray<TValue>>;
     fState: TMockState;
-    function CreateArgMatch(const arguments: TArray<TValue>): TArgMatch;
-    function CreateMock(const invocation: IInvocation): TMockAction;
+    class function CreateArgMatch(const arguments: TArray<TValue>): TArgMatch; static;
+    class function CreateMock(const invocation: IInvocation): TMockAction; static;
+    procedure InterceptArrange(const invocation: IInvocation);
+    procedure InterceptAct(const invocation: IInvocation);
+    procedure InterceptAssert(const invocation: IInvocation);
   protected
     procedure Intercept(const invocation: IInvocation);
   public
@@ -91,10 +92,10 @@ type
 implementation
 
 uses
-  Generics.Collections,
+  SysUtils,
   TypInfo,
+  Spring,
   Spring.Mocking.Core,
-  Spring.Reflection,
   Spring.Times;
 
 resourcestring
@@ -143,7 +144,7 @@ begin
   fReceivedCalls := TCollections.CreateMultiMap<TRttiMethod,TArray<TValue>>();
 end;
 
-function TMockInterceptor.CreateMock(
+class function TMockInterceptor.CreateMock(
   const invocation: IInvocation): TMockAction;
 var
   mock: IMock;
@@ -156,7 +157,7 @@ begin
     end;
 end;
 
-function TMockInterceptor.CreateArgMatch(
+class function TMockInterceptor.CreateArgMatch(
   const arguments: TArray<TValue>): TArgMatch;
 begin
   Result :=
@@ -167,75 +168,83 @@ begin
 end;
 
 procedure TMockInterceptor.Intercept(const invocation: IInvocation);
-var
-  methodCalls: IReadOnlyList<TMethodCall>;
-  methodCall: TMethodCall;
-  arguments: IReadOnlyList<TArray<TValue>>;
-  callCount: Integer;
 begin
   case fState of
     TMockState.Arrange:
-    begin
-      if not Assigned(fMatch) then
-        fMatch := TMatcherFactory.CreateMatchers(invocation.Arguments);
-      if not Assigned(fMatch) then
-        fMatch := CreateArgMatch(invocation.Arguments);
-      methodCall := TMethodCall.Create(fCurrentAction, fMatch);
-      fExpectedCalls.Add(invocation.Method, methodCall);
-      fState := TMockState.Act;
-      fMatch := nil;
-    end;
+      InterceptArrange(invocation);
     TMockState.Act:
-    begin
-      if fExpectedCalls.TryGetValues(invocation.Method, methodCalls) then
-        methodCall := methodCalls.LastOrDefault(
-          function(const m: TMethodCall): Boolean
-          begin
-            Result := m.Match(invocation.Arguments);
-          end)
-      else
-        methodCall := nil;
-
-      if not Assigned(methodCall) then
-        if fCallBase then
-          invocation.Proceed
-        else
-          if fBehavior = TMockBehavior.Strict then
-            raise EMockException.CreateResFmt(@SUnexpectedMethodCall, [
-              invocation.Method.ToString, ArgsToString(invocation.Arguments)])
-          else
-            // create results for params
-            if invocation.Method.HasExtendedInfo
-              and (invocation.Method.MethodKind = mkFunction)
-              and (invocation.Method.ReturnType.TypeKind = tkInterface) then
-            begin
-              methodCall := TMethodCall.Create(CreateMock(invocation), CreateArgMatch(invocation.Arguments));
-              fExpectedCalls.Add(invocation.Method, methodCall);
-            end;
-
-      fReceivedCalls.Add(invocation.Method, Copy(invocation.Arguments));
-      if Assigned(methodCall) then
-        invocation.Result := methodCall.Invoke(invocation);
-    end;
+      InterceptAct(invocation);
     TMockState.Assert:
-    begin
-      if fReceivedCalls.TryGetValues(invocation.Method, arguments) then
-      begin
-        if not Assigned(fMatch) then
-          fMatch := TMatcherFactory.CreateMatchers(invocation.Arguments);
-        if not Assigned(fMatch) then
-          fMatch := CreateArgMatch(invocation.Arguments);
-        callCount := arguments.Where(fMatch).Count;
-        fMatch := nil;
-      end
-      else
-        callCount := 0;
-      fState := TMockState.Act;
-      if not fCurrentTimes.Verify(callCount) then
-        raise EMockException.CreateResFmt(@SUnexpectedCallCount, [
-          fCurrentTimes.ToString(callCount)]);
-    end;
+      InterceptAssert(invocation);
   end;
+end;
+
+procedure TMockInterceptor.InterceptAct(const invocation: IInvocation);
+var
+  methodCall: TMethodCall;
+begin
+  methodCall := fExpectedCalls[invocation.Method].LastOrDefault(
+    function(const m: TMethodCall): Boolean
+    begin
+      Result := m.Match(invocation.Arguments);
+    end);
+
+  if not Assigned(methodCall) then
+    if fCallBase then
+      invocation.Proceed
+    else
+      if fBehavior = TMockBehavior.Strict then
+        raise EMockException.CreateResFmt(@SUnexpectedMethodCall, [
+          invocation.Method.ToString, ArgsToString(invocation.Arguments)])
+      else
+        // create results for params
+        if invocation.Method.HasExtendedInfo
+          and (invocation.Method.MethodKind = mkFunction)
+          and (invocation.Method.ReturnType.TypeKind = tkInterface) then
+        begin
+          methodCall := TMethodCall.Create(CreateMock(invocation), CreateArgMatch(invocation.Arguments));
+          fExpectedCalls.Add(invocation.Method, methodCall);
+        end;
+
+  fReceivedCalls.Add(invocation.Method, Copy(invocation.Arguments));
+  if Assigned(methodCall) then
+    invocation.Result := methodCall.Invoke(invocation);
+end;
+
+procedure TMockInterceptor.InterceptArrange(const invocation: IInvocation);
+var
+  methodCall: TMethodCall;
+begin
+  if not Assigned(fMatch) then
+    fMatch := TMatcherFactory.CreateMatchers(invocation.Arguments);
+  if not Assigned(fMatch) then
+    fMatch := CreateArgMatch(invocation.Arguments);
+  methodCall := TMethodCall.Create(fCurrentAction, fMatch);
+  fExpectedCalls.Add(invocation.Method, methodCall);
+  fState := TMockState.Act;
+  fMatch := nil;
+end;
+
+procedure TMockInterceptor.InterceptAssert(const invocation: IInvocation);
+var
+  arguments: IReadOnlyList<TArray<TValue>>;
+  callCount: Integer;
+begin
+  if fReceivedCalls.TryGetValues(invocation.Method, arguments) then
+  begin
+    if not Assigned(fMatch) then
+      fMatch := TMatcherFactory.CreateMatchers(invocation.Arguments);
+    if not Assigned(fMatch) then
+      fMatch := CreateArgMatch(invocation.Arguments);
+    callCount := arguments.Where(fMatch).Count;
+    fMatch := nil;
+  end
+  else
+    callCount := 0;
+  fState := TMockState.Act;
+  if not fCurrentTimes.Verify(callCount) then
+    raise EMockException.CreateResFmt(@SUnexpectedCallCount, [
+      fCurrentTimes.ToString(callCount)]);
 end;
 
 procedure TMockInterceptor.Received(const times: Times);

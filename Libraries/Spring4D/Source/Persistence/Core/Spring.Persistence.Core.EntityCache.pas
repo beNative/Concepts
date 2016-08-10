@@ -303,7 +303,7 @@ end;
 function TEntityData.GetPrimaryKeyValueAsString(
   const instance: TObject): string;
 begin
-  Result := fPrimaryKeyColumn.Member.GetValue(instance).ToString
+  Result := fPrimaryKeyColumn.Member.GetValue(instance).ConvertTo<string>;
 end;
 
 function TEntityData.GetRelations(const entity: TObject;
@@ -313,10 +313,7 @@ function TEntityData.GetRelations(const entity: TObject;
   begin
     Result := initialValue;
     if IsNullable(Result.TypeInfo) then
-    begin
-      if not initialValue.TryGetNullableValue(Result) then
-        Result := TValue.Empty;
-    end
+      Result := initialValue.GetNullableValue
     else if IsLazyType(Result.TypeInfo) then
       if not initialValue.TryGetLazyValue(Result) then
         Result := TValue.Empty;

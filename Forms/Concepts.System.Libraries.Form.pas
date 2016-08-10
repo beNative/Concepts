@@ -65,10 +65,6 @@ implementation
 procedure TfrmLibraries.AfterConstruction;
 begin
   inherited AfterConstruction;
-//  LoadLibrary()
-//  FreeLibrary()
-//  GetModuleHandle()
-
 end;
 {$ENDREGION}
 
@@ -99,10 +95,7 @@ end;
 
 procedure TfrmLibraries.bltBluetoothRemoteRequestPair(const ADevice: TBluetoothDevice);
 begin
-
-
   bltBluetooth.Pair(ADevice);
-  //ADevice.
 end;
 
 procedure TfrmLibraries.chkEnabledClick(Sender: TObject);
@@ -123,7 +116,5 @@ begin
   bltBluetooth.DiscoverDevices(5000);
 end;
 {$ENDREGION}
-
-
 
 end.

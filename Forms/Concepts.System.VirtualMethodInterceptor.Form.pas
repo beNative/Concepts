@@ -25,18 +25,58 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls;
 
 type
   TfrmVirtualMethodInterceptor = class(TForm)
+    btn1: TButton;
+    procedure btn1Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
+    FPanel : TPanel;
+    FButton: TButton;
 
   public
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
+
+
 
   end;
 
 implementation
 
 {$R *.dfm}
+
+{ TfrmVirtualMethodInterceptor }
+
+procedure TfrmVirtualMethodInterceptor.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  FPanel := TPanel.Create(nil);
+  FButton := TButton.Create(nil);
+  FButton.Parent := Self;
+end;
+
+procedure TfrmVirtualMethodInterceptor.BeforeDestruction;
+begin
+  inherited;
+//  ShowMessage(FButton.Caption);
+
+end;
+
+procedure TfrmVirtualMethodInterceptor.btn1Click(Sender: TObject);
+begin
+  FreeAndNil(FPanel);
+  if Assigned(FButton) then
+    ShowMessage(FButton.ClassName);
+
+end;
+
+procedure TfrmVirtualMethodInterceptor.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  Action := caFree;
+end;
 
 end.
