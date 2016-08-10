@@ -18,8 +18,7 @@
 
 unit Concepts.Indy.TCP.Form;
 
-{ Serial connection using the synaser unit from the Ararat Synapse open source
-  project. }
+{ TCP socket connection using the Indy 10 library. }
 
 interface
 
