@@ -111,6 +111,7 @@ begin
     Self.FVisible := FVisible;
     Self.FWidth := FWidth;
     Self.FCursor := FCursor;
+    Self.DoChange;
   end
   else
     inherited Assign(ASource);

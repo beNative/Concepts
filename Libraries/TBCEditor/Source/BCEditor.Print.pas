@@ -128,7 +128,7 @@ type
 implementation
 
 uses
-  System.UITypes, BCEditor.Highlighter.Attributes, BCEditor.Consts;
+  System.UITypes, BCEditor.Highlighter.Attributes, BCEditor.Consts, System.Types;
 
 { TBCEditorPrint }
 
@@ -275,7 +275,7 @@ begin
   FLineHeight := LTextMetric.tmHeight + LTextMetric.tmExternalLeading;
 
   FTextDrawer.SetBaseFont(FFont);
-  FTextDrawer.Style := FFont.Style;
+  FTextDrawer.SetStyle(FFont.Style);
 
   FMargins.InitPage(FCanvas, 1, FPrinterInfo, FLineNumbers, FLineNumbersInMargin, FLines.Count - 1 + FLineOffset);
   CalculatePages;
@@ -522,7 +522,7 @@ var
     if Highlight and Assigned(FHighlighter) and (FLines.Count > 0) then
     begin
       SetBkMode(FCanvas.Handle, TRANSPARENT);
-      FTextDrawer.ExtTextOut(X, Y, 0, LClipRect, PChar(AText), Length(AText));
+      Winapi.Windows.ExtTextOut(FCanvas.Handle, X, Y, 0, @LClipRect, PChar(AText), Length(AText), nil);
       SetBkMode(FCanvas.Handle, OPAQUE);
     end
     else
@@ -576,7 +576,7 @@ begin
 
       if Assigned(LHighlighterAttribute) then
       begin
-        FCanvas.Font.Style := LHighlighterAttribute.Style;
+        FCanvas.Font.Style := LHighlighterAttribute.FontStyles;
         if FColors then
         begin
           LColor := LHighlighterAttribute.Foreground;
@@ -669,13 +669,17 @@ procedure TBCEditorPrint.PrintPage(APageNumber: Integer);
 var
   i, LEndLine: Integer;
   LSelectionStart, LSelectionLength: Integer;
+  LRect: TRect;
 begin
   PrintStatus(psNewPage, APageNumber, FAbort);
   if not FAbort then
   begin
     FCanvas.Brush.Color := Color;
-    with FMargins do
-      PatBlt(FCanvas.Handle, PixelLeft, PixelTop, PixelRight - PixelLeft, PixelBottom - PixelTop, PATCOPY);
+    LRect.Left := FMargins.PixelLeft;
+    LRect.Right := FMargins.PixelRight;
+    LRect.Top := FMargins.PixelTop;
+    LRect.Bottom := FMargins.PixelBottom;
+    Winapi.Windows.ExtTextOut(FCanvas.Handle, 0, 0, ETO_OPAQUE, LRect, '', 0, nil);
     FMargins.InitPage(FCanvas, APageNumber, FPrinterInfo, FLineNumbers, FLineNumbersInMargin, FLines.Count - 1 + FLineOffset);
     FHeader.Print(FCanvas, APageNumber + FPageOffset);
     if FPages.Count > 0 then

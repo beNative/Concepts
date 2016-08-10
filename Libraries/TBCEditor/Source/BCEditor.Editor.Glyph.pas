@@ -17,7 +17,7 @@ type
     FVisible: Boolean;
     function GetHeight: Integer;
     function GetWidth: Integer;
-    procedure GlyphChange(Sender: TObject);
+    procedure GlyphChange(ASender: TObject);
     procedure SetGlyph(AValue: TBitmap);
     procedure SetLeft(AValue: Integer);
     procedure SetMaskColor(AValue: TColor);
@@ -129,7 +129,7 @@ begin
   FGlyph.Assign(AValue);
 end;
 
-procedure TBCEditorGlyph.GlyphChange(Sender: TObject);
+procedure TBCEditorGlyph.GlyphChange(ASender: TObject);
 begin
   if Assigned(FOnChange) then
     FOnChange(Self);

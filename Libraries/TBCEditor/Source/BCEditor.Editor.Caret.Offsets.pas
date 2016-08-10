@@ -11,7 +11,7 @@ type
     FOnChange: TNotifyEvent;
     FX: Integer;
     FY: Integer;
-    procedure DoChange(Sender: TObject);
+    procedure DoChange(ASender: TObject);
     procedure SetX(AValue: Integer);
     procedure SetY(AValue: Integer);
   public
@@ -48,10 +48,10 @@ begin
     inherited Assign(ASource);
 end;
 
-procedure TBCEditorCaretOffsets.DoChange(Sender: TObject);
+procedure TBCEditorCaretOffsets.DoChange(ASender: TObject);
 begin
   if Assigned(FOnChange) then
-    FOnChange(Sender);
+    FOnChange(ASender);
 end;
 
 procedure TBCEditorCaretOffsets.SetX(AValue: Integer);

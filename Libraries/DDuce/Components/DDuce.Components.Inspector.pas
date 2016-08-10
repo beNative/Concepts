@@ -54,7 +54,7 @@ type
     Sender       : TObject;
     Row          : Longint;
     var Category : Boolean
-    ) of object;
+  ) of object;
 
   TCustomInspector = class(TCustomGridView)
   private

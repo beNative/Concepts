@@ -10,7 +10,7 @@ type
     Background: TColor;
     Foreground: TColor;
     Name: string;
-    Style: TFontStyles;
+    FontStyles: TFontStyles;
   end;
   PBCEditorHighlighterElement = ^TBCEditorHighlighterElement;
 

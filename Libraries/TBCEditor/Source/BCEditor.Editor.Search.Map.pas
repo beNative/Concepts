@@ -71,7 +71,7 @@ begin
     Self.FVisible := FVisible;
     Self.FOptions := Options;
     Self.FWidth := FWidth;
-    Self.FColors := FColors;
+    Self.FColors.Assign(FColors);
     Self.FCursor := FCursor;
     Self.DoChange;
   end

@@ -753,7 +753,7 @@ begin
     LElement.Background := StringToColorDef(LJsonDataValue.ObjectValue['Background'].Value, clWindow);
     LElement.Foreground := StringToColorDef(LJsonDataValue.ObjectValue['Foreground'].Value, clWindowText);
     LElement.Name := LJsonDataValue.ObjectValue['Name'].Value;
-    LElement.Style := StrToFontStyle(LJsonDataValue.ObjectValue['Style'].Value);
+    LElement.FontStyles := StrToFontStyle(LJsonDataValue.ObjectValue['Style'].Value);
     FHighlighter.Colors.Styles.Add(LElement);
 
     if LElement.Name = 'Editor' then

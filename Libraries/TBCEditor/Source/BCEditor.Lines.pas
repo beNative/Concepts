@@ -3,7 +3,7 @@ unit BCEditor.Lines;
 interface
 
 uses
-  System.SysUtils, Vcl.Graphics, BCEditor.Utils, System.Classes, BCEditor.Types;
+  System.SysUtils, Vcl.Graphics, BCEditor.Utils, System.Classes, BCEditor.Consts, BCEditor.Types;
 
 type
   TBCEditorLinesRange = Pointer;
@@ -38,7 +38,7 @@ type
   PEditorStringRecordList = ^TBCEditorStringRecordList;
   TBCEditorStringRecordList = array [0 .. CMAXSTRINGS - 1] of TBCEditorStringRecord;
 
-  TStringListChangeEvent = procedure(Sender: TObject; AIndex: Integer; ACount: Integer) of object;
+  TStringListChangeEvent = procedure(ASender: TObject; AIndex: Integer; ACount: Integer) of object;
 
   TBCEditorLines = class(TStrings)
   strict private
@@ -63,9 +63,9 @@ type
     FTabConvertProc: TBCEditorTabConvertProc;
     FTabWidth: Integer;
     FUpdateCount: Integer;
-    function ExpandString(AIndex: Integer): string;
+    function ExpandString(AIndex: Integer; ATabChar: Char = BCEDITOR_SPACE_CHAR): string;
     function GetAttributes(AIndex: Integer): PBCEditorLineAttribute;
-    function GetExpandedString(AIndex: Integer): string;
+    function GetExpandedString(AIndex: Integer): string; overload;
     function GetExpandedStringLength(AIndex: Integer): Integer;
     function GetRange(AIndex: Integer): TBCEditorLinesRange;
     procedure Grow;
@@ -88,6 +88,7 @@ type
     destructor Destroy; override;
     function StringLength(AIndex: Integer): Integer;
     function Add(const AValue: string): Integer; override;
+    function GetExpandedString(AIndex: Integer; ATabChar: Char): string; overload;
     function GetLengthOfLongestLine: Integer; overload;
     function GetLineText(ALine: Integer): string;
     procedure Clear; override;
@@ -128,7 +129,7 @@ type
 implementation
 
 uses
-  BCEditor.Consts, BCEditor.Language;
+  BCEditor.Language;
 
 { TBCEditorLines }
 
@@ -301,7 +302,7 @@ begin
   EndUpdate;
 end;
 
-function TBCEditorLines.ExpandString(AIndex: Integer): string;
+function TBCEditorLines.ExpandString(AIndex: Integer; ATabChar: Char = BCEDITOR_SPACE_CHAR): string;
 var
   LHasTabs: Boolean;
 begin
@@ -317,7 +318,7 @@ begin
     end
     else
     begin
-      Result := FTabConvertProc(Value, FTabWidth, LHasTabs);
+      Result := FTabConvertProc(Value, FTabWidth, LHasTabs, ATabChar);
 
       ExpandedLength := Length(Result);
       Exclude(Flags, sfExpandedLengthUnknown);
@@ -351,13 +352,18 @@ end;
 
 function TBCEditorLines.GetExpandedString(AIndex: Integer): string;
 begin
+  Result := GetExpandedString(AIndex, BCEDITOR_SPACE_CHAR);
+end;
+
+function TBCEditorLines.GetExpandedString(AIndex: Integer; ATabChar: Char): string;
+begin
   Result := '';
   if (AIndex >= 0) and (AIndex < FCount) then
   begin
     if sfHasNoTabs in FList^[AIndex].Flags then
       Result := Get(AIndex)
     else
-      Result := ExpandString(AIndex);
+      Result := ExpandString(AIndex, ATabChar);
   end
 end;
 
@@ -392,7 +398,12 @@ begin
   LSize := 0;
   LLineBreak := SLineBreak;
   for i := 0 to LCount - 1 do
-    Inc(LSize, Length(Get(i)) + Length(LLineBreak));
+  begin
+    LLength := Length(LLineBreak);
+    if i = LCount - 1 then
+      LLength := 0;
+    Inc(LSize, Length(Get(i)) + LLength)
+  end;
   SetString(Result, nil, LSize);
   LPValue := Pointer(Result);
   for i := 0 to LCount - 1 do
@@ -404,6 +415,8 @@ begin
       System.Move(Pointer(LValue)^, LPValue^, LLength * SizeOf(Char));
       Inc(LPValue, LLength);
     end;
+    if i = LCount - 1 then
+      Exit;
     LLength := Length(LLineBreak);
     if LLength <> 0 then
     begin
@@ -582,6 +595,8 @@ begin
 end;
 
 procedure TBCEditorLines.Put(AIndex: Integer; const AValue: string);
+var
+  LHasTabs: Boolean;
 begin
   if ((AIndex = 0) and (FCount = 0)) or (FCount = AIndex) then
   begin
@@ -602,6 +617,9 @@ begin
       Value := AValue;
       Attribute^.LineState := lsModified;
     end;
+    if FIndexOfLongestLine <> -1 then
+      if FList^[FIndexOfLongestLine].ExpandedLength < Length(FTabConvertProc(AValue, FTabWidth, LHasTabs)) then
+        FIndexOfLongestLine := AIndex;
 
     if Assigned(FOnPutted) then
       FOnPutted(Self, AIndex, 1);

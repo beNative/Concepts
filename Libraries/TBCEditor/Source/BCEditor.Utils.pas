@@ -5,6 +5,7 @@ interface
 uses
   Winapi.Windows, System.Math, System.Classes, Vcl.Graphics, System.UITypes, BCEditor.Consts, BCEditor.Types;
 
+function IsCombiningDiacriticalMark(const AChar: Char): Boolean;
 function DeleteWhitespace(const AText: string): string;
 function GetTabConvertProc(AColumns: Boolean): TBCEditorTabConvertProc;
 function MessageDialog(const AMessage: string; ADlgType: TMsgDlgType; AButtons: TMsgDlgButtons): Integer;
@@ -19,6 +20,16 @@ implementation
 
 uses
   Vcl.Forms, Vcl.Dialogs, System.SysUtils, System.Character;
+
+function IsCombiningDiacriticalMark(const AChar: Char): Boolean;
+begin
+  case Word(AChar) of
+    $0300..$036F:
+      Result := True
+  else
+    Result := False;
+  end;
+end;
 
 function MiddleColor(AColor1, AColor2: TColor): TColor;
 var
@@ -115,7 +126,7 @@ begin
   end
 end;
 
-function ConvertTabs(const ALine: string; ATabWidth: Integer; var AHasTabs: Boolean): string;
+function ConvertTabs(const ALine: string; ATabWidth: Integer; var AHasTabs: Boolean; const ATabChar: Char): string;
 var
   PLine: PChar;
 begin
@@ -127,7 +138,7 @@ begin
     if PLine^ = BCEDITOR_TAB_CHAR then
     begin
       AHasTabs := True;
-      Result := Result + StringOfChar(BCEDITOR_SPACE_CHAR, ATabWidth);
+      Result := Result + StringOfChar(ATabChar, ATabWidth);
     end
     else
       Result := Result + PLine^;
@@ -135,7 +146,7 @@ begin
   end;
 end;
 
-function ConvertColumnTabs(const ALine: string; ATabWidth: Integer; var AHasTabs: Boolean): string;
+function ConvertColumnTabs(const ALine: string; ATabWidth: Integer; var AHasTabs: Boolean; const ATabChar: Char): string;
 var
   LPLine: PChar;
 begin
@@ -147,7 +158,7 @@ begin
     if LPLine^ = BCEDITOR_TAB_CHAR then
     begin
       AHasTabs := True;
-      Result := Result + StringOfChar(BCEDITOR_SPACE_CHAR, ATabWidth - Length(Result) mod ATabWidth);
+      Result := Result + StringOfChar(ATabChar, ATabWidth - Length(Result) mod ATabWidth);
     end
     else
       Result := Result + LPLine^;

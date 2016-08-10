@@ -24,6 +24,7 @@ const
   BCEDITOR_DEFAULT_DELIMITERS: TBCEditorCharSet = ['*', '/', '+', '-', '=', '\', '|', '&', '(', ')', '[', ']', '{', '}',
     '`', '~', '!', '@', ',', '$', '%', '^', '?', ':', ';', '''', '"', '.', '>', '<', '#'];
   BCEDITOR_CODE_FOLDING_VALID_CHARACTERS = ['\', '@', '_'];
+  BCEDITOR_REAL_NUMBER_CHARS = ['e', 'E', '.'];
   BCEDITOR_NONE_CHAR = #0;
   BCEDITOR_BACKSPACE_CHAR = #8;
   BCEDITOR_TAB_CHAR = #9;
@@ -36,12 +37,11 @@ const
   BCEDITOR_EXCLAMATION_MARK = #33;
   BCEDITOR_LOW_LINE = #95;
   BCEDITOR_CTRL_BACKSPACE = #127;
-  BCEDITOR_LINE_SEPARATOR = Char($2028);
-  BCEDITOR_FILLER_CHAR = Char($E000);
+  BCEDITOR_PILCROW_CHAR = Char($00B6);
   BCEDITOR_ABSOLUTE_DELIMITERS: TBCEditorCharSet = [BCEDITOR_NONE_CHAR, BCEDITOR_TAB_CHAR, BCEDITOR_LINEFEED,
     BCEDITOR_CARRIAGE_RETURN, BCEDITOR_SPACE_CHAR];
   { Encoding }
-  UTF8BOM: array [0 .. 2] of Byte = ($EF, $BB, $BF);
+  BCEDITOR_UTF8BOM: array [0 .. 2] of Byte = ($EF, $BB, $BF);
   { Highlighter attribute elements }
   BCEDITOR_ATTRIBUTE_ELEMENT_COMMENT = 'Comment';
   BCEDITOR_ATTRIBUTE_ELEMENT_STRING = 'String';

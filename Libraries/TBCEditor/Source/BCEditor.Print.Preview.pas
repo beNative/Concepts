@@ -9,7 +9,7 @@ uses
   BCEditor.Print;
 
 type
-  TBCEditorPreviewPageEvent = procedure(Sender: TObject; PageNumber: Integer) of object;
+  TBCEditorPreviewPageEvent = procedure(ASender: TObject; APageNumber: Integer) of object;
   TBCEditorPreviewScale = (pscWholePage, pscPageWidth, pscUserScaled);
 
   TBCEditorPrintPreview = class(TCustomControl)
@@ -200,7 +200,7 @@ begin
     Pen.Style := psSolid;
     if (csDesigning in ComponentState) or (not Assigned(FEditorPrint)) then
     begin
-      PatBlt(Canvas.Handle, LClipRect.Left, LClipRect.Top, LClipRect.Width, LClipRect.Height, PATCOPY);
+      Winapi.Windows.ExtTextOut(Canvas.Handle, 0, 0, ETO_OPAQUE, LClipRect, '', 0, nil);
       Brush.Color := FPageBackgroundColor;
       Rectangle(MARGIN_WIDTH_LEFT_AND_RIGHT, MARGIN_HEIGHT_TOP_AND_BOTTOM, MARGIN_WIDTH_LEFT_AND_RIGHT + 30,
         MARGIN_HEIGHT_TOP_AND_BOTTOM + 43);
@@ -215,7 +215,7 @@ begin
     PaperRect.Bottom := PaperRect.Top + FPageSize.Y;
     PaperRGN := CreateRectRgn(PaperRect.Left, PaperRect.Top, PaperRect.Right + 1, PaperRect.Bottom + 1);
     if NULLREGION <> ExtSelectClipRgn(Handle, PaperRGN, RGN_DIFF) then
-      PatBlt(Canvas.Handle, LClipRect.Left, LClipRect.Top, LClipRect.Width, LClipRect.Height, PATCOPY);
+      Winapi.Windows.ExtTextOut(Canvas.Handle, 0, 0, ETO_OPAQUE, LClipRect, '', 0, nil);
     SelectClipRgn(Handle, PaperRGN);
     Brush.Color := FPageBackgroundColor;
     Rectangle(PaperRect.Left, PaperRect.Top, PaperRect.Right + 1, PaperRect.Bottom + 1);

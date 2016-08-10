@@ -18,15 +18,15 @@ type
     FOnChange: TNotifyEvent;
     FParentBackground: Boolean;
     FParentForeground: Boolean;
-    FStyle: TFontStyles;
-    FStyleDefault: TFontStyles;
+    FFontStyles: TFontStyles;
+    FFontStylesDefault: TFontStyles;
     function GetBackgroundColorStored: Boolean;
-    function GetFontStyleStored: Boolean;
+    function GetFontStylesStored: Boolean;
     function GetForegroundColorStored: Boolean;
     procedure Changed; virtual;
     procedure SetBackground(AValue: TColor);
     procedure SetForeground(AValue: TColor);
-    procedure SetStyle(AValue: TFontStyles);
+    procedure SetFontStyles(AValue: TFontStyles);
   public
     constructor Create(const AttributeName: string);
     procedure Assign(ASource: TPersistent); override;
@@ -42,7 +42,7 @@ type
     property Foreground: TColor read FForeground write SetForeground stored GetForegroundColorStored;
     property ParentForeground: Boolean read FParentForeground write FParentForeground;
     property ParentBackground: Boolean read FParentBackground write FParentBackground;
-    property Style: TFontStyles read FStyle write SetStyle stored GetFontStyleStored;
+    property FontStyles: TFontStyles read FFontStyles write SetFontStyles stored GetFontStylesStored;
   end;
 
 implementation
@@ -89,9 +89,9 @@ begin
     FForeground := ASource.FForeground;
     IsChanged := True;
   end;
-  if FStyle <> ASource.FStyle then
+  if FFontStyles <> ASource.FFontStyles then
   begin
-    FStyle := ASource.FStyle;
+    FFontStyles := ASource.FFontStyles;
     IsChanged := True;
   end;
   FParentForeground := ASource.ParentForeground;
@@ -116,16 +116,16 @@ begin
   Result := FForeground <> FForegroundDefault;
 end;
 
-function TBCEditorHighlighterAttribute.GetFontStyleStored: Boolean;
+function TBCEditorHighlighterAttribute.GetFontStylesStored: Boolean;
 begin
-  Result := FStyle <> FStyleDefault;
+  Result := FFontStyles <> FFontStylesDefault;
 end;
 
 procedure TBCEditorHighlighterAttribute.InternalSaveDefaultValues;
 begin
   FForegroundDefault := FForeground;
   FBackgroundDefault := FBackground;
-  FStyleDefault := FStyle;
+  FFontStylesDefault := FFontStyles;
 end;
 
 procedure TBCEditorHighlighterAttribute.SetBackground(AValue: TColor);
@@ -146,11 +146,11 @@ begin
   end;
 end;
 
-procedure TBCEditorHighlighterAttribute.SetStyle(AValue: TFontStyles);
+procedure TBCEditorHighlighterAttribute.SetFontStyles(AValue: TFontStyles);
 begin
-  if FStyle <> AValue then
+  if FFontStyles <> AValue then
   begin
-    FStyle := AValue;
+    FFontStyles := AValue;
     Changed;
   end;
 end;

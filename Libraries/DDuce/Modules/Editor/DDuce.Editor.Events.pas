@@ -335,9 +335,6 @@ begin
   OnNew.Invoke(Self, S, AText);
 end;
 {$ENDREGION}
-
-{$REGION 'protected methods'}
-{$ENDREGION}
 {$ENDREGION}
 
 end.

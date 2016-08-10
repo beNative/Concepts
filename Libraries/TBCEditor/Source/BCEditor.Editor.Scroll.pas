@@ -3,7 +3,8 @@ unit BCEditor.Editor.Scroll;
 interface
 
 uses
-  System.Classes, System.UITypes, BCEditor.Types, BCEditor.Editor.Glyph, BCEditor.Editor.Scroll.Hint;
+  System.Classes, System.UITypes, BCEditor.Types, BCEditor.Editor.Glyph, BCEditor.Editor.Scroll.Hint,
+  BCEditor.Editor.Scroll.Shadow;
 
 const
   BCEDITOR_DEFAULT_SCROLL_OPTIONS = [soAutosizeMaxWidth, soPastEndOfLine, soShowHint, soWheelClickMove];
@@ -17,10 +18,12 @@ type
     FMaxWidth: Integer;
     FOnChange: TNotifyEvent;
     FOptions: TBCEditorScrollOptions;
+    FShadow: TBCEditorScrollShadow;
     procedure DoChange;
     procedure SetBars(const AValue: System.UITypes.TScrollStyle);
     procedure SetHint(const AValue: TBCEditorScrollHint);
     procedure SetIndicator(const AValue: TBCEditorGlyph);
+    procedure SetOnChange(AValue: TNotifyEvent);
     procedure SetOptions(const AValue: TBCEditorScrollOptions);
     procedure SetMaxWidth(AValue: Integer);
   public
@@ -32,8 +35,9 @@ type
     property Hint: TBCEditorScrollHint read FHint write SetHint;
     property Indicator: TBCEditorGlyph read FIndicator write SetIndicator;
     property MaxWidth: Integer read FMaxWidth write SetMaxWidth default 1024;
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    property OnChange: TNotifyEvent read FOnChange write SetOnChange;
     property Options: TBCEditorScrollOptions read FOptions write SetOptions default BCEDITOR_DEFAULT_SCROLL_OPTIONS;
+    property Shadow: TBCEditorScrollShadow read FShadow write FShadow;
   end;
 
 implementation
@@ -51,15 +55,23 @@ begin
   FMaxWidth := 1024;
   FBars := System.UITypes.TScrollStyle.ssBoth;
   FHint := TBCEditorScrollHint.Create;
-  FIndicator := TBCEditorGlyph.Create(HINSTANCE, BCEDITOR_MOUSE_MOVE_SCROLL, clFuchsia);
+  FIndicator := TBCEditorGlyph.Create(HInstance, BCEDITOR_MOUSE_MOVE_SCROLL, clFuchsia);
+  FShadow := TBCEditorScrollShadow.Create;
 end;
 
 destructor TBCEditorScroll.Destroy;
 begin
   FHint.Free;
   FIndicator.Free;
+  FShadow.Free;
 
   inherited;
+end;
+
+procedure TBCEditorScroll.SetOnChange(AValue: TNotifyEvent);
+begin
+  FOnChange := AValue;
+  FShadow.OnChange := AValue;
 end;
 
 procedure TBCEditorScroll.SetBars(const AValue: System.UITypes.TScrollStyle);
@@ -85,6 +97,7 @@ begin
     Self.FBars := FBars;
     Self.FHint.Assign(FHint);
     Self.FIndicator.Assign(FIndicator);
+    Self.FShadow.Assign(FShadow);
     Self.FOptions := FOptions;
     Self.FMaxWidth := FMaxWidth;
     Self.DoChange;

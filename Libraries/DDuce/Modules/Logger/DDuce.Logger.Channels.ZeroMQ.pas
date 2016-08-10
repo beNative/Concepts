@@ -63,7 +63,7 @@ uses
 procedure TZeroMQChannel.AfterConstruction;
 begin
   inherited AfterConstruction;
-  if FileExists(LIBZEROMQ) then
+  if FileExists(LIBZEROMQ) then // is libzmq.dll present?
   begin
     FBuffer := TStringStream.Create;
     FZMQ := TZeroMQ.Create;
@@ -109,6 +109,7 @@ const
 var
   TextSize : Integer;
   DataSize : Integer;
+  N        : Integer;
 begin
   if Active then
   begin
@@ -116,12 +117,12 @@ begin
       Connect;
     if Connected then
     begin
-      TextSize := Length(AMsg.MsgText);
+      TextSize := Length(AMsg.Text);
       FBuffer.Seek(0, soFromBeginning);
       FBuffer.WriteBuffer(AMsg.MsgType, SizeOf(Integer));
-      FBuffer.WriteBuffer(AMsg.MsgTime, SizeOf(TDateTime));
+      FBuffer.WriteBuffer(AMsg.TimeStamp, SizeOf(TDateTime));
       FBuffer.WriteBuffer(TextSize, SizeOf(Integer));
-      FBuffer.WriteBuffer(AMsg.MsgText[1], TextSize);
+      FBuffer.WriteBuffer(AMsg.Text[1], TextSize);
       if AMsg.Data <> nil then
       begin
         DataSize := AMsg.Data.Size;

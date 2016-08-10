@@ -21,9 +21,9 @@ unit DDuce.Editor.AlignLines.ToolView;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ExtCtrls, Buttons, ActnList, Contnrs,
-  System.Actions,
+  System.Classes, System.SysUtils, System.Actions, System.Contnrs,
+  Vcl.Forms, Vcl.Controls, Vcl.Graphics, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.Buttons, Vcl.ActnList,
 
   VirtualTrees,
 
@@ -256,7 +256,8 @@ end;
 {$region 'property access mehods' /fold}
 function TfrmAlignLines.GetSettings: TAlignLinesSettings;
 begin
-  Result := inherited Settings.ToolSettings.ItemsByClass[TAlignLinesSettings] as TAlignLinesSettings;
+  Result := inherited Settings.ToolSettings.ItemsByClass[TAlignLinesSettings]
+    as TAlignLinesSettings;
 end;
 {$endregion}
 

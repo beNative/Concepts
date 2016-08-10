@@ -3,7 +3,7 @@ unit BCEditor.Editor.DB;
 interface
 
 uses
-  Winapi.Messages, System.SysUtils, System.Classes, Vcl.Controls, Vcl.DbCtrls, Data.DB, BCEditor.Editor,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Controls, Vcl.DbCtrls, Data.DB, BCEditor.Editor,
   BCEditor.Editor.KeyCommands;
 
 type
@@ -19,12 +19,12 @@ type
     procedure CMEnter(var AMessage: TCMEnter); message CM_ENTER;
     procedure CMExit(var AMessage: TCMExit); message CM_EXIT;
     procedure CMGetDataLink(var AMessage: TMessage); message CM_GETDATALINK;
-    procedure DataChange(Sender: TObject);
-    procedure EditingChange(Sender: TObject);
+    procedure DataChange(ASender: TObject);
+    procedure EditingChange(ASender: TObject);
     procedure SetDataField(const AValue: string);
     procedure SetDataSource(AValue: TDataSource);
     procedure SetEditing(AValue: Boolean);
-    procedure UpdateData(Sender: TObject);
+    procedure UpdateData(ASender: TObject);
   protected
     function GetReadOnly: Boolean; override;
     procedure DoChange; override;
@@ -48,7 +48,6 @@ type
     property ActiveLine;
     property Align;
     property Anchors;
-    property BackgroundColor;
     property BorderStyle;
     property Caret;
     property CodeFolding;
@@ -78,6 +77,7 @@ type
     property OnBeforeBookmarkPanelPaint;
     property OnBeforeBookmarkPlaced;
     property OnBeforeClearBookmark;
+    property OnBeforeCompletionProposalExecute;
     property OnBookmarkPanelLinePaint;
     property OnCaretChanged;
     property OnChange;
@@ -190,10 +190,10 @@ end;
 
 procedure TBCCustomDBEditor.CMGetDataLink(var AMessage: TMessage);
 begin
-  AMessage.Result := Integer(FDataLink);
+  AMessage.Result := LRESULT(FDataLink);
 end;
 
-procedure TBCCustomDBEditor.DataChange(Sender: TObject);
+procedure TBCCustomDBEditor.DataChange(ASender: TObject);
 begin
   if Assigned(FDataLink.Field) then
   begin
@@ -224,7 +224,7 @@ begin
   inherited;
 end;
 
-procedure TBCCustomDBEditor.EditingChange(Sender: TObject);
+procedure TBCCustomDBEditor.EditingChange(ASender: TObject);
 begin
   if FDataLink.Editing then
     if Assigned(FDataLink.DataSource) and (FDataLink.DataSource.State <> dsInsert) then
@@ -333,7 +333,7 @@ begin
   FDataLink.ReadOnly := AValue;
 end;
 
-procedure TBCCustomDBEditor.UpdateData(Sender: TObject);
+procedure TBCCustomDBEditor.UpdateData(ASender: TObject);
 var
   LBlobStream: TStream;
 begin

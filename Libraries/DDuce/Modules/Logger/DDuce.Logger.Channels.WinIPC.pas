@@ -29,8 +29,8 @@ uses
 type
   TWinIPCChannel = class(TCustomLogChannel)
   strict private
-    FClient       : TWinIPCClient; // sends to the server
-    FBuffer       : TMemoryStream;
+    FClient : TWinIPCClient; // sends to the server
+    FBuffer : TMemoryStream;
 
   strict protected
     function GetConnected: Boolean; override;
@@ -97,12 +97,12 @@ begin
       Connect;
     if Connected then
     begin
-      TextSize := Length(AMsg.MsgText);
+      TextSize := Length(AMsg.Text);
       FBuffer.Seek(0, soFromBeginning);
       FBuffer.WriteBuffer(AMsg.MsgType, SizeOf(Integer));
-      FBuffer.WriteBuffer(AMsg.MsgTime, SizeOf(TDateTime));
+      FBuffer.WriteBuffer(AMsg.TimeStamp, SizeOf(TDateTime));
       FBuffer.WriteBuffer(TextSize, SizeOf(Integer));
-      FBuffer.WriteBuffer(AMsg.MsgText[1], TextSize);
+      FBuffer.WriteBuffer(AMsg.Text[1], TextSize);
       if AMsg.Data <> nil then
       begin
         DataSize := AMsg.Data.Size;

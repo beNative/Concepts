@@ -105,16 +105,16 @@ begin
     FStringList.Add('      color: #' + ColorToHex(LElement^.Foreground) + ';');
     FStringList.Add('      background-color: #' + ColorToHex(LElement^.Background) + ';');
 
-    if TFontStyle.fsBold in LElement^.Style then
+    if TFontStyle.fsBold in LElement^.FontStyles then
       FStringList.Add('      font-weight: bold;');
 
-    if TFontStyle.fsItalic in LElement^.Style then
+    if TFontStyle.fsItalic in LElement^.FontStyles then
       FStringList.Add('      font-style: italic;');
 
-    if TFontStyle.fsUnderline in LElement^.Style then
+    if TFontStyle.fsUnderline in LElement^.FontStyles then
       FStringList.Add('      text-decoration: underline;');
 
-    if TFontStyle.fsStrikeOut in LElement^.Style then
+    if TFontStyle.fsStrikeOut in LElement^.FontStyles then
       FStringList.Add('      text-decoration: line-through;');
 
     FStringList.Add('    }');
@@ -136,7 +136,7 @@ begin
     if i = 0 then
       FHighlighter.ResetCurrentRange
     else
-      FHighlighter.SetCurrentRange(FLines.Ranges[i]);
+      FHighlighter.SetCurrentRange(FLines.Ranges[i - 1]);
     FHighlighter.SetCurrentLine(FLines.ExpandedStrings[i]);
     LTextLine := '';
     while not FHighlighter.GetEndOfLine do

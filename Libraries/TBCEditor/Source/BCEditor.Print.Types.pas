@@ -22,9 +22,9 @@ type
   TBCEditorFrameTypes = set of TBCEditorFrameType;
   TBCEditorUnitSystem = (usMM, usCm, usInch, muThousandthsOfInches);
   TBCEditorPrintStatus = (psBegin, psNewPage, psEnd);
-  TBCEditorPrintStatusEvent = procedure(Sender: TObject; Status: TBCEditorPrintStatus; PageNumber: Integer;
-    var Abort: Boolean) of object;
-  TBCEditorPrintLineEvent = procedure(Sender: TObject; LineNumber, PageNumber: Integer) of object;
+  TBCEditorPrintStatusEvent = procedure(ASender: TObject; AStatus: TBCEditorPrintStatus; APageNumber: Integer;
+    var AAbort: Boolean) of object;
+  TBCEditorPrintLineEvent = procedure(ASender: TObject; ALineNumber, APageNumber: Integer) of object;
 
 type
   TBCEditorWrapPosition = class

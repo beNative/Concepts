@@ -347,7 +347,6 @@ uses
   BCEditor.Editor.LeftMargin.LineNumbers in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.LineNumbers.pas',
   BCEditor.Editor.LeftMargin.LineState in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.LineState.pas',
   BCEditor.Editor.LeftMargin in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.pas',
-  BCEditor.Editor.LineSpacing in 'Libraries\TBCEditor\Source\BCEditor.Editor.LineSpacing.pas',
   BCEditor.Editor.MatchingPair.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.MatchingPair.Colors.pas',
   BCEditor.Editor.MatchingPair in 'Libraries\TBCEditor\Source\BCEditor.Editor.MatchingPair.pas',
   BCEditor.Editor.Minimap.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.Colors.pas',

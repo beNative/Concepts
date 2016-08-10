@@ -8,9 +8,9 @@ uses
   BCEditor.Editor.LeftMargin.LineNumbers, BCEditor.Editor.LeftMargin.Colors;
 
 type
-  TLeftMarginGetTextEvent = procedure(Sender: TObject; ALine: Integer; var AText: string) of object;
-  TLeftMarginPaintEvent = procedure(Sender: TObject; ALine: Integer; X, Y: Integer) of object;
-  TLeftMarginClickEvent = procedure(Sender: TObject; Button: TMouseButton; X, Y, Line: Integer; Bookmark: TBCEditorBookmark) of object;
+  TLeftMarginGetTextEvent = procedure(ASender: TObject; ALine: Integer; var AText: string) of object;
+  TLeftMarginPaintEvent = procedure(ASender: TObject; ALine: Integer; X, Y: Integer) of object;
+  TLeftMarginClickEvent = procedure(ASender: TObject; AButton: TMouseButton; X, Y, ALine: Integer; ABookmark: TBCEditorBookmark) of object;
 
   TBCEditorLeftMargin = class(TPersistent)
   strict private
@@ -84,6 +84,37 @@ begin
   FLineNumbers := TBCEditorLeftMarginLineNumbers.Create;
 end;
 
+destructor TBCEditorLeftMargin.Destroy;
+begin
+  FBookmarks.Free;
+  FBorder.Free;
+  FColors.Free;
+  FFont.Free;
+  FLineState.Free;
+  FLineNumbers.Free;
+  inherited Destroy;
+end;
+
+procedure TBCEditorLeftMargin.Assign(ASource: TPersistent);
+begin
+  if ASource is TBCEditorLeftMargin then
+  with ASource as TBCEditorLeftMargin do
+  begin
+    Self.FAutosize := FAutosize;
+    Self.FBookmarks.Assign(FBookmarks);
+    Self.FColors.Assign(FColors);
+    Self.FBorder.Assign(FBorder);
+    Self.FCursor := FCursor;
+    Self.FFont.Assign(FFont);
+    Self.FLineNumbers.Assign(FLineNumbers);
+    Self.FWidth := FWidth;
+    Self.FVisible := FVisible;
+    Self.DoChange;
+  end
+  else
+    inherited Assign(ASource);
+end;
+
 procedure TBCEditorLeftMargin.SetOnChange(AValue: TNotifyEvent);
 begin
   FOnChange := AValue;
@@ -94,17 +125,6 @@ begin
   FFont.OnChange := AValue;
   FLineState.OnChange := AValue;
   FLineNumbers.OnChange := AValue;
-end;
-
-destructor TBCEditorLeftMargin.Destroy;
-begin
-  FBookmarks.Free;
-  FBorder.Free;
-  FColors.Free;
-  FFont.Free;
-  FLineState.Free;
-  FLineNumbers.Free;
-  inherited Destroy;
 end;
 
 procedure TBCEditorLeftMargin.DoChange;
@@ -128,26 +148,6 @@ begin
     Result := PanelWidth + FLineState.Width + FLineNumbers.AutosizeDigitCount * ACharWidth + 5
   else
     Result := FWidth;
-end;
-
-procedure TBCEditorLeftMargin.Assign(ASource: TPersistent);
-begin
-  if ASource is TBCEditorLeftMargin then
-  with ASource as TBCEditorLeftMargin do
-  begin
-    Self.FAutosize := FAutosize;
-    Self.FBookmarks.Assign(FBookmarks);
-    Self.FColors.Assign(FColors);
-    Self.FBorder := FBorder;
-    Self.FCursor := FCursor;
-    Self.FFont.Assign(FFont);
-    Self.FLineNumbers.Assign(FLineNumbers);
-    Self.FWidth := FWidth;
-    Self.FVisible := FVisible;
-    Self.DoChange;
-  end
-  else
-    inherited Assign(ASource);
 end;
 
 function TBCEditorLeftMargin.GetWidth: Integer;
