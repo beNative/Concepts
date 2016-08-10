@@ -147,6 +147,10 @@ object frmIndyTCP: TfrmIndyTCP
         TabOrder = 0
         object tsMemo: TTabSheet
           Caption = 'Memo'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object mmoSend: TMemo
             Left = 0
             Top = 0
@@ -337,8 +341,6 @@ object frmIndyTCP: TfrmIndyTCP
         Font.Style = []
         ParentFont = False
         TabOrder = 2
-        ExplicitLeft = -6
-        ExplicitTop = 27
         object tsSentLog: TTabSheet
           Caption = 'Log'
           Font.Charset = DEFAULT_CHARSET
@@ -357,6 +359,10 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object mmoSentText: TMemo
             Left = 0
             Top = 0
@@ -464,6 +470,10 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object mmoReceivedText: TMemo
             Left = 0
             Top = 0

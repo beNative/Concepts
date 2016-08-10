@@ -125,8 +125,7 @@ begin
 end;
 {$ENDREGION}
 
-{ TTestObject }
-
+{$REGION 'TTestObject'}
 procedure TTestObject.Start;
 begin
   ShowMessage('Start');
@@ -136,12 +135,13 @@ procedure TTestObject.Stop;
 begin
   ShowMessage('Stop');
 end;
+{$ENDREGION}
 
-{ TMoveObject }
-
+{$REGION 'TMoveObject'}
 procedure TMoveObject.Move;
 begin
   ShowMessage('Moving');
 end;
+{$ENDREGION}
 
 end.
