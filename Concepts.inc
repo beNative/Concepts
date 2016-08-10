@@ -51,11 +51,13 @@
 {$DEFINE CHROMETABS}
 { TBCEditor }
 {$DEFINE BCEDITOR}
-{DelphiZMQ}
+{ DelphiZMQ }
 {$DEFINE DELPHIZMQ}
 { DDetours }
 {$DEFINE DDETOURS}
 { TzObjectInspector }
 {$DEFINE ZOBJECTINSPECTOR}
+{ TFireMonkeyContainer }
+{$DEFINE FMXCONTAINER}
 { FastMM }
 {.$DEFINE FASTMM}

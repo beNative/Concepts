@@ -194,6 +194,10 @@
           object tsColors: TTabSheet
             Caption = 'Color mappings'
             ImageIndex = 1
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object splVerticalRight: TSplitter
               Left = 475
               Top = 0

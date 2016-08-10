@@ -178,7 +178,4 @@ begin
 end;
 {$ENDREGION}
 
-initialization
-
-
 end.
