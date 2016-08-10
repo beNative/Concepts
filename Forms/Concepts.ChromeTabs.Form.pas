@@ -18,6 +18,8 @@
 
 unit Concepts.ChromeTabs.Form;
 
+{ Demonstrates the TChromeTabs component. }
+
 interface
 
 uses

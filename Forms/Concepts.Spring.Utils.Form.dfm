@@ -33,7 +33,6 @@ object frmSpringUtils: TfrmSpringUtils
     ScrollBars = ssVertical
     ShowHint = False
     TabOrder = 0
-    ExplicitWidth = 928
   end
   object pnlTop: TGridPanel
     AlignWithMargins = True
@@ -100,8 +99,6 @@ object frmSpringUtils: TfrmSpringUtils
         Value = 50.000000000000000000
       end>
     TabOrder = 1
-    ExplicitLeft = -2
-    ExplicitWidth = 928
     object btnFileVersionInfo: TButton
       AlignWithMargins = True
       Left = 702
@@ -111,7 +108,6 @@ object frmSpringUtils: TfrmSpringUtils
       Action = actApplicationVersionInfo
       Align = alClient
       TabOrder = 3
-      ExplicitLeft = 697
     end
     object btnOperatingSystem: TButton
       AlignWithMargins = True
@@ -122,8 +118,6 @@ object frmSpringUtils: TfrmSpringUtils
       Action = actOperatingSystem
       Align = alClient
       TabOrder = 1
-      ExplicitLeft = 235
-      ExplicitWidth = 225
     end
     object btnApplicationVersion: TButton
       AlignWithMargins = True
@@ -134,8 +128,6 @@ object frmSpringUtils: TfrmSpringUtils
       Action = actApplicationVersion
       Align = alClient
       TabOrder = 2
-      ExplicitLeft = 466
-      ExplicitWidth = 225
     end
     object btnEnvironment: TButton
       AlignWithMargins = True
@@ -146,7 +138,6 @@ object frmSpringUtils: TfrmSpringUtils
       Action = actEnvironment
       Align = alClient
       TabOrder = 0
-      ExplicitWidth = 226
     end
     object btnGetCommandLineArgs: TButton
       AlignWithMargins = True
@@ -157,7 +148,6 @@ object frmSpringUtils: TfrmSpringUtils
       Action = actGetCommandLineArgs
       Align = alClient
       TabOrder = 4
-      ExplicitWidth = 226
     end
     object btnGetEnvironmentVariables: TButton
       AlignWithMargins = True
@@ -168,8 +158,6 @@ object frmSpringUtils: TfrmSpringUtils
       Action = actGetEnvironmentVariables
       Align = alClient
       TabOrder = 5
-      ExplicitLeft = 235
-      ExplicitWidth = 225
     end
     object btnGetLogicalDrives: TButton
       AlignWithMargins = True
@@ -180,8 +168,6 @@ object frmSpringUtils: TfrmSpringUtils
       Action = actGetLogicalDrives
       Align = alClient
       TabOrder = 6
-      ExplicitLeft = 466
-      ExplicitWidth = 225
     end
   end
   object aclMain: TActionList

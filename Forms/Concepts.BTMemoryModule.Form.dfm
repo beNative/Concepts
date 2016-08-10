@@ -2,8 +2,8 @@ object frmBTMemoryModule: TfrmBTMemoryModule
   Left = 0
   Top = 0
   Caption = 'BTMemoryModule'
-  ClientHeight = 282
-  ClientWidth = 418
+  ClientHeight = 41
+  ClientWidth = 236
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,8 +22,8 @@ object frmBTMemoryModule: TfrmBTMemoryModule
     TabOrder = 0
   end
   object aclMain: TActionList
-    Left = 248
-    Top = 8
+    Left = 168
+    Top = 65528
     object actExecuteFromDLL: TAction
       Caption = 'Execute DLL from file'
       OnExecute = actExecuteFromDLLExecute
