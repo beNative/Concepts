@@ -1,0 +1,48 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{8E93B5A6-573F-4014-8C75-1230854E838B}</ProjectGuid>
+		</PropertyGroup>
+		<ItemGroup>
+			<Projects Include="ORMTests.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="..\External\CodeGenerator\Source\MORMCodeGenerator.dproj">
+				<Dependencies/>
+			</Projects>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Default.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Default.Personality/>
+			</BorlandProject>
+		</ProjectExtensions>
+		<Target Name="ORMTests">
+			<MSBuild Projects="ORMTests.dproj"/>
+		</Target>
+		<Target Name="ORMTests:Clean">
+			<MSBuild Targets="Clean" Projects="ORMTests.dproj"/>
+		</Target>
+		<Target Name="ORMTests:Make">
+			<MSBuild Targets="Make" Projects="ORMTests.dproj"/>
+		</Target>
+		<Target Name="MORMCodeGenerator">
+			<MSBuild Projects="..\External\CodeGenerator\Source\MORMCodeGenerator.dproj"/>
+		</Target>
+		<Target Name="MORMCodeGenerator:Clean">
+			<MSBuild Targets="Clean" Projects="..\External\CodeGenerator\Source\MORMCodeGenerator.dproj"/>
+		</Target>
+		<Target Name="MORMCodeGenerator:Make">
+			<MSBuild Targets="Make" Projects="..\External\CodeGenerator\Source\MORMCodeGenerator.dproj"/>
+		</Target>
+		<Target Name="Build">
+			<CallTarget Targets="ORMTests;MORMCodeGenerator"/>
+		</Target>
+		<Target Name="Clean">
+			<CallTarget Targets="ORMTests:Clean;MORMCodeGenerator:Clean"/>
+		</Target>
+		<Target Name="Make">
+			<CallTarget Targets="ORMTests:Make;MORMCodeGenerator:Make"/>
+		</Target>
+		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
+	</Project>

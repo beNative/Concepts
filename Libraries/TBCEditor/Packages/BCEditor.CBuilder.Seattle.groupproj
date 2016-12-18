@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{98CA83B1-B38A-49C4-8FA5-9B99828585AE}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="BCEditor.CBuilder.Seattle.Runtime.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="BCEditor.CBuilder.Seattle.Designtime.cbproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="BCEditor_CBuilder_Seattle_Runtime">
+        <MSBuild Projects="BCEditor.CBuilder.Seattle.Runtime.cbproj"/>
+    </Target>
+    <Target Name="BCEditor_CBuilder_Seattle_Runtime:Clean">
+        <MSBuild Projects="BCEditor.CBuilder.Seattle.Runtime.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="BCEditor_CBuilder_Seattle_Runtime:Make">
+        <MSBuild Projects="BCEditor.CBuilder.Seattle.Runtime.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="BCEditor_CBuilder_Seattle_Designtime">
+        <MSBuild Projects="BCEditor.CBuilder.Seattle.Designtime.cbproj"/>
+    </Target>
+    <Target Name="BCEditor_CBuilder_Seattle_Designtime:Clean">
+        <MSBuild Projects="BCEditor.CBuilder.Seattle.Designtime.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="BCEditor_CBuilder_Seattle_Designtime:Make">
+        <MSBuild Projects="BCEditor.CBuilder.Seattle.Designtime.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="BCEditor_CBuilder_Seattle_Runtime;BCEditor_CBuilder_Seattle_Designtime"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="BCEditor_CBuilder_Seattle_Runtime:Clean;BCEditor_CBuilder_Seattle_Designtime:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="BCEditor_CBuilder_Seattle_Runtime:Make;BCEditor_CBuilder_Seattle_Designtime:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

@@ -1,0 +1,13 @@
+/headers
+/Win32
+/Win64
+/Android
+/AndroidManifest.template.xml
+/Demo_CppInterop_Group_prjgroup.tvsconfig
+
+__history
+
+*.dsk
+*.~dsk
+*.local
+*.identcache

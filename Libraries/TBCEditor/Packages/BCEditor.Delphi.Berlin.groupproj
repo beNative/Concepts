@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{2F95E7A1-2A4E-443E-9E31-C93E3D8E882D}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="BCEditor.Delphi.Berlin.Runtime.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="BCEditor.Delphi.Berlin.Designtime.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="BCEditor_Delphi_Berlin_Runtime">
+        <MSBuild Projects="BCEditor.Delphi.Berlin.Runtime.dproj"/>
+    </Target>
+    <Target Name="BCEditor_Delphi_Berlin_Runtime:Clean">
+        <MSBuild Projects="BCEditor.Delphi.Berlin.Runtime.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="BCEditor_Delphi_Berlin_Runtime:Make">
+        <MSBuild Projects="BCEditor.Delphi.Berlin.Runtime.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="BCEditor_Delphi_Berlin_Designtime">
+        <MSBuild Projects="BCEditor.Delphi.Berlin.Designtime.dproj"/>
+    </Target>
+    <Target Name="BCEditor_Delphi_Berlin_Designtime:Clean">
+        <MSBuild Projects="BCEditor.Delphi.Berlin.Designtime.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="BCEditor_Delphi_Berlin_Designtime:Make">
+        <MSBuild Projects="BCEditor.Delphi.Berlin.Designtime.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="BCEditor_Delphi_Berlin_Runtime;BCEditor_Delphi_Berlin_Designtime"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="BCEditor_Delphi_Berlin_Runtime:Clean;BCEditor_Delphi_Berlin_Designtime:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="BCEditor_Delphi_Berlin_Runtime:Make;BCEditor_Delphi_Berlin_Designtime:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
