@@ -18,7 +18,7 @@
 
 unit Concepts.Spring.Collections.Form;
 
-{ Demonstrates the use of Spring collections. }
+{ Demonstrates some of the features of Spring collections. }
 
 {
   References:
@@ -28,9 +28,8 @@ unit Concepts.Spring.Collections.Form;
     - Reimplementing LINQ to Objects
         (http://edulinq.googlecode.com/hg/posts/index.html)
 
-
-    covariance <-> contravariance
-    variance   <-> invariance
+  covariance <-> contravariance
+  variance   <-> invariance
 }
 
 interface
@@ -102,6 +101,15 @@ resourcestring
 procedure TfrmCollections.AfterConstruction;
 begin
   inherited AfterConstruction;
+  // Collection classes in Spring4D should always be accessed through interface
+  // references of the generic type.
+  // Use the static methods of the TCollections class to create the collection
+  // object of your choice and assign it to the corresponding interface variable.
+  // IList<TContact>
+  // If you are just using lists where T is a class then use the IObjectList
+  // interface (which is in fact a IList<TObject>). Otherwise use the AsList
+  // method to return an IList which wraps the original generic list and uses
+  // TValue on its API.
   FList := TCollections.CreateObjectList<TContact>;
 end;
 {$ENDREGION}

@@ -18,6 +18,8 @@
 
 unit Concepts.DevExpress.cxEditors.Form;
 
+{ Demonstrates some common features of the DevExpress edit controls. }
+
 interface
 
 uses

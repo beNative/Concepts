@@ -18,6 +18,8 @@
 
 unit Concepts.Utils;
 
+{ Somme commonly used routines. }
+
 interface
 
 uses

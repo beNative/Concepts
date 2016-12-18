@@ -158,7 +158,9 @@
         <DCCReference Include="Forms\Concepts.ChromeTabs.Form.pas">
             <Form>frmChromeTabs</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Concepts.DevExpress.cxEditors.Form.pas"/>
+        <DCCReference Include="Forms\Concepts.DevExpress.cxEditors.Form.pas">
+            <Form>frmcxEditors</Form>
+        </DCCReference>
         <DCCReference Include="Forms\Concepts.DSharp.Bindings.Form.pas">
             <Form>frmBindings</Form>
         </DCCReference>
@@ -504,7 +506,6 @@
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Consts.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.ActiveLine.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Base.pas"/>
-        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Bookmarks.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.NonBlinking.Colors.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.NonBlinking.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.Offsets.pas"/>
@@ -527,7 +528,6 @@
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Glyph.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.InternalImage.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.KeyCommands.pas"/>
-        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Bookmarks.Panel.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Bookmarks.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Border.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Colors.pas"/>
@@ -587,7 +587,6 @@
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Search.RegularExpressions.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Search.Wildcard.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.StyleHooks.pas"/>
-        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.TextDrawer.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Types.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Utils.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.Shadow.pas"/>
@@ -660,9 +659,24 @@
         <DCCReference Include="Forms\Concepts.FMXContainer.Form.pas">
             <Form>frmFMXContainer</Form>
         </DCCReference>
-        <DCCReference Include="Forms\FMXForm.pas">
+        <DCCReference Include="Forms\Concepts.FireMonkey.Form.pas">
             <Form>FireMonkeyForm</Form>
         </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.StringList.Form.pas">
+            <Form>frmStringList</Form>
+        </DCCReference>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Marks.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.MultiEdit.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.MultiEdit.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.Indicator.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.Indicator.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.MarksPanel.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Marks.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Scroll.Shadow.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Search.InSelection.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Search.Normal.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.PaintHelper.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.UnknownChars.pas"/>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
         <BuildConfiguration Include="Debug">
@@ -790,16 +804,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployClass Name="DependencyModule">
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.dll;.bpl</Extensions>
-                    </Platform>
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
                         <RemoteDir>Contents\Resources</RemoteDir>
@@ -1113,7 +1118,16 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>

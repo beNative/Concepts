@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.Vcl.RelativePanel.Form;
 
 interface
@@ -26,8 +28,8 @@ uses
 
 type
   TfrmRelativePanel = class(TForm)
-    pnlRelativePanel: TRelativePanel;
-    btn1: TButton;
+    pnlRelativePanel : TRelativePanel;
+    btn1             : TButton;
   private
     { Private declarations }
   public

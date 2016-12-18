@@ -18,6 +18,8 @@
 
 unit Concepts.Settings;
 
+{ Provides access to application settings.  }
+
 interface
 
 uses

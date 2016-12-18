@@ -16,7 +16,7 @@
 
 unit Concepts.DDetours.Form;
 
-{ Shows how to use DDetours library.
+{ Demonstrates how to use DDetours library.
           http://github.com/mahdisafsafi/delphi-detours-library
 
   Instructions on how to use:

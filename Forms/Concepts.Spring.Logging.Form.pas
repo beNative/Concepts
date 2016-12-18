@@ -19,9 +19,10 @@
 unit Concepts.Spring.Logging.Form;
 
 { Demonstrates the Spring Logging system.
-    - shows an example of a custom ILogAppender implementation (TLogTreeAppender).
+  Shows an example of
+    - a custom ILogAppender implementation (TLogTreeAppender).
     - how to log RTTI info using a TReflectionTypeSerializer
-    - properties can be set on the controller, logger and appenders.
+    - how properties can be set on the controller, logger and appenders.
 
   Remark: Stack trace support is not supported yet by Spring4D. }
 
@@ -80,7 +81,6 @@ type
     procedure tsMainChange(Sender: TObject; NewTab: Integer;
       var AllowChange: Boolean);
     procedure edtLogFileChange(Sender: TObject);
-
 
   private
     FController        : ILoggerController;

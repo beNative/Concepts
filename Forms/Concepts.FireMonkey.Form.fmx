@@ -1,0 +1,166 @@
+object FireMonkeyForm: TFireMonkeyForm
+  Left = 0
+  Top = 0
+  BorderIcons = []
+  BorderStyle = None
+  ClientHeight = 401
+  ClientWidth = 642
+  Quality = HighQuality
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop, iPhone, iPad]
+  DesignerMasterStyle = 0
+  object grpExample: TGroupBox
+    Hint = 'TGroupBox'
+    Align = Client
+    Margins.Left = 8.000000000000000000
+    Margins.Top = 8.000000000000000000
+    Margins.Right = 8.000000000000000000
+    Margins.Bottom = 8.000000000000000000
+    Size.Width = 626.000000000000000000
+    Size.Height = 330.000000000000000000
+    Size.PlatformDefault = False
+    Text = 'FireMonkey'
+    TabOrder = 0
+    object tbcExample: TTabControl
+      Anchors = [akLeft, akTop, akRight]
+      Position.X = 144.000000000000000000
+      Position.Y = 16.000000000000000000
+      Size.Width = 468.000000000000000000
+      Size.Height = 164.000000000000000000
+      Size.PlatformDefault = False
+      TabIndex = 0
+      TabOrder = 7
+      TabPosition = Top
+      object tbiExample1: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = True
+        Size.Width = 70.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'TabItem1'
+        ExplicitSize.cx = 50.000000000000000000
+        ExplicitSize.cy = 50.000000000000000000
+      end
+      object tbiExample2: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 70.000000000000000000
+        Size.Height = 26.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'TabItem2'
+        ExplicitSize.cx = 50.000000000000000000
+        ExplicitSize.cy = 50.000000000000000000
+      end
+    end
+    object swExample: TSwitch
+      Hint = 'TSwitch'
+      IsChecked = False
+      Position.X = 24.000000000000000000
+      Position.Y = 112.000000000000000000
+      Size.Width = 97.000000000000000000
+      Size.Height = 27.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+    end
+    object trbExample: TTrackBar
+      Hint = 'TTrackBar'
+      CanParentFocus = True
+      Orientation = Horizontal
+      Position.X = 24.000000000000000000
+      Position.Y = 144.000000000000000000
+      TabOrder = 4
+    end
+    object spbExample: TSpinBox
+      Hint = 'TSpinBox'
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      TabOrder = 1
+      Cursor = crIBeam
+      Position.X = 24.000000000000000000
+      Position.Y = 55.000000000000000000
+      Size.Width = 105.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object chkExample: TCheckBox
+      Position.X = 24.000000000000000000
+      Position.Y = 88.000000000000000000
+      TabOrder = 2
+      Text = 'TCheckBox'
+    end
+    object lblExample: TLabel
+      Position.X = 24.000000000000000000
+      Position.Y = 256.000000000000000000
+      Text = 'TLabel'
+    end
+    object pbrExample: TProgressBar
+      Hint = 'TProgressBar'
+      Orientation = Horizontal
+      Position.X = 24.000000000000000000
+      Position.Y = 168.000000000000000000
+    end
+    object lstExample: TListBox
+      Position.X = 144.000000000000000000
+      Position.Y = 184.000000000000000000
+      Size.Width = 465.000000000000000000
+      Size.Height = 72.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 11
+      DisableFocusEffect = True
+      DefaultItemStyles.ItemStyle = ''
+      DefaultItemStyles.GroupHeaderStyle = ''
+      DefaultItemStyles.GroupFooterStyle = ''
+      Viewport.Width = 461.000000000000000000
+      Viewport.Height = 68.000000000000000000
+    end
+    object cmbExample: TComboBox
+      Hint = 'TComboBox'
+      Position.X = 24.000000000000000000
+      Position.Y = 192.000000000000000000
+      TabOrder = 5
+    end
+    object edtExample: TEdit
+      Hint = 'TEdit'
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Anchors = [akLeft, akTop, akRight]
+      TabOrder = 6
+      Position.X = 24.000000000000000000
+      Position.Y = 224.000000000000000000
+      Size.Width = 97.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object btnExample: TButton
+      Position.X = 24.000000000000000000
+      Position.Y = 23.000000000000000000
+      Size.Width = 105.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      Text = 'TButton'
+    end
+  end
+  object tbrExample: TToolBar
+    Hint = 'TToolBar'
+    Size.Width = 642.000000000000000000
+    Size.Height = 33.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 13
+  end
+  object sbrExample: TStatusBar
+    Position.Y = 379.000000000000000000
+    ShowSizeGrip = True
+    Size.Width = 642.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 14
+  end
+end

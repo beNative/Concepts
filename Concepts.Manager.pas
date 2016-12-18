@@ -18,6 +18,9 @@
 
 unit Concepts.Manager;
 
+{ Manages a list of concepts. A concept is nothing more than a standard form
+  that demomstrates a user defined feature. }
+
 interface
 
 uses
@@ -62,19 +65,23 @@ type
     class var
       FList: IList<TConcept>;
 
-    class procedure Execute(
-      AConcept   : TObject;
-      AShowModal : Boolean = True
-    ); static;
-
     class constructor Create;
 
+    class function Execute(
+      AConcept   : TObject;
+      AShowModal : Boolean = True
+    ): Boolean; overload; static;
+
+    class function Execute(
+      const AName: string
+    ): Boolean; overload; static;
+
     class function Register(
-            AFormClass   : TComponentClass;
+      AFormClass         : TComponentClass;
       const AName        : string = '';
       const ACategory    : string = '';
       const ADescription : string = '';
-            AColor       : TColor = clWhite
+      AColor             : TColor = clWhite
     ): Boolean; static;
 
     class property ItemList: IList<TConcept>
@@ -104,27 +111,45 @@ end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
-class procedure TConceptManager.Execute(AConcept: TObject; AShowModal: Boolean);
+class function TConceptManager.Execute(AConcept: TObject; AShowModal: Boolean)
+  : Boolean;
 var
   F : TComponent;
   C : TConcept;
 begin
-  C := AConcept as TConcept;
-  F := C.FormClass.Create(Application);
-  if F is TForm then
+  if Assigned(AConcept) then
   begin
-    with TForm(F) do
+    C := AConcept as TConcept;
+    F := C.FormClass.Create(Application);
+    if F is TForm then
     begin
-      Caption := C.Name;
-      Position := TPosition.poScreenCenter;
-      if AShowModal then
-        ShowModal
-      else
-        Show;
+      with TForm(F) do
+      begin
+        Caption := C.Name;
+        Position := TPosition.poScreenCenter;
+        if AShowModal then
+          ShowModal
+        else
+          Show;
+      end
     end
+    else
+      raise Exception.CreateFmt('Cannot create %s', [C.FormClass.ClassName]);
+    Result := True;
   end
   else
-    raise Exception.CreateFmt('Cannot create %s', [C.FormClass.ClassName]);
+    Result := False;
+end;
+
+class function TConceptManager.Execute(const AName: string): Boolean;
+begin
+  Result := Execute(
+    FList.Where(function(const AItem: TConcept): Boolean
+      begin
+        Result := SameText(AItem.Name, AName);
+      end
+    ).FirstOrDefault
+  );
 end;
 
 class function TConceptManager.Register(AFormClass: TComponentClass;

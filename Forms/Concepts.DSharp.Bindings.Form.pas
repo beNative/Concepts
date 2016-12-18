@@ -18,7 +18,7 @@
 
 unit Concepts.DSharp.Bindings.Form;
 
-{ Form demonstrating DSharp bindings with custom validation rules. }
+{ Demonstrates how to use DSharp bindings with custom validation rules. }
 
 interface
 

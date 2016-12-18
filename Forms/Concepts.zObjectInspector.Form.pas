@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I Concepts.inc}
+
 unit Concepts.zObjectInspector.Form;
 
 { This form demonstrates the TzObjectInspector component.

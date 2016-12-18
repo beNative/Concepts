@@ -18,6 +18,8 @@
 
 unit Concepts.Registration;
 
+{ Handles registration of all supported concept forms. }
+
 interface
 
 uses
@@ -61,12 +63,11 @@ uses
   Concepts.System.Threads.Form,
   Concepts.System.RegularExpressions.Form,
   Concepts.System.LiveBindings.Form,
-  {$IFDEF DELPHIXE7UP}
   Concepts.System.Threading.Form,
-  {$ENDIF}
   Concepts.System.Libraries.Form,
   Concepts.System.AnonymousMethods.Form,
   Concepts.System.InterfaceImplementationByAggregation.Form,
+  Concepts.System.StringList.Form,
   Concepts.System.VirtualMethodInterceptor.Form,
   Concepts.System.VirtualInterface.Form,
   {$ENDIF}
@@ -79,7 +80,6 @@ uses
   {$IFDEF DSHARP}
   Concepts.DSharp.TreeViewPresenter.Tree.Form,
   Concepts.DSharp.TreeViewPresenter.List.Form,
-
   {$ENDIF}
 
   {$IFDEF SPRING}
@@ -312,7 +312,6 @@ begin
     'Demonstrates support for regular expressions in the RTL',
     FCategoryColor
   );
-  {$IFDEF DELPHIXE7UP}
   ConceptManager.Register(
     TfrmThreading,
     'Parallel library',
@@ -320,7 +319,6 @@ begin
     'Demonstrates the System.Threading library introduced in Delphi XE7',
     FCategoryColor
   );
-  {$ENDIF}
   ConceptManager.Register(
     TfrmThreads,
     'Threads',
@@ -356,6 +354,13 @@ begin
     '',
     FCategoryColor
   );
+  ConceptManager.Register(
+    TfrmStringList,
+    'TStringList',
+    'System',
+    'TStringList',
+    FCategoryColor
+  );
   {$ENDIF}
 end;
 
@@ -379,7 +384,6 @@ begin
     FCategoryColor
   );
   {$ENDIF}
-
   {$ENDIF}
 end;
 

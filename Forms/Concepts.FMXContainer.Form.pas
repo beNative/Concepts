@@ -50,23 +50,25 @@ implementation
 uses
   Concepts.ComponentInspector,
 
-  FMXForm;
+  Concepts.FireMonkey.Form;
 
+{$REGION 'construction and destruction'}
 procedure TfrmFMXContainer.AfterConstruction;
 begin
   inherited AfterConstruction;
   FFMXContainer := TFireMonkeyContainer.Create(Self);
+  FFMXContainer.Parent := Self;
+  FFMXContainer.Align := alClient;
   FFMXContainer.OnCreateFMXForm := FFMXContainerCreateFMXForm;
   FFMXContainer.OnDestroyFMXForm := FFMXContainerDestroyFMXForm;
-  FFMXContainer.Align := alClient;
-  FFMXContainer.Parent := Self;
 end;
+{$ENDREGION}
 
 {$REGION 'event handlers'}
 procedure TfrmFMXContainer.FFMXContainerCreateFMXForm(
   var Form: FMX.Forms.TCommonCustomForm);
 begin
-  Form := TFireMonkeyForm.Create(nil);
+  Form := TFireMonkeyForm.Create(Self);
 end;
 
 procedure TfrmFMXContainer.FFMXContainerDestroyFMXForm(

@@ -18,15 +18,17 @@
 
 unit Concepts.Spring.ClassProxy.Form;
 
-interface
+{ Demonstrates how to intercept methods using Spring4D. }
 
 {
   REMARKS:
-    - only virtual methods can be intercepted with a classprocy. Even dynamic
+    - only virtual methods can be intercepted with a classproxy. Even dynamic
       methods are not supported.
     - an interfaceproxy supports interception on all implemented methods. The
       interface needs to descend from IInvokable or be compiled with $M+.
 }
+
+interface
 
 uses
   Winapi.Windows, Winapi.Messages,

@@ -18,6 +18,8 @@
 
 unit Concepts.RTTEye.Form;
 
+{ Demonstrates how to browse through RTTI contents. }
+
 interface
 
 uses
@@ -46,8 +48,12 @@ type
     tvRtti      : TTreeView;
     {$ENDREGION}
 
-    procedure tvRttiCustomDrawItem(Sender: TCustomTreeView;
-      Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure tvRttiCustomDrawItem(
+      Sender          : TCustomTreeView;
+      Node            : TTreeNode;
+      State           : TCustomDrawState;
+      var DefaultDraw : Boolean
+    );
     procedure tvRttiChange(Sender: TObject; Node: TTreeNode);
     procedure tvRttiDblClick(Sender: TObject);
 
@@ -504,4 +510,3 @@ end;
 {$ENDREGION}
 
 end.
-

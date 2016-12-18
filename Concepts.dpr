@@ -3,21 +3,11 @@ program Concepts;
 {$I Concepts.inc}
 
 uses
-//  {$IFDEF FASTMM}
-//  FastMM4 in 'Libraries\fastmm\FastMM4.pas',
-//  FastMM4Messages in 'Libraries\fastmm\FastMM4Messages.pas',
-//  {$ENDIF }
   Vcl.Themes,
   Vcl.Styles,
   Vcl.Forms,
-//  {$IFNDEF HAS_UNIT_SYSTEM_IMAGELIST}
-//  System.ImageList in 'Types\System.ImageList.pas',
-//  {$ENDIF }
-//  {$IFDEF BTMEMORYMODULE}
   BTMemoryModule in 'Libraries\BTMemoryModule\BTMemoryModule.pas',
   Concepts.BTMemoryModule.Form in 'Forms\Concepts.BTMemoryModule.Form.pas' {frmBTMemoryModule},
-//  {$ENDIF }
-//  {$IFDEF CHROMETABS}
   ChromeTabs in 'Libraries\TChromeTabs\Lib\ChromeTabs.pas',
   ChromeTabsClasses in 'Libraries\TChromeTabs\Lib\ChromeTabsClasses.pas',
   ChromeTabsControls in 'Libraries\TChromeTabs\Lib\ChromeTabsControls.pas',
@@ -27,10 +17,7 @@ uses
   ChromeTabsTypes in 'Libraries\TChromeTabs\Lib\ChromeTabsTypes.pas',
   ChromeTabsUtils in 'Libraries\TChromeTabs\Lib\ChromeTabsUtils.pas',
   Concepts.ChromeTabs.Form in 'Forms\Concepts.ChromeTabs.Form.pas' {frmChromeTabs},
-//  {$ENDIF }
-//  {$IFDEF DEVEXPRESS}
-  Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas',
-//  {$ENDIF }
+  Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
   Concepts.DSharp.Bindings.Form in 'Forms\Concepts.DSharp.Bindings.Form.pas' {frmBindings},
   Concepts.DSharp.TreeViewPresenter.Tree.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.Tree.Form.pas' {frmTreeViewPresenterTree},
   Concepts.Factories in 'Concepts.Factories.pas',
@@ -66,9 +53,7 @@ uses
   Concepts.Utils in 'Concepts.Utils.pas',
   Concepts.Vcl.GridPanel.Form in 'Forms\Concepts.Vcl.GridPanel.Form.pas' {frmGridPanel},
   Concepts.Indy.TCP.Form in 'Forms\Concepts.Indy.TCP.Form.pas' {frmIndyTCP},
-//  {$IFDEF DELPHIX_SEATTLE_UP}
   Concepts.Vcl.RelativePanel.Form in 'Forms\Concepts.Vcl.RelativePanel.Form.pas' {frmRelativePanel},
-//  {$ENDIF }
   Concepts.WinApi.LockPaint.Form in 'Forms\Concepts.WinApi.LockPaint.Form.pas' {frmLockPaint},
   DDuce.Components.DBGridView in 'Libraries\DDuce\Components\DDuce.Components.DBGridView.pas',
   DDuce.Components.GridView in 'Libraries\DDuce\Components\DDuce.Components.GridView.pas',
@@ -77,9 +62,6 @@ uses
   DDuce.Components.PropertyInspector in 'Libraries\DDuce\Components\DDuce.Components.PropertyInspector.pas',
   DDuce.Components.PropertyInspector.CollectionEditor in 'Libraries\DDuce\Components\DDuce.Components.PropertyInspector.CollectionEditor.pas' {frmCollectionEditor},
   DDuce.Components.PropertyInspector.StringsEditor in 'Libraries\DDuce\Components\DDuce.Components.PropertyInspector.StringsEditor.pas' {StringsEditorDialog},
-//  DDuce.Components.XMLTree in 'Libraries\DDuce\Components\DDuce.Components.XMLTree.pas',
-//  DDuce.Components.XMLTree.Editors in 'Libraries\DDuce\Components\DDuce.Components.XMLTree.Editors.pas',
-//  DDuce.Components.XMLTree.NodeAttributes in 'Libraries\DDuce\Components\DDuce.Components.XMLTree.NodeAttributes.pas',
   DDuce.DynamicRecord in 'Libraries\DDuce\DDuce.DynamicRecord.pas',
   DDuce.RandomData in 'Libraries\DDuce\DDuce.RandomData.pas',
   DDuce.Reflect in 'Libraries\DDuce\DDuce.Reflect.pas',
@@ -117,7 +99,6 @@ uses
   DSharp.Windows.CustomPresenter in 'Libraries\DSharp\DSharp.Windows.CustomPresenter.pas',
   DSharp.Windows.CustomPresenter.Types in 'Libraries\DSharp\DSharp.Windows.CustomPresenter.Types.pas',
   DSharp.Windows.TreeViewPresenter in 'Libraries\DSharp\DSharp.Windows.TreeViewPresenter.pas',
-//  {$IFDEF SQLBUILDER4D}
   Concepts.SQLBuilder4D.Form in 'Forms\Concepts.SQLBuilder4D.Form.pas' {frmSQLBuilder4D},
   SQLBuilder4D in 'Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.pas',
   SQLBuilder4D.Parser in 'Libraries\SQLBuilder4Delphi\src\SQLBuilder4D.Parser.pas',
@@ -137,7 +118,6 @@ uses
   gaSQLSelectFieldParsers in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLSelectFieldParsers.pas',
   gaSQLTableRefParsers in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaSQLTableRefParsers.pas',
   gaUpdateStm in 'Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\gaUpdateStm.pas',
-//  {$ENDIF }
   Spring in 'Libraries\Spring4D\Source\Base\Spring.pas',
   Spring.Collections in 'Libraries\Spring4D\Source\Base\Collections\Spring.Collections.pas',
   Spring.Collections.Adapters in 'Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Adapters.pas',
@@ -313,11 +293,9 @@ uses
   Spring.Reflection in 'Libraries\Spring4D\Source\Base\Spring.Reflection.pas',
   Spring.Mocking.Matching in 'Libraries\Spring4D\Source\Core\Mocking\Spring.Mocking.Matching.pas',
   Concepts.DSharp.TreeViewPresenter.List.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.List.Form.pas' {frmTreeViewPresenterList},
-//  {$IFDEF BCEDITOR}
   BCEditor.Consts in 'Libraries\TBCEditor\Source\BCEditor.Consts.pas',
   BCEditor.Editor.ActiveLine in 'Libraries\TBCEditor\Source\BCEditor.Editor.ActiveLine.pas',
   BCEditor.Editor.Base in 'Libraries\TBCEditor\Source\BCEditor.Editor.Base.pas',
-  BCEditor.Editor.Bookmarks in 'Libraries\TBCEditor\Source\BCEditor.Editor.Bookmarks.pas',
   BCEditor.Editor.Caret.NonBlinking.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.Caret.NonBlinking.Colors.pas',
   BCEditor.Editor.Caret.NonBlinking in 'Libraries\TBCEditor\Source\BCEditor.Editor.Caret.NonBlinking.pas',
   BCEditor.Editor.Caret.Offsets in 'Libraries\TBCEditor\Source\BCEditor.Editor.Caret.Offsets.pas',
@@ -340,7 +318,6 @@ uses
   BCEditor.Editor.Glyph in 'Libraries\TBCEditor\Source\BCEditor.Editor.Glyph.pas',
   BCEditor.Editor.InternalImage in 'Libraries\TBCEditor\Source\BCEditor.Editor.InternalImage.pas',
   BCEditor.Editor.KeyCommands in 'Libraries\TBCEditor\Source\BCEditor.Editor.KeyCommands.pas',
-  BCEditor.Editor.LeftMargin.Bookmarks.Panel in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Bookmarks.Panel.pas',
   BCEditor.Editor.LeftMargin.Bookmarks in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Bookmarks.pas',
   BCEditor.Editor.LeftMargin.Border in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Border.pas',
   BCEditor.Editor.LeftMargin.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Colors.pas',
@@ -400,7 +377,6 @@ uses
   BCEditor.Search.RegularExpressions in 'Libraries\TBCEditor\Source\BCEditor.Search.RegularExpressions.pas',
   BCEditor.Search.Wildcard in 'Libraries\TBCEditor\Source\BCEditor.Search.Wildcard.pas',
   BCEditor.StyleHooks in 'Libraries\TBCEditor\Source\BCEditor.StyleHooks.pas',
-  BCEditor.TextDrawer in 'Libraries\TBCEditor\Source\BCEditor.TextDrawer.pas',
   BCEditor.Types in 'Libraries\TBCEditor\Source\BCEditor.Types.pas',
   BCEditor.Utils in 'Libraries\TBCEditor\Source\BCEditor.Utils.pas',
   BCEditor.Editor.Minimap.Shadow in 'Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.Shadow.pas',
@@ -408,22 +384,16 @@ uses
   BCEditor.Editor.SyncEdit in 'Libraries\TBCEditor\Source\BCEditor.Editor.SyncEdit.pas',
   BCEditor.Editor.SyncEdit.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.SyncEdit.Colors.pas',
   BCEditor.Export.HTML in 'Libraries\TBCEditor\Source\BCEditor.Export.HTML.pas',
-//  {$ENDIF }
   Concepts.BCEditor.Form in 'Forms\Concepts.BCEditor.Form.pas' {frmBCEditor},
   Concepts.RTTEye.RttiTemplates in 'Types\Concepts.RTTEye.RttiTemplates.pas',
-//  {$IFDEF DELPHIZMQ}
   Concepts.ZeroMQ.Form in 'Forms\Concepts.ZeroMQ.Form.pas',
   ZeroMQ.API in 'Libraries\ZeroMQ\ZeroMQ.API.pas',
   ZeroMQ in 'Libraries\ZeroMQ\ZeroMQ.pas',
-//  {$ENDIF }
   Concepts.Spring.ClassProxy.Form in 'Forms\Concepts.Spring.ClassProxy.Form.pas' {frmClassProxy},
-//  {$IFDEF DDETOURS}
   CPUID in 'Libraries\DDetours\CPUID.pas',
   DDetours in 'Libraries\DDetours\DDetours.pas',
   InstDecode in 'Libraries\DDetours\InstDecode.pas',
-//  {$ENDIF }
   Concepts.DDetours.Form in 'Forms\Concepts.DDetours.Form.pas' {frmDDetours},
-  //{$IFDEF ZOBJECTINSPECTOR}
   zBase in 'Libraries\TzObjectInspector\zBase.pas',
   zCollectionEditor in 'Libraries\TzObjectInspector\zCollectionEditor.pas' {zCollectionEditorDialog},
   zCanvasStack in 'Libraries\TzObjectInspector\zCanvasStack.pas',
@@ -457,9 +427,30 @@ uses
   DDuce.Logger in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.pas',
   Parnassus.FMXContainer in 'Libraries\firemonkey-container\Parnassus.FMXContainer.pas',
   Concepts.FMXContainer.Form in 'Forms\Concepts.FMXContainer.Form.pas' {frmFMXContainer},
-  FMXForm in 'Forms\FMXForm.pas' {FireMonkeyForm};
+  Concepts.FireMonkey.Form in 'Forms\Concepts.FireMonkey.Form.pas' {FireMonkeyForm},
+  Concepts.System.StringList.Form in 'Forms\Concepts.System.StringList.Form.pas' {frmStringList},
+  BCEditor.Editor.Marks in 'Libraries\TBCEditor\Source\BCEditor.Editor.Marks.pas',
+  BCEditor.Editor.Caret.MultiEdit in 'Libraries\TBCEditor\Source\BCEditor.Editor.Caret.MultiEdit.pas',
+  BCEditor.Editor.Caret.MultiEdit.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.Caret.MultiEdit.Colors.pas',
+  BCEditor.Editor.CodeFolding.Hint.Indicator in 'Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.Indicator.pas',
+  BCEditor.Editor.CodeFolding.Hint.Indicator.Colors in 'Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.Indicator.Colors.pas',
+  BCEditor.Editor.LeftMargin.MarksPanel in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.MarksPanel.pas',
+  BCEditor.Editor.LeftMargin.Marks in 'Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Marks.pas',
+  BCEditor.Editor.Scroll.Shadow in 'Libraries\TBCEditor\Source\BCEditor.Editor.Scroll.Shadow.pas',
+  BCEditor.Editor.Search.InSelection in 'Libraries\TBCEditor\Source\BCEditor.Editor.Search.InSelection.pas',
+  BCEditor.Search.Normal in 'Libraries\TBCEditor\Source\BCEditor.Search.Normal.pas',
+  BCEditor.PaintHelper in 'Libraries\TBCEditor\Source\BCEditor.PaintHelper.pas',
+  BCEditor.Editor.UnknownChars in 'Libraries\TBCEditor\Source\BCEditor.Editor.UnknownChars.pas';
 
 {$R *.res}
+
+{ Used to directly start a concept by name. If empty a list will be shown with
+  all registered concepts. }
+const
+  //EXECUTE_BY_NAME = '';
+  //EXECUTE_BY_NAME = 'TStringList';
+  //EXECUTE_BY_NAME = 'Indy';
+  EXECUTE_BY_NAME = 'Parallel Library';
 
 begin
   {$WARNINGS OFF}
@@ -468,16 +459,19 @@ begin
   Application.Initialize;
   TConcepts.RegisterConcepts;
   Application.CreateForm(TdmResources, dmResources);
-  if ConceptManager.ItemList.Count = 1 then
+  if not ConceptManager.Execute(EXECUTE_BY_NAME) then
   begin
-    ConceptManager.Execute(ConceptManager.ItemList.Single);
-  end
-  else
-  begin
-    Application.Title := 'Concepts';
-    Application.CreateForm(TfrmMain, frmMain);
+    if ConceptManager.ItemList.Count = 1 then
+    begin
+      ConceptManager.Execute(ConceptManager.ItemList.Single);
+    end
+    else
+    begin
+      Application.Title := 'Concepts';
+      Application.CreateForm(TfrmMain, frmMain);
+    end;
   end;
   Application.Run;
-
 end.
+
 

@@ -18,6 +18,8 @@
 
 unit Concepts.MainForm;
 
+{ Shows a list of all registered concepts which can be started. }
+
 interface
 
 uses

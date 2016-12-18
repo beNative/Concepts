@@ -1,6 +1,6 @@
 object frmIndyTCP: TfrmIndyTCP
-  Left = 265
-  Top = 279
+  Left = 8
+  Top = 8
   ClientHeight = 607
   ClientWidth = 952
   Color = clBtnFace
@@ -53,6 +53,8 @@ object frmIndyTCP: TfrmIndyTCP
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitLeft = -3
+      ExplicitTop = 3
       object pnlLeftTopTop: TPanel
         Left = 0
         Top = 0
@@ -99,6 +101,7 @@ object frmIndyTCP: TfrmIndyTCP
           Top = 1
           Width = 106
           Height = 21
+          Hint = 'Hostname/IP-address'
           Alignment = taCenter
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -115,6 +118,7 @@ object frmIndyTCP: TfrmIndyTCP
           Top = 1
           Width = 57
           Height = 21
+          Hint = 'IP port (1-65535)'
           Alignment = taCenter
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -145,21 +149,6 @@ object frmIndyTCP: TfrmIndyTCP
         ActivePage = tsCommands
         Align = alClient
         TabOrder = 0
-        object tsMemo: TTabSheet
-          Caption = 'Memo'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
-          object mmoSend: TMemo
-            Left = 0
-            Top = 0
-            Width = 299
-            Height = 205
-            Align = alClient
-            TabOrder = 0
-          end
-        end
         object tsCommands: TTabSheet
           Caption = 'Commands'
           ImageIndex = 1
@@ -359,10 +348,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object mmoSentText: TMemo
             Left = 0
             Top = 0
@@ -470,10 +455,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object mmoReceivedText: TMemo
             Left = 0
             Top = 0
@@ -785,37 +766,35 @@ object frmIndyTCP: TfrmIndyTCP
     Top = 192
     object actClearReceived: TAction
       Caption = 'Clear'
+      Hint = 'Clear all received messages.'
       OnExecute = actClearReceivedExecute
     end
     object actClearSent: TAction
       Caption = 'Clear'
+      Hint = 'Clear all sent messages.'
       OnExecute = actClearSentExecute
     end
     object actConnect: TAction
       Caption = 'Connect'
+      Hint = 'Connect to the TCP socket.'
       OnExecute = actConnectExecute
     end
     object actDisconnect: TAction
       Caption = 'Disconnect'
+      Hint = 'Disconnect TCP socket.'
       OnExecute = actDisconnectExecute
     end
     object actSend: TAction
       Caption = 'Send'
+      Hint = 'Send message.'
       OnExecute = actSendExecute
-    end
-    object actConnectEvents: TAction
-      Caption = 'Connect events'
-    end
-    object actDisconnectEvents: TAction
-      Caption = 'Disconnect events'
     end
     object actSave: TAction
       Caption = 'Save'
       OnExecute = actSaveExecute
     end
-    object actSendMultiLine: TAction
-      Caption = 'Send'
-      OnExecute = actSendMultiLineExecute
+    object actSendCommand: TAction
+      Caption = 'SendCommand'
     end
   end
   object dlgSave: TSaveDialog
@@ -825,7 +804,7 @@ object frmIndyTCP: TfrmIndyTCP
     Top = 192
   end
   object ppmReceivedText: TPopupMenu
-    Left = 128
+    Left = 152
     Top = 136
     object mniClearReceivedText: TMenuItem
       Caption = 'Clear'
@@ -834,77 +813,18 @@ object frmIndyTCP: TfrmIndyTCP
       Action = actSave
     end
   end
-  object tmrPoll: TTimer
-    Enabled = False
-    Interval = 50
-    OnTimer = tmrPollTimer
-    Left = 16
-    Top = 136
+  object IdConnectionIntercept: TIdConnectionIntercept
+    OnReceive = IdConnectionInterceptReceive
+    Left = 208
+    Top = 48
   end
-  object idTCPClient: TIdCmdTCPClient
+  object IdTCPClient: TIdTCPClient
+    Intercept = IdConnectionIntercept
     ConnectTimeout = 0
     IPVersion = Id_IPv4
     Port = 0
     ReadTimeout = -1
-    CommandHandlers = <
-      item
-        CmdDelimiter = ' '
-        Disconnect = False
-        Name = 'TIdCommandHandler0'
-        NormalReply.Code = '200'
-        ParamDelimiter = ' '
-        ParseParams = True
-        Tag = 0
-      end
-      item
-        CmdDelimiter = ' '
-        Disconnect = False
-        Name = 'TIdCommandHandler1'
-        NormalReply.Code = '200'
-        ParamDelimiter = ' '
-        ParseParams = True
-        Tag = 0
-      end
-      item
-        CmdDelimiter = ' '
-        Disconnect = False
-        Name = 'TIdCommandHandler2'
-        NormalReply.Code = '200'
-        ParamDelimiter = ' '
-        ParseParams = True
-        Tag = 0
-      end
-      item
-        CmdDelimiter = ' '
-        Disconnect = False
-        Name = 'TIdCommandHandler3'
-        NormalReply.Code = '200'
-        ParamDelimiter = ' '
-        ParseParams = True
-        Tag = 0
-      end
-      item
-        CmdDelimiter = ' '
-        Disconnect = False
-        Name = 'TIdCommandHandler4'
-        NormalReply.Code = '200'
-        ParamDelimiter = ' '
-        ParseParams = True
-        Tag = 0
-      end
-      item
-        CmdDelimiter = ' '
-        Disconnect = False
-        Name = 'TIdCommandHandler5'
-        NormalReply.Code = '200'
-        ParamDelimiter = ' '
-        ParseParams = True
-        Tag = 0
-      end>
-    ExceptionReply.Code = '500'
-    ExceptionReply.Text.Strings = (
-      'Unknown Internal Error')
-    Left = 251
-    Top = 219
+    Left = 43
+    Top = 43
   end
 end

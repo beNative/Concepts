@@ -102,11 +102,11 @@ type
     procedure actReceiveExecute(Sender: TObject);
     procedure actSendMemoTextExecute(Sender: TObject);
     procedure actSubscribeExecute(Sender: TObject);
+    procedure actSendCounterValueExecute(Sender: TObject);
+    procedure actResetCounterExecute(Sender: TObject);
 
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure lbxEventsClickCheck(Sender: TObject);
-    procedure actSendCounterValueExecute(Sender: TObject);
-    procedure actResetCounterExecute(Sender: TObject);
     procedure edtCounterExit(Sender: TObject);
 
   private

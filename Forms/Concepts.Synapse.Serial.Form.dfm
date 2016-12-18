@@ -34,7 +34,6 @@ object frmSynapseSerial: TfrmSynapseSerial
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitHeight = 601
     object splLeftHorizontal: TSplitter
       Left = 0
       Top = 337
@@ -234,22 +233,22 @@ object frmSynapseSerial: TfrmSynapseSerial
           BevelOuter = bvNone
           ColumnCollection = <
             item
-              Value = 16.666666666666670000
+              Value = 16.666666666666660000
             end
             item
-              Value = 16.666666666666670000
+              Value = 16.666666666666660000
             end
             item
-              Value = 16.666666666666670000
+              Value = 16.666666666666660000
             end
             item
-              Value = 16.666666666666670000
+              Value = 16.666666666666660000
             end
             item
-              Value = 16.666666666666670000
+              Value = 16.666666666666660000
             end
             item
-              Value = 16.666666666666670000
+              Value = 16.666666666666660000
             end>
           ControlCollection = <
             item
@@ -410,19 +409,16 @@ object frmSynapseSerial: TfrmSynapseSerial
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 252
       object pgcSend: TPageControl
         Left = 0
         Top = 0
         Width = 307
         Height = 233
-        ActivePage = tsCommands
+        ActivePage = tsMemo
         Align = alClient
         TabOrder = 0
-        ExplicitHeight = 252
         object tsMemo: TTabSheet
           Caption = 'Memo'
-          ExplicitHeight = 224
           object mmoSend: TMemo
             Left = 0
             Top = 0
@@ -430,13 +426,15 @@ object frmSynapseSerial: TfrmSynapseSerial
             Height = 205
             Align = alClient
             TabOrder = 0
-            ExplicitHeight = 224
           end
         end
         object tsCommands: TTabSheet
           Caption = 'Commands'
           ImageIndex = 1
-          ExplicitHeight = 224
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object pnlCommands: TGridPanel
             AlignWithMargins = True
             Left = 3
@@ -447,13 +445,13 @@ object frmSynapseSerial: TfrmSynapseSerial
             BevelOuter = bvNone
             ColumnCollection = <
               item
-                Value = 33.333333333333340000
+                Value = 33.333333333333330000
               end
               item
-                Value = 33.333333333333340000
+                Value = 33.333333333333330000
               end
               item
-                Value = 33.333333333333340000
+                Value = 33.333333333333330000
               end>
             ControlCollection = <>
             ParentBackground = False
@@ -478,7 +476,6 @@ object frmSynapseSerial: TfrmSynapseSerial
                 Value = 16.666666666666670000
               end>
             TabOrder = 0
-            ExplicitHeight = 218
           end
         end
       end
@@ -499,7 +496,6 @@ object frmSynapseSerial: TfrmSynapseSerial
     Font.Style = []
     ParentFont = False
     TabOrder = 1
-    ExplicitHeight = 601
     object splRightHorizontal: TSplitter
       Left = 0
       Top = 280
@@ -635,6 +631,10 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object mmoSentText: TMemo
             Left = 0
             Top = 0
@@ -671,7 +671,6 @@ object frmSynapseSerial: TfrmSynapseSerial
       Font.Style = []
       ParentFont = False
       TabOrder = 1
-      ExplicitHeight = 315
       object pnlReceived: TPanel
         AlignWithMargins = True
         Left = 3
@@ -725,7 +724,6 @@ object frmSynapseSerial: TfrmSynapseSerial
         Font.Style = []
         ParentFont = False
         TabOrder = 1
-        ExplicitHeight = 289
         object tsReceivedLog: TTabSheet
           Caption = 'Log'
           Font.Charset = DEFAULT_CHARSET
@@ -734,7 +732,6 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          ExplicitHeight = 261
         end
         object tsReceivedText: TTabSheet
           Caption = 'Text'
@@ -745,7 +742,10 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
-          ExplicitHeight = 261
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object mmoReceivedText: TMemo
             Left = 0
             Top = 0
@@ -763,7 +763,6 @@ object frmSynapseSerial: TfrmSynapseSerial
             ParentFont = False
             ScrollBars = ssVertical
             TabOrder = 0
-            ExplicitHeight = 261
           end
         end
       end
@@ -776,9 +775,6 @@ object frmSynapseSerial: TfrmSynapseSerial
     Height = 19
     Panels = <>
     SimplePanel = True
-    ExplicitLeft = 488
-    ExplicitTop = 312
-    ExplicitWidth = 0
   end
   object ilMain: TImageList
     ColorDepth = cd32Bit

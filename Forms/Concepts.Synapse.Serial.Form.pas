@@ -49,7 +49,6 @@ uses
      - Receive terminated
          - terminate character (used to seperate incoming data)
      - Receive fixed
-
 }
 
 type
@@ -65,11 +64,7 @@ type
     {:Use this property to set the value of the DTR signal.}
     property DTR: Boolean
       read GetDTR write SetDTRF;
-
-
-
   end;
-
 
 type
   TfrmSynapseSerial = class(TForm)
@@ -238,6 +233,8 @@ uses
   System.AnsiStrings,
   Vcl.Graphics,
 
+  DDuce.Components.Factories,
+
   VirtualTrees,
 
   Concepts.Factories, Concepts.Settings;
@@ -288,23 +285,6 @@ const
               'opqrstuvwxyz  ' + //#13#10 +
               '0123456789    ' + #13#10;
 
-function CreateLogTree(AOwner : TComponent; AParent : TWinControl): TLogTree;
-var
-  VLT : TLogTree;
-begin
-  VLT                    := TLogTree.Create(AOwner);
-  VLT.AlignWithMargins   := True;
-  VLT.BorderStyle        := bsNone;
-  VLT.Parent             := AParent;
-  VLT.Align              := alClient;
-  VLT.ShowImages         := True;
-  VLT.ShowHint           := True;
-  VLT.RemoveControlCharacters := False;
-  VLT.Header.Options     := VLT.Header.Options + [hoAutoSpring];
-  VLT.AutoLogLevelColors := True;
-  Result := VLT;
-end;
-
 {$REGION 'construction and destruction'}
 procedure TfrmSynapseSerial.AfterConstruction;
 var
@@ -322,10 +302,10 @@ begin
     pnlLeftTop,
     FComPort
   );
-  FLogIn                     := CreateLogTree(Self, tsReceivedLog);
+  FLogIn                     := TDDuceComponents.CreateLogTree(Self, tsReceivedLog);
   FLogIn.DateTimeFormat      := 'hh:nn:ss.zzz';
   FLogIn.Images              := ilMain;
-  FLogOut                    := CreateLogTree(Self, tsSentLog);
+  FLogOut                    := TDDuceComponents.CreateLogTree(Self, tsSentLog);
   FLogOut.Images             := ilMain;
   FLogOut.DateTimeFormat     := 'hh:nn:ss.zzz';
   Modified;

@@ -18,6 +18,11 @@
 
 unit Concepts.Spring.Types.Form;
 
+{  Demonstrates some types in Spring.pas
+
+  - TActivator
+}
+
 interface
 
 uses

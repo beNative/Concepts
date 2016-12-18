@@ -257,14 +257,12 @@ object frmcxEditors: TfrmcxEditors
         Top = 132
         Caption = 'EditModified'
         TabOrder = 4
-        Width = 97
       end
       object chkModifiedAfterEnter: TcxCheckBox
         Left = 8
         Top = 157
         Caption = 'ModifiedAfterEnter'
         TabOrder = 5
-        Width = 129
       end
       object edtEditText: TcxTextEdit
         Left = 71
