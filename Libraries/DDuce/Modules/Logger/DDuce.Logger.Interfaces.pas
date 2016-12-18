@@ -32,35 +32,51 @@ type
     lmtInfo        = 0,
     lmtError       = 1,
     lmtWarning     = 2,
+
     lmtValue       = 3,
+
     lmtEnterMethod = 4,
     lmtLeaveMethod = 5,
+
     lmtConditional = 6,
+
     lmtCheckpoint  = 7,
-    lmtStrings     = 8,
+
+    lmtStrings     = 8,   // TStringList
+
     lmtCallStack   = 9,
-    lmtObject      = 10,
+
+    lmtObject      = 10,  // should be lmtComponent (dfm stream is sent)
+
     lmtException   = 11,
+
     lmtBitmap      = 12,
+
     lmtHeapInfo    = 13,
+
     lmtMemory      = 14,
     lmtCustomData  = 15,
+
     lmtWatch       = 20,
     lmtCounter     = 21,
+
     lmtColor       = 22,
     lmtAlphaColor  = 23,
+
     lmtScreenShot  = 24,
+
+    lmtDataSet     = 25,
+
     lmtClear       = 100
   );
 
   ILogger = interface;
 
   TLogMessage = packed record
-    MsgType     : Integer;
-    TimeStamp   : TDateTime;
-    Text        : AnsiString;
-    Data        : TStream;
-    ProcessName : AnsiString;
+    MsgType : Integer;
+    MsgTime : TDateTime;
+    MsgText : AnsiString;
+    Data    : TStream;
   end;
 
   TCustomDataCallbackMethod = function(

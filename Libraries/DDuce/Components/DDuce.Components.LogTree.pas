@@ -48,41 +48,41 @@ type
   TLogLevels = set of TLogLevel;
 
   TLogNodeData = record
-    LogLevel: TLogLevel;
-    Timestamp: TDateTime;
-    LogText: string;
+    LogLevel  : TLogLevel;
+    Timestamp : TDateTime;
+    LogText   : string;
   end;
 
   PLogNodeData = ^TLogNodeData;
 
-  TOnLog = procedure(
-    Sender          : TObject;
-    var LogText     : string;
-    var CancelEntry : Boolean;
-    LogLevel        : TLogLevel
+  TOnLogEvent = procedure(
+    Sender           : TObject;
+    var ALogText     : string;
+    var ACancelEntry : Boolean;
+    ALogLevel        : TLogLevel
   ) of object;
-  TOnPopupMenuItemClick = procedure(
-    Sender   : TObject;
-    MenuItem : TMenuItem
+  TOnPopupMenuItemClickEvent = procedure(
+    Sender    : TObject;
+    AMenuItem : TMenuItem
   ) of object;
 
   TLogPopupmenu = class(TPopupMenu)
   private
     FOwner                : TComponent;
-    FOnPopupMenuItemClick : TOnPopupMenuItemClick;
+    FOnPopupMenuItemClick : TOnPopupMenuItemClickEvent;
 
     procedure OnMenuItemClick(Sender: TObject);
 
   public
     constructor Create(AOwner: TComponent); override;
 
-    property OnPopupMenuItemClick: TOnPopupMenuItemClick read
-      FOnPopupMenuItemClick write FOnPopupMenuItemClick;
+    property OnPopupMenuItemClick: TOnPopupMenuItemClickEvent
+      read FOnPopupMenuItemClick write FOnPopupMenuItemClick;
   end;
 
   TLogTree = class(TVirtualStringTree)
   private
-    FOnLog                   : TOnLog;
+    FOnBeforeLog             : TOnLogEvent;
     FOnAfterLog              : TNotifyEvent;
     FHTMLSupport             : Boolean;
     FAutoScroll              : Boolean;
@@ -100,7 +100,7 @@ type
       TColumnIndex): string;
     procedure SetLogLevels(const Value: TLogLevels);
     procedure UpdateVisibleItems;
-    procedure OnPopupMenuItemClick(Sender: TObject; MenuItem: TMenuItem);
+    procedure OnPopupMenuItemClick(Sender: TObject; AMenuItem: TMenuItem);
     procedure SetShowDateColumn(const Value: Boolean);
     procedure SetShowImages(const Value: Boolean);
     procedure AddDefaultColumns(const ColumnNames: array of string;
@@ -113,40 +113,68 @@ type
     procedure SetDateTimeFormat(const Value: string);
 
   protected
-    procedure DoOnLog(var LogText: string; var CancelEntry: Boolean;
-      LogLevel: TLogLevel); virtual;
+    procedure DoOnBeforeLog(
+      var ALogText     : string;
+      var ACancelEntry : Boolean;
+      ALogLevel        : TLogLevel
+    ); virtual;
     procedure DoOnAfterLog; virtual;
-    procedure DoAfterCellPaint(Canvas: TCanvas; Node: PVirtualNode;
-      Column: TColumnIndex; CellRect: TRect); override;
-    procedure DoGetText(var pEventArgs: TVSTGetCellTextEventArgs); override;
-    procedure DoFreeNode(Node: PVirtualNode); override;
-    function DoGetImageIndex(Node: PVirtualNode; Kind: TVTImageKind;
-      Column: TColumnIndex; var Ghosted: Boolean; var Index: Integer):
-      TCustomImageList; override;
-    procedure DoPaintText(Node: PVirtualNode; const Canvas: TCanvas;
-      Column: TColumnIndex; TextType: TVSTTextType); override;
+    procedure DoAfterCellPaint(
+      ACanvas  : TCanvas;
+      ANode    : PVirtualNode;
+      Column   : TColumnIndex;
+      CellRect : TRect
+    ); override;
+    procedure DoGetText(var pEventArgs : TVSTGetCellTextEventArgs); override;
+    procedure DoFreeNode(Node : PVirtualNode); override;
+    function DoGetImageIndex(
+      Node        : PVirtualNode;
+      Kind        : TVTImageKind;
+      Column      : TColumnIndex;
+      var Ghosted : Boolean;
+      var Index   : Integer
+    ): TCustomImageList; override;
+    procedure DoPaintText(
+      Node         : PVirtualNode;
+      const Canvas : TCanvas;
+      Column       : TColumnIndex;
+      TextType     : TVSTTextType
+    ); override;
     procedure Loaded; override;
-    procedure DoMeasureItem(TargetCanvas: TCanvas; Node: PVirtualNode;
-      var NodeHeight: Integer); override;
-    procedure DoInitNode(Parent: PVirtualNode; Node: PVirtualNode;
-      var InitStates: TVirtualNodeInitStates); override;
+    procedure DoMeasureItem(
+      TargetCanvas   : TCanvas;
+      Node           : PVirtualNode;
+      var NodeHeight : Integer
+    ); override;
+    procedure DoInitNode(
+      Parent         : PVirtualNode;
+      Node           : PVirtualNode;
+      var InitStates : TVirtualNodeInitStates
+    ); override;
 
   public
     constructor Create(AOwner: TComponent); override;
 
-    procedure Log(Value: string; LogLevel: TLogLevel = llInfo;
-      Timestamp: TDateTime = 0);
-    procedure LogFmt(Value: string; const Args: array of Const;
-      LogLevel: TLogLevel = llInfo; Timestamp: TDateTime = 0);
+    procedure Log(
+      AValue     : string;
+      ALogLevel  : TLogLevel = llInfo;
+      ATimestamp : TDateTime = 0
+    );
+    procedure LogFmt(
+      AValue      : string;
+      const AArgs : array of const;
+      ALogLevel   : TLogLevel = llInfo;
+      ATimestamp  : TDateTime = 0
+    );
     procedure SaveToFileWithDialog;
-    procedure SaveToFile(const Filename: string);
-    procedure SaveToStrings(const Strings: TStrings);
+    procedure SaveToFile(const AFilename: string);
+    procedure SaveToStrings(const AStrings: TStrings);
     procedure CopyToClipboard; reintroduce;
     procedure Init;
 
   published
-    property OnLog: TOnLog
-      read FOnLog write FOnLog;
+    property OnBeforeLog: TOnLogEvent
+      read FOnBeforeLog write FOnBeforeLog;
 
     property OnAfterLog: TNotifyEvent
       read FOnAfterLog write FOnAfterLog;
@@ -188,6 +216,7 @@ uses
 resourcestring
   SSaveLog         = '&Save';
   SCopyToClipboard = '&Copy';
+  SClear           = 'Clea&r';
   STextFilesTxt    = 'Text files (*.txt)|*.txt|All files (*.*)|*.*';
   SSave            = 'Save';
   SDate            = 'Date';
@@ -207,7 +236,7 @@ begin
   Loaded;
 end;
 
-procedure TLogTree.DoAfterCellPaint(Canvas: TCanvas; Node: PVirtualNode;
+procedure TLogTree.DoAfterCellPaint(ACanvas: TCanvas; ANode: PVirtualNode;
   Column: TColumnIndex; CellRect: TRect);
 var
   ColWidth: Integer;
@@ -217,10 +246,10 @@ begin
   if Column = 1 then
   begin
     if FHTMLSupport then
-      ColWidth := DrawHTML(CellRect, Canvas, GetCellText(Node,
-        Column), Selected[Node])
+      ColWidth := DrawHTML(CellRect, ACanvas, GetCellText(ANode,
+        Column), Selected[ANode])
     else
-      ColWidth := Canvas.TextWidth(GetCellText(Node, Column));
+      ColWidth := ACanvas.TextWidth(GetCellText(ANode, Column));
 
     if not FShowDateColumn then
       ColWidth := ColWidth + 32; // Width of image
@@ -317,11 +346,11 @@ begin
     FOnAfterLog(Self);
 end;
 
-procedure TLogTree.DoOnLog(var LogText: string; var
-  CancelEntry: Boolean; LogLevel: TLogLevel);
+procedure TLogTree.DoOnBeforeLog(var ALogText: string; var
+  ACancelEntry: Boolean; ALogLevel: TLogLevel);
 begin
-  if Assigned(FOnLog) then
-    FOnLog(Self, LogText, CancelEntry, LogLevel);
+  if Assigned(FOnAfterLog) then
+    FOnBeforeLog(Self, ALogText, ACancelEntry, ALogLevel);
 end;
 
 procedure TLogTree.DoPaintText(Node: PVirtualNode; const Canvas: TCanvas;
@@ -406,12 +435,14 @@ begin
 end;
 
 procedure TLogTree.OnPopupMenuItemClick(Sender: TObject;
-  MenuItem: TMenuItem);
+  AMenuItem: TMenuItem);
 begin
-  if MenuItem.Tag = 1 then
+  if AMenuItem.Tag = 1 then
     SaveToFileWithDialog
-  else if MenuItem.Tag = 2 then
-    CopyToClipboard;
+  else if AMenuItem.Tag = 2 then
+    CopyToClipboard
+  else if AMenuItem.Tag = 3 then
+    Clear;
 end;
 
 procedure TLogTree.SaveToFileWithDialog;
@@ -432,7 +463,7 @@ begin
   end;
 end;
 
-procedure TLogTree.SaveToFile(const Filename: string);
+procedure TLogTree.SaveToFile(const AFilename: string);
 var
   SaveStrings: TStringList;
 begin
@@ -440,7 +471,7 @@ begin
   try
     SaveToStrings(SaveStrings);
 
-    SaveStrings.SaveToFile(Filename);
+    SaveStrings.SaveToFile(AFilename);
   finally
     FreeAndNil(SaveStrings);
   end;
@@ -492,7 +523,7 @@ begin
   end;
 end;
 
-procedure TLogTree.SaveToStrings(const Strings: TStrings);
+procedure TLogTree.SaveToStrings(const AStrings: TStrings);
 var
   Node: PVirtualNode;
 begin
@@ -500,7 +531,7 @@ begin
 
   while Assigned(Node) do
   begin
-    Strings.Add(Concat(IfThen(FShowDateColumn,
+    AStrings.Add(Concat(IfThen(FShowDateColumn,
       Concat(GetCellText(Node, 0), #09), ''), IfThen(FHTMLSupport,
       StripHTMLTags(GetCellText(Node, 1)), GetCellText(Node, 1))));
     Node := Node.NextSibling;
@@ -521,60 +552,58 @@ begin
       Result := Result + Value[I];
 end;
 
-procedure TLogTree.Log(Value: string; LogLevel: TLogLevel;
-  Timestamp: TDateTime);
+procedure TLogTree.Log(AValue: string; ALogLevel: TLogLevel;
+  ATimestamp: TDateTime);
 var
-  CancelEntry: Boolean;
+  ACancelEntry: Boolean;
   Node       : PVirtualNode;
   NodeData   : PLogNodeData;
   DoScroll   : Boolean;
 begin
-  CancelEntry := False;
-
-  DoOnLog(Value, CancelEntry, LogLevel);
-
-  if not CancelEntry then
+  ACancelEntry := False;
+  DoOnBeforeLog(AValue, ACancelEntry, ALogLevel);
+  if not ACancelEntry then
   begin
     DoScroll := ((not Focused) or (GetLast = FocusedNode)) and FAutoScroll;
-
     Node := AddChild(nil);
-
     NodeData := GetNodeData(Node);
 
     if Assigned(NodeData) then
     begin
-      NodeData.LogLevel := LogLevel;
+      NodeData.LogLevel := ALogLevel;
 
-      if Timestamp = 0 then
+      if ATimestamp = 0 then
         NodeData.Timestamp := now
       else
-        NodeData.Timestamp := Timestamp;
+        NodeData.Timestamp := ATimestamp;
 
       if FRemoveControlCharacters then
-        Value := RemoveCtrlChars(Value);
+        AValue := RemoveCtrlChars(AValue);
 
       if FAutoLogLevelColors then
-        case LogLevel of
+      begin
+        case ALogLevel of
           llError:
-            Value := Concat('<font-color=clRed>', Value, '</font-color>');
+            AValue := Concat('<font-color=clRed>', AValue, '</font-color>');
           llInfo:
-            Value := Concat('<font-color=clBlack>', Value, '</font-color>');
+            AValue := Concat('<font-color=clBlack>', AValue, '</font-color>');
           llWarning:
-            Value := Concat('<font-color=clBlue>', Value, '</font-color>');
+            AValue := Concat('<font-color=clBlue>', AValue, '</font-color>');
           llDebug:
-            Value := Concat('<font-color=clGreen>', Value, '</font-color>')
+            AValue := Concat('<font-color=clGreen>', AValue, '</font-color>')
         end;
+      end;
 
-      NodeData.LogText := Value;
-
+      NodeData.LogText := AValue;
       IsVisible[Node] := NodeData.LogLevel in FLogLevels;
-
       DoOnAfterLog;
     end;
 
     if FMaximumLines <> 0 then
+    begin
       while RootNodeCount > FMaximumLines do
         DeleteNode(GetFirst);
+    end;
 
     if DoScroll then
     begin
@@ -583,10 +612,10 @@ begin
   end;
 end;
 
-procedure TLogTree.LogFmt(Value: string; const Args: Array of
-  Const; LogLevel: TLogLevel; Timestamp: TDateTime);
+procedure TLogTree.LogFmt(AValue: string; const AArgs: Array of
+  const; ALogLevel: TLogLevel; ATimestamp: TDateTime);
 begin
-  Log(Format(Value, Args), LogLevel, Timestamp);
+  Log(Format(AValue, AArgs), ALogLevel, ATimestamp);
 end;
 
 procedure TLogTree.SetDateTimeFormat(const Value: string);
@@ -630,17 +659,13 @@ begin
   BeginUpdate;
   try
     Node := GetFirst;
-
     while Assigned(Node) do
     begin
       NodeData := GetNodeData(Node);
-
       if Assigned(NodeData) then
         IsVisible[Node] := NodeData.LogLevel in FLogLevels;
-
       Node := Node.NextSibling;
     end;
-
     Invalidate;
   finally
     EndUpdate;
@@ -881,6 +906,7 @@ begin
   AddMenuItem(SSaveLog, 1);
   AddMenuItem('-', -1);
   AddMenuItem(SCopyToClipboard, 2);
+  AddMenuItem(SClear, 3);
 end;
 
 procedure TLogPopupmenu.OnMenuItemClick(Sender: TObject);

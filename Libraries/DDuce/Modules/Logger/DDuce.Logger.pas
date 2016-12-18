@@ -31,9 +31,10 @@ var
 implementation
 
 uses
-  DDuce.Logger.Base;
+  DDuce.Logger.Base, DDuce.Logger.Channels.WinIPC;
 
 initialization
   Logger := TLogger.Create;
+  Logger.Channels.Add(TWinIPCChannel.Create(True));
 
 end.

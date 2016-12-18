@@ -146,8 +146,10 @@ begin
   VLT.BorderStyle        := bsNone;
   VLT.Parent             := AParent;
   VLT.Align              := alClient;
+  VLT.ShowHint           := True;
   VLT.ShowImages         := True;
-  VLT.Header.Options     := VLT.Header.Options + [hoAutoSpring];
+  VLT.AutoLogLevelColors := True;
+  VLT.Header.Options     := VLT.Header.Options + [hoAutoSpring, hoAutoResize];
   Result := VLT;
 end;
 

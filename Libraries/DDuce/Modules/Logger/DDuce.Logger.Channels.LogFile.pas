@@ -172,13 +172,13 @@ begin
   if (AMsg.MsgType = Integer(lmtLeaveMethod)) and (FRelativeIndent >= 2) then
     Dec(FRelativeIndent, 2);
   if ShowDate then
-    FStreamWriter.Write(FormatDateTime('yyyy-mm-dd', AMsg.TimeStamp) + ' ');
+    FStreamWriter.Write(FormatDateTime('yyyy-mm-dd', AMsg.MsgTime) + ' ');
   if ShowTime then
-    FStreamWriter.Write(FormatDateTime('hh:nn:ss:zzz', AMsg.TimeStamp) + ' ');
+    FStreamWriter.Write(FormatDateTime('hh:nn:ss:zzz', AMsg.MsgTime) + ' ');
   FStreamWriter.Write(Space(FRelativeIndent));
   if ShowPrefix then
     FStreamWriter.Write(LOG_PREFIXES[TLogMessageType(AMsg.MsgType)] + ': ');
-  FStreamWriter.WriteLine(string(AMsg.Text));
+  FStreamWriter.WriteLine(string(AMsg.MsgText));
   if FShowStrings and (AMsg.Data <> nil) then
   begin
     case TLogMessageType(AMsg.MsgType) of

@@ -113,21 +113,14 @@ type
     procedure SendComponent(const AName: string; AValue: TComponent);
     { Will send object data using RTTI information. }
     procedure SendObject(const AName: string; AValue: TObject);
-
     procedure SendDateTime(const AName: string; AValue: TDateTime);
     procedure SendDate(const AName: string; AValue: TDate);
     procedure SendTime(const AName: string; AValue: TTime);
-
     procedure SendRect(const AName: string; const AValue: TRect);
     procedure SendPoint(const AName: string; const APoint: TPoint);
-
     procedure SendPointer(const AName: string; APointer: Pointer);
     procedure SendException(const AName: string; AException: Exception);
-    procedure SendMemory(
-      const AName: string;
-      AAddress   : Pointer;
-      ASize      : LongWord
-    );
+    procedure SendMemory(const AName: string; AAddress: Pointer; ASize: LongWord);
     procedure SendShortCut(const AName: string; AShortCut: TShortCut);
 
     procedure SendIf(
@@ -191,14 +184,13 @@ type
     procedure Watch(const AName: string; const AValue: TValue); overload;
     procedure Watch(const AName: string; const AValue: string = ''); overload;
 
-    { List of channels where logmessages will be posted to }
+    { List of channels where logmessages will be sent to }
     property Channels: TChannelList
       read GetChannels;
 
     property LogStack: TStrings
       read FLogStack;
 
-    { not used yet }
     property MaxStackCount: Integer
       read FMaxStackCount write SetMaxStackCount default DEFAULT_MAXSTACKCOUNT;
 
@@ -270,8 +262,8 @@ var
   LC : ILogChannel;
 begin
   LM.MsgType := Integer(AMsgType);
-  LM.TimeStamp := Now;
-  LM.Text := AnsiString(AText);
+  LM.MsgTime := Now;
+  LM.MsgText := AnsiString(AText);
   LM.Data    := AStream;
   for LC in Channels do
     if LC.Active then
@@ -673,7 +665,8 @@ begin
   // ensure that Leave will be called allways if there's a unpaired Enter
   if FLogStack.Count = 0 then
     Exit;
-  I := FLogStack.IndexOf(AName);
+  // todo: see if is necessary to do Uppercase (set case sensitive to false?)
+  I := FLogStack.IndexOf(UpperCase(AName));
   if I <> -1 then
     FLogStack.Delete(I)
   else
