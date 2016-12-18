@@ -1,7 +1,0 @@
-{
-    "uib.TUIBDataBase": {
-        "UserName": "SYSDBA",
-        "PassWord": "masterkey",
-        "DatabaseName": "localhost:D:\\DB\\GDB\\CAA\\ALGA.GDB"
-    }
-}
