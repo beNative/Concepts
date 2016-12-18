@@ -60,6 +60,9 @@ implementation
 const
   BCEDITOR_MODIFYING_CHANGE_REASONS = [crInsert, crPaste, crDragDropInsert, crDelete, crLineBreak, crIndent, crUnindent];
 
+const
+  BCEDITOR_MODIFYING_CHANGE_REASONS = [crInsert, crPaste, crDragDropInsert, crDelete, crLineBreak, crIndent, crUnindent];
+
 constructor TBCEditorUndoList.Create;
 begin
   inherited;

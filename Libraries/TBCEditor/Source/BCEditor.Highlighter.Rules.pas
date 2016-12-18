@@ -299,6 +299,9 @@ begin
       or ((FindTokenNode.Token.Attribute.EscapeChar <> BCEDITOR_NONE_CHAR)
       and (StartPosition > 0) and (APLine[StartPosition - 1] = FindTokenNode.Token.Attribute.EscapeChar)) then
         Continue;
+      if FindTokenNode.Token.Attribute.EscapeChar <> BCEDITOR_NONE_CHAR then
+        if (StartPosition > 0) and (APLine[StartPosition - 1] = FindTokenNode.Token.Attribute.EscapeChar) then
+          Continue;
 
       if APLine[ARun] <> BCEDITOR_NONE_CHAR then
         Inc(ARun);
@@ -334,7 +337,7 @@ begin
   ARun := StartPosition + 1;
 end;
 
-constructor TBCEditorDefaultParser.Create(AToken: TBCEditorToken);
+constructor TBCEditorDefaultParser.Create(AToken: TBCEditorToken); //FI:W525 FixInsight ignore
 begin
   FToken := AToken;
 end;
