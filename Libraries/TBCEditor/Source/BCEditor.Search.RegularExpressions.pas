@@ -6,7 +6,7 @@ uses
   System.Classes, System.RegularExpressions, BCEditor.Search;
 
 type
-  TBCEditorRegexSearch = class(TBCEditorSearchCustom)
+  TBCEditorRegexSearch = class(TBCEditorSearchBase)
   strict private
     FLengths: TList;
     FOptions: TRegexOptions;
@@ -17,25 +17,27 @@ type
     function GetPattern: string; override;
     function GetResult(AIndex: Integer): Integer; override;
     function GetResultCount: Integer; override;
+    procedure CaseSensitiveChanged; override;
     procedure SetPattern(const AValue: string); override;
   public
     constructor Create;
     destructor Destroy; override;
-
-    function FindAll(const AInput: string): Integer; override;
-    function Replace(const AInput, AReplacement: string): string; override;
+    function SearchAll(const AInput: string): Integer; override;
     procedure Clear; override;
   end;
 
 implementation
 
-{ TBCEditorRegexSearch }
+uses
+  System.SysUtils;
 
 constructor TBCEditorRegexSearch.Create;
 begin
   inherited Create;
+
+  FOptions := [roMultiLine];
   {$if CompilerVersion > 26}
-  FOptions := [roNotEmpty];
+  Include(FOptions, roNotEmpty);
   {$endif}
   FPositions := TList.Create;
   FLengths := TList.Create;
@@ -48,37 +50,42 @@ begin
   FLengths.Free;
 end;
 
-function TBCEditorRegexSearch.FindAll(const AInput: string): Integer;
+procedure TBCEditorRegexSearch.CaseSensitiveChanged;
+begin
+  if CaseSensitive then
+    Exclude(FOptions, roIgnoreCase)
+  else
+    Include(FOptions, roIgnoreCase);
+end;
 
-  procedure AddResult(const aPos, aLength: Integer);
+function TBCEditorRegexSearch.SearchAll(const AInput: string): Integer;
+
+  procedure AddResult(const APos, ALength: Integer);
   begin
-    FPositions.Add(Pointer(aPos));
-    FLengths.Add(Pointer(aLength));
+    FPositions.Add(Pointer(APos));
+    FLengths.Add(Pointer(ALength));
   end;
 
 var
-  Regex: TRegEx;
-  Match: TMatch;
+  LRegex: TRegEx;
+  LMatch: TMatch;
 begin
   Result := 0;
   Clear;
-  Regex := TRegEx.Create(FPattern, FOptions);
-  Match := Regex.Match(AInput);
-  while Match.Success do
-  begin
-    AddResult(Match.Index, Match.Length);
-    Match := Match.NextMatch;
-    Inc(Result);
+  Status := '';
+  try
+    LRegex := TRegEx.Create(FPattern, FOptions);
+    LMatch := LRegex.Match(AInput);
+    while LMatch.Success do
+    begin
+      AddResult(LMatch.Index, LMatch.Length);
+      LMatch := LMatch.NextMatch;
+      Inc(Result);
+    end;
+  except
+    on E: Exception do
+      Status := E.Message;
   end;
-end;
-
-function TBCEditorRegexSearch.Replace(const AInput, AReplacement: string): string;
-var
-  Regex: TRegEx;
-begin
-  Regex := TRegEx.Create(FPattern, FOptions);
-  Regex.Replace(AInput, AReplacement);
-  Result := AReplacement;
 end;
 
 procedure TBCEditorRegexSearch.Clear;

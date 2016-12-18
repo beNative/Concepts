@@ -37,6 +37,7 @@ type
 
     function GetWidth: Integer;
     procedure Assign(ASource: TPersistent); override;
+    procedure SetOption(const AOption: TBCEditorMinimapOption; const AEnabled: Boolean);
     property CharHeight: Integer read FCharHeight write FCharHeight;
     property Clicked: Boolean read FClicked write FClicked;
     property Dragging: Boolean read FDragging write FDragging;
@@ -52,15 +53,13 @@ type
     property Options: TBCEditorMinimapOptions read FOptions write FOptions default [];
     property Shadow: TBCEditorMinimapShadow read FShadow write FShadow;
     property Visible: Boolean read FVisible write SetVisible default False;
-    property Width: Integer read FWidth write SetWidth default 100;
+    property Width: Integer read FWidth write SetWidth default 140;
   end;
 
 implementation
 
 uses
   System.Math;
-
-{ TBCEditorMinimap }
 
 constructor TBCEditorMinimap.Create;
 begin
@@ -130,6 +129,14 @@ procedure TBCEditorMinimap.DoChange;
 begin
   if Assigned(FOnChange) then
     FOnChange(Self);
+end;
+
+procedure TBCEditorMinimap.SetOption(const AOption: TBCEditorMinimapOption; const AEnabled: Boolean);
+begin
+  if AEnabled then
+    Include(FOptions, AOption)
+  else
+    Exclude(FOptions, AOption);
 end;
 
 procedure TBCEditorMinimap.SetAlign(const AValue: TBCEditorMinimapAlign);

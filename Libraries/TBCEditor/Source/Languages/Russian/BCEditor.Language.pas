@@ -5,6 +5,7 @@ interface
 resourcestring
 
   { BCEditor.Editor.Base }
+  SBCEditorVersion = 'Версия';
   SBCEditorScrollInfoTopLine = 'Верхняя строка: %d';
   SBCEditorScrollInfo = '%d - %d';
   SBCEditorSearchStringNotFound = 'Строка ''%s'' не найдена';
@@ -36,7 +37,7 @@ resourcestring
   { BCEditor.Search }
   SBCEditorPatternIsEmpty = 'Паттерн занят';
 
-  { BCEditor.TextDrawer }
+  { BCEditor.PaintHelper }
   SBCEditorValueMustBeSpecified = 'SetBaseFont: ''Value'' должно быть указано.';
 
 implementation

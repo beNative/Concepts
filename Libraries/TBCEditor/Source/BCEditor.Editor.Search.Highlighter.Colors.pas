@@ -25,8 +25,6 @@ type
 
 implementation
 
-{ TBCEditorSearchColors }
-
 constructor TBCEditorSearchColors.Create;
 begin
   inherited;

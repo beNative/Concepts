@@ -42,8 +42,6 @@ implementation
 uses
   System.Math;
 
-{ TBCEditorSearchMap }
-
 constructor TBCEditorSearchMap.Create;
 begin
   inherited;

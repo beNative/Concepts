@@ -5,6 +5,9 @@ interface
 uses
   System.Classes, BCEditor.Editor.Caret.MultiEdit.Colors, BCEditor.Types;
 
+const
+  BCEDITOR_MULTIEDIT_DEFAULT_OPTIONS = [meoShowActiveLine, meoShowGhost];
+
 type
   TBCEditorCaretMultiEdit = class(TPersistent)
   strict private
@@ -24,9 +27,9 @@ type
     procedure Assign(ASource: TPersistent); override;
   published
     property Colors: TBCEditorCaretMultiEditColors read FColors write SetColors;
-    property Enabled: Boolean read FEnabled write SetEnabled;
+    property Enabled: Boolean read FEnabled write SetEnabled default True;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
-    property Options: TBCEditorCaretMultiEditOptions read FOptions write SetOptions default [meoShowActiveLine, meoShowGhost];
+    property Options: TBCEditorCaretMultiEditOptions read FOptions write SetOptions default BCEDITOR_MULTIEDIT_DEFAULT_OPTIONS;
     property Style: TBCEditorCaretStyle read FStyle write SetStyle default csThinVerticalLine;
   end;
 
@@ -39,7 +42,7 @@ begin
   FColors := TBCEditorCaretMultiEditColors.Create;
   FEnabled := True;
   FStyle := csThinVerticalLine;
-  FOptions := [meoShowActiveLine, meoShowGhost];
+  FOptions := BCEDITOR_MULTIEDIT_DEFAULT_OPTIONS;
 end;
 
 destructor TBCEditorCaretMultiEdit.Destroy;

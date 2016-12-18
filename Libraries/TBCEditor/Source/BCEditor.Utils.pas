@@ -5,9 +5,10 @@ interface
 uses
   Winapi.Windows, System.Math, System.Classes, Vcl.Graphics, System.UITypes, BCEditor.Consts, BCEditor.Types;
 
+function ColorToHex(const AColor: TColor): string;
+function ConvertTabs(const ALine: string; ATabWidth: Integer; var AHasTabs: Boolean; const AColumns: Boolean): string;
 function IsCombiningDiacriticalMark(const AChar: Char): Boolean;
 function DeleteWhitespace(const AText: string): string;
-function GetTabConvertProc(AColumns: Boolean): TBCEditorTabConvertProc;
 function MessageDialog(const AMessage: string; ADlgType: TMsgDlgType; AButtons: TMsgDlgButtons): Integer;
 function MiddleColor(AColor1, AColor2: TColor): TColor;
 function MinMax(AValue, AMinValue, AMaxValue: Integer): Integer;
@@ -21,10 +22,43 @@ implementation
 uses
   Vcl.Forms, Vcl.Dialogs, System.SysUtils, System.Character;
 
+function ColorToHex(const AColor: TColor): string;
+begin
+  Result := IntToHex(GetRValue(AColor), 2) + IntToHex(GetGValue(AColor), 2) + IntToHex(GetBValue(AColor), 2);
+end;
+
+function ConvertTabs(const ALine: string; ATabWidth: Integer; var AHasTabs: Boolean; const AColumns: Boolean): string;
+var
+  LPosition: Integer;
+  LCount: Integer;
+begin
+  AHasTabs := False;
+  Result := ALine;
+  LPosition := 1;
+  while True do
+  begin
+    LPosition := Pos(BCEDITOR_TAB_CHAR, Result, LPosition);
+    if LPosition = 0 then
+      Break;
+
+    AHasTabs := True;
+
+    Delete(Result, LPosition, Length(BCEDITOR_TAB_CHAR));
+
+    if AColumns then
+      LCount := ATabWidth - (LPosition - ATabWidth - 1) mod ATabWidth
+    else
+      LCount := ATabWidth;
+
+    Insert(StringOfChar(BCEDITOR_SPACE_CHAR, LCount), Result, LPosition);
+    Inc(LPosition, LCount);
+  end;
+end;
+
 function IsCombiningDiacriticalMark(const AChar: Char): Boolean;
 begin
   case Word(AChar) of
-    $0300..$036F:
+    $0300..$036F, $1DC0..$1DFF, $20D0..$20FF:
       Result := True
   else
     Result := False;
@@ -124,54 +158,6 @@ begin
       Inc(ALine);
     end;
   end
-end;
-
-function ConvertTabs(const ALine: string; ATabWidth: Integer; var AHasTabs: Boolean; const ATabChar: Char): string;
-var
-  PLine: PChar;
-begin
-  AHasTabs := False;
-  Result := '';
-  PLine := PChar(ALine);
-  while PLine^ <> BCEDITOR_NONE_CHAR do
-  begin
-    if PLine^ = BCEDITOR_TAB_CHAR then
-    begin
-      AHasTabs := True;
-      Result := Result + StringOfChar(ATabChar, ATabWidth);
-    end
-    else
-      Result := Result + PLine^;
-    Inc(PLine);
-  end;
-end;
-
-function ConvertColumnTabs(const ALine: string; ATabWidth: Integer; var AHasTabs: Boolean; const ATabChar: Char): string;
-var
-  LPLine: PChar;
-begin
-  AHasTabs := False;
-  Result := '';
-  LPLine := PChar(ALine);
-  while LPLine^ <> BCEDITOR_NONE_CHAR do
-  begin
-    if LPLine^ = BCEDITOR_TAB_CHAR then
-    begin
-      AHasTabs := True;
-      Result := Result + StringOfChar(ATabChar, ATabWidth - Length(Result) mod ATabWidth);
-    end
-    else
-      Result := Result + LPLine^;
-    Inc(LPLine);
-  end;
-end;
-
-function GetTabConvertProc(AColumns: Boolean): TBCEditorTabConvertProc;
-begin
-  if AColumns then
-    Result := TBCEditorTabConvertProc(@ConvertColumnTabs)
-  else
-    Result := TBCEditorTabConvertProc(@ConvertTabs);
 end;
 
 function TextWidth(ACanvas: TCanvas; const AText: string): Integer;

@@ -6,7 +6,7 @@ uses
   System.Classes, System.SysUtils, BCEditor.Consts;
 
 type
-  TBCEditorSkipRegionItemType = (ritUnspecified, ritString, ritMultiLineComment, ritSingleLineComment);
+  TBCEditorSkipRegionItemType = (ritUnspecified, ritMultiLineString, ritSingleLineString, ritMultiLineComment, ritSingleLineComment);
 
   TBCEditorSkipRegionItem = class(TCollectionItem)
   strict private

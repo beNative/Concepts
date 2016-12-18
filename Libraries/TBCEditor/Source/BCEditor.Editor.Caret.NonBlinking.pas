@@ -20,7 +20,7 @@ type
     procedure Assign(ASource: TPersistent); override;
   published
     property Colors: TBCEditorCaretNonBlinkingColors read FColors write SetColors;
-    property Enabled: Boolean read FEnabled write SetEnabled;
+    property Enabled: Boolean read FEnabled write SetEnabled default False;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 

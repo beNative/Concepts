@@ -9,30 +9,28 @@ type
   TBCEditorCaretOffsets = class(TPersistent)
   strict private
     FOnChange: TNotifyEvent;
-    FX: Integer;
-    FY: Integer;
+    FLeft: Integer;
+    FTop: Integer;
     procedure DoChange(ASender: TObject);
-    procedure SetX(AValue: Integer);
-    procedure SetY(AValue: Integer);
+    procedure SetLeft(const AValue: Integer);
+    procedure SetTop(const AValue: Integer);
   public
     constructor Create;
     procedure Assign(ASource: TPersistent); override;
   published
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
-    property X: Integer read FX write SetX default 0;
-    property Y: Integer read FY write SetY default 0;
+    property Left: Integer read FLeft write SetLeft default 0;
+    property Top: Integer read FTop write SetTop default 0;
   end;
 
 implementation
-
-{ TBCEditorCaretOffsets }
 
 constructor TBCEditorCaretOffsets.Create;
 begin
   inherited;
 
-  FX := 0;
-  FY := 0;
+  FLeft := 0;
+  FTop := 0;
 end;
 
 procedure TBCEditorCaretOffsets.Assign(ASource: TPersistent);
@@ -40,8 +38,8 @@ begin
   if Assigned(ASource) and (ASource is TBCEditorCaretOffsets) then
   with ASource as TBCEditorCaretOffsets do
   begin
-    Self.FX := FX;
-    Self.FY := FY;
+    Self.FLeft := FLeft;
+    Self.FTop := FTop;
     Self.DoChange(Self);
   end
   else
@@ -54,20 +52,20 @@ begin
     FOnChange(ASender);
 end;
 
-procedure TBCEditorCaretOffsets.SetX(AValue: Integer);
+procedure TBCEditorCaretOffsets.SetLeft(const AValue: Integer);
 begin
-  if FX <> AValue then
+  if FLeft <> AValue then
   begin
-    FX := AValue;
+    FLeft := AValue;
     DoChange(Self);
   end;
 end;
 
-procedure TBCEditorCaretOffsets.SetY(AValue: Integer);
+procedure TBCEditorCaretOffsets.SetTop(const AValue: Integer);
 begin
-  if FY <> AValue then
+  if FTop <> AValue then
   begin
-    FY := AValue;
+    FTop := AValue;
     DoChange(Self);
   end;
 end;

@@ -36,6 +36,7 @@ type
     procedure ClearSyncItems;
     procedure MoveBeginPositionChar(ACount: Integer);
     procedure MoveEndPositionChar(ACount: Integer);
+    procedure SetOption(const AOption: TBCEditorSyncEditOption; const AEnabled: Boolean);
     property Active: Boolean read FActive write SetActive default False;
     property BlockBeginPosition: TBCEditorTextPosition read FBlockBeginPosition write FBlockBeginPosition;
     property BlockEndPosition: TBCEditorTextPosition read FBlockEndPosition write FBlockEndPosition;
@@ -58,8 +59,6 @@ implementation
 
 uses
   Vcl.Menus, Vcl.Graphics, BCEditor.Consts;
-
-{ TBCEditorSyncEdit }
 
 constructor TBCEditorSyncEdit.Create;
 begin
@@ -141,6 +140,14 @@ begin
     and
     ((ATextPosition.Line < FBlockEndPosition.Line) or
     (ATextPosition.Line = FBlockEndPosition.Line) and (ATextPosition.Char < FBlockEndPosition.Char));
+end;
+
+procedure TBCEditorSyncEdit.SetOption(const AOption: TBCEditorSyncEditOption; const AEnabled: Boolean);
+begin
+  if AEnabled then
+    Include(FOptions, AOption)
+  else
+    Exclude(FOptions, AOption);
 end;
 
 procedure TBCEditorSyncEdit.MoveBeginPositionChar(ACount: Integer);

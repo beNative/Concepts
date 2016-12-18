@@ -22,8 +22,6 @@ type
 
 implementation
 
-{ TBCEditorMatchingPairColors }
-
 constructor TBCEditorMatchingPairColors.Create;
 begin
   inherited;

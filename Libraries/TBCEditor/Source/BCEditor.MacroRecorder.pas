@@ -815,7 +815,7 @@ procedure TBCEditorBasicEvent.Playback(AEditor: TBCBaseEditor);
 var
   i: Integer;
 begin
-  for i := 1 to RepeatCount do //FI:W528 FixInsight ignore
+  for i := 1 to RepeatCount do
     AEditor.CommandProcessor(Command, BCEDITOR_NONE_CHAR, nil);
 end;
 
@@ -863,7 +863,7 @@ procedure TBCEditorCharEvent.Playback(AEditor: TBCBaseEditor);
 var
   i: Integer;
 begin
-  for i := 1 to RepeatCount do //FI:W528 FixInsight ignore
+  for i := 1 to RepeatCount do
     AEditor.CommandProcessor(ecChar, Key, nil);
 end;
 
@@ -1009,7 +1009,7 @@ procedure TBCEditorStringEvent.Playback(AEditor: TBCBaseEditor);
 var
   i, j: Integer;
 begin
-  for i := 1 to RepeatCount do //FI:W528 FixInsight ignore
+  for i := 1 to RepeatCount do
     for j := 1 to Length(Value) do
       AEditor.CommandProcessor(ecChar, Value[j], nil);
 end;

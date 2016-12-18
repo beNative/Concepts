@@ -25,8 +25,6 @@ type
 
 implementation
 
-{ TBCEditorSelectedColor }
-
 constructor TBCEditorRightMarginColors.Create;
 begin
   inherited;

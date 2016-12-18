@@ -56,15 +56,13 @@ implementation
 
 uses
   System.SysUtils, System.UITypes, BCEditor.Editor.Base, BCEditor.Editor.KeyCommands, BCEditor.Utils,
-  BCEditor.Consts{$IFDEF USE_ALPHASKINS}, sSkinProvider, sMessages{$ENDIF};
+  BCEditor.Consts{$if defined(USE_ALPHASKINS)}, sSkinProvider, sMessages{$endif};
 
-{ TBCEditorCodeFoldingHintForm }
-
-constructor TBCEditorCodeFoldingHintForm.Create(AOwner: TComponent); //FI:W525 FixInsight ignore
-{$IFDEF USE_ALPHASKINS}
+constructor TBCEditorCodeFoldingHintForm.Create(AOwner: TComponent);
+{$if defined(USE_ALPHASKINS)}
 var
   LSkinProvider: TsSkinProvider;
-{$ENDIF}
+{$endif}
 begin
   CreateNew(AOwner);
 
@@ -97,7 +95,7 @@ begin
   FHeightBuffer := 0;
   FFont.OnChange := FontChange;
 
-{$IFDEF USE_ALPHASKINS}
+{$if defined(USE_ALPHASKINS)}
   LSkinProvider := TsSkinProvider(SendMessage(Handle, SM_ALPHACMD, MakeWParam(0, AC_GETPROVIDER), 0));
   if Assigned(LSkinProvider) then
   begin
@@ -105,7 +103,7 @@ begin
     LSkinProvider.DrawNonClientArea := False;
     LSkinProvider.DrawClientArea := False;
   end;
-{$ENDIF}
+{$endif}
 end;
 
 destructor TBCEditorCodeFoldingHintForm.Destroy;

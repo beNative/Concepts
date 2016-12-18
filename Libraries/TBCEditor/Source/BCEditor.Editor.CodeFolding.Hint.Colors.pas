@@ -20,8 +20,6 @@ type
 
 implementation
 
-{ TBCEditorCompletionProposalColors }
-
 constructor TBCEditorCodeFoldingHintColors.Create;
 begin
   inherited;

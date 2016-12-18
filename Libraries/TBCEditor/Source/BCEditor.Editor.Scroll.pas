@@ -7,7 +7,7 @@ uses
   BCEditor.Editor.Scroll.Shadow;
 
 const
-  BCEDITOR_DEFAULT_SCROLL_OPTIONS = [soAutosizeMaxWidth, soPastEndOfLine, soShowHint, soWheelClickMove];
+  BCEDITOR_DEFAULT_SCROLL_OPTIONS = [{soAutosizeMaxWidth,} soPastEndOfLine, soShowVerticalScrollHint, soWheelClickMove];
 
 type
   TBCEditorScroll = class(TPersistent)
@@ -25,16 +25,15 @@ type
     procedure SetIndicator(const AValue: TBCEditorGlyph);
     procedure SetOnChange(AValue: TNotifyEvent);
     procedure SetOptions(const AValue: TBCEditorScrollOptions);
-    procedure SetMaxWidth(AValue: Integer);
   public
     constructor Create;
     destructor Destroy; override;
     procedure Assign(ASource: TPersistent); override;
+    procedure SetOption(const AOption: TBCEditorScrollOption; const AEnabled: Boolean);
   published
     property Bars: System.UITypes.TScrollStyle read FBars write SetBars default System.UITypes.TScrollStyle.ssBoth;
     property Hint: TBCEditorScrollHint read FHint write SetHint;
     property Indicator: TBCEditorGlyph read FIndicator write SetIndicator;
-    property MaxWidth: Integer read FMaxWidth write SetMaxWidth default 1024;
     property OnChange: TNotifyEvent read FOnChange write SetOnChange;
     property Options: TBCEditorScrollOptions read FOptions write SetOptions default BCEDITOR_DEFAULT_SCROLL_OPTIONS;
     property Shadow: TBCEditorScrollShadow read FShadow write FShadow;
@@ -44,8 +43,6 @@ implementation
 
 uses
   BCEditor.Utils, BCEditor.Consts, Vcl.Graphics;
-
-{ TBCEditorScroll }
 
 constructor TBCEditorScroll.Create;
 begin
@@ -106,21 +103,19 @@ begin
     inherited Assign(ASource);
 end;
 
+procedure TBCEditorScroll.SetOption(const AOption: TBCEditorScrollOption; const AEnabled: Boolean);
+begin
+  if AEnabled then
+    Include(FOptions, AOption)
+  else
+    Exclude(FOptions, AOption);
+end;
+
 procedure TBCEditorScroll.SetOptions(const AValue: TBCEditorScrollOptions);
 begin
   if FOptions <> AValue then
   begin
     FOptions := AValue;
-    DoChange;
-  end;
-end;
-
-procedure TBCEditorScroll.SetMaxWidth(AValue: Integer);
-begin
-  AValue := MinMax(AValue, 1, MaxInt - 1);
-  if FMaxWidth <> AValue then
-  begin
-    FMaxWidth := AValue;
     DoChange;
   end;
 end;

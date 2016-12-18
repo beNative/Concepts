@@ -3,14 +3,15 @@ unit BCEditor.Editor.LeftMargin;
 interface
 
 uses
-  System.Classes, Vcl.Graphics, System.UITypes, BCEditor.Editor.LeftMargin.Bookmarks, BCEditor.Editor.Bookmarks,
+  System.Classes, Vcl.Graphics, System.UITypes, BCEditor.Editor.LeftMargin.Bookmarks, BCEditor.Editor.Marks,
   BCEditor.Editor.LeftMargin.Border, BCEditor.Consts, BCEditor.Editor.LeftMargin.LineState,
-  BCEditor.Editor.LeftMargin.LineNumbers, BCEditor.Editor.LeftMargin.Colors;
+  BCEditor.Editor.LeftMargin.LineNumbers, BCEditor.Editor.LeftMargin.Colors, BCEditor.Editor.LeftMargin.MarksPanel,
+  BCEditor.Editor.LeftMargin.Marks;
 
 type
   TLeftMarginGetTextEvent = procedure(ASender: TObject; ALine: Integer; var AText: string) of object;
   TLeftMarginPaintEvent = procedure(ASender: TObject; ALine: Integer; X, Y: Integer) of object;
-  TLeftMarginClickEvent = procedure(ASender: TObject; AButton: TMouseButton; X, Y, ALine: Integer; ABookmark: TBCEditorBookmark) of object;
+  TLeftMarginClickEvent = procedure(ASender: TObject; AButton: TMouseButton; X, Y, ALine: Integer; AMark: TBCEditorMark) of object;
 
   TBCEditorLeftMargin = class(TPersistent)
   strict private
@@ -22,6 +23,8 @@ type
     FFont: TFont;
     FLineState: TBCEditorLeftMarginLineState;
     FLineNumbers: TBCEditorLeftMarginLineNumbers;
+    FMarks: TBCEditorLeftMarginMarks;
+    FMarksPanel: TBCEditorLeftMarginMarksPanel;
     FOnChange: TNotifyEvent;
     FVisible: Boolean;
     FWidth: Integer;
@@ -30,6 +33,7 @@ type
     procedure SetBookMarks(const AValue: TBCEditorLeftMarginBookMarks);
     procedure SetColors(const AValue: TBCEditorLeftMarginColors);
     procedure SetFont(AValue: TFont);
+    procedure SetMarks(const AValue: TBCEditorLeftMarginMarks);
     procedure SetOnChange(AValue: TNotifyEvent);
     procedure SetVisible(const AValue: Boolean);
     procedure SetWidth(AValue: Integer);
@@ -51,6 +55,8 @@ type
     property Font: TFont read FFont write SetFont;
     property LineNumbers: TBCEditorLeftMarginLineNumbers read FLineNumbers write FLineNumbers;
     property LineState: TBCEditorLeftMarginLineState read FLineState write FLineState;
+    property Marks: TBCEditorLeftMarginMarks read FMarks write SetMarks;
+    property MarksPanel: TBCEditorLeftMarginMarksPanel read FMarksPanel write FMarksPanel;
     property OnChange: TNotifyEvent read FOnChange write SetOnChange;
     property Visible: Boolean read FVisible write SetVisible default True;
     property Width: Integer read FWidth write SetWidth default 57;
@@ -60,8 +66,6 @@ implementation
 
 uses
   System.SysUtils, System.Math, BCEditor.Types;
-
-{ TBCEditorLeftMargin }
 
 constructor TBCEditorLeftMargin.Create(AOwner: TComponent);
 begin
@@ -80,18 +84,23 @@ begin
   FVisible := True;
 
   FBookmarks := TBCEditorLeftMarginBookmarks.Create(AOwner);
+  FMarks := TBCEditorLeftMarginMarks.Create(AOwner);
   FLineState := TBCEditorLeftMarginLineState.Create;
   FLineNumbers := TBCEditorLeftMarginLineNumbers.Create;
+  FMarksPanel := TBCEditorLeftMarginMarksPanel.Create;
 end;
 
 destructor TBCEditorLeftMargin.Destroy;
 begin
   FBookmarks.Free;
+  FMarks.Free;
   FBorder.Free;
   FColors.Free;
   FFont.Free;
   FLineState.Free;
   FLineNumbers.Free;
+  FMarksPanel.Free;
+
   inherited Destroy;
 end;
 
@@ -102,11 +111,13 @@ begin
   begin
     Self.FAutosize := FAutosize;
     Self.FBookmarks.Assign(FBookmarks);
+    Self.FMarks.Assign(FBookmarks);
     Self.FColors.Assign(FColors);
     Self.FBorder.Assign(FBorder);
     Self.FCursor := FCursor;
     Self.FFont.Assign(FFont);
     Self.FLineNumbers.Assign(FLineNumbers);
+    Self.FMarksPanel.Assign(FMarksPanel);
     Self.FWidth := FWidth;
     Self.FVisible := FVisible;
     Self.DoChange;
@@ -121,10 +132,10 @@ begin
 
   FBookmarks.OnChange := AValue;
   FBorder.OnChange := AValue;
-  FColors.OnChange := AValue;
   FFont.OnChange := AValue;
   FLineState.OnChange := AValue;
   FLineNumbers.OnChange := AValue;
+  FMarksPanel.OnChange := AValue;
 end;
 
 procedure TBCEditorLeftMargin.DoChange;
@@ -137,8 +148,8 @@ function TBCEditorLeftMargin.RealLeftMarginWidth(ACharWidth: Integer): Integer;
 var
   PanelWidth: Integer;
 begin
-  PanelWidth := FBookmarks.Panel.Width;
-  if not FBookmarks.Panel.Visible and not FBookmarks.Visible then
+  PanelWidth := FMarksPanel.Width;
+  if not FMarksPanel.Visible and not FBookmarks.Visible and not FMarks.Visible then
     PanelWidth := 0;
 
   if not FVisible then
@@ -199,6 +210,11 @@ end;
 procedure TBCEditorLeftMargin.SetBookMarks(const AValue: TBCEditorLeftMarginBookmarks);
 begin
   FBookmarks.Assign(AValue);
+end;
+
+procedure TBCEditorLeftMargin.SetMarks(const AValue: TBCEditorLeftMarginMarks);
+begin
+  FMarks.Assign(AValue);
 end;
 
 procedure TBCEditorLeftMargin.AutosizeDigitCount(ALinesCount: Integer);

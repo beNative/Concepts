@@ -22,6 +22,7 @@ type
   public
     constructor Create;
     procedure Assign(ASource: TPersistent); override;
+    procedure SetOption(const AOption: TBCEditorLeftMarginLineNumberOption; const AEnabled: Boolean);
     property AutosizeDigitCount: Integer read FAutosizeDigitCount write FAutosizeDigitCount;
   published
     property DigitCount: Integer read FDigitCount write SetDigitCount default 4;
@@ -35,8 +36,6 @@ implementation
 
 uses
   BCEditor.Utils;
-
-{ TBCEditorLeftMarginLineNumbers }
 
 constructor TBCEditorLeftMarginLineNumbers.Create;
 begin
@@ -70,6 +69,14 @@ procedure TBCEditorLeftMarginLineNumbers.DoChange;
 begin
   if Assigned(FOnChange) then
     FOnChange(Self);
+end;
+
+procedure TBCEditorLeftMarginLineNumbers.SetOption(const AOption: TBCEditorLeftMarginLineNumberOption; const AEnabled: Boolean);
+begin
+  if AEnabled then
+    Include(FOptions, AOption)
+  else
+    Exclude(FOptions, AOption);
 end;
 
 procedure TBCEditorLeftMarginLineNumbers.SetDigitCount(AValue: Integer);

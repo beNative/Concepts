@@ -1,4 +1,3 @@
-//FI:Ignore
 (*****************************************************************************
 The MIT License (MIT)
 
@@ -110,6 +109,11 @@ unit BCEditor.JsonDataObjects;
   // Reading a large file >64 MB from a network drive in Windows 2003 Server or older can lead to
   // an INSUFFICIENT RESOURCES error. By enabling this switch, large files are read in 20 MB blocks.
   {$DEFINE WORKAROUND_NETWORK_FILE_INSUFFICIENT_RESOURCES}
+
+  // If defined, the TzSpecificLocalTimeToSystemTime is imported with GetProcAddress and if it is
+  // not available (Windows 2000) an alternative implementation is used.
+  {$DEFINE SUPPORT_WINDOWS2000}
+
 {$ENDIF MSWINDOWS}
 
 interface
@@ -735,7 +739,7 @@ type
     procedure ToSimpleObject(AObject: TObject; ACaseSensitive: Boolean = True);
     // FromSimpleObject() clears the JSON object and adds the Delphi object's properties.
     // The object's class must be compiled with the $M+ compiler switch or derive from TPersistent.
-    procedure FromSimpleObject(AObject: TObject);
+    procedure FromSimpleObject(AObject: TObject; ALowerCamelCase: Boolean = False);
 
     procedure Clear;
     procedure Remove(const Name: string);
@@ -1048,9 +1052,35 @@ var
   {$ENDIF USE_NAME_STRING_LITERAL}
 
 {$IFDEF MSWINDOWS}
+
+  {$IFDEF SUPPORT_WINDOWS2000}
+var
+  TzSpecificLocalTimeToSystemTime: function(lpTimeZoneInformation: PTimeZoneInformation;
+    var lpLocalTime, lpUniversalTime: TSystemTime): BOOL; stdcall;
+
+function TzSpecificLocalTimeToSystemTimeWin2000(lpTimeZoneInformation: PTimeZoneInformation;
+  var lpLocalTime, lpUniversalTime: TSystemTime): BOOL; stdcall;
+var
+  TimeZoneInfo: TTimeZoneInformation;
+begin
+  if lpTimeZoneInformation <> nil then
+    TimeZoneInfo := lpTimeZoneInformation^
+  else
+    GetTimeZoneInformation(TimeZoneInfo);
+
+  // Reverse the bias so that SystemTimeToTzSpecificLocalTime becomes TzSpecificLocalTimeToSystemTime
+  TimeZoneInfo.Bias := -TimeZoneInfo.Bias;
+  TimeZoneInfo.StandardBias := -TimeZoneInfo.StandardBias;
+  TimeZoneInfo.DaylightBias := -TimeZoneInfo.DaylightBias;
+
+  Result := SystemTimeToTzSpecificLocalTime(@TimeZoneInfo, lpLocalTime, lpUniversalTime);
+end;
+  {$ELSE}
 function TzSpecificLocalTimeToSystemTime(lpTimeZoneInformation: PTimeZoneInformation;
   var lpLocalTime, lpUniversalTime: TSystemTime): BOOL; stdcall;
   external kernel32 name 'TzSpecificLocalTimeToSystemTime';
+  {$ENDIF SUPPORT_WINDOWS2000}
+
 {$ENDIF MSWINDOWS}
 
 {$IFDEF USE_NAME_STRING_LITERAL}
@@ -1139,6 +1169,11 @@ end;
 //end;
   {$ENDIF DEBUG}
 {$ENDIF USE_FAST_STRASG_FOR_INTERNAL_STRINGS}
+
+procedure AnsiLowerCamelCaseString(var S: string);
+begin
+  S := AnsiLowerCase(PChar(S)^) + Copy(S, 2);
+end;
 
 {$IF not declared(TryStrToUInt64)}
 function TryStrToUInt64(const S: string; out Value: UInt64): Boolean;
@@ -4728,7 +4763,7 @@ begin
   end;
 end;
 
-procedure TJsonObject.FromSimpleObject(AObject: TObject);
+procedure TJsonObject.FromSimpleObject(AObject: TObject; ALowerCamelCase: Boolean);
 var
   Index, Count: Integer;
   PropList: PPropList;
@@ -4736,6 +4771,7 @@ var
   PropName: string;
   V: Variant;
   D: Double;
+  Ch: Char;
 begin
   Clear;
   if AObject = nil then
@@ -4752,6 +4788,20 @@ begin
         if (PropList[Index].StoredProc = Pointer($1)) or IsStoredProp(AObject, PropList[Index]) then
         begin
           PropName := UTF8ToString(PropList[Index].Name);
+          if ALowerCamelCase and (PropName <> '') then
+          begin
+            Ch := PChar(Pointer(PropName))^;
+            if Ord(Ch) < 128 then
+            begin
+              case Ch of
+                'A'..'Z':
+                  PChar(Pointer(PropName))^ := Char(Ord(Ch) xor $20);
+              end;
+            end
+            else // Delphi 2005+ compilers allow unicode identifiers, even if that is a very bad idea
+              AnsiLowerCamelCaseString(PropName);
+          end;
+
           case PropList[Index].PropType^.Kind of
             tkInteger, tkChar, tkWChar:
               InternAdd(PropName, GetOrdProp(AObject, PropList[Index]));
@@ -7820,6 +7870,13 @@ initialization
   {$IFDEF USE_NAME_STRING_LITERAL}
   InitializeJsonMemInfo;
   {$ENDIF USE_NAME_STRING_LITERAL}
+  {$IFDEF MSWINDOWS}
+    {$IFDEF SUPPORT_WINDOWS2000}
+  TzSpecificLocalTimeToSystemTime := GetProcAddress(GetModuleHandle(kernel32), PAnsiChar('TzSpecificLocalTimeToSystemTime'));
+  if not Assigned(TzSpecificLocalTimeToSystemTime) then
+    TzSpecificLocalTimeToSystemTime := TzSpecificLocalTimeToSystemTimeWin2000;
+    {$ENDIF SUPPORT_WINDOWS2000}
+  {$ENDIF MSWINDOWS}
   // Make sTrue and sFalse a mutable string (RefCount<>-1) so that UStrAsg doesn't always
   // create a new string.
   UniqueString(sTrue);

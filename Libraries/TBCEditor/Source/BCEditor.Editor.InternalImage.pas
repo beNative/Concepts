@@ -15,7 +15,7 @@ type
     function CreateBitmapFromInternalList(AModule: THandle; const AName: string): Vcl.Graphics.TBitmap;
     procedure FreeBitmapFromInternalList;
   public
-    constructor Create(AModule: THandle; const AName: string; const ACount: Integer);
+    constructor Create(AModule: THandle; const AName: string; const ACount: Integer = 1);
     destructor Destroy; override;
 
     procedure Draw(ACanvas: TCanvas; const ANumber: Integer; const X: Integer; const Y: Integer;
@@ -38,9 +38,7 @@ type
 var
   GInternalResources: TList;
 
-{ TBCEditorInternalImage }
-
-constructor TBCEditorInternalImage.Create(AModule: THandle; const AName: string; const ACount: Integer);
+constructor TBCEditorInternalImage.Create(AModule: THandle; const AName: string; const ACount: Integer = 1);
 begin
   inherited Create;
   FImages := CreateBitmapFromInternalList(AModule, AName);

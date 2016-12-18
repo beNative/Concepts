@@ -25,8 +25,6 @@ type
 
 implementation
 
-{ TBCEditorCodeFoldingColors }
-
 constructor TBCEditorWordWrapColors.Create;
 begin
   inherited;

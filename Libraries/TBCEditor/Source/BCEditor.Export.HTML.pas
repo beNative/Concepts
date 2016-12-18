@@ -28,7 +28,8 @@ type
 implementation
 
 uses
-  Winapi.Windows, System.UITypes, BCEditor.Highlighter.Attributes, BCEditor.Highlighter.Colors, BCEditor.Consts;
+  Winapi.Windows, System.UITypes, BCEditor.Highlighter.Attributes, BCEditor.Highlighter.Colors, BCEditor.Consts,
+  BCEditor.Utils;
 
 constructor TBCEditorExportHTML.Create(ALines: TBCEditorLines; AHighlighter: TBCEditorHighlighter; AFont: TFont; const ACharSet: string);
 begin
@@ -76,11 +77,6 @@ begin
   FStringList.Add('</head>');
   FStringList.Add('');
   FStringList.Add('<body class="Editor">');
-end;
-
-function ColorToHex(AColor: TColor): string;
-begin
-  Result := IntToHex(GetRValue(AColor), 2) + IntToHex(GetGValue(AColor), 2) + IntToHex(GetBValue(AColor), 2);
 end;
 
 procedure TBCEditorExportHTML.CreateInternalCSS;

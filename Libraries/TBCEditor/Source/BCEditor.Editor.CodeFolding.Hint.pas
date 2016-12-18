@@ -3,7 +3,8 @@ unit BCEditor.Editor.CodeFolding.Hint;
 interface
 
 uses
-  System.Classes, System.UITypes, Vcl.Graphics, BCEditor.Editor.CodeFolding.Hint.Colors;
+  System.Classes, System.UITypes, Vcl.Graphics, BCEditor.Editor.CodeFolding.Hint.Colors,
+  BCEditor.Editor.CodeFolding.Hint.Indicator;
 
 type
   TBCEditorCodeFoldingHint = class(TPersistent)
@@ -11,6 +12,7 @@ type
     FColors: TBCEditorCodeFoldingHintColors;
     FCursor: TCursor;
     FFont: TFont;
+    FIndicator: TBCEditorCodeFoldingHintIndicator;
     FRowCount: Integer;
     FVisible: Boolean;
   public
@@ -21,6 +23,7 @@ type
     property Colors: TBCEditorCodeFoldingHintColors read FColors write FColors;
     property Cursor: TCursor read FCursor write FCursor default crHelp;
     property Font: TFont read FFont write FFont;
+    property Indicator: TBCEditorCodeFoldingHintIndicator read FIndicator write FIndicator;
     property RowCount: Integer read FRowCount write FRowCount default 40;
     property Visible: Boolean read FVisible write FVisible default True;
   end;
@@ -32,6 +35,7 @@ begin
   inherited;
 
   FColors := TBCEditorCodeFoldingHintColors.Create;
+  FIndicator := TBCEditorCodeFoldingHintIndicator.Create;
   FCursor := crHelp;
   FRowCount := 40;
   FVisible := True;
@@ -43,6 +47,7 @@ end;
 destructor TBCEditorCodeFoldingHint.Destroy;
 begin
   FColors.Free;
+  FIndicator.Free;
   FFont.Free;
 
   inherited;
@@ -54,6 +59,7 @@ begin
   with ASource as TBCEditorCodeFoldingHint do
   begin
     Self.FColors.Assign(FColors);
+    Self.FIndicator.Assign(FIndicator);
     Self.FCursor := FCursor;
     Self.FFont.Assign(FFont);
   end

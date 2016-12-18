@@ -25,7 +25,7 @@ type
     property AlphaBlending: Byte read FAlphaBlending write SetAlphaBlending default 96;
     property Color: TColor read FColor write SetColor default clBlack;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
-    property Visible: Boolean read FVisible write SetVisible default False;
+    property Visible: Boolean read FVisible write SetVisible default True;
     property Width: Integer read FWidth write SetWidth default 8;
   end;
 
@@ -37,7 +37,7 @@ begin
 
   FAlphaBlending := 96;
   FColor := clBlack;
-  FVisible := False;
+  FVisible := True;
   FWidth := 8;
 end;
 

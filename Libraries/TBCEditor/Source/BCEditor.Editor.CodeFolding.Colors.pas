@@ -40,8 +40,6 @@ type
 
 implementation
 
-{ TBCEditorCodeFoldingColors }
-
 constructor TBCEditorCodeFoldingColors.Create;
 begin
   inherited;
@@ -51,6 +49,7 @@ begin
   FBackground := clLeftMarginBackground;
   FFoldingLine := clLeftMarginFontForeground;
   FFoldingLineHighlight := clLeftMarginFontForeground;
+  FIndent := clIndent;
   FIndentHighlight := clIndentHighlight;
 end;
 

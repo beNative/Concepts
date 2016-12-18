@@ -28,6 +28,7 @@ type
 
   TBCEditor = class(TBCCustomEditor)
   published
+    property About;
     property ActiveLine;
     property Align;
     property Anchors;
@@ -51,15 +52,17 @@ type
     property MatchingPair;
     property Minimap;
     property Name;
-    property OnAfterBookmarkPanelPaint;
     property OnAfterBookmarkPlaced;
-    property OnAfterClearBookmark;
+    property OnAfterDeleteBookmark;
+    property OnAfterMarkPanelPaint;
+    property OnAfterMarkPlaced;
+    property OnAfterDeleteMark;
     property OnAfterLinePaint;
-    property OnBeforeBookmarkPanelPaint;
-    property OnBeforeBookmarkPlaced;
-    property OnBeforeClearBookmark;
+    property OnBeforeMarkPanelPaint;
+    property OnBeforeMarkPlaced;
+    property OnBeforeDeleteMark;
     property OnBeforeCompletionProposalExecute;
-    property OnBookmarkPanelLinePaint;
+    property OnMarkPanelLinePaint;
     property OnCaretChanged;
     property OnChange;
     property OnClick;
@@ -108,9 +111,9 @@ type
     property Search;
     property Selection;
     property ShowHint;
-    {$IFDEF USE_ALPHASKINS}
+    {$if defined(USE_ALPHASKINS)}
     property SkinData;
-    {$ENDIF}
+    {$endif}
     property SpecialChars;
     property SyncEdit;
     property TabOrder;
@@ -118,6 +121,7 @@ type
     property TabStop;
     property Tag;
     property Undo;
+    property UnknownChars;
     property WantReturns;
     property Width;
     property Visible;

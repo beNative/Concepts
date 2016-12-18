@@ -28,6 +28,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Assign(ASource: TPersistent); override;
+    procedure SetOption(const AOption: TBCEditorSpecialCharsOption; const AEnabled: Boolean);
   published
     property Color: TColor read FColor write SetColor default clBlack;
     property EndOfLine: TBCEditorSpecialCharsEndOfLine read FEndOfLine write SetEndOfLine;
@@ -39,8 +40,6 @@ type
   end;
 
 implementation
-
-{ TBCEditorSpecialChars }
 
 constructor TBCEditorSpecialChars.Create;
 begin
@@ -81,6 +80,14 @@ begin
   end
   else
     inherited Assign(ASource);
+end;
+
+procedure TBCEditorSpecialChars.SetOption(const AOption: TBCEditorSpecialCharsOption; const AEnabled: Boolean);
+begin
+  if AEnabled then
+    Include(FOptions, AOption)
+  else
+    Exclude(FOptions, AOption);
 end;
 
 procedure TBCEditorSpecialChars.DoChange;

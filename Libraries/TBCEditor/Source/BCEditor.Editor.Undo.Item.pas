@@ -31,8 +31,6 @@ type
 
 implementation
 
-{ TBCEditorUndoItem }
-
 procedure TBCEditorUndoItem.Assign(ASource: TPersistent);
 begin
   if Assigned(ASource) and (ASource is TBCEditorUndoItem) then

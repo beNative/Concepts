@@ -25,8 +25,6 @@ type
 
 implementation
 
-{ TBCEditorHighlighterComments }
-
 destructor TBCEditorHighlighterComments.Destroy;
 begin
   Clear;

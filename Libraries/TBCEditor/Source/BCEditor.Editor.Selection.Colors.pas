@@ -24,8 +24,6 @@ type
 
 implementation
 
-{ TBCEditorSelectedColor }
-
 constructor TBCEditorSelectionColors.Create;
 begin
   inherited;

@@ -28,6 +28,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Assign(ASource: TPersistent); override;
+    procedure SetOption(const AOption: TBCEditorCaretOption; const AEnabled: Boolean);
   published
     property MultiEdit: TBCEditorCaretMultiEdit read FMultiEdit write SetMultiEdit;
     property NonBlinking: TBCEditorCaretNonBlinking read FNonBlinking write SetNonBlinking;
@@ -39,8 +40,6 @@ type
   end;
 
 implementation
-
-{ TBCEditorCaret }
 
 constructor TBCEditorCaret.Create;
 begin
@@ -122,6 +121,14 @@ end;
 procedure TBCEditorCaret.SetOffsets(AValue: TBCEditorCaretOffsets);
 begin
   FOffsets.Assign(AValue);
+end;
+
+procedure TBCEditorCaret.SetOption(const AOption: TBCEditorCaretOption; const AEnabled: Boolean);
+begin
+  if AEnabled then
+    Include(FOptions, AOption)
+  else
+    Exclude(FOptions, AOption);
 end;
 
 procedure TBCEditorCaret.SetOptions(const AValue: TBCEditorCaretOptions);

@@ -27,6 +27,7 @@ type
     constructor Create(AOwner: TPersistent);
     destructor Destroy; override;
     procedure Assign(ASource: TPersistent); override;
+    procedure SetOption(const AOption: TBCEditorCompletionProposalOption; const AEnabled: Boolean);
   published
     property CloseChars: string read FCloseChars write FCloseChars;
     property Colors: TBCEditorCompletionProposalColors read FColors write FColors;
@@ -45,8 +46,6 @@ implementation
 
 uses
   Vcl.Menus;
-
-{ TBCEditorCompletionProposal }
 
 constructor TBCEditorCompletionProposal.Create(AOwner: TPersistent);
 begin
@@ -97,6 +96,14 @@ begin
   end
   else
     inherited Assign(ASource);
+end;
+
+procedure TBCEditorCompletionProposal.SetOption(const AOption: TBCEditorCompletionProposalOption; const AEnabled: Boolean);
+begin
+  if AEnabled then
+    Include(FOptions, AOption)
+  else
+    Exclude(FOptions, AOption);
 end;
 
 function TBCEditorCompletionProposal.GetOwner: TPersistent;

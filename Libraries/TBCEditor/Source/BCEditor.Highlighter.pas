@@ -32,7 +32,6 @@ type
     FMatchingPairs: TList;
     FMultiHighlighter: Boolean;
     FName: string;
-    //FPrepared: Boolean;
     FPreviousEndOfLine: Boolean;
     FRunPosition: LongInt;
     FSkipCloseKeyChars: TBCEditorCharSet;
@@ -101,8 +100,6 @@ implementation
 uses
   BCEditor.Highlighter.Import.JSON, System.Types, BCEditor.Editor.Base, System.IOUtils;
 
-{ TBCEditorHighlighter }
-
 procedure TBCEditorHighlighter.AddKeyChar(AKeyCharType: TBCEditorKeyCharType; AChar: Char);
 begin
   case AKeyCharType of
@@ -129,8 +126,6 @@ begin
   FComments := TBCEditorHighlighterComments.Create;
 
   FCompletionProposalSkipRegions := TBCEditorSkipRegions.Create(TBCEditorSkipRegionItem);
-
-  //FPrepared := False;
 
   Info := TBCEditorHighlighterInfo.Create;
   FMainRules := TBCEditorRange.Create;
@@ -245,6 +240,7 @@ begin
       end;
 
   FTokenPosition := FRunPosition;
+
   if Assigned(FCurrentRange) then
   begin
     LCloseParent := FCurrentRange.CloseParent;
@@ -256,11 +252,12 @@ begin
         if LCloseParent then
           FCurrentRange := FCurrentRange.Parent;
     end;
-  end;
 
-  if Assigned(FCurrentRange) then
-  begin
-    LParser := FCurrentRange.SymbolList[AnsiChar(FCurrentRange.CaseFunct(FCurrentLine[FRunPosition]))];
+    if Ord(FCurrentLine[FRunPosition]) < 256 then
+      LParser := FCurrentRange.SymbolList[AnsiChar(FCurrentRange.CaseFunct(FCurrentLine[FRunPosition]))]
+    else
+      LParser := FCurrentRange.SymbolList['a'];
+
     if not Assigned(LParser) then
       Inc(FRunPosition)
     else
@@ -268,8 +265,12 @@ begin
     begin
       FCurrentToken := FCurrentRange.DefaultToken;
 
-      while not CharInSet(FCurrentLine[FRunPosition], FCurrentRange.Delimiters) do
-        Inc(FRunPosition);
+      if Ord(FCurrentLine[FRunPosition - 1]) < 256 then
+      while (Ord(FCurrentLine[FRunPosition]) < 256) and not CharInSet(FCurrentLine[FRunPosition], FCurrentRange.Delimiters) do
+        Inc(FRunPosition)
+      else
+      while (Ord(FCurrentLine[FRunPosition]) > 255) and not CharInSet(FCurrentLine[FRunPosition], FCurrentRange.Delimiters) do
+        Inc(FRunPosition)
     end
     else
     if FCurrentRange.ClosingToken = FCurrentToken then
@@ -515,20 +516,16 @@ var
   LTopLine: Integer;
   LCaretPosition: TBCEditorTextPosition;
 begin
-  FLoading := True;
   LEditor := FEditor as TBCBaseEditor;
-  LTopLine := 0;
   if Assigned(LEditor) then
   begin
+    FLoading := True;
     LTempLines := TStringList.Create;
     try
       if LEditor.Visible then
         LCaretPosition := LEditor.TextCaretPosition;
-      if Trim(LEditor.Lines.Text) <> '' then
-      begin
-        LTopLine := LEditor.TopLine;
-        LTempLines.Text := LEditor.Lines.Text;
-      end;
+      LTopLine := LEditor.TopLine;
+      LTempLines.AddStrings(LEditor.Lines);
       LEditor.Lines.Clear;
       with TBCEditorHighlighterImportJSON.Create(Self) do
       try
@@ -536,19 +533,16 @@ begin
       finally
         Free;
       end;
-      if Trim(LTempLines.Text) <> '' then
-      begin
-        LEditor.Lines.Text := LTempLines.Text;
-        LEditor.TopLine := LTopLine;
-      end;
+      LEditor.Lines.LoadFromStrings(LTempLines);
+      LEditor.TopLine := LTopLine;
       if LEditor.Visible then
         LEditor.TextCaretPosition := LCaretPosition;
     finally
       LTempLines.Free;
     end;
     UpdateColors;
+    FLoading := False;
   end;
-  FLoading := False;
 end;
 
 function TBCEditorHighlighter.GetAttribute(AIndex: Integer): TBCEditorHighlighterAttribute;
@@ -596,3 +590,4 @@ begin
 end;
 
 end.
+

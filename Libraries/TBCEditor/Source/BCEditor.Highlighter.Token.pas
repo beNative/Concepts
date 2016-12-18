@@ -283,13 +283,13 @@ function TBCEditorTokenNodeList.FindNode(AChar: Char): TBCEditorTokenNode;
 var
   i: Integer;
 begin
-  Result := nil;
   for i := 0 to FNodeList.Count - 1 do
-    if TBCEditorTokenNode(FNodeList[i]).Char = AChar then
-    begin
-      Result := TBCEditorTokenNode(FNodeList[i]);
-      Break;
-    end;
+  begin
+    Result := TBCEditorTokenNode(FNodeList.List[i]);
+    if Result.Char = AChar then
+      exit;
+  end;
+  Result := nil;
 end;
 
 function TBCEditorTokenNodeList.GetCount: Integer;

@@ -22,6 +22,7 @@ type
   public
     constructor Create;
     procedure Assign(ASource: TPersistent); override;
+    procedure SetOption(const AOption: TBCEditorTabOption; const AEnabled: Boolean);
   published
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property Options: TBCEditorTabOptions read FOptions write SetOptions default BCEDITOR_DEFAULT_TAB_OPTIONS;
@@ -33,8 +34,6 @@ implementation
 
 uses
   BCEditor.Utils;
-
-{ TBCEditorTabs }
 
 constructor TBCEditorTabs.Create;
 begin
@@ -63,6 +62,14 @@ begin
   end
   else
     inherited Assign(ASource);
+end;
+
+procedure TBCEditorTabs.SetOption(const AOption: TBCEditorTabOption; const AEnabled: Boolean);
+begin
+  if AEnabled then
+    Include(FOptions, AOption)
+  else
+    Exclude(FOptions, AOption);
 end;
 
 procedure TBCEditorTabs.SetOptions(const AValue: TBCEditorTabOptions);

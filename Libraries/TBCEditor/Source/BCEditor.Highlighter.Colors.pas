@@ -40,8 +40,6 @@ implementation
 uses
   System.SysUtils, BCEditor.Editor.Base, BCEditor.Highlighter, BCEditor.Highlighter.Import.JSON, System.IOUtils;
 
-{ TBCEditorHighlighterColors }
-
 constructor TBCEditorHighlighterColors.Create(AOwner: TObject);
 begin
   inherited Create;

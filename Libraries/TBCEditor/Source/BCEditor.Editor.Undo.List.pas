@@ -57,8 +57,6 @@ type
 
 implementation
 
-{ TBCEditorUndoList }
-
 const
   BCEDITOR_MODIFYING_CHANGE_REASONS = [crInsert, crPaste, crDragDropInsert, crDelete, crLineBreak, crIndent, crUnindent];
 

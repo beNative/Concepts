@@ -24,8 +24,6 @@ type
 
 implementation
 
-{ TBCEditorCompletionProposalColors }
-
 constructor TBCEditorCompletionProposalColors.Create;
 begin
   inherited;

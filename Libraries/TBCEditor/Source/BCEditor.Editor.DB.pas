@@ -29,7 +29,7 @@ type
     function GetReadOnly: Boolean; override;
     procedure DoChange; override;
     procedure Loaded; override;
-    procedure SetReadOnly(AValue: Boolean); override;
+    procedure SetReadOnly(const AValue: Boolean); override;
     property DataField: string read GetDataField write SetDataField;
     property DataSource: TDataSource read GetDataSource write SetDataSource;
     property Field: TField read GetField;
@@ -45,6 +45,7 @@ type
 
   TBCDBEditor = class(TBCCustomDBEditor)
   published
+    property About;
     property ActiveLine;
     property Align;
     property Anchors;
@@ -70,15 +71,17 @@ type
     property MatchingPair;
     property Minimap;
     property Name;
-    property OnAfterBookmarkPanelPaint;
     property OnAfterBookmarkPlaced;
-    property OnAfterClearBookmark;
+    property OnAfterDeleteBookmark;
+    property OnAfterMarkPanelPaint;
+    property OnAfterMarkPlaced;
+    property OnAfterDeleteMark;
     property OnAfterLinePaint;
-    property OnBeforeBookmarkPanelPaint;
-    property OnBeforeBookmarkPlaced;
-    property OnBeforeClearBookmark;
+    property OnBeforeMarkPanelPaint;
+    property OnBeforeMarkPlaced;
+    property OnBeforeDeleteMark;
     property OnBeforeCompletionProposalExecute;
-    property OnBookmarkPanelLinePaint;
+    property OnMarkPanelLinePaint;
     property OnCaretChanged;
     property OnChange;
     property OnClick;
@@ -128,9 +131,9 @@ type
     property Search;
     property Selection;
     property ShowHint;
-    {$IFDEF USE_ALPHASKINS}
+    {$if defined(USE_ALPHASKINS)}
     property SkinData;
-    {$ENDIF}
+    {$endif}
     property SpecialChars;
     property SyncEdit;
     property TabOrder;
@@ -138,6 +141,7 @@ type
     property TabStop;
     property Tag;
     property Undo;
+    property UnknownChars;
     property WantReturns;
     property Width;
     property Visible;
@@ -328,7 +332,7 @@ begin
   end;
 end;
 
-procedure TBCCustomDBEditor.SetReadOnly(AValue: Boolean);
+procedure TBCCustomDBEditor.SetReadOnly(const AValue: Boolean);
 begin
   FDataLink.ReadOnly := AValue;
 end;

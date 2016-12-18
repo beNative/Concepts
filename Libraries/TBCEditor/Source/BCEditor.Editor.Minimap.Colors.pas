@@ -28,8 +28,6 @@ type
 
 implementation
 
-{ TBCEditorMinimapColors }
-
 constructor TBCEditorMinimapColors.Create;
 begin
   inherited;

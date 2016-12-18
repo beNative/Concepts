@@ -50,8 +50,6 @@ implementation
 uses
   System.SysUtils;
 
-{ TBCEditorHighlighterAttribute }
-
 constructor TBCEditorHighlighterAttribute.Create(const AttributeName: string);
 begin
   inherited Create;

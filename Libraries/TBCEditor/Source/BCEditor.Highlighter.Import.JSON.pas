@@ -104,7 +104,10 @@ begin
   if AString = 'MultiLine' then
     Result := ritMultiLineComment
   else
-    Result := ritString;
+  if AString = 'SingleLineString' then
+    Result := ritSingleLineString
+  else
+    Result := ritMultiLineString
 end;
 
 function StrToRangeType(const AString: string): TBCEditorRangeType;
@@ -201,6 +204,9 @@ begin
       LEditor.CodeFolding.Hint.Colors.Background := StringToColorDef(LColorsObject['CodeFoldingHintBackground'].Value, LEditor.CodeFolding.Hint.Colors.Background);
       LEditor.CodeFolding.Hint.Colors.Border := StringToColorDef(LColorsObject['CodeFoldingHintBorder'].Value, LEditor.CodeFolding.Hint.Colors.Border);
       LEditor.CodeFolding.Hint.Font.Color := StringToColorDef(LColorsObject['CodeFoldingHintText'].Value, LEditor.CodeFolding.Hint.Font.Color);
+      LEditor.CodeFolding.Hint.Indicator.Colors.Background := StringToColorDef(LColorsObject['CodeFoldingHintIndicatorBackground'].Value, LEditor.CodeFolding.Hint.Indicator.Colors.Background);
+      LEditor.CodeFolding.Hint.Indicator.Colors.Border := StringToColorDef(LColorsObject['CodeFoldingHintIndicatorBorder'].Value, LEditor.CodeFolding.Hint.Indicator.Colors.Border);
+      LEditor.CodeFolding.Hint.Indicator.Colors.Mark := StringToColorDef(LColorsObject['CodeFoldingHintIndicatorMark'].Value, LEditor.CodeFolding.Hint.Indicator.Colors.Mark);
       LEditor.CompletionProposal.Colors.Background := StringToColorDef(LColorsObject['CompletionProposalBackground'].Value, LEditor.CompletionProposal.Colors.Background);
       LEditor.CompletionProposal.Colors.Foreground := StringToColorDef(LColorsObject['CompletionProposalForeground'].Value, LEditor.CompletionProposal.Colors.Foreground);
       LEditor.CompletionProposal.Colors.SelectedBackground := StringToColorDef(LColorsObject['CompletionProposalSelectedBackground'].Value, LEditor.CompletionProposal.Colors.SelectedBackground);
@@ -223,6 +229,7 @@ begin
       LEditor.RightMargin.Colors.MovingEdge := StringToColorDef(LColorsObject['RightMovingEdge'].Value, LEditor.RightMargin.Colors.MovingEdge);
       LEditor.Search.Highlighter.Colors.Background := StringToColorDef(LColorsObject['SearchHighlighterBackground'].Value, LEditor.Search.Highlighter.Colors.Background);
       LEditor.Search.Highlighter.Colors.Foreground := StringToColorDef(LColorsObject['SearchHighlighterForeground'].Value, LEditor.Search.Highlighter.Colors.Foreground);
+      LEditor.Search.InSelection.Background := StringToColorDef(LColorsObject['SearchInSelectionBackground'].Value, LEditor.Search.InSelection.Background);
       LEditor.Search.Map.Colors.ActiveLine := StringToColorDef(LColorsObject['SearchMapActiveLine'].Value, LEditor.Search.Map.Colors.ActiveLine);
       LEditor.Search.Map.Colors.Background := StringToColorDef(LColorsObject['SearchMapBackground'].Value, LEditor.Search.Map.Colors.Background);
       LEditor.Search.Map.Colors.Foreground := StringToColorDef(LColorsObject['SearchMapForeground'].Value, LEditor.Search.Map.Colors.Foreground);

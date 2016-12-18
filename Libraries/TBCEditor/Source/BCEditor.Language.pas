@@ -4,6 +4,7 @@ interface
 
 resourcestring
   { BCEditor.Editor.Base }
+  SBCEditorVersion = 'Version';
   SBCEditorScrollInfoTopLine = 'Top line: %d';
   SBCEditorScrollInfo = '%d - %d';
   SBCEditorSearchStringNotFound = 'Search string ''%s'' not found';
@@ -35,7 +36,7 @@ resourcestring
   { BCEditor.Search }
   SBCEditorPatternIsEmpty = 'Pattern is empty';
 
-  { BCEditor.TextDrawer }
+  { BCEditor.PaintHelper }
   SBCEditorValueMustBeSpecified = 'SetBaseFont: ''Value'' must be specified.';
 
 implementation

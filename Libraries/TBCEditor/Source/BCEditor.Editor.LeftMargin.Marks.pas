@@ -1,4 +1,4 @@
-unit BCEditor.Editor.LeftMargin.Bookmarks;
+unit BCEditor.Editor.LeftMargin.Marks;
 
 interface
 
@@ -6,11 +6,13 @@ uses
   Vcl.Controls, System.Classes, Vcl.Graphics;
 
 type
-  TBCEditorLeftMarginBookMarks = class(TPersistent)
+  TBCEditorLeftMarginMarks = class(TPersistent)
   strict private
+    FDefaultImageIndex: Integer;
     FImages: TImageList;
     FLeftMargin: Integer;
     FOnChange: TNotifyEvent;
+    FOverlappingOffset: Integer;
     FOwner: TComponent;
     FShortCuts: Boolean;
     FVisible: Boolean;
@@ -21,32 +23,37 @@ type
     constructor Create(AOwner: TComponent);
     procedure Assign(ASource: TPersistent); override;
   published
+    property DefaultImageIndex: Integer read FDefaultImageIndex write FDefaultImageIndex default -1;
     property Images: TImageList read FImages write SetImages;
     property LeftMargin: Integer read FLeftMargin write FLeftMargin default 2;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
-    property ShortCuts: Boolean read FShortCuts write FShortCuts default True;
+    property OverlappingOffset: Integer read FOverlappingOffset write FOverlappingOffset default 4;
     property Visible: Boolean read FVisible write SetVisible default True;
   end;
 
 implementation
 
-constructor TBCEditorLeftMarginBookMarks.Create(AOwner: TComponent);
+constructor TBCEditorLeftMarginMarks.Create(AOwner: TComponent);
 begin
   inherited Create;
 
   FOwner := AOwner;
+  FDefaultImageIndex := -1;
   FLeftMargin := 2;
+  FOverlappingOffset := 4;
   FShortCuts := True;
   FVisible := True;
 end;
 
-procedure TBCEditorLeftMarginBookMarks.Assign(ASource: TPersistent);
+procedure TBCEditorLeftMarginMarks.Assign(ASource: TPersistent);
 begin
-  if Assigned(ASource) and (ASource is TBCEditorLeftMarginBookMarks) then
-  with ASource as TBCEditorLeftMarginBookMarks do
+  if Assigned(ASource) and (ASource is TBCEditorLeftMarginMarks) then
+  with ASource as TBCEditorLeftMarginMarks do
   begin
+    Self.FDefaultImageIndex := FDefaultImageIndex;
     Self.FImages := FImages;
     Self.FLeftMargin := FLeftMargin;
+    Self.FOverlappingOffset := FOverlappingOffset;
     Self.FShortCuts := FShortCuts;
     Self.FVisible := FVisible;
     if Assigned(Self.FOnChange) then
@@ -56,13 +63,13 @@ begin
     inherited Assign(ASource);
 end;
 
-procedure TBCEditorLeftMarginBookMarks.DoChange;
+procedure TBCEditorLeftMarginMarks.DoChange;
 begin
   if Assigned(FOnChange) then
     FOnChange(Self);
 end;
 
-procedure TBCEditorLeftMarginBookMarks.SetImages(const AValue: TImageList);
+procedure TBCEditorLeftMarginMarks.SetImages(const AValue: TImageList);
 begin
   if FImages <> AValue then
   begin
@@ -73,7 +80,7 @@ begin
   end;
 end;
 
-procedure TBCEditorLeftMarginBookMarks.SetVisible(AValue: Boolean);
+procedure TBCEditorLeftMarginMarks.SetVisible(AValue: Boolean);
 begin
   if FVisible <> AValue then
   begin

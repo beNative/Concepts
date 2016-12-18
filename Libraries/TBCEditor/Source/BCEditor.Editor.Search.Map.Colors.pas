@@ -19,7 +19,7 @@ type
     constructor Create;
     procedure Assign(ASource: TPersistent); override;
   published
-    property ActiveLine: TColor read FActiveLine write SetActiveLine default clLeftMarginBookmarkBackground;
+    property ActiveLine: TColor read FActiveLine write SetActiveLine default clSearchMapActiveLine;
     property Background: TColor read FBackground write SetBackground default clLeftMarginBackground;
     property Foreground: TColor read FForeground write SetForeground default clSearchHighlighter;
     property OnChange: TBCEditorSearchChangeEvent read FOnChange write FOnChange;
@@ -27,13 +27,11 @@ type
 
 implementation
 
-{ TBCEditorSelectedColor }
-
 constructor TBCEditorSearchMapColors.Create;
 begin
   inherited;
 
-  FActiveLine := clLeftMarginBookmarkBackground;
+  FActiveLine := clSearchMapActiveLine;
   FBackground := clLeftMarginBackground;
   FForeground := clSearchHighlighter;
 end;

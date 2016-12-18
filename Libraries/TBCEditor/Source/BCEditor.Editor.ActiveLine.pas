@@ -30,8 +30,6 @@ type
 
 implementation
 
-{ TBCEditorActiveLine }
-
 constructor TBCEditorActiveLine.Create;
 begin
   inherited;
