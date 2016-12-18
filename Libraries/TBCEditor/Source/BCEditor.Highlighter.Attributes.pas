@@ -60,16 +60,6 @@ begin
   FEscapeChar := BCEDITOR_NONE_CHAR;
 end;
 
-constructor TBCEditorHighlighterAttribute.Create(const AttributeName: string);
-begin
-  inherited Create;
-
-  FBackground := clNone;
-  FForeground := clNone;
-  FName := AttributeName;
-  FEscapeChar := BCEDITOR_NONE_CHAR;
-end;
-
 procedure TBCEditorHighlighterAttribute.Assign(ASource: TPersistent);
 begin
   if Assigned(ASource) and (ASource is TBCEditorHighlighterAttribute) then
