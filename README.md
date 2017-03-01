@@ -4,13 +4,14 @@
 
 * [Spring4D](http://bitbucket.org/sglienke/spring4d)
 * [DSharp](http://bitbucket.org/sglienke/dsharp)
+* [DDuce](http://github.com/beNative/dduce)
 * [Virtual treeview](http://github.com/Virtual-TreeView/Virtual-TreeView)
 * [TChromeTabs](http://github.com/norgepaul/TChromeTabs) component
 * [SQLBuilder4Delphi](http://github.com/ezequieljuliano/SQLBuilder4Delphi) 
 * [ZeroMQ](http://github.com/zedalaye/Delphi-ZeroMQ) / [ZeroMQ (ØMQ)](http://zeromq.org)
 * [DDetours](http://github.com/MahdiSafsafi/delphi-detours-library)
-* [TBCEditor](http://github.com/bonecode/TBCEditor)
 * [TzObjectInspector](http://github.com/MahdiSafsafi/zcontrols)
+* [TBCEditor](http://github.com/bonecode/TBCEditor)
 * [JsonDataObjects](http://github.com/ahausladen/JsonDataObjects)
 * [Ararat Synapse](https://sourceforge.net/projects/synalist/)
 * [The Indy project](http://www.indyproject.org/)
