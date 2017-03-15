@@ -440,7 +440,8 @@ uses
   BCEditor.Editor.Search.InSelection in 'Libraries\TBCEditor\Source\BCEditor.Editor.Search.InSelection.pas',
   BCEditor.Search.Normal in 'Libraries\TBCEditor\Source\BCEditor.Search.Normal.pas',
   BCEditor.PaintHelper in 'Libraries\TBCEditor\Source\BCEditor.PaintHelper.pas',
-  BCEditor.Editor.UnknownChars in 'Libraries\TBCEditor\Source\BCEditor.Editor.UnknownChars.pas';
+  BCEditor.Editor.UnknownChars in 'Libraries\TBCEditor\Source\BCEditor.Editor.UnknownChars.pas',
+  DDuce.FormSettings in 'Libraries\DDuce\Modules\DDuce.FormSettings.pas';
 
 {$R *.res}
 

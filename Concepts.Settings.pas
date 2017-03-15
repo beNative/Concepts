@@ -59,7 +59,6 @@ type
     procedure WriteInteger(const Section, Ident: string; Value: Longint);
     function ReadBool(const Section, Ident: string; Default: Boolean): Boolean;
     procedure WriteBool(const Section, Ident: string; Value: Boolean);
-
   end;
 
 var

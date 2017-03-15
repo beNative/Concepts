@@ -317,13 +317,13 @@ begin
     'CompanyName',
     edtCompanyName
   );
-////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Firstname', edtFirstname);
-////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Lastname', edtLastname);
-////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Address', edtAddress);
-////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.CompanyName', edtCompanyName);
-////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Email', edtEmail);
-////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Country', edtCountry);
-////    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Number', edtNumber);
+//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Firstname', edtFirstname);
+//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Lastname', edtLastname);
+//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Address', edtAddress);
+//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.CompanyName', edtCompanyName);
+//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Email', edtEmail);
+//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Country', edtCountry);
+//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Number', edtNumber);
 //  end;
 end;
 

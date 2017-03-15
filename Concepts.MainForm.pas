@@ -46,6 +46,7 @@ type
     btnClose        : TButton;
     btnExecuteModal : TButton;
     tbrMain         : TTaskbar;
+    actCenterMainForm: TAction;
     {$ENDREGION}
 
     procedure actExecuteExecute(Sender: TObject);
@@ -63,8 +64,9 @@ type
       Shift   : TShiftState
     );
     procedure edtFilterChange(Sender: TObject);
+    procedure actCenterMainFormExecute(Sender: TObject);
 
-  strict private
+  private
     FVKPressed : Boolean;
     FVST       : TVirtualStringTree;
     FTVP       : TTreeViewPresenter;
@@ -86,8 +88,12 @@ type
     procedure InitializePresenter;
     procedure ApplyFilter;
 
+    procedure LoadSettings;
+    procedure SaveSettings;
+
   public
     procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
 
   end;
 
@@ -105,7 +111,7 @@ uses
 
   Spring.Collections,
 
-  Concepts.Factories, Concepts.Manager;
+  Concepts.Factories, Concepts.Manager, Concepts.Settings;
 
 resourcestring
   SConceptsLoaded = '%d concepts loaded.';
@@ -156,11 +162,18 @@ var
 {$REGION 'construction and destruction'}
 procedure TfrmMain.AfterConstruction;
 begin
+  inherited AfterConstruction;
   FVST := TConceptFactories.CreateVirtualStringTree(Self, pnlVST);
   FTVP := TConceptFactories.CreateTreeViewPresenter(Self);
   InitializePresenter;
   sbrMain.SimpleText := Format(SConceptsLoaded, [ConceptManager.ItemList.Count]);
-  inherited AfterConstruction;
+  LoadSettings;
+end;
+
+procedure TfrmMain.BeforeDestruction;
+begin
+  SaveSettings;
+  inherited BeforeDestruction;
 end;
 {$ENDREGION}
 
@@ -178,6 +191,13 @@ end;
 procedure TfrmMain.actExecuteModalExecute(Sender: TObject);
 begin
   ConceptManager.Execute(FTVP.SelectedItem);
+end;
+
+procedure TfrmMain.actCenterMainFormExecute(Sender: TObject);
+begin
+  Position := poScreenCenter;
+  SaveSettings;
+  LoadSettings;
 end;
 
 procedure TfrmMain.actCloseExecute(Sender: TObject);
@@ -326,6 +346,23 @@ begin
   FTVP.TreeView.OnKeyPress := FVSTKeyPress;
   FTVP.TreeView.Header.AutoFitColumns;
   FTVP.Refresh;
+end;
+
+procedure TfrmMain.LoadSettings;
+begin
+  Position := poDefault;
+  Left   := Settings.ReadInteger(UnitName, 'Left', Left);
+  Top    := Settings.ReadInteger(UnitName, 'Top', Top);
+  Width  := Settings.ReadInteger(UnitName, 'Width', Width);
+  Height := Settings.ReadInteger(UnitName, 'Height', Height);
+end;
+
+procedure TfrmMain.SaveSettings;
+begin
+  Settings.WriteInteger(UnitName, 'Left', Left);
+  Settings.WriteInteger(UnitName, 'Top', Top);
+  Settings.WriteInteger(UnitName, 'Width', Width);
+  Settings.WriteInteger(UnitName, 'Height', Height);
 end;
 
 procedure TfrmMain.ApplyFilter;
