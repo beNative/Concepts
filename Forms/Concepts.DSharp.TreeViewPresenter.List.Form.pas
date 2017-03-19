@@ -22,6 +22,18 @@ unit Concepts.DSharp.TreeViewPresenter.List.Form;
   the process of representing data in a TVirtualStringTree control.
   This demo shows also how some custom drawing can be performed. }
 
+{$REGION 'documentation'}
+{
+  In this example we will create a list of contacts (IList<TContact>) and
+  visualize its contents using a TTreeViewPresenter and a TVirtualStringTree.
+  The presenter does its magic by assigning the list as a IObjectList and by
+  default it wil automatically provides the published properties of TContact as
+  columns in the virtual treeview.
+  As IObjectList = interface(IList<TObject>), we can cast our typed list to
+  IObjectList.
+}
+{$ENDREGION}
+
 interface
 
 uses
@@ -43,16 +55,18 @@ uses
 
 type
   TfrmTreeViewPresenterList = class(TForm)
-    pnlTop                    : TPanel;
+    {$REGION 'designer controls'}
+    aclMain                   : TActionList;
     pnlBottom                 : TPanel;
     pnlLeft                   : TPanel;
-    aclMain                   : TActionList;
-    splVertical               : TSplitter;
-    pnlLeftTop                : TPanel;
     pnlLeftBottom             : TPanel;
-    splHorizontal             : TSplitter;
+    pnlLeftTop                : TPanel;
+    pnlTop                    : TPanel;
     pnlTreeviewPresenter      : TPanel;
     pnlVirtualStringTreeTitle : TPanel;
+    splHorizontal             : TSplitter;
+    splVertical               : TSplitter;
+    {$ENDREGION}
 
   private
     FList       : IObjectList;
@@ -113,8 +127,9 @@ begin
     nil,
     FTVPColumnDefinitionsCustomDraw
   );
-  FTVP.View.ItemTemplate := TColumnDefinitionsControlTemplate.Create(FTVP.ColumnDefinitions);
-  FOI   := TConceptFactories.CreatezObjectInspector(Self, pnlLeftTop, FTVP);
+  FTVP.View.ItemTemplate :=
+    TColumnDefinitionsControlTemplate.Create(FTVP.ColumnDefinitions);
+  FOI := TConceptFactories.CreatezObjectInspector(Self, pnlLeftTop, FTVP);
   FOI.OnItemSetValue := FOIItemSetValue;
   CreateColumnDefinitionsView;
 end;
@@ -143,24 +158,24 @@ begin
       Called after cell text is drawn. Used to draw additional stuff in the
       cell.
   }
-  if ColumnDefinition.DisplayName = 'FirstName' then
-  begin
-    if DrawMode = dmBeforeCellPaint then
-    begin
-      TargetCanvas.Brush.Color := clWebPaleGoldenrod;
-      TargetCanvas.FillRect(CellRect);
-    end
-    else if DrawMode = dmPaintText then
-    begin
-      TargetCanvas.Font.Color := clRed;
-    end
-    else if DrawMode = dmAfterCellPaint then
-    begin
-      TargetCanvas.Pen.Width := 2;
-      TargetCanvas.Pen.Color := clBlue;
-      TargetCanvas.Chord(16, 16, 4, 4, 8, 8, 16, 16);
-    end;
-  end;
+//  if ColumnDefinition.DisplayName = 'FirstName' then
+//  begin
+//    if DrawMode = dmBeforeCellPaint then
+//    begin
+//      TargetCanvas.Brush.Color := clWebPaleGoldenrod;
+//      TargetCanvas.FillRect(CellRect);
+//    end
+//    else if DrawMode = dmPaintText then
+//    begin
+//      TargetCanvas.Font.Color := clRed;
+//    end
+//    else if DrawMode = dmAfterCellPaint then
+//    begin
+//      TargetCanvas.Pen.Width := 2;
+//      TargetCanvas.Pen.Color := clBlue;
+//      TargetCanvas.Chord(16, 16, 4, 4, 8, 8, 16, 16);
+//    end;
+//  end;
   // intended just to report that some custom drawing occured. This value is
   // not used by the presenter component.
   Result := True;

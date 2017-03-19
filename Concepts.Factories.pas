@@ -438,14 +438,9 @@ end;
 {$ENDIF}
 
 class function TConceptFactories.CreateTreeViewPresenter(
-      AOwner            : TComponent;
-      AVST              : TVirtualStringTree = nil;
-      ASource           : IObjectList = nil;
-      ATemplate         : IDataTemplate = nil;
-      AFilter           : TFilterEvent = nil;
-      ACustomDraw       : TCustomDrawEvent = nil;
-      const AName       : string = ''
-    ): TTreeViewPresenter;
+  AOwner: TComponent; AVST: TVirtualStringTree; ASource: IObjectList;
+  ATemplate: IDataTemplate; AFilter: TFilterEvent; ACustomDraw: TCustomDrawEvent;
+  const AName : string): TTreeViewPresenter;
 var
   TVP: TTreeViewPresenter;
 begin
