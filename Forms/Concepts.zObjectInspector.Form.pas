@@ -38,19 +38,19 @@ uses
 
 type
   TfrmzObjectInspector = class(TForm)
-    pnlMain         : TPanel;
-    splSplitter     : TSplitter;
-    pnlLeft         : TPanel;
-    cbxControls     : TComboBox;
-    pnlRight        : TPanel;
-    lblLabel        : TLabel;
-    btnButton       : TButton;
-    chkCheckBox     : TCheckBox;
-    edtEdit         : TEdit;
     bgMain          : TButtonGroup;
-    trbTrackBar     : TTrackBar;
+    btnButton       : TButton;
+    cbxControls     : TComboBox;
+    chkCheckBox     : TCheckBox;
     edtButtonedEdit : TButtonedEdit;
+    edtEdit         : TEdit;
+    lblLabel        : TLabel;
+    pnlLeft         : TPanel;
+    pnlMain         : TPanel;
+    pnlRight        : TPanel;
     sbrStatusBar    : TStatusBar;
+    splSplitter     : TSplitter;
+    trbTrackBar     : TTrackBar;
 
     procedure cbxControlsChange(Sender: TObject);
 

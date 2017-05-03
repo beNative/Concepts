@@ -415,8 +415,8 @@ object frmObjectDataSet: TfrmObjectDataSet
           TabOrder = 4
         end
         object edtNumber: TLabeledEdit
-          Left = 380
-          Top = 84
+          Left = 376
+          Top = 85
           Width = 121
           Height = 21
           EditLabel.Width = 41

@@ -55,8 +55,8 @@ type
 
     function ReadString(const Section, Ident, Default: string): string;
     procedure WriteString(const Section, Ident, Value: string);
-    function ReadInteger(const Section, Ident: string; Default: Longint): Longint;
-    procedure WriteInteger(const Section, Ident: string; Value: Longint);
+    function ReadInteger(const Section, Ident: string; Default: Integer): Integer;
+    procedure WriteInteger(const Section, Ident: string; Value: Integer);
     function ReadBool(const Section, Ident: string; Default: Boolean): Boolean;
     procedure WriteBool(const Section, Ident: string; Value: Boolean);
   end;

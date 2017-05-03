@@ -92,12 +92,12 @@ uses
 procedure TfrmTreeViewPresenterTree.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FVST  := TConceptFactories.CreateVirtualStringTree(Self, pnlTreeView);
+  FVST := TConceptFactories.CreateVirtualStringTree(Self, pnlTreeView);
   CreateRttiTreeview;
   FTVP.OnSelectionChanged := FTVPSelectionChanged;
   FTVP.UseColumnDefinitions := True;
   FTVP.TreeView := FVST;
-  FOI   := TConceptFactories.CreatezObjectInspector(Self, pnlLeftTop, FTVP);
+  FOI := TConceptFactories.CreatezObjectInspector(Self, pnlLeftTop, FTVP);
 end;
 
 procedure TfrmTreeViewPresenterTree.BeforeDestruction;

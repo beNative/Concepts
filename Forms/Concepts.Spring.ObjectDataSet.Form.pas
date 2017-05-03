@@ -175,9 +175,6 @@ begin
   FDBG  := TConceptFactories.CreateDBGrid(Self, pnlLeft, dscMain);
   FObjectDataSet          := TObjectDataset.Create(Self);
   FObjectDataSet.DataList := FList as IObjectList;
-
-
-
 end;
 
 procedure TfrmObjectDataSet.BeforeDestruction;
@@ -301,7 +298,8 @@ end;
 procedure TfrmObjectDataSet.ConnectPresenter;
 begin
   FTVP.View.ItemsSource := FList as IObjectList;
-  FBindScope := TBindingsFactory.CreateBindScope(FTVP.SelectedItem, Self);
+  FBindScope := TBindingsFactory.CreateBindScope(FTVP.SelectedItem as TContact, Self);
+  FBindScope.AutoActivate := True;
   TBindingsFactory.CreateEditBinding(
     FBindScope,
     'FirstName',
@@ -311,20 +309,28 @@ begin
     FBindScope,
     'LastName',
     edtLastname
-  );
+  ).Active := True;
   TBindingsFactory.CreateEditBinding(
     FBindScope,
     'CompanyName',
     edtCompanyName
-  );
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Firstname', edtFirstname);
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Lastname', edtLastname);
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Address', edtAddress);
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.CompanyName', edtCompanyName);
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Email', edtEmail);
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Country', edtCountry);
-//    AddControlBinding(FBG, FTVP, 'View.CurrentItem.Number', edtNumber);
-//  end;
+  ).Active := True;
+  TBindingsFactory.CreateEditBinding(
+    FBindScope,
+    'Email',
+    edtEmail
+  ).Active := True;
+  TBindingsFactory.CreateEditBinding(
+    FBindScope,
+    'Number',
+    edtNumber
+  ).Active := True;
+  TBindingsFactory.CreateEditBinding(
+    FBindScope,
+    'Address',
+    edtAddress
+  ).Active := True;
+  FBindScope.Active := True;
 end;
 
 procedure TfrmObjectDataSet.DisconnectDataSet;
@@ -342,7 +348,7 @@ end;
 {$REGION 'protected methods'}
 procedure TfrmObjectDataSet.UpdateActions;
 begin
-  inherited;
+  inherited UpdateActions;
   actConnectDataSet.Enabled      := not DataSetEnabled;
   actDisconnectDataSet.Enabled   := DataSetEnabled;
   actConnectPresenter.Enabled    := not PresenterEnabled;

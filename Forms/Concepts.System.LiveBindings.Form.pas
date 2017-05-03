@@ -49,7 +49,7 @@ type
     bxpProgressBar            : TBindExpression;
     bxpStatusbar              : TBindExpression;
     cbxControls               : TComboBox;
-    dgaMain: TDataGeneratorAdapter;
+    dgaMain                   : TDataGeneratorAdapter;
     edtButtonCaption          : TEdit;
     edtCompanyName            : TEdit;
     edtFirstName              : TEdit;
