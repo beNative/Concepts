@@ -95,6 +95,11 @@ type
       PItem       : PPropItem;
       var NewValue: TValue
     ): Boolean;
+    function FOIBeforeAddItem(
+      Sender : TControl;
+      PItem  : PPropItem
+    ): Boolean;
+
 
     procedure CreateColumnDefinitionsView;
 
@@ -129,13 +134,21 @@ begin
   );
   FTVP.View.ItemTemplate :=
     TColumnDefinitionsControlTemplate.Create(FTVP.ColumnDefinitions);
-  FOI := TConceptFactories.CreatezObjectInspector(Self, pnlLeftTop, FTVP);
-  FOI.OnItemSetValue := FOIItemSetValue;
+  FOI := TConceptFactories.CreatezObjectInspector(Self, pnlLeftTop);
+  FOI.OnBeforeAddItem := FOIBeforeAddItem;
+  FOI.OnItemSetValue  := FOIItemSetValue;
+  FOI.Component       := FTVP;
   CreateColumnDefinitionsView;
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
+function TfrmTreeViewPresenterList.FOIBeforeAddItem(Sender: TControl;
+  PItem: PPropItem): Boolean;
+begin
+  Result := not (PItem.Prop.PropertyType is TRttiMethodType);
+end;
+
 function TfrmTreeViewPresenterList.FOIItemSetValue(Sender: TControl;
   PItem: PPropItem; var NewValue: TValue): Boolean;
 begin

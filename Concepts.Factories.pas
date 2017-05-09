@@ -572,12 +572,8 @@ begin
 end;
 
 class procedure TConceptFactories.InitializePresenter(
-      APresenter  : TCustomPresenter;
-      ASource     : IObjectList = nil;
-      ATemplate   : IDataTemplate = nil;
-      AFilter     : TFilterEvent = nil;
-      ACustomDraw : TCustomDrawEvent = nil
-);
+  APresenter: TCustomPresenter; ASource: IObjectList; ATemplate: IDataTemplate;
+  AFilter: TFilterEvent; ACustomDraw: TCustomDrawEvent);
 var
   P : TRttiProperty;
   C : TRttiContext;
@@ -590,6 +586,7 @@ begin
       with APresenter.ColumnDefinitions.Add(P.Name) do
       begin
         ValuePropertyName := P.Name;
+        HintPropertyName  := P.Name;
         OnCustomDraw := ACustomDraw;
       end;
     end;
