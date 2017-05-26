@@ -69,7 +69,7 @@ end;
 function TRttiTypeTemplate.GetItem(const Item: TRttiType;
   const Index: Integer): TObject;
 begin
-  Logger.Enter('TRttiTypeTemplate.GetItem');
+  Logger.Track('TRttiTypeTemplate.GetItem');
   if Item is TRttiInstanceType then
     Result := GetItems(Item)[Index]
   else
@@ -77,19 +77,17 @@ begin
     Result := inherited GetItem(Item, Index);
   end;
   Logger.SendObject('Result', Result);
-  Logger.Leave('TRttiTypeTemplate.GetItem');
 end;
 
 function TRttiTypeTemplate.GetItemCount(const Item: TRttiType): Integer;
 begin
-  Logger.Enter('TRttiTypeTemplate.GetItemCount');
+  Logger.Track('TRttiTypeTemplate.GetItemCount');
   if Item is TRttiInstanceType then
     Result := TRttiInstanceType(Item).Fields.Count
       + TRttiInstanceType(Item).Properties.Count
       + TRttiInstanceType(Item).Methods.Count
   else
     Result := inherited GetItemCount(Item);
-  Logger.Leave('TRttiTypeTemplate.GetItemCount');
 end;
 
 function TRttiTypeTemplate.GetItems(const Item: TRttiType): IObjectList;
@@ -99,7 +97,7 @@ var
   EM : Enumerable<TRttiMethod>;
   O  : IObjectList;
 begin
-  Logger.Enter('TRttiTypeTemplate.GetItems');
+  Logger.Track('TRttiTypeTemplate.GetItems');
   if Item is TRttiInstanceType then
   begin
     EF := TRttiInstanceType(Item).Fields;
@@ -112,7 +110,6 @@ begin
   end
   else
     Result := inherited GetItems(Item);
-  Logger.Leave('TRttiTypeTemplate.GetItems');
 end;
 
 function TRttiTypeTemplate.GetValue(const Item: TRttiType;
@@ -132,33 +129,31 @@ end;
 function TRttiMemberTemplate.GetItem(const Item: TRttiMember;
   const Index: Integer): TObject;
 begin
-  Logger.Enter('TRttiMemberTemplate.GetItem');
+  Logger.Track('TRttiMemberTemplate.GetItem');
   if Item is TRttiMethod then
     Result := TRttiMethod(Item).Parameters.ElementAt(Index)
   else
   begin
     Result := inherited GetItem(Item, Index);
   end;
-  Logger.Leave('TRttiMemberTemplate.GetItem');
 end;
 
 function TRttiMemberTemplate.GetItemCount(const Item: TRttiMember): Integer;
 begin
-  Logger.Enter('TRttiMemberTemplate.GetItemCount');
+  Logger.Track('TRttiMemberTemplate.GetItemCount');
   if Item is TRttiMethod then
     Result := TRttiMethod(Item).Parameters.Count
   else
   begin
     Result := inherited GetItemCount(Item);
   end;
-  Logger.Leave('TRttiMemberTemplate.GetItemCount');
 end;
 
 function TRttiMemberTemplate.GetItems(const Item: TRttiMember): IObjectList;
 var
   EP : Enumerable<TRttiParameter>;
 begin
-  Logger.Enter('TRttiMemberTemplate.GetItems');
+  Logger.Track('TRttiMemberTemplate.GetItems');
   if Item is TRttiMethod then
   begin
     EP := TRttiMethod(Item).Parameters;
@@ -168,7 +163,6 @@ begin
   begin
     Result := inherited GetItems(Item);
   end;
-  Logger.Leave('TRttiMemberTemplate.GetItems');
 end;
 
 function TRttiMemberTemplate.GetValue(const Item: TRttiMember;
@@ -182,9 +176,8 @@ end;
 function TRttiParameterTemplate.GetValue(const Item: TRttiParameter;
   const ColumnIndex: Integer): TValue;
 begin
-  Logger.Enter('TRttiParameterTemplate.GetValue');
+  Logger.Track('TRttiParameterTemplate.GetValue');
   Result := Item.ToString;
-  Logger.Leave('TRttiParameterTemplate.GetValue');
 end;
 {$ENDREGION}
 

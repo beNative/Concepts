@@ -117,10 +117,6 @@ end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
-
-{ REMARK: When wrapping the body of thiss method in a HourGlass call this
-  seems to introduce a memory leak.
-}
 procedure TfrmTreeViewPresenterTree.actExecuteExecute(Sender: TObject);
 var
   ET : Enumerable<TRttiType>;
