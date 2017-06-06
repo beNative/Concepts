@@ -678,6 +678,10 @@
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.PaintHelper.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.UnknownChars.pas"/>
         <DCCReference Include="Libraries\DDuce\Modules\DDuce.FormSettings.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\FloatConv\FloatConv.Double.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\FloatConv\FloatConv.Extended.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\FloatConv\FloatConv.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\FloatConv\FloatConv.Single.pas"/>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
         <BuildConfiguration Include="Debug">
@@ -805,16 +809,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployClass Name="DependencyModule">
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.dll;.bpl</Extensions>
-                    </Platform>
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
                         <RemoteDir>Contents\Resources</RemoteDir>
@@ -1128,7 +1123,16 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>

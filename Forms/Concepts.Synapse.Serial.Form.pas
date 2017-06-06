@@ -157,8 +157,7 @@ type
     FComPort   : TSynapseSerial;
     FUpdate    : Boolean;
     FPort      : string;
-    FButtons   : IList<TButton>;
-    FCommands  : ILIst<TContainedAction>;
+    FCommands  : IList<TContainedAction>;
 
     function GetPort: string;
     procedure SetPort(const Value: string);
@@ -287,13 +286,10 @@ const
 
 {$REGION 'construction and destruction'}
 procedure TfrmSynapseSerial.AfterConstruction;
-var
-  I : Integer;
 begin
   inherited AfterConstruction;
   FCommands := TCollections.CreateObjectList<TContainedAction>(False);
   CreateControls;
-
   FComPort                   := CreateComPort;
   cbxCOMPort.Items.CommaText := GetSerialPortNames;
   LoadSettings;
@@ -338,6 +334,7 @@ end;
 
 function TfrmSynapseSerial.GetStopBits: Integer;
 begin
+  Result := 0;
 //
 end;
 
@@ -358,12 +355,13 @@ end;
 
 function TfrmSynapseSerial.GetDataBits: Integer;
 begin
+  Result := 0;
 //
 end;
 
 procedure TfrmSynapseSerial.SetDataBits(const Value: Integer);
 begin
-
+//
 end;
 
 function TfrmSynapseSerial.GetConnected: Boolean;
@@ -438,12 +436,12 @@ end;
 
 procedure TfrmSynapseSerial.actSendExecute(Sender: TObject);
 begin
-  SendString(Trim(cbxSent.Text) + #13#10);
+  SendString(RawByteString(Trim(cbxSent.Text) + #13#10));
 end;
 
 procedure TfrmSynapseSerial.actSendMultiLineExecute(Sender: TObject);
 begin
-  SendString(mmoSend.Text);
+  SendString(RawByteString(mmoSend.Text));
 end;
 
 {$ENDREGION}
@@ -467,7 +465,7 @@ end;
 
 procedure TfrmSynapseSerial.FCommandExecute(Sender: TObject);
 begin
-  SendString((Sender as TContainedAction).Caption + #13#10);
+  SendString(RawByteString((Sender as TContainedAction).Caption + #13#10));
 end;
 
 procedure TfrmSynapseSerial.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -568,7 +566,7 @@ begin
   FLogIn.Log(MakeLogString(string(AString)));
   mmoReceivedText.DisableAlign;
   mmoReceivedText.Text :=
-    mmoReceivedText.Text + AdjustLineBreaks(AString, tlbsCRLF);
+    mmoReceivedText.Text + AdjustLineBreaks(string(AString), tlbsCRLF);
   mmoReceivedText.EnableAlign;
   // scroll to last entry
   mmoReceivedText.SelStart := Length(mmoReceivedText.Text) - 1;
@@ -588,8 +586,6 @@ var
   I  : Integer;
   N  : Integer;
   C  : AnsiChar;
-  K  : RawByteString;
-  R  : RawByteString;
 begin
   N := Length(AString);
   if N > 0 then

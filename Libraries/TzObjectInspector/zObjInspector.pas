@@ -48,6 +48,7 @@ uses
   zCanvasStack,
   zRecList,
   zUtils,
+  FloatConv,
   Generics.Collections,
   Generics.Defaults,
   RTTI,
@@ -68,6 +69,9 @@ const
   vtFont = 11;
   vtIcon = 12;
   vtShortCut = 13;
+  vtSingle = 14;
+  vtDouble = 15;
+  vtExtended = 16;
 
   dcInit = 0;
   dcBeforeDestroying = 1;
@@ -112,7 +116,7 @@ type
     function GetCount: Integer;
     function GetItem(const Index: Integer): PPropItem;
     function GetHasChild: Boolean;
-    function GetDynInstance: TObject;
+    // function GetDynInstance: TObject;
     function GetExpanded: Boolean;
     function GetValue: TValue;
     function GetName: String;
@@ -157,7 +161,24 @@ type
     function GetUsedProperties: TArray<TRttiProperty>;
   end;
 
+  TzFloatPreference = class(TPersistent)
+  private
+    FExpPrecision: Integer;
+    FMaxDigits: Integer;
+    FFormatOptions: TFloatFormatOptions;
+  public
+    procedure Assign(Source: TPersistent); override;
+  published
+    property MaxDigits: Integer read FMaxDigits write FMaxDigits;
+    property ExpPrecision: Integer read FExpPrecision write FExpPrecision;
+    property FormatOptions: TFloatFormatOptions read FFormatOptions write FFormatOptions;
+  end;
+
   TzCustomValueManager = class
+  private
+    class var FloatPreference: TzFloatPreference;
+    class constructor Create;
+    class destructor Destroy;
   protected
     /// <summary> Use custom ListBox .
     /// </summary>
@@ -287,7 +308,7 @@ type
     procedure ButtonClick(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure PropInfoChanged;
   public
-    constructor Create(AOwner: TComponent; Inspector: TzCustomObjInspector); overload;
+    constructor Create(AOwner: TComponent; Inspector: TzCustomObjInspector); reintroduce;
     { Do not publish any property ! }
     property PropInfo: PPropItem read FPropItem write SetPropItem;
     property AlignWithMargins;
@@ -344,14 +365,18 @@ type
     FCircularLinkProps: TList<String>;
     FDefPropValue: TDictionary<String, String>;
     FOnBeforeAddItem: TPropItemEvent;
+    FOnAutoExpandItemOnInit: TPropItemEvent;
     FSortByCategory: Boolean;
     FDefaultCategoryName: String;
     FLockUpdate: Boolean;
     FObjectVisibility: TMemberVisibility;
+    FIsSettingComponent: Boolean;
     procedure SetComponent(Value: TObject);
     function GetItemOrder(PItem: PPropItem): Integer;
     procedure SetSortByCategory(const Value: Boolean);
     procedure SetObjectVisibility(const Value: TMemberVisibility);
+    function GetFloatPreference: TzFloatPreference;
+    procedure SetFloatPreference(const Value: TzFloatPreference);
   protected
     procedure UpdateVisibleItems;
     procedure UpdateItems;
@@ -380,6 +405,8 @@ type
     property OnBeforeAddItem: TPropItemEvent read FOnBeforeAddItem write FOnBeforeAddItem;
     // visibility of plain object (not descendant of TPersistent)
     property ObjectVisibility: TMemberVisibility read FObjectVisibility write SetObjectVisibility default mvPublic;
+    property FloatPreference: TzFloatPreference read GetFloatPreference write SetFloatPreference;
+    property OnAutoExpandItemOnInit: TPropItemEvent read FOnAutoExpandItemOnInit write FOnAutoExpandItemOnInit;
   end;
 
   TzObjInspectorList = class(TzObjInspectorBase)
@@ -465,6 +492,7 @@ type
     procedure WMVScroll(var Message: TWMVScroll); message WM_VSCROLL;
     procedure WMWINDOWPOSCHANGED(var Message: TWMWindowPosChanged); message WM_WINDOWPOSCHANGED;
     procedure WMERASEBKGND(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
+    procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
     function IndexToVirtualIndex(Index: Integer): Integer;
     function GetFirstItemIndex: Integer;
     function GetLastItemIndex: Integer;
@@ -665,6 +693,7 @@ type
     property HeaderPropText;
     property HeaderValueText;
     property ObjectVisibility;
+    property FloatPreference;
     property OnClick;
     property OnContextPopup;
     property OnDragDrop;
@@ -685,6 +714,7 @@ type
     property OnStartDock;
     property OnStartDrag;
     property OnBeforeAddItem;
+    property OnAutoExpandItemOnInit;
     property OnGetItemReadOnly;
     property OnHeaderMouseDown;
     property OnSplitterPosChanged;
@@ -712,9 +742,13 @@ resourcestring
   SSelNonVisibleItemErr = 'Could not select a non visible item.';
 
 const
-
   PlusMinWidth = 10;
-  ColorWidth = 16;
+  ColorWidth = 13;
+
+const
+  cDefaultMaxDigits = 2;
+  cDefaultExpPrecision = 6;
+  cDefaultFormatOptions: TFloatFormatOptions = [];
 
 type
   InspException = class(Exception);
@@ -830,7 +864,6 @@ begin
     Result := Prop.Visibility >= ObjectVisibility;
 end;
 
-
 function ObjHasAtLeastOneChild(Obj: TObject; ObjVisibility: TMemberVisibility): Boolean;
 var
   LCtx: TRttiContext;
@@ -915,7 +948,7 @@ end;
 procedure TPropList.Sort;
   function Compare(Item1, Item2: Pointer): Integer;
   begin
-    Result := CompareText(PPropItem(Item1).FQName, PPropItem(Item2).FQName);
+    Result := CompareText(PPropItem(Item1)^.FQName, PPropItem(Item2)^.FQName);
   end;
 
 begin
@@ -963,16 +996,14 @@ begin
       P := FItems.Items[i];
       if IsCategory then
       begin
-        if CategoryIndex = P.CategoryIndex then
+        if CategoryIndex = P^.CategoryIndex then
           Inc(Result)
-        else if P.CategoryIndex > -1 then
+        else if P^.CategoryIndex > -1 then
           Break;
-      end
-      else
-      begin
-        if P.Parent = @Self then
+      end else begin
+        if P^.Parent = @Self then
           Inc(Result);
-        if Parent = P.Parent then
+        if Parent = P^.Parent then
           Break;
       end;
     end;
@@ -1000,8 +1031,8 @@ begin
     Result := ObjHasAtLeastOneChild(Value.AsObject, TzObjInspectorBase(Insp).ObjectVisibility);
 end;
 
-function TPropItem.GetDynInstance: TObject;
-var
+{ function TPropItem.GetDynInstance: TObject;
+  var
   // LInsp: TzObjInspectorBase;
   LCtx: TRttiContext;
   LType: TRttiType;
@@ -1012,17 +1043,17 @@ var
   i: Integer;
   procedure GetParents;
   var
-    P: PPropItem;
+  P: PPropItem;
   begin
-    P := Parent;
-    while Assigned(P) do
-    begin
-      LList.Add(P);
-      P := P.Parent;
-    end;
+  P := Parent;
+  while Assigned(P) do
+  begin
+  LList.Add(P);
+  P := P.Parent;
+  end;
   end;
 
-begin
+  begin
   CheckItemsList;
   // LInsp := TzObjInspectorBase(Insp);
   LObj := Component;
@@ -1032,24 +1063,25 @@ begin
   Result := LObj;
   for i := LList.Count - 1 downto 0 do
   begin
-    if not Assigned(LObj) then
-    begin
-      LList.Free;
-      Exit(nil);
-    end;
-    LType := LCtx.GetType(LObj.ClassInfo);
-    LProp := LType.GetProperty(PPropItem(LList.Items[i]).Name);
-    LValue := LProp.GetValue(LObj);
-    if LValue.IsObject then
-      LObj := LValue.AsObject;
-    if LProp = Parent.Prop then
-    begin
-      Result := LObj;
-      Break;
-    end;
+  if not Assigned(LObj) then
+  begin
+  LList.Free;
+  Exit(nil);
+  end;
+  LType := LCtx.GetType(LObj.ClassInfo);
+  LProp := LType.GetProperty(PPropItem(LList.Items[i]).Name);
+  LValue := LProp.GetValue(LObj);
+  if LValue.IsObject then
+  LObj := LValue.AsObject;
+  if LProp = Parent.Prop then
+  begin
+  Result := LObj;
+  Break;
+  end;
   end;
   LList.Free;
-end;
+  end;
+}
 
 function TPropItem.GetItem(const Index: Integer): PPropItem;
 var
@@ -1058,41 +1090,41 @@ var
 begin
   CheckItemsList;
   Result := nil;
-
   if not(IsCategory or IsClass or IsSet) then
     Exit;
   LList := TList.Create;
-  L := FItems.IndexOf(@Self);
-  J := 0;
-  if L > -1 then
-  begin
-    CC := Count; // Childs count.
-    for i := L + 1 to FItems.Count - 1 do
+  try
+    L := FItems.IndexOf(@Self);
+    J := 0;
+    if L > -1 then
     begin
-      if IsCategory then
+      CC := Count; // Childs count.
+      for i := L + 1 to FItems.Count - 1 do
       begin
-        if FItems.Items[i].CategoryIndex = CategoryIndex then
+        if IsCategory then
+        begin
+          if FItems.Items[i].CategoryIndex = CategoryIndex then
+          begin
+            Inc(J);
+            LList.Add(FItems.Items[i]);
+          end;
+        end else if FItems.Items[i].Parent = @Self then
         begin
           Inc(J);
           LList.Add(FItems.Items[i]);
         end;
-      end
-      else if FItems.Items[i].Parent = @Self then
-      begin
-        Inc(J);
-        LList.Add(FItems.Items[i]);
+        if J = CC then
+          Break;
       end;
-      if J = CC then
-        Break;
+      Result := LList.Items[Index];
     end;
+  finally
+    LList.Free;
   end;
-  Result := LList.Items[Index];
-  LList.Free;
 end;
 
 function TPropItem.GetName: String;
 begin
-
   if IsCategory then
   begin
     Result := TzObjInspectorBase(Insp).FCategory[CategoryIndex];
@@ -1135,44 +1167,36 @@ end;
 
 function TPropItem.IsClass: Boolean;
 begin
-  if not Assigned(Prop) then
-    Exit(False);
-  if IsCategory then
+  if (not Assigned(Prop)) or (IsCategory) then
     Exit(False);
   Result := Prop.PropertyType.TypeKind = tkClass;
 end;
 
 function TPropItem.IsEmpty: Boolean;
 var
-  P: TPropItem;
+  PropItem: TPropItem;
 begin
-  P := TPropItem.Empty;
-  Result := CompareMem(@Self, @P, SizeOf(TPropItem));
+  PropItem := TPropItem.Empty;
+  Result := CompareMem(@Self, @PropItem, SizeOf(TPropItem));
 end;
 
 function TPropItem.IsEnum: Boolean;
 begin
-  if not Assigned(Prop) then
-    Exit(False);
-  if IsCategory then
+  if (not Assigned(Prop)) or (IsCategory) then
     Exit(False);
   Result := Prop.PropertyType.TypeKind = tkEnumeration;
 end;
 
 function TPropItem.IsSet: Boolean;
 begin
-  if not Assigned(Prop) then
-    Exit(False);
-  if IsCategory then
+  if (not Assigned(Prop)) or (IsCategory) then
     Exit(False);
   Result := (Prop.PropertyType.TypeKind = tkSet) and (SetElementValue = -1);
 end;
 
 function TPropItem.IsSetElement: Boolean;
 begin
-  if not Assigned(Prop) then
-    Exit(False);
-  if IsCategory then
+  if (not Assigned(Prop)) or (IsCategory) then
     Exit(False);
   Result := (Prop.PropertyType.TypeKind = tkSet) and (SetElementValue > -1);
 end;
@@ -1248,7 +1272,7 @@ var
 begin
   { Return the Item order . }
   Result := 0;
-  s := PItem.FQName;
+  s := PItem^.FQName;
   i := Pos('.', s);
   if i <= 0 then
     Exit;
@@ -1260,7 +1284,7 @@ begin
   Dec(Result);
   if FSortByCategory then
     Dec(Result);
-  if PItem.CategoryIndex > -1 then
+  if PItem^.CategoryIndex > -1 then
     Result := 0;
 end;
 
@@ -1277,7 +1301,7 @@ end;
 
 function TzObjInspectorBase.IsItemCircularLink(PItem: PPropItem): Boolean;
 begin
-  Result := FCircularLinkProps.Contains(PItem.QualifiedName);
+  Result := FCircularLinkProps.Contains(PItem^.QualifiedName);
 end;
 
 function TzObjInspectorBase.IsValueNoDefault(QualifiedName, Value: String): Boolean;
@@ -1288,25 +1312,27 @@ begin
 end;
 
 function TzObjInspectorBase.ItemNeedUpdate(PItem: PPropItem): Boolean;
+  function WasModified(Item: TPropItem): Boolean;
+  begin
+    with Item do
+      Result := IsClass and (FPropInstance.ContainsKey(QualifiedName)) and (FPropInstance[QualifiedName] <> Value.AsObject);
+  end;
+
 var
   P: PPropItem;
 begin
   { Item will need update if its instance was changed
-    or the instances of it's parents !
-  }
-  Result := False;
-  if PItem.IsClass then
-    if FPropInstance.ContainsKey(PItem.QualifiedName) then
-      if FPropInstance[PItem.QualifiedName] <> PItem.Value.AsObject then
-        Exit(True);
+    or the instances of it's parents ! }
 
-  P := PItem.Parent;
+  Result := WasModified(PItem^);
+  if Result then
+    Exit;
+
+  P := PItem^.Parent;
   while Assigned(P) do
   begin
-    if P.IsClass then
-      if FPropInstance.ContainsKey(P.QualifiedName) then
-        if FPropInstance[P.QualifiedName] <> P.Value.AsObject then
-          Exit(True);
+    if WasModified(P^) then
+      Exit(True);
     P := P.Parent;
   end;
 end;
@@ -1378,10 +1404,15 @@ procedure TzObjInspectorBase.SetComponent(Value: TObject);
 begin
   if Value <> FComponent then
   begin
-    if Assigned(FComponent) and (FComponent is TzObjectHost) then
-      FreeAndNil(FComponent);
-    FComponent := Value;
-    ComponentChanged;
+    FIsSettingComponent := True;
+    try
+      if Assigned(FComponent) and (FComponent is TzObjectHost) then
+        FreeAndNil(FComponent);
+      FComponent := Value;
+      ComponentChanged;
+    finally
+      FIsSettingComponent := False;
+    end;
   end;
 end;
 
@@ -1454,7 +1485,8 @@ var
         begin
           s := LProp.PropertyType.ToString;
           if Pos(s, q) > 0 then
-            Exit(True); // Circular link !
+            Exit(True);
+          // Circular link !
         end;
 
   end;
@@ -1473,17 +1505,17 @@ var
     function AddNewCategory: PPropItem;
     begin
       Result := FItems.Add;
-      Result.FQName := LCategoryName + '.';
-      Result.Component := LComponent;
-      Result.FIsCategory := True;
-      Result.Prop := nil;
-      Result.Insp := Self;
-      Result.FItems := FItems;
-      Result.FVisible := True;
-      Result.SetElementValue := -1;
-      Result.Instance := nil;
-      Result.Parent := nil;
-      Result.CategoryIndex := L;
+      Result^.FQName := LCategoryName + '.';
+      Result^.Component := LComponent;
+      Result^.FIsCategory := True;
+      Result^.Prop := nil;
+      Result^.Insp := Self;
+      Result^.FItems := FItems;
+      Result^.FVisible := True;
+      Result^.SetElementValue := -1;
+      Result^.Instance := nil;
+      Result^.Parent := nil;
+      Result^.CategoryIndex := L;
     end;
     procedure EnumSet;
     var
@@ -1497,17 +1529,17 @@ var
       for i := LType.AsOrdinal.MinValue to LType.AsOrdinal.MaxValue do
       begin
         PSet := FItems.Add;
-        PSet.Component := LComponent;
-        PSet.CategoryIndex := -1;
-        PSet.FIsCategory := False;
-        PSet.FItems := FItems;
-        PSet.Prop := LProp;
-        PSet.Instance := AInstance;
-        PSet.FVisible := False;
-        PSet.Insp := Self;
-        PSet.Parent := PItem;
-        PSet.SetElementValue := i;
-        PSet.FQName := LQName + '.' + IntToStr(i);
+        PSet^.Component := LComponent;
+        PSet^.CategoryIndex := -1;
+        PSet^.FIsCategory := False;
+        PSet^.FItems := FItems;
+        PSet^.Prop := LProp;
+        PSet^.Instance := AInstance;
+        PSet^.FVisible := False;
+        PSet^.Insp := Self;
+        PSet^.Parent := PItem;
+        PSet^.SetElementValue := i;
+        PSet^.FQName := LQName + '.' + IntToStr(i);
       end;
     end;
 
@@ -1534,9 +1566,7 @@ var
             L := FCategory.Add(LCategoryName);
             PCategory := AddNewCategory;
           end;
-        end
-        else
-        begin
+        end else begin
           if FSortByCategory and (AInstance = LComponent) then
           begin
             if FPropsCategory.ContainsKey(LProp.Name) then
@@ -1544,9 +1574,7 @@ var
               L := FPropsCategory[LProp.Name];
               LCategoryName := FCategory[L];
               LQName := LCategoryName + '.' + LQName;
-            end
-            else
-            begin
+            end else begin
               LCategoryName := FDefaultCategoryName;
               L := 0;
               LQName := LCategoryName + '.' + LQName;
@@ -1559,32 +1587,32 @@ var
           end;
         end;
         PItem := FItems.Add;
-        PItem.FItems := FItems;
+        PItem^.FItems := FItems;
         if (AInstance <> LComponent) then
           L := -1;
-        PItem.Component := LComponent;
-        PItem.CategoryIndex := L;
-        PItem.Instance := AInstance;
-        PItem.FIsCategory := False;
-        PItem.SetElementValue := -1;
-        PItem.Insp := Self;
-        PItem.Parent := AParent;
-        PItem.Prop := LProp;
-        PItem.FQName := LQName;
+        PItem^.Component := LComponent;
+        PItem^.CategoryIndex := L;
+        PItem^.Instance := AInstance;
+        PItem^.FIsCategory := False;
+        PItem^.SetElementValue := -1;
+        PItem^.Insp := Self;
+        PItem^.Parent := AParent;
+        PItem^.Prop := LProp;
+        PItem^.FQName := LQName;
         if FSortByCategory then
-          PItem.FVisible := False
+          PItem^.FVisible := False
         else
-          PItem.FVisible := AParent = nil;
+          PItem^.FVisible := AParent = nil;
         if Assigned(FOnBeforeAddItem) then
           Allow := FOnBeforeAddItem(Self, PItem);
         if not Allow then
           FItems.Delete(FItems.Count - 1);
         if Allow then
         begin
-          if PItem.IsClass then
+          if PItem^.IsClass then
           begin
             LInstance := nil;
-            if not PItem.Value.IsEmpty then
+            if not PItem^.Value.IsEmpty then
               LInstance := PItem.Value.AsObject;
             if Assigned(LInstance) then
               if not IsCircularLink(LInstance.ClassInfo, LQType) then
@@ -1592,8 +1620,7 @@ var
               else
                 FCircularLinkProps.Add(LQName);
             FPropInstance.Add(LQName, LInstance);
-          end
-          else if (PItem.IsSet) then
+          end else if (PItem^.IsSet) then
           begin
             EnumSet;
           end;
@@ -1644,9 +1671,9 @@ var
   var
     J: Integer;
   begin
-    for J := 0 to PParent.Count - 1 do
+    for J := 0 to PParent^.Count - 1 do
     begin
-      PParent.Items[J].FVisible := Visible;
+      PParent^.Items[J].FVisible := Visible;
       // FVisibleItems.Add(PParent.Items[J]);
     end;
   end;
@@ -1660,13 +1687,12 @@ var
   var
     P: PPropItem;
   begin
-    Result := False;
-    P := AItem.Parent;
+    P := AItem^.Parent;
     while Assigned(P) do
     begin
-      if not FExpandedList.Contains(P.QualifiedName) then
+      if not FExpandedList.Contains(P^.QualifiedName) then
         Exit(False);
-      P := P.Parent;
+      P := P^.Parent;
     end;
     Result := True;
   end;
@@ -1677,19 +1703,33 @@ begin
   for i := 0 to FItems.Count - 1 do
   begin
     PItem := FItems.Items[i];
-    if PItem.IsCategory then
+    if PItem^.IsCategory then
     begin
-      if FExpandedList.Contains(PItem.QualifiedName) then
+      if FExpandedList.Contains(PItem^.QualifiedName) then
         MakeChildsVisible(PItem, True);
+    end else if (PItem.Count > 0) and FIsSettingComponent and Assigned(FOnAutoExpandItemOnInit) and FOnAutoExpandItemOnInit(Self, PItem) then
+    begin
+      MakeChildsVisible(PItem, True);
     end;
     LVisible := PItem.FVisible;
     if LVisible then
       MakeVisible(PItem, True)
-    else if FSaveVisibleItems.Contains(PItem.QualifiedName) then
+    else if FSaveVisibleItems.Contains(PItem^.QualifiedName) then
       MakeVisible(PItem, True)
 
   end;
 
+end;
+
+function TzObjInspectorBase.GetFloatPreference: TzFloatPreference;
+begin
+  Result := TzCustomValueManager.FloatPreference;
+end;
+
+procedure TzObjInspectorBase.SetFloatPreference(const Value: TzFloatPreference);
+begin
+  TzCustomValueManager.FloatPreference := Value;
+  UpdateProperties;
 end;
 
 { TzObjInspectorList }
@@ -1828,9 +1868,7 @@ var
   P: TPoint;
 begin
   inherited;
-  if csDesigning in ComponentState then
-    Exit;
-  if FFixedSplitter then
+  if (csDesigning in ComponentState) or (FFixedSplitter) then
     Exit;
   P.X := Message.XPos;
   P.Y := Message.YPos;
@@ -1899,8 +1937,8 @@ begin
   StyleServices.DrawElement(Canvas.Handle, LDetails, HeaderPropRect);
   R := HeaderPropRect;
   Inc(R.Left, 10);
-  StyleServices.DrawText(Canvas.Handle, LDetails, FHeaderPropText, R, DT_LEFT or DT_SINGLELINE or DT_VCENTER, 0);
-
+  // StyleServices.DrawText(Canvas.Handle, LDetails, FHeaderPropText, R, DT_LEFT or DT_SINGLELINE or DT_VCENTER, 0);
+  StyleServices.DrawText(Canvas.Handle, LDetails, FHeaderPropText, R, [tfLeft, tfSingleLine, tfVerticalCenter]);
   if FHeaderValuePressed then
     LDetails := StyleServices.GetElementDetails(thHeaderItemPressed)
   else
@@ -1909,7 +1947,8 @@ begin
   StyleServices.DrawElement(Canvas.Handle, LDetails, HeaderValueRect);
   R := HeaderValueRect;
   Inc(R.Left, 10);
-  StyleServices.DrawText(Canvas.Handle, LDetails, FHeaderValueText, R, DT_LEFT or DT_SINGLELINE or DT_VCENTER, 0);
+  // StyleServices.DrawText(Canvas.Handle, LDetails, FHeaderValueText, R, DT_LEFT or DT_SINGLELINE or DT_VCENTER, 0);
+  StyleServices.DrawText(Canvas.Handle, LDetails, FHeaderValueText, R, [tfLeft, tfSingleLine, tfVerticalCenter]);
 
   CanvasStack.Pop;
 end;
@@ -2137,6 +2176,11 @@ begin
   Message.Result := 1;
 end;
 
+procedure TzScrollObjInspectorList.WMGetDlgCode(var Message: TWMGetDlgCode);
+begin
+  Message.Result := DLGC_WANTARROWS;
+end;
+
 procedure TzScrollObjInspectorList.WMSize(var Message: TWMSize);
 begin
   inherited;
@@ -2147,6 +2191,7 @@ procedure TzScrollObjInspectorList.WMVScroll(var Message: TWMVScroll);
 var
   YPos: Integer;
   P: TPoint;
+  Cntrl: TControl;
   procedure DoScrollWindow(XAmount, YAmount: Integer);
   var
     LScrollArea: TRect;
@@ -2191,9 +2236,7 @@ var
         hrgnUpdate := CreateRectRgn(Left, Top, Right, Bottom);
       ScrollWindowEx(Handle, XAmount, YAmount, nil, @LScrollArea, hrgnUpdate, nil, ScrollFlags);
       DeleteObject(hrgnUpdate);
-    end
-    else
-    begin
+    end else begin
       ScrollWindow(Handle, XAmount, YAmount, nil, nil);
       { Update the non validated area . }
       UpdateWindow(Handle);
@@ -2217,38 +2260,45 @@ begin
   FSI.fMask := SIF_ALL;
   GetScrollInfo(Handle, SB_VERT, FSI);
   YPos := FSI.nPos;
+
   case Message.ScrollCode of
     SB_TOP: FSI.nPos := FSI.nMin;
     SB_BOTTOM: FSI.nPos := FSI.nMax;
     SB_LINEUP: FSI.nPos := FSI.nPos - 1;
     SB_LINEDOWN: FSI.nPos := FSI.nPos + 1;
-    SB_PAGEUP: FSI.nPos := FSI.nPos - FSI.nPage;
-    SB_PAGEDOWN: FSI.nPos := FSI.nPos + FSI.nPage;
-    SB_THUMBTRACK: FSI.nPos := FSI.nTrackPos;
-    SB_THUMBPOSITION: { VCL Style Support ! }
+    SB_PAGEUP: FSI.nPos := FSI.nPos - Integer(FSI.nPage);
+    SB_PAGEDOWN: FSI.nPos := FSI.nPos + Integer(FSI.nPage);
+    SB_THUMBTRACK: { VCL Style Support ! }
       begin
-        { We can ignore this param if the VCL Style is not enabled ! }
-        { VCL Style use SB_THUMBPOSITION instead of SB_THUMBTRACK ! }
-        {
-          if the Vcl Style is enabled and the user is scrolling ,
-          the ScrollInfo pos is already set => (YPos - FSI.nPos) is always = 0.
-        }
-        // DbgPrint('Pos' + ' = ' + IntToStr(Message.Pos));
-        DoScrollWindow(0, FItemHeight * (FPrevScrollPos - FSI.nPos));
-        FPrevScrollPos := Message.Pos;
-        Exit; // must exit
+        if StyleServices.Available and (not StyleServices.IsSystemStyle) then
+        begin
+          {
+            if the Vcl Style is enabled and the user is scrolling ,
+            the (ScrollInfo.nPos - ScrollInfo.nTrackPos) is always 0 !
+            => We need to scroll manually !
+          }
+          DoScrollWindow(0, FItemHeight * (FPrevScrollPos - FSI.nPos));
+          FPrevScrollPos := Message.Pos;
+          Invalidate;
+          Exit; // must exit
+        end else begin
+          FSI.nPos := FSI.nTrackPos;
+        end;
       end;
     SB_ENDSCROLL:
       begin
         { Restore caret visibility ! }
         if FShowHeader and (WinInWin(GetCaretWin, Handle)) and not IsCaretVisible then
-          if GetCaretControl <> nil then
+        begin
+          Cntrl := GetCaretControl;
+          if Assigned(Cntrl) then
           begin
             GetCaretPos(P);
-            P := GetCaretControl.ClientToParent(P);
+            P := Cntrl.ClientToParent(P);
             if not HeaderRect.Contains(P) then
               ShowCaret(0);
           end;
+        end;
       end;
   end;
   FSI.fMask := SIF_POS;
@@ -2257,7 +2307,7 @@ begin
   { If the position has changed, scroll window and Update it. }
   if (FSI.nPos <> YPos) then
     DoScrollWindow(0, FItemHeight * (YPos - FSI.nPos));
-  { Save the current pos ! }
+  { Save the current pos }
   FPrevScrollPos := FSI.nPos;
 end;
 
@@ -2350,12 +2400,13 @@ var
   i: Integer;
   PChild: PPropItem;
 begin
-  Result := PItem.HasChild;
+  Result := PItem^.HasChild;
   if not Result then
     Exit;
   if Assigned(FOnCollapseItem) then
     if not FOnCollapseItem(Self, PItem) then
       Exit(False);
+
   Result := False; // Indicate that item is already Collapsed !
 
   for i := 0 to PItem.Count - 1 do
@@ -2363,17 +2414,17 @@ begin
     PChild := PItem.Items[i];
     if Assigned(PChild) then
     begin
-      if PChild.FVisible then
+      if PChild^.FVisible then
       begin
-        if PChild.HasChild then
+        if PChild^.HasChild then
           DoCollapseItem(PChild);
         if FPropInspEdit.FPropItem = PChild then
           FPropInspEdit.Visible := False;
         Result := True;
       end;
       PChild.FVisible := False;
-      if FSaveVisibleItems.Contains(PChild.QualifiedName) then
-        FSaveVisibleItems.Remove(PChild.QualifiedName);
+      if FSaveVisibleItems.Contains(PChild^.QualifiedName) then
+        FSaveVisibleItems.Remove(PChild^.QualifiedName);
     end;
   end;
   // PItem.FVisible := False;
@@ -2392,12 +2443,12 @@ var
   begin
     for J := 0 to PParent.Count - 1 do
     begin
-      P := PParent.Items[J];
-      P.FVisible := Visible;
-      if FExpandedList.Contains(P.QualifiedName) then
+      P := PParent^.Items[J];
+      P^.FVisible := Visible;
+      if FExpandedList.Contains(P^.QualifiedName) then
         MakeChildsVisible(P, True);
-      if not FSaveVisibleItems.Contains(P.QualifiedName) then
-        FSaveVisibleItems.Add(P.QualifiedName);
+      if not FSaveVisibleItems.Contains(P^.QualifiedName) then
+        FSaveVisibleItems.Add(P^.QualifiedName);
     end;
   end;
 
@@ -2413,24 +2464,24 @@ begin
 
   Result := False; // Indicate that item is already Expanded !
 
-  if not FExpandedList.Contains(PItem.QualifiedName) then
-    FExpandedList.Add(PItem.QualifiedName);
+  if not FExpandedList.Contains(PItem^.QualifiedName) then
+    FExpandedList.Add(PItem^.QualifiedName);
 
-  if not FSaveVisibleItems.Contains(PItem.QualifiedName) then
-    FSaveVisibleItems.Add(PItem.QualifiedName);
+  if not FSaveVisibleItems.Contains(PItem^.QualifiedName) then
+    FSaveVisibleItems.Add(PItem^.QualifiedName);
 
-  for i := 0 to PItem.Count - 1 do
+  for i := 0 to PItem^.Count - 1 do
   begin
-    PChild := PItem.Items[i];
+    PChild := PItem^.Items[i];
     if Assigned(PChild) then
     begin
-      if not PChild.FVisible then
+      if not PChild^.FVisible then
         Result := True;
-      PChild.FVisible := True;
-      if FExpandedList.Contains(PChild.QualifiedName) then
+      PChild^.FVisible := True;
+      if FExpandedList.Contains(PChild^.QualifiedName) then
         MakeChildsVisible(PChild, True);
-      if not FSaveVisibleItems.Contains(PChild.QualifiedName) then
-        FSaveVisibleItems.Add(PChild.QualifiedName);
+      if not FSaveVisibleItems.Contains(PChild^.QualifiedName) then
+        FSaveVisibleItems.Add(PChild^.QualifiedName);
     end;
   end;
 end;
@@ -2512,15 +2563,15 @@ begin
   if Assigned(FOnItemSetValue) then
     Result := FOnItemSetValue(Self, PropItem, Value);
   if Result then
-    DefaultValueManager.SetValue(PropItem, Value);
-  if Result then
   begin
+    DefaultValueManager.SetValue(PropItem, Value);
+
     if PropItem.IsClass then
       { Must rebuild the list . }
       UpdateProperties();
-    FPropInspEdit.UpdateEditText;
-    Invalidate;
   end;
+  FPropInspEdit.UpdateEditText; // required on Result is True or False
+  Invalidate;
 end;
 
 procedure TzCustomObjInspector.ExpandAll;
@@ -2543,7 +2594,6 @@ begin
   Result := DoExpandItem(PItem);
   if Result then
     UpdateProperties(True);
-
 end;
 
 procedure TzCustomObjInspector.CollapseAll;
@@ -2660,6 +2710,7 @@ var
   LTxt: string;
   i: Integer;
   PItem: PPropItem;
+  NewIndex: Integer;
 begin
   inherited;
   if not FAllowSearch then
@@ -2667,24 +2718,44 @@ begin
   LSelectedItem := SelectedItem;
   if (GetCaretWin = Handle) and (FSelectedIndex > -1) and Assigned(LSelectedItem) then
   begin
-    LTxt := VKeyToStr(Key);
-    if LTxt.IsEmpty then
+    NewIndex := FSelectedIndex;
+    case Key of
+      vkUp:
+        begin
+          Dec(NewIndex);
+          NewIndex := max(0, NewIndex);
+        end;
+      vkDown:
+        begin
+          Inc(NewIndex);
+          NewIndex := min(VisiblePropCount - 1, NewIndex);
+        end;
+    else
+      NewIndex := -1;
+      LTxt := VKeyToStr(Key);
+      if LTxt.IsEmpty then
+      begin
+        FSearchText := '';
+        Exit;
+      end;
+      FSearchText := FSearchText + LTxt;
+      for i := 0 to FVisibleItems.Count - 1 do
+      begin
+        PItem := FVisibleItems[i];
+        if PItem.Parent = LSelectedItem.Parent then
+          if IsStrFirst(FSearchText, PItem.Name) then
+          begin
+            { Respect the case sensitive }
+            FSearchText := Copy(PItem.Name, 0, Length(FSearchText));
+            if DoSelectCaret(i) then
+              Exit;
+          end;
+      end;
+    end;
+    if NewIndex >= 0 then
     begin
       FSearchText := '';
-      Exit;
-    end;
-    FSearchText := FSearchText + LTxt;
-    for i := 0 to FVisibleItems.Count - 1 do
-    begin
-      PItem := FVisibleItems[i];
-      if PItem.Parent = LSelectedItem.Parent then
-        if IsStrFirst(FSearchText, PItem.Name) then
-        begin
-          { Respect the case sensitive }
-          FSearchText := Copy(PItem.Name, 0, Length(FSearchText));
-          if DoSelectCaret(i) then
-            Exit;
-        end;
+      SelectItem(NewIndex);
     end;
   end;
   FSearchText := '';
@@ -2708,10 +2779,9 @@ begin
     Exit;
   if FShowHeader and HeaderRect.Contains(P) then
     Exit;
-  if FTrackChange then
-    if NeedUpdate then
-      // In case that some property was changed outside of the Inspector !
-      UpdateProperties();
+  if FTrackChange and NeedUpdate then
+    // In case that some property was changed outside of the Inspector !
+    UpdateProperties();
   MustUpdate := False; // No need to Update .
   Index := GetIndexFromPoint(P);
   if Index > -1 then
@@ -2732,9 +2802,9 @@ begin
         Index := FVisibleItems.IndexOf(PItem);
         PItem := FVisibleItems.Items[Index];
       end;
-    if PlusMinBtnRect[Index].Contains(P) and (not IsItemCircularLink(PItem)) and PItem.HasChild then
+    if (PItem^.HasChild) and (PlusMinBtnRect[Index].Contains(P)) and (not IsItemCircularLink(PItem)) then
     begin
-      if PItem.Count = 0 then
+      if PItem^.Count = 0 then
       begin
         { FItems list does not contains childs ! }
         { => Must ReBuild the list ! }
@@ -2751,8 +2821,8 @@ begin
       end;
       if PItem.Expanded then
       begin
-        if FExpandedList.Contains(PItem.QualifiedName) then
-          FExpandedList.Remove(PItem.QualifiedName);
+        if FExpandedList.Contains(PItem^.QualifiedName) then
+          FExpandedList.Remove(PItem^.QualifiedName);
         MustUpdate := DoCollapseItem(PItem);
       end
       else
@@ -2816,58 +2886,58 @@ begin
     Exit;
   P := Point(X, Y);
   Index := GetIndexFromPoint(P);
-  if (Index > -1) and (FPrevHintIndex <> Index) then
-    if (FPropsNeedHint or FValuesNeedHint) then
+  if (Index > -1) and (FPrevHintIndex <> Index) and (FPropsNeedHint or FValuesNeedHint) then
+  begin
+    { Avoid this loop when there is no reason !
+      ==> (FPropsNeedHint or FValuesNeedHint) must be True
+      in order to show hint .
+      ==> Check PaintItem routines !
+    }
+    ShowHint := False;
+    FPrevHintIndex := Index;
+    PItem := FVisibleItems[Index];
+    if PItem^.IsCategory then
+      Exit;
+    R := ValueRect[Index];
+    FIsItemHint := True;
+    if R.Contains(P) then
     begin
-      { Avoid this loop when there is no reason !
-        ==> (FPropsNeedHint or FValuesNeedHint) must be True
-        in order to show hint .
-        ==> Check PaintItem routines !
-      }
-      ShowHint := False;
-      FPrevHintIndex := Index;
-      PItem := FVisibleItems[Index];
-      if PItem.IsCategory then
-        Exit;
-      R := ValueRect[Index];
-      FIsItemHint := True;
-      if R.Contains(P) then
-      begin
-        FBoldHint := False;
-        R := ValueTextRect[Index];
-        Hint := PItem.ValueName;
-        w := Canvas.TextWidth(Hint);
-        MustShow := R.Width <= w;
-      end
-      else
-      begin
-        R := PropTextRect[Index];
-        Hint := PItem.Name;
-        FBoldHint := IsValueNoDefault(PItem.QualifiedName, PItem.ValueName);
-        w := Canvas.TextWidth(Hint);
-        MustShow := R.Width <= w;
-      end;
-      ShowHint := MustShow;
-      if ShowHint then
-      begin
-        P.X := R.Left;
-        P.Y := R.Top;
-        P := ClientToScreen(P);
-        FHintPoint := P;
-      end;
+      FBoldHint := False;
+      R := ValueTextRect[Index];
+      Hint := PItem.ValueName;
+      w := Canvas.TextWidth(Hint);
+      MustShow := R.Width <= w;
+    end else begin
+      R := PropTextRect[Index];
+      Hint := PItem.Name;
+      FBoldHint := IsValueNoDefault(PItem^.QualifiedName, PItem^.ValueName);
+      w := Canvas.TextWidth(Hint);
+      MustShow := R.Width <= w;
     end;
+    ShowHint := MustShow;
+    if ShowHint then
+    begin
+      P.X := R.Left;
+      P.Y := R.Top;
+      P := ClientToScreen(P);
+      FHintPoint := P;
+    end;
+  end;
 end;
 
 procedure TzCustomObjInspector.Paint;
 var
   i: Integer;
   PItem: PPropItem;
+  FirstIndex, LastIndex: Integer;
 begin
   inherited;
-  for i := GetFirstItemIndex to GetLastItemIndex do
+  FirstIndex := GetFirstItemIndex;
+  LastIndex := GetLastItemIndex;
+  for i := FirstIndex to LastIndex do
   begin
     PItem := FVisibleItems[i];
-    if PItem.IsCategory then
+    if PItem^.IsCategory then
       PaintCategory(i);
   end;
   CanvasStack.TrimExcess;
@@ -2880,8 +2950,8 @@ var
   LDetails: TThemedElementDetails;
   LColor, LTxtColor: TColor;
 begin
-
   CanvasStack.Push(Canvas);
+
   LDetails := StyleServices.GetElementDetails(tcbCategoryNormal);
   PItem := FVisibleItems[Index];
   R := ItemRect[Index];
@@ -2899,12 +2969,11 @@ begin
         LTxtColor := LColor;
   end;
   Canvas.Font.Color := LTxtColor;
-
   Canvas.Font.Style := Canvas.Font.Style + [fsBold];
   Inc(R.Left, FSepTxtDis);
-  DrawText(Canvas.Handle, PItem.Name, -1, R, DT_LEFT or DT_SINGLELINE or DT_VCENTER);
-
+  DrawText(Canvas.Handle, PItem^.Name, -1, R, DT_LEFT or DT_SINGLELINE or DT_VCENTER);
   Canvas.Font.Style := Canvas.Font.Style - [fsBold];
+
   CanvasStack.Pop;
 end;
 
@@ -2952,20 +3021,13 @@ begin
   Canvas.FillRect(R);
 
   pmR := PlusMinBtnRect[Index];
-  if PItem.HasChild and not FCircularLinkProps.Contains(PItem.FQName) then
+  if PItem^.HasChild and (not FCircularLinkProps.Contains(PItem^.FQName)) then
   begin
     DrawPlusMinus(Canvas, pmR.Left, pmR.Top, not PItem.Expanded);
     HasPlusMinus := True;
   end;
-  if PItem.IsCategory then
+  if not PItem^.IsCategory then
   begin
-    // Canvas.Refresh;
-    // PaintCategory(Index);
-  end
-  else
-  begin
-    // Canvas.Refresh;
-
     if CanDrawChevron(Index) then
     begin
       cY := CenterPoint(pmR).Y - 3;
@@ -3004,13 +3066,13 @@ begin
       LColor := StyleServices.GetSystemColor(clBtnText);
     Canvas.Font.Color := LColor;
 
-    if (PItem.Instance is TComponent) and (PItem.Instance <> PItem.Component) then
+    if (PItem.Instance is TComponent) and (PItem^.Instance <> PItem^.Component) then
       Canvas.Font.Color := FSubPropertiesColor;
 
-    if IsPropTypeDerivedFromClass(PItem.Prop.PropertyType, TComponent) then
+    if IsPropTypeDerivedFromClass(PItem^.Prop.PropertyType, TComponent) then
       Canvas.Font.Color := FReferencesColor;
 
-    if (not PItem.Prop.IsWritable) and (not PItem.IsClass) then
+    if (not PItem.Prop.IsWritable) and (not PItem^.IsClass) then
       Canvas.Font.Color := FReadOnlyColor;
 
     Canvas.Refresh;
@@ -3024,7 +3086,7 @@ begin
     { ====> Paint Item Value <==== }
     PaintItemValue(PItem, Index);
 
-    if Canvas.TextWidth(PItem.ValueName) > ValueTextRect[Index].Width then
+    if Canvas.TextWidth(PItem^.ValueName) > ValueTextRect[Index].Width then
       FValuesNeedHint := True;
 
     Canvas.Brush.Color := LSaveColor;
@@ -3040,8 +3102,7 @@ begin
     begin
       DrawHorzDotLine(Canvas, HorzDotLeft, Y, Width);
       DrawHorzDotLine(Canvas, HorzDotLeft, Y + FItemHeight, Width);
-    end
-    else if FShowGridLines then
+    end else if FShowGridLines then
     begin
       DrawHorzDotLine(Canvas, FSplitterPos, Y, Width);
     end;
@@ -3068,7 +3129,6 @@ begin
 
     if PrevPos < pOrdPos then
     begin
-
       Canvas.MoveTo(xMin, Y - 2);
       Canvas.LineTo(xMin + 2, Y);
       Canvas.MoveTo(xMin + 2, Y);
@@ -3076,8 +3136,7 @@ begin
       Canvas.MoveTo(xMax - 2, Y);
       Canvas.LineTo(xMax, Y + 2);
       DYT := 2;
-    end
-    else if PrevPos > pOrdPos then
+    end else if PrevPos > pOrdPos then
     begin
       Canvas.MoveTo(xMax, Y - 2);
       Canvas.LineTo(xMax - 2, Y);
@@ -3150,8 +3209,7 @@ begin
         { Index out of page => Need to scroll ! }
         LSI.nPos := FSelectedIndex;
         DoSetScrollInfo;
-      end
-      else if (FSelectedIndex > GetLastItemIndex - 1) then
+      end else if (FSelectedIndex > GetLastItemIndex - 1) then
       begin
         { Index out of page => Need to scroll ! }
         LSI.nPos := 1 + FSelectedIndex - GetMaxItemCount;
@@ -3334,7 +3392,7 @@ begin
 
   if Assigned(PItem) then
   begin
-    if PItem.IsCategory then
+    if PItem^.IsCategory then
     begin
       if FPropInspEdit.Visible then
         FPropInspEdit.Visible := False;
@@ -3397,21 +3455,23 @@ begin
     if FAllowSearch and (Msg.HotKey = 0) then
       if Assigned(LForm.ActiveControl) then
         if (WinInWin(LForm.ActiveControl.Handle, Handle)) then
-        begin
-          { ActiveControl must be Self or childs of Self ! }
-          if DoSelectCaret(FSelectedIndex) then
+        begin { ActiveControl must be Self or childs of Self ! }
+          if GetCaretWin = Handle then // searching
+          begin
+            FSearchText := '';
+            UpdateEditControl; // move back to Edit
+          end else if DoSelectCaret(FSelectedIndex) then // start search
             Exit;
         end;
     { Translate the Tab to the parent to
       select controls that have TabStop !
     }
-    LForm.Perform(CM_DialogKey, VK_TAB, 0);
+    // LForm.Perform(CM_DialogKey, VK_TAB, 0); // I think we don't need to process Tab like delphi IDE...
   end;
 end;
 
 procedure TzCustomObjInspector.WMKILLFOCUS(var Msg: TWMKILLFOCUS);
 begin
-
   if GetCaretWin = Handle then
     DestroyCaret;
 end;
@@ -3519,7 +3579,6 @@ var
   ObjValue: TObject;
   Method: TMethod;
   NewValue: TValue;
-
 begin
   NewValue := TValue.Empty;
   if FDefSelIndex = FList.ItemIndex then
@@ -3566,22 +3625,20 @@ var
   s: string;
   vSInt: Int64;
   vUInt: UInt64;
+  vSingle: Single;
+  vDouble: Double;
+  vExtended: Extended;
   Value: TValue;
   Index: Integer;
 begin
-
   if not FTxtChanged then
     Exit;
   FTxtChanged := False;
-  if ReadOnly then
-    Exit;
-  if not FPropItem.Prop.IsWritable then
-    Exit;
-  if (FPropItem.IsSet) then
+  if (ReadOnly) or (FPropItem^.IsSet) or (not FPropItem^.Prop.IsWritable) then
     Exit;
 
   s := Text;
-  if Trim(FPropItem.ValueName) = Trim(s) then
+  if Trim(FPropItem^.ValueName) = Trim(s) then
     Exit;
   if s = '' then
   begin
@@ -3589,8 +3646,7 @@ begin
     Value := DefaultValueManager.GetValue(FPropItem, vUInt);
     FInspector.DoSetValue(FPropItem, Value);
     Exit;
-  end
-  else if Assigned(FList) then
+  end else if Assigned(FList) then
   begin
     Index := FList.Items.IndexOf(s);
     if Index > -1 then
@@ -3598,9 +3654,7 @@ begin
       FList.Selected[Index] := True;
       DoSetValueFromList;
       Exit;
-    end
-    else
-    begin
+    end else begin
       if not DefaultValueManager.ValueHasOpenProbabilities(FPropItem) then
       begin
         raise InvalidPropValueError.CreateRes(@SInvalidPropValueErr);
@@ -3609,13 +3663,24 @@ begin
     end
   end;
   Value := FPropItem.Value;
-  if IsValueSigned(Value) then
+
+  if Value.TypeInfo = TypeInfo(Single) then
+  begin
+    vSingle := DefaultValueManager.StrToValue<Single>(FPropItem, s);
+    Value := DefaultValueManager.GetValue(FPropItem, vSingle);
+  end else if Value.TypeInfo = TypeInfo(Double) then
+  begin
+    vDouble := DefaultValueManager.StrToValue<Double>(FPropItem, s);
+    Value := DefaultValueManager.GetValue(FPropItem, vDouble);
+  end else if Value.TypeInfo = TypeInfo(Extended) then
+  begin
+    vExtended := DefaultValueManager.StrToValue<Extended>(FPropItem, s);
+    Value := DefaultValueManager.GetValue(FPropItem, vExtended);
+  end else if IsValueSigned(Value) then
   begin
     vSInt := DefaultValueManager.StrToValue<Int64>(FPropItem, s);
     Value := DefaultValueManager.GetValue(FPropItem, vSInt);
-  end
-  else
-  begin
+  end else begin
     vUInt := DefaultValueManager.StrToValue<UInt64>(FPropItem, s);
     Value := DefaultValueManager.GetValue(FPropItem, vUInt);
   end;
@@ -3636,15 +3701,15 @@ begin
     ReadOnly := True
   else
   begin
-    ReadOnly := not FPropItem.Prop.IsWritable;
-    if FPropItem.IsSet then
+    ReadOnly := not FPropItem^.Prop.IsWritable;
+    if (FPropItem^.IsSet) or (FPropItem^.IsClass) then
       ReadOnly := True;
   end;
   if not ReadOnly then
     if Assigned(FInspector.FOnGetItemReadOnly) then
       ReadOnly := FInspector.FOnGetItemReadOnly(FInspector, FPropItem);
 
-  if ReadOnly then
+  if ReadOnly and (not(FPropItem^.IsSet or FPropItem^.IsClass)) then
     Font.Color := FInspector.FReadOnlyColor
   else
     Font.Color := GetSysColor(clWindowText);
@@ -3688,7 +3753,7 @@ var
   mr: Integer;
   Value: TValue;
 begin
-  if ReadOnly then
+  if not FPropItem^.Prop.IsWritable then
     Exit;
   DialogClass := nil;
   with DefaultValueManager do
@@ -3725,11 +3790,11 @@ end;
 procedure TzPropInspEdit.UpdateButton;
 begin
   FButton.Visible := False;
-  if ReadOnly then
+  if (FInspector.FSelectedIndex < 0) or (FInspector.FSelectedIndex > FInspector.VisiblePropCount) then
+    Exit;
+  if not FPropItem^.Prop.IsWritable then
     Exit;
   if not DefaultValueManager.HasButton(PropInfo) then
-    Exit;
-  if not FPropItem.Prop.IsWritable then
     Exit;
   FButton.Parent := Self.Parent;
   FButton.Left := Self.Parent.ClientWidth - 17;
@@ -3746,7 +3811,7 @@ begin
   LQName := FPropItem.FQName;
   with FInspector do
   begin
-    Self.Text := FPropItem.ValueName;
+    Self.Text := FPropItem^.ValueName;
     if not FDefPropValue.ContainsKey(LQName) then
       FDefPropValue.Add(LQName, Self.Text);
     SelectAll;
@@ -3761,8 +3826,6 @@ var
 begin
   if Assigned(FList) then
     FreeAndNil(FList);
-  if ReadOnly then
-    Exit;
   if not FPropItem.Prop.IsWritable then
     Exit;
   if not DefaultValueManager.HasList(FPropItem) then
@@ -3958,6 +4021,23 @@ end;
 
 { TzCustomValueManager }
 
+class constructor TzCustomValueManager.Create;
+begin
+  TzCustomValueManager.FloatPreference := TzFloatPreference.Create;
+
+  with TzCustomValueManager.FloatPreference do
+  begin
+    ExpPrecision := cDefaultExpPrecision;
+    MaxDigits := cDefaultMaxDigits;
+    FormatOptions := cDefaultFormatOptions;
+  end;
+end;
+
+class destructor TzCustomValueManager.Destroy;
+begin
+  TzCustomValueManager.FloatPreference.Free;
+end;
+
 class procedure TzCustomValueManager.DialogCode(const PItem: PPropItem; Dialog: TComponent; Code: Integer);
 begin
 
@@ -4091,8 +4171,7 @@ begin
           // if SameStr(Root.Components[i].ClassName, PItem.Prop.PropertyType.ToString) then
           Items.AddObject(Root.Components[i].Name, TObject(Root.Components[i]));
     Exit;
-  end
-  else if PItem.Prop.PropertyType.TypeKind = tkMethod then
+  end else if PItem.Prop.PropertyType.TypeKind = tkMethod then
   begin
     if Assigned(Root) then
       GetMethodsItems;
@@ -4142,6 +4221,21 @@ begin
         TValueData(Val).FAsUByte := Byte(Value);
         Exit(Val);
       end;
+    vtSingle:
+      begin
+        TValueData(Val).FAsSingle := Single(Value);
+        Exit(Val);
+      end;
+    vtDouble:
+      begin
+        TValueData(Val).FAsDouble := Double(Value);
+        Exit(Val);
+      end;
+    vtExtended:
+      begin
+        TValueData(Val).FAsExtended := Extended(Value);
+        Exit(Val);
+      end;
   end;
 
   if PItem.IsSetElement then
@@ -4152,9 +4246,7 @@ begin
     else
       Exclude(s, PItem.SetElementValue);
     TValueData(Val).FAsSLong := Integer(s);
-  end
-  else
-  begin
+  end else begin
     if IsValueSigned(Val) then
       TValueData(Val).FAsSInt64 := Int64(Value)
     else
@@ -4185,9 +4277,7 @@ begin
   begin
     sValue := (TValueData(Value).FAsSInt64);
     Result := sR;
-  end
-  else
-  begin
+  end else begin
     uValue := (TValueData(Value).FAsUInt64);
     Result := uR;
   end;
@@ -4211,7 +4301,8 @@ var
       if LField.FieldType.TypeKind = tkClass then
       begin
         if SameText(Comp.Name, LField.Name) then
-          Exit(Comp.Name); // Component is declared in the designer form .
+          Exit(Comp.Name);
+        // Component is declared in the designer form .
       end;
     // Result := Comp.GetParentComponent.Name + '.' + Comp.Name;
   end;
@@ -4223,23 +4314,19 @@ begin
   begin
     Result := BooleanToStr(SetEnumToBoolean(GetEnumOrdValue(Value), PItem.SetElementValue));
     Exit;
-  end
-  else if (Value.TypeInfo = TypeInfo(TColor)) then
+  end else if (Value.TypeInfo = TypeInfo(TColor)) then
   begin
     Result := ColorToString(GetValueAs<TColor>(Value));
     Exit;
-  end
-  else if (Value.TypeInfo = TypeInfo(TCursor)) then
+  end else if (Value.TypeInfo = TypeInfo(TCursor)) then
   begin
     Result := CursorToString(GetValueAs<TCursor>(Value));
     Exit;
-  end
-  else if (Value.TypeInfo = TypeInfo(TShortCut)) then
+  end else if (Value.TypeInfo = TypeInfo(TShortCut)) then
   begin
     Result := fShortCutToText(GetValueAs<TShortCut>(Value));
     Exit;
-  end
-  else if Value.IsObject then
+  end else if Value.IsObject then
   begin
     Result := '';
     if not Value.IsEmpty then
@@ -4251,12 +4338,27 @@ begin
           Result := TComponent(LObj).Name;
     end;
     Exit;
-  end;
-  if PItem.Prop.PropertyType.TypeKind = tkMethod then
+  end else if PItem.Prop.PropertyType.TypeKind = tkMethod then
   begin
     Result := GetMethodName(Value, PItem.ComponentRoot);
     Exit;
+  end else if PItem.Value.TypeInfo = TypeInfo(Single) then
+  begin
+    with TzCustomValueManager.FloatPreference do
+      Result := MyFormatFloat(TValueData(Value).FAsSingle, MaxDigits, ExpPrecision, FormatOptions);
+    Exit;
+  end else if PItem.Value.TypeInfo = TypeInfo(Double) then
+  begin
+    with TzCustomValueManager.FloatPreference do
+      Result := MyFormatFloat(TValueData(Value).FAsDouble, MaxDigits, ExpPrecision, FormatOptions);
+    Exit;
+  end else if PItem.Value.TypeInfo = TypeInfo(Extended) then
+  begin
+    with TzCustomValueManager.FloatPreference do
+      Result := MyFormatFloat(Value.AsExtended, MaxDigits, ExpPrecision, FormatOptions);
+    Exit;
   end;
+
   Result := Value.ToString;
 end;
 
@@ -4266,6 +4368,9 @@ var
 begin
 
   Value := PItem.Value;
+  if Value.TypeInfo = nil then
+    Exit(vtUnknown);
+
   if Assigned(PItem.Prop) then
   begin
     case PItem.Prop.PropertyType.TypeKind of
@@ -4287,7 +4392,13 @@ begin
   else if Value.TypeInfo = TypeInfo(Boolean) then
     Exit(vtBool)
   else if Value.TypeInfo = TypeInfo(Bool) then
-    Exit(vtBool);
+    Exit(vtBool)
+  else if Value.TypeInfo = TypeInfo(Single) then
+    Exit(vtSingle)
+  else if Value.TypeInfo = TypeInfo(Double) then
+    Exit(vtDouble)
+  else if Value.TypeInfo = TypeInfo(Extended) then
+    Exit(vtExtended);
 
   if PItem.IsEnum then
     Exit(vtEnum);
@@ -4384,7 +4495,8 @@ begin
   begin
     case VT of
       vtBool: BoolVal := GetValueAs<Boolean>(Value);
-      vtSetElement: BoolVal := SetEnumToBoolean(GetEnumOrdValue(Value), PItem.SetElementValue);
+      vtSetElement:
+        BoolVal := SetEnumToBoolean(GetEnumOrdValue(Value), PItem.SetElementValue);
     end;
     if BoolVal then
       LDetails := LStyle.GetElementDetails(tbCheckBoxCheckedNormal)
@@ -4392,18 +4504,19 @@ begin
       LDetails := LStyle.GetElementDetails(tbCheckBoxUnCheckedNormal);
     ExtRect := LInspector.ExtraRect[Index];
     LStyle.DrawElement(DC, LDetails, ExtRect);
-  end
-  else if VT = vtColor then
+  end else if VT = vtColor then
   begin
     C := GetValueAs<TColor>(Value);
-    ExtRect := LInspector.ExtraRect[Index];
+    ExtRect := LInspector.ExtraRect[Index]; { Delphi Berlin color style }
+    if LInspector.FSelectedIndex = Index then
+      InflateRect(ExtRect, -1, -1);
     zFillRect(DC, ExtRect, ColorToRGB(C), clBlack, 1, 1);
   end;
 
   LInspector.CanvasStack.Pop;
 
-  LQName := PItem.FQName;
-  ValueName := PItem.ValueName;
+  LQName := PItem^.FQName;
+  ValueName := PItem^.ValueName;
 
   LColor := LInspector.FValueColor;
   if LInspector.UseStyleColor then
@@ -4421,27 +4534,35 @@ begin
 
   R := LInspector.ValueTextRect[Index];
   DrawText(Canvas.Handle, ValueName, -1, R, DT_LEFT or DT_VCENTER or DT_SINGLELINE);
-
 end;
 
 class procedure TzCustomValueManager.SetValue(const PItem: PPropItem; var Value: TValue);
 begin
-  PItem.Prop.SetValue(PItem.Instance, Value);
+  PItem^.Prop.SetValue(PItem.Instance, Value);
 end;
 
 class function TzCustomValueManager.StrToValue<T>(const PItem: PPropItem; const s: string): T;
 var
   vSInt: Int64;
   vUInt: UInt64;
+  vSingle: Single;
+  vDouble: Double;
+  vExtended: Extended;
   Value: TValue;
   ValSign: Boolean;
   sR: T absolute vSInt;
   uR: T absolute vUInt;
+  fsR: T absolute vSingle;
+  fdR: T absolute vDouble;
+  feR: T absolute vExtended;
   E: Integer;
 begin
 
   vUInt := 0;
   vSInt := 0;
+  vSingle := 0.0;
+  vDouble := 0.0;
+  vExtended := 0.0;
   Value := PItem.Value;
   ValSign := (Value.TypeData.MinValue < 0) or (Value.TypeData.MinInt64Value < 0);
   case GetValueType(PItem) of
@@ -4452,11 +4573,28 @@ begin
         Exit;
       end;
     vtChar:
-      begin
-        { IsOrdinal = True , but TryStrToInt64 will fail ! }
+      begin { IsOrdinal = True , but TryStrToInt64 will fail ! }
         if s <> '' then
           vUInt := Ord(s[1]);
         Result := uR;
+        Exit;
+      end;
+    vtSingle:
+      begin
+        MyTryStrToFloat(s, vSingle);
+        Result := fsR;
+        Exit;
+      end;
+    vtDouble:
+      begin
+        MyTryStrToFloat(s, vDouble);
+        Result := fdR;
+        Exit;
+      end;
+    vtExtended:
+      begin
+        MyTryStrToFloat(s, vExtended);
+        Result := feR;
         Exit;
       end;
   end;
@@ -4497,6 +4635,7 @@ var
   P: TPoint;
   DC: HDC;
   R: TRect;
+  OldFontStyles: TFontStyles;
 begin
   R := ClientRect;
 
@@ -4516,7 +4655,13 @@ begin
   if FDropDown then
     DrawArrow(Canvas, sdDown, P, 3)
   else
-    LStyle.DrawText(DC, LDetails, '...', R, [tfCenter, tfSingleLine]);
+  begin
+    OldFontStyles := Canvas.Font.Style;
+    if LStyle.IsSystemStyle then
+      Canvas.Font.Style := [fsBold];
+    LStyle.DrawText(DC, LDetails, '...', R, [tfCenter, tfVerticalCenter, tfSingleLine]);
+    Canvas.Font.Style := OldFontStyles;
+  end;
 end;
 
 procedure TzPropInspButton.WMLButtonDown(var Message: TWMLButtonDown);
@@ -4624,8 +4769,7 @@ end;
 function TItemHintWindow.CalcHintRect(MaxWidth: Integer; const AHint: string; AData: TCustomData): TRect;
 begin
   FPaintBold := Boolean(AData);
-  if FPaintBold then
-    { Must set bold before inheriting ! }
+  if FPaintBold then { Must set bold before inheriting ! }
     Canvas.Font.Style := Canvas.Font.Style + [fsBold];
   Result := inherited CalcHintRect(MaxWidth, AHint, AData);
 end;
@@ -4687,6 +4831,20 @@ begin
     FObjectVisibility := Value
   else
     raise InspException.Create('Object Visibility must be mvPublic or mvPublished.');
+end;
+
+{ TzFloatPreference }
+
+procedure TzFloatPreference.Assign(Source: TPersistent);
+begin
+  if Source is TzFloatPreference then
+  begin
+    MaxDigits := TzFloatPreference(Source).MaxDigits;
+    ExpPrecision := TzFloatPreference(Source).ExpPrecision;
+    FormatOptions := TzFloatPreference(Source).FormatOptions;
+  end
+  else
+    inherited Assign(Source);
 end;
 
 end.

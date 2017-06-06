@@ -191,7 +191,7 @@ end;
 
 procedure TzRecordList<T, P>.SortOrgList(Compare: TListSortCompare);
 begin
-FList.Sort(Compare);
+  FList.Sort(Compare);
 end;
 
 procedure TzRecordList<T, P>.FreeRecord(PRec: Pointer);
@@ -200,7 +200,6 @@ begin
   begin
     Finalize(PT(PRec)^);
     FreeMem(PRec, SizeOf(T));
-    ZeroMemory(PRec, SizeOf(T));
     PT(PRec) := nil;
   end;
 end;
