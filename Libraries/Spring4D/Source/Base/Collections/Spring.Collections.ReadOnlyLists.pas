@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -122,7 +122,7 @@ end;
 function TAbstractReadOnlyList<T>.QueryInterface(const IID: TGUID;
   out Obj): HResult;
 begin
-  if IsEqualGUID(IID, IObjectReadOnlyList) then
+  if IID = IObjectReadOnlyList then
   begin
     if ElementType.Kind = tkClass then
       Result := inherited QueryInterface(IReadOnlyList<TObject>, Obj)

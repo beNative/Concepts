@@ -38,7 +38,7 @@ uses
 
   VirtualTrees,
 
-  Spring, Spring.Collections, Spring.Persistence.ObjectDataSet,
+  Spring, Spring.Collections, Spring.Data.ObjectDataSet,
 
   DSharp.Windows.TreeViewPresenter,
 

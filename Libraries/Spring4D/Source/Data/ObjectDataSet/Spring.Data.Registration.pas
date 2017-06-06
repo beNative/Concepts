@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -24,7 +24,7 @@
 
 {$I Spring.inc}
 
-unit Spring.Persistence.ObjectDataset.Designtime;
+unit Spring.Data.Registration;
 
 interface
 
@@ -34,13 +34,13 @@ implementation
 
 uses
   Classes,
-  Spring.Persistence.ObjectDataset;
+  Spring.Data.ObjectDataSet;
 
-{$R 'Spring.Persistence.ObjectDataset.dcr'}
+{$R ..\..\Resources\Spring.Data.ObjectDataSet.dcr}
 
 procedure Register;
 begin
-  RegisterComponents('Spring4D', [TObjectDataset]);
+  RegisterComponents('Spring4D', [TObjectDataSet]);
 end;
 
 end.

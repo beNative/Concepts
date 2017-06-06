@@ -116,7 +116,7 @@ uses
 
 procedure TSQLiteExceptionHandlerTest.TestGetAdapterException_ESQLiteConstraintException;
 var
-  exc, result: Owned<Exception>;
+  exc, result: Managed<Exception>;
 begin
   exc := ESQLiteConstraintException.Create('', 1);
   result := SUT.GetAdapterException(exc, 'message');
@@ -127,7 +127,7 @@ end;
 
 procedure TSQLiteExceptionHandlerTest.TestGetAdapterException_ESQLiteException;
 var
-  exc, result: Owned<Exception>;
+  exc, result: Managed<Exception>;
 begin
   exc := ESQLiteException.Create('');
   result := SUT.GetAdapterException(exc, 'message');
@@ -138,7 +138,7 @@ end;
 
 procedure TSQLiteExceptionHandlerTest.TestGetAdapterException_Others_Return_Nil;
 var
-  exc, result: Owned<Exception>;
+  exc, result: Managed<Exception>;
 begin
   exc := Exception.Create('');
   result := SUT.GetAdapterException(exc, '');

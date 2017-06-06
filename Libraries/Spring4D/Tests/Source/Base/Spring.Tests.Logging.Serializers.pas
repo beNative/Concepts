@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -34,6 +34,7 @@ uses
   Rtti,
   TestFramework,
   Generics.Defaults,
+  Spring,
   Spring.Logging,
   Spring.Logging.Extensions,
   Spring.Logging.Controller,
@@ -42,17 +43,23 @@ uses
 
 type
   {$REGION 'TSerializerTestCase'}
+
   TSerializerTestCase = class(TTestCase)
+  strict private
+    fSerializer: TSerializerBase;
+    procedure SetSerializer(const value: TSerializerBase);
   strict protected
-    fSerializer: ITypeSerializer;
+    property Serializer: TSerializerBase read fSerializer write SetSerializer;
   protected
     procedure TearDown; override;
     procedure CheckUnsupported(supportedTypeKinds: TTypeKinds);
   end;
+
   {$ENDREGION}
 
 
   {$REGION 'TTestSimpleTypeSerializer'}
+
   TTestSimpleTypeSerializer = class(TSerializerTestCase)
   private
     procedure CheckValue(const expected: string; const value: TValue;
@@ -77,10 +84,12 @@ type
     procedure TestPointer;
     procedure TestUnsupported;
   end;
+
   {$ENDREGION}
 
 
   {$REGION 'TTestReflectionTypeSerializer'}
+
   TTestReflectionTypeSerializer = class(TSerializerTestCase)
   protected
     procedure SetUp; override;
@@ -91,13 +100,15 @@ type
     procedure TestRecord;
     procedure TestUnsupported;
   end;
+
   {$ENDREGION}
 
 
   {$REGION 'TTestInterfaceSerializer'}
+
   TTestInterfaceSerializer = class(TSerializerTestCase)
   private
-    fController: ISerializerController;
+    fController: TLoggerController;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -106,30 +117,50 @@ type
     procedure TestInterfacedNoObject;
     procedure TestUnsupported;
   end;
+
   {$ENDREGION}
 
 
   {$REGION 'TTestArrayOfValueSerializer'}
+
   TTestArrayOfValueSerializer = class(TSerializerTestCase)
   published
     procedure TestSimple;
     procedure TestNested;
     procedure TestUnsupported;
   end;
+
   {$ENDREGION}
 
 
 implementation
 
-uses
-  Spring;
+
+{$REGION 'Helpers'}
+
+type
+  TInterfacedObjectAccess = class(TInterfacedObject);
+
+{$ENDREGION}
 
 
 {$REGION 'TSerializerTestCase'}
 
+procedure TSerializerTestCase.SetSerializer(const value: TSerializerBase);
+begin
+  if value <> fSerializer then
+  begin
+    if Assigned(fSerializer) then
+      TInterfacedObjectAccess(fSerializer)._Release;
+    fSerializer := value;
+    if Assigned(fSerializer) then
+      TInterfacedObjectAccess(fSerializer)._AddRef;
+  end;
+end;
+
 procedure TSerializerTestCase.TearDown;
 begin
-  fSerializer := nil;
+  Serializer := nil;
   inherited;
 end;
 
@@ -143,7 +174,7 @@ begin
   for kind in tkAny - supportedTypeKinds do
   begin
     typeInfo.Kind := kind;
-    CheckFalse(fSerializer.HandlesType(@typeInfo));
+    CheckFalse(fSerializer.CanHandleType(@typeInfo));
   end;
 end;
 
@@ -159,8 +190,8 @@ var
 begin
   Assert(kind = value.Kind);
 
-  CheckTrue(fSerializer.HandlesType(value.TypeInfo));
-  result := fSerializer.Serialize(nil, value);
+  CheckTrue(Serializer.CanHandleType(value.TypeInfo));
+  result := Serializer.Serialize(nil, value);
 
   CheckEquals(expected, result);
 end;
@@ -168,7 +199,7 @@ end;
 procedure TTestSimpleTypeSerializer.SetUp;
 begin
   inherited;
-  fSerializer := TSimpleTypeSerializer.Create;
+  Serializer := TSimpleTypeSerializer.Create;
 end;
 
 procedure TTestSimpleTypeSerializer.TestClassRef;
@@ -220,7 +251,7 @@ end;
 
 procedure TTestSimpleTypeSerializer.TestSet;
 begin
-  CheckValue('[SerializedData]', TValue.From([TLogEntryType.SerializedData]), tkSet);
+  CheckValue('[SerializedData]', TValue.From([TLogEventType.SerializedData]), tkSet);
 end;
 
 {$IFNDEF NEXTGEN}
@@ -270,7 +301,7 @@ end;
 procedure TTestReflectionTypeSerializer.SetUp;
 begin
   inherited;
-  fSerializer := TReflectionTypeSerializer.Create;
+  Serializer := TReflectionTypeSerializer.Create;
 end;
 
 procedure TTestReflectionTypeSerializer.TestClass;
@@ -279,12 +310,12 @@ var
   result: string;
   s: string;
 begin
-  CheckTrue(fSerializer.HandlesType(TypeInfo(TSampleObject)));
+  CheckTrue(Serializer.CanHandleType(TypeInfo(TSampleObject)));
 
   o := TSampleObject.Create;
   try
     o.fString := 'test';
-    result := fSerializer.Serialize(nil, o);
+    result := Serializer.Serialize(nil, o);
     s :=
       '(TSampleObject @ ' + IntToHex(NativeInt(o), SizeOf(Pointer) * 2) + ')('#$A +
       '  fObject = (empty)'#$A +
@@ -308,15 +339,16 @@ end;
 
 procedure TTestReflectionTypeSerializer.TestNestedClass;
 var
-  controller: ISerializerController;
+  controller: Managed<TLoggerController>;
   o: TSampleObject;
   result: string;
   s, c: string;
   value: TValue;
+  parent: ITypeSerializer;
 begin
   controller := TLoggerController.Create;
-  controller.AddSerializer(fSerializer);
-  fSerializer := TReflectionTypeSerializer.Create([mvPublic], True);
+  controller.Value.AddEventConverter(Serializer);
+  parent := TReflectionTypeSerializer.Create([mvPublic], True);
   o := TSampleObject.Create;
   try
 {$IFDEF AUTOREFCOUNT}
@@ -326,7 +358,7 @@ begin
     o.fString := 'test';
     o.fObject := o;
     value := o;
-    result := fSerializer.Serialize(controller, value);
+    result := parent.Serialize(controller, value);
 
     s := IntToHex(NativeInt(o), SizeOf(Pointer) * 2);
     s := '(TSampleObject @ ' + s + ')';
@@ -373,17 +405,17 @@ end;
 
 procedure TTestReflectionTypeSerializer.TestNestingClass;
 var
-  controller: ISerializerController;
+  controller: Managed<TLoggerController>;
   o: TSampleObject;
   result: string;
 begin
-  fSerializer := TReflectionTypeSerializer.Create([mvPublic], True);
+  Serializer := TReflectionTypeSerializer.Create([mvPublic], True);
   controller := TLoggerController.Create;
-  controller.AddSerializer(fSerializer);
+  controller.Value.AddEventConverter(Serializer);
   o := TSampleObject.Create;
   try
     o.fObject := o;
-    result := fSerializer.Serialize(controller, o);
+    result := Serializer.Serialize(controller, o);
   finally
     o.Free;
   end;
@@ -399,11 +431,11 @@ var
   result: string;
   s: string;
 begin
-  CheckTrue(fSerializer.HandlesType(TypeInfo(TSampleRecord)));
+  CheckTrue(Serializer.CanHandleType(TypeInfo(TSampleRecord)));
 
   r.fObject := nil;
   r.fString := 'test';
-  result := fSerializer.Serialize(nil, TValue.From(r));
+  result := Serializer.Serialize(nil, TValue.From(r));
 
   s :=
     '(TSampleRecord)('#$A +
@@ -425,15 +457,17 @@ end;
 
 procedure TTestInterfaceSerializer.SetUp;
 begin
-  inherited;
   fController := TLoggerController.Create;
-  fController.AddSerializer(TReflectionTypeSerializer.Create);
-  fSerializer := TInterfaceSerializer.Create;
+  TInterfacedObjectAccess(fController)._AddRef;
+  fController.AddEventConverter(TReflectionTypeSerializer.Create);
+  Serializer := TInterfaceSerializer.Create;
+  inherited;
 end;
 
 procedure TTestInterfaceSerializer.TearDown;
 begin
   inherited;
+  TInterfacedObjectAccess(fController)._Release;
   fController := nil;
 end;
 
@@ -444,7 +478,7 @@ var
 begin
   i := TComparer<string>.Default;
 
-  result := fSerializer.Serialize(fController, TValue.From(i));
+  result := Serializer.Serialize(fController, TValue.From(i));
 
   CheckEquals('(IComparer<System.string>)', result);
 end;
@@ -457,14 +491,14 @@ var
   result: string;
   s: string;
 begin
-  CheckTrue(fSerializer.HandlesType(TypeInfo(IInterface)));
+  CheckTrue(Serializer.CanHandleType(TypeInfo(IInterface)));
 
   o := TSampleObject.Create;
   i := o;
   o.fString := 'test';
 
   value := TValue.From(i);
-  result := fSerializer.Serialize(fController, value);
+  result := Serializer.Serialize(fController, value);
 
   s :=
     '(IInterface): (TSampleObject @ ' + IntToHex(NativeInt(o), SizeOf(Pointer) * 2) + ')('#$A +
@@ -502,21 +536,21 @@ end;
 
 procedure TTestArrayOfValueSerializer.TestNested;
 var
-  controller: ISerializerController;
+  controller: Managed<TLoggerController>;
   values: TArray<TValue>;
   result: string;
   i: IInterface;
   s: string;
 begin
-  fSerializer := TArrayOfValueSerializer.Create(True);
+  Serializer := TArrayOfValueSerializer.Create(True);
   controller := TLoggerController.Create;
-  controller.AddSerializer(TReflectionTypeSerializer.Create);
-  controller.AddSerializer(TInterfaceSerializer.Create);
+  controller.Value.AddEventConverter(TReflectionTypeSerializer.Create);
+  controller.Value.AddEventConverter(TInterfaceSerializer.Create);
 
   i := TSampleObject.Create;
   values := TArray.Copy<TValue>([1, 'text', TValue.From(i)]);
 
-  result := fSerializer.Serialize(controller, TValue.From(values));
+  result := Serializer.Serialize(controller, TValue.From(values));
 
   s :=
     '(IInterface): (TSampleObject @ ' + IntToHex(NativeInt(TObject(i)), SizeOf(Pointer) * 2) + ')('#$A +
@@ -546,20 +580,20 @@ var
   result: string;
   r: TSampleRecord;
 begin
-  fSerializer := TArrayOfValueSerializer.Create;
+  Serializer := TArrayOfValueSerializer.Create;
 
-  CheckTrue(fSerializer.HandlesType(TypeInfo(TArray<TValue>)));
+  CheckTrue(Serializer.CanHandleType(TypeInfo(TArray<TValue>)));
 
   values := TArray.Copy<TValue>([1, 'text', TValue.From(r)]);
 
-  result := fSerializer.Serialize(nil, TValue.From(values));
+  result := Serializer.Serialize(nil, TValue.From(values));
 
   CheckEquals('[1, text, (TSampleRecord)]', result);
 end;
 
 procedure TTestArrayOfValueSerializer.TestUnsupported;
 begin
-  fSerializer := TArrayOfValueSerializer.Create;
+  Serializer := TArrayOfValueSerializer.Create;
   CheckUnsupported([tkInterface]);
 end;
 

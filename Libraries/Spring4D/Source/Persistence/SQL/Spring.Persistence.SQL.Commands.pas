@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -128,6 +128,7 @@ type
   private
     fUpdateFields: IList<TSQLUpdateField>;
     fPrimaryKeyColumn: ColumnAttribute;
+    fVersionColumn: ColumnAttribute;
   public
     constructor Create(const table: TSQLTable); override;
 
@@ -135,6 +136,7 @@ type
 
     property UpdateFields: IList<TSQLUpdateField> read fUpdateFields;
     property PrimaryKeyColumn: ColumnAttribute read fPrimaryKeyColumn write fPrimaryKeyColumn;
+    property VersionColumn: ColumnAttribute read fVersionColumn write fVersionColumn;
   end;
 
   /// <summary>
@@ -430,7 +432,7 @@ begin
   fUpdateFields.Clear;
   fWhereFields.Clear;
   for column in columns do
-    if column.CanUpdate then
+    if column.CanUpdate and not Column.IsVersionColumn then
     begin
       updateField := TSQLUpdateField.Create(column.ColumnName, fTable, column,
         GetAndIncParameterName(column.ColumnName));
@@ -441,6 +443,17 @@ begin
   begin
     whereField := TSQLWhereField.Create(fPrimaryKeyColumn.ColumnName, fTable,
       fPrimaryKeyColumn, GetAndIncParameterName(fPrimaryKeyColumn.ColumnName));
+    fWhereFields.Add(whereField);
+  end;
+
+  if Assigned(fVersionColumn) then
+  begin
+    updateField := TSQLUpdateField.Create(fVersionColumn.ColumnName, fTable,
+      fVersionColumn, GetAndIncParameterName(fVersionColumn.ColumnName));
+    fUpdateFields.Add(updateField);
+
+    whereField := TSQLWhereField.Create(fVersionColumn.ColumnName, fTable,
+      fVersionColumn, GetAndIncParameterName(fVersionColumn.ColumnName));
     fWhereFields.Add(whereField);
   end;
 end;
@@ -492,13 +505,13 @@ var
   index: Integer;
   upperCaseFieldName: string;
 begin
-  upperCaseFieldName := AnsiUpperCase(fTable.NameWithoutSchema + '_' + fieldName);
+  upperCaseFieldName := AnsiUpperCase(fieldName);
   if fParameterNames.TryGetValue(upperCaseFieldName, index) then
     Inc(index)
   else
     index := 1;
   fParameterNames.AddOrSetValue(upperCaseFieldName, index);
-  Result := Format(':%S%D', [upperCaseFieldName, index]);
+  Result := Format(':%s%d', [upperCaseFieldName, index]);
 end;
 
 function TDMLCommand.GetExistingParameterName(const fieldName: string): string;
@@ -509,7 +522,7 @@ begin
   upperCaseFieldName := AnsiUpperCase(fieldName);
   if not fParameterNames.TryGetValue(upperCaseFieldName, index) then
     index := 1;
-  Result := Format(':%S%D', [upperCaseFieldName, index]);
+  Result := Format(':%s%d', [upperCaseFieldName, index]);
 end;
 
 {$ENDREGION}

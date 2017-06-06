@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -35,7 +35,7 @@ uses
 type
   TCodeSiteAppender = class(TLogAppenderBase)
   protected
-    procedure DoSend(const entry: TLogEntry); override;
+    procedure DoSend(const event: TLogEvent); override;
   end;
 
 implementation
@@ -49,57 +49,57 @@ uses
 
 {$REGION 'TCodeSiteAppender'}
 
-procedure TCodeSiteAppender.DoSend(const entry: TLogEntry);
+procedure TCodeSiteAppender.DoSend(const event: TLogEvent);
 begin
-  if entry.Color = clDefault then
+  if event.Color = clDefault then
     CodeSite.CategoryColor := $FFFFFF
   else
-    CodeSite.CategoryColor := entry.Color;
+    CodeSite.CategoryColor := event.Color;
 
-  case entry.EntryType of
-    TLogEntryType.Text:
-      if Assigned(entry.Exception) then
-        CodeSite.SendException(TLogAppenderBase.FormatMsg(entry), entry.Exception)
+  case event.EventType of
+    TLogEventType.Text:
+      if Assigned(event.Exception) then
+        CodeSite.SendException(TLogAppenderBase.FormatMsg(event), event.Exception)
       else
-        case entry.Level of
+        case event.Level of
           TLogLevel.Unknown: ;
 
           TLogLevel.Trace:
-            CodeSite.SendNote(entry.Msg);
+            CodeSite.SendNote(event.Msg);
 
           TLogLevel.Debug,
           TLogLevel.Text:
-            CodeSite.SendMsg(entry.Msg);
+            CodeSite.SendMsg(event.Msg);
 
           TLogLevel.Info:
-            CodeSite.SendReminder(entry.Msg);
+            CodeSite.SendReminder(event.Msg);
 
           TLogLevel.Warn:
-            CodeSite.SendWarning(entry.Msg);
+            CodeSite.SendWarning(event.Msg);
 
           TLogLevel.Error,
           TLogLevel.Fatal:
-            CodeSite.SendError(entry.Msg);
+            CodeSite.SendError(event.Msg);
         end;
 
-    TLogEntryType.Value:
-      case entry.Data.Kind of
-        tkClass: CodeSite.Send(entry.Msg, entry.Data.AsObject);
+    TLogEventType.Value:
+      case event.Data.Kind of
+        tkClass: CodeSite.Send(event.Msg, event.Data.AsObject);
       else
-        CodeSite.Send(entry.Msg, entry.Data.ToString);
+        CodeSite.Send(event.Msg, event.Data.ToString);
       end;
 
-    TLogEntryType.Entering:
+    TLogEventType.Entering:
       CodeSite.EnterMethod(
-        TLogAppenderBase.FormatMethodName(entry.ClassType, entry.Msg));
+        TLogAppenderBase.FormatMethodName(event.ClassType, event.Msg));
 
-    TLogEntryType.Leaving:
+    TLogEventType.Leaving:
       CodeSite.ExitMethod(
-        TLogAppenderBase.FormatMethodName(entry.ClassType, entry.Msg));
+        TLogAppenderBase.FormatMethodName(event.ClassType, event.Msg));
 
-    TLogEntryType.CallStack,
-    TLogEntryType.SerializedData:
-      CodeSite.Send(entry.Msg);
+    TLogEventType.CallStack,
+    TLogEventType.SerializedData:
+      CodeSite.Send(event.Msg);
   end;
 end;
 

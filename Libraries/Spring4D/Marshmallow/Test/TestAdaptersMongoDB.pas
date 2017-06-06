@@ -680,7 +680,7 @@ begin
   begin
     for i := 0 to LIter.GetFieldCount - 1 do
     begin
-      Status(Format('"%S": %S', [LIter.GetFieldName(i), VarToStrDef(LIter.GetFieldValue(i), 'Null')]));
+      Status(Format('"%s": %s', [LIter.GetFieldName(i), VarToStrDef(LIter.GetFieldValue(i), 'Null')]));
     end;
   end;
 
@@ -782,7 +782,7 @@ begin
     end;
   end;
   sw.Stop;
-  Status(Format('Saved %D simple entities in %D ms', [iCount, sw.ElapsedMilliseconds]));
+  Status(Format('Saved %d simple entities in %d ms', [iCount, sw.ElapsedMilliseconds]));
 end;
 {$ENDIF}
 
@@ -869,7 +869,7 @@ begin
         for param in params do
         begin
           if VarType(param.ToVariant) <> varUnknown then
-            Status(Format('%2:D Param %0:S = %1:S', [param.Name, VarToStrDef(param.ToVariant, 'NULL'), i]));
+            Status(Format('%2:d Param %0:s = %1:s', [param.Name, VarToStrDef(param.ToVariant, 'NULL'), i]));
           Inc(i);
         end;
         Status('-----');
@@ -1410,7 +1410,7 @@ initialization
   if DirectoryExists(TMongoConnectionAdapterTest.DirMongoDB) then
   begin
     sExecLine := TMongoConnectionAdapterTest.DirMongoDB + 'mongod.exe' +
-      Format(' --dbpath "%S" --journal', [TMongoConnectionAdapterTest.DirMongoDB + 'data\db']);
+      Format(' --dbpath "%s" --journal', [TMongoConnectionAdapterTest.DirMongoDB + 'data\db']);
 
     FillChar(StartInfo,SizeOf(TStartupInfo),#0);
     FillChar(ProcInfo,SizeOf(TProcessInformation),#0);

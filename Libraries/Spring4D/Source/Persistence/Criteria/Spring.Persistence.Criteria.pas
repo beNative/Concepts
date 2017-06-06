@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -42,12 +42,11 @@ type
   /// </summary>
   TCriteria<T: class, constructor> = class(TInterfacedObject, ICriteria<T>)
   private
-    fEntityClass: TClass;
     fCriterions: IList<ICriterion>;
     fOrderBy: IList<IOrderBy>;
     {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fSession: TSession;
-    function GetCount: Integer;
+    function GetCriterions: IReadOnlyList<ICriterion>;
   protected
     constructor Create(const session: TSession); virtual;
 
@@ -61,10 +60,7 @@ type
     procedure Clear;
     function ToList: IList<T>;
 
-    property Count: Integer read GetCount;
-    property Criterions: IList<ICriterion> read fCriterions;
-    property EntityClass: TClass read fEntityClass;
-    property Session: TSession read fSession;
+    property Criterions: IReadOnlyList<ICriterion> read GetCriterions;
   end;
 
 implementation
@@ -76,12 +72,11 @@ uses
   Spring.Persistence.SQL.Types;
 
 
-{$REGION 'TAbstractCriteria<T>'}
+{$REGION 'TCriteria<T>'}
 
 constructor TCriteria<T>.Create(const session: TSession);
 begin
   inherited Create;
-  fEntityClass := T;
   fSession := session;
   fCriterions := TCollections.CreateList<ICriterion>;
   fOrderBy := TCollections.CreateList<IOrderBy>;
@@ -89,8 +84,6 @@ end;
 
 function TCriteria<T>.Add(const criterion: ICriterion): ICriteria<T>;
 begin
-  if criterion.EntityClass = nil then
-    criterion.EntityClass := fEntityClass;
   fCriterions.Add(criterion);
   Result := Self;
 end;
@@ -101,11 +94,6 @@ begin
   fOrderBy.Clear;
 end;
 
-function TCriteria<T>.GetCount: Integer;
-begin
-  Result := fCriterions.Count;
-end;
-
 function TCriteria<T>.GenerateSqlStatement(const params: IList<TDBParam>): string;
 var
   criterion: ICriterion;
@@ -114,10 +102,10 @@ var
   command: TSelectCommand;
   generator: ISQLGenerator;
 begin
-  command := TSelectCommand.Create(fEntityClass);
+  command := TSelectCommand.Create(TClass(T));
   generator := TSQLGeneratorRegister.GetGenerator(fSession.Connection.QueryLanguage);
   try
-    for criterion in Criterions do
+    for criterion in fCriterions do
       criterion.ToSqlString(params, command, generator, True);
 
     for orderBy in fOrderBy do
@@ -132,6 +120,11 @@ begin
   finally
     command.Free;
   end;
+end;
+
+function TCriteria<T>.GetCriterions: IReadOnlyList<ICriterion>;
+begin
+  Result := fCriterions.AsReadOnlyList;
 end;
 
 function TCriteria<T>.OrderBy(const orderBy: IOrderBy): ICriteria<T>;

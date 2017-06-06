@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -157,7 +157,7 @@ begin
   query := callInfo[0].ToString;
   try
     if fCurrentCallIndex < fQueries.Count then
-      fTestCase.CheckEquals(fQueries[fCurrentCallIndex], query,
+      fTestCase.CheckEqualsString(fQueries[fCurrentCallIndex], query,
         Format('Invalid query, index: %d', [fCurrentCallIndex]))
     else
       fTestCase.Fail(Format('Invalid query, no query expected index: %d query: %s',
@@ -360,7 +360,7 @@ end;
 
 procedure TADOExceptionHandlerTest.TestGetAdapterException_EDatabaseError;
 var
-  exc, result: Owned<Exception>;
+  exc, result: Managed<Exception>;
 begin
   exc := EDatabaseError.Create('');
   result := SUT.GetAdapterException(exc, 'message');
@@ -371,7 +371,7 @@ end;
 
 procedure TADOExceptionHandlerTest.TestGetAdapterException_EOleSysError;
 var
-  exc, result: Owned<Exception>;
+  exc, result: Managed<Exception>;
 begin
   exc := EOleException.Create('', -1, '', '', 0);
   result := SUT.GetAdapterException(exc, 'message');
@@ -382,7 +382,7 @@ end;
 
 procedure TADOExceptionHandlerTest.TestGetAdapterException_ESafecallException;
 var
-  exc, result: Owned<Exception>;
+  exc, result: Managed<Exception>;
 begin
   exc := ESafecallException.Create('');
   result := SUT.GetAdapterException(exc, 'message');
@@ -393,7 +393,7 @@ end;
 
 procedure TADOExceptionHandlerTest.TestGetAdapterException_Others_Return_Nil;
 var
-  exc, result: Owned<Exception>;
+  exc, result: Managed<Exception>;
 begin
   exc := Exception.Create('');
   result := SUT.GetAdapterException(exc, '');

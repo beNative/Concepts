@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -28,7 +28,7 @@ unit Spring.Persistence.Core.Repository.Proxy;
 
 interface
 
-{$IFNDEF DELPHIXE_UP}
+{$IFDEF DELPHI2010}
   {$MESSAGE FATAL 'Proxy repository only supported on XE or higher'}
 {$ENDIF}
 
@@ -36,9 +36,7 @@ uses
   Rtti,
   TypInfo,
   Spring.Collections,
-{$IFDEF DELPHIXE}
   Spring.VirtualInterface,
-{$ENDIF}
   Spring.Persistence.Core.Interfaces,
   Spring.Persistence.Criteria.Interfaces,
   Spring.Persistence.Core.Session,
@@ -47,7 +45,14 @@ uses
 type
   TMethodReference = reference to function(const Args: TArray<TValue>): TValue;
 
-  TProxyRepository<T: class, constructor; TID> = class(TVirtualInterface)
+  TProxyRepository = class(TVirtualInterface)
+  protected
+    class function GetPageArgs(const args: TArray<TValue>;
+      out page: Integer; out pageSize: Integer): TArray<TValue>;
+    class function GetQueryTextFromMethod(const method: TRttiMethod): string;
+  end;
+
+  TProxyRepository<T: class, constructor; TID> = class(TProxyRepository)
   private
     fRepository: IPagedRepository<T,TID>;
     {$IFDEF WEAKREF}[Weak]{$ENDIF}
@@ -66,12 +71,6 @@ type
       repositoryClass: TClass = nil); reintroduce;
   end;
 
-function FromArgsToConstArray(const args: TArray<TValue>): TArray<TVarRec>;
-procedure FinalizeVarRec(var item: TVarRec);
-procedure FinalizeVarRecArray(var values: TArray<TVarRec>);
-function GetPageArgs(const args: TArray<TValue>; out page: Integer; out pageSize: Integer): TArray<TValue>;
-function GetQueryTextFromMethod(const method: TRttiMethod): string;
-
 implementation
 
 uses
@@ -83,94 +82,18 @@ uses
   Spring.Persistence.Mapping.Attributes,
   Spring.Reflection;
 
-function FromArgsToConstArray(const args: TArray<TValue>): TArray<TVarRec>;
-var
-  i: Integer;
-  item: TVarRec;
-  value: TValue;
-begin
-  SetLength(Result, Max(0, Length(args) - 1));
-  for i := Low(args) + 1 to High(args) do
-  begin
-    value := args[i];
-    item := Default(TVarRec);
-    case value.Kind of
-      tkInteger:
-      begin
-        item.VInteger := value.AsInteger;
-        item.VType := vtInteger;
-      end;
-      tkEnumeration:
-      begin
-        item.VBoolean := value.AsBoolean;
-        item.VType := vtBoolean;
-      end;
-      tkString, tkUString, tkLString, tkWString:
-      begin
-        item.VUnicodeString := nil;
-        string(item.VUnicodeString) := value.AsString;
-        item.VType := vtUnicodeString;
-      end;
-      tkFloat:
-      begin
-        New(item.VExtended);
-        item.VExtended^ := value.AsExtended;
-        item.VType := vtExtended;
-      end;
-      tkRecord: ;
-      tkInt64:
-      begin
-        New(item.VInt64);
-        item.VInt64^ := value.AsInt64;
-        item.VType := vtInt64;
-      end;
-    else
-      raise EORMUnsupportedType.CreateFmt('Unknown open argument type (%s)', [value.ToString]);
-    end;
-    Result[i - 1] := item;
-  end;
-end;
 
-procedure FinalizeVarRec(var item: TVarRec);
-begin
-  case item.VType of
-    vtExtended: Dispose(item.VExtended);
-{$IFNDEF NEXTGEN}
-    vtString: Dispose(item.VString);
-    vtAnsiString: string(item.VAnsiString) := '';
-{$ENDIF}
-    vtPWideChar: FreeMem(item.VPWideChar);
-{$IF Declared(WideString)}
-    vtWideString: WideString(item.VWideString) := '';
-{$IFEND}
-    vtUnicodeString: string(item.VUnicodeString) := '';
-    vtCurrency: Dispose(item.VCurrency);
-    vtVariant: Dispose(item.VVariant);
-    vtInterface: IInterface(item.VInterface) := nil;
-{$IFDEF AUTOREFCOUNT}
-    vtObject: TObject(item.VObject) := nil;
-{$ENDIF}
-    vtInt64: Dispose(item.VInt64);
-  end;
-  item.VInteger := 0;
-end;
+{$REGION 'TProxyRepository'}
 
-procedure FinalizeVarRecArray(var values: TArray<TVarRec>);
-var
-  i: Integer;
-begin
-  for i := Low(values) to High(values) do
-    FinalizeVarRec(values[i]);
-  values := nil;
-end;
-
-function GetPageArgs(const args: TArray<TValue>; out page: Integer; out pageSize: Integer): TArray<TValue>;
+class function TProxyRepository.GetPageArgs(const args: TArray<TValue>;
+  out page: Integer; out pageSize: Integer): TArray<TValue>;
 var
   i: Integer;
 begin
   try
-    pageSize := args[High(args)].AsInteger;
-    page := args[High(args) - 1].AsInteger;
+    i := High(args);
+    pageSize := args[i].AsInteger;
+    page := args[i - 1].AsInteger;
   except
     raise EORMInvalidArguments.Create('Last 2 arguments for paged requests should be page(Integer) and pageSize(Integer).');
   end;
@@ -179,7 +102,8 @@ begin
     Result[i] := args[i];
 end;
 
-function GetQueryTextFromMethod(const method: TRttiMethod): string;
+class function TProxyRepository.GetQueryTextFromMethod(
+  const method: TRttiMethod): string;
 var
   attribute: QueryAttribute;
 begin
@@ -187,6 +111,8 @@ begin
     Exit(attribute.QueryText);
   Result := '';
 end;
+
+{$ENDREGION}
 
 
 {$REGION 'TProxyRepository<T, TID>'}
@@ -210,7 +136,7 @@ begin
   OnInvoke :=
     procedure(Method: TRttiMethod; const Args: TArray<TValue>; out Result: TValue)
     begin
-      Result := DoOnInvoke(Method, Args);
+      Result := DoOnInvoke(Method, Copy(Args, 1));
     end;
 {$IFDEF AUTOREFCOUNT}
   // Release reference held by ancestor RawCallBack (bypass RSP-10177)
@@ -226,7 +152,6 @@ function TProxyRepository<T, TID>.DoOnInvoke(const Method: TRttiMethod;
   const Args: TArray<TValue>): TValue;
 var
   methodRef: TMethodReference;
-  constArray: TArray<TVarRec>;
   items: IList<T>;
   pageArgs: TArray<TValue>;
   page, pageSize: Integer;
@@ -239,14 +164,9 @@ begin
       tkInteger, tkInt64: Result := fRepository.Count;
       tkClass, tkClassRef, tkPointer:
       begin
-        constArray := FromArgsToConstArray(Args);
-        try
-          items := fRepository.Query(GetQueryTextFromMethod(Method), constArray);
-          (items as ICollectionOwnership).OwnsObjects := False;
-          Result := TValue.From<T>(items.FirstOrDefault);
-        finally
-          FinalizeVarRecArray(constArray);
-        end;
+        items := fRepository.Query(GetQueryTextFromMethod(Method), Args);
+        (items as ICollectionOwnership).OwnsObjects := False;
+        Result := TValue.From<T>(items.FirstOrDefault);
       end;
       tkInterface:
       begin
@@ -254,23 +174,13 @@ begin
         begin
           // last two arguments should be page and pagesize
           pageArgs := GetPageArgs(Args, page, pageSize);
-          constArray := FromArgsToConstArray(pageArgs);
-          try
-            Result := TValue.From<IDBPage<T>>(fSession.Page<T>(page, pageSize,
-              GetQueryTextFromMethod(Method), constArray));
-          finally
-            FinalizeVarRecArray(constArray);
-          end;
+          Result := TValue.From<IDBPage<T>>(fSession.Page<T>(page, pageSize,
+            GetQueryTextFromMethod(Method), pageArgs));
         end
         else
         begin
-          constArray := FromArgsToConstArray(Args);
-          try
-            Result := TValue.From<IList<T>>(fRepository.Query(
-              GetQueryTextFromMethod(Method), constArray));
-          finally
-            FinalizeVarRecArray(constArray);
-          end;
+          Result := TValue.From<IList<T>>(fRepository.Query(
+            GetQueryTextFromMethod(Method), Args));
         end;
       end
       else
@@ -295,12 +205,12 @@ begin
   RegisterMethod(Format('function FindWhere(const expression: ICriterion): IList<%s>', [fQualifiedTypeName]),
     function(const Args: TArray<TValue>): TValue
     begin
-      Result := TValue.From<IList<T>>(fRepository.FindWhere(Args[1].AsInterface as ICriterion));
+      Result := TValue.From<IList<T>>(fRepository.FindWhere(Args[0].AsInterface as ICriterion));
     end);
   RegisterMethod(Format('function FindOne(const id: %s): %s', [fIdTypeName, fTypeName]),
     function(const Args: TArray<TValue>): TValue
     begin
-      Result := fRepository.FindOne(Args[1].AsType<TID>);
+      Result := fRepository.FindOne(Args[0].AsType<TID>);
     end);
   RegisterMethod(Format('function FindAll: IList<%s>', [fQualifiedTypeName]),
     function(const Args: TArray<TValue>): TValue
@@ -310,72 +220,59 @@ begin
   RegisterMethod(Format('function Exists(const id: %s): Boolean', [fIdTypeName]),
     function(const Args: TArray<TValue>): TValue
     begin
-      Result := fRepository.Exists(Args[1].AsType<TID>);
+      Result := fRepository.Exists(Args[0].AsType<TID>);
     end);
   RegisterMethod(Format('procedure Insert(const entity: %s)', [fTypeName]),
     function(const Args: TArray<TValue>): TValue
     begin
-      fRepository.Insert(Args[1].AsType<T>);
+      fRepository.Insert(Args[0].AsType<T>);
     end);
   RegisterMethod(Format('procedure Insert(const entities: IEnumerable<%s>)', [fQualifiedTypeName]),
     function(const Args: TArray<TValue>): TValue
     begin
-      fRepository.Insert(Args[1].AsInterface as IEnumerable<T>);
+      fRepository.Insert(Args[0].AsInterface as IEnumerable<T>);
     end);
   RegisterMethod(Format('function Save(const entity: %0:s): %0:s', [fTypeName]),
     function(const Args: TArray<TValue>): TValue
     begin
-      Result := fRepository.Save(Args[1].AsType<T>);
+      Result := fRepository.Save(Args[0].AsType<T>);
     end);
   RegisterMethod(Format('function Save(const entities: IEnumerable<%0:s>): IEnumerable<%0:s>', [fQualifiedTypeName]),
     function(const Args: TArray<TValue>): TValue
     begin
-      Result := TValue.From<IEnumerable<T>>(fRepository.Save(Args[1].AsInterface as IEnumerable<T>));
+      Result := TValue.From<IEnumerable<T>>(fRepository.Save(Args[0].AsInterface as IEnumerable<T>));
     end);
   RegisterMethod(Format('procedure SaveCascade(const entity: %s)', [fTypeName]),
     function(const Args: TArray<TValue>): TValue
     begin
-      fRepository.SaveCascade(Args[1].AsType<T>);
+      fRepository.SaveCascade(Args[0].AsType<T>);
     end);
   RegisterMethod(Format('procedure Delete(const entity: %s)', [fTypeName]),
     function(const Args: TArray<TValue>): TValue
     begin
-      fRepository.Delete(Args[1].AsType<T>);
+      fRepository.Delete(Args[0].AsType<T>);
     end);
   RegisterMethod(Format('procedure Delete(const entities: IEnumerable<%s>)', [fQualifiedTypeName]),
     function(const Args: TArray<TValue>): TValue
     begin
-      fRepository.Delete(Args[1].AsInterface as IEnumerable<T>);
+      fRepository.Delete(Args[0].AsInterface as IEnumerable<T>);
     end);
   RegisterMethod('procedure DeleteAll',
     function(const Args: TArray<TValue>): TValue
     begin
       fRepository.DeleteAll;
     end);
-  RegisterMethod(Format('function Query(const query: string; const params: TVarRec): IList<%s>', [fQualifiedTypeName]),
-    function(const Args: TArray<TValue>): TValue
-    var
-      LConstArray: TArray<TVarRec>;
-    begin
-      LConstArray := FromArgsToConstArray(Copy(Args, 1));
-      try
-        Result := TValue.From<IList<T>>(fRepository.Query(Args[1].AsString, LConstArray));
-      finally
-        FinalizeVarRecArray(LConstArray);
-      end;
-    end);
-  RegisterMethod('function Execute(const query: string; const params: TVarRec): NativeUInt',
-    function(const Args: TArray<TValue>): TValue
-    var
-      LConstArray: TArray<TVarRec>;
-    begin
-      LConstArray := FromArgsToConstArray(Copy(Args, 1));
-      try
-        Result := fRepository.Execute(Args[1].AsString, LConstArray);
-      finally
-        FinalizeVarRecArray(LConstArray);
-      end;
-    end);
+  // because RTTI does not properly support open arrays this is not possible
+//  RegisterMethod(Format('function Query(const query: string; const params: TValue): IList<%s>', [fQualifiedTypeName]),
+//    function(const Args: TArray<TValue>): TValue
+//    begin
+//      Result := TValue.From<IList<T>>(fRepository.Query(Args[0].AsString, Args[1]));
+//    end);
+//  RegisterMethod('function Execute(const query: string; const params: TValue): NativeUInt',
+//    function(const Args: TArray<TValue>): TValue
+//    begin
+//      Result := fRepository.Execute(Args[0].AsString, Copy(Args, 1));
+//    end);
 end;
 
 procedure TProxyRepository<T, TID>.RegisterMethod(

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -118,6 +118,8 @@ type
     procedure TestGetRange_LastItems;
 
     procedure TestExtract_ItemNotInList;
+    procedure TestExtractAll_OneItemInList;
+    procedure TestExtractAll_MultipleItemsInList_RemoveSome;
 
     procedure TestEnumeratorMoveNext_VersionMismatch;
     procedure TestEnumeratorReset;
@@ -126,6 +128,9 @@ type
     procedure TestRemoveAll;
 
     procedure TestAddRange_EmptySource;
+
+    procedure TestExtractAt;
+    procedure TestExtractRange;
   end;
 
   TTestSortedList = class(TTestCase)
@@ -175,6 +180,8 @@ type
     procedure TestDictionaryContainsKey;
     procedure TestMapAdd;
     procedure TestMapRemove;
+    procedure TestOrdered;
+    procedure TestOrdered_Issue179;
   end;
 
   TTestEmptyStackofStrings = class(TTestCase)
@@ -206,7 +213,7 @@ type
     procedure TestStackPeekOrDefault;
     procedure TestStackTryPeek;
     procedure TestStackTryPop;
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     procedure TestStackTrimExcess;
 {$ENDIF}
   end;
@@ -229,7 +236,7 @@ type
     fAAction, fBAction: TCollectionChangedAction;
     procedure HandlerA(Sender: TObject; const Item: Integer; Action: TCollectionChangedAction);
     procedure HandlerB(Sender: TObject; const Item: Integer; Action: TCollectionChangedAction);
-  public
+  protected
     procedure SetUp; override;
     procedure TearDown; override;
   published
@@ -267,7 +274,7 @@ type
     procedure TestQueuePeekOrDefault;
     procedure TestQueueTryDequeue;
     procedure TestQueueTryPeek;
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     procedure TestQueueTrimExcess;
 {$ENDIF}
   end;
@@ -366,6 +373,7 @@ type
     procedure TestObjectListCreate;
     procedure TestSetOwnsObjects;
     procedure TestGetElementType;
+    procedure TestExtractAt;
   end;
 
   TTestInterfaceList = class(TTestCase)
@@ -474,13 +482,49 @@ type
   TTestMultiMap = class(TTestCase)
   private
     SUT: IMultiMap<Integer,Integer>;
+    ValueAddedCount, ValueRemovedCount: Integer;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
+
+    procedure ValueChanged(Sender: TObject; const Item: Integer;
+      Action: TCollectionChangedAction);
   published
     procedure TestAddPair;
 
     procedure TestAddStringPair;
+
+    procedure TestInternalEventHandlersDetached;
+    procedure TestValueChangedCalledProperly;
+    procedure TestValuesOrdered;
+    procedure TestExtractValues;
+  end;
+
+  TTestBidiDictionary = class(TTestCase)
+  published
+    procedure AddDictionary;
+  end;
+
+  TTestObjectStack = class(TTestCase)
+  private
+    SUT: IStack<TObject>;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure PopDestroysItemAndReturnsNil;
+    procedure ExtractDoesNotDestroysItemButReturnsIt;
+  end;
+
+  TTestObjectQueue = class(TTestCase)
+  private
+    SUT: IQueue<TObject>;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure DequeueDestroysItemAndReturnsNil;
+    procedure ExtractDoesNotDestroysItemButReturnsIt;
   end;
 
 implementation
@@ -765,6 +809,62 @@ begin
   ExpectedException := EInvalidOperationException;
   e.Reset;
   ExpectedException := nil;
+end;
+
+procedure TTestIntegerList.TestExtractAll_MultipleItemsInList_RemoveSome;
+var
+  callCount: Integer;
+begin
+  callCount := 0;
+  SUT.AddRange([1, 2, 3, 4, 5]);
+  SUT.RemoveAll(
+    function(const i: Integer): Boolean
+    begin
+      Result := Odd(i);
+      Inc(callCount);
+    end);
+  CheckEquals(5, callCount);
+  CheckEquals(2, SUT.Count);
+  CheckEquals(2, SUT[0]);
+  CheckEquals(4, SUT[1]);
+end;
+
+procedure TTestIntegerList.TestExtractAll_OneItemInList;
+var
+  callCount: Integer;
+begin
+  callCount := 0;
+  SUT.Add(1);
+  SUT.RemoveAll(
+    function(const i: Integer): Boolean
+    begin
+      Result := True;
+      Inc(callCount);
+    end);
+  CheckEquals(1, callCount);
+  CheckEquals(0, SUT.Count);
+end;
+
+procedure TTestIntegerList.TestExtractAt;
+begin
+  SimpleFillList;
+  CheckEquals(2, SUT.ExtractAt(1));
+  CheckEquals(2, SUT.Count);
+  CheckEquals(1, SUT[0]);
+  CheckEquals(3, SUT[1]);
+end;
+
+procedure TTestIntegerList.TestExtractRange;
+var
+  values: TArray<Integer>;
+begin
+  SimpleFillList;
+  values := SUT.ExtractRange(0, 3);
+  CheckEquals(0, SUT.Count);
+  CheckEquals(3, Length(values));
+  CheckEquals(1, values[0]);
+  CheckEquals(2, values[1]);
+  CheckEquals(3, values[2]);
 end;
 
 procedure TTestIntegerList.TestExtract_ItemNotInList;
@@ -1255,6 +1355,54 @@ begin
   CheckFalse(SUT.ContainsKey('one'), 'TestMapRemove: Values does contain "one"');
 end;
 
+procedure TTestStringIntegerDictionary.TestOrdered;
+var
+  pairs: TArray<TPair<string, Integer>>;
+begin
+  SUT.Clear;
+  SUT.Add('1', 1);
+  SUT.Add('2', 2);
+  SUT.Add('3', 3);
+
+  pairs := SUT.Ordered.ToArray;
+  CheckEquals(3, Length(pairs));
+  // check if sorted by key
+  CheckEquals('1', pairs[0].Key);
+  CheckEquals('2', pairs[1].Key);
+  CheckEquals('3', pairs[2].Key);
+end;
+
+procedure TTestStringIntegerDictionary.TestOrdered_Issue179;
+var
+  o: IEnumerable<TPair<string,Integer>>;
+  e: IEnumerator<TPair<string,Integer>>;
+  i: Integer;
+begin
+  // this test is making sure that .Ordered is properly reference counted
+  // and captures the dictionary keeping it alive
+
+  o := SUT.Ordered;
+  e := o.GetEnumerator;
+
+  // should not destroy the dictionary because of the ordered enumerable
+  SUT := nil;
+
+  // even now it should not be destroyed because
+  // the enumerator is still keeping it alive
+  o := nil;
+
+  // make sure that the dictionary is really still there and contains the items
+  i := 0;
+  while e.MoveNext do
+    Inc(i);
+  CheckEquals(3, i);
+
+  // now setting the reference to the enumerator should finally
+  // trigger the destruction of the dictionary as this was the
+  // last reference keeping it alive
+  e := nil;
+end;
+
 {$ENDREGION}
 
 
@@ -1411,7 +1559,7 @@ begin
   CheckEquals(0, SUT.Count);
 end;
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
 procedure TTestStackOfInteger.TestStackTrimExcess;
 var
   stack: TStack<Integer>;
@@ -1698,7 +1846,7 @@ begin
   CheckEquals(MaxItems, SUT.PeekOrDefault);
 end;
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
 procedure TTestQueueOfInteger.TestQueueTrimExcess;
 var
   queue: TQueue<Integer>;
@@ -2157,6 +2305,19 @@ begin
   SUT := nil;
 end;
 
+procedure TTestObjectList.TestExtractAt;
+var
+  obj1, obj2, obj3: TPersistent;
+begin
+  obj1 := TPersistent.Create;
+  obj2 := TPersistent.Create;
+  SUT.AddRange([obj1, obj2]);
+  obj3 := SUT.ExtractAt(1);
+  CheckEquals(1, SUT.Count);
+  CheckSame(obj2, obj3);
+  obj3.Free;
+end;
+
 procedure TTestObjectList.TestGetElementType;
 begin
   Check(TypeInfo(TPersistent) = SUT.ElementType);
@@ -2418,7 +2579,7 @@ var
   words: IEnumerable<string>;
 begin
   sentence := 'the quick brown fox jumps over the lazy dog';
-  words := TEnumerable.Query<string>(TArray<string>(SplitString(sentence, ' ')));
+  words := TEnumerable.From<string>(TArray<string>(SplitString(sentence, ' ')));
   reversed := words.Aggregate(
     function(workingSentence, next: string): string
     begin
@@ -2688,6 +2849,8 @@ end;
 procedure TTestMultiMap.SetUp;
 begin
   SUT := TCollections.CreateMultiMap<Integer,Integer>;
+  ValueAddedCount := 0;
+  ValueRemovedCount := 0;
 end;
 
 procedure TTestMultiMap.TearDown;
@@ -2712,6 +2875,184 @@ begin
   pair.Value := 'World';
   map.Add('Test', pair);
   CheckEquals(1, map.Count);
+end;
+
+procedure TTestMultiMap.TestExtractValues;
+var
+  map: IMultiMap<Integer,TObject>;
+  list: IList<TObject>;
+  obj: TObject;
+begin
+  map := TCollections.CreateMultiMap<Integer,TObject>([doOwnsValues]);
+  map.Add(1, TObject.Create);
+  list := map.ExtractValues(1);
+  CheckEquals(0, map.Count);
+  CheckEquals(1, list.Count);
+  map := nil;
+  obj := list.ExtractAt(0);
+  obj.Free;
+  list := nil;
+end;
+
+procedure TTestMultiMap.TestInternalEventHandlersDetached;
+var
+  items: IReadOnlyList<Integer>;
+begin
+  SUT.Add(1, 1);
+  items := SUT[1];
+  CheckEquals(1, items.Count);
+  SUT := nil;
+  CheckEquals(0, items.Count);
+  // this raised an AV under LEAKCHECK when the internal change handlers
+  // of the multimap where not detached from the value lists upon their removal
+  items := nil;
+end;
+
+procedure TTestMultiMap.TestValueChangedCalledProperly;
+begin
+  SUT.OnValueChanged.Add(ValueChanged);
+  SUT.Add(1, 1);
+  SUT.Add(1, 2);
+  CheckEquals(2, ValueAddedCount);
+  SUT.Remove(1, 1);
+  CheckEquals(1, ValueRemovedCount);
+
+  SUT.Add(1, 3);
+  CheckEquals(3, ValueAddedCount);
+  SUT := nil;
+  CheckEquals(3, ValueRemovedCount);
+end;
+
+procedure TTestMultiMap.TestValuesOrdered;
+begin
+  SUT.Add(1, 1);
+  SUT.Add(1, 2);
+  SUT.Add(2, 3);
+  SUT.Add(2, 4);
+  SUT.Add(3, 5);
+  SUT.Add(3, 6);
+  SUT.Add(4, 7);
+  SUT.Add(4, 8);
+
+  CheckTrue(SUT.Values.Ordered.EqualsTo([1, 2, 3, 4, 5, 6, 7, 8]));
+end;
+
+procedure TTestMultiMap.ValueChanged(Sender: TObject; const Item: Integer;
+  Action: TCollectionChangedAction);
+begin
+  case Action of
+    caAdded: Inc(ValueAddedCount);
+    caRemoved: Inc(ValueRemovedCount);
+  end;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestBidiDictionary'}
+
+procedure TTestBidiDictionary.AddDictionary;
+var
+  dict: IDictionary<Integer,string>;
+  bidi: IBidiDictionary<Integer,string>;
+begin
+  dict := TCollections.CreateDictionary<Integer,string>;
+  dict.Add(1,'a');
+  dict.Add(2,'b');
+  dict.Add(3,'c');
+  dict.Add(4,'d');
+  bidi := TCollections.CreateBidiDictionary<Integer,string>;
+  bidi.AddRange(dict);
+  CheckTrue(bidi.EqualsTo(dict));
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestObjectStack'}
+
+procedure TTestObjectStack.ExtractDoesNotDestroysItemButReturnsIt;
+var
+  obj1, obj2, obj: TObject;
+begin
+  obj1 := TObject.Create;
+  obj2 := TObject.Create;
+
+  // stack -> LIFO
+  SUT.Push(obj1);
+  SUT.Push(obj2);
+  CheckSame(obj2, SUT.Extract);
+  CheckTrue(SUT.TryExtract(obj));
+  CheckSame(obj1, obj);
+
+  obj2.Free;
+  obj1.Free;
+end;
+
+procedure TTestObjectStack.PopDestroysItemAndReturnsNil;
+var
+  obj: TObject;
+begin
+  SUT.Push(TObject.Create);
+  SUT.Push(TObject.Create);
+  CheckNull(SUT.Pop);
+  CheckTrue(SUT.TryPop(obj));
+  CheckNull(obj);
+end;
+
+procedure TTestObjectStack.SetUp;
+begin
+  inherited;
+  SUT := TObjectStack<TObject>.Create;
+end;
+
+procedure TTestObjectStack.TearDown;
+begin
+  SUT := nil;
+  inherited;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestObjectQueue'}
+
+procedure TTestObjectQueue.DequeueDestroysItemAndReturnsNil;
+begin
+  SUT.Enqueue(TObject.Create);
+  SUT.Enqueue(TObject.Create);
+  CheckNull(SUT.Dequeue);
+  CheckNull(SUT.Dequeue);
+end;
+
+procedure TTestObjectQueue.ExtractDoesNotDestroysItemButReturnsIt;
+var
+  obj1, obj2, obj: TObject;
+begin
+  obj1 := TObject.Create;
+  obj2 := TObject.Create;
+
+  // queue -> FIFO
+  SUT.Enqueue(obj1);
+  SUT.Enqueue(obj2);
+  CheckSame(obj1, SUT.Extract);
+  CheckTrue(SUT.TryExtract(obj));
+  CheckSame(obj2, obj);
+
+  obj2.Free;
+  obj1.Free;
+end;
+
+procedure TTestObjectQueue.SetUp;
+begin
+  inherited;
+  SUT := TObjectQueue<TObject>.Create;
+end;
+
+procedure TTestObjectQueue.TearDown;
+begin
+  SUT := nil;
+  inherited;
 end;
 
 {$ENDREGION}

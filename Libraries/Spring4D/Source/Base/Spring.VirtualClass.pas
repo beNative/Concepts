@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -35,20 +35,12 @@ uses
   SyncObjs,
   TypInfo;
 
+{$IF not declared(CPP_ABI_ADJUST)}
+const
+  CPP_ABI_ADJUST = 0;
+{$IFEND}
+
 type
-  TVirtualClasses = class
-  private
-    fClasses: TList;
-    fLock: TCriticalSection;
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    function GetVirtualClass(classType: TClass): TClass;
-    procedure Proxify(const instance: TObject);
-    procedure Unproxify(const instance: TObject);
-  end;
-
 {$POINTERMATH ON}
   PVirtualMethodTable = ^Pointer;
 {$POINTERMATH OFF}
@@ -77,13 +69,16 @@ type
   PClass = ^TClass;
   PClassData = ^TClassData;
   TClassData = record
+  strict private
+    function GetVirtualMethodCount: Word;
+  public
     SelfPtr: TClass;
-    IntfTable: Pointer;
+    IntfTable: PInterfaceTable;
     AutoTable: Pointer;
-    InitTable: Pointer;
+    InitTable: PTypeInfo;
     TypeInfo: PTypeInfo;
-    FieldTable: Pointer;
-    MethodTable: Pointer;
+    FieldTable: PVmtFieldTable;
+    MethodTable: PVmtMethodTable;
     DynamicTable: Pointer;
 {$IFNDEF NEXTGEN}
     ClassName: PShortString;
@@ -109,15 +104,13 @@ type
     FreeInstance: TFreeInstance;
     Destroy: TDestroy;
 
-    VirtualMethods: PVirtualMethodTable;
-  end;
+{$IF CPP_ABI_ADJUST > 0)}
+    CPP_API: array[1..CPP_ABI_ADJUST div SizeOf(Pointer)] of Pointer;
+{$IFEND}
 
-  PVmtMethodExTable = ^TVmtMethodExTable;
-  TVmtMethodExTable = packed record
-   {Count: Word;}
-   {Entry: array[1..Count] of TVmtMethodEntry;}
-    ExCount: Word;
-    ExEntry: array[0..0] of TVmtMethodExEntry;
+    VirtualMethods: array[0..999] of Pointer;
+
+    property VirtualMethodCount: Word read GetVirtualMethodCount;
   end;
 
   TVirtualClass = class
@@ -132,21 +125,36 @@ type
     property ProxyClassData: PClassData read GetClassProxyData;
   end;
 
+  TVirtualClasses = class
+  strict private
+    fClasses: TList;
+    fLock: TCriticalSection;
+    class var fDefault: TVirtualClasses;
+  protected
+    class property Default: TVirtualClasses read fDefault;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    class constructor Create;
+    class destructor Destroy;
+
+    function GetVirtualClass(classType: TClass): TClass;
+    procedure Proxify(const instance: TObject);
+    procedure Unproxify(const instance: TObject);
+  end;
+
 function CreateVirtualClass(classType: TClass): TClass;
 procedure DestroyVirtualClass(classType: TClass);
 
 function GetClassData(classType: TClass): PClassData; inline;
 
-function GetVirtualMethodExTable(classType: TClass): PVmtMethodExTable;
-function GetVirtualMethodAddress(classType: TClass; virtualIndex: SmallInt): Pointer;
+function GetVirtualMethodAddress(classType: TClass; virtualIndex: Word): Pointer;
 function GetVirtualMethodCount(classType: TClass): Integer;
 function GetVirtualMethodIndex(classType: TClass; method: Pointer): SmallInt;
 function IsVirtualMethodOverride(baseClass, classType: TClass; method: Pointer): Boolean;
 
 implementation
-
-uses
-  Rtti;
 
 
 {$REGION 'Routines'}
@@ -176,94 +184,36 @@ begin
   Result := Pointer(NativeInt(classType) + vmtSelfPtr);
 end;
 
-function GetVirtualMethodExTable(classType: TClass): PVmtMethodExTable;
-var
-  p: PByte;
-  count, paramCount: Word;
-  methEnd: PByte;
-begin
-  p := PPointer(PByte(classType) + vmtMethodTable)^;
-  if p <> nil then
-  begin
-    // skip the first entries
-    count := PVmtMethodTable(p).Count;
-    Inc(p, SizeOf(Word)); // Count
-    while count > 0 do
-    begin
-      methEnd := p + PVmtMethodEntry(p).Len;
-      Inc(p, SizeOf(Word));     // Len
-      Inc(p, SizeOf(Pointer));  // CodeAddress
-      Inc(p, p^ + 1);           // Name
-      if methEnd > p then
-      begin
-        paramCount := PVmtMethodEntryTail(p).ParamCount;
-        Inc(p, SizeOf(TVmtMethodEntryTail));
-        while paramCount > 0 do
-        begin
-          // skip params
-          Inc(p, SizeOf(Byte));       // Flags
-          Inc(p, SizeOf(PPTypeInfo)); // ParamType
-          Inc(p, SizeOf(Byte));       // ParOff
-          Inc(p, p^ + 1);             // Name
-          Inc(p, PWord(p)^);          // AttrData
-          Dec(paramCount);
-        end;
-      end;
-      Dec(count);
-    end;
-  end;
-  Result := PVmtMethodExTable(p);
-end;
-
 function GetVirtualMethodIndex(classType: TClass; method: Pointer): SmallInt;
 var
-  table: PVmtMethodExTable;
+  classData: PClassData;
   i: Word;
 begin
   while classType <> nil do
   begin
-    table := GetVirtualMethodExTable(classType);
-    if table <> nil then
-      for i := 0 to table.ExCount - 1 do
-        if table.ExEntry[i].Entry.CodeAddress = method then
-          Exit(table.ExEntry[i].VirtualIndex);
+    classData := GetClassData(classType);
+    for i := 0 to classData.VirtualMethodCount - 1 do
+      if classData.VirtualMethods[i] = method then
+        Exit(i);
     classType := classType.ClassParent;
   end;
   Result := -1;
 end;
 
 function GetVirtualMethodCount(classType: TClass): Integer;
-var
-  context: TRttiContext;
-  rttiType: TRttiType;
-  method: TRttiMethod;
 begin
-  rttiType := context.GetType(classType);
-  Result := 0;
-  for method in rttiType.GetMethods do
-  begin
-    if method.DispatchKind <> dkVtable then
-      Continue;
-    if method.VirtualIndex >= Result then
-      Result := method.VirtualIndex + 1;
-  end;
+  Result := GetClassData(classType).VirtualMethodCount;
 end;
 
-function GetVirtualMethodAddress(classType: TClass; virtualIndex: SmallInt): Pointer;
+function GetVirtualMethodAddress(classType: TClass; virtualIndex: Word): Pointer;
 var
-  table: PVmtMethodExTable;
-  i: Word;
+  classData: PClassData;
 begin
-  while classType <> nil do
-  begin
-    table := GetVirtualMethodExTable(classType);
-    if table <> nil then
-      for i := 0 to table.ExCount - 1 do
-        if table.ExEntry[i].VirtualIndex = virtualIndex then
-          Exit(table.ExEntry[i].Entry.CodeAddress);
-    classType := classType.ClassParent;
-  end;
-  Result := nil;
+  classData := GetClassData(classType);
+  if virtualIndex < classData.VirtualMethodCount then
+    Result := classData.VirtualMethods[virtualIndex]
+  else
+    Result := nil;
 end;
 
 function IsVirtualMethodOverride(baseClass, classType: TClass; method: Pointer): Boolean;
@@ -272,6 +222,45 @@ var
 begin
   virtualMethodIndex := GetVirtualMethodIndex(baseClass, method);
   Result := method <> GetVirtualMethodAddress(classType, virtualMethodIndex);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TClassData'}
+
+function TClassData.GetVirtualMethodCount: Word;
+begin
+  if InitTable <> nil then
+    Result := (PByte(InitTable) - PByte(@VirtualMethods[0])) div SizeOf(Pointer)
+  else if FieldTable <> nil then
+    Result := (PByte(FieldTable) - PByte(@VirtualMethods[0])) div SizeOf(Pointer)
+  else if MethodTable <> nil then
+    Result := (PByte(MethodTable) - PByte(@VirtualMethods[0])) div SizeOf(Pointer)
+  else
+    Result := 0;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TVirtualClass'}
+
+constructor TVirtualClass.Create(classType: TClass);
+begin
+  inherited Create;
+  fProxyClass := CreateVirtualClass(classType);
+end;
+
+destructor TVirtualClass.Destroy;
+begin
+  DestroyVirtualClass(fProxyClass);
+  inherited Destroy;
+end;
+
+function TVirtualClass.GetClassProxyData: PClassData;
+begin
+  Result := GetClassData(fProxyClass);
 end;
 
 {$ENDREGION}
@@ -294,7 +283,17 @@ begin
     DestroyVirtualClass(classType);
   fLock.Free;
   fClasses.Free;
-  inherited;
+  inherited Destroy;
+end;
+
+class constructor TVirtualClasses.Create;
+begin
+  fDefault := TVirtualClasses.Create;
+end;
+
+class destructor TVirtualClasses.Destroy;
+begin
+  fDefault.Free;
 end;
 
 function TVirtualClasses.GetVirtualClass(classType: TClass): TClass;
@@ -327,28 +326,6 @@ begin
   classType := instance.ClassType;
   if fClasses.IndexOf(classType) > -1 then
     PPointer(instance)^ := classType.ClassParent;
-end;
-
-{$ENDREGION}
-
-
-{$REGION 'TVirtualClass'}
-
-constructor TVirtualClass.Create(classType: TClass);
-begin
-  inherited Create;
-  fProxyClass := CreateVirtualClass(classType);
-end;
-
-destructor TVirtualClass.Destroy;
-begin
-  DestroyVirtualClass(fProxyClass);
-  inherited;
-end;
-
-function TVirtualClass.GetClassProxyData: PClassData;
-begin
-  Result := GetClassData(fProxyClass);
 end;
 
 {$ENDREGION}

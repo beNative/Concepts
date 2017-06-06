@@ -70,14 +70,12 @@ uses
   Spring.Persistence.Mapping.CodeGenerator in '..\..\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.pas',
   Spring.Persistence.Mapping.CodeGenerator.Abstract in '..\..\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.Abstract.pas',
   Spring.Persistence.Mapping.CodeGenerator.DB in '..\..\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.DB.pas',
-  Spring.Persistence.ObjectDataset in '..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.pas',
-  Spring.Persistence.ObjectDataset.Abstract in '..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Abstract.pas',
-  Spring.Persistence.ObjectDataset.ActiveX in '..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ActiveX.pas',
-  Spring.Persistence.ObjectDataset.Algorithms.Sort in '..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Algorithms.Sort.pas',
-  Spring.Persistence.ObjectDataset.Blobs in '..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Blobs.pas',
-  Spring.Persistence.ObjectDataset.ExprParser in '..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ExprParser.pas',
-  Spring.Persistence.ObjectDataset.ExprParser.Functions in '..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ExprParser.Functions.pas',
-  Spring.Persistence.ObjectDataset.IndexList in '..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.IndexList.pas',
+  Spring.Data.ActiveX in '..\..\Source\Data\ObjectDataSet\Spring.Data.ActiveX.pas',
+  Spring.Data.ExpressionParser in '..\..\Source\Data\ObjectDataSet\Spring.Data.ExpressionParser.pas',
+  Spring.Data.ExpressionParser.Functions in '..\..\Source\Data\ObjectDataSet\Spring.Data.ExpressionParser.Functions.pas',
+  Spring.Data.IndexList in '..\..\Source\Data\ObjectDataSet\Spring.Data.IndexList.pas',
+  Spring.Data.ObjectDataSet in '..\..\Source\Data\ObjectDataSet\Spring.Data.ObjectDataSet.pas',
+  Spring.Data.VirtualDataSet in '..\..\Source\Data\ObjectDataSet\Spring.Data.VirtualDataSet.pas',
   Spring.Persistence.SQL.Commands in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.pas',
   Spring.Persistence.SQL.Commands.Abstract in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Abstract.pas',
   Spring.Persistence.SQL.Commands.BulkInsert.MongoDB in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.BulkInsert.MongoDB.pas',
@@ -110,6 +108,7 @@ uses
   TestAdaptersASA in 'TestAdaptersASA.pas',
   TestAdaptersOracle in 'TestAdaptersOracle.pas',
   TestSQLServerSQLGenerator in 'TestSQLServerSQLGenerator.pas',
+  TestPostgreSQLGenerator in 'TestPostgreSQLGenerator.pas',
   TestAnsiSQLGenerator in 'TestAnsiSQLGenerator.pas',
   TestCommands in 'TestCommands.pas',
   TestConnectionFactory in 'TestConnectionFactory.pas',
@@ -122,13 +121,13 @@ uses
   TestAdaptersFireDAC in 'TestAdaptersFireDAC.pas',
   TestFireDACConnection in 'TestFireDACConnection.pas',
   {$ENDIF}
-  TestObjectDataset in 'TestObjectDataset.pas',
+  TestObjectDataSet in 'TestObjectDataSet.pas',
   TestPersistence in 'TestPersistence.pas',
   TestSession in 'TestSession.pas',
   TestSimpleRepository in 'TestSimpleRepository.pas',
   TestAdaptersSQLite in 'TestAdaptersSQLite.pas',
   TestEntities in 'TestEntities.pas',
-  ViewTestObjectDataset in 'ViewTestObjectDataset.pas' {frmObjectDatasetTest},
+  ViewTestObjectDataSet in 'ViewTestObjectDataSet.pas' {frmObjectDataSetTest},
   Spring.Persistence.Core.EntityWrapper in '..\..\Source\Persistence\Core\Spring.Persistence.Core.EntityWrapper.pas',
   TestEntityWrapper in 'TestEntityWrapper.pas',
   TestAdaptersADO in 'TestAdaptersADO.pas',
@@ -140,6 +139,7 @@ uses
 begin
   OutputDir := IncludeTrailingPathDelimiter(ExtractFileDir(ParamStr(0)));
   PictureFilename := IncludeTrailingPathDelimiter(ExpandFileName(OutputDir + '..\..')) + 'DelphiOOP.png';
+  ScannerFilename := IncludeTrailingPathDelimiter(ExpandFileName(OutputDir + '..\..')) + 'DelphiOOP.pdf';
 
   RunRegisteredTests;
 end.

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -519,7 +519,7 @@ begin
       if IsObjectId(value) then   //ObjectID("sdsd457845")
       begin
         value := ReplaceStr(value, '"', '\"');
-        value := Format('"%S"', [value]);
+        value := Format('"%s"', [value]);
       end
       else
         value := AnsiQuotedStr(value, '"');

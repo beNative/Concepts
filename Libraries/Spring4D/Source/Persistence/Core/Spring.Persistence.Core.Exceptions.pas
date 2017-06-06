@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -205,19 +205,13 @@ type
 
 implementation
 
-uses
-  Spring.Collections,
-  Spring.Persistence.Core.EntityCache,
-  Spring.Persistence.Mapping.Attributes,
-  Spring.Reflection;
-
 
 {$REGION 'EORMException'}
 
 {$IFDEF AUTOREFCOUNT}
 procedure EORMException.RaisingException(P: PExceptionRecord);
 begin
-  inherited;
+  inherited RaisingException(P);
   // fixes AcquireExceptionObject ARC issue (RSP-13652)
   if Assigned(InnerException) then
     InnerException.__ObjRelease;
@@ -297,11 +291,13 @@ end;
 
 function TORMExceptionHandler.HandleException(const defaultMsg: string): Exception;
 
+{$IFNDEF DELPHIXTOKYO_UP}
 {$IFDEF AUTOREFCOUNT}
   function AcquireExceptionObject: Exception; // fixes RSP-13652
   begin
-    Pointer(Result):=System.AcquireExceptionObject;
+    Pointer(Result) := System.AcquireExceptionObject;
   end;
+{$ENDIF}
 {$ENDIF}
 
 var
@@ -312,7 +308,7 @@ begin
   if exc is EORMException then
     // Revive the exception object so it doesn't get destroyed when the except
     // block ends.
-    Exit(AcquireExceptionObject);
+    Exit(Exception(AcquireExceptionObject));
 
   if exc is Exception then
   begin
@@ -330,7 +326,7 @@ begin
     // that ORM-specific except blocks should not handle (this includes EAbort).
     // Revive the exception object so it doesn't get destroyed when the except
     // block ends.
-    Exit(AcquireExceptionObject);
+    Exit(Exception(AcquireExceptionObject));
 
   // New exception will acquire inner exception and thus will be raised as outer
   // but with standard `raise` keyword later without the need of calling

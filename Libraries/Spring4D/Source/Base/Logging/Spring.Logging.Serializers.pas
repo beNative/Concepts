@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -34,33 +34,49 @@ uses
   SysUtils,
   TypInfo,
   Spring,
+  Spring.Logging,
   Spring.Logging.Extensions,
   Spring.Reflection;
 
 type
   {$REGION 'TSerializerBase'}
-  TSerializerBase = class abstract(TInterfacedObject)
+
+  TSerializerBase = class abstract(TLogEventConverterBase, ITypeSerializer)
   strict protected
     class function ValueToStr(const value: TValue): string; inline; static;
+    function CanHandleEvent(const event: TLogEvent): Boolean; override;
+    function Execute(const controller: ILoggerController;
+      const event: TLogEvent): string; override;
+  public
+    constructor Create;
+
+    // ITypeSerializer
+    function CanHandleType(typeInfo: PTypeInfo): Boolean; virtual; abstract;
+    function Serialize(const controller: ISerializerController;
+      const value: TValue; nestingLevel: Integer = 0): string; virtual; abstract;
   end;
+
   {$ENDREGION}
 
 
   {$REGION 'TSimpleTypeSerializer'}
-  TSimpleTypeSerializer = class(TSerializerBase, ITypeSerializer)
+
+  TSimpleTypeSerializer = class(TSerializerBase)
   private const
     SUPPORTED_KINDS = [tkInteger, tkChar, tkEnumeration, tkFloat, tkString,
       tkSet, tkWChar, tkLString, tkWString, tkInt64, tkUString, tkClassRef,
       tkPointer];
   public
-    function HandlesType(typeInfo: PTypeInfo): Boolean;
+    function CanHandleType(typeInfo: PTypeInfo): Boolean; override;
     function Serialize(const controller: ISerializerController;
-      const value: TValue; nestingLevel: Integer): string;
+      const value: TValue; nestingLevel: Integer): string; override;
   end;
+
   {$ENDREGION}
 
 
   {$REGION 'TNestingTypeSerializer'}
+
   TNestingTypeSerializer = class abstract(TSerializerBase)
   private
     fUseNested: Boolean;
@@ -70,11 +86,13 @@ type
     constructor Create; overload;
     constructor Create(useNested: Boolean); overload;
   end;
+
   {$ENDREGION}
 
 
   {$REGION 'TReflectionTypeSerializer'}
-  TReflectionTypeSerializer = class(TNestingTypeSerializer, ITypeSerializer)
+
+  TReflectionTypeSerializer = class(TNestingTypeSerializer)
   private const
     NESTING_LIMIT = 8;
   public type
@@ -89,34 +107,39 @@ type
       useNested: Boolean); overload;
     constructor Create; overload;
 
-    function HandlesType(typeInfo: PTypeInfo): Boolean;
+    function CanHandleType(typeInfo: PTypeInfo): Boolean; override;
     function Serialize(const controller: ISerializerController;
-      const value: TValue; nestingLevel: Integer): string;
+      const value: TValue; nestingLevel: Integer): string; override;
   end;
+
   {$ENDREGION}
 
 
   {$REGION 'TInterfaceSerializer'}
-  TInterfaceSerializer = class(TSerializerBase, ITypeSerializer)
+
+  TInterfaceSerializer = class(TSerializerBase)
   public
-    function HandlesType(typeInfo: PTypeInfo): Boolean;
+    function CanHandleType(typeInfo: PTypeInfo): Boolean; override;
     function Serialize(const controller: ISerializerController;
-      const value: TValue; nestingLevel: Integer): string;
+      const value: TValue; nestingLevel: Integer): string; override;
   end;
+
   {$ENDREGION}
 
 
   {$REGION 'TArrayOfValueSerializer'}
-  TArrayOfValueSerializer = class(TNestingTypeSerializer, ITypeSerializer)
+
+  TArrayOfValueSerializer = class(TNestingTypeSerializer)
   protected
     function SerializeSimple(const value: TValue): string;
     function SerializeNested(const controller: ISerializerController;
       const value: TValue; nestingLevel: Integer): string;
   public
-    function HandlesType(typeInfo: PTypeInfo): Boolean;
+    function CanHandleType(typeInfo: PTypeInfo): Boolean; override;
     function Serialize(const controller: ISerializerController;
-      const value: TValue; nestingLevel: Integer): string;
+      const value: TValue; nestingLevel: Integer): string; override;
   end;
+
   {$ENDREGION}
 
 
@@ -124,6 +147,22 @@ implementation
 
 
 {$REGION 'TSerializerBase'}
+
+constructor TSerializerBase.Create;
+begin
+  inherited Create(TLogEventType.SerializedData);
+end;
+
+function TSerializerBase.Execute(const controller: ILoggerController;
+  const event: TLogEvent): string;
+begin
+  Result := Serialize(controller as ISerializerController, event.Data);
+end;
+
+function TSerializerBase.CanHandleEvent(const event: TLogEvent): Boolean;
+begin
+  Result := not event.Data.IsEmpty and CanHandleType(event.Data.TypeInfo);
+end;
 
 class function TSerializerBase.ValueToStr(const value: TValue): string;
 begin
@@ -135,14 +174,15 @@ begin
     Result := value.ToString;
   end;
 end;
+
 {$ENDREGION}
 
 
 {$REGION 'TSimpleTypeSerializer'}
 
-function TSimpleTypeSerializer.HandlesType(typeInfo: PTypeInfo): Boolean;
+function TSimpleTypeSerializer.CanHandleType(typeInfo: PTypeInfo): Boolean;
 begin
-  Result := typeInfo^.Kind in SUPPORTED_KINDS;
+  Result := typeInfo.Kind in SUPPORTED_KINDS;
 end;
 
 function TSimpleTypeSerializer.Serialize(
@@ -152,6 +192,7 @@ begin
   Assert(value.Kind in SUPPORTED_KINDS);
   Result := ValueToStr(value);
 end;
+
 {$ENDREGION}
 
 
@@ -185,9 +226,9 @@ begin
   Create([mvPublished, mvPublic], False);
 end;
 
-function TReflectionTypeSerializer.HandlesType(typeInfo: PTypeInfo): Boolean;
+function TReflectionTypeSerializer.CanHandleType(typeInfo: PTypeInfo): Boolean;
 begin
-  Result := typeInfo^.Kind in [tkClass, tkRecord];
+  Result := typeInfo.Kind in [tkClass, tkRecord];
 end;
 
 function TReflectionTypeSerializer.Serialize(
@@ -201,7 +242,7 @@ var
   instance: Pointer;
   v: TValue;
 begin
-  Assert(value.TypeInfo^.Kind in [tkClass, tkRecord]);
+  Assert(value.TypeInfo.Kind in [tkClass, tkRecord]);
 
   if value.Kind = tkClass then
   begin
@@ -275,9 +316,9 @@ end;
 
 {$REGION 'TInterfaceSerializer'}
 
-function TInterfaceSerializer.HandlesType(typeInfo: PTypeInfo): Boolean;
+function TInterfaceSerializer.CanHandleType(typeInfo: PTypeInfo): Boolean;
 begin
-  Result := typeInfo^.Kind = tkInterface;
+  Result := typeInfo.Kind = tkInterface;
 end;
 
 function TInterfaceSerializer.Serialize(const controller: ISerializerController;
@@ -286,7 +327,7 @@ var
   intf: IInterface;
   objectSerializer: ITypeSerializer;
 begin
-  Assert(value.TypeInfo^.Kind = tkInterface);
+  Assert(value.TypeInfo.Kind = tkInterface);
   Assert(Assigned(controller));
 
   Result := ValueToStr(value);
@@ -306,7 +347,7 @@ end;
 
 {$REGION 'TArrayOfValueSerializer'}
 
-function TArrayOfValueSerializer.HandlesType(typeInfo: PTypeInfo): Boolean;
+function TArrayOfValueSerializer.CanHandleType(typeInfo: PTypeInfo): Boolean;
 begin
   Result := typeInfo = System.TypeInfo(TArray<TValue>);
 end;

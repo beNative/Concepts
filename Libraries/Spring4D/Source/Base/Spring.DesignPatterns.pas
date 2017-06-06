@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -225,7 +225,6 @@ type
     function GetCount: Integer;
   public
     constructor Create;
-    destructor Destroy; override;
     property Count: Integer read GetCount;
     procedure RegisterFactoryMethod(key: TKey; factoryMethod: TFactoryMethod<TBaseType>);
     procedure UnregisterFactoryMethod(key: TKey);
@@ -501,11 +500,6 @@ constructor TFactory<TKey, TBaseType>.Create;
 begin
   inherited Create;
   fFactoryMethods := TCollections.CreateDictionary<TKey, TFactoryMethod<TBaseType>>;
-end;
-
-destructor TFactory<TKey, TBaseType>.Destroy;
-begin
-  inherited;
 end;
 
 function TFactory<TKey, TBaseType>.GetCount: Integer;

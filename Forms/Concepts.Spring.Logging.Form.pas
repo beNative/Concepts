@@ -141,24 +141,24 @@ begin
   // setup
   LP := FController as ILoggerProperties;
   LP.Levels := LOG_ALL_LEVELS;
-  LP.EntryTypes := LOG_ALL_ENTRY_TYPES;
+  LP.EventTypes := LOG_ALL_EVENT_TYPES;
 
   // All appenders
 
   LP := FFileLogAppender as ILoggerProperties;
-  LP.EntryTypes := LOG_ALL_ENTRY_TYPES;
+  LP.EventTypes := LOG_ALL_EVENT_TYPES;
   LP.Levels     := LOG_ALL_LEVELS;
 
   LP := FTraceLogAppender as ILoggerProperties;
-  LP.EntryTypes := LOG_ALL_ENTRY_TYPES;
+  LP.EventTypes := LOG_ALL_EVENT_TYPES;
   LP.Levels     := LOG_ALL_LEVELS;
 
   LP := FLogTreeAppender as ILoggerProperties;
-  LP.EntryTypes := LOG_ALL_ENTRY_TYPES;
+  LP.EventTypes := LOG_ALL_EVENT_TYPES;
   LP.Levels     := LOG_ALL_LEVELS;
 
   LP := FWinIPCAppender as ILoggerProperties;
-  LP.EntryTypes := LOG_ALL_ENTRY_TYPES;
+  LP.EventTypes := LOG_ALL_EVENT_TYPES;
   LP.Levels     := LOG_ALL_LEVELS;
 
   FController.AddAppender(FFileLogAppender);
@@ -167,15 +167,15 @@ begin
   FController.AddAppender(FWinIPCAppender);
 
   SC := FController as ISerializerController;
-  SC.AddSerializer(TReflectionTypeSerializer.Create);
-  SC.AddSerializer(TSimpleTypeSerializer.Create);
-  SC.AddSerializer(TInterfaceSerializer.Create);
-  SC.AddSerializer(TArrayOfValueSerializer.Create);
+//  SC.AddSerializer(TReflectionTypeSerializer.Create);
+//  SC.AddSerializer(TSimpleTypeSerializer.Create);
+//  SC.AddSerializer(TInterfaceSerializer.Create);
+//  SC.AddSerializer(TArrayOfValueSerializer.Create);
 
   FLogger := TLogger.Create(FController);
 
   LP := FLogger as ILoggerProperties;
-  LP.EntryTypes := LOG_ALL_ENTRY_TYPES;
+  LP.EventTypes := LOG_ALL_EVENT_TYPES;
   LP.Levels     := LOG_ALL_LEVELS;
 
   FPropertyInspector := TDDuceComponents.CreatePropertyInspector(
@@ -223,9 +223,9 @@ end;
 procedure TfrmSpringLogging.actLogExecute(Sender: TObject);
 begin
   FLogger.Log(
-    TLogEntry.Create(
+    TLogEvent.Create(
       TLogLevel(rgpLogLevel.ItemIndex),
-      TLogEntryType(rgpLogEntryTypes.ItemIndex),
+      TLogEventType(rgpLogEntryTypes.ItemIndex),
       edtMessage.Text
     )
   );
@@ -261,14 +261,14 @@ end;
 
 procedure TfrmSpringLogging.InitializeControls;
 var
-  LET : TLogEntryType;
+  LET : TLogEventType;
   LL  : TLogLevel;
 begin
-  for LET :=  Low(TLogEntryType) to High(TLogEntryType) do
+  for LET :=  Low(TLogEventType) to High(TLogEventType) do
   begin
     rgpLogEntryTypes.Items.Add(Reflect.EnumName(LET));
   end;
-  rgpLogEntryTypes.ItemIndex := Integer(TLogEntryType.Text);
+  rgpLogEntryTypes.ItemIndex := Integer(TLogEventType.Text);
 
   for LL := Low(TLogLevel) to High(TLogLevel) do
   begin

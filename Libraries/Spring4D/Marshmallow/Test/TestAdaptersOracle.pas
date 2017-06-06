@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -115,7 +115,7 @@ begin
   Result.LoginPrompt := False;
   //Provider=OraOLEDB.Oracle;Data Source=SERVER1;User ID=SYSTEM;Password=master
     Result.ConnectionString := Format(
-      'Provider=OraOLEDB.Oracle;Data Source=%0:S;Password=%1:S;User ID=%2:S'
+      'Provider=OraOLEDB.Oracle;Data Source=%0:s;Password=%1:s;User ID=%2:s'
     , ['SERVER1', 'master', 'SYSTEM']);
   Result.Open;
   except
@@ -142,7 +142,7 @@ var
 begin
   LConn := CreateTestConnection;
   try
-    LConn.Execute(Format('INSERT INTO '+ TBL_COMPANY + ' (IMONE, IMPAV) VALUES (%0:D, %1:S)',
+    LConn.Execute(Format('INSERT INTO '+ TBL_COMPANY + ' (IMONE, IMPAV) VALUES (%0:d, %1:s)',
       [AID, QuotedStr(ACompName)]));
   finally
     LConn.Free;
@@ -156,7 +156,7 @@ var
 begin
   LConn := CreateTestConnection;
   try
-    LResults := LConn.Execute(Format('SELECT COUNT(*) FROM %0:S', [ATablename]));
+    LResults := LConn.Execute(Format('SELECT COUNT(*) FROM %0:s', [ATablename]));
 
     if LResults.RecordCount > 0 then
       Result := LResults.Fields.Item[0].Value
@@ -275,7 +275,7 @@ var
 begin
   for i := 1 to 20 do
   begin
-    InsertCompany(i, Format('%D Company', [i]));
+    InsertCompany(i, Format('%d Company', [i]));
   end;
   Imone := TProperty<TCompany>.Create('IMONE');
 
@@ -366,7 +366,7 @@ begin
       i := 0;
       for param in params do
       begin
-        Status(Format('%2:D Param %0:S = %1:S', [param.Name, VarToStrDef(param.ToVariant, 'NULL'), i]));
+        Status(Format('%2:d Param %0:s = %1:s', [param.Name, VarToStrDef(param.ToVariant, 'NULL'), i]));
         Inc(i);
       end;
       Status('-----');

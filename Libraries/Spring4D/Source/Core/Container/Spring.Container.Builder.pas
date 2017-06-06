@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -529,7 +529,7 @@ end;
 
 procedure TInterceptorInspector.DoProcessModel(const kernel: IKernel;
   const model: TComponentModel);
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
 var
   attributes: TArray<InterceptorAttribute>;
   attribute: InterceptorAttribute;

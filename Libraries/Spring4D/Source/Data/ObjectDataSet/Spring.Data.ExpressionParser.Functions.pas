@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -24,7 +24,7 @@
 
 {$I Spring.inc}
 
-unit Spring.Persistence.ObjectDataset.ExprParser.Functions;
+unit Spring.Data.ExpressionParser.Functions;
 
 interface
 
@@ -33,22 +33,22 @@ uses
   SysUtils;
 
 type
-  TFunctionGetValueProc = reference to function(const args: Variant): Variant;
+  TGetValueFunc = reference to function(const args: Variant): Variant;
 
   TFilterFunctions = record
   private
     class var
-      fFunctions: IDictionary<string,TFunctionGetValueProc>;
+      fFunctions: IDictionary<string,TGetValueFunc>;
       fIsoFormatSettings: TFormatSettings;
   private
     class procedure Initialize; static;
     class constructor Create;
   public
     class procedure RegisterFunction(const name: string;
-      const func: TFunctionGetValueProc); static;
+      const func: TGetValueFunc); static;
     class procedure UnregisterFunction(const name: string); static;
     class function TryGetFunction(const name: string;
-      out func: TFunctionGetValueProc): Boolean; static;
+      out func: TGetValueFunc): Boolean; static;
   end;
 
 implementation
@@ -58,6 +58,15 @@ uses
   Math,
   StrUtils,
   Variants;
+
+function VarArrayLength(AValue: Variant): Integer;
+begin
+  Result := VarArrayHighBound(AValue, 1);
+  if Result >= 0 then
+    Inc(Result)
+  else
+    Result := 0;
+end;
 
 
 {$REGION 'TFilterFunctions'}
@@ -69,18 +78,18 @@ begin
   fIsoFormatSettings.DateSeparator := '-';
   fIsoFormatSettings.DecimalSeparator := '.';
 
-  fFunctions := TCollections.CreateDictionary<string, TFunctionGetValueProc>(
+  fFunctions := TCollections.CreateDictionary<string, TGetValueFunc>(
     50, TStringComparer.OrdinalIgnoreCase);
 end;
 
 class procedure TFilterFunctions.RegisterFunction(const name: string;
-  const func: TFunctionGetValueProc);
+  const func: TGetValueFunc);
 begin
   fFunctions.AddOrSetValue(name, func);
 end;
 
 class function TFilterFunctions.TryGetFunction(const name: string;
-  out func: TFunctionGetValueProc): Boolean;
+  out func: TGetValueFunc): Boolean;
 begin
   Result := fFunctions.TryGetValue(name, func);
 end;
@@ -88,15 +97,6 @@ end;
 class procedure TFilterFunctions.UnregisterFunction(const name: string);
 begin
   fFunctions.Remove(name);
-end;
-
-function VarArrayLength(AValue: Variant): Integer;
-begin
-  Result := VarArrayHighBound(AValue, 1);
-  if Result >= 0 then
-    Inc(Result)
-  else
-    Result := 0;
 end;
 
 class procedure TFilterFunctions.Initialize;

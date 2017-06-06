@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -54,6 +54,7 @@ type
 
     procedure RegisterEntity(entityClass: TClass);
     procedure ClearEntities;
+    procedure UnregisterEntity(entityClass: TClass);
 
     function EntityExists(entityClass: TClass): Boolean;
 
@@ -180,6 +181,11 @@ end;
 procedure TDatabaseManager.RegisterEntity(entityClass: TClass);
 begin
   fEntities.Add(entityClass);
+end;
+
+procedure TDatabaseManager.UnregisterEntity(entityClass: TClass);
+begin
+  fEntities.Remove(entityClass)
 end;
 
 {$ENDREGION}

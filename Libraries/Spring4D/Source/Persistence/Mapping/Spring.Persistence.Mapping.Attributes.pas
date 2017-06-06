@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -308,6 +308,8 @@ type
     constructor Create(initialValue: Integer = 0); overload;
     constructor Create(const columnName: string; initialValue: Integer = 0); overload;
 
+    procedure IncrementValue(const instance: TObject);
+
     property InitialValue: Integer read FInitialValue;
   end;
 
@@ -469,7 +471,7 @@ procedure ManyValuedAssociationAttribute.SetEntityClass(const value: TClass);
 var
   rttiType: TRttiType;
 begin
-  inherited;
+  inherited SetEntityClass(value);
   rttiType := TType.GetType(fEntityClass);
   fMappedByMember := rttiType.GetField(fMappedBy);
   if not Assigned(fMappedByMember) then
@@ -484,7 +486,7 @@ end;
 constructor OneToManyAttribute.Create(required: Boolean;
   cascade: TCascadeKinds);
 begin
-  inherited;
+  inherited Create(required, cascade);
 end;
 
 {$ENDREGION}
@@ -697,6 +699,15 @@ end;
 function VersionAttribute.GetIsVersionColumn: Boolean;
 begin
   Result := True;
+end;
+
+procedure VersionAttribute.IncrementValue(const instance: TObject);
+var
+  value: Int64;
+begin
+  value := fMember.GetValue(instance).AsOrdinal;
+  Inc(value);
+  fMember.SetValue(instance, value);
 end;
 
 {$ENDREGION}

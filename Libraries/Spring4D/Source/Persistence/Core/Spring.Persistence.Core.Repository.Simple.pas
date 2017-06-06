@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,6 +29,7 @@ unit Spring.Persistence.Core.Repository.Simple;
 interface
 
 uses
+  Spring,
   Spring.Collections,
   Spring.Persistence.Core.Interfaces,
   Spring.Persistence.Criteria.Interfaces,
@@ -43,8 +44,8 @@ type
   protected
     function GetNamespaceFromType: string; virtual;
 
-    function Execute(const query: string; const params: array of const): NativeUInt; virtual;
-    function Query(const query: string; const params: array of const): IList<T>; virtual;
+    function Execute(const query: string; const params: array of TValue): NativeUInt; virtual;
+    function Query(const query: string; const params: array of TValue): IList<T>; virtual;
 
     function Count: Integer; virtual;
 
@@ -76,7 +77,6 @@ type
 implementation
 
 uses
-  Spring,
   Spring.Persistence.Core.EntityCache,
   Spring.Persistence.Mapping.Attributes;
 
@@ -114,7 +114,8 @@ begin
   Delete(FindAll);
 end;
 
-function TSimpleRepository<T, TID>.Execute(const query: string; const params: array of const): NativeUInt;
+function TSimpleRepository<T, TID>.Execute(const query: string;
+  const params: array of TValue): NativeUInt;
 begin
   Result := fSession.Execute(query, params);
 end;
@@ -162,7 +163,8 @@ begin
   Result := '';
 end;
 
-function TSimpleRepository<T, TID>.Query(const query: string; const params: array of const): IList<T>;
+function TSimpleRepository<T, TID>.Query(const query: string;
+  const params: array of TValue): IList<T>;
 begin
   Result := fSession.GetList<T>(query, params);
 end;

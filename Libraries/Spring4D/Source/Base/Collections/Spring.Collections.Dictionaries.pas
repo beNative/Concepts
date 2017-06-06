@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -51,6 +51,7 @@ type
     type
       TGenericDictionary = Generics.Collections.TDictionary<TKey, TValue>;
       TGenericPair = Generics.Collections.TPair<TKey, TValue>;
+      TKeyValuePair = Generics.Collections.TPair<TKey, TValue>;
 
       TKeyCollection = class(TContainedReadOnlyCollection<TKey>)
       private
@@ -92,11 +93,11 @@ type
       {$ENDREGION}
       end;
 
-      TOrderedEnumerable = class(TContainedIterator<TGenericPair>)
+      TOrderedEnumerable = class(TIterator<TGenericPair>)
       private
+        fSource: TDictionary<TKey, TValue>;
         {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
         fDictionary: TGenericDictionary;
-        fComparer: IComparer<TKey>;
         fSortedKeys: TArray<TKey>;
         fIndex: Integer;
       protected
@@ -104,9 +105,8 @@ type
         function GetCount: Integer; override;
       {$ENDREGION}
       public
-        constructor Create(const controller: IInterface;
-          const dictionary: TGenericDictionary;
-          const comparer: IComparer<TKey>);
+        constructor Create(const source: TDictionary<TKey, TValue>);
+        destructor Destroy; override;
         function Clone: TIterator<TGenericPair>; override;
         function MoveNext: Boolean; override;
       end;
@@ -161,7 +161,7 @@ type
   {$ENDREGION}
 
   {$REGION 'Implements IMap<TKey, TValue>'}
-    procedure Add(const key: TKey; const value: TValue); overload; override;
+    procedure Add(const key: TKey; const value: TValue); override;
     function Remove(const key: TKey): Boolean; override;
     function Remove(const key: TKey; const value: TValue): Boolean; override;
     function Extract(const key: TKey; const value: TValue): TGenericPair; override;
@@ -236,7 +236,7 @@ type
   {$ENDREGION}
 
   {$REGION 'Implements IMap<TKey, TValue>'}
-    procedure Add(const key: TKey; const value: TValue); reintroduce; overload;
+    procedure Add(const key: TKey; const value: TValue); override;
     function Remove(const key: TKey): Boolean; reintroduce; overload;
     function Remove(const key: TKey; const value: TValue): Boolean; override;
     function Extract(const key: TKey; const value: TValue): TGenericPair; override;
@@ -249,7 +249,7 @@ type
 
   {$REGION 'Implements IDictionary<TKey, TValue>'}
     procedure AddOrSetValue(const key: TKey; const value: TValue);
-    function Extract(const key: TKey): TValue; reintroduce; overload; inline;
+    function Extract(const key: TKey): TValue; reintroduce; overload;
     function ExtractPair(const key: TKey): TGenericPair; reintroduce; overload;
     function AsReadOnlyDictionary: IReadOnlyDictionary<TKey, TValue>;
   {$ENDREGION}
@@ -342,12 +342,16 @@ end;
 procedure TDictionary<TKey, TValue>.DoKeyNotify(Sender: TObject;
   const Item: TKey; Action: TCollectionNotification);
 begin
+  if Assigned(fOnKeyNotify) then
+    fOnKeyNotify(Sender, Item, Action);
   inherited KeyChanged(Item, TCollectionChangedAction(action));
 end;
 
 procedure TDictionary<TKey, TValue>.DoValueNotify(Sender: TObject;
   const Item: TValue; Action: TCollectionNotification);
 begin
+  if Assigned(fOnValueNotify) then
+    fOnValueNotify(Sender, Item, Action);
   inherited ValueChanged(Item, TCollectionChangedAction(Action));
 end;
 
@@ -544,7 +548,7 @@ end;
 
 function TDictionary<TKey, TValue>.Ordered: IEnumerable<TGenericPair>;
 begin
-  Result := TOrderedEnumerable.Create(Self, fDictionary, TComparer<TKey>.Default());
+  Result := TOrderedEnumerable.Create(Self);
 end;
 
 procedure TDictionary<TKey, TValue>.SetItem(const key: TKey;
@@ -670,17 +674,27 @@ end;
 {$REGION 'TDictionary<TKey, TValue>.TOrderedEnumerable'}
 
 constructor TDictionary<TKey, TValue>.TOrderedEnumerable.Create(
-  const controller: IInterface; const dictionary: TGenericDictionary;
-  const comparer: IComparer<TKey>);
+  const source: TDictionary<TKey, TValue>);
 begin
-  inherited Create(controller);
-  fDictionary := dictionary;
-  fComparer := comparer;
+  inherited Create;
+  fSource := source;
+{$IFNDEF AUTOREFCOUNT}
+  fSource._AddRef;
+{$ENDIF}
+  fDictionary := fSource.fDictionary;
+end;
+
+destructor TDictionary<TKey, TValue>.TOrderedEnumerable.Destroy;
+begin
+{$IFNDEF AUTOREFCOUNT}
+  fSource._Release;
+{$ENDIF}
+  inherited Destroy;
 end;
 
 function TDictionary<TKey, TValue>.TOrderedEnumerable.Clone: TIterator<TGenericPair>;
 begin
-  Result := TOrderedEnumerable.Create(Controller, fDictionary, fComparer);
+  Result := TOrderedEnumerable.Create(fSource);
 end;
 
 function TDictionary<TKey, TValue>.TOrderedEnumerable.GetCount: Integer;
@@ -700,7 +714,7 @@ begin
 {$ELSE}
     fSortedKeys := fDictionary.Keys.ToArray;
 {$ENDIF}
-    TArray.Sort<TKey>(fSortedKeys, fComparer);
+    TArray.Sort<TKey>(fSortedKeys);
     fState := STATE_RUNNING;
   end;
 

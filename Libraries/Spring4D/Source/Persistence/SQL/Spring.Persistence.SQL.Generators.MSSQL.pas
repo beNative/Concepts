@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -62,7 +62,7 @@ uses
 function TMSSQLServerSQLGenerator.GenerateGetLastInsertId(
   const identityColumn: ColumnAttribute): string;
 begin
-  Result := 'SELECT CAST( SCOPE_IDENTITY() AS BIGINT);';
+  Result := 'SELECT CAST(SCOPE_IDENTITY() AS BIGINT);';
 end;
 
 function TMSSQLServerSQLGenerator.GeneratePagedQuery(const sql: string;
@@ -86,7 +86,7 @@ begin
       .AppendLine
       .Append('  ) AS ORM_TOTAL_2')
       .AppendLine
-      .AppendFormat(' WHERE (ORM_ROW_NUM > %0:d) AND (ORM_ROW_NUM <= %0:d + %1:d);', [offset, limit]);
+      .AppendFormat(' WHERE (ORM_ROW_NUM > %0:d) AND (ORM_ROW_NUM <= %1:d);', [offset, offset + limit]);
 
     Result := sqlBuilder.ToString;
   finally

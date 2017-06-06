@@ -1,15 +1,15 @@
-unit ViewTestObjectDataset;
+unit ViewTestObjectDataSet;
 
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, DBCtrls, Grids, DBGrids, DB, StdCtrls, ComCtrls
-  ,Spring.Persistence.ObjectDataset
+  ,Spring.Data.ObjectDataSet
   ;
 
 type
-  TfrmObjectDatasetTest = class(TForm)
+  TfrmObjectDataSetTest = class(TForm)
     dsList: TDataSource;
     dbgList: TDBGrid;
     DBNavigator1: TDBNavigator;
@@ -27,29 +27,29 @@ type
   private
     { Private declarations }
     FIndex: Integer;
-    FDataset: TObjectDataset;
+    FDataset: TObjectDataSet;
   protected
     procedure DoAfterScroll(ADataset: TDataSet);
   public
     { Public declarations }
 
-    property Dataset: TObjectDataset read FDataset write FDataset;
+    property Dataset: TObjectDataSet read FDataset write FDataset;
   end;
 
 var
-  frmObjectDatasetTest: TfrmObjectDatasetTest;
+  frmObjectDataSetTest: TfrmObjectDataSetTest;
 
 implementation
 
 
 {$R *.dfm}
 
-procedure TfrmObjectDatasetTest.cbFilteredClick(Sender: TObject);
+procedure TfrmObjectDataSetTest.cbFilteredClick(Sender: TObject);
 begin
-  (dsList.DataSet as TObjectDataset).Filtered := TCheckBox(Sender).Checked;
+  (dsList.DataSet as TObjectDataSet).Filtered := TCheckBox(Sender).Checked;
 end;
 
-procedure TfrmObjectDatasetTest.dbgListTitleClick(Column: TColumn);
+procedure TfrmObjectDataSetTest.dbgListTitleClick(Column: TColumn);
 var
   sDir: string;
 begin
@@ -58,19 +58,19 @@ begin
   else
     sDir := ' DESC';
 
-  (dsList.DataSet as TObjectDataset).Sort := Column.FieldName + sDir;
+  (dsList.DataSet as TObjectDataSet).Sort := Column.FieldName + sDir;
   Inc(FIndex);
 end;
 
-procedure TfrmObjectDatasetTest.DoAfterScroll(ADataset: TDataSet);
+procedure TfrmObjectDataSetTest.DoAfterScroll(ADataset: TDataSet);
 begin
   if ADataset.Active and not (ADataset.Eof or ADataset.Bof) then
   begin
-    sbTotal.SimpleText := Format('%d from %D records. Filter: %D', [ADataset.RecNo, ADataset.RecordCount, FDataset.FilterCount]);
+    sbTotal.SimpleText := Format('%d from %d records. Filter: %d', [ADataset.RecNo, ADataset.RecordCount, FDataset.FilterCount]);
   end;
 end;
 
-procedure TfrmObjectDatasetTest.edFilterKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TfrmObjectDataSetTest.edFilterKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if Key = VK_RETURN then
   begin
@@ -78,12 +78,12 @@ begin
   end;
 end;
 
-procedure TfrmObjectDatasetTest.FormCreate(Sender: TObject);
+procedure TfrmObjectDataSetTest.FormCreate(Sender: TObject);
 begin
   FIndex := 0;
 end;
 
-procedure TfrmObjectDatasetTest.FormShow(Sender: TObject);
+procedure TfrmObjectDataSetTest.FormShow(Sender: TObject);
 begin
   Dataset.AfterScroll := DoAfterScroll;
 end;

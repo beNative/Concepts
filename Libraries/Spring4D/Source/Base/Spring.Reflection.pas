@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -39,6 +39,7 @@ uses
   Spring,
   Spring.Collections,
   Spring.Collections.Base,
+  Spring.Collections.Extensions,
   Spring.DesignPatterns;
 
 type
@@ -731,7 +732,6 @@ uses
   RTLConsts,
   StrUtils,
   SysConst,
-  Spring.Collections.Extensions,
   Spring.ResourceStrings;
 
 const
@@ -1262,7 +1262,7 @@ begin
         begin
           entry := table.Entries[i];
           if not list.ContainsKey(entry.IID)
-            and not IsEqualGUID(entry.IID, EmptyGuid)
+            and (entry.IID <> EmptyGuid)
             and TType.TryGetInterfaceType(entry.IID, intfType) then
             list[entry.IID] := intfType;
         end;
@@ -1279,7 +1279,7 @@ begin
     while Assigned(intfType) do
     begin
       if intfType.HasGuid and not list.ContainsKey(intfType.GUID)
-        and not IsEqualGUID(intfType.GUID, EmptyGuid) then
+        and (intfType.GUID <> EmptyGuid) then
         list[intfType.GUID] := intfType;
       intfType := intfType.BaseType;
     end;

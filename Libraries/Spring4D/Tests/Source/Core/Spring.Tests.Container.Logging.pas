@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -54,15 +54,18 @@ uses
 
 type
   {$REGION 'TTestLogInsideContainer'}
+
   TTestLogInsideContainer = class(TContainerTestCase)
   published
     procedure TestLog;
     procedure TestChainedControllers;
   end;
+
   {$ENDREGION}
 
 
   {$REGION 'TTestLogSubResolverAndConfiguration'}
+
   TTestLogSubResolverAndConfiguration = class(TContainerTestCase)
   protected
     procedure SetUp; override;
@@ -76,10 +79,12 @@ type
     procedure TestMethod;
     procedure TestLazy;
   end;
+
   {$ENDREGION}
 
 
   {$REGION 'TTestLoggingConfiguration'}
+
   TTestLoggingConfiguration = class(TContainerTestCase)
   private
     fStrings: TStrings;
@@ -106,17 +111,19 @@ type
 
     procedure TestAddAppendersToControllers;
     procedure TestAddChainedController;
-    procedure TestAddSerializersToControllers;
+    procedure TestAddConvertersToControllers;
     procedure TestAddLoggerAssignments;
 
     procedure TestSimpleConfiguration;
     procedure TestComplexConfiguration;
     procedure Test_LoadFromStrings_Ensures_Container_Resolve_CanBeFreedWithoutErrors;
   end;
+
   {$ENDREGION}
 
 
   {$REGION 'TTestLoggingConfigurationBuilder'}
+
   TTestLoggingConfigurationBuilder = class(TContainerTestCase)
   private const
     NL = sLineBreak;
@@ -131,6 +138,7 @@ type
 
     procedure TestComplexConfiguration;
   end;
+
   {$ENDREGION}
 
 
@@ -428,7 +436,7 @@ begin
     .Add('someString = test')
     .Add('someEnum = Warn')
     .Add('levels = Error, Info')
-    .Add('entryTypes = Text, Entering');
+    .Add('eventTypes = Text, Entering');
   TLoggingConfiguration.LoadFromStrings(fContainer, fStrings);
 
   fContainer.Build;
@@ -441,7 +449,7 @@ begin
   CheckEquals('test', appender.SomeString);
   CheckEquals(Ord(TLogLevel.Warn), Ord(appender.SomeEnum));
   Check([TLogLevel.Error, TLogLevel.Info] = appender.Levels);
-  Check([TLogEntryType.Text, TLogEntryType.Entering] = appender.EntryTypes);
+  Check([TLogEventType.Text, TLogEventType.Entering] = appender.EventTypes);
 end;
 
 procedure TTestLoggingConfiguration.TestReadSingleControllerAsDefault;
@@ -477,7 +485,7 @@ begin
 
   appender := TObject(fContainer.Resolve<ILogAppender>) as TAppenderMock;
   CheckTrue(appender.WriteCalled);
-  CheckEquals('test', appender.Entry.Msg);
+  CheckEquals('test', appender.Event.Msg);
 end;
 
 procedure TTestLoggingConfiguration.TestUnknownClass;
@@ -597,22 +605,22 @@ begin
   CheckSame(fContainer.Resolve<ILogger>('logging.logger2'), objImpl.Logger2);
 end;
 
-procedure TTestLoggingConfiguration.TestAddSerializersToControllers;
+procedure TTestLoggingConfiguration.TestAddConvertersToControllers;
 var
   controller1,
   controller2: ILoggerController;
   serializer1,
-  serializer2: ITypeSerializer;
+  serializer2: ILogEventConverter;
   f: TRttiField;
-  serializers: IList<ITypeSerializer>;
+  serializers: IList<ILogEventConverter>;
 begin
   fStrings
     .Add('[controllers\controller1]')
-    .Add('serializer = TTypeSerializerMock');
+    .Add('converter = TTypeSerializerMock');
   fStrings
     .Add('[controllers\controller2]')
-    .Add('serializer = TTypeSerializerMock2')
-    .Add('serializer = TTypeSerializerMock');
+    .Add('converter = TTypeSerializerMock2')
+    .Add('converter = TTypeSerializerMock');
 
   TLoggingConfiguration.LoadFromStrings(fContainer, fStrings);
   fContainer.Build;
@@ -620,18 +628,18 @@ begin
   controller1 := fContainer.Resolve<ILoggerController>('logging.controller1.controller');
   controller2 := fContainer.Resolve<ILoggerController>('logging.controller2.controller');
 
-  serializer1 := fContainer.Resolve<ITypeSerializer>(
+  serializer1 := fContainer.Resolve<ILogEventConverter>(
     GetQualifiedClassName(TTypeSerializerMock));
-  serializer2 := fContainer.Resolve<ITypeSerializer>(
+  serializer2 := fContainer.Resolve<ILogEventConverter>(
     GetQualifiedClassName(TTypeSerializerMock2));
 
-  f := TType.GetType<TLoggerController>.GetField('fSerializers');
+  f := TType.GetType<TLoggerController>.GetField('fConverters');
 
-  serializers := f.GetValue(TObject(controller1)).AsType<IList<ITypeSerializer>>;
+  serializers := f.GetValue(TObject(controller1)).AsType<IList<ILogEventConverter>>;
   CheckEquals(1, serializers.Count);
   CheckSame(serializer1, serializers[0]);
 
-  serializers := f.GetValue(TObject(controller2)).AsType<IList<ITypeSerializer>>;
+  serializers := f.GetValue(TObject(controller2)).AsType<IList<ILogEventConverter>>;
   CheckEquals(2, serializers.Count);
   CheckSame(serializer2, serializers[0]);
   CheckSame(serializer1, serializers[1]);
@@ -657,7 +665,7 @@ begin
     .Add('[appenders\appender2]')
     .Add('class = Spring.Tests.Logging.Types.TAppenderMock2')
     .Add('levels = Fatal, Error, Warn')
-    .Add('entryTypes = Text, Value');
+    .Add('eventTypes = Text, Value');
 
   fStrings
     .Add('[controllers\default]')
@@ -668,7 +676,7 @@ begin
     .Add('class = Spring.Tests.Logging.Types.TLoggerController2')
     .Add('appender = appender2')
     .Add('levels = Fatal, Error')
-    .Add('entryTypes = Text, SerializedData');
+    .Add('eventTypes = Text, SerializedData');
 
   fStrings
     .Add('[loggers\default]');
@@ -677,7 +685,7 @@ begin
     .Add('class = Spring.Tests.Logging.Types.TLogger2')
     .Add('controller = controller2')
     .Add('levels = Fatal')
-    .Add('entryTypes = Leaving')
+    .Add('eventTypes = Leaving')
     .Add('assign = Spring.Tests.Logging.Types.TImpl');
 
   TLoggingConfiguration.LoadFromStrings(fContainer, fStrings);
@@ -832,7 +840,7 @@ begin
     .BeginAppender('app1', TAppenderMock)
       .Enabled(False)
       .Levels([TLogLevel.Warn])
-      .EntryTypes([TLogEntryType.Text])
+      .EventTypes([TLogEventType.Text])
       .Prop('someProp', True)
     .EndAppender
 
@@ -844,7 +852,7 @@ begin
     'class = Spring.Tests.Logging.Types.TAppenderMock' + NL +
     'enabled = False' + NL +
     'levels = [Warn]' + NL +
-    'entryTypes = [Text]' + NL +
+    'eventTypes = [Text]' + NL +
     'someProp = True' + NL +
     NL +
     '[appenders\app2]' + NL +
@@ -937,7 +945,7 @@ begin
     .BeginController
       .Enabled(True)
       .Levels([TLogLevel.Fatal, TLogLevel.Error])
-      .EntryTypes([TLogEntryType.Text, TLogEntryType.Value])
+      .EventTypes([TLogEventType.Text, TLogEventType.Value])
       .AddAppender('app1')
       .Prop('test', 0)
     .EndController
@@ -956,19 +964,19 @@ begin
     '[controllers\default]' + NL +
     'enabled = True' + NL +
     'levels = [Error,Fatal]' + NL +
-    'entryTypes = [Text,Value]' + NL +
+    'eventTypes = [Text,Value]' + NL +
     'appender = app1' + NL +
     'test = 0' + NL +
     NL +
     '[controllers\ctl2]' + NL +
     'class = TSomeController' + NL +
     'appender = ctl1' + NL +
-    'serializer = TSomeSerializer' + NL +
+    'converter = TSomeSerializer' + NL +
     NL +
     '[controllers\ctl3]' + NL +
     'class = Spring.Tests.Logging.Types.TLoggerControllerMock' + NL +
     'appender = ctl1' + NL +
-    'serializer = Spring.Tests.Logging.Types.TTypeSerializerMock' + NL +
+    'converter = Spring.Tests.Logging.Types.TTypeSerializerMock' + NL +
     NL, builder.ToString);
 
 end;
@@ -986,7 +994,7 @@ begin
     .BeginLogger
       .Enabled(True)
       .Levels([TLogLevel.Error, TLogLevel.Debug])
-      .EntryTypes([TLogEntryType.Text, TLogEntryType.Value])
+      .EventTypes([TLogEventType.Text, TLogEventType.Value])
       .Controller('ctl1')
       .Prop('test', TLogLevel.Trace)
     .EndLogger
@@ -1005,7 +1013,7 @@ begin
     '[loggers\default]' + NL +
     'enabled = True' + NL +
     'levels = [Debug,Error]' + NL +
-    'entryTypes = [Text,Value]' + NL +
+    'eventTypes = [Text,Value]' + NL +
     'controller = ctl1' + NL +
     'test = Trace' + NL +
     NL +

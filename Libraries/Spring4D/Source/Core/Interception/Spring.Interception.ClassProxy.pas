@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -114,7 +114,7 @@ end;
 destructor TClassProxy.Destroy;
 begin
   FreeMem(ProxyClassData.IntfTable);
-  inherited;
+  inherited Destroy;
 end;
 
 class constructor TClassProxy.Create;

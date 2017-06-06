@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -23,8 +23,9 @@
 {***************************************************************************}
 
 {$I Spring.inc}
+{$R-,Q-}
 
-unit Spring.Persistence.ObjectDataset.Abstract;
+unit Spring.Data.VirtualDataSet;
 
 {$IFDEF DELPHIXE4_UP}
   {$ZEROBASEDSTRINGS OFF}
@@ -35,15 +36,15 @@ interface
 uses
   Classes,
   DB,
-  Generics.Collections,
   Generics.Defaults,
-  Rtti,
+  SysUtils,
   Spring.Collections,
-  Spring.Persistence.ObjectDataset.Algorithms.Sort,
-  Spring.Persistence.ObjectDataset.IndexList;
+  Spring.Data.IndexList;
 
 type
-{$IFDEF NEXTGEN}
+  EVirtualDataSetException = class(Exception);
+
+  {$IFDEF NEXTGEN}
   TRecordBuffer = TRecBuf;
   PAnsiChar = MarshaledAString;
 {$ENDIF !NEXTGEN}
@@ -51,7 +52,7 @@ type
   TValueBuffer  = Pointer;
 {$ENDIF}
   PVariantList = ^TVariantList;
-  TVariantList = array [0 .. 0] of OleVariant;
+  TVariantList = array[0..0] of OleVariant;
   PArrayRecInfo = ^TArrayRecInfo;
 
   TArrayRecInfo = record
@@ -59,76 +60,79 @@ type
     BookmarkFlag: TBookmarkFlag;
   end;
 
-  TAttributeClass = class of TCustomAttribute;
+  TCustomVirtualDataSet = class;
 
-  TObjectDatasetFieldDef = class(TFieldDef)
+  TChangeRecordEvent = procedure(Sender: TCustomVirtualDataSet; Index: Integer) of object;
+  TGetFieldValueEvent = procedure(Sender: TCustomVirtualDataSet;
+    Field: TField; Index: Integer; var Value: Variant) of object;
+  TGetRecordCountEvent = procedure(Sender: TCustomVirtualDataSet; var Count: Integer) of object;
+
+  TCustomVirtualDataSet = class(TDataSet)
   private
-    FDisplayName: string;
-    FVisible: Boolean;
-  protected
-    function GetDisplayName: string; override;
-  public
-    procedure SetRealDisplayName(const Value: string);
-    property Visible: Boolean read FVisible write FVisible;
-  end;
+    fRowBufSize: Integer;
+    fFilterBuffer: TRecordBuffer;
+    fOldValueBuffer: TRecordBuffer;
+    fReadOnly: Boolean;
+    fCurrent: Integer;
+    fInternalOpen: Boolean;
+    fModifiedFields: IList<TField>;
+    fFieldsCache: IDictionary<string,TField>;
+    fFilterCache: IDictionary<string, Variant>;
+    fIndexList: TIndexList;
 
-  TObjectDatasetFieldDefs = class(TFieldDefs)
-  protected
-    function GetFieldDefClass: TFieldDefClass; override;
-  end;
-
-  TAbstractObjectDataset = class(TDataset)
-  private
-    FRowBufSize: Integer;
-    FFilterBuffer: TRecordBuffer;
-    FOldValueBuffer: TRecordBuffer;
-    FReadOnly: Boolean;
-    FCurrent: Integer;
-    FInternalOpen: Boolean;
-    FModifiedFields: IList<TField>;
-    FFieldsCache: IDictionary<string,TField>;
-    FFilterCache: IDictionary<string, Variant>;
-    FIndexList: TODIndexList;
-    FInsertIndex: Integer;
+    fOnDeleteRecord: TChangeRecordEvent;
+    fOnGetFieldValue: TGetFieldValueEvent;
+    fOnGetRecordCount: TGetRecordCountEvent;
+    fOnInsertRecord: TChangeRecordEvent;
+    fOnUpdateRecord: TChangeRecordEvent;
     {$IFDEF DELPHIXE3_UP}
-    FReserved: Pointer;
+    fReserved: Pointer;
     {$ENDIF}
     function GetIndex: Integer;
-    procedure SetIndex(const Value: Integer);
+    procedure SetIndex(const value: Integer);
   protected
-    /// <summary>
-    ///   Determines if filter is set filter text entered
-    /// </summary>
-    function IsFilterEntered: Boolean;
+    type
+      TBlobStream = class(TMemoryStream)
+      strict private
+        fField: TBlobField;
+        fDataSet: TCustomVirtualDataSet;
+        fFieldNo: Integer;
+        fModified: Boolean;
+        fData: Variant;
+        fFieldData: Variant;
+        procedure ReadBlobData;
+      protected
+        function Realloc(var NewCapacity: LongInt): Pointer; override;
+      public
+        constructor Create(Field: TBlobField; Mode: TBlobStreamMode);
+        destructor Destroy; override;
 
-    /// <summary>
-    ///   Determines if FilterIndexed fields are available
-    /// </summary>
+        function Write(const Buffer; Count: LongInt): LongInt; override;
+        procedure Truncate;
+      end;
+
     function IsFiltered: Boolean;
+
     // Abstract methods
-    procedure DoDeleteRecord(Index: Integer); virtual; abstract;
-    procedure DoGetFieldValue(Field: TField; Index: Integer; var Value: Variant); virtual; abstract;
-    procedure DoPostRecord(Index: Integer; Append: Boolean); virtual; abstract;
-    function RecordConformsFilter: Boolean; virtual; abstract;
+    procedure DoDeleteRecord(Index: Integer); virtual;
+    procedure DoFilterRecord(var Accept: Boolean); virtual;
+    procedure DoGetFieldValue(Field: TField; Index: Integer; var Value: Variant); virtual;
+    procedure DoPostRecord(Index: Integer; Append: Boolean); virtual;
     procedure UpdateFilter; virtual; abstract;
     procedure RebuildPropertiesCache; virtual; abstract;
 
     // Basic overrides
     function GetCanModify: Boolean; override;
-    function GetRecNo: Longint; override;
+    function GetRecNo: {$IFDEF DELPHIX_TOKYO_UP}Integer{$ELSE}LongInt{$ENDIF}; override;
     function GetRecordCount: Integer; override;
-    function GetFieldDefsClass: TFieldDefsClass; override;
-    function GetFieldClass(FieldDef: TFieldDef): TFieldClass; override;
     procedure SetFiltered(Value: Boolean); override;
 
     procedure DoOnNewRecord; override;
     procedure InternalEdit; override;
     procedure SetRecNo(Value: Integer); override;
-    procedure SetCurrent(AValue: Integer); virtual;
-    procedure SetRecBufSize; virtual;
+    procedure SetCurrent(value: Integer); virtual;
+    procedure SetRecBufSize;
     procedure RebuildFieldCache;
-    function DataListCount: Integer; virtual;
-    function GetCurrentDataList: IObjectList; virtual; abstract;
 
     // Abstract overrides
     function AllocRecordBuffer: TRecordBuffer; {$IFNDEF NEXTGEN}override;{$ENDIF}
@@ -137,17 +141,25 @@ type
     function AllocRecBuf: TRecBuf; override;
     procedure FreeRecBuf(var Buffer: TRecBuf); override;
     {$ENDIF}
+
+    procedure DataEvent(Event: TDataEvent; Info: {$IFDEF DELPHIXE2_UP}NativeInt{$ELSE}LongInt{$ENDIF}); override;
+
     {$IFDEF DELPHIXE4_UP}
     procedure GetBookmarkData(Buffer: TRecBuf; Data: TBookmark); override;
+    procedure SetBookmarkData(Buffer: TRecBuf; Data: TBookmark); override;
     {$ENDIF}
+
     {$IFNDEF NEXTGEN}
     {$IFDEF DELPHIXE3_UP}
     procedure GetBookmarkData(Buffer: TRecordBuffer; Data: TBookmark); override;
+    procedure SetBookmarkData(Buffer: TRecordBuffer; Data: TBookmark); override;
     {$ENDIF}
     procedure GetBookmarkData(Buffer: TRecordBuffer; Data: Pointer); override;
+    procedure SetBookmarkData(Buffer: TRecordBuffer; Data: Pointer); override;
     {$ENDIF}
 
     function GetBookmarkFlag(Buffer: TRecordBuffer): TBookmarkFlag; override;
+
     function GetRecord(Buffer: TRecordBuffer; GetMode: TGetMode;
       DoCheck: Boolean): TGetResult; override;
     function GetRecordSize: Word; override;
@@ -155,58 +167,39 @@ type
 
     procedure InternalAddRecord(Buffer: {$IFDEF DELPHIXE3_UP}TRecordBuffer{$ELSE}Pointer{$ENDIF}; Append: Boolean); override;
     procedure InternalClose; override;
+    procedure InternalCreateFields; virtual;
     procedure InternalDelete; override;
     procedure InternalFirst; override;
     procedure InternalGotoBookmark(Bookmark: {$IFDEF DELPHIXE3_UP}TBookmark{$ELSE}Pointer{$ENDIF}); override;
     procedure InternalHandleException; override;
     procedure InternalInitFieldDefs; override;
     procedure InternalInitRecord(Buffer: TRecordBuffer); override;
-    procedure InternalInsert; override;
-    procedure DoBeforeInsert; override;
     procedure InternalLast; override;
     procedure InternalOpen; override;
     procedure InternalPost; override;
     procedure InternalRefresh; override;
     procedure InternalSetToRecord(Buffer: TRecordBuffer); override;
     function IsCursorOpen: Boolean; override;
+
     procedure SetBookmarkFlag(Buffer: TRecordBuffer; Value: TBookmarkFlag); override;
 
     function InternalGetRecord(Buffer: TRecordBuffer; GetMode: TGetMode; DoCheck: Boolean): TGetResult; virtual;
-    function FieldListCheckSum: NativeInt; virtual;
-  protected
-    property FilterCache: IDictionary<string, Variant> read FFilterCache write FFilterCache;
+    procedure SetFieldData(const field: TField; const buffer: Variant); overload;
+
+    property FilterCache: IDictionary<string, Variant> read fFilterCache;
+    property IndexList: TIndexList read fIndexList;
     {$IFDEF DELPHIXE3_UP}
-    property Reserved: Pointer read FReserved write FReserved;
+    property Reserved: Pointer read fReserved write fReserved;
     {$ENDIF}
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    /// <summary>
-    ///   Represents current cursor index in the dataset.
-    /// </summary>
-    property Current: Integer read FCurrent;
-
-    /// <summary>
-    ///   Represents the current index of the dataset.
-    /// </summary>
-    property Index: Integer read GetIndex write SetIndex;
-
-    property IndexList: TODIndexList read FIndexList;
-
-    /// <summary>
-    ///   Represents modified fields of the current record.
-    /// </summary>
-    property ModifiedFields: IList<TField> read FModifiedFields;
-    property ReadOnly: Boolean read FReadOnly write FReadOnly default False;
-  public
     function FindField(const FieldName: string): TField; reintroduce;
 
     function BookmarkValid(Bookmark: TBookmark): Boolean; override;
     function CompareBookmarks(Bookmark1, Bookmark2: TBookmark): Integer; override;
     function CreateBlobStream(Field: TField; Mode: TBlobStreamMode): TStream; override;
-
-    procedure DataEvent(Event: TDataEvent; Info: {$IFDEF DELPHIXE2_UP}NativeInt{$ELSE}LongInt{$ENDIF}); override;
 
     function GetBlobFieldData(FieldNo: Integer; var Buffer: TBlobByteData): Integer; override;
     function Locate(const KeyFields: string; const KeyValues: Variant;
@@ -216,9 +209,35 @@ type
     function GetActiveRecBuf(var RecBuf: TRecordBuffer): Boolean; virtual;
     function GetFieldData(Field: TField; {$IFDEF DELPHIXE4_UP}var{$ENDIF} Buffer: TValueBuffer): Boolean; override;
     function GetFieldData(Field: TField; {$IFDEF DELPHIXE4_UP}var{$ENDIF} Buffer: TValueBuffer; NativeFormat: Boolean): Boolean; override;
-    procedure SetFieldData(Field: TField; Buffer: TValueBuffer); override;
-    procedure SetFieldData(Field: TField; Buffer: TValueBuffer; NativeFormat: Boolean); override;
+    procedure SetFieldData(Field: TField; Buffer: TValueBuffer); overload; override;
+    procedure SetFieldData(Field: TField; Buffer: TValueBuffer; NativeFormat: Boolean); overload; override;
+
+    /// <summary>
+    ///   Represents current cursor index in the dataset.
+    /// </summary>
+    property Current: Integer read fCurrent;
+
+    /// <summary>
+    ///   Represents the current index of the dataset.
+    /// </summary>
+    property Index: Integer read GetIndex write SetIndex;
+
+    property ModifiedFields: IList<TField> read fModifiedFields;
+    property ReadOnly: Boolean read fReadOnly write fReadOnly default False;
+
+    property OnDeleteRecord: TChangeRecordEvent read fOnDeleteRecord write fOnDeleteRecord;
+    property OnGetFieldValue: TGetFieldValueEvent read fOnGetFieldValue write fOnGetFieldValue;
+    property OnGetRecordCount: TGetRecordCountEvent read fOnGetRecordCount write fOnGetRecordCount;
+    property OnInsertRecord: TChangeRecordEvent read fOnInsertRecord write fOnInsertRecord;
+    property OnUpdateRecord: TChangeRecordEvent read fOnUpdateRecord write fOnUpdateRecord;
+  end;
+
+  TVirtualDataSet = class(TCustomVirtualDataSet)
   published
+    property Active;
+    property Filtered;
+    property ReadOnly;
+
     property AfterCancel;
     property AfterClose;
     property AfterDelete;
@@ -244,47 +263,47 @@ type
     property OnFilterRecord;
   end;
 
-resourcestring
-  SUnsupportedFieldType = 'Unsupported field type (%s) in field %s';
-  SIndexOutOfRange = 'Index out of range';
-  SPropertyNotFound = 'Property ''%s'' not found';
-  SColumnPropertiesNotSpecified = 'Type does not have column properties';
-
 implementation
 
 uses
-{$IFNDEF NEXTGEN}
+{$IFNDEF DELPHIXE3_UP}
   Contnrs,
-  WideStrUtils,
+{$ELSE}
+  Generics.Collections,
 {$ENDIF}
   DBConsts,
+  FmtBcd,
   Math,
-  FMTBcd,
-  SysUtils,
-  Types,
   Variants,
   VarUtils,
   Spring,
-  Spring.Reflection,
-  Spring.SystemUtils,
-  Spring.Persistence.ObjectDataset.Blobs,
-  Spring.Persistence.ObjectDataset.ActiveX;
+  Spring.Data.ActiveX;
 
-type
+resourcestring
+  SUnsupportedFieldType = 'Unsupported field type (%s) in field %s';
+  SPersistentFieldsRequired = 'Virtual dataset can only be used with persistent fields.';
+  SIndexOutOfRange = 'Index out of range';
+
+
 {$IF Defined(DELPHIXE3_UP) and not Defined(DELPHIXE8_UP)}
+type
   TDBBitConverter = class
   private
-    class procedure InternalFromMove<T>(const Value: T; var B: TArray<Byte>; Offset: Integer = 0); static; inline;
+    class procedure InternalFromMove<T>(const Value: T; var B: TArray<Byte>; Offset: Integer = 0); static; {$IFNDEF DELPHIXE4}inline;{$ENDIF}
     class function InternalIntoMove<T>(const B: TArray<Byte>; Offset: Integer = 0): T; static; inline;
   public
-    class procedure UnsafeFrom<T>(const Value: T; var B: TArray<Byte>; Offset: Integer = 0); static; inline;
+    class procedure UnsafeFrom<T>(const Value: T; var B: TArray<Byte>; Offset: Integer = 0); static; {$IFNDEF DELPHIXE4}inline;{$ENDIF}
     class function UnsafeInTo<T>(const B: TArray<Byte>; Offset: Integer = 0): T; static; inline;
 
     class procedure UnsafeFromVariant(const Value: Variant; var B: TArray<Byte>; Offset: Integer = 0); static; inline;
     class function UnsafeInToVariant(const B: TArray<Byte>; Offset: Integer = 0): Variant; static; inline;
   end;
 {$IFEND}
-  EAbstractObjectDatasetException = class(Exception);
+
+{$IFDEF NEXTGEN}
+type
+  WideString = UnicodeString;
+{$ENDIF}
 
 function DataSetLocateThrough(DataSet: TDataSet; const KeyFields: string;
   const KeyValues: Variant; Options: TLocateOptions): Boolean;
@@ -374,6 +393,15 @@ begin
   end;
 end;
 
+function FieldListCheckSum(const dataSet: TDataSet): NativeInt;
+var
+  i: Integer;
+begin
+  Result := 0;
+  for i := 0 to dataSet.Fields.Count - 1 do
+    Result := Result + (NativeInt(dataSet.Fields[i]) shr (i mod SizeOf(NativeInt)));
+end;
+
 {$IF Defined(DELPHIXE3_UP) and not Defined(DELPHIXE8_UP)}
 class procedure TDBBitConverter.InternalFromMove<T>(const Value: T;
   var B: TArray<Byte>; Offset: Integer);
@@ -417,13 +445,32 @@ end;
 {$IFEND}
 
 
-{$REGION 'TAbstractObjectDataset'}
+{$REGION 'TCustomVirtualDataSet'}
 
-function TAbstractObjectDataset.AllocRecordBuffer: TRecordBuffer;
+constructor TCustomVirtualDataSet.Create(AOwner: TComponent);
+var
+  comparer: IEqualityComparer<string>;
+begin
+  inherited Create(AOwner);
+  fModifiedFields := TCollections.CreateList<TField>;
+  fIndexList := TIndexList.Create;
+
+  comparer := TStringComparer.OrdinalIgnoreCase;
+  fFieldsCache := TCollections.CreateDictionary<string,TField>(50, comparer);
+  fFilterCache := TCollections.CreateDictionary<string,Variant>(50, comparer);
+end;
+
+destructor TCustomVirtualDataSet.Destroy;
+begin
+  fIndexList.Free;
+  inherited Destroy;
+end;
+
+function TCustomVirtualDataSet.AllocRecordBuffer: TRecordBuffer;
 begin
   if not (csDestroying in ComponentState) then
   begin
-    Pointer(Result) := AllocMem(FRowBufSize);
+    Pointer(Result) := AllocMem(fRowBufSize);
     Initialize(PVariantList(Result + SizeOf(TArrayRecInfo))^, Fields.Count);
   end
   else
@@ -431,134 +478,118 @@ begin
 end;
 
 {$IFDEF NEXTGEN}
-function TAbstractObjectDataset.AllocRecBuf: TRecBuf;
+function TCustomVirtualDataSet.AllocRecBuf: TRecBuf;
 begin
   Result := AllocRecordBuffer;
 end;
 {$ENDIF}
 
-procedure TAbstractObjectDataset.BindFields(Binding: Boolean);
+procedure TCustomVirtualDataSet.BindFields(Binding: Boolean);
 begin
   inherited BindFields(Binding);
   RebuildFieldCache;
 end;
 
-function TAbstractObjectDataset.BookmarkValid(Bookmark: TBookmark): Boolean;
-var
-  LValue: TValue;
+function TCustomVirtualDataSet.BookmarkValid(Bookmark: TBookmark): Boolean;
 begin
-  LValue := PObject(Bookmark)^;
-  Result := Assigned(Bookmark) and (not LValue.IsEmpty);
-  if Result then
-    Result := IndexList.ContainsModel(LValue);
+  Result := Assigned(Bookmark) and Assigned(PObject(Bookmark)^)
+    and fIndexList.Contains(PObject(Bookmark)^);
 end;
 
-function TAbstractObjectDataset.CompareBookmarks(Bookmark1, Bookmark2: TBookmark): Integer;
+function TCustomVirtualDataSet.CompareBookmarks(Bookmark1, Bookmark2: TBookmark): Integer;
 const
-  LRetCodes: array [Boolean, Boolean] of ShortInt = ((2, -1), (1, 0));
-var
-  LValue1, LValue2: TValue;
+  RetCodes: array[Boolean, Boolean] of ShortInt = ((2, -1), (1, 0));
 begin
-  Result := LRetCodes[Bookmark1 = nil, Bookmark2 = nil];
+  Result := RetCodes[Bookmark1 = nil, Bookmark2 = nil];
   if Result = 2 then
-  begin
-    LValue1 := PObject(Bookmark1)^;
-    LValue2 := PObject(Bookmark2)^;
-    Result := LValue1.CompareTo(LValue2);
-  end;
+    if PNativeUInt(Bookmark1)^ < PNativeUInt(Bookmark2)^ then
+      Result := -1
+    else if PNativeUInt(Bookmark1)^ > PNativeUInt(Bookmark2)^ then
+      Result := 1
+    else
+      Result := 0;
 end;
 
-constructor TAbstractObjectDataset.Create(AOwner: TComponent);
-var
-  LCaseInsensitiveComparer: IEqualityComparer<string>;
+function TCustomVirtualDataSet.CreateBlobStream(Field: TField; Mode: TBlobStreamMode): TStream;
 begin
-  inherited Create(AOwner);
-  FInternalOpen := False;
-  FReadOnly := False;
-  FModifiedFields := TCollections.CreateList<TField>;
-  FIndexList := TODIndexList.Create;
-
-  LCaseInsensitiveComparer := TStringComparer.OrdinalIgnoreCase;
-  FFieldsCache := TCollections.CreateDictionary<string,TField>(500, LCaseInsensitiveComparer);
-  FFilterCache := TCollections.CreateDictionary<string,Variant>(500, LCaseInsensitiveComparer);
+  Result := TBlobStream.Create(Field as TBlobField, Mode);
 end;
 
-function TAbstractObjectDataset.CreateBlobStream(Field: TField; Mode: TBlobStreamMode): TStream;
-begin
-  Result := TODBlobStream.Create(Field as TBlobField, Mode);
-end;
-
-procedure TAbstractObjectDataset.DataEvent(Event: TDataEvent;
+procedure TCustomVirtualDataSet.DataEvent(Event: TDataEvent;
   Info: {$IFDEF DELPHIXE2_UP}NativeInt{$ELSE}LongInt{$ENDIF});
 begin
   case Event of
     deLayoutChange:
-      if Active then
-        if Assigned(Reserved) and (FieldListCheckSum <> NativeInt(Reserved)) then
-          Reserved := nil;
+      if Active and Assigned(Reserved)
+        and (FieldListCheckSum(Self) <> NativeInt(Reserved)) then
+        Reserved := nil;
   end;
-  inherited;
+  inherited DataEvent(Event, Info);
 end;
 
-function TAbstractObjectDataset.DataListCount: Integer;
+procedure TCustomVirtualDataSet.DoDeleteRecord(Index: Integer);
 begin
-  Result := 0;
+  if Assigned(fOnDeleteRecord) then
+    fOnDeleteRecord(Self, Index);
 end;
 
-destructor TAbstractObjectDataset.Destroy;
+procedure TCustomVirtualDataSet.DoFilterRecord(var Accept: Boolean);
 begin
-  FIndexList.Free;
-  inherited Destroy;
+  OnFilterRecord(Self, Accept);
 end;
 
-procedure TAbstractObjectDataset.DoBeforeInsert;
+procedure TCustomVirtualDataSet.DoGetFieldValue(Field: TField; Index: Integer;
+  var Value: Variant);
 begin
-  FInsertIndex := Max(RecNo - 1, 0);
-  inherited;
+  if Assigned(fOnGetFieldValue) then
+    fOnGetFieldValue(Self, Field, Index, Value);
 end;
 
-procedure TAbstractObjectDataset.DoOnNewRecord;
+procedure TCustomVirtualDataSet.DoOnNewRecord;
 begin
-  FModifiedFields.Clear;
+  fModifiedFields.Clear;
 
-  if Pointer(FOldValueBuffer) = nil then
-    FOldValueBuffer := AllocRecordBuffer
+  if Pointer(fOldValueBuffer) = nil then
+    fOldValueBuffer := AllocRecordBuffer
   else
-    Finalize(PVariantList(FOldValueBuffer + SizeOf(TArrayRecInfo))^, Fields.Count);
+    Finalize(PVariantList(fOldValueBuffer + SizeOf(TArrayRecInfo))^, Fields.Count);
 
-  InitRecord({$IFDEF DELPHIXE4_UP}NativeInt(FOldValueBuffer){$ELSE}FOldValueBuffer{$ENDIF});
+  InitRecord({$IFDEF DELPHIXE4_UP}NativeInt(fOldValueBuffer){$ELSE}fOldValueBuffer{$ENDIF});
   inherited DoOnNewRecord;
 end;
 
-function TAbstractObjectDataset.FieldListCheckSum: NativeInt;
-var
-  I: Integer;
+procedure TCustomVirtualDataSet.DoPostRecord(Index: Integer; Append: Boolean);
 begin
-  Result := 0;
-  for I := 0 to Fields.Count - 1 do
-    Result := Result + (NativeInt(Fields[I]) shr (I mod 16));
+  case State of
+    dsEdit:
+      if Assigned(fOnUpdateRecord) then
+        fOnUpdateRecord(Self, Index);
+    dsInsert:
+      if Assigned(fOnInsertRecord) then
+        fOnInsertRecord(Self, Index);
+  end
 end;
 
-function TAbstractObjectDataset.FindField(const FieldName: string): TField;
+function TCustomVirtualDataSet.FindField(const FieldName: string): TField;
 begin
-  if not FFieldsCache.TryGetValue(FieldName, Result) then
+  if not fFieldsCache.TryGetValue(FieldName, Result) then
     Result := nil;
 end;
 
-procedure TAbstractObjectDataset.FreeRecordBuffer(var Buffer: TRecordBuffer);
+procedure TCustomVirtualDataSet.FreeRecordBuffer(var Buffer: TRecordBuffer);
 begin
   Finalize(PVariantList(Buffer + SizeOf(TArrayRecInfo))^, Fields.Count);
   FreeMem(Pointer(Buffer));
 end;
 
 {$IFDEF NEXTGEN}
-procedure TAbstractObjectDataset.FreeRecBuf(var Buffer: TRecBuf);
+procedure TCustomVirtualDataSet.FreeRecBuf(var Buffer: TRecBuf);
 begin
   FreeRecordBuffer(Buffer);
 end;
 {$ENDIF}
 
-function TAbstractObjectDataset.GetActiveRecBuf(var RecBuf: TRecordBuffer): Boolean;
+function TCustomVirtualDataSet.GetActiveRecBuf(var RecBuf: TRecordBuffer): Boolean;
 begin
   Pointer(RecBuf) := nil;
   case State of
@@ -572,70 +603,89 @@ begin
     dsCalcFields, dsInternalCalc:
       Pointer(RecBuf) := Pointer(CalcBuffer);
     dsFilter:
-      Pointer(RecBuf) := Pointer(FFilterBuffer);
+      Pointer(RecBuf) := Pointer(fFilterBuffer);
   end;
   Result := Pointer(RecBuf) <> nil;
 end;
 
-function TAbstractObjectDataset.GetBlobFieldData(FieldNo: Integer;
+function TCustomVirtualDataSet.GetBlobFieldData(FieldNo: Integer;
   var Buffer: TBlobByteData): Integer;
 begin
   Result := inherited GetBlobFieldData(FieldNo, Buffer);
 end;
 
 {$IFDEF DELPHIXE4_UP}
-procedure TAbstractObjectDataset.GetBookmarkData(Buffer: TRecBuf; Data: TBookmark);
+procedure TCustomVirtualDataSet.GetBookmarkData(Buffer: TRecBuf; Data: TBookmark);
 begin
-  PObject(Data)^ := IndexList.GetModel(PArrayRecInfo(Buffer).Index).AsObject;
+  PObject(Data)^ := fIndexList[PArrayRecInfo(Buffer).Index];
+end;
+
+procedure TCustomVirtualDataSet.SetBookmarkData(Buffer: TRecBuf; Data: TBookmark);
+begin
+  if PArrayRecInfo(Buffer).BookmarkFlag in [bfCurrent, bfInserted] then
+    PArrayRecInfo(Buffer).Index := fIndexList.IndexOf(PObject(@Data[0])^)
+  else
+    PArrayRecInfo(Buffer).Index := -1;
 end;
 {$ENDIF}
 
 {$IFNDEF NEXTGEN}
 {$IFDEF DELPHIXE3_UP}
-procedure TAbstractObjectDataset.GetBookmarkData(Buffer: TRecordBuffer; Data: TBookmark);
+procedure TCustomVirtualDataSet.GetBookmarkData(Buffer: TRecordBuffer; Data: TBookmark);
 begin
-  PObject(Data)^ := IndexList.GetModel(PArrayRecInfo(Buffer).Index).AsObject;
+  PObject(Data)^ := fIndexList[PArrayRecInfo(Buffer).Index];
+end;
+
+procedure TCustomVirtualDataSet.SetBookmarkData(Buffer: TRecordBuffer; Data: TBookmark);
+begin
+  if PArrayRecInfo(Buffer).BookmarkFlag in [bfCurrent, bfInserted] then
+    PArrayRecInfo(Buffer).Index := fIndexList.IndexOf(PObject(@Data[0])^)
+  else
+    PArrayRecInfo(Buffer).Index := -1;
 end;
 {$ENDIF}
 
-procedure TAbstractObjectDataset.GetBookmarkData(Buffer: TRecordBuffer; Data: Pointer);
+procedure TCustomVirtualDataSet.GetBookmarkData(Buffer: TRecordBuffer; Data: Pointer);
 begin
-  PObject(Data)^ := IndexList.GetModel(PArrayRecInfo(Buffer).Index).AsObject;
+  PObject(Data)^ := fIndexList[PArrayRecInfo(Buffer).Index];
+end;
+
+procedure TCustomVirtualDataSet.SetBookmarkData(Buffer: TRecordBuffer; Data: Pointer);
+begin
+  if PArrayRecInfo(Buffer).BookmarkFlag in [bfCurrent, bfInserted] then
+    PArrayRecInfo(Buffer).Index := fIndexList.IndexOf(PObject(Data)^)
+  else
+    PArrayRecInfo(Buffer).Index := -1;
 end;
 {$ENDIF}
 
-function TAbstractObjectDataset.GetBookmarkFlag(Buffer: TRecordBuffer): TBookmarkFlag;
+function TCustomVirtualDataSet.GetBookmarkFlag(Buffer: TRecordBuffer): TBookmarkFlag;
 begin
   Result := PArrayRecInfo(Buffer).BookmarkFlag;
 end;
 
-function TAbstractObjectDataset.GetCanModify: Boolean;
+function TCustomVirtualDataSet.GetCanModify: Boolean;
 begin
-  Result := not FReadOnly;
+  Result := not fReadOnly;
 end;
 
-function TAbstractObjectDataset.GetFieldClass(FieldDef: TFieldDef): TFieldClass;
-begin
-  Result := inherited GetFieldClass(FieldDef);
-end;
-
-function TAbstractObjectDataset.GetFieldData(Field: TField;
+function TCustomVirtualDataSet.GetFieldData(Field: TField;
   {$IFDEF DELPHIXE4_UP}var{$ENDIF} Buffer: TValueBuffer;
   NativeFormat: Boolean): Boolean;
 var
-  LRecBuf: TRecordBuffer;
+  recBuf: TRecordBuffer;
   Data: Variant;
 
   {$IFDEF DELPHIXE3_UP}
   procedure CurrToBuffer(const C: Currency);
   var
-    LBuff: TValueBuffer;
+    buff: TValueBuffer;
   begin
     if NativeFormat then
     begin
-      SetLength(LBuff, SizeOf(Currency));
-      TDBBitConverter.UnsafeFrom<Currency>(C, LBuff);
-      DataConvert(Field, LBuff, Buffer, True)
+      SetLength(buff, SizeOf(Currency));
+      TDBBitConverter.UnsafeFrom<Currency>(C, buff);
+      DataConvert(Field, buff, Buffer, True)
     end
     else
       TDBBitConverter.UnsafeFrom<Currency>(C, Buffer);
@@ -662,6 +712,7 @@ var
         PAnsiChar(Buffer)[Field.Size] := #0;
         TempBuff := TEncoding.Default.GetBytes(string(tagVariant(Data).bStrVal));
         Move(TempBuff[0], Buffer[0], Length(TempBuff));
+        PAnsiChar(Buffer)[Min(Field.Size, Length(TempBuff))] := #0;
       end;
       ftFixedWideChar, ftWideString:
       begin
@@ -671,6 +722,16 @@ var
         TempBuff[Length(TempBuff) - 1] := 0;
         Move(TempBuff[0], Buffer[0], Length(TempBuff));
       end;
+      ftShortint:
+        if tagVariant(Data).vt = VT_UI1 then
+          TDBBitConverter.UnsafeFrom<ShortInt>(ShortInt(tagVariant(Data).cVal), Buffer)
+        else
+          TDBBitConverter.UnsafeFrom<ShortInt>(ShortInt(tagVariant(Data).bVal), Buffer);
+      ftByte:
+        if tagVariant(Data).vt = VT_UI1 then
+          TDBBitConverter.UnsafeFrom<Byte>(Byte(tagVariant(Data).cVal), Buffer)
+        else
+          TDBBitConverter.UnsafeFrom<Byte>(tagVariant(Data).bVal, Buffer);
       ftSmallint:
         if tagVariant(Data).vt = VT_UI1 then
           TDBBitConverter.UnsafeFrom<SmallInt>(Byte(tagVariant(Data).cVal), Buffer)
@@ -683,6 +744,8 @@ var
           TDBBitConverter.UnsafeFrom<Word>(tagVariant(Data).uiVal, Buffer);
       ftAutoInc, ftInteger:
         TDBBitConverter.UnsafeFrom<Integer>(Data, Buffer);
+      ftLongWord:
+        TDBBitConverter.UnsafeFrom<Cardinal>(Data, Buffer);
       ftFloat, ftCurrency:
         if tagVariant(Data).vt = VT_R8 then
           TDBBitConverter.UnsafeFrom<Double>(tagVariant(Data).dblVal, Buffer)
@@ -711,7 +774,7 @@ var
         begin
           PData := VarArrayLock(Data);
           try
-            DataConvert(Field, BytesOf(PData, VarArrayHighBound(Data, 1) - VarArrayLowBound(Data, 1) + 1), Buffer, True);
+            DataConvert(Field, BytesOf(PData, VarArrayLength(Data, 1)), Buffer, True);
           finally
             VarArrayUnlock(Data);
           end;
@@ -752,6 +815,7 @@ var
         PAnsiChar(Buffer)[Field.Size] := #0;
         TempBuff := TEncoding.Default.GetBytes(string(tagVariant(Data).bStrVal));
         Move(TempBuff[0], PByte(Buffer)[0], Length(TempBuff));
+        PAnsiChar(Buffer)[Min(Field.Size, Length(TempBuff))] := #0;
       end;
       ftFixedWideChar, ftWideString:
       begin
@@ -761,6 +825,16 @@ var
         TempBuff[Length(TempBuff) - 1] := 0;
         Move(TempBuff[0], PByte(Buffer)[0], Length(TempBuff));
       end;
+      ftShortint:
+        if tagVariant(Data).vt = VT_UI1 then
+          ShortInt(Buffer^) := ShortInt(tagVariant(Data).cVal)
+        else
+          ShortInt(Buffer^) := ShortInt(tagVariant(Data).bVal);
+      ftByte:
+        if tagVariant(Data).vt = VT_UI1 then
+          Byte(Buffer^) := Byte(tagVariant(Data).cVal)
+        else
+          Byte(Buffer^) := tagVariant(Data).bVal;
       ftSmallint:
         if tagVariant(Data).vt = VT_UI1 then
           SmallInt(Buffer^) := Byte(tagVariant(Data).cVal)
@@ -773,6 +847,8 @@ var
           Word(Buffer^) := tagVariant(Data).uiVal;
       ftAutoInc, ftInteger:
         Integer(Buffer^) := Data;
+      ftLongWord:
+        Cardinal(Buffer^) := tagVariant(Data).uintVal;
       ftFloat, ftCurrency:
         if tagVariant(Data).vt = VT_R8 then
           Double(Buffer^) := tagVariant(Data).dblVal
@@ -808,10 +884,10 @@ var
       ftIDispatch:
         IDispatch(Buffer^) := Data;
       ftLargeInt:
-        if Decimal(Data).sign > 0 then
-          LargeInt(Buffer^) := -1 * Decimal(Data).Lo64
+        if PDecimal(@Data).sign > 0 then
+          LargeInt(Buffer^) := -1 * PDecimal(@Data).Lo64
         else
-          LargeInt(Buffer^) := Decimal(Data).Lo64;
+          LargeInt(Buffer^) := PDecimal(@Data).Lo64;
       ftBlob .. ftTypedBinary, ftVariant, ftWideMemo:
         OleVariant(Buffer^) := Data;
     else
@@ -823,7 +899,7 @@ var
 
   procedure RefreshBuffers;
   begin
-    Reserved := Pointer(FieldListCheckSum);
+    Reserved := Pointer(FieldListCheckSum(Self));
     UpdateCursorPos;
     Resync([]);
   end;
@@ -840,23 +916,23 @@ begin
   if not Assigned(Reserved) then
     RefreshBuffers;
 
-  Result := GetActiveRecBuf(LRecBuf);
+  Result := GetActiveRecBuf(recBuf);
 
   if not Result then
     Exit;
 
-  Data := PVariantList(LRecBuf + SizeOf(TArrayRecInfo))[Field.Index];
+  Data := PVariantList(recBuf + SizeOf(TArrayRecInfo))[Field.Index];
 
   if VarIsEmpty(Data) then
   begin
-    DoGetFieldValue(Field, PArrayRecInfo(LRecBuf).Index, Data);
+    DoGetFieldValue(Field, PArrayRecInfo(recBuf).Index, Data);
     if VarIsEmpty(Data) then
       Data := Null;
 
     if VarType(Data) = varInt64 then
-      PVariantList(LRecBuf + SizeOf(TArrayRecInfo))[Field.Index] := DataToInt64
+      PVariantList(recBuf + SizeOf(TArrayRecInfo))[Field.Index] := DataToInt64
     else
-      PVariantList(LRecBuf + SizeOf(TArrayRecInfo))[Field.Index] := Data;
+      PVariantList(recBuf + SizeOf(TArrayRecInfo))[Field.Index] := Data;
   end;
 
   Result := not VarIsNull(Data);
@@ -864,143 +940,166 @@ begin
     VarToBuffer;
 end;
 
-function TAbstractObjectDataset.GetFieldData(Field: TField;
+function TCustomVirtualDataSet.GetFieldData(Field: TField;
   {$IFDEF DELPHIXE4_UP}var{$ENDIF} Buffer: TValueBuffer): Boolean;
 begin
   Result := GetFieldData(Field, Buffer, True);
 end;
 
-function TAbstractObjectDataset.GetFieldDefsClass: TFieldDefsClass;
-begin
-  Result := TObjectDatasetFieldDefs;
-end;
-
-function TAbstractObjectDataset.GetIndex: Integer;
+function TCustomVirtualDataSet.GetIndex: Integer;
 var
-  LRecBuf: TRecordBuffer;
+  recBuf: TRecordBuffer;
 begin
   Result := -1;
   CheckActive;
-  if GetActiveRecBuf(LRecBuf) and (PArrayRecInfo(LRecBuf).BookmarkFlag = bfCurrent) then
-    Result := PArrayRecInfo(LRecBuf).Index;
+  if GetActiveRecBuf(recBuf) and (PArrayRecInfo(recBuf).BookmarkFlag = bfCurrent) then
+    Result := PArrayRecInfo(recBuf).Index;
 end;
 
-function TAbstractObjectDataset.GetRecNo: Longint;
+function TCustomVirtualDataSet.GetRecNo: {$IFDEF DELPHIX_TOKYO_UP}Integer{$ELSE}LongInt{$ENDIF};
 var
-  LRecBuf: TRecordBuffer;
+  recBuf: TRecordBuffer;
 begin
   CheckActive;
   Result := -1;
-  if GetActiveRecBuf(LRecBuf) and (PArrayRecInfo(LRecBuf).BookmarkFlag = bfCurrent) then
-    Result := PArrayRecInfo(LRecBuf).Index + 1;
+  if GetActiveRecBuf(recBuf) and (PArrayRecInfo(recBuf).BookmarkFlag = bfCurrent) then
+    Result := PArrayRecInfo(recBuf).Index + 1;
 end;
 
-function TAbstractObjectDataset.GetRecord(Buffer: TRecordBuffer; GetMode: TGetMode;
+function TCustomVirtualDataSet.GetRecord(Buffer: TRecordBuffer; GetMode: TGetMode;
   DoCheck: Boolean): TGetResult;
+var
+  accept: Boolean;
+  tmp: TDataSetState;
 begin
-  if Filtered then
-    FFilterBuffer := Buffer;
+  if not IsFiltered then
+    Exit(InternalGetRecord(Buffer, GetMode, DoCheck));
 
-  Result := InternalGetRecord(Buffer, GetMode, DoCheck);
+  fFilterBuffer := Buffer;
+  tmp := SetTempState(dsFilter);
+  try
+    Accept := True;
+    repeat
+      Result := InternalGetRecord(Buffer, GetMode, DoCheck);
+      if Result = grOK then
+      begin
+        DoFilterRecord(Accept);
+        if not Accept and (GetMode = gmCurrent) then
+          Result := grError;
+      end;
+    until Accept or (Result <> grOK);
+  except
+    ApplicationHandleException(Self);
+    Result := grError;
+  end;
+  RestoreState(tmp);
 end;
 
-function TAbstractObjectDataset.GetRecordCount: Integer;
+function TCustomVirtualDataSet.GetRecordCount: Integer;
 begin
   Result := -1;
+  if Assigned(fOnGetRecordCount) then
+    fOnGetRecordCount(Self, Result);
 end;
 
-function TAbstractObjectDataset.GetRecordSize: Word;
+function TCustomVirtualDataSet.GetRecordSize: Word;
 begin
   Result := SizeOf(TArrayRecInfo);
 end;
 
-
-procedure TAbstractObjectDataset.InternalAddRecord(
+procedure TCustomVirtualDataSet.InternalAddRecord(
   Buffer: {$IFDEF DELPHIXE3_UP}TRecordBuffer{$ELSE}Pointer{$ENDIF}; Append: Boolean);
 begin
   DoPostRecord(Current, Append);
 end;
 
-procedure TAbstractObjectDataset.InternalClose;
+procedure TCustomVirtualDataSet.InternalClose;
 begin
-  FInternalOpen := False;
+  fInternalOpen := False;
   BindFields(False);
   FieldDefs.Updated := False;
-  if Pointer(FOldValueBuffer) <> nil then
+  if Pointer(fOldValueBuffer) <> nil then
   begin
     try
-      Finalize(PVariantList(FOldValueBuffer + SizeOf(TArrayRecInfo))^, Fields.Count);
-      FreeMem(Pointer(FOldValueBuffer));
+      Finalize(PVariantList(fOldValueBuffer + SizeOf(TArrayRecInfo))^, Fields.Count);
+      FreeMem(Pointer(fOldValueBuffer));
     finally
-      Pointer(FOldValueBuffer) := nil;
+      Pointer(fOldValueBuffer) := nil;
     end;
   end;
 end;
 
-procedure TAbstractObjectDataset.InternalDelete;
+procedure TCustomVirtualDataSet.InternalCreateFields;
+begin
+  if {$IF CompilerVersion >= 27}(FieldOptions.AutoCreateMode <> acExclusive)
+    or not (lcPersistent in Fields.LifeCycles){$ELSE}DefaultFields{$IFEND} then
+    raise EVirtualDataSetException.CreateRes(@SPersistentFieldsRequired);
+end;
+
+procedure TCustomVirtualDataSet.InternalDelete;
 var
-  LRecBuf: TRecordBuffer;
+  recBuf: TRecordBuffer;
 begin
-  if GetActiveRecBuf(LRecBuf) then
-    DoDeleteRecord(PArrayRecInfo(LRecBuf).Index);
+  if GetActiveRecBuf(recBuf) then
+    DoDeleteRecord(PArrayRecInfo(recBuf).Index);
 end;
 
-procedure TAbstractObjectDataset.InternalEdit;
+procedure TCustomVirtualDataSet.InternalEdit;
 begin
-  FModifiedFields.Clear;
+  fModifiedFields.Clear;
 
-  if Pointer(FOldValueBuffer) = nil then
-    FOldValueBuffer := AllocRecordBuffer
+  if Pointer(fOldValueBuffer) = nil then
+    fOldValueBuffer := AllocRecordBuffer
   else
-    Finalize(PVariantList(FOldValueBuffer + SizeOf(TArrayRecInfo))^, Fields.Count);
+    Finalize(PVariantList(fOldValueBuffer + SizeOf(TArrayRecInfo))^, Fields.Count);
 end;
 
-procedure TAbstractObjectDataset.InternalFirst;
+procedure TCustomVirtualDataSet.InternalFirst;
 begin
-  FCurrent := -1;
+  fCurrent := -1;
 end;
 
-function TAbstractObjectDataset.InternalGetRecord(Buffer: TRecordBuffer;
+function TCustomVirtualDataSet.InternalGetRecord(Buffer: TRecordBuffer;
   GetMode: TGetMode; DoCheck: Boolean): TGetResult;
 var
-  LRecCount: Integer;
+  recCount: Integer;
 begin
   try
-    LRecCount := IndexList.Count;
+    recCount := RecordCount;
     Result := grOK;
     case GetMode of
       gmNext:
       begin
-        if FCurrent < LRecCount then
-          Inc(FCurrent);
-        if FCurrent >= LRecCount then
+        if fCurrent < recCount then
+          Inc(fCurrent);
+        if fCurrent >= recCount then
           Result := grEOF;
       end;
       gmPrior:
       begin
-        if FCurrent <=0 then
-          FCurrent := -1
+        if fCurrent <= 0 then
+          fCurrent := -1
         else
-          FCurrent := Min(FCurrent - 1, LRecCount - 1);
+          fCurrent := Min(fCurrent - 1, recCount - 1);
 
-        if FCurrent < 0 then
+        if fCurrent < 0 then
           Result := grBOF;
       end;
       gmCurrent:
       begin
-        if FCurrent < 0 then
+        if fCurrent < 0 then
           Result := grBOF
-        else if FCurrent >= LRecCount then
+        else if fCurrent >= recCount then
         begin
           Result := grEOF;
-          FCurrent := LRecCount;
+          fCurrent := recCount;
         end;
       end;
     end;
 
     if Result = grOK then
     begin
-      PArrayRecInfo(Buffer).Index := FCurrent;
+      PArrayRecInfo(Buffer).Index := fCurrent;
       PArrayRecInfo(Buffer).BookmarkFlag := bfCurrent;
 
       Finalize(PVariantList(Buffer + SizeOf(TArrayRecInfo))^, Fields.Count);
@@ -1008,50 +1107,49 @@ begin
     end;
   except
     if DoCheck then
-      raise ;
+      raise;
     Result := grError;
   end;
 end;
 
-procedure TAbstractObjectDataset.InternalGotoBookmark(Bookmark: {$IFDEF DELPHIXE3_UP}TBookmark{$ELSE}Pointer{$ENDIF});
-var
-  LValue: TValue;
+procedure TCustomVirtualDataSet.InternalGotoBookmark(
+  Bookmark: {$IFDEF DELPHIXE3_UP}TBookmark{$ELSE}Pointer{$ENDIF});
 begin
-  LValue := PObject(Bookmark)^;
-  FCurrent := IndexList.IndexOfModel(LValue);
+  fCurrent := fIndexList.IndexOf(PObject(Bookmark)^);
 end;
 
-procedure TAbstractObjectDataset.InternalHandleException;
+procedure TCustomVirtualDataSet.InternalHandleException;
 begin
   if Assigned(Classes.ApplicationHandleException) then
     Classes.ApplicationHandleException(Self);
 end;
 
-procedure TAbstractObjectDataset.InternalInitFieldDefs;
+procedure TCustomVirtualDataSet.InternalInitFieldDefs;
 
-  procedure InitFieldDefsFromFields(AFields: TFields; AFieldDefs: TFieldDefs);
+  procedure InitFieldDefsFromFields(const fields: TFields;
+    const fieldDefs: TFieldDefs);
   var
-    I: Integer;
-    LField: TField;
-    LFieldDef: TFieldDef;
+    i: Integer;
+    field: TField;
+    fieldDef: TFieldDef;
   begin
-    for I := 0 to AFields.Count - 1 do
+    for i := 0 to fields.Count - 1 do
     begin
-      LField := AFields[I];
-      if AFieldDefs.IndexOf(LField.FieldName) = -1 then
+      field := fields[i];
+      if fieldDefs.IndexOf(field.FieldName) = -1 then
       begin
-        LFieldDef := AFieldDefs.AddFieldDef;
-        LFieldDef.Name := LField.FieldName;
-        LFieldDef.DataType := LField.DataType;
-        LFieldDef.Size := LField.Size;
-        if LField.Required then
-          LFieldDef.Attributes := [faRequired];
-        if LField.ReadOnly then
-          LFieldDef.Attributes := LFieldDef.Attributes + [DB.faReadonly];
-        if (LField.DataType = ftBCD) and (LField is TBCDField) then
-          LFieldDef.Precision := TBCDField(LField).Precision;
-        if LField is TObjectField then
-          InitFieldDefsFromFields(TObjectField(LField).Fields, LFieldDef.ChildDefs);
+        fieldDef := fieldDefs.AddFieldDef;
+        fieldDef.Name := field.FieldName;
+        fieldDef.DataType := field.DataType;
+        fieldDef.Size := field.Size;
+        if field.Required then
+          fieldDef.Attributes := [faRequired];
+        if field.ReadOnly then
+          fieldDef.Attributes := fieldDef.Attributes + [DB.faReadonly];
+        if (field.DataType = ftBCD) and (field is TBCDField) then
+          fieldDef.Precision := TBCDField(field).Precision;
+        if field is TObjectField then
+          InitFieldDefsFromFields(TObjectField(field).Fields, fieldDef.ChildDefs);
       end;
     end;
   end;
@@ -1061,81 +1159,71 @@ begin
   InitFieldDefsFromFields(Fields, FieldDefs);
 end;
 
-procedure TAbstractObjectDataset.InternalInitRecord(Buffer: TRecordBuffer);
+procedure TCustomVirtualDataSet.InternalInitRecord(Buffer: TRecordBuffer);
 var
-  I: Integer;
+  i: Integer;
 begin
-  for I := 0 to Fields.Count - 1 do
-    PVariantList(Buffer + SizeOf(TArrayRecInfo))[I] := Null;
+  for i := 0 to Fields.Count - 1 do
+    PVariantList(Buffer + SizeOf(TArrayRecInfo))[i] := Null;
 end;
 
-procedure TAbstractObjectDataset.InternalInsert;
+procedure TCustomVirtualDataSet.InternalLast;
 begin
-  inherited;
+  fCurrent := RecordCount;
 end;
 
-procedure TAbstractObjectDataset.InternalLast;
+procedure TCustomVirtualDataSet.InternalOpen;
 begin
-  FCurrent := RecordCount;
-end;
+  fInternalOpen := True;
+  fCurrent := -1;
 
-procedure TAbstractObjectDataset.InternalOpen;
-begin
-  FInternalOpen := True;
-  FCurrent := -1;
-
-  BookmarkSize := SizeOf(Integer);
+  BookmarkSize := SizeOf(Pointer);
 
   FieldDefs.Updated := False;
   FieldDefs.Update;
- { Reserved := Pointer(FieldListCheckSum(Self));
+
+  InternalCreateFields;
+  Reserved := Pointer(FieldListCheckSum(Self));
   BindFields(True);
-  SetRecBufSize; }
+  SetRecBufSize;
 end;
 
-procedure TAbstractObjectDataset.InternalPost;
+procedure TCustomVirtualDataSet.InternalPost;
 var
-  LRecBuf: TRecordBuffer;
+  recBuf: TRecordBuffer;
 begin
   inherited InternalPost;
   UpdateCursorPos;
-  GetActiveRecBuf(LRecBuf);
+  GetActiveRecBuf(recBuf);
 
-  case PArrayRecInfo(LRecBuf).BookmarkFlag of
-    bfEOF: DoPostRecord(-1, True);
-    bfInserted: DoPostRecord(FInsertIndex, False)
+  if PArrayRecInfo(recBuf).BookmarkFlag =  bfEOF then
+    DoPostRecord(-1, True)
   else
-    DoPostRecord(PArrayRecInfo(LRecBuf).Index, False)
-  end;
+    DoPostRecord(PArrayRecInfo(recBuf).Index, False);
 end;
 
-procedure TAbstractObjectDataset.InternalRefresh;
+procedure TCustomVirtualDataSet.InternalRefresh;
 begin
-  FIndexList.Rebuild;
+  fIndexList.Rebuild;
 end;
 
-procedure TAbstractObjectDataset.InternalSetToRecord(Buffer: TRecordBuffer);
+procedure TCustomVirtualDataSet.InternalSetToRecord(Buffer: TRecordBuffer);
 begin
   if PArrayRecInfo(Buffer).BookmarkFlag in [bfCurrent, bfInserted] then
-    FCurrent := PArrayRecInfo(Buffer).Index;
+    fCurrent := PArrayRecInfo(Buffer).Index;
 end;
 
-function TAbstractObjectDataset.IsCursorOpen: Boolean;
+function TCustomVirtualDataSet.IsCursorOpen: Boolean;
 begin
-  Result := FInternalOpen;
+  Result := fInternalOpen;
 end;
 
-function TAbstractObjectDataset.IsFiltered: Boolean;
+function TCustomVirtualDataSet.IsFiltered: Boolean;
 begin
-  Result := Filtered;
+  Result := Filtered and ((Trim(Filter) <> '') or Assigned(OnFilterRecord));
 end;
 
-function TAbstractObjectDataset.IsFilterEntered: Boolean;
-begin
-  Result := (Filtered) and (Trim(Filter) <> '');
-end;
-
-function TAbstractObjectDataset.Locate(const KeyFields: string; const KeyValues: Variant;
+function TCustomVirtualDataSet.Locate(const KeyFields: string; const KeyValues: Variant;
   Options: TLocateOptions): Boolean;
 begin
   DoBeforeScroll;
@@ -1147,45 +1235,42 @@ begin
   end;
 end;
 
-function TAbstractObjectDataset.Lookup(const KeyFields: string; const KeyValues: Variant;
+function TCustomVirtualDataSet.Lookup(const KeyFields: string; const KeyValues: Variant;
   const ResultFields: string): Variant;
 begin
   Result := Null;
   if DataSetLocateThrough(Self, KeyFields, KeyValues, []) then
-  begin
     Result := FieldValues[ResultFields];
-  end;
 end;
 
-procedure TAbstractObjectDataset.RebuildFieldCache;
+procedure TCustomVirtualDataSet.RebuildFieldCache;
 var
   i: Integer;
 begin
-  FFieldsCache.Clear;
+  fFieldsCache.Clear;
   for i := 0 to Fields.Count - 1 do
   begin
     Fields[i].DisplayLabel := FieldDefs[i].DisplayName;
-    Fields[i].Visible := (FieldDefs[i] as TObjectDatasetFieldDef).Visible;
-    FFieldsCache.Add(Fields[i].FieldName, Fields[i]);
+    fFieldsCache.Add(Fields[i].FieldName, Fields[i]);
   end;
 end;
 
-procedure TAbstractObjectDataset.SetBookmarkFlag(Buffer: TRecordBuffer; Value: TBookmarkFlag);
+procedure TCustomVirtualDataSet.SetBookmarkFlag(Buffer: TRecordBuffer; Value: TBookmarkFlag);
 begin
   PArrayRecInfo(Buffer).BookmarkFlag := Value;
 end;
 
-procedure TAbstractObjectDataset.SetCurrent(AValue: Integer);
+procedure TCustomVirtualDataSet.SetCurrent(value: Integer);
 begin
-  FCurrent := AValue;
+  fCurrent := value;
 end;
 
-procedure TAbstractObjectDataset.SetFieldData(Field: TField; Buffer: TValueBuffer);
+procedure TCustomVirtualDataSet.SetFieldData(Field: TField; Buffer: TValueBuffer);
 begin
   SetFieldData(Field, Buffer, True);
 end;
 
-procedure TAbstractObjectDataset.SetFieldData(Field: TField; Buffer: TValueBuffer; NativeFormat: Boolean);
+procedure TCustomVirtualDataSet.SetFieldData(Field: TField; Buffer: TValueBuffer; NativeFormat: Boolean);
 
   procedure BcdToOleVariant(const Bcd: TBcd; var Data: OleVariant);
   var
@@ -1212,7 +1297,13 @@ procedure TAbstractObjectDataset.SetFieldData(Field: TField; Buffer: TValueBuffe
       ftWideString, ftFixedWideChar:
         Data := WideString(PWideChar(Buffer));
       ftAutoInc, ftInteger:
-        Data := TDBBitConverter.UnsafeInto<LongInt>(Buffer);
+        Data := TDBBitConverter.UnsafeInto<Integer>(Buffer);
+      ftLongWord:
+        Data := TDBBitConverter.UnsafeInto<Cardinal>(Buffer);
+      ftShortint:
+        Data := TDBBitConverter.UnsafeInto<ShortInt>(Buffer);
+      ftByte:
+        Data := TDBBitConverter.UnsafeInto<Byte>(Buffer);
       ftSmallInt:
         Data := TDBBitConverter.UnsafeInto<SmallInt>(Buffer);
       ftWord:
@@ -1264,9 +1355,9 @@ procedure TAbstractObjectDataset.SetFieldData(Field: TField; Buffer: TValueBuffe
           Data := TDBBitConverter.UnsafeIntoVariant(Buffer);
       ftLargeInt:
         Data := TDBBitConverter.UnsafeInto<Int64>(Buffer);
-      else
-        DatabaseErrorFmt(SUnsupportedFieldType, [FieldTypeNames[Field.DataType],
-          Field.DisplayName]);
+    else
+      DatabaseErrorFmt(SUnsupportedFieldType, [FieldTypeNames[Field.DataType],
+        Field.DisplayName]);
     end;
   end;
   {$ELSE}
@@ -1278,7 +1369,13 @@ procedure TAbstractObjectDataset.SetFieldData(Field: TField; Buffer: TValueBuffe
       ftWideString, ftFixedWideChar:
         Data := WideString(PWideChar(Buffer));
       ftAutoInc, ftInteger:
-        Data := LongInt(Buffer^);
+        Data := Integer(Buffer^);
+      ftLongWord:
+        Data := Cardinal(Buffer^);
+      ftShortint:
+        Data := ShortInt(Buffer^);
+      ftByte:
+        Data := Byte(Buffer^);
       ftSmallInt:
         Data := SmallInt(Buffer^);
       ftWord:
@@ -1309,26 +1406,26 @@ procedure TAbstractObjectDataset.SetFieldData(Field: TField; Buffer: TValueBuffe
           Data := OleVariant(Buffer^);
       ftLargeInt:
         Data := LargeInt(Buffer^);
-      else
-        DatabaseErrorFmt(SUnsupportedFieldType, [FieldTypeNames[Field.DataType],
-          Field.DisplayName]);
+    else
+      DatabaseErrorFmt(SUnsupportedFieldType, [FieldTypeNames[Field.DataType],
+        Field.DisplayName]);
     end;
   end;
   {$ENDIF}
 
 var
-  LData: OleVariant;
-  LRecBuf: TRecordBuffer;
+  data: OleVariant;
+  recBuf: TRecordBuffer;
 begin
-  if not(State in dsWriteModes) then
+  if not (State in dsWriteModes) then
     DatabaseError(SNotEditing, Self);
 
-  GetActiveRecBuf(LRecBuf);
+  GetActiveRecBuf(recBuf);
 
   if Buffer = nil then
-    LData := Null
+    data := Null
   else
-    BufferToVar(LData);
+    BufferToVar(data);
 
   if Field.FieldNo > 0 then
   begin
@@ -1337,23 +1434,50 @@ begin
 
     Field.Validate(Buffer);
 
-    if not FModifiedFields.Contains(Field) then
+    if not fModifiedFields.Contains(Field) then
     begin
-      PVariantList(FOldValueBuffer + SizeOf(TArrayRecInfo))[Field.Index] := Field.OldValue;
-      FModifiedFields.Add(Field);
+      PVariantList(fOldValueBuffer + SizeOf(TArrayRecInfo))[Field.Index] := Field.OldValue;
+      fModifiedFields.Add(Field);
     end;
   end;
 
-  PVariantList(LRecBuf + SizeOf(TArrayRecInfo))[Field.Index] := LData;
+  PVariantList(recBuf + SizeOf(TArrayRecInfo))[Field.Index] := data;
 
   if not (State in [dsCalcFields, dsInternalCalc, dsFilter, dsNewValue]) then
-    DataEvent(deFieldChange, Longint(Field));
+    DataEvent(deFieldChange, NativeInt(Field));
 end;
 
-procedure TAbstractObjectDataset.SetFiltered(Value: Boolean);
+procedure TCustomVirtualDataSet.SetFieldData(const field: TField;
+  const buffer: Variant);
+var
+  recBuf: TRecordBuffer;
+begin
+  if not (State in dsWriteModes) then
+    DatabaseError(SNotEditing, Self);
+
+  GetActiveRecBuf(recBuf);
+
+  if field.FieldNo > 0 then
+  begin
+    if ReadOnly and not(State in [dsSetKey, dsFilter]) then
+      DatabaseErrorFmt(SFieldReadOnly, [field.DisplayName]);
+
+    if not fModifiedFields.Contains(field) then
+    begin
+      PVariantList(fOldValueBuffer + SizeOf(TArrayRecInfo))[field.Index] := field.OldValue;
+      fModifiedFields.Add(field);
+    end;
+  end;
+
+  PVariantList(recBuf + SizeOf(TArrayRecInfo))[field.Index] := buffer;
+
+  if not (State in [dsCalcFields, dsInternalCalc, dsFilter, dsNewValue]) then
+    DataEvent(deFieldChange, NativeInt(field));
+end;
+
+procedure TCustomVirtualDataSet.SetFiltered(Value: Boolean);
 begin
   if Filtered <> Value then
-  begin
     if Active then
     begin
       CheckBrowseMode;
@@ -1371,34 +1495,30 @@ begin
       end;
     end
     else
-    begin
       inherited SetFiltered(Value);
-    end;
-  end;
 end;
 
-procedure TAbstractObjectDataset.SetIndex(const Value: Integer);
+procedure TCustomVirtualDataSet.SetIndex(const value: Integer);
 begin
-  if (Value < 0) or (Value >= RecordCount) then
-    raise EAbstractObjectDatasetException.Create(SIndexOutOfRange);
+  Guard.CheckIndex(RecordCount, Value);
 
-  FCurrent := Value;
+  fCurrent := value;
 end;
 
-procedure TAbstractObjectDataset.SetRecBufSize;
+procedure TCustomVirtualDataSet.SetRecBufSize;
 begin
-  FRowBufSize := SizeOf(TArrayRecInfo) + (Fields.Count * SizeOf(Variant));
+  fRowBufSize := SizeOf(TArrayRecInfo) + (Fields.Count * SizeOf(Variant));
 end;
 
-procedure TAbstractObjectDataset.SetRecNo(Value: Integer);
+procedure TCustomVirtualDataSet.SetRecNo(Value: Integer);
 begin
   CheckBrowseMode;
-  Value :=  Min(max(Value, 1), RecordCount);
+  Value := Min(max(Value, 1), RecordCount);
 
   if RecNo <> Value then
   begin
     DoBeforeScroll;
-    FCurrent := Value - 1;
+    fCurrent := Value - 1;
     Resync([rmCenter]);
     DoAfterScroll;
   end;
@@ -1407,26 +1527,146 @@ end;
 {$ENDREGION}
 
 
-{$REGION 'TObjectDatasetFieldDefs'}
+{$REGION 'TBlobStream'}
 
-function TObjectDatasetFieldDefs.GetFieldDefClass: TFieldDefClass;
+constructor TCustomVirtualDataSet.TBlobStream.Create(Field: TBlobField;
+  Mode: TBlobStreamMode);
 begin
-  Result := TObjectDatasetFieldDef;
+  inherited Create;
+  fField := Field;
+  fFieldNo := fField.FieldNo - 1;
+  fDataSet := fField.Dataset as TCustomVirtualDataSet;
+  fFieldData := Null;
+  fData := Null;
+  if Mode <> bmRead then
+  begin
+    if fField.ReadOnly then
+      DatabaseErrorFmt(SFieldReadOnly, [fField.DisplayName], fDataSet);
+    if not (fDataSet.State in [dsEdit, dsInsert]) then
+      DatabaseError(SNotEditing, fDataSet);
+  end;
+  if Mode = bmWrite then
+    Truncate
+  else
+    ReadBlobData;
 end;
 
-{$ENDREGION}
-
-
-{$REGION 'TObjectDatasetFieldDef'}
-
-function TObjectDatasetFieldDef.GetDisplayName: string;
+destructor TCustomVirtualDataSet.TBlobStream.Destroy;
 begin
-  Result := FDisplayName;
+  if fModified then
+    fDataSet.SetFieldData(fField, fData);
+  inherited Destroy;
 end;
 
-procedure TObjectDatasetFieldDef.SetRealDisplayName(const Value: string);
+procedure TCustomVirtualDataSet.TBlobStream.ReadBlobData;
+var
+  buffer: TBytes;
+  recBuf: TRecordBuffer;
 begin
-  FDisplayName := Value;
+  fFieldData := Null;
+  // Pass empty buffer here to not copy any data
+  // but ensure the record holds valid data.
+  if fDataSet.GetFieldData(fField, buffer, True) then
+    if fDataSet.GetActiveRecBuf(recBuf) then
+      fFieldData := PVariantList(recBuf + SizeOf(TArrayRecInfo))[fField.Index];
+  if not VarIsNull(fFieldData) then
+  begin
+    if VarType(fFieldData) = varOleStr then
+    begin
+      if fField.BlobType = ftWideMemo then
+        Size := Length(WideString(fFieldData)) * SizeOf(WideChar)
+      else
+      begin
+        { Convert OleStr into a pascal string (format used by TBlobField) }
+{$IFNDEF NEXTGEN}
+        fFieldData := AnsiString(fFieldData);
+{$ELSE}
+        fFieldData := VarToStr(fFieldData);
+{$ENDIF}
+        Size := Length(fFieldData);
+      end;
+    end
+    else
+      Size := VarArrayLength(fFieldData, 1);
+    fFieldData := Null;
+  end;
+end;
+
+function TCustomVirtualDataSet.TBlobStream.Realloc(
+  var NewCapacity: LongInt): Pointer;
+
+  procedure VarAlloc(var V: Variant; Field: TFieldType);
+  var
+    W: WideString;
+{$IFNDEF NEXTGEN}
+    S: AnsiString;
+{$ELSE}
+    S: string;
+{$ENDIF}
+  begin
+    if Field = ftMemo then
+    begin
+      if not VarIsNull(V) then
+{$IFNDEF NEXTGEN}
+        S := AnsiString(V);
+{$ELSE}
+        S := VarToStr(V);
+{$ENDIF}
+      SetLength(S, NewCapacity);
+      V := S;
+    end
+    else if Field = ftWideMemo then
+    begin
+      if not VarIsNull(V) then
+        W := WideString(V);
+      SetLength(W, NewCapacity div 2);
+      V := W;
+    end
+    else
+    begin
+      if VarIsClear(V) or VarIsNull(V) then
+        V := VarArrayCreate([0, NewCapacity - 1], varByte)
+      else
+        VarArrayRedim(V, NewCapacity - 1);
+    end;
+  end;
+
+begin
+  Result := Memory;
+  if NewCapacity <> Capacity then
+  begin
+    if VarIsArray(fData) then
+      VarArrayUnlock(fData);
+    if NewCapacity = 0 then
+    begin
+      fData := Null;
+      Result := nil;
+    end
+    else
+    begin
+      if VarIsNull(fFieldData) then
+        VarAlloc(fData, fField.DataType)
+      else
+        fData := fFieldData;
+      if VarIsArray(fData) then
+        Result := VarArrayLock(fData)
+      else
+        Result := TVarData(fData).VString;
+    end;
+  end;
+end;
+
+procedure TCustomVirtualDataSet.TBlobStream.Truncate;
+begin
+  Clear;
+  fModified := True;
+end;
+
+function TCustomVirtualDataSet.TBlobStream.Write(const Buffer;
+  Count: LongInt): LongInt;
+begin
+  Result := inherited Write(Buffer, Count);
+  fModified := True;
 end;
 
 {$ENDREGION}

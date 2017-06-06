@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -97,17 +97,13 @@ begin
       if i > 0 then
         sqlBuilder.Append(',').AppendLine;
 
-      //0 - Column name, 1 - Column data type name, 2 - NOT NULL condition
-      sqlBuilder.AppendFormat(' %0:s %1:s %2:s %3:s %4:s %5:s',
-        [
-          field.Name
-          ,GetSQLDataTypeName(field)
-          ,IfThen(cpPrimaryKey in field.Properties, 'PRIMARY KEY')
-          ,IfThen(field.IsIdentity, 'AUTOINCREMENT')
-          ,IfThen(cpUnique in field.Properties, 'UNIQUE')
-          ,IfThen(cpNotNull in field.Properties, 'NOT NULL', 'NULL')
-        ]
-      );
+      sqlBuilder.AppendFormat(' %0:s %1:s %2:s %3:s %4:s %5:s', [
+        field.Name,
+        GetSQLDataTypeName(field),
+        IfThen(cpPrimaryKey in field.Properties, 'PRIMARY KEY'),
+        IfThen(field.IsIdentity, 'AUTOINCREMENT'),
+        IfThen(cpUnique in field.Properties, 'UNIQUE'),
+        IfThen(cpNotNull in field.Properties, 'NOT NULL', 'NULL')]);
     end;
     sqlBuilder.Append(')');
 

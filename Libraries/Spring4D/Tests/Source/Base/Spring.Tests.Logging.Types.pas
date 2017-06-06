@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -39,22 +39,23 @@ uses
   Spring.Logging.Appenders.Base,
   Spring.Logging.Controller,
   Spring.Logging.Extensions,
-  Spring.Logging.Loggers;
+  Spring.Logging.Loggers,
+  Spring.Logging.Serializers;
 
 type
   TAppenderMock = class(TLogAppenderBase)
   private
     fWriteCount: Integer;
-    fEntry: TLogEntry;
+    fEvent: TLogEvent;
     fSomeFloat: Extended;
     fSomeInt: Integer;
     fSomeEnum: TLogLevel;
     fSomeString: string;
     function GetWriteCalled: Boolean;
   protected
-    procedure DoSend(const entry: TLogEntry); override;
+    procedure DoSend(const event: TLogEvent); override;
   public
-    property Entry: TLogEntry read fEntry;
+    property Event: TLogEvent read fEvent;
     property WriteCalled: Boolean read GetWriteCalled;
     property WriteCount: Integer read fWriteCount;
     property SomeFloat: Extended read fSomeFloat write fSomeFloat;
@@ -65,21 +66,24 @@ type
 
   TAppenderMock2 = class(TLogAppenderBase)
   protected
-    procedure DoSend(const entry: TLogEntry); override;
+    procedure DoSend(const event: TLogEvent); override;
   end;
 
-  TLoggerControllerMock = class(TInterfacedObject, ILoggerController, ILogAppender)
+  TLoggerControllerMock = class(TLoggerBase, ILoggerController, ILogAppender)
   private
-    fLastEntry: TLogEntry;
+    fLastEvent: TLogEvent;
+    fAppnederOnly: Boolean;
   public
-
-    procedure AddAppender(const appedner: ILogAppender);
-    procedure Send(const entry: TLogEntry);
+    procedure AddAppender(const appender: ILogAppender);
+    procedure AddEventConverter(const converter: ILogEventConverter);
+    procedure Send(const event: TLogEvent);
+    procedure SendToAppenders(const event: TLogEvent);
     procedure Reset;
     function GetEnabled: Boolean;
     function GetLevels: TLogLevels;
-    function GetEntryTypes: TLogEntryTypes;
-    property LastEntry: TLogEntry read FLastEntry;
+    function GetEventTypes: TLogEventTypes;
+    function IsLoggable(level: TLogLevel; eventTypes: TLogEventTypes): Boolean;
+    property LastEvent: TLogEvent read fLastEvent;
   end;
 
   TLoggerController2 = class(TLoggerController);
@@ -134,13 +138,13 @@ type
   TSomeRecord = record
   end;
 
-  TTypeSerializerMock = class(TInterfacedObject, ITypeSerializer)
+  TTypeSerializerMock = class(TSerializerBase, ITypeSerializer)
   private
     fHandlesTypeCount: Integer;
   public
-    function HandlesType(typeInfo: PTypeInfo): Boolean;
+    function CanHandleType(typeInfo: PTypeInfo): Boolean; override;
     function Serialize(const controller: ISerializerController;
-      const value: TValue; nestingLevel: Integer = 0): string;
+      const value: TValue; nestingLevel: Integer = 0): string; override;
 
     property HandlesTypeCount: Integer read fHandlesTypeCount;
   end;
@@ -177,15 +181,25 @@ type
     property PString: string read fString;
   end;
 
+  TStackTraceCollector = class(TInterfaceBase, IStackTraceCollector)
+  public
+    function Collect: TArray<Pointer>; virtual; abstract;
+  end;
+
+  TStackTraceFormatter = class(TInterfaceBase, IStackTraceFormatter)
+  public
+    function Format(const stack: TArray<Pointer>): TArray<string>; virtual; abstract;
+  end;
+
 implementation
 
 
 {$REGION 'TAppenderMock'}
 
-procedure TAppenderMock.DoSend(const entry: TLogEntry);
+procedure TAppenderMock.DoSend(const event: TLogEvent);
 begin
   Inc(fWriteCount);
-  fEntry := entry;
+  fEvent := event;
 end;
 
 function TAppenderMock.GetWriteCalled: Boolean;
@@ -218,7 +232,13 @@ end;
 
 {$REGION 'TLoggerControllerMock'}
 
-procedure TLoggerControllerMock.AddAppender(const appedner: ILogAppender);
+procedure TLoggerControllerMock.AddAppender(const appender: ILogAppender);
+begin
+  raise ETestError.Create('Should be inaccessible');
+end;
+
+procedure TLoggerControllerMock.AddEventConverter(
+  const converter: ILogEventConverter);
 begin
   raise ETestError.Create('Should be inaccessible');
 end;
@@ -228,9 +248,9 @@ begin
   Result := True;
 end;
 
-function TLoggerControllerMock.GetEntryTypes: TLogEntryTypes;
+function TLoggerControllerMock.GetEventTypes: TLogEventTypes;
 begin
-  Result := LOG_ALL_ENTRY_TYPES;
+  Result := LOG_ALL_EVENT_TYPES;
 end;
 
 function TLoggerControllerMock.GetLevels: TLogLevels;
@@ -238,14 +258,27 @@ begin
   Result := LOG_ALL_LEVELS;
 end;
 
-procedure TLoggerControllerMock.Reset;
+function TLoggerControllerMock.IsLoggable(level: TLogLevel;
+  eventTypes: TLogEventTypes): Boolean;
 begin
-  fLastEntry := TLogEntry.Create(TLogLevel.Unknown, '');
+  Result := True;
 end;
 
-procedure TLoggerControllerMock.Send(const entry: TLogEntry);
+procedure TLoggerControllerMock.Reset;
 begin
-  fLastEntry := entry;
+  fLastEvent := TLogEvent.Create(TLogLevel.Unknown, '');
+end;
+
+procedure TLoggerControllerMock.Send(const event: TLogEvent);
+begin
+  fLastEvent := event;
+  fAppnederOnly := False;
+end;
+
+procedure TLoggerControllerMock.SendToAppenders(const event: TLogEvent);
+begin
+  fLastEvent := event;
+  fAppnederOnly := True;
 end;
 
 {$ENDREGION}
@@ -253,7 +286,7 @@ end;
 
 {$REGION 'TAppenderMock2'}
 
-procedure TAppenderMock2.DoSend(const entry: TLogEntry);
+procedure TAppenderMock2.DoSend(const event: TLogEvent);
 begin
 end;
 
@@ -262,10 +295,10 @@ end;
 
 {$REGION 'TTypeSerializerMock'}
 
-function TTypeSerializerMock.HandlesType(typeInfo: PTypeInfo): Boolean;
+function TTypeSerializerMock.CanHandleType(typeInfo: PTypeInfo): Boolean;
 begin
   Inc(fHandlesTypeCount);
-  Result := typeInfo^.Kind = tkInteger;
+  Result := typeInfo.Kind = tkInteger;
 end;
 
 function TTypeSerializerMock.Serialize(const controller: ISerializerController;

@@ -31,7 +31,8 @@ type
     FLogTree : TLogTree;
 
   protected
-    procedure DoSend(const entry: TLogEntry); override;
+
+    procedure DoSend(const entry: TLogEvent); override;
 
   public
     constructor Create(ALogTree: TLogTree);
@@ -62,13 +63,13 @@ end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
-procedure TLogTreeAppender.DoSend(const entry: TLogEntry);
+procedure TLogTreeAppender.DoSend(const entry: TLogEvent);
 var
   LL : TLogLevel;
 begin
   LL := llNone;
-  case entry.EntryType of
-    TLogEntryType.Text:
+  case entry.EventType of
+    TLogEventType.Text:
     begin
       case entry.Level of
         Spring.Logging.TLogLevel.Unknown: LL := llNone;
@@ -81,11 +82,11 @@ begin
         Spring.Logging.TLogLevel.Fatal: LL := llError;
       end;
     end;
-    TLogEntryType.Value: LL := llInfo;
-    TLogEntryType.CallStack: LL := llInfo;
-    TLogEntryType.SerializedData: LL := llInfo;
-    TLogEntryType.Entering: LL := llInfo;
-    TLogEntryType.Leaving: LL := llInfo;
+    TLogEventType.Value: LL := llInfo;
+    TLogEventType.CallStack: LL := llInfo;
+    TLogEventType.SerializedData: LL := llInfo;
+    TLogEventType.Entering: LL := llInfo;
+    TLogEventType.Leaving: LL := llInfo;
   end;
   FLogTree.Log(entry.Msg, LL, entry.TimeStamp);
 end;

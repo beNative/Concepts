@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -31,7 +31,9 @@ interface
 uses
   Rtti,
   SysUtils,
-  TypInfo;
+  TypInfo,
+  Spring,
+  Spring.Logging;
 
 type
   ISerializerController = interface;
@@ -41,7 +43,7 @@ type
   /// </summary>
   ITypeSerializer = interface
     ['{CF783059-AD29-468C-8BAF-F2FE0EAE6FE7}']
-    function HandlesType(typeInfo: PTypeInfo): Boolean;
+    function CanHandleType(typeInfo: PTypeInfo): Boolean;
     function Serialize(const controller: ISerializerController;
       const value: TValue; nestingLevel: Integer = 0): string;
   end;
@@ -52,7 +54,6 @@ type
   /// </summary>
   ISerializerController = interface
     ['{6390E2C6-C415-4C7A-8FBF-975B331B90B2}']
-    procedure AddSerializer(const serializer: ITypeSerializer);
     function FindSerializer(typeInfo: PTypeInfo): ITypeSerializer;
   end;
 
@@ -66,6 +67,111 @@ type
     function Format(const stack: TArray<Pointer>): TArray<string>;
   end;
 
+  TLogEventConverterBase = class abstract(TInterfacedObject, ILogEventConverter)
+  private
+    fEventType: TLogEventType;
+    function GetEventType: TLogEventType; inline;
+  strict protected
+    constructor Create(eventType: TLogEventType);
+
+    function CanHandleEvent(const event: TLogEvent): Boolean; virtual; abstract;
+    function Execute(const controller: ILoggerController;
+      const event: TLogEvent): string; virtual; abstract;
+  public
+    function HandleEvent(const controller: ILoggerController;
+      const event: TLogEvent): Boolean;
+  end;
+
+  TCallStackEventConverter = class(TLogEventConverterBase)
+  private
+    fCollector: IStackTraceCollector;
+    fFormatter: IStackTraceFormatter;
+  strict protected
+    function CanHandleEvent(const event: TLogEvent): Boolean; override;
+    function Execute(const controller: ILoggerController;
+      const event: TLogEvent): string; override;
+  public
+    constructor Create(const collector: IStackTraceCollector;
+      const formatter: IStackTraceFormatter);
+  end;
+
 implementation
+
+
+{$REGION 'TLogEventConverterBase'}
+
+constructor TLogEventConverterBase.Create(eventType: TLogEventType);
+begin
+  inherited Create;
+  fEventType := eventType;
+end;
+
+function TLogEventConverterBase.GetEventType: TLogEventType;
+begin
+  Result := fEventType;
+end;
+
+function TLogEventConverterBase.HandleEvent(const controller: ILoggerController;
+  const event: TLogEvent): Boolean;
+
+  procedure DoExecute;
+  var
+    msg: string;
+    converted: TLogEvent;
+  begin
+    msg := Execute(controller, event);
+    converted := TLogEvent.Create(event.Level, fEventType, msg);
+    controller.SendToAppenders(converted);
+  end;
+
+begin
+  Result := CanHandleEvent(event);
+  if Result then
+    if controller.IsLoggable(event.Level, [fEventType]) then
+      DoExecute;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TCallStackEventConverter'}
+
+constructor TCallStackEventConverter.Create(
+  const collector: IStackTraceCollector; const formatter: IStackTraceFormatter);
+begin
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckNotNull(collector, 'collector');
+  Guard.CheckNotNull(formatter, 'formatter');
+{$ENDIF}
+  inherited Create(TLogEventType.CallStack);
+  fCollector := collector;
+  fFormatter := formatter;
+end;
+
+function TCallStackEventConverter.Execute(const controller: ILoggerController;
+  const event: TLogEvent): string;
+var
+  stack: TArray<Pointer>;
+  formatted: TArray<string>;
+  s: string;
+begin
+  stack := fCollector.Collect;
+  formatted := fFormatter.Format(stack);
+  Result := '';
+  for s in formatted do
+  begin
+    if Result <> '' then
+      Result := Result + sLineBreak;
+    Result := Result + s;
+  end;
+end;
+
+function TCallStackEventConverter.CanHandleEvent(const event: TLogEvent): Boolean;
+begin
+  Result := event.AddStackValue;
+end;
+
+{$ENDREGION}
+
 
 end.

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -223,7 +223,7 @@ begin
     ftFloat: Result := 'Double';
     ftCurrency: Result := 'Currency';
     ftAutoInc: Result := 'Int64';
-    ftLongWord: Result := 'LongWord';
+    ftLongWord: Result := 'Cardinal';
     ftGuid: Result := 'TGuid';
     ftShortint: Result := 'ShortInt';
     ftByte: Result := 'Byte';
@@ -393,7 +393,7 @@ begin
       if LDataset.Active then
         LDataset.Close;
 
-      LDataset.CommandText := Format('SELECT * FROM %0:S WHERE 1=2', [LTableName]);
+      LDataset.CommandText := Format('SELECT * FROM %0:s WHERE 1=2', [LTableName]);
       try
         LDataset.Open;
 

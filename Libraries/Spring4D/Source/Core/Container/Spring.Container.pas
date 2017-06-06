@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -54,13 +54,11 @@ type
     fExtensions: IList<IContainerExtension>;
     fLogger: ILogger;
     fChangedModels: ISet<TComponentModel>;
+    fDecoratorResolver: IDecoratorResolver;
     procedure CheckBuildRequired;
     procedure HandleBuild(Sender: TObject; const model: TComponentModel);
     procedure HandleRegistryChanged(Sender: TObject;
       const model: TComponentModel; action: TCollectionChangedAction);
-    procedure InternalRegisterDecorator(serviceType: PTypeInfo;
-      const decoratorModel: TComponentModel;
-      const condition: TPredicate<TComponentModel>);
     class var GlobalInstance: TContainer;
     function GetKernel: IKernel;
     type
@@ -76,6 +74,7 @@ type
     function GetLogger: ILogger; inline;
     function GetProxyFactory: IProxyFactory; inline;
     procedure SetLogger(const logger: ILogger);
+    function GetDecoratorResolver: IDecoratorResolver; inline;
   {$ENDREGION}
     procedure InitializeInspectors; virtual;
     property Builder: IComponentBuilder read GetBuilder;
@@ -93,7 +92,7 @@ type
     function RegisterDecorator<TService; TDecorator: TService>(
       const condition: TPredicate<TComponentModel>): TRegistration<TDecorator>; overload;
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     function RegisterFactory<TFactoryType: IInterface>(
       paramResolution: TParamResolution = TParamResolution.ByName): TRegistration<TFactoryType>; overload;
     function RegisterFactory<TFactoryType: IInterface>(const serviceName: string;
@@ -197,7 +196,7 @@ uses
   Spring.Container.ComponentActivator,
   Spring.Container.Injection,
   Spring.Container.LifetimeManager,
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   Spring.Container.ProxyFactory,
 {$ENDIF}
   Spring.Container.Resolvers,
@@ -214,7 +213,7 @@ end;
 
 {$REGION 'TProxyFactory'}
 
-{$IFNDEF DELPHIXE_UP}
+{$IFDEF DELPHI2010}
 type
   /// <summary>
   ///   Dummy class for Delphi2010
@@ -284,6 +283,7 @@ begin
   fResolver := TDependencyResolver.Create(Self);
   fProxyFactory := TProxyFactory.Create(Self);
   fExtensions := TCollections.CreateInterfaceList<IContainerExtension>;
+  fDecoratorResolver := TDecoratorResolver.Create;
   InitializeInspectors;
 
   fResolver.AddSubResolver(TLazyResolver.Create(Self));
@@ -354,26 +354,14 @@ begin
     fBuilder.AddInspector(inspector);
 end;
 
-procedure TContainer.InternalRegisterDecorator(serviceType: PTypeInfo;
-  const decoratorModel: TComponentModel;
-  const condition: TPredicate<TComponentModel>);
-var
-  model: TComponentModel;
-begin
-  Build; // need to run the inspectors to fully initialize the component models
-  for model in Kernel.Registry.FindAll.Where(
-    function(const model: TComponentModel): Boolean
-    begin
-      Result := model.HasService(serviceType)
-        and (not Assigned(condition) or condition(model));
-    end) do
-    model.ComponentActivator := TDecoratorComponentActivator.Create(
-      Kernel, decoratorModel, model.ComponentActivator, serviceType);
-end;
-
 function TContainer.GetBuilder: IComponentBuilder;
 begin
   Result := fBuilder;
+end;
+
+function TContainer.GetDecoratorResolver: IDecoratorResolver;
+begin
+  Result := fDecoratorResolver;
 end;
 
 function TContainer.GetRegistry: IComponentRegistry;
@@ -420,17 +408,17 @@ end;
 function TContainer.RegisterDecorator<TService, TDecorator>: TRegistration<TDecorator>;
 begin
   Result := RegisterType<TDecorator,TDecorator>;
-  InternalRegisterDecorator(TypeInfo(TService), Result.Model, nil);
+  fDecoratorResolver.AddDecorator(TypeInfo(TService), Result.Model, nil);
 end;
 
 function TContainer.RegisterDecorator<TService, TDecorator>(
   const condition: TPredicate<TComponentModel>): TRegistration<TDecorator>;
 begin
   Result := RegisterType<TDecorator,TDecorator>;
-  InternalRegisterDecorator(TypeInfo(TService), Result.Model, condition);
+  fDecoratorResolver.AddDecorator(TypeInfo(TService), Result.Model, condition);
 end;
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
 function TContainer.RegisterFactory<TFactoryType>(
   paramResolution: TParamResolution): TRegistration<TFactoryType>;
 begin

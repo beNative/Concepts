@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -40,7 +40,7 @@ type
   /// <typeparam name="T">
   ///   Specifies the type of elements in the queue.
   /// </typeparam>
-  TQueue<T> = class(TEnumerableBase<T>, IQueue<T>)
+  TQueue<T> = class(TEnumerableBase<T>, IQueue<T>, INotifyCollectionChanged<T>)
   private
     type
       TEnumerator = class(TEnumeratorBase<T>)
@@ -65,7 +65,6 @@ type
     fItems: TArray<T>;
     fVersion: Integer;
     fOnChanged: ICollectionChangedEvent<T>;
-    function DequeueInternal(notification: TCollectionChangedAction): T;
     procedure Grow;
     procedure IncreaseVersion; inline;
   protected
@@ -76,7 +75,8 @@ type
     procedure SetCapacity(const value: Integer);
   {$ENDREGION}
 
-    procedure Changed(const item: T; action: TCollectionChangedAction); virtual;
+    procedure Changed(const item: T; action: TCollectionChangedAction);
+    function DequeueInternal(notification: TCollectionChangedAction): T; virtual;
   public
     constructor Create; overload; override;
     constructor Create(const values: array of T); overload;
@@ -92,6 +92,7 @@ type
     function Peek: T;
     function PeekOrDefault: T;
     function TryDequeue(out item: T): Boolean;
+    function TryExtract(out item: T): Boolean;
     function TryPeek(out item: T): Boolean;
 
     procedure TrimExcess;
@@ -108,7 +109,7 @@ type
     procedure SetOwnsObjects(const value: Boolean);
   {$ENDREGION}
   protected
-    procedure Changed(const item: T; action: TCollectionChangedAction); override;
+    function DequeueInternal(notification: TCollectionChangedAction): T; override;
   public
     constructor Create; override;
     constructor Create(ownsObjects: Boolean); overload;
@@ -325,6 +326,15 @@ begin
     item := Default(T);
 end;
 
+function TQueue<T>.TryExtract(out item: T): Boolean;
+begin
+  Result := fCount > 0;
+  if Result then
+    item := Extract
+  else
+    item := Default(T);
+end;
+
 function TQueue<T>.TryPeek(out item: T): Boolean;
 begin
   Result := fCount > 0;
@@ -408,16 +418,19 @@ begin
   fOwnsObjects := ownsObjects;
 end;
 
-procedure TObjectQueue<T>.Changed(const item: T;
-  action: TCollectionChangedAction);
+function TObjectQueue<T>.DequeueInternal(
+  notification: TCollectionChangedAction): T;
 begin
-  inherited Changed(item, action);
-  if OwnsObjects and (action = caRemoved) then
+  Result := inherited DequeueInternal(notification);
+  if fOwnsObjects and (notification = caRemoved) then
+  begin
 {$IFNDEF AUTOREFCOUNT}
-    item.Free;
+    Result.Free;
 {$ELSE}
-    item.DisposeOf;
+    Result.DisposeOf;
 {$ENDIF}
+    Result := nil;
+  end;
 end;
 
 function TObjectQueue<T>.GetOwnsObjects: Boolean;

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -33,37 +33,30 @@ uses
   Spring.Collections,
   Spring.Logging,
   Spring.Logging.Appenders.Base,
-  Spring.Logging.Extensions;
+  Spring.Logging.Extensions,
+  Spring.Logging.Loggers;
 
 type
   {$REGION 'TLoggerController'}
+
   TLoggerController = class(TLogAppenderBase, ILoggerController, ISerializerController)
   private
-    fSerializers: IList<ITypeSerializer>;
-    fStackTraceCollector: IStackTraceCollector;
-    fStackTraceFormatter: IStackTraceFormatter;
     fAppenders: IList<ILogAppender>;
+    fConverters: IList<ILogEventConverter>;
   protected
-    procedure DoSend(const entry: TLogEntry); override;
-
-    procedure SendData(const entry: TLogEntry);
-    procedure SendStack(const entry: TLogEntry);
-
-    /// <summary>
-    ///   Returns <c>true</c> if level is enabled and any of the <c>entryTypes</c>
-    ///    is enabled in any of the appenders or <c>false</c> otherwise
-    /// </summary>
-    function IsLoggable(level: TLogLevel; entryTypes: TLogEntryTypes): Boolean;
+    procedure DoSend(const event: TLogEvent); override;
   public
     constructor Create; overload;
     constructor Create(const appenders: TArray<ILogAppender>); overload;
     constructor Create(const appenders: array of ILogAppender); overload;
 
     procedure AddAppender(const appender: ILogAppender);
-    procedure AddSerializer(const serializer: ITypeSerializer);
-
+    procedure AddEventConverter(const converter: ILogEventConverter);
     function FindSerializer(typeInfo: PTypeInfo): ITypeSerializer;
+    function IsLoggable(level: TLogLevel; eventTypes: TLogEventTypes): Boolean;
+    procedure SendToAppenders(const event: TLogEvent);
   end;
+
   {$ENDREGION}
 
 
@@ -79,7 +72,7 @@ constructor TLoggerController.Create;
 begin
   inherited Create;
   fAppenders := TCollections.CreateInterfaceList<ILogAppender>;
-  fSerializers := TCollections.CreateInterfaceList<ITypeSerializer>;
+  fConverters := TCollections.CreateInterfaceList<ILogEventConverter>;
 end;
 
 constructor TLoggerController.Create(const appenders: TArray<ILogAppender>);
@@ -102,84 +95,65 @@ begin
   fAppenders.Add(appender);
 end;
 
-procedure TLoggerController.AddSerializer(const serializer: ITypeSerializer);
+procedure TLoggerController.AddEventConverter(
+  const converter: ILogEventConverter);
 begin
-  fSerializers.Add(serializer);
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckNotNull(converter, 'converter');
+{$ENDIF}
+  fConverters.Add(converter);
 end;
 
-procedure TLoggerController.DoSend(const entry: TLogEntry);
-var
-  appender: ILogAppender;
+procedure TLoggerController.DoSend(const event: TLogEvent);
+
+  procedure HandleConverters;
+  var
+    converter: ILogEventConverter;
+  begin
+    for converter in fConverters do
+      if converter.HandleEvent(Self, event) then
+        Break;
+  end;
+
 begin
-  // After serialization or stack logging is added, and if such action is
-  // required (we have a serializer capable of serializing given data or
-  // AddStack and StackCollector) log the message first then go though all
-  // appenders first and get their level and enabled state to check if there is
-  // something to do in the first place
-  for appender in fAppenders do
-    appender.Send(entry);
+  SendToAppenders(event);
 
-  if not entry.Data.IsEmpty
-    and IsLoggable(entry.Level, [TLogEntryType.SerializedData]) then
-      SendData(entry);
-
-  if entry.AddStackValue and Assigned(fStackTraceCollector)
-    and Assigned(fStackTraceFormatter)
-    and IsLoggable(entry.Level, [TLogEntryType.CallStack]) then
-      SendStack(entry);
+  if not fConverters.IsEmpty then
+    HandleConverters;
 end;
 
 function TLoggerController.FindSerializer(typeInfo: PTypeInfo): ITypeSerializer;
 var
+  converter: ILogEventConverter;
   serializer: ITypeSerializer;
 begin
-  for serializer in fSerializers do
-    if serializer.HandlesType(typeInfo) then
-      Exit(serializer);
+  for converter in fConverters do
+    if converter.QueryInterface(ITypeSerializer, serializer) = S_OK then
+      if serializer.CanHandleType(typeInfo) then
+        Exit(serializer);
 
   Result := nil;
 end;
 
 function TLoggerController.IsLoggable(level: TLogLevel;
-  entryTypes: TLogEntryTypes): Boolean;
+  eventTypes: TLogEventTypes): Boolean;
 var
   appender: ILogAppender;
 begin
-  for appender in fAppenders do
-    if appender.Enabled and (level in appender.Levels)
-      and (entryTypes * appender.EntryTypes <> []) then
+  if IsEnabled(level, eventTypes) then
+    for appender in fAppenders do
+      if appender.IsEnabled(level, eventTypes) then
         Exit(True);
 
   Result := False;
 end;
 
-procedure TLoggerController.SendData(const entry: TLogEntry);
+procedure TLoggerController.SendToAppenders(const event: TLogEvent);
 var
-  serializer: ITypeSerializer;
+  appender: ILogAppender;
 begin
-  serializer := FindSerializer(entry.Data.TypeInfo);
-
-  if Assigned(serializer) then
-    DoSend(TLogEntry.Create(entry.Level, TLogEntryType.SerializedData,
-      serializer.Serialize(Self, entry.Data)));
-end;
-
-procedure TLoggerController.SendStack(const entry: TLogEntry);
-var
-  stack: TArray<Pointer>;
-  formatted: TArray<string>;
-  i: Integer;
-  s: string;
-begin
-  stack := fStackTraceCollector.Collect;
-  formatted := fStackTraceFormatter.Format(stack);
-
-  if Length(stack) = 0 then
-    Exit;
-
-  s := formatted[0];
-  for i := 1 to High(formatted) do
-    s := s + #$A + formatted[i];
+  for appender in fAppenders do
+    appender.Send(event);
 end;
 
 {$ENDREGION}

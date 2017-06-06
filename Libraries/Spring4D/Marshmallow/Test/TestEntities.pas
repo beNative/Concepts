@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -113,6 +113,12 @@ type
     property OrdersIntf: IList<TCustomer_Orders> read GetOrdersIntf write SetOrdersIntf;
     property StreamLazy: Lazy<TMemoryStream> read FStream write FStream;
     property CustStream: TMemoryStream read GetCustStream write SetCustStream;
+  end;
+
+  TCustomerWithStream = class(TCustomer)
+  public
+    [Column('CUSTSTREAM', [], 50, 0, 0, 'Customers stream')]
+    property CustStream;
   end;
 
   [Entity]
@@ -240,7 +246,8 @@ type
   private
     FName: string;
     FPrice: Double;
-    [Version('_version', 1)] FVersion: Integer;
+    [Version('_version', 1)]
+    FVersion: Integer;
   public
     property ID: Integer read FId write FId;
     [Column('PRODNAME', [], 50, 0, 0, 'Product name')]
@@ -413,8 +420,50 @@ type
     FSubsidiary: TSubsidiaryAssociate;
   end;
 
+  TResourceAssociate = class;
+
+  [Table('RESOURCE')]
+  TResource = class
+  private
+    [Column('SID', [cpRequired, cpPrimaryKey], 19,0)]
+    FSid: Integer;
+
+    [Column('RESOURCE_NAME', [], 50)]
+    FResourceName: string;
+
+    [Column('ASSOC_RES_SID', [], 50)]
+    FResourceAssociateSid: Integer;
+
+    [ManyToOne(False, [ckCascadeAll], 'FResourceAssociateSid')]
+    FResourceAssociate : TResourceAssociate;
+
+    function GetResourceAssociateName: string;
+    procedure SetResourceAssociateName(const Value: string);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Sid : Integer read FSid write FSid;
+    property ResourceName : string read FResourceName write FResourceName;
+    property ResourceAssociateSid : Integer read FResourceAssociateSid write FResourceAssociateSid;
+    property ResourceAssociateName : string read GetResourceAssociateName write SetResourceAssociateName;
+
+  end;
+
+  [Table('RESOURCE')]
+  TResourceAssociate = class
+  private
+    [Column('SID', [cpRequired, cpPrimaryKey], 19,0)]
+    FSid: Integer;
+
+    [Column('RESOURCE_NAME', [], 50)]
+    FResourceName: string;
+  public
+    property Sid : Integer read FSid write FSid;
+    property ResourceName : string read FResourceName write FResourceName;
+  end;
+
 var
-  PictureFilename, OutputDir: string;
+  PictureFilename, ScannerFileName, OutputDir: string;
 
 procedure CreateTestTables(AConnection: IDBConnection;
   const Entities: array of TClass);
@@ -664,6 +713,27 @@ begin
   inherited Destroy;
 end;
 
+{ TResource }
+
+constructor TResource.Create;
+begin
+  FResourceAssociate := TResourceAssociate.Create;
+end;
+
+destructor TResource.Destroy;
+begin
+  FResourceAssociate.Free;
+  inherited;
+end;
+
+function TResource.GetResourceAssociateName: string;
+begin
+  Result := FResourceAssociate.ResourceName;
+end;
+
+procedure TResource.SetResourceAssociateName(const Value: string);
+begin
+  FResourceAssociate.ResourceName := Value;
+end;
+
 end.
-
-

@@ -140,7 +140,7 @@ end;
 
 procedure TFireDACExceptionHandlerTest.TestGetAdapterException_EDatabaseError;
 var
-  exc, result: Owned<Exception>;
+  exc, result: Managed<Exception>;
 begin
   exc := EDatabaseError.Create('');
   result := SUT.GetAdapterException(exc, 'message');
@@ -151,7 +151,7 @@ end;
 
 procedure TFireDACExceptionHandlerTest.TestGetAdapterException_EFDDBEngineException_ekFKViolated_Returns_EORMConstraintException;
 var
-  exc, result: Owned<Exception>;
+  exc, result: Managed<Exception>;
 begin
   exc := CreateException(ekFKViolated);
   result := SUT.GetAdapterException(exc, 'message');
@@ -162,7 +162,7 @@ end;
 
 procedure TFireDACExceptionHandlerTest.TestGetAdapterException_EFDDBEngineException_ekUKViolated_Returns_EORMConstraintException;
 var
-  exc, result: Owned<Exception>;
+  exc, result: Managed<Exception>;
 begin
   exc := CreateException(ekUKViolated);
   result := SUT.GetAdapterException(exc, 'message');
@@ -173,7 +173,7 @@ end;
 
 procedure TFireDACExceptionHandlerTest.TestGetAdapterException_EFDDBEngineException_Others;
 var
-  exc, result: Owned<Exception>;
+  exc, result: Managed<Exception>;
 begin
   exc := CreateException(ekInvalidParams);
   result := SUT.GetAdapterException(exc, 'message');
@@ -184,7 +184,7 @@ end;
 
 procedure TFireDACExceptionHandlerTest.TestGetAdapterException_Others_Return_Nil;
 var
-  exc, result: Owned<Exception>;
+  exc, result: Managed<Exception>;
 begin
   exc := Exception.Create('');
   result := SUT.GetAdapterException(exc, '');
@@ -478,14 +478,16 @@ begin
 end;
 
 procedure TFireDACSessionTest.SaveNullable;
+const
+  OnePointOne: Double = 1.1;
 var
   customer: TFDCustomer;
 begin
   customer := CreateCustomer('Foo', 25);
-  customer.Height := 1.1;
+  customer.Height := OnePointOne;
   FSession.Save(customer);
 
-  CheckEquals(1.1, FSession.FindAll<TFDCustomer>.First.Height, 0.01);
+  CheckEquals(OnePointOne, FSession.FindAll<TFDCustomer>.First.Height);
   customer.Free;
 end;
 

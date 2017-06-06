@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -30,7 +30,7 @@ interface
 
 uses
   Rtti,
-  SyncObjs,
+  SysUtils,
   Spring,
   Spring.Collections,
   Spring.Container.Core;
@@ -137,12 +137,33 @@ type
       const argument: TValue): TValue; override;
   end;
 
+  TDecoratorResolver = class(TInterfacedObject, IDecoratorResolver)
+  private
+    type
+      TDecoratorEntry = record
+        DecoratorModel: TComponentModel;
+        Condition: TPredicate<TComponentModel>;
+      end;
+  private
+    fDecorators: IMultiMap<PTypeInfo, TDecoratorEntry>;
+    function GetDecorators(decoratedType: PTypeInfo;
+      const decoratedModel: TComponentModel): IEnumerable<TComponentModel>;
+  public
+    constructor Create;
+
+    procedure AddDecorator(decoratedType: PTypeInfo;
+      const decoratorModel: TComponentModel;
+      const condition: TPredicate<TComponentModel>);
+    function Resolve(const dependency: TDependencyModel;
+      const model: TComponentModel; const context: ICreationContext;
+      const decoratee: TValue): TValue;
+  end;
+
 implementation
 
 uses
   Classes,
   StrUtils,
-  SysUtils,
   TypInfo,
   Spring.Collections.Lists,
   Spring.Container.CreationContext,
@@ -165,8 +186,12 @@ end;
 function TSubDependencyResolverBase.CanResolve(const context: ICreationContext;
   const dependency: TDependencyModel; const argument: TValue): Boolean;
 begin
-  Result := not Kernel.Registry.HasService(dependency.TypeInfo)
-    and (dependency.TypeInfo <> argument.TypeInfo);
+  if not argument.IsEmpty and argument.IsString then
+    Result := not Kernel.Registry.HasService(dependency.TypeInfo, argument.AsString)
+      and (dependency.TypeInfo <> argument.TypeInfo)
+  else
+    Result := not Kernel.Registry.HasService(dependency.TypeInfo)
+      and (dependency.TypeInfo <> argument.TypeInfo);
 end;
 
 {$ENDREGION}
@@ -223,6 +248,8 @@ begin
   end
   else
     Result := instance;
+
+  Result := Kernel.DecoratorResolver.Resolve(dependency, model, context, Result);
 end;
 
 function TDependencyResolver.CanResolve(const context: ICreationContext;
@@ -620,6 +647,78 @@ function TComponentOwnerResolver.Resolve(const context: ICreationContext;
   const dependency: TDependencyModel; const argument: TValue): TValue;
 begin
   TValue.Make(nil, TComponent.ClassInfo, Result);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TDecoratorResolver'}
+
+constructor TDecoratorResolver.Create;
+begin
+  inherited Create;
+  fDecorators := TCollections.CreateMultiMap<PTypeInfo, TDecoratorEntry>;
+end;
+
+procedure TDecoratorResolver.AddDecorator(decoratedType: PTypeInfo;
+  const decoratorModel: TComponentModel;
+  const condition: TPredicate<TComponentModel>);
+var
+  entry: TDecoratorEntry;
+begin
+  entry.DecoratorModel := decoratorModel;
+  entry.Condition := condition;
+  fDecorators.Add(decoratedType, entry);
+end;
+
+function TDecoratorResolver.GetDecorators(decoratedType: PTypeInfo;
+  const decoratedModel: TComponentModel): IEnumerable<TComponentModel>;
+begin
+  Result := TEnumerable.Select<TDecoratorEntry,TComponentModel>(
+    fDecorators[decoratedType].Where(
+      function(const entry: TDecoratorEntry): Boolean
+      begin
+        Result := not Assigned(entry.Condition) or entry.Condition(decoratedModel);
+      end),
+    function(entry: TDecoratorEntry): TComponentModel
+    begin
+      Result := entry.DecoratorModel;
+    end);
+end;
+
+function TDecoratorResolver.Resolve(const dependency: TDependencyModel;
+  const model: TComponentModel; const context: ICreationContext;
+  const decoratee: TValue): TValue;
+
+{$IFDEF DELPHI2010}
+  function ConvClass2Inf(const obj: TObject; targetType: PTypeInfo): TValue;
+  var
+    intf: Pointer;
+  begin
+    if obj.GetInterface(targetType.TypeData.Guid, intf) then
+      TValue.MakeWithoutCopy(@intf, targetType, Result);
+  end;
+{$ENDIF}
+
+var
+  decoratorModel: TComponentModel;
+  index: Integer;
+begin
+  Result := decoratee;
+  for decoratorModel in GetDecorators(dependency.TypeInfo, model) do
+  begin
+  {$IFDEF DELPHI2010}
+    if Result.IsObject and (dependency.TypeInfo.Kind = tkInterface) then
+      Result := ConvClass2Inf(Result.AsObject, dependency.TypeInfo);
+  {$ENDIF}
+    // TODO: make this more explicit to just inject on the decorator constructor
+    index := context.AddArgument(TTypedValue.Create(Result, dependency.TypeInfo));
+    try
+      Result := decoratorModel.LifetimeManager.Resolve(context, decoratorModel).Cast(dependency.TypeInfo);
+    finally
+      context.RemoveTypedArgument(index);
+    end;
+  end;
 end;
 
 {$ENDREGION}

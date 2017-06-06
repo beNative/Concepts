@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -28,67 +28,105 @@ unit Spring.Cryptography.Utils;
 
 interface
 
-uses
-  Classes,
-  SysUtils;
-
-function Endian(x: UInt32): UInt32;
-function Endian64(x: Int64): Int64;
-function Rol(x: UInt32; y: Byte): UInt32;
-function Ror(x: UInt32; y: Byte): UInt32;
-function Ror64(x: Int64; y: Byte): Int64;
+function ByteSwap32(const x: UInt32): UInt32;
+function ByteSwap64(const x: UInt64): UInt64;
+function RotateLeft32(const x: UInt32; const y: Byte): UInt32;
+function RotateRight32(const x: UInt32; const y: Byte): UInt32;
+function RotateRight64(const x: Int64; const y: Byte): Int64;
 
 implementation
 
-function Endian(x: UInt32): UInt32;
+uses
+  SysUtils;
+
+function ByteSwap32(const x: UInt32): UInt32;
+{$IFDEF ASSEMBLER}
 {$IFDEF CPUX86}
 asm
   bswap eax
 end;
+{$ELSE CPUX64}
+asm
+  mov eax,ecx
+  bswap eax
+end;
+{$ENDIF}
 {$ELSE}
 begin
-  x := (x shr 16) + (x shl 16);
-  Result := ((x shl 8) and $FF00FF00) + ((x shr 8) and $00FF00FF);
+  Result := (x shr 16) + (x shl 16);
+  Result := ((Result shl 8) and $FF00FF00) + ((Result shr 8) and $00FF00FF);
 end;
 {$ENDIF}
 
-function Endian64(x: Int64): Int64;
-begin
-  Result := (x and $00000000000000FF) shl 56;
-  Result := Result + (x and $000000000000FF00) shl 40;
-  Result := Result + (x and $0000000000FF0000) shl 24;
-  Result := Result + (x and $00000000FF000000) shl 8;
-  Result := Result + (x and $000000FF00000000) shr 8;
-  Result := Result + (x and $0000FF0000000000) shr 24;
-  Result := Result + (x and $00FF000000000000) shr 40;
-  Result := Result + (x and $FF00000000000000) shr 56;
-end;
-
-function Rol(x: UInt32; y: Byte): UInt32;
+function ByteSwap64(const x: UInt64): UInt64;
+{$IFDEF ASSEMBLER}
 {$IFDEF CPUX86}
 asm
-  mov   cl,dl
-  Rol   eax,cl
+  mov edx,x.Int64Rec.Lo
+  mov eax,x.Int64Rec.Hi
+  bswap edx
+  bswap eax
 end;
 {$ELSE}
+asm
+  mov rax,rcx
+  bswap rax
+end;
+{$ENDIF}
+{$ELSE}
 begin
-  Result := (x shl y) OR (x shr (32 - y));
+  Int64Rec(Result).Bytes[0] := Int64Rec(x).Bytes[7];
+  Int64Rec(Result).Bytes[1] := Int64Rec(x).Bytes[6];
+  Int64Rec(Result).Bytes[2] := Int64Rec(x).Bytes[5];
+  Int64Rec(Result).Bytes[3] := Int64Rec(x).Bytes[4];
+  Int64Rec(Result).Bytes[4] := Int64Rec(x).Bytes[3];
+  Int64Rec(Result).Bytes[5] := Int64Rec(x).Bytes[2];
+  Int64Rec(Result).Bytes[6] := Int64Rec(x).Bytes[1];
+  Int64Rec(Result).Bytes[7] := Int64Rec(x).Bytes[0];
 end;
 {$ENDIF}
 
-function Ror(x: UInt32; y: Byte): UInt32;
+function RotateLeft32(const x: UInt32; const y: Byte): UInt32;
+{$IFDEF ASSEMBLER}
 {$IFDEF CPUX86}
 asm
-  mov   cl,dl
-  Ror   eax,cl
+  mov cl,dl
+  rol eax,cl
 end;
 {$ELSE}
+asm
+  mov eax,ecx
+  mov cl,dl
+  rol eax,cl
+end;
+{$ENDIF}
+{$ELSE}
 begin
-  Result := (x shr y) OR (x shl (32 - y));
+  Result := (x shl y) or (x shr (32 - y));
 end;
 {$ENDIF}
 
-function Ror64(x: Int64; y: Byte): Int64;
+function RotateRight32(const x: UInt32; const y: Byte): UInt32;
+{$IFDEF ASSEMBLER}
+{$IFDEF CPUX86}
+asm
+  mov cl,dl
+  ror eax,cl
+end;
+{$ELSE CPUX64}
+asm
+  mov eax,ecx
+  mov cl,dl
+  ror eax,cl
+end;
+{$ENDIF}
+{$ELSE}
+begin
+  Result := (x shr y) or (x shl (32 - y));
+end;
+{$ENDIF}
+
+function RotateRight64(const x: Int64; const y: Byte): Int64;
 begin
   Result := (x shr y) or (x shl (64 - y));
 end;

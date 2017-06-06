@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -57,6 +57,7 @@ uses
   Spring,
   Spring.Reflection,
   Spring.ValueConverters,
+  Spring.VirtualClass,
     {$IFNDEF ORM_TESTS}
     Spring.Tests.Base,
     {$ELSE}
@@ -106,6 +107,9 @@ begin
   Result := StartsStr('TEmptyEnumerable<', ClassType.ClassName);
 end;
 
+type
+  TVirtualClasses = class(Spring.VirtualClass.TVirtualClasses);
+
 procedure InitializeLeakCheck;
 var
   intfType: TRttiInterfaceType;
@@ -138,7 +142,8 @@ begin
   TType.FindType('System.TObject'); // Initialize RTTI package maps
   TType.TryGetInterfaceType(IUnknown, intfType); // Initialize Spring.TType interface map
   intfType := nil;
-{$IFDEF DELPHIXE_UP}
+  TVirtualClasses.Default.GetVirtualClass(TInterfacedObject);
+{$IFNDEF DELPHI2010}
   TTimeZone.Local.ID;
 {$ENDIF}
   StrToBool('True'); // Initialize StrToBool array cache
@@ -151,7 +156,7 @@ begin
   TEncoding.UTF8;
   TEncoding.Unicode;
 {$IFNDEF ORM_TESTS}
-  GetFieldTable(TTestObject);
+  GetInitTable(TTestObject);
 {$ELSE}
   // Initialize global Entity cache
   for lType in TType.Context.GetTypes do

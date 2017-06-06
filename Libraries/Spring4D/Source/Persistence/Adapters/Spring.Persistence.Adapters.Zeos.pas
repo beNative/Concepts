@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -135,6 +135,8 @@ begin
   query.Params.AssignValues(Statement.Params);
   query.DisableControls;
   try
+    // if you get an EZSQLException with message 'Can not open a Resultset'.
+    // apply ZDbcMySqlStatement.diff and ZDbcStatement.diff (based on 7.1.4-stable)
     query.Open;
     Result := TZeosResultSetAdapter.Create(query, ExceptionHandler);
   except
@@ -212,6 +214,9 @@ constructor TZeosConnectionAdapter.Create(
 begin
   inherited Create(connection, exceptionHandler);
   Connection.LoginPrompt := False;
+  if StartsText('mysql', Connection.Protocol) then
+    if Connection.Properties.IndexOfName('CLIENT_MULTI_STATEMENTS') < 0 then
+      Connection.Properties.AddPair('CLIENT_MULTI_STATEMENTS', 'TRUE');
 end;
 
 function TZeosConnectionAdapter.CreateStatement: IDBStatement;

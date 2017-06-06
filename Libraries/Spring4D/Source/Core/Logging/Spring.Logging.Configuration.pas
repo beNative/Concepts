@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -39,6 +39,7 @@ uses
 
 type
   {$REGION 'TLoggingConfiguration'}
+
   /// <summary>
   ///   <para>
   ///     This class serves two purposes: 1) as a logger class assignment
@@ -91,6 +92,7 @@ type
     class procedure LoadFromFile(const container: TContainer;
       const fileName: string; const encoding: TEncoding = nil);
   end;
+
   {$ENDREGION}
 
 
@@ -120,12 +122,13 @@ type
 
 
 {$REGION 'TConfigurationReader'}
+
   TConfigurationReader = class
   private const //Do not localize
     SAppenders = 'appenders';
     SControllers = 'controllers';
     SAppender = 'appender';
-    SSerializer = 'serializer';
+    SEventConverter = 'converter';
     SController = 'controller';
     SAssign = 'assign';
     SLoggers = 'loggers';
@@ -147,7 +150,7 @@ type
     /// </summary>
     SAppenderSuffix = '.appender';
     SAddAppenderProc = 'AddAppender';
-    SAddSerializerProc = 'AddSerializer';
+    SAddEventConverterProc = 'AddEventConverter';
     SControllerField = 'fController';
   private
     fContainer: TContainer;
@@ -160,7 +163,7 @@ type
     ///   Registers new serializer and returns its service name or just return
     ///   the name if this serializer was already registered before.
     /// </summary>
-    function RegisterSerializer(const typeName: string): string;
+    function RegisterEventConverter(const typeName: string): string;
 
     /// <summary>
     ///   Reads all subsections of sectionName and calls registerProc on each
@@ -184,6 +187,7 @@ type
 
     procedure Read(const configuration: TLoggingConfiguration);
   end;
+
 {$ENDREGION}
 
 
@@ -191,7 +195,7 @@ type
 
 constructor TLoggingConfiguration.Create;
 begin
-  inherited;
+  inherited Create;
   fTypes := TCollections.CreateDictionary<PTypeInfo, string>;
 end;
 
@@ -386,10 +390,10 @@ begin
         Result := True;
         reg.InjectMethod(SAddAppenderProc, [SPrefix + value + SAppenderSuffix]);
       end else
-      if SameText(SSerializer, name) then
+      if SameText(SEventConverter, name) then
       begin
         Result := True;
-        reg.InjectMethod(SAddSerializerProc, [RegisterSerializer(value)]);
+        reg.InjectMethod(SAddEventConverterProc, [RegisterEventConverter(value)]);
       end
       else
         Result := False;
@@ -520,7 +524,7 @@ begin
   end;
 end;
 
-function TConfigurationReader.RegisterSerializer(
+function TConfigurationReader.RegisterEventConverter(
   const typeName: string): string;
 var
   classType: TRttiType;
@@ -530,8 +534,9 @@ begin
 
   if fContainer.Kernel.Registry.FindOne(classType.Handle) = nil then
     fContainer.RegisterType(classType.Handle).AsSingleton
-      .Implements(TypeInfo(ITypeSerializer), Result);
+      .Implements(TypeInfo(ILogEventConverter), Result);
 end;
+
 {$ENDREGION}
 
 

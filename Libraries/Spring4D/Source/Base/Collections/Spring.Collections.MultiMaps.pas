@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -131,7 +131,7 @@ type
   {$REGION 'Implements IMultiMap<TKey, TValue>'}
     procedure AddRange(const key: TKey; const values: array of TValue); overload;
     procedure AddRange(const key: TKey; const collection: IEnumerable<TValue>); overload;
-    function ExtractValues(const key: TKey): IReadOnlyList<TValue>;
+    function ExtractValues(const key: TKey): IList<TValue>;
     function TryGetValues(const key: TKey; out values: IReadOnlyList<TValue>): Boolean;
     property Items[const key: TKey]: IReadOnlyList<TValue> read GetItems; default;
   {$ENDREGION}
@@ -142,6 +142,8 @@ type
     procedure DoKeyChanged(Sender: TObject; const Item: TKey;
       Action: TCollectionChangedAction);
     procedure DoValueChanged(Sender: TObject; const Item: TValue;
+      Action: TCollectionChangedAction);
+    procedure DoValuesChanged(Sender: TObject; const Item: IList<TValue>;
       Action: TCollectionChangedAction);
   protected
     function CreateCollection(const comparer: IComparer<TValue>): IList<TValue>; override;
@@ -195,7 +197,7 @@ begin
   fValueComparer := valueComparer;
   inherited Create;
   fDictionary := CreateDictionary(keyComparer);
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   fEmpty := TCollections.CreateList<TValue>;
 {$ELSE}
   fEmpty := TList<TValue>.Create;
@@ -207,7 +209,7 @@ destructor TMultiMapBase<TKey, TValue>.Destroy;
 begin
   fValues.Free;
   fDictionary.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TMultiMapBase<TKey, TValue>.Add(const key: TKey; const value: TValue);
@@ -262,10 +264,8 @@ function TMultiMapBase<TKey, TValue>.Contains(const value: TGenericPair;
 var
   list: IList<TValue>;
 begin
-  if fDictionary.TryGetValue(value.key, list) then
-    Result := list.Contains(value.Value)
-  else
-    Result := False;
+  Result := fDictionary.TryGetValue(value.key, list)
+    and list.Contains(value.Value);
 end;
 
 function TMultiMapBase<TKey, TValue>.Contains(const key: TKey;
@@ -306,16 +306,13 @@ begin
 end;
 
 function TMultiMapBase<TKey, TValue>.ExtractValues(
-  const key: TKey): IReadOnlyList<TValue>;
-var
-  list: IList<TValue>;
+  const key: TKey): IList<TValue>;
 begin
-  if not fDictionary.TryGetValue(key, list) then
+  if not fDictionary.TryGetValue(key, Result) then
     raise EListError.CreateRes(@SGenericItemNotFound);
 
-  Dec(fCount, list.Count);
-  fDictionary.Remove(key);
-  Result := list as IReadOnlyList<TValue>;
+  Dec(fCount, Result.Count);
+  fDictionary.Extract(key);
 end;
 
 function TMultiMapBase<TKey, TValue>.GetCount: Integer;
@@ -358,7 +355,7 @@ begin
   begin
     Dec(fCount);
     if not list.Any then
-      fDictionary.Remove(key)
+      fDictionary.Remove(key);
   end;
 end;
 
@@ -485,7 +482,7 @@ begin
   i := 0;
   for list in fOwner.fDictionary.Values do
   begin
-    list.CopyTo(Result, 0);
+    list.CopyTo(Result, i);
     Inc(i, list.Count);
   end;
 end;
@@ -498,12 +495,11 @@ end;
 function TMultiMap<TKey, TValue>.CreateCollection(
   const comparer: IComparer<TValue>): IList<TValue>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   Result := TCollections.CreateList<TValue>(comparer);
 {$ELSE}
   Result := TList<TValue>.Create(comparer);
 {$ENDIF}
-  Result.OnChanged.Add(DoValueChanged);
 end;
 
 function TMultiMap<TKey, TValue>.CreateDictionary(
@@ -511,6 +507,7 @@ function TMultiMap<TKey, TValue>.CreateDictionary(
 begin
   Result := TContainedDictionary<TKey, IList<TValue>>.Create(Self, comparer);
   Result.OnKeyChanged.Add(DoKeyChanged);
+  Result.OnValueChanged.Add(DoValuesChanged);
 end;
 
 procedure TMultiMap<TKey, TValue>.DoKeyChanged(Sender: TObject;
@@ -523,6 +520,20 @@ procedure TMultiMap<TKey, TValue>.DoValueChanged(Sender: TObject;
   const Item: TValue; Action: TCollectionChangedAction);
 begin
   ValueChanged(Item, Action);
+end;
+
+procedure TMultiMap<TKey, TValue>.DoValuesChanged(Sender: TObject;
+  const Item: IList<TValue>; Action: TCollectionChangedAction);
+begin
+  case Action of
+    caAdded: Item.OnChanged.Add(DoValueChanged);
+    caRemoved:
+    begin
+      Item.Clear;
+      Item.OnChanged.Remove(DoValueChanged);
+    end;
+    caExtracted: Item.OnChanged.Remove(DoValueChanged);
+  end;
 end;
 
 {$ENDREGION}
@@ -557,7 +568,7 @@ end;
 procedure TObjectMultiMap<TKey, TValue>.KeyChanged(const item: TKey;
   action: TCollectionChangedAction);
 begin
-  inherited;
+  inherited KeyChanged(item, action);
   if (action = caRemoved) and (doOwnsKeys in fOwnerships) then
 {$IFNDEF AUTOREFCOUNT}
     PObject(@item).Free;
@@ -569,7 +580,7 @@ end;
 procedure TObjectMultiMap<TKey, TValue>.ValueChanged(const item: TValue;
   action: TCollectionChangedAction);
 begin
-  inherited;
+  inherited ValueChanged(item, action);
   if (action = caRemoved) and (doOwnsValues in fOwnerships) then
 {$IFNDEF AUTOREFCOUNT}
     PObject(@item).Free;

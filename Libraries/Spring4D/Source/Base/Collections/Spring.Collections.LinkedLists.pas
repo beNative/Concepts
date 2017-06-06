@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -42,7 +42,8 @@ type
   /// <typeparam name="T">
   ///   Specifies the element type of the linked list.
   /// </typeparam>
-  TLinkedList<T> = class(TCollectionBase<T>, ILinkedList<T>)
+  TLinkedList<T> = class(TCollectionBase<T>, ILinkedList<T>,
+    INotifyCollectionChanged<T>)
   private
     type
       TEnumerator = class(TEnumeratorBase<T>)
@@ -518,7 +519,7 @@ end;
 destructor TLinkedList<T>.TEnumerator.Destroy;
 begin
   fList._Release;
-  inherited;
+  inherited Destroy;
 end;
 
 function TLinkedList<T>.TEnumerator.GetCurrent: T;

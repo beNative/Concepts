@@ -13,7 +13,7 @@ uses
 type
   TAnsiSQLGeneratorTest = class(TTestCase)
   private
-    FAnsiSQLGenerator: ISQLGenerator;
+    FSQLGenerator: ISQLGenerator;
   public
     procedure SetUp; override;
     procedure TearDown; override;
@@ -68,12 +68,12 @@ end;
 
 procedure TAnsiSQLGeneratorTest.SetUp;
 begin
-  FAnsiSQLGenerator := TAnsiSQLGenerator.Create;
+  FSQLGenerator := TAnsiSQLGenerator.Create;
 end;
 
 procedure TAnsiSQLGeneratorTest.TearDown;
 begin
-  FAnsiSQLGenerator := nil;
+  FSQLGenerator := nil;
 end;
 
 const
@@ -138,7 +138,7 @@ begin
     LCommand.SelectFields.Add(TSQLSelectField.Create('AGE', LTable));
     LCommand.SelectFields.Add(TSQLSelectField.Create('HEIGHT', LTable));
 
-    sSql := FAnsiSQLGenerator.GenerateSelect(LCommand);
+    sSql := FSQLGenerator.GenerateSelect(LCommand);
     CheckEqualsString(SQL_SELECT_TEST_SIMPLE, sSql);
 
     LJoin := TSQLJoin.Create(jtInner);
@@ -148,7 +148,7 @@ begin
         TSQLField.Create('PRODID', LTable)));
     LCommand.Joins.Add(LJoin);
 
-    sSql := FAnsiSQLGenerator.GenerateSelect(LCommand);
+    sSql := FSQLGenerator.GenerateSelect(LCommand);
     CheckEqualsString(SQL_SELECT_TEST_JOIN, sSql);
 
     LCommand.SelectFields.Add(TSQLSelectField.Create('COUNTRYNAME', LCountriesTable));
@@ -159,16 +159,16 @@ begin
         TSQLField.Create('COUNTRYID', LTable)));
     LCommand.Joins.Add(LJoin);
 
-    sSql := FAnsiSQLGenerator.GenerateSelect(LCommand);
+    sSql := FSQLGenerator.GenerateSelect(LCommand);
     CheckEqualsString(SQL_SELECT_TEST_JOIN_2, sSql);
 
     LCommand.OrderByFields.Add(TSQLOrderByField.Create('AGE', LTable, stDescending));
 
-    sSql := FAnsiSQLGenerator.GenerateSelect(LCommand);
+    sSql := FSQLGenerator.GenerateSelect(LCommand);
     CheckEqualsString(SQL_SELECT_TEST_JOIN_2_ORDER, sSql);
 
     LCommand.OrderByFields.Add(TSQLOrderByField.Create('COUNTRYNAME', LCountriesTable, stAscending));
-    sSql := FAnsiSQLGenerator.GenerateSelect(LCommand);
+    sSql := FSQLGenerator.GenerateSelect(LCommand);
     CheckEqualsString(SQL_SELECT_TEST_JOIN_2_ORDER_MULTIPLE, sSql);
 
     LCommand.GroupByFields.Add(TSQLGroupByField.Create('HEIGHT', LTable));
@@ -176,12 +176,12 @@ begin
     LCommand.GroupByFields.Add(TSQLGroupByField.Create('AGE', LTable));
     LCommand.GroupByFields.Add(TSQLGroupByField.Create('COUNTRYNAME', LCountriesTable));
 
-    sSql := FAnsiSQLGenerator.GenerateSelect(LCommand);
+    sSql := FSQLGenerator.GenerateSelect(LCommand);
     CheckEqualsString(SQL_SELECT_TEST_JOIN_2_ORDER_GROUP, sSql);
 
     LCommand.WhereFields.Add(TSQLWhereField.Create('NAME', LTable));
 
-    sSql := FAnsiSQLGenerator.GenerateSelect(LCommand);
+    sSql := FSQLGenerator.GenerateSelect(LCommand);
     CheckEqualsString(SQL_SELECT_TEST_JOIN_2_ORDER_GROUP_WHERE, sSql);
   finally
     LTable.Free;
@@ -205,7 +205,7 @@ var
 begin
   select := TSelectCommand.Create(TMasterEntity);
   try
-    sql := FAnsiSQLGenerator.GenerateSelect(select);
+    sql := FSQLGenerator.GenerateSelect(select);
     CheckEqualsString(expectedSql, sql);
   finally
     select.Free;
@@ -226,7 +226,7 @@ var
 begin
   select := TSelectCommand.Create(TTax);
   try
-    sql := FAnsiSQLGenerator.GenerateSelect(select);
+    sql := FSQLGenerator.GenerateSelect(select);
     CheckEqualsString(expectedSql, sql);
   finally
     select.Free;
@@ -257,11 +257,11 @@ begin
     LCommand.InsertFields.Add(TSQLInsertField.Create('AGE', LTable, nil, ':AGE1'));
     LCommand.InsertFields.Add(TSQLInsertField.Create('HEIGHT', LTable, nil, ':HEIGHT1'));
 
-    ReturnValue := FAnsiSQLGenerator.GenerateInsert(LCommand);
+    ReturnValue := FSQLGenerator.GenerateInsert(LCommand);
     CheckEqualsString(SQL_INSERT_TEST, ReturnValue);
 
     LTable.Schema := '';
-    ReturnValue := FAnsiSQLGenerator.GenerateInsert(LCommand);
+    ReturnValue := FSQLGenerator.GenerateInsert(LCommand);
     CheckEqualsString(SQL_INSERT_TEST_WITHOUT_SCHEMA, ReturnValue);
   finally
     LCommand.Free;
@@ -269,16 +269,19 @@ begin
   end;
 end;
 
+procedure TAnsiSQLGeneratorTest.TestGeneratePagedQuery;
 const
   SQL_PAGED_TEST = 'SELECT * FROM TEST.CUSTOMERS WHERE CUSTID = 1;';
-  SQL_PAGED = 'SELECT * FROM TEST.CUSTOMERS WHERE CUSTID = 1 LIMIT 1,10 ;';
-
-procedure TAnsiSQLGeneratorTest.TestGeneratePagedQuery;
+  SQL_EXPECTED_PAGED = 'SELECT * FROM TEST.CUSTOMERS WHERE CUSTID = 1 LIMIT 0, 10;';
+  SQL_EXPECTED_PAGED_2 = 'SELECT * FROM TEST.CUSTOMERS WHERE CUSTID = 1 LIMIT 20, 10;';
 var
   LSQL: string;
 begin
-  LSQL := FAnsiSQLGenerator.GeneratePagedQuery(SQL_PAGED_TEST, 10, 1);
-  CheckEqualsString(SQL_PAGED, LSQL);
+  LSQL := FSQLGenerator.GeneratePagedQuery(SQL_PAGED_TEST, 10, 0);
+  CheckEqualsString(SQL_EXPECTED_PAGED, LSQL);
+
+  LSQL := FSQLGenerator.GeneratePagedQuery(SQL_PAGED_TEST, 10, 20);
+  CheckEqualsString(SQL_EXPECTED_PAGED_2, LSQL);
 end;
 
 const
@@ -301,7 +304,7 @@ begin
     LCommand.UpdateFields.Add(TSQLUpdateField.Create('HEIGHT', LTable, nil, ':HEIGHT1'));
     LCommand.WhereFields.Add(TSQLWhereField.Create('ID', LTable, nil, ':ID1'));
 
-    ReturnValue := FAnsiSQLGenerator.GenerateUpdate(LCommand);
+    ReturnValue := FSQLGenerator.GenerateUpdate(LCommand);
     CheckEqualsString(SQL_UPDATE_TEST, ReturnValue);
   finally
     LCommand.Free;
@@ -325,7 +328,7 @@ begin
   try
     LCommand.WhereFields.Add(TSQLWhereField.Create('ID', LTable, nil, ':ID1'));
 
-    ReturnValue := FAnsiSQLGenerator.GenerateDelete(LCommand);
+    ReturnValue := FSQLGenerator.GenerateDelete(LCommand);
     CheckEqualsString(SQL_DELETE_TEST, ReturnValue);
   finally
     LCommand.Free;
@@ -346,7 +349,7 @@ begin
     LCols := TEntityCache.Get(TCustomer).Columns;
     LCommand.SetCommandFieldsFromColumns(LCols);
 
-    ReturnValue := FAnsiSQLGenerator.GenerateCreateTable(LCommand);
+    ReturnValue := FSQLGenerator.GenerateCreateTable(LCommand);
     CheckTrue(ReturnValue.Any);
   finally
     LTable.Free;
@@ -371,7 +374,7 @@ begin
       TSQLForeignKeyField.Create(
         'FKColumn', LTable, 'RefColumn', 'RefTable', [fsOnDeleteCascade, fsOnUpdateCascade]));
 
-    LSQL := FAnsiSQLGenerator.GenerateCreateForeignKey(LCommand);
+    LSQL := FSQLGenerator.GenerateCreateForeignKey(LCommand);
     CheckTrue(LSQL.Any);
   finally
     LTable.Free;
@@ -383,7 +386,7 @@ procedure TAnsiSQLGeneratorTest.TestGenerateCreateSequence;
 var
   ReturnValue: string;
 begin
-  ReturnValue := FAnsiSQLGenerator.GenerateCreateSequence(nil);
+  ReturnValue := FSQLGenerator.GenerateCreateSequence(nil);
   CheckEqualsString('', ReturnValue);
 end;
 
@@ -391,7 +394,7 @@ procedure TAnsiSQLGeneratorTest.TestGenerateGetNextSequenceValue;
 var
   ReturnValue: string;
 begin
-  ReturnValue := FAnsiSQLGenerator.GenerateGetNextSequenceValue(nil);
+  ReturnValue := FSQLGenerator.GenerateGetNextSequenceValue(nil);
   CheckEqualsString('', ReturnValue);
 end;
 
@@ -406,7 +409,7 @@ procedure TAnsiSQLGeneratorTest.TestGenerateGetQueryCount;
 var
   LSQL: string;
 begin
-  LSQL := FAnsiSQLGenerator.GenerateGetQueryCount(SQL_COUNT_TEST);
+  LSQL := FSQLGenerator.GenerateGetQueryCount(SQL_COUNT_TEST);
   CheckEqualsString(SQL_COUNT, LSQL);
 end;
 
@@ -414,7 +417,7 @@ procedure TAnsiSQLGeneratorTest.TestGenerateGetLastInsertId;
 var
   ReturnValue: string;
 begin
-  ReturnValue := FAnsiSQLGenerator.GenerateGetLastInsertId(nil);
+  ReturnValue := FSQLGenerator.GenerateGetLastInsertId(nil);
   CheckEquals('', ReturnValue);
 end;
 

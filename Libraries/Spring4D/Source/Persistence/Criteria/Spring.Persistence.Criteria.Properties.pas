@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -35,8 +35,6 @@ uses
   Spring.Persistence.SQL.Types;
 
 type
-  TSetNumbers = set of Byte;
-
   /// <summary>
   ///   A factory for property-specific criterion and projection instances.
   /// </summary>
@@ -144,7 +142,7 @@ type
 
     class operator In(const left: Prop; const right: TArray<string>): TExpr; overload;
     class operator In(const left: Prop; const right: TArray<Integer>): TExpr; overload;
-    class operator In(const left: Prop; const right: TSetNumbers): TExpr; overload;
+    class operator In(const left: Prop; const right: TByteSet): TExpr; overload;
 
     function IsNull: ICriterion;
     function IsNotNull: ICriterion;
@@ -440,14 +438,14 @@ begin
   Result.fCriterion := left.fProp.&In(right);
 end;
 
-class operator Prop.In(const left: Prop; const right: TSetNumbers): TExpr;
+class operator Prop.In(const left: Prop; const right: TByteSet): TExpr;
 var
-  capturedRight: TSetNumbers;
+  capturedRight: TByteSet;
   rightArray: TArray<Integer>;
 begin
   capturedRight := right;
-  rightArray := TEnumerable.Range(0, 256)
-    .Where(function(const value: Integer): Boolean
+  rightArray := TEnumerable.Range(0, 256).Where(
+    function(const value: Integer): Boolean
     begin
       Result := value in capturedRight;
     end).ToArray;

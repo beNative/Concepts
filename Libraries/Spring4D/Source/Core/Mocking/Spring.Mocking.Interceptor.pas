@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -43,13 +43,16 @@ type
     fAction: TMockAction;
     fCallCount: Integer;
     fMatch: TArgMatch;
+    fSequence: IMockSequence;
+    fPosition: Integer;
   public
-    constructor Create(const action: TMockAction; const match: TArgMatch);
+    constructor Create(const action: TMockAction; const match: TArgMatch;
+      const sequence: IMockSequence);
 
     function Invoke(const invocation: IInvocation): TValue;
+    function Match(const args: TArray<TValue>): Boolean;
 
     property CallCount: Integer read fCallCount;
-    property Match: TArgMatch read fMatch;
   end;
 
   TMockInterceptor = class(TInterfacedObject, IInterface, IInterceptor)
@@ -60,38 +63,47 @@ type
     fBehavior: TMockBehavior;
     fCallBase: Boolean;
     fCurrentAction: TMockAction;
+    fCurrentValues: TArray<TValue>;
     fCurrentTimes: Times;
     fMatch: TArgMatch;
     fExpectedCalls: IMultiMap<TRttiMethod,TMethodCall>;
     fReceivedCalls: IMultiMap<TRttiMethod,TArray<TValue>>;
     fState: TMockState;
-    class function CreateArgMatch(const arguments: TArray<TValue>): TArgMatch; static;
+    fSequence: IMockSequence;
+    class function CreateArgMatch(const arguments: TArray<TValue>;
+      const parameters: TArray<TRttiParameter>): TArgMatch; static;
+    function CreateMethodCalls: TArray<TMethodCall>;
     class function CreateMock(const invocation: IInvocation): TMockAction; static;
     procedure InterceptArrange(const invocation: IInvocation);
     procedure InterceptAct(const invocation: IInvocation);
     procedure InterceptAssert(const invocation: IInvocation);
+    procedure SetSequence(const value: IMockSequence);
   protected
     procedure Intercept(const invocation: IInvocation);
   public
     constructor Create(behavior: TMockBehavior = DefaultMockBehavior);
+
+    procedure Executes(const action: TMockAction);
 
     procedure Received(const times: Times); overload;
     procedure Received(const times: Times; const match: TArgMatch); overload;
 
     procedure Reset;
 
-    procedure Returns(const action: TMockAction);
+    procedure Returns(const values: TArray<TValue>);
 
     procedure When; overload;
     procedure When(const match: TArgMatch); overload;
 
     property Behavior: TMockBehavior read fBehavior write fBehavior;
     property CallBase: Boolean read fCallBase write fCallBase;
+    property Sequence: IMockSequence read fSequence write SetSequence;
   end;
 
 implementation
 
 uses
+  Generics.Collections,
   SysUtils,
   TypInfo,
   Spring,
@@ -99,20 +111,10 @@ uses
   Spring.Times;
 
 resourcestring
+  SCallCountExceeded = 'call count exceeded: %s';
+  SSequenceNotSupported = 'using sequence requires mock behavior to be strict';
   SUnexpectedMethodCall = 'unexpected call of %s with arguments: %s';
   SUnexpectedCallCount = 'unexpected call count: %s';
-
-function ArgsEqual(const left, right: TArray<TValue>): Boolean;
-var
-  i: Integer;
-begin
-  if Length(left) <> Length(right) then
-    Exit(False);
-  for i := Low(left) to High(left) do
-    if not left[i].Equals(right[i]) then
-      Exit(False);
-  Result := True;
-end;
 
 function ArgsToString(const values: TArray<TValue>): string;
 var
@@ -144,6 +146,65 @@ begin
   fReceivedCalls := TCollections.CreateMultiMap<TRttiMethod,TArray<TValue>>();
 end;
 
+function TMockInterceptor.CreateMethodCalls: TArray<TMethodCall>;
+
+  function CreateMethodCall(const value: TValue): TMethodCall;
+  var
+    capturedValue: TValue;
+  begin
+    capturedValue := value;
+    Result := TMethodCall.Create(
+      function(const callInfo: TCallInfo): TValue
+      begin
+        Result := capturedValue;
+      end, fMatch, fSequence);
+  end;
+
+var
+{$IFDEF AUTOREFCOUNT}
+  capturedSelf: Pointer;
+{$ENDIF}
+  i: Integer;
+  values: TArray<TValue>;
+begin
+  SetLength(Result, 1);
+  if Assigned(fCurrentAction) then
+    Result[0] := TMethodCall.Create(fCurrentAction, fMatch, fSequence)
+  else
+  begin
+    values := fCurrentValues;
+    if Assigned(fSequence) then
+    begin
+      SetLength(Result, Length(fCurrentValues));
+      for i := 0 to High(fCurrentValues) do
+        Result[i] := CreateMethodCall(values[i]);
+    end
+    else
+    begin
+    {$IFDEF AUTOREFCOUNT}
+      // Break reference cycle held by the anonymous function closure (RSP-10176)
+      // (Do not use __ObjRelease like in other places that suffers from this issue,
+      // since the interceptor action can be reassigned and it could free Self when
+      // undesired to, use "unsafe" pointer.)
+      capturedSelf := Self;
+    {$ENDIF}
+      Result[0] := TMethodCall.Create(
+        function(const callInfo: TCallInfo): TValue
+        begin
+          if callInfo.CallCount <= Length(values) then
+            Result := values[callInfo.CallCount - 1]
+          else
+          {$IFDEF AUTOREFCOUNT}
+            with TMockInterceptor(capturedSelf) do
+          {$ENDIF}
+            if Behavior = TMockBehavior.Strict then
+              raise EMockException.CreateResFmt(@SCallCountExceeded, [
+                Times.AtMost(Length(values)).ToString(callInfo.CallCount)]);
+        end, fMatch, fSequence);
+    end;
+  end;
+end;
+
 class function TMockInterceptor.CreateMock(
   const invocation: IInvocation): TMockAction;
 var
@@ -157,14 +218,31 @@ begin
     end;
 end;
 
-class function TMockInterceptor.CreateArgMatch(
-  const arguments: TArray<TValue>): TArgMatch;
+class function TMockInterceptor.CreateArgMatch(const arguments: TArray<TValue>;
+  const parameters: TArray<TRttiParameter>): TArgMatch;
 begin
   Result :=
     function(const args: TArray<TValue>): Boolean
+    var
+      i: Integer;
     begin
-      Result := ArgsEqual(args, arguments);
+      if Length(arguments) <> Length(args) then
+        Exit(False);
+      for i := Low(arguments) to High(arguments) do
+      begin
+        if Assigned(parameters) and (pfOut in parameters[i].Flags) then
+          Continue;
+        if not arguments[i].Equals(args[i]) then
+          Exit(False);
+      end;
+      Result := True;
     end;
+end;
+
+procedure TMockInterceptor.Executes(const action: TMockAction);
+begin
+  fCurrentAction := action;
+  fCurrentValues := nil;
 end;
 
 procedure TMockInterceptor.Intercept(const invocation: IInvocation);
@@ -202,7 +280,8 @@ begin
           and (invocation.Method.MethodKind = mkFunction)
           and (invocation.Method.ReturnType.TypeKind = tkInterface) then
         begin
-          methodCall := TMethodCall.Create(CreateMock(invocation), CreateArgMatch(invocation.Arguments));
+          methodCall := TMethodCall.Create(CreateMock(invocation),
+            CreateArgMatch(invocation.Arguments, invocation.Method.GetParameters), nil);
           fExpectedCalls.Add(invocation.Method, methodCall);
         end;
 
@@ -212,17 +291,17 @@ begin
 end;
 
 procedure TMockInterceptor.InterceptArrange(const invocation: IInvocation);
-var
-  methodCall: TMethodCall;
 begin
-  if not Assigned(fMatch) then
-    fMatch := TMatcherFactory.CreateMatchers(invocation.Arguments);
-  if not Assigned(fMatch) then
-    fMatch := CreateArgMatch(invocation.Arguments);
-  methodCall := TMethodCall.Create(fCurrentAction, fMatch);
-  fExpectedCalls.Add(invocation.Method, methodCall);
-  fState := TMockState.Act;
-  fMatch := nil;
+  try
+    if not Assigned(fMatch) then
+      fMatch := TMatcherFactory.CreateMatchers(invocation.Arguments, invocation.Method.GetParameters);
+    if not Assigned(fMatch) then
+      fMatch := CreateArgMatch(invocation.Arguments, invocation.Method.GetParameters);
+    fExpectedCalls.AddRange(invocation.Method, CreateMethodCalls);
+  finally
+    fState := TMockState.Act;
+    fMatch := nil;
+  end;
 end;
 
 procedure TMockInterceptor.InterceptAssert(const invocation: IInvocation);
@@ -230,18 +309,21 @@ var
   arguments: IReadOnlyList<TArray<TValue>>;
   callCount: Integer;
 begin
-  if fReceivedCalls.TryGetValues(invocation.Method, arguments) then
-  begin
+  try
     if not Assigned(fMatch) then
-      fMatch := TMatcherFactory.CreateMatchers(invocation.Arguments);
-    if not Assigned(fMatch) then
-      fMatch := CreateArgMatch(invocation.Arguments);
-    callCount := arguments.Where(fMatch).Count;
+      fMatch := TMatcherFactory.CreateMatchers(invocation.Arguments, invocation.Method.GetParameters);
+    if fReceivedCalls.TryGetValues(invocation.Method, arguments) then
+    begin
+      if not Assigned(fMatch) then
+        fMatch := CreateArgMatch(invocation.Arguments, invocation.Method.GetParameters);
+      callCount := arguments.Where(fMatch).Count;
+    end
+    else
+      callCount := 0;
+  finally
+    fState := TMockState.Act;
     fMatch := nil;
-  end
-  else
-    callCount := 0;
-  fState := TMockState.Act;
+  end;
   if not fCurrentTimes.Verify(callCount) then
     raise EMockException.CreateResFmt(@SUnexpectedCallCount, [
       fCurrentTimes.ToString(callCount)]);
@@ -267,9 +349,17 @@ begin
   fReceivedCalls.Clear;
 end;
 
-procedure TMockInterceptor.Returns(const action: TMockAction);
+procedure TMockInterceptor.Returns(const values: TArray<TValue>);
 begin
-  fCurrentAction := action;
+  fCurrentAction := nil;
+  fCurrentValues := values;
+end;
+
+procedure TMockInterceptor.SetSequence(const value: IMockSequence);
+begin
+  if Assigned(value) and (fBehavior <> TMockBehavior.Strict) then
+    raise EMockException.CreateRes(@SSequenceNotSupported);
+  fSequence := value;
 end;
 
 procedure TMockInterceptor.When;
@@ -288,11 +378,15 @@ end;
 
 {$REGION 'TMethodCall'}
 
-constructor TMethodCall.Create(const action: TMockAction; const match: TArgMatch);
+constructor TMethodCall.Create(const action: TMockAction; const match: TArgMatch;
+  const sequence: IMockSequence);
 begin
   inherited Create;
   fAction := action;
   fMatch := match;
+  fSequence := sequence;
+  if Assigned(fSequence) then
+    fPosition := fSequence.AddStep;
 end;
 
 function TMethodCall.Invoke(const invocation: IInvocation): TValue;
@@ -305,6 +399,15 @@ begin
     Result := Result.Cast(invocation.Method.ReturnType.Handle)
   else
     Result := TValue.Empty;
+  if Assigned(fSequence) then
+    fSequence.MoveNext;
+end;
+
+function TMethodCall.Match(const args: TArray<TValue>): Boolean;
+begin
+  if Assigned(fSequence) and (fPosition <> fSequence.Current) then
+    Exit(False);
+  Result := fMatch(args);
 end;
 
 {$ENDREGION}

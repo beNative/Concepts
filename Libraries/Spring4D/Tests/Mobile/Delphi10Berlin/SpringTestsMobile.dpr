@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -51,7 +51,7 @@ uses
   Spring.Tests.Container.LifetimeManager in '..\..\Source\Core\Spring.Tests.Container.LifetimeManager.pas',
   Spring.Tests.Container in '..\..\Source\Core\Spring.Tests.Container.pas',
   Spring.Tests.Container.Logging in '..\..\Source\Core\Spring.Tests.Container.Logging.pas',
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   Spring.Tests.Interception in '..\..\Source\Core\Spring.Tests.Interception.pas',
   Spring.Tests.Interception.Types in '..\..\Source\Core\Spring.Tests.Interception.Types.pas',
   Spring.Tests.Mocking in '..\..\Source\Core\Spring.Tests.Mocking.pas',

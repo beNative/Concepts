@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -318,6 +318,9 @@ type
     procedure RegisterOneDecoratorWithFailingConditionResolvesWithoutDecorator;
     procedure RegisterTwoDecoratorsResolveReturnsLastDecorator;
     procedure RegisterTwoDecoratorsResolveWithParameterReturnsCorrectValue;
+    procedure RegisterOneDecoratorInitializeIsCalled;
+    procedure RegisterTwoDecoratorsResolveLazyReturnsLastDecorator;
+    procedure RegisterTwoDecoratorsResolveArrayAllDecorated;
   end;
 
 implementation
@@ -1583,7 +1586,7 @@ begin
 
   CheckEquals('test', fContainer.Resolve<INameService>('dynamic', ['test']).Name);
 
-  CheckEquals('test', fContainer.Resolve<INameService>([TNamedValue.From('name', 'test')]).Name);
+  CheckEquals('test', fContainer.Resolve<INameService>([TNamedValue.From('test', 'name')]).Name);
 end;
 
 procedure TTestResolverOverride.TestResolveWithClass;
@@ -1593,7 +1596,7 @@ begin
 
   CheckEquals(fdummy.ClassName, fContainer.Resolve<INameService>([fDummy]).Name);
 
-  CheckEquals(fdummy.ClassName, fContainer.Resolve<INameService>([TNamedValue.From('obj', fDummy)]).Name);
+  CheckEquals(fdummy.ClassName, fContainer.Resolve<INameService>([TNamedValue.From(fDummy, 'obj')]).Name);
 end;
 
 procedure TTestResolverOverride.TestResolveWithDependency;
@@ -1609,7 +1612,7 @@ begin
   CheckEquals(fdummy.ClassName, service.Name);
   CheckNotNull((service as TDynamicNameService).AgeService);
 
-  service := fContainer.Resolve<INameService>([TNamedValue.From('obj', fDummy)]);
+  service := fContainer.Resolve<INameService>([TNamedValue.From(fDummy, 'obj')]);
   CheckEquals(fdummy.ClassName, service.Name);
   CheckNotNull((service as TDynamicNameService).AgeService);
 end;
@@ -1627,7 +1630,7 @@ begin
   fDummy.Free;
   fDummy := TPersistent.Create;
 
-  service := fContainer.Resolve<INameService>([TNamedValue.From('obj', fDummy)]);
+  service := fContainer.Resolve<INameService>([TNamedValue.From(fDummy, 'obj')]);
   CheckEquals(fdummy.ClassName, service.Name);
   CheckNotNull((service as TDynamicNameService).AgeService);
 end;
@@ -1639,7 +1642,7 @@ begin
 
   CheckEquals('test' + fDummy.ClassName, fContainer.Resolve<INameService>(['test', fDummy]).Name);
 
-  CheckEquals(fdummy.ClassName, fContainer.Resolve<INameService>([TNamedValue.From('obj', fDummy)]).Name);
+  CheckEquals(fdummy.ClassName, fContainer.Resolve<INameService>([TNamedValue.From(fDummy, 'obj')]).Name);
 end;
 
 {$ENDREGION}
@@ -2005,6 +2008,20 @@ end;
 
 {$REGION 'TTestDecorators'}
 
+procedure TTestDecorators.RegisterOneDecoratorInitializeIsCalled;
+var
+  service: IAnotherService;
+begin
+  fContainer.RegisterType<IAnotherService, TInitializableComponent>;
+  fContainer.RegisterDecorator<IAnotherService, TAnotherServiceDecorator>;
+  fContainer.Build;
+  service := fContainer.Resolve<IAnotherService>;
+  CheckIs(service, TAnotherServiceDecorator);
+  service := (service as TAnotherServiceDecorator).Service;
+  CheckIs(service, TInitializableComponent);
+  Check((service as TInitializableComponent).IsInitialized);
+end;
+
 procedure TTestDecorators.RegisterOneDecoratorResolveReturnsDecorator;
 var
   service: IAgeService;
@@ -2028,11 +2045,53 @@ begin
       Result := False;
       conditionCalled := True;
     end);
-  CheckTrue(conditionCalled);
+  CheckFalse(conditionCalled);
   fContainer.Build;
   service := fContainer.Resolve<IAgeService>;
+  CheckTrue(conditionCalled);
   CheckIs(service, TNameAgeComponent);
   CheckEquals(TNameAgeComponent.DefaultAge, service.Age);
+end;
+
+procedure TTestDecorators.RegisterTwoDecoratorsResolveArrayAllDecorated;
+var
+  services: TArray<IAgeService>;
+begin
+  fContainer.RegisterDecorator<IAgeService, TAgeServiceDecorator>;
+  fContainer.RegisterDecorator<IAgeService, TAgeServiceDecorator2>;
+
+  fContainer.RegisterType<IAgeService, TAgeService>('ageService');
+  fContainer.Build;
+
+  services := fContainer.Resolve<TArray<IAgeService>>;
+  CheckEquals(2, Length(services));
+  CheckIs(services[0], TAgeServiceDecorator2);
+  CheckIs(services[1], TAgeServiceDecorator2);
+end;
+
+procedure TTestDecorators.RegisterTwoDecoratorsResolveLazyReturnsLastDecorator;
+var
+  service, service2: IAgeService;
+begin
+  fContainer.RegisterDecorator<IAgeService, TAgeServiceDecorator>;
+  fContainer.RegisterDecorator<IAgeService, TAgeServiceDecorator2>;
+
+  fContainer.RegisterType<IAgeService, TAgeService>('ageService');
+  fContainer.Build;
+
+  service := fContainer.Resolve<IAgeService>('ageService');
+
+  CheckIs(service, TAgeServiceDecorator2);
+  service2 := (service as TAgeServiceDecorator2).AgeService;
+  CheckIs(service2, TAgeServiceDecorator);
+  service2 := (service2 as TAgeServiceDecorator).AgeService;
+  CheckIs(service2, TAgeService);
+  service2 := (service2 as TAgeService).AgeService;
+  CheckIs(service2, TAgeServiceDecorator2);
+  service2 := (service2 as TAgeServiceDecorator2).AgeService;
+  CheckIs(service2, TAgeServiceDecorator);
+  service2 := (service2 as TAgeServiceDecorator).AgeService;
+  CheckIs(service2, TNameAgeComponent);
 end;
 
 procedure TTestDecorators.RegisterTwoDecoratorsResolveReturnsLastDecorator;

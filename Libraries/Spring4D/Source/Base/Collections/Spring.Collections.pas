@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -91,6 +91,15 @@ type
     Action: TCollectionChangedAction) of object;
 
   ICollectionChangedEvent<T> = interface(IEvent<TCollectionChangedEvent<T>>)
+  end;
+
+  INotifyCollectionChanged<T> = interface
+    ['{B4F756F2-B436-462D-8046-AB70377228F1}']
+  {$REGION 'Property Accessors'}
+    function GetOnChanged: ICollectionChangedEvent<T>;
+  {$ENDREGION}
+
+    property OnChanged: ICollectionChangedEvent<T> read GetOnChanged;
   end;
 
   /// <summary>
@@ -548,7 +557,7 @@ type
     /// </returns>
     function Max: T; overload;
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     function Max(const selector: TFunc<T, Integer>): Integer; overload;
 {$ENDIF}
 
@@ -573,7 +582,7 @@ type
     /// </returns>
     function Min: T; overload;
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     function Min(const selector: TFunc<T, Integer>): Integer; overload;
 {$ENDIF}
 
@@ -607,6 +616,13 @@ type
     ///   Inverts the order of the elements in a sequence.
     /// </summary>
     function Reversed: IEnumerable<T>;
+
+    /// <summary>
+    ///   Returns the sequence in a shuffled order.
+    /// </summary>
+{$IFNDEF DELPHI2010}
+    function Shuffled: IEnumerable<T>;
+{$ENDIF}
 
     /// <summary>
     ///   Returns the only element of a sequence, and throws an exception if
@@ -828,22 +844,28 @@ type
     ///   Moves the elements of the ICollection&lt;T&gt; to the specified
     ///   collection.
     /// </summary>
+    /// <returns>
+    ///   The number of elements that were moved.
+    /// </returns>
     /// <remarks>
     ///   This internally uses Extract to make sure that objects from a list
     ///   with <b>OwnsObject</b> are not getting destroyed.
     /// </remarks>
-    procedure MoveTo(const collection: ICollection<T>); overload;
+    function MoveTo(const collection: ICollection<T>): Integer; overload;
 
     /// <summary>
     ///   Moves the elements of the ICollection&lt;T&gt; that are matching the
     ///   specified predicate to the specified collection.
     /// </summary>
+    /// <returns>
+    ///   The number of elements that were moved.
+    /// </returns>
     /// <remarks>
     ///   This internally uses Extract to make sure that objects from a list
     ///   with <b>OwnsObject</b> are not getting destroyed.
     /// </remarks>
-    procedure MoveTo(const collection: ICollection<T>;
-      const predicate: TPredicate<T>); overload;
+    function MoveTo(const collection: ICollection<T>;
+      const predicate: TPredicate<T>): Integer; overload;
 
     /// <summary>
     ///   Removes the first occurrence of a specific element from the
@@ -949,6 +971,24 @@ type
   {$ENDREGION}
 
     /// <summary>
+    ///   Creates a new list that contains a range of the elements in the
+    ///   original list.
+    /// </summary>
+    /// <param name="index">
+    ///   The zero-based index at which the range starts.
+    /// </param>
+    /// <param name="count">
+    ///   The number of elements in the range.
+    /// </param>
+    /// <remarks>
+    ///   If the list contains reference types the elements in the returned
+    ///   list point to the same instance as the elements in the original list.
+    ///   Also if the original list is a <see cref="Spring.Collections.Lists|TObjectList&lt;T&gt;" />
+    ///    it still owns the objects.
+    /// </remarks>
+    function GetRange(index, count: Integer): IList<T>;
+
+    /// <summary>
     ///   Determines the index of a specific item in the
     ///   IReadOnlyList&lt;T&gt;.
     /// </summary>
@@ -1017,6 +1057,18 @@ type
     procedure DeleteRange(index, count: Integer);
 
     /// <summary>
+    ///   Extracts the item at the specified index.
+    /// </summary>
+    /// <param name="index">
+    ///   The zero-based index of the item to extract.
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///   <i>index</i> is not a valid index in the IList&lt;T&gt;.
+    /// </exception>
+    function ExtractAt(index: Integer): T;
+    function ExtractRange(index, count: Integer): TArray<T>; overload;
+
+    /// <summary>
     ///   Creates a new list that contains a range of the elements in the
     ///   original list.
     /// </summary>
@@ -1043,6 +1095,8 @@ type
     procedure Sort; overload;
     procedure Sort(const comparer: IComparer<T>); overload;
     procedure Sort(const comparer: TComparison<T>); overload;
+    procedure Sort(const comparer: IComparer<T>; index, count: Integer); overload;
+    procedure Sort(const comparer: TComparison<T>; index, count: Integer); overload;
 
     /// <summary>
     ///   Determines the index of a specific item in the IList&lt;T&gt;.
@@ -1811,6 +1865,18 @@ type
     function ExtractPair(const key: TKey): TPair<TKey, TValue>; overload;
 
     /// <summary>
+    ///   Gets the value for a given key if a matching key exists in the
+    ///   dictionary; returns the default value otherwise.
+    /// </summary>
+    function GetValueOrDefault(const key: TKey): TValue; overload;
+
+    /// <summary>
+    ///   Gets the value for a given key if a matching key exists in the
+    ///   dictionary; returns the given default value otherwise.
+    /// </summary>
+    function GetValueOrDefault(const key: TKey; const defaultValue: TValue): TValue; overload;
+
+    /// <summary>
     ///   Gets the value associated with the specified key.
     /// </summary>
     /// <param name="key">
@@ -1927,7 +1993,15 @@ type
 
     function AsReadOnlyMultiMap: IReadOnlyMultiMap<TKey,TValue>;
 
-    function ExtractValues(const key: TKey): IReadOnlyList<TValue>;
+    /// <summary>
+    ///   Extracts all values for the given key from the multimap.
+    /// </summary>
+    /// <remarks>
+    ///   If the multimap has doOwnsValues set the items in the returned list
+    ///   are not being owned by the list but have to be freed manually or
+    ///   being passed to a collection that takes ownership.
+    /// </remarks>
+    function ExtractValues(const key: TKey): IList<TValue>;
     function TryGetValues(const key: TKey; out values: IReadOnlyList<TValue>): Boolean;
     property Items[const key: TKey]: IReadOnlyList<TValue> read GetItems; default;
   end;
@@ -1962,39 +2036,51 @@ type
   {$ENDREGION}
 
     /// <summary>
-    ///   Removes all elements from the IStack&lt;T&gt;.
+    ///   Removes all elements from the stack.
     /// </summary>
     procedure Clear;
 
     /// <summary>
-    ///   Inserts an element at the top of the IStack&lt;T&gt;.
+    ///   Inserts an element at the top of the stack.
     /// </summary>
     /// <param name="item">
-    ///   The element to push onto the IStack&lt;T&gt;. The value can be <b>nil</b>
-    ///    for reference types.
+    ///   The element to push onto the stack. The value can be <b>nil</b> for
+    ///   reference types.
     /// </param>
     procedure Push(const item: T);
 
     /// <summary>
-    ///   Removes and returns the element at the top of the IStack&lt;T&gt;.
+    ///   Removes and returns the element at the top of the stack.
     /// </summary>
     /// <returns>
-    ///   The element removed from the top of the IStack&lt;T&gt;.
+    ///   The element removed from the top of the stack.
     /// </returns>
+    /// <remarks>
+    ///   This will return nil to prevent a dangling reference if the stack has
+    ///   ownership over the instances. <br />
+    /// </remarks>
     function Pop: T;
 
     /// <summary>
-    ///   Returns the element at the top of the IStack&lt;T&gt; without
-    ///   removing it.
+    ///   Removes and returns the element at the top of the stack without
+    ///   considering ownership.
     /// </summary>
     /// <returns>
-    ///   The element at the top of the IStack&lt;T&gt;.
+    ///   The element removed from the top of the stack.
+    /// </returns>
+    function Extract: T;
+
+    /// <summary>
+    ///   Returns the element at the top of the stack without removing it.
+    /// </summary>
+    /// <returns>
+    ///   The element at the top of the stack.
     /// </returns>
     function Peek: T;
 
     /// <summary>
-    ///   Returns the element at the top of the IStack&lt;T&gt; without
-    ///   removing it. Returns <b>Default(T)</b> if the stack is empty.
+    ///   Returns the element at the top of the stack without removing it.
+    ///   Returns <b>Default(T)</b> if the stack is empty.
     /// </summary>
     function PeekOrDefault: T;
 
@@ -2013,7 +2099,7 @@ type
     function TryPeek(out item: T): Boolean;
 
     /// <summary>
-    ///   Attempts to remove and return the element at the top of the stacke.
+    ///   Attempts to remove and return the element at the top of the stack.
     /// </summary>
     /// <param name="item">
     ///   The element that was removed if the operation was successful, <b>
@@ -2024,6 +2110,20 @@ type
     ///   the stack; otherwise, <b>False</b>.
     /// </returns>
     function TryPop(out item: T): Boolean;
+
+    /// <summary>
+    ///   Attempts to remove and return the element at the top of the stack
+    ///   without considering ownership. <br />
+    /// </summary>
+    /// <param name="item">
+    ///   The element that was removed if the operation was successful, <b>
+    ///   Default(T)</b> otherwise.
+    /// </param>
+    /// <returns>
+    ///   <b>True</b> if an element was removed and returned from the top of
+    ///   the stack; otherwise, <b>False</b>.
+    /// </returns>
+    function TryExtract(out item: T): Boolean;
 
     property OnChanged: ICollectionChangedEvent<T> read GetOnChanged;
   end;
@@ -2057,41 +2157,52 @@ type
   {$ENDREGION}
 
     /// <summary>
-    ///   Removes all elements from the IQueue&lt;T&gt;.
+    ///   Removes all elements from the queue.
     /// </summary>
     procedure Clear;
 
     /// <summary>
-    ///   Adds an element to the end of the IQueue&lt;T&gt;.
+    ///   Adds an element to the end of the queue.
     /// </summary>
     /// <param name="item">
-    ///   The element to add to the IQueue&lt;T&gt;. The value can be <b>nil</b>
-    ///    for reference types.
+    ///   The element to add to the queue. The value can be <b>nil</b> for
+    ///   reference types.
     /// </param>
     procedure Enqueue(const item: T);
 
     /// <summary>
-    ///   Removes and returns the element at the beginning of the
-    ///   IQueue&lt;T&gt;.
+    ///   Removes and returns the element at the beginning of the queue.
     /// </summary>
     /// <returns>
-    ///   The element that is removed from the beginning of the
-    ///   IQueue&lt;T&gt;.
+    ///   The element that is removed from the beginning of the queue.
     /// </returns>
+    /// <remarks>
+    ///   This will return nil to prevent a dangling reference if the queue has
+    ///   ownership over the instances.
+    /// </remarks>
     function Dequeue: T;
 
     /// <summary>
-    ///   Returns the element at the beginning of the IQueue&lt;T&gt; without
-    ///   removing it.
+    ///   Removes and returns the element at the beginning of the queue without
+    ///   considering ownership.
     /// </summary>
     /// <returns>
-    ///   The element at the beginning of the IQueue&lt;T&gt;.
+    ///   The element that is removed from the beginning of the queue.
+    /// </returns>
+    function Extract: T;
+
+    /// <summary>
+    ///   Returns the element at the beginning of the queue without removing
+    ///   it.
+    /// </summary>
+    /// <returns>
+    ///   The element at the beginning of the queue.
     /// </returns>
     function Peek: T;
 
     /// <summary>
-    ///   Returns the element at the beginning of the IQueue&lt;T&gt; without
-    ///   removing it. Returns <b>Default(T)</b> if the queue is empty.
+    ///   Returns the element at the beginning of the queue without removing
+    ///   it. Returns <b>Default(T)</b> if the queue is empty.
     /// </summary>
     function PeekOrDefault: T;
 
@@ -2108,6 +2219,20 @@ type
     ///   of the queue; otherwise, <b>False</b>.
     /// </returns>
     function TryDequeue(out item: T): Boolean;
+
+    /// <summary>
+    ///   Attempts to remove and return the element at the beginning of the
+    ///   queue without considering ownership.
+    /// </summary>
+    /// <param name="item">
+    ///   The element that was removed if the operation was successful, <b>
+    ///   Default(T)</b> otherwise.
+    /// </param>
+    /// <returns>
+    ///   <b>True</b> if an element was removed and returned from the beginning
+    ///   of the queue; otherwise, <b>False</b>.
+    /// </returns>
+    function TryExtract(out item: T): Boolean;
 
     /// <summary>
     ///   Attempts to return an element from the beginning of the queue without
@@ -2380,79 +2505,79 @@ type
   /// </summary>
   TCollections = class
   public
-    class function CreateList<T>: IList<T>; overload; static; inline;
-    class function CreateList<T>(const comparer: IComparer<T>): IList<T>; overload; static; inline;
+    class function CreateList<T>: IList<T>; overload; static;
+    class function CreateList<T>(const comparer: IComparer<T>): IList<T>; overload; static;
     class function CreateList<T>(const comparer: TComparison<T>): IList<T>; overload; static;
     class function CreateList<T>(const values: array of T): IList<T>; overload; static;
     class function CreateList<T>(const values: IEnumerable<T>): IList<T>; overload; static;
-    class function CreateList<T: class>(ownsObjects: Boolean): IList<T>; overload; static; inline;
-    class function CreateList<T: class>(const comparer: IComparer<T>; ownsObjects: Boolean): IList<T>; overload; static; inline;
-    class function CreateList<T: class>(const comparer: TComparison<T>; ownsObjects: Boolean): IList<T>; overload; static; inline;
-    class function CreateObjectList<T: class>(ownsObjects: Boolean = True): IList<T>; overload; static; inline;
-    class function CreateObjectList<T: class>(const comparer: IComparer<T>; ownsObjects: Boolean = True): IList<T>; overload; static; inline;
-    class function CreateObjectList<T: class>(const comparer: TComparison<T>; ownsObjects: Boolean = True): IList<T>; overload; static; inline;
+    class function CreateList<T: class>(ownsObjects: Boolean): IList<T>; overload; static;
+    class function CreateList<T: class>(const comparer: IComparer<T>; ownsObjects: Boolean): IList<T>; overload; static;
+    class function CreateList<T: class>(const comparer: TComparison<T>; ownsObjects: Boolean): IList<T>; overload; static;
+    class function CreateObjectList<T: class>(ownsObjects: Boolean = True): IList<T>; overload; static;
+    class function CreateObjectList<T: class>(const comparer: IComparer<T>; ownsObjects: Boolean = True): IList<T>; overload; static;
+    class function CreateObjectList<T: class>(const comparer: TComparison<T>; ownsObjects: Boolean = True): IList<T>; overload; static;
     class function CreateObjectList<T: class>(const values: array of T; ownsObjects: Boolean = True): IList<T>; overload; static;
-    class function CreateObjectList<T: class>(const values: IEnumerable<T>; ownsObjects: Boolean = True): IList<T>; overload; static; inline;
-    class function CreateInterfaceList<T: IInterface>: IList<T>; overload; static; inline;
-    class function CreateInterfaceList<T: IInterface>(const comparer: IComparer<T>): IList<T>; overload; static; inline;
-    class function CreateInterfaceList<T: IInterface>(const comparer: TComparison<T>): IList<T>; overload; static; inline;
+    class function CreateObjectList<T: class>(const values: IEnumerable<T>; ownsObjects: Boolean = True): IList<T>; overload; static;
+    class function CreateInterfaceList<T: IInterface>: IList<T>; overload; static;
+    class function CreateInterfaceList<T: IInterface>(const comparer: IComparer<T>): IList<T>; overload; static;
+    class function CreateInterfaceList<T: IInterface>(const comparer: TComparison<T>): IList<T>; overload; static;
     class function CreateInterfaceList<T: IInterface>(const values: array of T): IList<T>; overload; static;
-    class function CreateInterfaceList<T: IInterface>(const values: IEnumerable<T>): IList<T>; overload; static; inline;
+    class function CreateInterfaceList<T: IInterface>(const values: IEnumerable<T>): IList<T>; overload; static;
 
-    class function CreateSortedList<T>: IList<T>; overload; static; inline;
-    class function CreateSortedList<T>(const comparer: IComparer<T>): IList<T>; overload; static; inline;
+    class function CreateSortedList<T>: IList<T>; overload; static;
+    class function CreateSortedList<T>(const comparer: IComparer<T>): IList<T>; overload; static;
     class function CreateSortedList<T>(const comparer: TComparison<T>): IList<T>; overload; static;
     class function CreateSortedList<T>(const values: array of T): IList<T>; overload; static;
     class function CreateSortedList<T>(const values: IEnumerable<T>): IList<T>; overload; static;
-    class function CreateSortedList<T: class>(ownsObjects: Boolean): IList<T>; overload; static; inline;
-    class function CreateSortedList<T: class>(const comparer: IComparer<T>; ownsObjects: Boolean): IList<T>; overload; static; inline;
-    class function CreateSortedList<T: class>(const comparer: TComparison<T>; ownsObjects: Boolean): IList<T>; overload; static; inline;
-    class function CreateSortedObjectList<T: class>(ownsObjects: Boolean = True): IList<T>; overload; static; inline;
-    class function CreateSortedObjectList<T: class>(const comparer: IComparer<T>; ownsObjects: Boolean = True): IList<T>; overload; static; inline;
-    class function CreateSortedObjectList<T: class>(const comparer: TComparison<T>; ownsObjects: Boolean = True): IList<T>; overload; static; inline;
+    class function CreateSortedList<T: class>(ownsObjects: Boolean): IList<T>; overload; static;
+    class function CreateSortedList<T: class>(const comparer: IComparer<T>; ownsObjects: Boolean): IList<T>; overload; static;
+    class function CreateSortedList<T: class>(const comparer: TComparison<T>; ownsObjects: Boolean): IList<T>; overload; static;
+    class function CreateSortedObjectList<T: class>(ownsObjects: Boolean = True): IList<T>; overload; static;
+    class function CreateSortedObjectList<T: class>(const comparer: IComparer<T>; ownsObjects: Boolean = True): IList<T>; overload; static;
+    class function CreateSortedObjectList<T: class>(const comparer: TComparison<T>; ownsObjects: Boolean = True): IList<T>; overload; static;
     class function CreateSortedObjectList<T: class>(const values: array of T; ownsObjects: Boolean = True): IList<T>; overload; static;
-    class function CreateSortedObjectList<T: class>(const values: IEnumerable<T>; ownsObjects: Boolean = True): IList<T>; overload; static; inline;
-    class function CreateSortedInterfaceList<T: IInterface>: IList<T>; overload; static; inline;
-    class function CreateSortedInterfaceList<T: IInterface>(const comparer: IComparer<T>): IList<T>; overload; static; inline;
-    class function CreateSortedInterfaceList<T: IInterface>(const comparer: TComparison<T>): IList<T>; overload; static; inline;
+    class function CreateSortedObjectList<T: class>(const values: IEnumerable<T>; ownsObjects: Boolean = True): IList<T>; overload; static;
+    class function CreateSortedInterfaceList<T: IInterface>: IList<T>; overload; static;
+    class function CreateSortedInterfaceList<T: IInterface>(const comparer: IComparer<T>): IList<T>; overload; static;
+    class function CreateSortedInterfaceList<T: IInterface>(const comparer: TComparison<T>): IList<T>; overload; static;
     class function CreateSortedInterfaceList<T: IInterface>(const values: array of T): IList<T>; overload; static;
-    class function CreateSortedInterfaceList<T: IInterface>(const values: IEnumerable<T>): IList<T>; overload; static; inline;
+    class function CreateSortedInterfaceList<T: IInterface>(const values: IEnumerable<T>): IList<T>; overload; static;
 
-    class function CreateObservableList<T: class>(ownsObjects: Boolean = True): IList<T>; overload; static; inline;
+    class function CreateObservableList<T: class>(ownsObjects: Boolean = True): IList<T>; overload; static;
 
-    class function CreateDictionary<TKey, TValue>: IDictionary<TKey, TValue>; overload; static; inline;
-    class function CreateDictionary<TKey, TValue>(capacity: Integer): IDictionary<TKey, TValue>; overload; static; inline;
-    class function CreateDictionary<TKey, TValue>(const comparer: IEqualityComparer<TKey>): IDictionary<TKey, TValue>; overload; static; inline;
-    class function CreateDictionary<TKey, TValue>(capacity: Integer; const comparer: IEqualityComparer<TKey>): IDictionary<TKey, TValue>; overload; static; inline;
-    class function CreateDictionary<TKey, TValue>(ownerships: TDictionaryOwnerships): IDictionary<TKey, TValue>; overload; static; inline;
-    class function CreateDictionary<TKey, TValue>(ownerships: TDictionaryOwnerships; capacity: Integer): IDictionary<TKey, TValue>; overload; static; inline;
-    class function CreateDictionary<TKey, TValue>(ownerships: TDictionaryOwnerships; capacity: Integer; const comparer: IEqualityComparer<TKey>): IDictionary<TKey, TValue>; overload; static; inline;
-    class function CreateDictionary<TKey, TValue>(dictionary: Generics.Collections.TDictionary<TKey, TValue>; ownership: TOwnershipType): IDictionary<TKey, TValue>; overload; static; inline;
+    class function CreateDictionary<TKey, TValue>: IDictionary<TKey, TValue>; overload; static;
+    class function CreateDictionary<TKey, TValue>(capacity: Integer): IDictionary<TKey, TValue>; overload; static;
+    class function CreateDictionary<TKey, TValue>(const comparer: IEqualityComparer<TKey>): IDictionary<TKey, TValue>; overload; static;
+    class function CreateDictionary<TKey, TValue>(capacity: Integer; const comparer: IEqualityComparer<TKey>): IDictionary<TKey, TValue>; overload; static;
+    class function CreateDictionary<TKey, TValue>(ownerships: TDictionaryOwnerships): IDictionary<TKey, TValue>; overload; static;
+    class function CreateDictionary<TKey, TValue>(ownerships: TDictionaryOwnerships; capacity: Integer): IDictionary<TKey, TValue>; overload; static;
+    class function CreateDictionary<TKey, TValue>(ownerships: TDictionaryOwnerships; capacity: Integer; const comparer: IEqualityComparer<TKey>): IDictionary<TKey, TValue>; overload; static;
+    class function CreateDictionary<TKey, TValue>(dictionary: Generics.Collections.TDictionary<TKey, TValue>; ownership: TOwnershipType): IDictionary<TKey, TValue>; overload; static;
 
-    class function CreateMultiMap<TKey, TValue>: IMultiMap<TKey, TValue>; overload; static; inline;
-    class function CreateMultiMap<TKey, TValue>(const comparer: IEqualityComparer<TKey>): IMultiMap<TKey, TValue>; overload; static; inline;
-    class function CreateMultiMap<TKey, TValue>(ownerships: TDictionaryOwnerships): IMultiMap<TKey, TValue>; overload; static; inline;
+    class function CreateMultiMap<TKey, TValue>: IMultiMap<TKey, TValue>; overload; static;
+    class function CreateMultiMap<TKey, TValue>(const comparer: IEqualityComparer<TKey>): IMultiMap<TKey, TValue>; overload; static;
+    class function CreateMultiMap<TKey, TValue>(ownerships: TDictionaryOwnerships): IMultiMap<TKey, TValue>; overload; static;
     class function CreateMultiMap<TKey, TValue>(ownerships: TDictionaryOwnerships;
-      const comparer: IEqualityComparer<TKey>): IMultiMap<TKey, TValue>; overload; static; inline;
+      const comparer: IEqualityComparer<TKey>): IMultiMap<TKey, TValue>; overload; static;
 
-    class function CreateBidiDictionary<TKey, TValue>: IBidiDictionary<TKey, TValue>; overload; static; inline;
+    class function CreateBidiDictionary<TKey, TValue>: IBidiDictionary<TKey, TValue>; overload; static;
     class function CreateBidiDictionary<TKey, TValue>(const keyComparer: IEqualityComparer<TKey>;
-      const valueComparer: IEqualityComparer<TValue>): IBidiDictionary<TKey, TValue>; overload; static; inline;
+      const valueComparer: IEqualityComparer<TValue>): IBidiDictionary<TKey, TValue>; overload; static;
 
-    class function CreateStack<T>: IStack<T>; overload; static; inline;
-    class function CreateStack<T: class>(ownsObjects: Boolean): IStack<T>; overload; static; inline;
+    class function CreateStack<T>: IStack<T>; overload; static;
+    class function CreateStack<T: class>(ownsObjects: Boolean): IStack<T>; overload; static;
     class function CreateStack<T>(const values: array of T): IStack<T>; overload; static;
-    class function CreateStack<T>(const values: IEnumerable<T>): IStack<T>; overload; static; inline;
+    class function CreateStack<T>(const values: IEnumerable<T>): IStack<T>; overload; static;
 
-    class function CreateQueue<T>: IQueue<T>; overload; static; inline;
-    class function CreateQueue<T: class>(ownsObjects: Boolean): IQueue<T>; overload; static; inline;
+    class function CreateQueue<T>: IQueue<T>; overload; static;
+    class function CreateQueue<T: class>(ownsObjects: Boolean): IQueue<T>; overload; static;
     class function CreateQueue<T>(const values: array of T): IQueue<T>; overload; static;
-    class function CreateQueue<T>(const values: IEnumerable<T>): IQueue<T>; overload; static; inline;
+    class function CreateQueue<T>(const values: IEnumerable<T>): IQueue<T>; overload; static;
 
-    class function CreateSet<T>: ISet<T>; overload; static; inline;
-    class function CreateSet<T>(const comparer: IEqualityComparer<T>): ISet<T>; overload; static; inline;
+    class function CreateSet<T>: ISet<T>; overload; static;
+    class function CreateSet<T>(const comparer: IEqualityComparer<T>): ISet<T>; overload; static;
     class function CreateSet<T>(const values: array of T): ISet<T>; overload; static;
-    class function CreateSet<T>(const values: IEnumerable<T>): ISet<T>; overload; static; inline;
+    class function CreateSet<T>(const values: IEnumerable<T>): ISet<T>; overload; static;
   end;
 
   TEnumerable = class
@@ -2470,6 +2595,10 @@ type
     ///   T</i>.
     /// </returns>
     class function Empty<T>: IEnumerable<T>; static;
+
+    class function From<T>(const source: array of T): IEnumerable<T>; overload; static;
+    class function From<T>(const source: TArray<T>): IEnumerable<T>; overload; static;
+    class function From<T>(const source: TEnumerable<T>): IEnumerable<T>; overload; static;
 
     class function Min<T>(const source: IEnumerable<T>;
       const selector: TFunc<T, Integer>): Integer; overload; static;
@@ -2490,10 +2619,6 @@ type
       const keySelector: TFunc<T,TKey>;
       const comparer: IComparer<TKey>): IEnumerable<T>; overload; static;
 
-    class function Query<T>(const source: array of T): IEnumerable<T>; overload; static;
-    class function Query<T>(const source: TArray<T>): IEnumerable<T>; overload; static;
-    class function Query<T>(const source: TEnumerable<T>): IEnumerable<T>; overload; static;
-
     class function Range(start, count: Integer): IEnumerable<Integer>; static;
 
     class function Repeated<T>(const element: T; count: Integer): IEnumerable<T>; static;
@@ -2503,6 +2628,19 @@ type
 
     class function SelectMany<T, TResult>(const source: IEnumerable<T>;
       const selector: TFunc<T, IEnumerable<TResult>>): IEnumerable<TResult>; overload; static;
+
+    class function ToLookup<T, TKey>(const source: IEnumerable<T>;
+      const keySelector: TFunc<T, TKey>): ILookup<TKey, T>; overload; static;
+
+    class function Distinct<T>(const source: IEnumerable<T>): IEnumerable<T>; overload; static;
+    class function Distinct<T>(const source: IEnumerable<T>;
+      const comparer: IEqualityComparer<T>): IEnumerable<T>; overload; static;
+
+    class function DistinctBy<T, TKey>(const source: IEnumerable<T>;
+      const keySelector: TFunc<T, TKey>): IEnumerable<T>; overload; static;
+    class function DistinctBy<T, TKey>(const source: IEnumerable<T>;
+      const keySelector: TFunc<T, TKey>;
+      const comparer: IEqualityComparer<TKey>): IEnumerable<T>; overload; static;
 
     class function GroupBy<T, TKey>(const source: IEnumerable<T>;
       const keySelector: TFunc<T, TKey>): IEnumerable<IGrouping<TKey,T>>; overload; static;
@@ -2574,7 +2712,6 @@ implementation
 
 uses
   Character,
-  SyncObjs,
 {$IFDEF DELPHIXE8_UP}
   System.Hash,
 {$ENDIF}
@@ -2700,7 +2837,7 @@ end;
 
 class function TCollections.CreateList<T>(ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(ownsObjects);
@@ -2710,7 +2847,7 @@ end;
 class function TCollections.CreateList<T>(const comparer: IComparer<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(
     IComparer<TObject>(comparer), ownsObjects);
 {$ELSE}
@@ -2721,7 +2858,7 @@ end;
 class function TCollections.CreateList<T>(const comparer: TComparison<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(
     IComparer<TObject>(PPointer(@comparer)^), ownsObjects);
 {$ELSE}
@@ -2731,7 +2868,7 @@ end;
 
 class function TCollections.CreateObjectList<T>(ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(ownsObjects);
@@ -2741,7 +2878,7 @@ end;
 class function TCollections.CreateObjectList<T>(const comparer: IComparer<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(
     IComparer<TObject>(comparer), ownsObjects);
 {$ELSE}
@@ -2752,7 +2889,7 @@ end;
 class function TCollections.CreateObjectList<T>(const comparer: TComparison<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(
     IComparer<TObject>(PPointer(@comparer)^), ownsObjects);
 {$ELSE}
@@ -2763,7 +2900,7 @@ end;
 class function TCollections.CreateObjectList<T>(const values: array of T;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(ownsObjects);
@@ -2774,7 +2911,7 @@ end;
 class function TCollections.CreateObjectList<T>(const values: IEnumerable<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(ownsObjects);
@@ -2784,7 +2921,7 @@ end;
 
 class function TCollections.CreateInterfaceList<T>: IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedInterfaceList<T>.Create;
 {$ELSE}
   Result := TList<T>.Create;
@@ -2794,7 +2931,7 @@ end;
 class function TCollections.CreateInterfaceList<T>(
   const comparer: IComparer<T>): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) :=
     TFoldedInterfaceList<T>.Create(IComparer<IInterface>(comparer));
 {$ELSE}
@@ -2805,7 +2942,7 @@ end;
 class function TCollections.CreateInterfaceList<T>(
   const comparer: TComparison<T>): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedInterfaceList<T>.Create(
     IComparer<IInterface>(PPointer(@comparer)^));
 {$ELSE}
@@ -2816,7 +2953,7 @@ end;
 class function TCollections.CreateInterfaceList<T>(
   const values: array of T): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedInterfaceList<T>.Create;
 {$ELSE}
   Result := TList<T>.Create;
@@ -2827,7 +2964,7 @@ end;
 class function TCollections.CreateInterfaceList<T>(
   const values: IEnumerable<T>): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedInterfaceList<T>.Create;
 {$ELSE}
   Result := TList<T>.Create;
@@ -2838,7 +2975,7 @@ end;
 class function TCollections.CreateObservableList<T>(
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TObservableList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TObservableList<T>.Create(ownsObjects);
@@ -3076,7 +3213,7 @@ end;
 class function TCollections.CreateSortedList<T>(
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TSortedObjectList<T>.Create(ownsObjects);
@@ -3086,7 +3223,7 @@ end;
 class function TCollections.CreateSortedList<T>(const comparer: IComparer<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(
     IComparer<TObject>(comparer), ownsObjects);
 {$ELSE}
@@ -3097,7 +3234,7 @@ end;
 class function TCollections.CreateSortedList<T>(const comparer: TComparison<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(
     IComparer<TObject>(PPointer(@comparer)^), ownsObjects);
 {$ELSE}
@@ -3108,7 +3245,7 @@ end;
 class function TCollections.CreateSortedObjectList<T>(
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TSortedObjectList<T>.Create(ownsObjects);
@@ -3118,7 +3255,7 @@ end;
 class function TCollections.CreateSortedObjectList<T>(
   const comparer: IComparer<T>; ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(
     IComparer<TObject>(comparer), ownsObjects);
 {$ELSE}
@@ -3129,7 +3266,7 @@ end;
 class function TCollections.CreateSortedObjectList<T>(
   const comparer: TComparison<T>; ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(
     IComparer<TObject>(PPointer(@comparer)^), ownsObjects);
 {$ELSE}
@@ -3140,7 +3277,7 @@ end;
 class function TCollections.CreateSortedObjectList<T>(const values: array of T;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TSortedObjectList<T>.Create(ownsObjects);
@@ -3151,7 +3288,7 @@ end;
 class function TCollections.CreateSortedObjectList<T>(
   const values: IEnumerable<T>; ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TSortedObjectList<T>.Create(ownsObjects);
@@ -3161,7 +3298,7 @@ end;
 
 class function TCollections.CreateSortedInterfaceList<T>: IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedSortedInterfaceList<T>.Create;
 {$ELSE}
   Result := TSortedList<T>.Create;
@@ -3171,7 +3308,7 @@ end;
 class function TCollections.CreateSortedInterfaceList<T>(
   const comparer: IComparer<T>): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) :=
     TFoldedSortedInterfaceList<T>.Create(IComparer<IInterface>(comparer));
 {$ELSE}
@@ -3182,7 +3319,7 @@ end;
 class function TCollections.CreateSortedInterfaceList<T>(
   const comparer: TComparison<T>): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedSortedInterfaceList<T>.Create(
     IComparer<IInterface>(PPointer(@comparer)^));
 {$ELSE}
@@ -3193,7 +3330,7 @@ end;
 class function TCollections.CreateSortedInterfaceList<T>(
   const values: array of T): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedSortedInterfaceList<T>.Create;
 {$ELSE}
   Result := TSortedList<T>.Create;
@@ -3204,7 +3341,7 @@ end;
 class function TCollections.CreateSortedInterfaceList<T>(
   const values: IEnumerable<T>): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedSortedInterfaceList<T>.Create;
 {$ELSE}
   Result := TSortedList<T>.Create;
@@ -3217,9 +3354,50 @@ end;
 
 {$REGION 'TEnumerable'}
 
+class function TEnumerable.Distinct<T>(
+  const source: IEnumerable<T>): IEnumerable<T>;
+begin
+  Result := TDistinctIterator<T>.Create(source, nil);
+end;
+
+class function TEnumerable.Distinct<T>(const source: IEnumerable<T>;
+  const comparer: IEqualityComparer<T>): IEnumerable<T>;
+begin
+  Result := TDistinctIterator<T>.Create(source, comparer);
+end;
+
+class function TEnumerable.DistinctBy<T, TKey>(const source: IEnumerable<T>;
+  const keySelector: TFunc<T, TKey>): IEnumerable<T>;
+begin
+  Result := TDistinctByIterator<T, TKey>.Create(source, keySelector, nil);
+end;
+
+class function TEnumerable.DistinctBy<T, TKey>(const source: IEnumerable<T>;
+  const keySelector: TFunc<T, TKey>;
+  const comparer: IEqualityComparer<TKey>): IEnumerable<T>;
+begin
+  Result := TDistinctByIterator<T, TKey>.Create(source, keySelector, comparer);
+end;
+
 class function TEnumerable.Empty<T>: IEnumerable<T>;
 begin
   Result := TEmptyEnumerable<T>.Instance;
+end;
+
+class function TEnumerable.From<T>(const source: array of T): IEnumerable<T>;
+begin
+  Result := TArrayIterator<T>.Create(source);
+end;
+
+class function TEnumerable.From<T>(const source: TArray<T>): IEnumerable<T>;
+begin
+  Result := TArrayIterator<T>.Create(source);
+end;
+
+class function TEnumerable.From<T>(
+  const source: TEnumerable<T>): IEnumerable<T>;
+begin
+  Result := TEnumerableAdapter<T>.Create(source);
 end;
 
 class function TEnumerable.GroupBy<T, TKey>(const source: IEnumerable<T>;
@@ -3291,22 +3469,6 @@ begin
   Result := TOrderedEnumerable<T,TKey>.Create(source, keySelector, comparer, True);
 end;
 
-class function TEnumerable.Query<T>(const source: array of T): IEnumerable<T>;
-begin
-  Result := TArrayIterator<T>.Create(source);
-end;
-
-class function TEnumerable.Query<T>(const source: TArray<T>): IEnumerable<T>;
-begin
-  Result := TArrayIterator<T>.Create(source);
-end;
-
-class function TEnumerable.Query<T>(
-  const source: TEnumerable<T>): IEnumerable<T>;
-begin
-  Result := TEnumerableAdapter<T>.Create(source);
-end;
-
 class function TEnumerable.Range(start, count: Integer): IEnumerable<Integer>;
 begin
   Result := TRangeIterator.Create(start, count);
@@ -3328,6 +3490,16 @@ class function TEnumerable.SelectMany<T, TResult>(const source: IEnumerable<T>;
   const selector: TFunc<T, IEnumerable<TResult>>): IEnumerable<TResult>;
 begin
   Result := TSelectManyIterator<T, TResult>.Create(source, selector);
+end;
+
+class function TEnumerable.ToLookup<T, TKey>(const source: IEnumerable<T>;
+  const keySelector: TFunc<T, TKey>): ILookup<TKey, T>;
+begin
+  Result := TLookup<TKey, T>.Create<T>(source, keySelector,
+    function(x: T): T
+    begin
+      Result := x
+    end);
 end;
 
 class function TEnumerable.Union<T>(const first, second: IEnumerable<T>): IEnumerable<T>;

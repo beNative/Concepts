@@ -1,4 +1,4 @@
-package Spring.Designtime;
+package Spring.Data.Designtime;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -20,20 +20,20 @@ package Spring.Designtime;
 {$STACKFRAMES ON}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
-{$WRITEABLECONST ON}
+{$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'Spring4D Components'}
-{$LIBSUFFIX '.DelphiXE7'}
+{$DESCRIPTION 'Spring4D Data designtime package'}
+{$LIBSUFFIX '.DelphiXE6'}
 {$DESIGNONLY}
 {$IMPLICITBUILD OFF}
 
 requires
-  Spring.Persistence;
+  Spring.Data;
 
 contains
-  Spring.Persistence.ObjectDataset.Designtime in '..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Designtime.pas';
+  Spring.Data.Registration in '..\..\Source\Data\ObjectDataSet\Spring.Data.Registration.pas';
 
 end.

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -25,6 +25,9 @@
 unit Spring.Tests.Base;
 
 {$I Spring.inc}
+{$IFDEF UNSAFE_NULLABLE}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
 
 {$IF Defined(MACOS) AND NOT Defined(IOS)}
   {$DEFINE LogConsole}
@@ -61,6 +64,7 @@ type
     procedure TestAssignStringInt;
     procedure TestNullableNull;
     procedure TestAssignNull;
+    procedure TestTryGetValue;
   end;
 
   TTestNullableBoolean = class(TTestCase)
@@ -79,7 +83,7 @@ type
     procedure TearDown; override;
   published
     procedure TestFromVariantSQLTimestamp;
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     procedure TestFromVariantSQLTimestampOffset;
 {$ENDIF}
   end;
@@ -115,7 +119,6 @@ type
     procedure TestIsLazyType;
   end;
 
-{$IFDEF SUPPORTS_GENERIC_EVENTS}
   {$M+}
   TProc<T1, T2> = reference to procedure(arg1: T1; arg2: T2);
   {$M-}
@@ -161,6 +164,15 @@ type
     procedure TestNotify;
     procedure TestNotifyDelegate;
     procedure TestRemove;
+
+    procedure TestClassProcedureHandler;
+    procedure TestInstanceProcedureHandler;
+  end;
+
+  TEventHandler = class
+    class var fClassHandlerInvoked: Boolean;
+    class procedure HandleInt64Static(const value: Int64);
+    procedure HandleInt64(const value: Int64);
   end;
 
   TTestMulticastEventStackSize = class(TTestCase)
@@ -203,7 +215,6 @@ type
     procedure TestIssue60Single;
     procedure TestIssue60SingleAssignedConst;
   end;
-{$ENDIF SUPPORTS_GENERIC_EVENTS}
 
   TTestSpringEventsMethods = class(TTestCase)
   private
@@ -211,8 +222,6 @@ type
     fTestedTypeKinds: TTypeKinds;
     const
       PointerSize = SizeOf(Pointer);
-    type
-      TByteSet = set of Byte;
   protected
     procedure MatchType(const aTypeInfo: PTypeInfo; const aExpectedTypeKind: TTypeKind;
       const aExpectedTypeSize: Integer);
@@ -416,6 +425,7 @@ type
     procedure Test_Equals_EnumToEnum_ValuesAreEqual_ReturnsTrue;
 
     procedure Test_Equals_SetToSet_ValuesAreEqual_ReturnsTrue;
+    procedure Test_Equals_SetToSet;
 
     procedure Test_Compare_IntToInt_ValuesAreEqual_ReturnsTrue;
 
@@ -444,7 +454,20 @@ type
     procedure ConvertStringToFloatFailsForInvalidString;
 
     procedure FromCustomVariantFmtBcd;
+
+    procedure TryToType_ConvertIntToStr;
+    procedure TryToType_ConvertStrToInt;
+    procedure TryToType_ConvertStringToNullableString;
+    procedure TryToType_ConvertIntegerToNullableEnum;
+
+    procedure GetNullableValue_ValueIsEmpty_ReturnsEmpty;
+
+    procedure ImplicitOperators;
+
+    procedure NullableToString;
   end;
+
+  TEnumeration = (teFirst, teSecond, teLast);
 
 {$IFNDEF DELPHI2010}
   TTestManagedObject = class(TTestCase)
@@ -490,7 +513,7 @@ type
     fWideCharValue: WideChar;
     [Default('z')]
     fCharValue: Char;
-  {$IFDEF DELPHIXE_UP}
+  {$IFNDEF DELPHI2010}
     [Managed(TInterfacedObject)]
     fIntfValue: IInterface;
   {$ENDIF}
@@ -519,6 +542,16 @@ type
     procedure TestLastIndexOfSubRange;
   end;
 
+  TWeakTest = class(TTestCase)
+  published
+    procedure TestIsAlive;
+  end;
+
+  TTestVirtualClass = class(TTestCase)
+  published
+    procedure TestIntegrity;
+  end;
+
 implementation
 
 uses
@@ -531,7 +564,8 @@ uses
   Rtti,
   StrUtils,
   TimeSpan,
-  Types;
+  Types,
+  Spring.VirtualClass;
 
 
 {$REGION 'TTestNullableInteger'}
@@ -566,7 +600,11 @@ end;
 procedure TTestNullableInteger.TestAssignFloat;
 begin
   ExpectedException := EInvalidCast;
+{$IFDEF UNSAFE_NULLABLE}
   fInteger := 99.9;
+{$ELSE}
+  fInteger := Nullable<Integer>(99.9);
+{$ENDIF}
 end;
 
 procedure TTestNullableInteger.TestAssignNull;
@@ -574,7 +612,7 @@ var
   n: Nullable<Integer>;
 begin
   n := 5;
-  n := Null;
+  n := Nullable.Null;
   Check(not n.HasValue);
 end;
 
@@ -582,13 +620,21 @@ procedure TTestNullableInteger.TestAssignStringInt;
 begin
   // Nullable does NOT do a variant type conversion but is strict about the underlying type
   ExpectedException := EInvalidCast;
+{$IFDEF UNSAFE_NULLABLE}
   fInteger := '5';
+{$ELSE}
+  fInteger := Nullable<Integer>('5');
+{$ENDIF}
 end;
 
 procedure TTestNullableInteger.TestAssignStringNonInt;
 begin
   ExpectedException := EInvalidCast;
+{$IFDEF UNSAFE_NULLABLE}
   fInteger := '5x';
+{$ELSE}
+  fInteger := Nullable<Integer>('5x');
+{$ENDIF}
 end;
 
 procedure TTestNullableInteger.TestDefaultReturnsInitialValue;
@@ -621,6 +667,19 @@ begin
   CheckFalse(fInteger <> Nullable.Null);
 end;
 
+procedure TTestNullableInteger.TestTryGetValue;
+var
+  b: Boolean;
+  i: Integer;
+begin
+  b := fInteger.TryGetValue(i);
+  CheckFalse(b);
+  fInteger := 42;
+  b := fInteger.TryGetValue(i);
+  CheckTrue(b);
+  CheckEquals(42, i);
+end;
+
 procedure TTestNullableInteger.TestFromVariant;
 var
   value: Variant;
@@ -631,7 +690,11 @@ begin
   fInteger := Nullable<Integer>.Create(value);
   CheckFalse(fInteger.HasValue);
 
+{$IFDEF UNSAFE_NULLABLE}
   fInteger := value;
+{$ELSE}
+  fInteger := Nullable<Integer>(value);
+{$ENDIF}
   CheckFalse(fInteger.HasValue);
 
   value := ExpectedInteger;
@@ -677,7 +740,11 @@ var
   v: Variant;
 begin
   fBoolean := True;
+{$IFDEF UNSAFE_NULLABLE}
   v := fBoolean;
+{$ELSE}
+  v := fBoolean.ToVariant;
+{$ENDIF}
   CheckTrue(v);
 end;
 
@@ -686,7 +753,6 @@ end;
 
 {$REGION 'TTestMulticastEvent'}
 
-{$IFDEF SUPPORTS_GENERIC_EVENTS}
 procedure TTestMulticastEvent.SetUp;
 begin
   inherited;
@@ -709,6 +775,7 @@ begin
   fBInvoked := False;
   fHandlerInvokeCount := 0;
   fProc := nil;
+  TEventHandler.fClassHandlerInvoked := False;
 end;
 
 procedure TTestMulticastEvent.HandlerA(sender: TObject);
@@ -747,6 +814,16 @@ begin
   Inc(fHandlerInvokeCount);
 end;
 
+procedure TTestMulticastEvent.TestClassProcedureHandler;
+var
+  e: Event<TEventInt64>;
+begin
+  e.Add(TEventHandler.HandleInt64Static);
+  e.Invoke(42);
+  e.Remove(TEventHandler.HandleInt64Static);
+  CheckTrue(TEventHandler.fClassHandlerInvoked);
+end;
+
 procedure TTestMulticastEvent.TestDelegate;
 var
   e: Event<TProc<Integer, string>>;
@@ -759,8 +836,78 @@ begin
   CheckEquals(CNumber, fHandlerInvokeCount);
 end;
 
+procedure TTestMulticastEvent.TestInstanceProcedureHandler;
+var
+  e: Event<TEventInt64>;
+  t: TEventHandler;
+begin
+  t := TEventHandler.Create;
+  e.Add(t.HandleInt64);
+  e.Invoke(42);
+  CheckTrue(t.fClassHandlerInvoked);
+  t.Free;
+end;
+
 procedure TTestMulticastEvent.TestInvoke;
 begin
+  fEvent.Invoke(Self);
+  CheckFalse(fAInvoked);
+  CheckFalse(fBInvoked);
+
+  fEvent.Enabled := False;
+  fEvent.Invoke(Self);
+  CheckFalse(fAInvoked);
+  CheckFalse(fBInvoked);
+
+  fEvent.Enabled := True;
+  fEvent.Invoke(Self);
+  CheckFalse(fAInvoked);
+  CheckFalse(fBInvoked);
+
+  fEvent.Add(HandlerA);
+  fEvent.Enabled := False;
+  fEvent.Invoke(Self);
+  CheckFalse(fAInvoked);
+  CheckFalse(fBInvoked);
+
+  fEvent.Enabled := True;
+  fEvent.Invoke(Self);
+  CheckTrue(fAInvoked);
+  CheckFalse(fBInvoked);
+
+  fAInvoked := False;
+  fEvent.Add(HandlerB);
+  fEvent.Enabled := False;
+  fEvent.Invoke(Self);
+  CheckFalse(fAInvoked);
+  CheckFalse(fBInvoked);
+
+  fEvent.Enabled := True;
+  fEvent.Invoke(Self);
+  CheckTrue(fAInvoked);
+  CheckTrue(fBInvoked);
+
+  fAInvoked := False;
+  fBInvoked := False;
+  fEvent.Enabled := False;
+  fEvent.Remove(HandlerA);
+  fEvent.Invoke(Self);
+  CheckFalse(fAInvoked);
+  CheckFalse(fBInvoked);
+
+  fEvent.Enabled := True;
+  fEvent.Invoke(Self);
+  CheckFalse(fAInvoked);
+  CheckTrue(fBInvoked);
+
+  fBInvoked := False;
+  fEvent.Enabled := False;
+  fEvent.Remove(HandlerB);
+  fEvent.Invoke(Self);
+  CheckFalse(fAInvoked);
+  CheckFalse(fBInvoked);
+
+  fEvent.Enabled := True;
   fEvent.Invoke(Self);
   CheckFalse(fAInvoked);
   CheckFalse(fBInvoked);
@@ -892,7 +1039,16 @@ begin
   fEvent.Invoke(nil);
   Check(fAInvoked);
 end;
-{$ENDIF SUPPORTS_GENERIC_EVENTS}
+
+procedure TEventHandler.HandleInt64(const value: Int64);
+begin
+  fClassHandlerInvoked := value = 42;
+end;
+
+class procedure TEventHandler.HandleInt64Static(const value: Int64);
+begin
+  fClassHandlerInvoked := value = 42;
+end;
 
 {$ENDREGION}
 
@@ -1096,7 +1252,6 @@ end;
 
 {$REGION 'TTestMulticastEventStackSize'}
 
-{$IFDEF SUPPORTS_GENERIC_EVENTS}
 procedure TTestMulticastEventStackSize.SetUp;
 begin
   inherited;
@@ -1160,7 +1315,8 @@ begin
 {$ENDIF LogConsole}
   eventDouble := Event<TEventDouble>.Create();
   eventDouble.Add(HandlerDouble);
-  eventDouble.Invoke(42); Inc(expected);
+  eventDouble.Invoke(42);
+  Inc(expected);
 {$IFDEF LogConsole}
   LogLeave(expected);
 {$ENDIF LogConsole}
@@ -1178,7 +1334,8 @@ begin
 {$ENDIF LogConsole}
   eventDouble := Event<TEventDouble>.Create();
   eventDouble.Add(HandlerDouble);
-  eventDouble.Invoke(Double42); Inc(expected);
+  eventDouble.Invoke(Double42);
+  Inc(expected);
 {$IFDEF LogConsole}
   LogLeave(expected);
 {$ENDIF LogConsole}
@@ -1196,7 +1353,8 @@ begin
 {$ENDIF LogConsole}
   eventExtended := Event<TEventExtended>.Create();
   eventExtended.Add(HandlerExtended);
-  eventExtended.Invoke(42); Inc(expected);
+  eventExtended.Invoke(42);
+  Inc(expected);
 {$IFDEF LogConsole}
   LogLeave(expected);
 {$ENDIF LogConsole}
@@ -1214,7 +1372,8 @@ begin
 {$ENDIF LogConsole}
   eventExtended := Event<TEventExtended>.Create();
   eventExtended.Add(HandlerExtended);
-  eventExtended.Invoke(Extended42); Inc(expected);
+  eventExtended.Invoke(Extended42);
+  Inc(expected);
 {$IFDEF LogConsole}
   LogLeave(expected);
 {$ENDIF LogConsole}
@@ -1225,6 +1384,7 @@ procedure TTestMulticastEventStackSize.TestIssue60GuidAssignedConst;
 var
   eventExtended: Event<TEventGuid>;
   expected: Integer;
+  guid: TGUID;
 begin
   expected := 0;
 {$IFDEF LogConsole}
@@ -1233,7 +1393,9 @@ begin
 {$ENDIF LogConsole}
   eventExtended := Event<TEventGuid>.Create();
   eventExtended.Add(HandlerGuid);
-  eventExtended.Invoke(GUID42); Inc(expected);
+  guid := GUID42;
+  eventExtended.Invoke(guid); // pass variable to avoid AV during method interception
+  Inc(expected);
 {$IFDEF LogConsole}
   LogLeave(expected);
 {$ENDIF LogConsole}
@@ -1252,7 +1414,8 @@ begin
 {$ENDIF LogConsole}
   eventInt64 := Event<TEventInt64>.Create();
   eventInt64.Add(HandlerInt64);
-  eventInt64.Invoke(42); Inc(expected);
+  eventInt64.Invoke(42);
+  Inc(expected);
 {$IFDEF LogConsole}
   LogLeave(expected);
 {$ENDIF LogConsole}
@@ -1271,7 +1434,8 @@ begin
 {$ENDIF LogConsole}
   eventInt64 := Event<TEventInt64>.Create();
   eventInt64.Add(HandlerInt64);
-  eventInt64.Invoke(Int6442); Inc(expected);
+  eventInt64.Invoke(Int6442);
+  Inc(expected);
 {$IFDEF LogConsole}
   LogLeave(expected);
 {$ENDIF LogConsole}
@@ -1290,7 +1454,8 @@ begin
 {$ENDIF LogConsole}
   eventSingle := Event<TEventSingle>.Create();
   eventSingle.Add(HandlerSingle);
-  eventSingle.Invoke(42); Inc(expected);
+  eventSingle.Invoke(42);
+  Inc(expected);
 {$IFDEF LogConsole}
   LogLeave(expected);
 {$ENDIF LogConsole}
@@ -1309,13 +1474,13 @@ begin
 {$ENDIF LogConsole}
   eventSingle := Event<TEventSingle>.Create();
   eventSingle.Add(HandlerSingle);
-  eventSingle.Invoke(Single42); Inc(expected);
+  eventSingle.Invoke(Single42);
+  Inc(expected);
 {$IFDEF LogConsole}
   LogLeave(expected);
 {$ENDIF LogConsole}
   CheckEquals(expected, fHandlerInvokeCount);
 end;
-{$ENDIF SUPPORTS_GENERIC_EVENTS}
 
 {$ENDREGION}
 
@@ -1560,17 +1725,25 @@ end;
 
 procedure TTestSpringEventsMethods.Test_GetTypeSize_LongInt;
 begin
+{$IF Defined(LINUX64)}
+  MatchType(TypeInfo(LongInt), tkInt64, SizeOf(LongInt));
+{$ELSE}
   MatchType(TypeInfo(LongInt), tkInteger, SizeOf(LongInt));
+{$IFEND}
 end;
 
 procedure TTestSpringEventsMethods.Test_GetTypeSize_LongWord;
 begin
+{$IF Defined(LINUX64)}
+  MatchType(TypeInfo(LongWord), tkInt64, SizeOf(LongWord));
+{$ELSE}
   MatchType(TypeInfo(LongWord), tkInteger, SizeOf(LongWord));
+{$IFEND}
 end;
 
 procedure TTestSpringEventsMethods.Test_GetTypeSize_NativeInt;
 begin
-{$IF Defined(WIN64)}
+{$IF Defined(CPU64)}
   MatchType(TypeInfo(NativeInt), tkInt64, SizeOf(NativeInt));
 {$ELSE}
   MatchType(TypeInfo(NativeInt), tkInteger, SizeOf(NativeInt));
@@ -1579,7 +1752,7 @@ end;
 
 procedure TTestSpringEventsMethods.Test_GetTypeSize_NativeUInt;
 begin
-{$IF Defined(WIN64)}
+{$IF Defined(CPU64)}
   MatchType(TypeInfo(NativeUInt), tkInt64, SizeOf(NativeUInt));
 {$ELSE}
   MatchType(TypeInfo(NativeUInt), tkInteger, SizeOf(NativeUInt));
@@ -1817,7 +1990,7 @@ procedure TTestTuplesDouble.Test_Pack;
 var
   tup: Tuple<Integer, string>;
 begin
-  tup := Tuple.Pack(Integer(42), 'foo');
+  tup := Tuple.Create(Integer(42), 'foo');
   CheckEquals(42, tup.Value1);
   CheckEquals('foo', tup.Value2);
 end;
@@ -1945,7 +2118,7 @@ procedure TTestTuplesTriple.Test_Pack;
 var
   tup: Tuple<Integer, string, Boolean>;
 begin
-  tup := Tuple.Pack(Integer(42), 'foo', True);
+  tup := Tuple.Create(Integer(42), 'foo', True);
   CheckEquals(42, tup.Value1);
   CheckEquals('foo', tup.Value2);
   CheckEquals(True, tup.Value3);
@@ -2101,7 +2274,7 @@ procedure TTestTuplesQuadruple.Test_Pack;
 var
   tup: Tuple<Integer, string, Boolean, Char>;
 begin
-  tup := Tuple.Pack(Integer(42), 'foo', True, 'X');
+  tup := Tuple.Create(Integer(42), 'foo', True, 'X');
   CheckEquals(42, tup.Value1);
   CheckEquals('foo', tup.Value2);
   CheckEquals(True, tup.Value3);
@@ -2172,19 +2345,19 @@ end;
 
 procedure TTestOwned.TestInterfaceType_Instance_Gets_Created;
 var
-  p: IOwned<TTestClass>;
+  p: IManaged<TTestClass>;
 begin
-  p := TOwned<TTestClass>.Create();
+  p := TManaged<TTestClass>.Create();
   CheckTrue(p.CreateCalled);
 end;
 
 procedure TTestOwned.TestInterfaceType_Instance_Gets_Destroyed_When_Created;
 var
-  p: IOwned<TTestClass>;
+  p: IManaged<TTestClass>;
   t: TTestClass;
   destroyCalled: Boolean;
 begin
-  p := TOwned<TTestClass>.Create();
+  p := TManaged<TTestClass>.Create();
   t := p;
   t.DestroyCalled := @destroyCalled;
 {$IFDEF AUTOREFCOUNT}
@@ -2198,12 +2371,12 @@ end;
 procedure TTestOwned.TestInterfaceType_Instance_Gets_Destroyed_When_Injected;
 var
   t: TTestClass;
-  p: IOwned<TTestClass>;
+  p: IManaged<TTestClass>;
   destroyCalled: Boolean;
 begin
   t := TTestClass.Create;
   t.DestroyCalled := @destroyCalled;
-  p := TOwned<TTestClass>.Create(t);
+  p := TManaged<TTestClass>.Create(t);
 {$IFDEF AUTOREFCOUNT}
   t := nil;
 {$ENDIF}
@@ -2214,7 +2387,7 @@ end;
 
 procedure TTestOwned.TestRecordType_Implicit_FromInstance_Works;
 var
-  p: Owned<TTestClass>;
+  p: Managed<TTestClass>;
   t: TTestClass;
 begin
   t := TTestClass.Create;
@@ -2224,7 +2397,7 @@ end;
 
 procedure TTestOwned.TestRecordType_Implicit_ToInstance_Works;
 var
-  p: Owned<TTestClass>;
+  p: Managed<TTestClass>;
   t, t2: TTestClass;
 begin
   t := TTestClass.Create;
@@ -2235,7 +2408,7 @@ end;
 
 procedure TTestOwned.TestRecordType_Instance_Gets_Destroyed;
 var
-  p: Owned<TTestClass>;
+  p: Managed<TTestClass>;
   t: TTestClass;
   destroyCalled: Boolean;
 begin
@@ -2246,7 +2419,7 @@ begin
   t := nil;
 {$ENDIF}
   destroyCalled := False;
-  p := Default(Owned<TTestClass>);
+  p := Default(Managed<TTestClass>);
   CheckTrue(destroyCalled);
 end;
 
@@ -2259,9 +2432,9 @@ type
 
 procedure TTestOwned.TestRecordType_Manage_Typed_Pointer;
 var
-  p: IOwned<PMyRecord>;
+  p: IManaged<PMyRecord>;
 begin
-  p := TOwned<PMyRecord>.Create();
+  p := TManaged<PMyRecord>.Create();
   p.x := 11;
   p.y := 22;
   p.s := 'Hello World';
@@ -2458,6 +2631,36 @@ end;
 
 
 {$REGION 'TTestValueHelper'}
+
+procedure TTestValueHelper.Test_Equals_SetToSet;
+// Big sets and TValue was broken before
+// see https://quality.embarcadero.com/browse/RSP-13556
+{$IFDEF DELPHIXBERLIN_UP}
+var
+  byteSet: TByteSet;
+begin
+  byteSet := [0..255];
+  fSUT := TValue.From(byteSet);
+  fValue := TValue.From<TByteSet>([0..254]);
+  DoCheckEquals(False);
+  fValue := TValue.From<TByteSet>([0..255]);
+  DoCheckEquals(True);
+{$ELSE}
+begin
+{$ENDIF}
+
+  fSUT := TValue.From<TTestSet1>([x, y, z]);
+  fValue := TValue.From<TTestSet1>([x, z]);
+  DoCheckEquals(False);
+  fValue := TValue.From<TTestSet1>([x..z]);
+  DoCheckEquals(True);
+
+  fSUT := TValue.From<TTestSet2>([a, b, c]);
+  fValue := TValue.From<TTestSet2>([a, c]);
+  DoCheckEquals(False);
+  fValue := TValue.From<TTestSet2>([a..c]);
+  DoCheckEquals(True);
+end;
 
 procedure TTestValueHelper.ConvertStringToFloatFailsForInvalidString;
 var
@@ -2724,6 +2927,41 @@ begin
   CheckEquals(2, arr[2]);
 end;
 
+procedure TTestValueHelper.GetNullableValue_ValueIsEmpty_ReturnsEmpty;
+begin
+  fSUT := TValue.From<Nullable<Integer>>(Default(Nullable<Integer>));
+  fValue := fSUT.GetNullableValue;
+  CheckTrue(fValue.IsEmpty);
+
+  fSUT := TValue.Empty;
+  TValueData(fSUT).FTypeInfo := TypeInfo(Nullable<Integer>);
+  fValue := fSUT.GetNullableValue;
+  CheckTrue(fValue.IsEmpty);
+end;
+
+procedure TTestValueHelper.ImplicitOperators;
+var
+  d: Double;
+begin
+  d := 3.14;
+  fSUT := d;
+  Check(fSUT.TypeInfo = TypeInfo(Double));
+  fSUT := Now;
+  Check(fSUT.TypeInfo = TypeInfo(TDateTime));
+  fSUT := TDate(Date);
+  Check(fSUT.TypeInfo = TypeInfo(TDate));
+  fSUT := TTime(Time);
+  Check(fSUT.TypeInfo = TypeInfo(TTime));
+end;
+
+procedure TTestValueHelper.NullableToString;
+begin
+  fSUT := TValue.From(Nullable<Integer>(42));
+  CheckEqualsString('42', fSUT.ToString);
+  fSUT := TValue.From(Nullable<Integer>(Nullable.Null));
+  CheckEqualsString('(null)', fSUT.ToString);
+end;
+
 procedure TTestValueHelper.TearDown;
 begin
   fSUT := TValue.Empty;
@@ -2813,6 +3051,49 @@ begin
   DoCheckEquals;
 end;
 
+procedure TTestValueHelper.TryToType_ConvertIntegerToNullableEnum;
+var
+  value: Nullable<TEnumeration>;
+begin
+  fSUT := Integer(1);
+  CheckTrue(fSUT.TryToType<Nullable<TEnumeration>>(value));
+  CheckEquals(1, Integer(value.Value));
+
+  fSUT := Integer(3);
+  CheckFalse(fSUT.TryToType<Nullable<TEnumeration>>(value));
+
+  fSUT := TValue.Empty;
+  CheckTrue(fSUT.TryToType<Nullable<TEnumeration>>(value));
+  CheckFalse(value.HasValue);
+end;
+
+procedure TTestValueHelper.TryToType_ConvertIntToStr;
+var
+  value: string;
+begin
+  fSUT := 42;
+  CheckTrue(fSUT.TryToType<string>(value));
+  CheckEquals('42', value);
+end;
+
+procedure TTestValueHelper.TryToType_ConvertStringToNullableString;
+var
+  value: Nullable<string>;
+begin
+  fSUT := '42';
+  CheckTrue(fSUT.TryToType<Nullable<string>>(value));
+  CheckTrue(value.HasValue);
+  CheckEquals('42', value.Value);
+end;
+
+procedure TTestValueHelper.TryToType_ConvertStrToInt;
+var
+  value: Integer;
+begin
+  fSUT := 'foo';
+  CheckFalse(fSUT.TryToType<Integer>(value));
+end;
+
 {$ENDREGION}
 
 
@@ -2831,11 +3112,15 @@ var
 begin
   dt := EncodeDateTime(2015, 1, 1, 12, 0, 0, 0);
   v := VarSQLTimeStampCreate(dt);
+{$IFDEF UNSAFE_NULLABLE}
   fDateTime := v;
-  CheckEquals(dt, fDateTime);
+{$ELSE}
+  fDateTime := Nullable<TDateTime>(v);
+{$ENDIF}
+  CheckEquals(dt, fDateTime.Value);
 end;
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
 procedure TTestNullableDateTime.TestFromVariantSQLTimestampOffset;
 var
   dt: TDateTime;
@@ -2849,8 +3134,12 @@ begin
   VarSQLTimeStampOffsetCreate(v, DateTimeToSQLTimeStampOffset(dt,
     TTimeZone.Local.GetUtcOffset(dt).Hours,
     TTimeZone.Local.GetUtcOffset(dt).Minutes));
+{$IFDEF UNSAFE_NULLABLE}
   fDateTime := v;
-  CheckEquals(dt, fDateTime);
+{$ELSE}
+  fDateTime := Nullable<TDateTime>(v);
+{$ENDIF}
+  CheckEquals(dt, fDateTime.Value);
 end;
 {$ENDIF}
 
@@ -2870,8 +3159,12 @@ var
   v: Variant;
 begin
   v := VarFMTBcdCreate('8123456789012345678', 19, 0);
+{$IFDEF UNSAFE_NULLABLE}
   fInt64 := v;
-  CheckEquals(8123456789012345678, fInt64);
+{$ELSE}
+  fInt64 := Nullable<Int64>(v);
+{$ENDIF}
+  CheckEquals(8123456789012345678, fInt64.Value);
 end;
 
 {$ENDREGION}
@@ -2922,7 +3215,7 @@ begin
   {$ENDIF}
     CheckEquals('y', Char(obj.fWideCharValue));
     CheckEquals('z', Char(obj.fCharValue));
-  {$IFDEF DELPHIXE_UP}
+  {$IFNDEF DELPHI2010}
     CheckNotNull(obj.fIntfValue);
     CheckIs(obj.fIntfValue as TObject, TInterfacedObject);
   {$ENDIF}
@@ -2958,7 +3251,7 @@ var
 begin
   values := TArray<Integer>.Create(1, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9);
   CheckTrue(TArray.BinarySearchUpperBound<Integer>(values, 5, index,
-    TComparer<Integer>.Default, 0, 6));
+    TComparer<Integer>.Default(), 0, 6));
   CheckEquals(5, index);
 end;
 
@@ -2980,6 +3273,74 @@ begin
   values := TArray<Integer>.Create(1, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9);
   index := TArray.LastIndexOf<Integer>(values, 5, 0, 6);
   CheckEquals(5, index);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TWeakTest'}
+
+procedure TWeakTest.TestIsAlive;
+var
+  weak: Weak<IInterface>;
+  intf: IInterface;
+begin
+  intf := TInterfacedObject.Create;
+  weak := intf;
+  CheckTrue(weak.IsAlive);
+  intf := nil;
+  CheckFalse(weak.IsAlive);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestVirtualClass'}
+
+type
+  {$M+}
+  TIntegrityCheckObject = class
+  protected
+    InitField: string;
+  published
+    PublishedField: TObject;
+  public
+    procedure VirtualMethod0; virtual;
+    procedure VirtualMethod1; virtual;
+  published
+    procedure PublishedMethod1;
+  end;
+
+procedure TIntegrityCheckObject.PublishedMethod1;
+begin
+end;
+
+procedure TIntegrityCheckObject.VirtualMethod0;
+begin
+end;
+
+procedure TIntegrityCheckObject.VirtualMethod1;
+begin
+end;
+
+procedure TTestVirtualClass.TestIntegrity;
+var
+  data: PClassData;
+begin
+  data := GetClassData(TIntegrityCheckObject);
+  Check(data.SelfPtr = TIntegrityCheckObject);
+  Check(data.InitTable <> nil);
+  Check(data.FieldTable <> nil);
+  Check(data.FieldTable.Count = 1);
+  Check(data.FieldTable.ClassTab.Count = 1);
+  Check(data.FieldTable.ClassTab.ClassRef[0]^ = TObject);
+  Check(data.MethodTable <> nil);
+  Check(data.MethodTable.Count = 1);
+  check(PVmtMethodEntry(PByte(data.MethodTable) + SizeOf(Word)).CodeAddress = @TIntegrityCheckObject.PublishedMethod1);
+  Check(data.TypeInfo = TypeInfo(TIntegrityCheckObject));
+  Check(@data.Destroy = @TObject.Destroy);
+  Check(data.VirtualMethods[0] = @TIntegrityCheckObject.VirtualMethod0);
+  Check(data.VirtualMethods[1] = @TIntegrityCheckObject.VirtualMethod1);
 end;
 
 {$ENDREGION}

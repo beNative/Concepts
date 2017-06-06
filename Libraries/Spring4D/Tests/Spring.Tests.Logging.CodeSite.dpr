@@ -3,41 +3,40 @@ program Spring.Tests.Logging.CodeSite;
 {$APPTYPE CONSOLE}
 
 uses
-  System.SysUtils,
-  System.Classes,
+  SysUtils,
+  Classes,
   Spring.Logging,
+  Spring.Logging.Appenders.CodeSite in '..\Source\Base\Logging\Spring.Logging.Appenders.CodeSite.pas',
+//  Spring.Logging.Appenders.SmartInspect in '..\Source\Base\Logging\Spring.Logging.Appenders.SmartInspect.pas',
   Spring.Logging.Controller,
-  Spring.Logging.Loggers,
-  Spring.Logging.Appenders.CodeSite in '..\Source\Base\Logging\Spring.Logging.Appenders.CodeSite.pas';
+  Spring.Logging.Loggers;
 
 function InitLog: ILogger;
 var
-  controller: TLoggerController;
-  appender: TCodeSiteAppender;
+  appender: ILogAppender;
+  controller: ILoggerController;
 begin
   appender := TCodeSiteAppender.Create;
-  appender.Levels := LOG_ALL_LEVELS;
+//  appender := TSmartInspectAppender.Create;
+  (appender as ILoggerProperties).Levels := LOG_ALL_LEVELS;
 
   controller := TLoggerController.Create;
-  controller.Levels := LOG_ALL_LEVELS;
   controller.AddAppender(appender);
+  (controller as ILoggerProperties).Levels := LOG_ALL_LEVELS;
 
   Result := TLogger.Create(controller);
   (Result as ILoggerProperties).Levels := LOG_ALL_LEVELS;
 end;
 
-var
-  log: ILogger;
-
-procedure TestTrack;
+procedure TestTrack(const log: ILogger);
 begin
   log.Track(TLogLevel.Info, TLogger, 'TestTrack');
   log.Warn('Warning text');
-  log.Log(TLogEntry.Create(TLogLevel.Info, 'Log message with color')
+  log.Log(TLogEvent.Create(TLogLevel.Info, 'Log message with color')
     .SetColor($5555FF));
 end;
 
-procedure TestException;
+procedure TestException(const log: ILogger);
 begin
   log.Track(TLogLevel.Info, TLogger, 'TestException');
   try
@@ -51,7 +50,7 @@ begin
   end;
 end;
 
-procedure TestValues;
+procedure TestValues(const log: ILogger);
 var
   c: TComponent;
 begin
@@ -67,6 +66,8 @@ begin
   log.LogValue('integer', 5);
 end;
 
+var
+  log: ILogger;
 begin
   log := InitLog;
   log.Enter(TLogLevel.Info, nil, 'Spring.Tests.Logging.CodeSite');
@@ -76,8 +77,8 @@ begin
   log.Text('Text message');
   log.Debug('Debug message');
   log.Trace('Verbose message');
-  TestTrack;
-  TestException;
-  TestValues;
+  TestTrack(log);
+  TestException(log);
+  TestValues(log);
   log.Leave(TLogLevel.Info, nil, 'Spring.Tests.Logging.CodeSite');
 end.

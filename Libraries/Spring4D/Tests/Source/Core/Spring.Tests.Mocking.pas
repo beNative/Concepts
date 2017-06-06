@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -36,10 +36,13 @@ type
   TParameterMatchingTests = class(TTestCase)
   published
     procedure ArgsEvaluationOrder;
+    procedure ArgsStackProperlyCleaned;
+
     procedure OutParameterCanBeSet;
     procedure VerifyChecksParameterValuesProperly;
     procedure TestVariant;
     procedure TestDynArray;
+    procedure TestRecord;
 
     procedure ReturnsMultipleValues;
   end;
@@ -64,6 +67,13 @@ type
     procedure WhenAsFunctionIsCalled;
   end;
 
+  MockSequenceTest = class(TTestCase)
+  published
+    procedure AssertsWrongOrder;
+    procedure SequenceWorksUsingWith;
+    procedure ResetClearsSequence;
+  end;
+
 implementation
 
 uses
@@ -76,6 +86,7 @@ type
     procedure Test2(const s: string; i: Integer; b: Boolean);
     procedure Test3(const s1: string; o: TObject; const s2: string);
     procedure Test4(const s1: string; o: ITest; const s2: string);
+    procedure Test5(const s1: string; var x: Integer; o: ITest; const s2: string);
     procedure TestVariant(const v: Variant);
     procedure TestDynArray(const v: TArray<string>);
   end;
@@ -104,6 +115,16 @@ type
     function Foo(index: Integer): INameHolder;
   end;
 
+  TRec = record
+    Int: Integer;
+    Str: string;
+  end;
+
+  TFoo = class
+  public
+    function Method(const rec: TRec): Integer; virtual; abstract;
+  end;
+
 
 {$REGION 'TParameterMatchingTests'}
 
@@ -111,6 +132,7 @@ procedure TParameterMatchingTests.ArgsEvaluationOrder;
 var
   mock: Mock<IMockTest>;
   sut: IMockTest;
+  dummy: Integer;
 begin
   mock := Mock<IMockTest>.Create(TMockBehavior.Strict);
   sut := mock.Instance;
@@ -135,6 +157,9 @@ begin
 
     When.Test4(Arg.IsAny<string>, Arg.IsEqual<ITest>(Self), Arg.IsAny<string>);
     sut.Test4('', Self, '');
+
+    When.Test5(Arg.IsAny<string>, dummy, Arg.IsEqual<ITest>(Self), Arg.IsAny<string>);
+    sut.Test5('', dummy, Self, '');
   end;
 
   mock.Reset;
@@ -168,6 +193,20 @@ type
   IOutParamTest = interface(IInvokable)
     procedure Test(out value: Integer);
   end;
+
+procedure TParameterMatchingTests.ArgsStackProperlyCleaned;
+var
+  mock: Mock<IMockTest>;
+begin
+  mock := Mock<IMockTest>.Create(TMockBehavior.Strict);
+  mock.Received(Times.Never).Test1(Arg.IsAny<Integer>, Arg.IsAny<string>);
+
+  mock.Setup.Executes.When.Test2(Arg.IsAny<string>, Arg.IsAny<Integer>, Arg.IsAny<Boolean>);
+  mock.Instance.Test2('', 0, False);
+  mock.Received(Times.Once).Test2(Arg.IsAny<string>, Arg.IsAny<Integer>, Arg.IsAny<Boolean>);
+
+  Pass;
+end;
 
 procedure TParameterMatchingTests.OutParameterCanBeSet;
 var
@@ -215,13 +254,26 @@ begin
   Pass;
 end;
 
+procedure TParameterMatchingTests.TestRecord;
+var
+  mock: Mock<TFoo>;
+  rec: TRec;
+begin
+  rec.Int := -42;
+  rec.Str := 'test';
+  mock.Setup.Returns(42).When.Method(Arg.IsAny<TRec>);
+  CheckEquals(42, mock.Instance.Method(rec));
+  mock.Received(1).Method(Arg.IsAny<TRec>);
+  Pass;
+end;
+
 procedure TParameterMatchingTests.TestVariant;
 var
   mock: Mock<IMockTest>;
 begin
   mock.Instance.TestVariant(42);
   mock.Received.TestVariant(42);
-  mock.Received.TestVariant(Arg.IsEqual(42));
+  mock.Received.TestVariant(Arg.IsEqual<Integer>(42));
   Pass;
 end;
 
@@ -361,5 +413,68 @@ end;
 
 {$ENDREGION}
 
+
+{$REGION 'MockSequenceTest'}
+
+procedure MockSequenceTest.AssertsWrongOrder;
+var
+  seq: MockSequence;
+  mock: Mock<IMockTest>;
+  mock2: Mock<IChild>;
+begin
+  CheckFalse(seq.Completed);
+  mock.Behavior := TMockBehavior.Strict;
+  mock2.Behavior := TMockBehavior.Strict;
+  mock.Setup(seq).Executes.When.Test1(0, '');
+  mock2.Setup(seq).Returns([2, 3]).When.GetNumber;
+  mock.Setup(seq).Executes.When.Test2('', 0, False);
+  CheckFalse(seq.Completed);
+
+  mock.Instance.Test1(0, '');
+  CheckEquals(2, mock2.Instance.GetNumber);
+  CheckEquals(3, mock2.Instance.GetNumber);
+  mock.Instance.Test2('', 0, False);
+  Check(seq.Completed);
+end;
+
+{$ENDREGION}
+
+
+procedure MockSequenceTest.ResetClearsSequence;
+var
+  mock: Mock<IMockTest>;
+  seq: MockSequence;
+begin
+  mock.Behavior := TMockBehavior.Strict;
+  mock.Setup(seq).Executes.When.Test1(1, 'a');
+  mock.Instance.Test1(1, 'a');
+
+  seq.Reset;
+  mock.Setup(seq).Executes.When.Test1(2, 'b');
+  mock.Instance.Test1(2, 'b');
+
+  Pass;
+end;
+
+procedure MockSequenceTest.SequenceWorksUsingWith;
+var
+  seq: MockSequence;
+  mock: Mock<IMockTest>;
+begin
+  mock.Behavior := TMockBehavior.Strict;
+  with mock.Setup(seq).Executes do
+  begin
+    When.Test1(1, 'a');
+    When.Test2('b', 2, True);
+  end;
+
+  with mock.Instance do
+  begin
+    Test1(1, 'a');
+    Test2('b', 2, True);
+  end;
+
+  Check(seq.Completed);
+end;
 
 end.

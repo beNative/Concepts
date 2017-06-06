@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -1177,7 +1177,7 @@ end;
 
 procedure TTestRepeated.EmptyRepeated;
 var
-  obj: Owned<TObject>;
+  obj: Managed<TObject>;
 begin
   CheckTrue(TEnumerable.Repeated<Integer>(100, 0).EqualsTo([]));
   obj := TObject.Create;
@@ -1215,7 +1215,7 @@ end;
 
 procedure TTestRepeated.ValidRepeated;
 var
-  obj: Owned<TObject>;
+  obj: Managed<TObject>;
 begin
   CheckTrue(TEnumerable.Repeated<Integer>(5, 3).EqualsTo([5, 5, 5]));
   obj := TObject.Create;

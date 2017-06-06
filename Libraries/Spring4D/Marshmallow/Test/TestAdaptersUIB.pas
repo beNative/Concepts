@@ -183,7 +183,7 @@ var
   LVal: Variant;
   LStmt: IDBStatement;
 begin
-  LVal := GetFirstValue(Format('SELECT COUNT(*) FROM VEIKLOS WHERE VEIKLOSID = %D', [283]));
+  LVal := GetFirstValue(Format('SELECT COUNT(*) FROM VEIKLOS WHERE VEIKLOSID = %d', [283]));
   CheckEquals(0, Integer(LVal));
   LTran := FConnection.BeginTransaction;
 
@@ -193,12 +193,12 @@ begin
     ' values (''283'',''ZVER282'',''Valymo árenginiai, maðinos'',Null,Null,Null,Null,''SYSDBA'',''2007-02-02 12:26:24'',Null,Null); ');
   LStmt.Execute;
 
-  LStmt.SetSQLCommand(Format('SELECT COUNT(*) FROM VEIKLOS WHERE VEIKLOSID = %D', [283]));
+  LStmt.SetSQLCommand(Format('SELECT COUNT(*) FROM VEIKLOS WHERE VEIKLOSID = %d', [283]));
   LVal := LStmt.ExecuteQuery.GetFieldValue(0);
   CheckEquals(1, Integer(LVal));
   LTran.Rollback;
 
-  LStmt.SetSQLCommand(Format('SELECT COUNT(*) FROM VEIKLOS WHERE VEIKLOSID = %D', [283]));
+  LStmt.SetSQLCommand(Format('SELECT COUNT(*) FROM VEIKLOS WHERE VEIKLOSID = %d', [283]));
   LVal := LStmt.ExecuteQuery.GetFieldValue(0);
   CheckEquals(0, Integer(LVal));
 end;

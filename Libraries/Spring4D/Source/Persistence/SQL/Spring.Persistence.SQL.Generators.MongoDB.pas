@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -395,33 +395,33 @@ begin
   case field.WhereOperator of
     woEqual: Result := '{' + AnsiQuotedStr(field.Name, '"') + ' : ' + field.ParamName + '}';
     woNotEqual, woMoreOrEqual, woMore, woLess, woLessOrEqual :
-      Result := Format('{%S: { %S: %S}}', [AnsiQuotedStr(field.Name, '"'), WhereOpNames[field.WhereOperator], field.ParamName]);
-    woIsNotNull: Result := Format('{%S: { $ne: null }}', [AnsiQuotedStr(field.Name, '"')]);
-    woIsNull: Result := Format('{%S: null}', [AnsiQuotedStr(field.Name, '"')]);
-    woBetween: Result := Format('{$and: [ { %0:S: { $gte: %1:S} }, { %0:S: { $lte: %2:S} } ] }'
+      Result := Format('{%s: { %s: %s}}', [AnsiQuotedStr(field.Name, '"'), WhereOpNames[field.WhereOperator], field.ParamName]);
+    woIsNotNull: Result := Format('{%s: { $ne: null }}', [AnsiQuotedStr(field.Name, '"')]);
+    woIsNull: Result := Format('{%s: null}', [AnsiQuotedStr(field.Name, '"')]);
+    woBetween: Result := Format('{$and: [ { %0:s: { $gte: %1:s} }, { %0:s: { $lte: %2:s} } ] }'
       , [AnsiQuotedStr(field.Name, '"'), field.ParamName, field.ParamName2]);
     woOr, woAnd:
-      Result := Format('{%S: [', [WhereOpNames[field.WhereOperator]]);
-    woNot: Result := Format('%S: ', [WhereOpNames[field.WhereOperator]]);
+      Result := Format('{%s: [', [WhereOpNames[field.WhereOperator]]);
+    woNot: Result := Format('%s: ', [WhereOpNames[field.WhereOperator]]);
     woNotEnd: Result := '';
     woOrEnd, woAndEnd: Result := ']}';
     woLike:
     begin
       Result := field.Name;
       if ResolveFieldAndExpression(field.Name, LField, LExpression) then
-        Result := Format('{ %S: { $regex: ''.*%S.*'', $options: ''i''}}', [AnsiQuotedStr(LField, '"'), LExpression]);
+        Result := Format('{ %s: { $regex: ''.*%s.*'', $options: ''i''}}', [AnsiQuotedStr(LField, '"'), LExpression]);
     end;
     woNotLike:
     begin
       Result := field.Name;
       if ResolveFieldAndExpression(field.Name, LField, LExpression) then
-        Result := Format('{ %S: { $not: "/.*%S.*/i"}}', [AnsiQuotedStr(LField, '"'), LExpression]);
+        Result := Format('{ %s: { $not: "/.*%s.*/i"}}', [AnsiQuotedStr(LField, '"'), LExpression]);
     end;
     woIn, woNotIn:
     begin
       Result := field.Name;
       if ResolveFieldAndExpression(field.Name, LField, LExpression) then
-        Result := Format('{%S: { %S: [%S] } }', [AnsiQuotedStr(LField, '"'), WhereOpNames[field.WhereOperator], LExpression]);
+        Result := Format('{%s: { %s: [%s] } }', [AnsiQuotedStr(LField, '"'), WhereOpNames[field.WhereOperator], LExpression]);
     end;
   end;
 end;

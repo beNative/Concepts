@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -36,9 +36,50 @@ uses
 
 type
   {$REGION 'TLoggerBase'}
+
   {$M+}
-  TLoggerBase = class abstract(TInterfacedObject, ILogger, ILogAppender,
-    ILoggerProperties)
+  TLoggerBase = class abstract(TInterfacedObject, ILoggerBase, ILoggerProperties)
+  private
+    fDefaultLevel: TLogLevel;
+    fEnabled: Boolean;
+    fEventTypes: TLogEventTypes;
+    fLevels: TLogLevels;
+
+    function GetDefaultLevel: TLogLevel;
+    function GetEnabled: Boolean;
+    function GetEventTypes: TLogEventTypes;
+    function GetLevels: TLogLevels;
+
+    procedure SetDefaultLevel(value: TLogLevel);
+    procedure SetEnabled(value: Boolean);
+    procedure SetEventTypes(value: TLogEventTypes);
+    procedure SetLevels(value: TLogLevels);
+  public
+    constructor Create;
+
+    function IsEnabled(level: TLogLevel;
+      eventTypes: TLogEventTypes = [TLogEventType.Text]): Boolean; inline;
+    function IsFatalEnabled: Boolean;
+    function IsErrorEnabled: Boolean;
+    function IsWarnEnabled: Boolean;
+    function IsInfoEnabled: Boolean;
+    function IsTextEnabled: Boolean;
+    function IsDebugEnabled: Boolean;
+    function IsTraceEnabled: Boolean;
+  published
+    property DefaultLevel: TLogLevel read GetDefaultLevel write SetDefaultLevel;
+    property Enabled: Boolean read GetEnabled write SetEnabled;
+    property EventTypes: TLogEventTypes read GetEventTypes write SetEventTypes;
+    property Levels: TLogLevels read GetLevels write SetLevels;
+  end;
+  {$M-}
+
+  {$ENDREGION}
+
+
+  {$REGION 'TLogger'}
+
+  TLogger = class(TLoggerBase, ILogger, ILogAppender)
   private
     type
       TLogTracking = class(TInterfacedObject, IInterface)
@@ -53,38 +94,15 @@ type
         destructor Destroy; override;
       end;
   private
-    fDefaultLevel: TLogLevel;
-    fEnabled: Boolean;
-    fLevels: TLogLevels;
-    fEntryTypes: TLogEntryTypes;
-
-    function GetDefaultLevel: TLogLevel;
-    function GetEnabled: Boolean;
-    function GetLevels: TLogLevels;
-    function GetEntryTypes: TLogEntryTypes;
-
-    procedure SetDefaultLevel(value: TLogLevel);
-    procedure SetEnabled(value: Boolean);
-    procedure SetLevels(value: TLogLevels);
-    procedure SetEntryTypes(value: TLogEntryTypes);
+    fController: ILoggerController;
   protected
-    procedure DoLog(const entry: TLogEntry); virtual; abstract;
-
     procedure ILogAppender.Send = Log;
+
+    procedure DoLog(const event: TLogEvent);
   public
-    constructor Create;
+    constructor Create(const controller: ILoggerController);
 
-    function IsEnabled(level: TLogLevel;
-      entryTypes: TLogEntryTypes = [TLogEntryType.Text]): Boolean; inline;
-    function IsFatalEnabled: Boolean;
-    function IsErrorEnabled: Boolean;
-    function IsWarnEnabled: Boolean;
-    function IsInfoEnabled: Boolean;
-    function IsTextEnabled: Boolean;
-    function IsDebugEnabled: Boolean;
-    function IsTraceEnabled: Boolean;
-
-    procedure Log(const entry: TLogEntry); overload;
+    procedure Log(const event: TLogEvent); overload;
 
     procedure LogValue(const name: string; const value: TValue); overload;
     procedure LogValue(level: TLogLevel; const name: string;
@@ -168,25 +186,8 @@ type
       const methodName: string): IInterface; overload;
     function Track(level: TLogLevel; const classType: TClass;
       const methodName: string): IInterface; overload;
-  published
-    property DefaultLevel: TLogLevel read GetDefaultLevel write SetDefaultLevel;
-    property Enabled: Boolean read GetEnabled write SetEnabled;
-    property Levels: TLogLevels read GetLevels write SetLevels;
-    property EntryTypes: TLogEntryTypes read GetEntryTypes write SetEntryTypes;
   end;
-  {$M-}
-  {$ENDREGION}
 
-
-  {$REGION 'TLogger'}
-  TLogger = class(TLoggerBase)
-  private
-    fController: ILoggerController;
-  protected
-    procedure DoLog(const entry: TLogEntry); override;
-  public
-    constructor Create(const controller: ILoggerController);
-  end;
   {$ENDREGION}
 
 
@@ -200,113 +201,11 @@ uses
 
 constructor TLoggerBase.Create;
 begin
-  inherited;
+  inherited Create;
   fDefaultLevel := TLogLevel.Info;
   fEnabled := True;
   fLevels := LOG_BASIC_LEVELS;
-  fEntryTypes := LOG_BASIC_ENTRY_TYPES;
-end;
-
-procedure TLoggerBase.Debug(const fmt: string; const args: array of const);
-begin
-  if IsEnabled(TLogLevel.Debug) then
-    DoLog(TLogEntry.Create(TLogLevel.Debug, Format(fmt, args)));
-end;
-
-procedure TLoggerBase.Debug(const fmt: string; const args: array of const;
-  const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Debug) then
-    DoLog(TLogEntry.Create(TLogLevel.Debug, Format(fmt, args), e));
-end;
-
-procedure TLoggerBase.Debug(const msg: string);
-begin
-  if IsEnabled(TLogLevel.Debug) then
-    DoLog(TLogEntry.Create(TLogLevel.Debug, msg));
-end;
-
-procedure TLoggerBase.Debug(const msg: string; const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Debug) then
-    DoLog(TLogEntry.Create(TLogLevel.Debug, msg, e));
-end;
-
-procedure TLoggerBase.Error(const fmt: string; const args: array of const);
-begin
-  if IsEnabled(TLogLevel.Error) then
-    DoLog(TLogEntry.Create(TLogLevel.Error, Format(fmt, args)));
-end;
-
-procedure TLoggerBase.Enter(level: TLogLevel; const classType: TClass;
-  const methodName: string);
-begin
-  if IsEnabled(level, [TLogEntryType.Entering]) then
-    DoLog(TLogEntry.Create(level, TLogEntryType.Entering, methodName, classType));
-end;
-
-procedure TLoggerBase.Enter(const methodName: string);
-begin
-  Enter(fDefaultLevel, nil, methodName);
-end;
-
-procedure TLoggerBase.Enter(const classType: TClass;
-  const methodName: string);
-begin
-  Enter(fDefaultLevel, classType, methodName);
-end;
-
-procedure TLoggerBase.Enter(const instance: TObject;
-  const methodName: string);
-begin
-  if Assigned(instance) then
-    Enter(instance.ClassType, methodName)
-  else
-    Enter(TClass(nil), methodName)
-end;
-
-procedure TLoggerBase.Error(const fmt: string; const args: array of const;
-  const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Error) then
-    DoLog(TLogEntry.Create(TLogLevel.Error, Format(fmt, args), e));
-end;
-
-procedure TLoggerBase.Error(const msg: string);
-begin
-  if IsEnabled(TLogLevel.Error) then
-    DoLog(TLogEntry.Create(TLogLevel.Error, msg));
-end;
-
-procedure TLoggerBase.Error(const msg: string; const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Error) then
-    DoLog(TLogEntry.Create(TLogLevel.Error, msg, e));
-end;
-
-procedure TLoggerBase.Fatal(const fmt: string; const args: array of const);
-begin
-  if IsEnabled(TLogLevel.Fatal) then
-    DoLog(TLogEntry.Create(TLogLevel.Fatal, Format(fmt, args)));
-end;
-
-procedure TLoggerBase.Fatal(const fmt: string; const args: array of const;
-  const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Fatal) then
-    DoLog(TLogEntry.Create(TLogLevel.Fatal, Format(fmt, args), e));
-end;
-
-procedure TLoggerBase.Fatal(const msg: string);
-begin
-  if IsEnabled(TLogLevel.Fatal) then
-    DoLog(TLogEntry.Create(TLogLevel.Fatal, msg));
-end;
-
-procedure TLoggerBase.Fatal(const msg: string; const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Fatal) then
-    DoLog(TLogEntry.Create(TLogLevel.Fatal, msg, e));
+  fEventTypes := LOG_BASIC_EVENT_TYPES;
 end;
 
 function TLoggerBase.GetDefaultLevel: TLogLevel;
@@ -319,9 +218,9 @@ begin
   Result := fEnabled;
 end;
 
-function TLoggerBase.GetEntryTypes: TLogEntryTypes;
+function TLoggerBase.GetEventTypes: TLogEventTypes;
 begin
-  Result := fEntryTypes;
+  Result := fEventTypes;
 end;
 
 function TLoggerBase.GetLevels: TLogLevels;
@@ -329,166 +228,47 @@ begin
   Result := fLevels;
 end;
 
-procedure TLoggerBase.Info(const msg: string; const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Info) then
-    DoLog(TLogEntry.Create(TLogLevel.Info, msg, e));
-end;
-
-procedure TLoggerBase.Info(const msg: string);
-begin
-  if IsEnabled(TLogLevel.Info) then
-    DoLog(TLogEntry.Create(TLogLevel.Info, msg));
-end;
-
-procedure TLoggerBase.Info(const fmt: string; const args: array of const;
-  const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Info) then
-    DoLog(TLogEntry.Create(TLogLevel.Info, Format(fmt, args), e));
-end;
-
-procedure TLoggerBase.Info(const fmt: string; const args: array of const);
-begin
-  if IsEnabled(TLogLevel.Info) then
-    DoLog(TLogEntry.Create(TLogLevel.Info, Format(fmt, args)));
-end;
-
 function TLoggerBase.IsDebugEnabled: Boolean;
 begin
-  Result := IsEnabled(TLogLevel.Debug, LOG_ALL_ENTRY_TYPES);
+  Result := IsEnabled(TLogLevel.Debug, LOG_ALL_EVENT_TYPES);
 end;
 
-function TLoggerBase.IsEnabled(level: TLogLevel; entryTypes: TLogEntryTypes): Boolean;
+function TLoggerBase.IsEnabled(level: TLogLevel; eventTypes: TLogEventTypes): Boolean;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckTrue(entryTypes <> [], 'entryTypes');
+  Guard.CheckTrue(eventTypes <> [], 'eventTypes');
 {$ENDIF}
-  Result := fEnabled and (level in fLevels)
-    and (entryTypes * fEntryTypes <> []);
+  Result := fEnabled and (level in fLevels) and (eventTypes * fEventTypes <> []);
 end;
 
 function TLoggerBase.IsErrorEnabled: Boolean;
 begin
-  Result := IsEnabled(TLogLevel.Error, LOG_ALL_ENTRY_TYPES);
+  Result := IsEnabled(TLogLevel.Error, LOG_ALL_EVENT_TYPES);
 end;
 
 function TLoggerBase.IsFatalEnabled: Boolean;
 begin
-  Result := IsEnabled(TLogLevel.Fatal, LOG_ALL_ENTRY_TYPES);
+  Result := IsEnabled(TLogLevel.Fatal, LOG_ALL_EVENT_TYPES);
 end;
 
 function TLoggerBase.IsInfoEnabled: Boolean;
 begin
-  Result := IsEnabled(TLogLevel.Info, LOG_ALL_ENTRY_TYPES);
+  Result := IsEnabled(TLogLevel.Info, LOG_ALL_EVENT_TYPES);
 end;
 
 function TLoggerBase.IsTextEnabled: Boolean;
 begin
-  Result := IsEnabled(TLogLevel.Text, LOG_ALL_ENTRY_TYPES);
+  Result := IsEnabled(TLogLevel.Text, LOG_ALL_EVENT_TYPES);
 end;
 
 function TLoggerBase.IsTraceEnabled: Boolean;
 begin
-  Result := IsEnabled(TLogLevel.Trace, LOG_ALL_ENTRY_TYPES);
+  Result := IsEnabled(TLogLevel.Trace, LOG_ALL_EVENT_TYPES);
 end;
 
 function TLoggerBase.IsWarnEnabled: Boolean;
 begin
-  Result := IsEnabled(TLogLevel.Warn, LOG_ALL_ENTRY_TYPES);
-end;
-
-procedure TLoggerBase.Leave(level: TLogLevel; const classType: TClass;
-  const methodName: string);
-begin
-  if IsEnabled(level, [TLogEntryType.Leaving]) then
-    DoLog(TLogEntry.Create(level, TLogEntryType.Leaving, methodName, classType));
-end;
-
-procedure TLoggerBase.Leave(const methodName: string);
-begin
-  Leave(fDefaultLevel, nil, methodName);
-end;
-
-procedure TLoggerBase.Leave(const instance: TObject;
-  const methodName: string);
-begin
-  if Assigned(instance) then
-    Leave(instance.ClassType, methodName)
-  else
-    Leave(TClass(nil), methodName)
-end;
-
-procedure TLoggerBase.Leave(const classType: TClass;
-  const methodName: string);
-begin
-  Leave(fDefaultLevel, classType, methodName);
-end;
-
-procedure TLoggerBase.Log(const entry: TLogEntry);
-begin
-  if IsEnabled(entry.Level, [entry.EntryType]) then
-    DoLog(entry);
-end;
-
-procedure TLoggerBase.Log(level: TLogLevel; const msg: string;
-  const e: Exception);
-begin
-  if IsEnabled(level) then
-    DoLog(TLogEntry.Create(level, msg, e));
-end;
-
-procedure TLoggerBase.Log(level: TLogLevel; const msg: string);
-begin
-  if IsEnabled(level) then
-    DoLog(TLogEntry.Create(level, msg));
-end;
-
-procedure TLoggerBase.Log(level: TLogLevel; const fmt: string;
-  const args: array of const);
-begin
-  if IsEnabled(level) then
-    DoLog(TLogEntry.Create(level, Format(fmt, args)));
-end;
-
-procedure TLoggerBase.Log(const msg: string);
-begin
-  Log(fDefaultLevel, msg);
-end;
-
-procedure TLoggerBase.Log(const msg: string; const e: Exception);
-begin
-  Log(fDefaultLevel, msg, e);
-end;
-
-procedure TLoggerBase.Log(const fmt: string; const args: array of const);
-begin
-  Log(fDefaultLevel, fmt, args);
-end;
-
-procedure TLoggerBase.Log(const fmt: string; const args: array of const;
-  const e: Exception);
-begin
-  Log(fDefaultLevel, fmt, args, e);
-end;
-
-procedure TLoggerBase.Log(level: TLogLevel; const fmt: string;
-  const args: array of const; const e: Exception);
-begin
-  if IsEnabled(level) then
-    DoLog(TLogEntry.Create(level, Format(fmt, args), e));
-end;
-
-procedure TLoggerBase.LogValue(level: TLogLevel; const name: string;
-  const value: TValue);
-begin
-  if IsEnabled(level, [TLogEntryType.Value]) then
-    DoLog(TLogEntry.Create(level, TLogEntryType.Value, name, nil, value));
-end;
-
-procedure TLoggerBase.LogValue(const name: string; const value: TValue);
-begin
-  LogValue(fDefaultLevel, name, value);
+  Result := IsEnabled(TLogLevel.Warn, LOG_ALL_EVENT_TYPES);
 end;
 
 procedure TLoggerBase.SetDefaultLevel(value: TLogLevel);
@@ -501,113 +281,14 @@ begin
   fEnabled := value;
 end;
 
-procedure TLoggerBase.SetEntryTypes(value: TLogEntryTypes);
+procedure TLoggerBase.SetEventTypes(value: TLogEventTypes);
 begin
-  fEntryTypes := value;
+  fEventTypes := value;
 end;
 
 procedure TLoggerBase.SetLevels(value: TLogLevels);
 begin
   fLevels := value;
-end;
-
-procedure TLoggerBase.Text(const fmt: string; const args: array of const);
-begin
-  if IsEnabled(TLogLevel.Text) then
-    DoLog(TLogEntry.Create(TLogLevel.Text, Format(fmt, args)));
-end;
-
-procedure TLoggerBase.Text(const fmt: string; const args: array of const;
-  const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Text) then
-    DoLog(TLogEntry.Create(TLogLevel.Text, Format(fmt, args), e));
-end;
-
-procedure TLoggerBase.Text(const msg: string);
-begin
-  if IsEnabled(TLogLevel.Text) then
-    DoLog(TLogEntry.Create(TLogLevel.Text, msg));
-end;
-
-procedure TLoggerBase.Text(const msg: string; const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Text) then
-    DoLog(TLogEntry.Create(TLogLevel.Text, msg, e));
-end;
-
-function TLoggerBase.Track(level: TLogLevel; const classType: TClass;
-  const methodName: string): IInterface;
-begin
-  if IsEnabled(level, [TLogEntryType.Entering, TLogEntryType.Leaving]) then
-    Result := TLogTracking.Create(Self, level, classType, methodName)
-  else
-    Result := nil;
-end;
-
-function TLoggerBase.Track(const instance: TObject;
-  const methodName: string): IInterface;
-begin
-  if Assigned(instance) then
-    Result := Track(instance.ClassType, methodName)
-  else
-    Result := Track(TClass(nil), methodName)
-end;
-
-function TLoggerBase.Track(const classType: TClass;
-  const methodName: string): IInterface;
-begin
-  Result := Track(fDefaultLevel, classType, methodName);
-end;
-
-procedure TLoggerBase.Trace(const fmt: string; const args: array of const);
-begin
-  if IsEnabled(TLogLevel.Trace) then
-    DoLog(TLogEntry.Create(TLogLevel.Trace, Format(fmt, args)));
-end;
-
-procedure TLoggerBase.Trace(const fmt: string; const args: array of const;
-  const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Trace) then
-    DoLog(TLogEntry.Create(TLogLevel.Trace, Format(fmt, args), e));
-end;
-
-procedure TLoggerBase.Trace(const msg: string);
-begin
-  if IsEnabled(TLogLevel.Trace) then
-    DoLog(TLogEntry.Create(TLogLevel.Trace, msg));
-end;
-
-procedure TLoggerBase.Trace(const msg: string; const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Trace) then
-    DoLog(TLogEntry.Create(TLogLevel.Trace, msg, e));
-end;
-
-procedure TLoggerBase.Warn(const fmt: string; const args: array of const);
-begin
-  if IsEnabled(TLogLevel.Warn) then
-    DoLog(TLogEntry.Create(TLogLevel.Warn, Format(fmt, args)));
-end;
-
-procedure TLoggerBase.Warn(const fmt: string; const args: array of const;
-  const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Warn) then
-    DoLog(TLogEntry.Create(TLogLevel.Warn, Format(fmt, args), e));
-end;
-
-procedure TLoggerBase.Warn(const msg: string);
-begin
-  if IsEnabled(TLogLevel.Warn) then
-    DoLog(TLogEntry.Create(TLogLevel.Warn, msg));
-end;
-
-procedure TLoggerBase.Warn(const msg: string; const e: Exception);
-begin
-  if IsEnabled(TLogLevel.Warn) then
-    DoLog(TLogEntry.Create(TLogLevel.Warn, msg, e));
 end;
 
 {$ENDREGION}
@@ -623,17 +304,336 @@ begin
   fController := controller;
 end;
 
-procedure TLogger.DoLog(const entry: TLogEntry);
+procedure TLogger.DoLog(const event: TLogEvent);
 begin
-  fController.Send(entry);
+  fController.Send(event);
+end;
+
+procedure TLogger.Debug(const fmt: string; const args: array of const);
+begin
+  if IsEnabled(TLogLevel.Debug) then
+    DoLog(TLogEvent.Create(TLogLevel.Debug, Format(fmt, args)));
+end;
+
+procedure TLogger.Debug(const fmt: string; const args: array of const;
+  const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Debug) then
+    DoLog(TLogEvent.Create(TLogLevel.Debug, Format(fmt, args), e));
+end;
+
+procedure TLogger.Debug(const msg: string);
+begin
+  if IsEnabled(TLogLevel.Debug) then
+    DoLog(TLogEvent.Create(TLogLevel.Debug, msg));
+end;
+
+procedure TLogger.Debug(const msg: string; const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Debug) then
+    DoLog(TLogEvent.Create(TLogLevel.Debug, msg, e));
+end;
+
+procedure TLogger.Error(const fmt: string; const args: array of const);
+begin
+  if IsEnabled(TLogLevel.Error) then
+    DoLog(TLogEvent.Create(TLogLevel.Error, Format(fmt, args)));
+end;
+
+procedure TLogger.Enter(level: TLogLevel; const classType: TClass;
+  const methodName: string);
+begin
+  if IsEnabled(level, [TLogEventType.Entering]) then
+    DoLog(TLogEvent.Create(level, TLogEventType.Entering, methodName, classType));
+end;
+
+procedure TLogger.Enter(const methodName: string);
+begin
+  Enter(fDefaultLevel, nil, methodName);
+end;
+
+procedure TLogger.Enter(const classType: TClass;
+  const methodName: string);
+begin
+  Enter(fDefaultLevel, classType, methodName);
+end;
+
+procedure TLogger.Enter(const instance: TObject;
+  const methodName: string);
+begin
+  if Assigned(instance) then
+    Enter(instance.ClassType, methodName)
+  else
+    Enter(TClass(nil), methodName)
+end;
+
+procedure TLogger.Error(const fmt: string; const args: array of const;
+  const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Error) then
+    DoLog(TLogEvent.Create(TLogLevel.Error, Format(fmt, args), e));
+end;
+
+procedure TLogger.Error(const msg: string);
+begin
+  if IsEnabled(TLogLevel.Error) then
+    DoLog(TLogEvent.Create(TLogLevel.Error, msg));
+end;
+
+procedure TLogger.Error(const msg: string; const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Error) then
+    DoLog(TLogEvent.Create(TLogLevel.Error, msg, e));
+end;
+
+procedure TLogger.Fatal(const fmt: string; const args: array of const);
+begin
+  if IsEnabled(TLogLevel.Fatal) then
+    DoLog(TLogEvent.Create(TLogLevel.Fatal, Format(fmt, args)));
+end;
+
+procedure TLogger.Fatal(const fmt: string; const args: array of const;
+  const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Fatal) then
+    DoLog(TLogEvent.Create(TLogLevel.Fatal, Format(fmt, args), e));
+end;
+
+procedure TLogger.Fatal(const msg: string);
+begin
+  if IsEnabled(TLogLevel.Fatal) then
+    DoLog(TLogEvent.Create(TLogLevel.Fatal, msg));
+end;
+
+procedure TLogger.Fatal(const msg: string; const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Fatal) then
+    DoLog(TLogEvent.Create(TLogLevel.Fatal, msg, e));
+end;
+
+procedure TLogger.Info(const msg: string; const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Info) then
+    DoLog(TLogEvent.Create(TLogLevel.Info, msg, e));
+end;
+
+procedure TLogger.Info(const msg: string);
+begin
+  if IsEnabled(TLogLevel.Info) then
+    DoLog(TLogEvent.Create(TLogLevel.Info, msg));
+end;
+
+procedure TLogger.Info(const fmt: string; const args: array of const;
+  const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Info) then
+    DoLog(TLogEvent.Create(TLogLevel.Info, Format(fmt, args), e));
+end;
+
+procedure TLogger.Info(const fmt: string; const args: array of const);
+begin
+  if IsEnabled(TLogLevel.Info) then
+    DoLog(TLogEvent.Create(TLogLevel.Info, Format(fmt, args)));
+end;
+
+procedure TLogger.Leave(level: TLogLevel; const classType: TClass;
+  const methodName: string);
+begin
+  if IsEnabled(level, [TLogEventType.Leaving]) then
+    DoLog(TLogEvent.Create(level, TLogEventType.Leaving, methodName, classType));
+end;
+
+procedure TLogger.Leave(const methodName: string);
+begin
+  Leave(fDefaultLevel, nil, methodName);
+end;
+
+procedure TLogger.Leave(const instance: TObject;
+  const methodName: string);
+begin
+  if Assigned(instance) then
+    Leave(instance.ClassType, methodName)
+  else
+    Leave(TClass(nil), methodName)
+end;
+
+procedure TLogger.Leave(const classType: TClass;
+  const methodName: string);
+begin
+  Leave(fDefaultLevel, classType, methodName);
+end;
+
+procedure TLogger.Log(level: TLogLevel; const msg: string;
+  const e: Exception);
+begin
+  if IsEnabled(level) then
+    DoLog(TLogEvent.Create(level, msg, e));
+end;
+
+procedure TLogger.Log(level: TLogLevel; const msg: string);
+begin
+  if IsEnabled(level) then
+    DoLog(TLogEvent.Create(level, msg));
+end;
+
+procedure TLogger.Log(level: TLogLevel; const fmt: string;
+  const args: array of const);
+begin
+  if IsEnabled(level) then
+    DoLog(TLogEvent.Create(level, Format(fmt, args)));
+end;
+
+procedure TLogger.Log(const msg: string);
+begin
+  Log(fDefaultLevel, msg);
+end;
+
+procedure TLogger.Log(const msg: string; const e: Exception);
+begin
+  Log(fDefaultLevel, msg, e);
+end;
+
+procedure TLogger.Log(const fmt: string; const args: array of const);
+begin
+  Log(fDefaultLevel, fmt, args);
+end;
+
+procedure TLogger.Log(const fmt: string; const args: array of const;
+  const e: Exception);
+begin
+  Log(fDefaultLevel, fmt, args, e);
+end;
+
+procedure TLogger.Log(level: TLogLevel; const fmt: string;
+  const args: array of const; const e: Exception);
+begin
+  if IsEnabled(level) then
+    DoLog(TLogEvent.Create(level, Format(fmt, args), e));
+end;
+
+procedure TLogger.LogValue(level: TLogLevel; const name: string;
+  const value: TValue);
+begin
+  if IsEnabled(level, [TLogEventType.Value]) then
+    DoLog(TLogEvent.Create(level, TLogEventType.Value, name, nil, value));
+end;
+
+procedure TLogger.LogValue(const name: string; const value: TValue);
+begin
+  LogValue(fDefaultLevel, name, value);
+end;
+
+procedure TLogger.Log(const event: TLogEvent);
+begin
+  if IsEnabled(event.Level, [event.EventType]) then
+    DoLog(event);
+end;
+
+procedure TLogger.Text(const fmt: string; const args: array of const);
+begin
+  if IsEnabled(TLogLevel.Text) then
+    DoLog(TLogEvent.Create(TLogLevel.Text, Format(fmt, args)));
+end;
+
+procedure TLogger.Text(const fmt: string; const args: array of const;
+  const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Text) then
+    DoLog(TLogEvent.Create(TLogLevel.Text, Format(fmt, args), e));
+end;
+
+procedure TLogger.Text(const msg: string);
+begin
+  if IsEnabled(TLogLevel.Text) then
+    DoLog(TLogEvent.Create(TLogLevel.Text, msg));
+end;
+
+procedure TLogger.Text(const msg: string; const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Text) then
+    DoLog(TLogEvent.Create(TLogLevel.Text, msg, e));
+end;
+
+function TLogger.Track(level: TLogLevel; const classType: TClass;
+  const methodName: string): IInterface;
+begin
+  if IsEnabled(level, [TLogEventType.Entering, TLogEventType.Leaving]) then
+    Result := TLogTracking.Create(Self, level, classType, methodName)
+  else
+    Result := nil;
+end;
+
+function TLogger.Track(const instance: TObject;
+  const methodName: string): IInterface;
+begin
+  if Assigned(instance) then
+    Result := Track(instance.ClassType, methodName)
+  else
+    Result := Track(TClass(nil), methodName)
+end;
+
+function TLogger.Track(const classType: TClass;
+  const methodName: string): IInterface;
+begin
+  Result := Track(fDefaultLevel, classType, methodName);
+end;
+
+procedure TLogger.Trace(const fmt: string; const args: array of const);
+begin
+  if IsEnabled(TLogLevel.Trace) then
+    DoLog(TLogEvent.Create(TLogLevel.Trace, Format(fmt, args)));
+end;
+
+procedure TLogger.Trace(const fmt: string; const args: array of const;
+  const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Trace) then
+    DoLog(TLogEvent.Create(TLogLevel.Trace, Format(fmt, args), e));
+end;
+
+procedure TLogger.Trace(const msg: string);
+begin
+  if IsEnabled(TLogLevel.Trace) then
+    DoLog(TLogEvent.Create(TLogLevel.Trace, msg));
+end;
+
+procedure TLogger.Trace(const msg: string; const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Trace) then
+    DoLog(TLogEvent.Create(TLogLevel.Trace, msg, e));
+end;
+
+procedure TLogger.Warn(const fmt: string; const args: array of const);
+begin
+  if IsEnabled(TLogLevel.Warn) then
+    DoLog(TLogEvent.Create(TLogLevel.Warn, Format(fmt, args)));
+end;
+
+procedure TLogger.Warn(const fmt: string; const args: array of const;
+  const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Warn) then
+    DoLog(TLogEvent.Create(TLogLevel.Warn, Format(fmt, args), e));
+end;
+
+procedure TLogger.Warn(const msg: string);
+begin
+  if IsEnabled(TLogLevel.Warn) then
+    DoLog(TLogEvent.Create(TLogLevel.Warn, msg));
+end;
+
+procedure TLogger.Warn(const msg: string; const e: Exception);
+begin
+  if IsEnabled(TLogLevel.Warn) then
+    DoLog(TLogEvent.Create(TLogLevel.Warn, msg, e));
 end;
 
 {$ENDREGION}
 
 
-{$REGION 'TLoggerBase.TLogTracking'}
+{$REGION 'TLogger.TLogTracking'}
 
-constructor TLoggerBase.TLogTracking.Create(const logger: ILogger;
+constructor TLogger.TLogTracking.Create(const logger: ILogger;
   level: TLogLevel; const classType: TClass; const methodName: string);
 begin
   inherited Create;
@@ -644,10 +644,10 @@ begin
   fLogger.Enter(fLevel, fClassType, fMethodName);
 end;
 
-destructor TLoggerBase.TLogTracking.Destroy;
+destructor TLogger.TLogTracking.Destroy;
 begin
   fLogger.Leave(fLevel, fClassType, fMethodName);
-  inherited;
+  inherited Destroy;
 end;
 
 {$ENDREGION}

@@ -200,7 +200,7 @@ procedure TMainForm.DoRepaint;
 begin
   ProductsListView.Items.Count := FProducts.Count;
   ProductsListView.Invalidate;
-  ViewStatusBar.Panels[0].Text := Format('Total: %D', [FProducts.Count]);
+  ViewStatusBar.Panels[0].Text := Format('Total: %d', [FProducts.Count]);
 end;
 
 procedure TMainForm.DoReLoadProducts;

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -95,7 +95,7 @@ type
     /// <summary>
     ///   Executes sql statement which does not return resultset.
     /// </summary>
-    function Execute(const sql: string; const params: array of const): NativeUInt;
+    function Execute(const sql: string; const params: array of TValue): NativeUInt;
 
     /// <summary>
     ///   <para>
@@ -104,48 +104,48 @@ type
     ///   </para>
     ///   <code lang="Delphi">SELECT COUNT(*) FROM TABLE;</code>
     /// </summary>
-    function ExecuteScalar<T>(const sql: string; const params: array of const): T;
+    function ExecuteScalar<T>(const sql: string; const params: array of TValue): T;
 
     /// <summary>
     ///   Tries to retrieves first and only model from the sql statement. If
     ///   not succeeds, returns false.
     /// </summary>
     function TryFirst<T: class, constructor>(const sql: string;
-      const params: array of const; out value: T): Boolean;
+      const params: array of TValue; out value: T): Boolean;
 
     /// <summary>
     ///   Retrieves first and only model from the sql statement.  Raises an <c>
     ///   exception</c> if model does not exist.
     /// </summary>
     function First<T: class, constructor>(const sql: string;
-      const params: array of const): T;
+      const params: array of TValue): T;
 
     /// <summary>
-    ///   Retrieves first and only model or the default value if model does not
+    ///   Retrieves first and only model or the default value if model does not
     ///   exist.
     /// </summary>
     function FirstOrDefault<T: class, constructor>(const sql: string;
-      const params: array of const): T;
+      const params: array of TValue): T;
 
     /// <summary>
     ///   Retrieves only one entity model from the database. Raises an <c>
     ///   exception</c> if model does not exist.
     /// </summary>
     function Single<T: class, constructor>(const sql: string;
-      const params: array of const): T;
+      const params: array of TValue): T;
 
     /// <summary>
-    ///   Retrieves only one entity model from the database. Returns default
-    ///   value if model does not exist.
+    ///   Retrieves only one entity model from the database. Returns default
+    ///   value if model does not exist.
     /// </summary>
     function SingleOrDefault<T: class, constructor>(const sql: string;
-      const params: array of const): T;
+      const params: array of TValue): T;
 
     /// <summary>
     ///   Retrieves multiple models from the sql statement.
     /// </summary>
     function GetList<T: class, constructor>(const sql: string;
-      const params: array of const): IList<T>; overload;
+      const params: array of TValue): IList<T>; overload;
 
     /// <summary>
     ///   Retrieves multiple models from the sql statement.
@@ -221,7 +221,7 @@ type
     ///   1-indexed.
     /// </summary>
     function Page<T: class, constructor>(index, size: Integer;
-      const sql: string; const params: array of const): IDBPage<T>; overload;
+      const sql: string; const params: array of TValue): IDBPage<T>; overload;
 
     /// <summary>
     ///   Fetches data in pages. You do not need to write custom sql for this,
@@ -238,14 +238,14 @@ type
     procedure Save(const entity: TObject);
 
     /// <summary>
-    ///   Saves the entity and all entities it contains to the database. It
+    ///   Saves the entity and all entities it contains to the database. It
     ///   will do update or the insert based on the entity state.
     /// </summary>
     /// <remarks>
     ///   <para>
-    ///     Use with caution when inserting new entities containing identity
-    ///     primary keys. If both base (main) and sub entities are newly
-    ///     created then framework won't be able to resolve their
+    ///     Use with caution when inserting new entities containing identity
+    ///     primary keys. If both base (main) and sub entities are newly
+    ///     created then framework won't be able to resolve their
     ///     relationships because their primary keys aren't known at save
     ///     time.
     ///   </para>
@@ -324,7 +324,7 @@ begin
     DoDelete(entity, deleter);
 end;
 
-function TSession.Execute(const sql: string; const params: array of const): NativeUInt;
+function TSession.Execute(const sql: string; const params: array of TValue): NativeUInt;
 var
   statement: IDBStatement;
 begin
@@ -334,7 +334,7 @@ begin
   Result := statement.Execute;
 end;
 
-function TSession.ExecuteScalar<T>(const sql: string; const params: array of const): T;
+function TSession.ExecuteScalar<T>(const sql: string; const params: array of TValue): T;
 var
   results: IDBResultSet;
   fieldValue: Variant;
@@ -384,20 +384,20 @@ begin
   Result := CreateCriteria<T>.Where(expression).ToList;
 end;
 
-function TSession.First<T>(const sql: string; const params: array of const): T;
+function TSession.First<T>(const sql: string; const params: array of TValue): T;
 begin
   if not TryFirst<T>(sql, params, Result) then
     raise EORMRecordNotFoundException.CreateRes(@SRecordNotFound);
 end;
 
-function TSession.FirstOrDefault<T>(const sql: string; const params: array of const): T;
+function TSession.FirstOrDefault<T>(const sql: string; const params: array of TValue): T;
 begin
   if not TryFirst<T>(sql, params, Result) then
     Result := Default(T);
 end;
 
 function TSession.GetList<T>(const sql: string;
-  const params: array of const): IList<T>;
+  const params: array of TValue): IList<T>;
 begin
   Result := GetList<T>(sql, TDBParams.Create(params));
 end;
@@ -474,7 +474,7 @@ begin
 end;
 
 function TSession.Page<T>(index, size: Integer; const sql: string;
-  const params: array of const): IDBPage<T>;
+  const params: array of TValue): IDBPage<T>;
 begin
   Result := Page<T>(index, size, sql, TDBParams.Create(params));
 end;
@@ -489,7 +489,6 @@ begin
   pager.ItemCount := GetQueryCount(sql, params);
   FetchFromCustomQuery(pager.BuildSQL(sql), params, Result.Items as IObjectList, TClass(T));
 end;
-
 
 procedure TSession.RegisterRowMapper<T>(const rowMapper: IRowMapper<T>);
 begin
@@ -538,17 +537,17 @@ begin
     UpdateList<T>(updates);
 end;
 
-function TSession.Single<T>(const sql: string; const params: array of const): T;
+function TSession.Single<T>(const sql: string; const params: array of TValue): T;
 begin
   Result := First<T>(sql, params);
 end;
 
-function TSession.SingleOrDefault<T>(const sql: string; const params: array of const): T;
+function TSession.SingleOrDefault<T>(const sql: string; const params: array of TValue): T;
 begin
   Result := FirstOrDefault<T>(sql, params);
 end;
 
-function TSession.TryFirst<T>(const sql: string; const params: array of const;
+function TSession.TryFirst<T>(const sql: string; const params: array of TValue;
   out value: T): Boolean;
 var
   results: IDBResultSet;

@@ -3,39 +3,35 @@ unit uNullableDemo;
 interface
 
 uses
-     Spring;
+  Spring;
 
 procedure RunNullableDemo;
 
 implementation
 
-procedure ShowThreeStates(aThreeStateBoolean: TNullableBoolean);
+procedure ShowThreeStates(const value: Nullable<Boolean>);
 begin
-  if aThreeStateBoolean.HasValue then
+  if value.HasValue then
   begin
     Write('Value set to: ');
-    if aThreeStateBoolean.Value then
-    begin
+    if value.Value then
       Writeln('True')
-    end else
-    begin
-      Writeln('False')
-    end;
-  end else
-  begin
-    Writeln('No value set.')
-  end;
+    else
+      Writeln('False');
+  end
+  else
+    Writeln('Null')
 end;
 
-var
-    NullableBoolean: TNullableBoolean;
-
 procedure RunNullableDemo;
+var
+  NullableBoolean: Nullable<Boolean>;
 begin
   try
     WriteLn(NullableBoolean.Value);
-  except on E: EInvalidOperationException do
-    WriteLn('Value has not been set, EInvalidOperationException properly thrown');
+  except
+    on E: EInvalidOperationException do
+      Writeln('Value has not been set, EInvalidOperationException properly thrown');
   end;
 
   ShowThreeStates(NullableBoolean);

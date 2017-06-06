@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -199,7 +199,8 @@ type
     iOSDevice,
     iOSDevice32,
     iOSDevice64,
-    Android
+    Android,
+    Linux64
   );
 
 const
@@ -458,7 +459,8 @@ const // luckily, the compiler file names have not changed over the Delphi versi
     'dcciosarm.exe',
     'dcciosarm.exe',
     'dcciosarm64.exe',
-    'dccaarm.exe'
+    'dccaarm.exe',
+    'dcclinux64.exe'
   );
 var
   knownPlatform: TKnownPlatforms;
@@ -750,7 +752,7 @@ begin
     fSourcePaths.DelimitedText := iniFile.ReadString('Globals', 'SourcePaths', '');
     for i := 0 to fSourcePaths.Count - 1 do
       fSourcePaths[i] := ExcludeTrailingPathDelimiter(
-	    IncludeTrailingPathDelimiter(fSourceBaseDir) + fSourcePaths[i]);
+        IncludeTrailingPathDelimiter(fSourceBaseDir) + fSourcePaths[i]);
     selectedTasks.DelimitedText := iniFile.ReadString('Globals', 'SelectedTasks', '');
     fPauseAfterEachStep := iniFile.ReadBool('Globals', 'PauseAfterEachStep', False);
     fRunTests := iniFile.ReadBool('Globals', 'RunTests', False);

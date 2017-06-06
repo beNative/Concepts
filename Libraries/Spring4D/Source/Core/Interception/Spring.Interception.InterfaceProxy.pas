@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -106,6 +106,8 @@ constructor TInterfaceProxy.Create(proxyType: PTypeInfo;
   const options: TProxyGenerationOptions; const target: IInterface;
   const interceptors: array of IInterceptor);
 begin
+  Guard.CheckTypeKind(proxyType, tkInterface, 'proxyType');
+
   if not proxyType.RttiType.Methods.Any then
     raise EInvalidOperationException.CreateResFmt(
       @STypeParameterContainsNoRtti, [proxyType.Name]);
@@ -193,7 +195,7 @@ var
 begin
   if (IID <> ObjCastGUID) or fTarget.IsEmpty then
   begin
-    Result := inherited;
+    Result := inherited QueryInterface(IID, Obj);
     if Result = S_OK then
       Exit;
   end;
@@ -248,7 +250,7 @@ function TAggregatedInterfaceProxy.QueryInterface(const IID: TGUID;
 begin
   if IID = IInterface then
     Exit(fOwner.QueryInterface(IID, Obj));
-  Result := inherited;
+  Result := inherited QueryInterface(IID, Obj);
   if Result <> S_OK then
     Result := fOwner.QueryInterface(IID, Obj);
 end;

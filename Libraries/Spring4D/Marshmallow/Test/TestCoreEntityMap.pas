@@ -170,7 +170,7 @@ begin
     FEntityMap.AddOrReplace(LCustomers[i]);
   sw.Stop;
 
-  Status(Format('%D items in %D ms', [iCount, sw.ElapsedMilliseconds]));
+  Status(Format('%d items in %d ms', [iCount, sw.ElapsedMilliseconds]));
 
 //  //previous implementation
 //  LObjectDict := TCollections.CreateDictionary<string, TObject>([doOwnsValues]);
@@ -181,7 +181,7 @@ begin
 //  end;
 //  sw.Stop;
 //
-//  Status(Format('Previous implementation: %D items in %D ms', [iCount, sw.ElapsedMilliseconds]));
+//  Status(Format('Previous implementation: %d items in %d ms', [iCount, sw.ElapsedMilliseconds]));
 
   iCount := iCount * 10;
   sw := TStopwatch.StartNew;
@@ -192,7 +192,7 @@ begin
     LSpringDict.AddOrSetValue('some random key', LValue);
   end;
   sw.Stop;
-  Status(Format('Spring dictionary %D items in %D ms', [iCount, sw.ElapsedMilliseconds]));
+  Status(Format('Spring dictionary %d items in %d ms', [iCount, sw.ElapsedMilliseconds]));
   sw := TStopwatch.StartNew;
   LNativeDict := TDictionary<string,TValue>.Create;
   for i := 0 to iCount - 1 do
@@ -201,7 +201,7 @@ begin
     LNativeDict.AddOrSetValue('some random key', LValue);
   end;
   sw.Stop;
-  Status(Format('Native dictionary %D items in %D ms', [iCount, sw.ElapsedMilliseconds]));
+  Status(Format('Native dictionary %d items in %d ms', [iCount, sw.ElapsedMilliseconds]));
   LNativeDict.Free;
 end;
 {$ENDIF}

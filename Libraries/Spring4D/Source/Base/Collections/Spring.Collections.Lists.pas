@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -74,6 +74,7 @@ type
   {$REGION 'Property Accessors'}
     function GetCapacity: Integer; override;
     function GetCount: Integer; override;
+    function GetIsEmpty: Boolean; override;
     function GetItem(index: Integer): T; override;
     function GetItems: TArray<T>;
     procedure SetCapacity(value: Integer); override;
@@ -105,6 +106,7 @@ type
 
     function Extract(const item: T): T; override;
     procedure ExtractAll(const predicate: TPredicate<T>); override;
+    function ExtractAt(index: Integer): T; override;
 
     function GetRange(index, count: Integer): IList<T>; override;
 
@@ -112,10 +114,11 @@ type
     procedure Move(currentIndex, newIndex: Integer); override;
 
     procedure Reverse(index, count: Integer); override;
-    procedure Sort(const comparer: IComparer<T>); override;
+    procedure Sort(const comparer: IComparer<T>; index, count: Integer); override;
 
     procedure CopyTo(var values: TArray<T>; index: Integer); override;
-    procedure MoveTo(const collection: ICollection<T>; const predicate: TPredicate<T>); override;
+    function MoveTo(const collection: ICollection<T>;
+      const predicate: TPredicate<T>): Integer; override;
     function ToArray: TArray<T>; override;
   end;
 
@@ -214,6 +217,7 @@ type
     procedure DeleteRange(index, count: Integer); override;
 
     function Extract(const item: T): T; override;
+    function ExtractAt(index: Integer): T; override;
 
     procedure Exchange(index1, index2: Integer); override;
     procedure Move(currentIndex, newIndex: Integer); override;
@@ -235,12 +239,14 @@ type
 
     function GetEnumerator: IEnumerator<T>; override;
 
+    function GetRange(index, count: Integer): IList<T>;
+
     function IndexOf(const item: T): Integer; overload;
     function IndexOf(const item: T; index: Integer): Integer; overload;
     function IndexOf(const item: T; index, count: Integer): Integer; overload;
   end;
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   TFoldedObjectList<T{: class}> = class(TObjectList<TObject>)
   protected
     function GetElementType: PTypeInfo; override;
@@ -263,7 +269,7 @@ type
 {$ENDIF}
 
   TObservableList<T: class> = class(
-    {$IFDEF DELPHIXE_UP}TFoldedObjectList<T>{$ELSE}TObjectList<T>{$ENDIF},
+    {$IFNDEF DELPHI2010}TFoldedObjectList<T>{$ELSE}TObjectList<T>{$ENDIF},
     INotifyPropertyChanged)
   private
     fOnPropertyChanged: IEvent<TPropertyChangedEvent>;
@@ -272,7 +278,7 @@ type
     procedure DoItemPropertyChanged(sender: TObject;
       const eventArgs: IPropertyChangedEventArgs);
     procedure DoPropertyChanged(const propertyName: string);
-    procedure Changed(const value: {$IFDEF DELPHIXE_UP}TObject{$ELSE}T{$ENDIF};
+    procedure Changed(const value: {$IFNDEF DELPHI2010}TObject{$ELSE}T{$ENDIF};
       action: TCollectionChangedAction); override;
   public
     constructor Create; override;
@@ -283,6 +289,9 @@ type
 implementation
 
 uses
+{$IFDEF DELPHIXE4}
+  Rtti, // suppress hint about inlining
+{$ENDIF}
   TypInfo,
   Spring.Collections.Extensions,
   Spring.Events,
@@ -320,7 +329,7 @@ begin
     end;
   end
   else
-    inherited;
+    inherited Create(collection);
 end;
 
 function TList<T>.GetCount: Integer;
@@ -338,6 +347,11 @@ begin
 {$ELSE}
   Result := TEnumerator.Create(Self);
 {$ENDIF}
+end;
+
+function TList<T>.GetIsEmpty: Boolean;
+begin
+  Result := fCount = 0;
 end;
 
 function TList<T>.GetItem(index: Integer): T;
@@ -371,6 +385,8 @@ begin
 {$IFDEF DELPHIXE2_UP}
   list.fItems := Copy(fItems, index, count);
 {$ELSE}
+  // the compiler passes wrong typeinfo for the generated call
+  // to _DynArrayCopyRange up to XE
   SetLength(list.fItems, count);
   for i := 0 to count - 1 do
   begin
@@ -584,9 +600,9 @@ begin
     Changed(oldItems[i], caRemoved);
 end;
 
-procedure TList<T>.Sort(const comparer: IComparer<T>);
+procedure TList<T>.Sort(const comparer: IComparer<T>; index, count: Integer);
 begin
-  TArray.Sort<T>(fItems, comparer, 0, fCount);
+  TArray.Sort<T>(fItems, comparer, index, count);
   IncreaseVersion;
 
   Changed(Default(T), caReseted);
@@ -615,8 +631,8 @@ begin
   Changed(temp, caMoved);
 end;
 
-procedure TList<T>.MoveTo(const collection: ICollection<T>;
-  const predicate: TPredicate<T>);
+function TList<T>.MoveTo(const collection: ICollection<T>;
+  const predicate: TPredicate<T>): Integer;
 var
   i: Integer;
   item: T;
@@ -625,6 +641,7 @@ begin
   Guard.CheckNotNull(Assigned(collection), 'collection');
 {$ENDIF}
 
+  Result := 0;
   i := 0;
   while i < fCount do
     if not Assigned(predicate) or predicate(fItems[i]) then
@@ -632,6 +649,7 @@ begin
       item := fItems[i];
       DeleteInternal(i, caExtracted);
       collection.Add(item);
+      Inc(Result);
     end
     else
       Inc(i);
@@ -736,25 +754,14 @@ end;
 procedure TList<T>.DeleteAllInternal(const predicate: TPredicate<T>;
   notification: TCollectionChangedAction);
 var
-  i, n: Integer;
-  item: T;
+  index: Integer;
 begin
-  n := 0;
-  i := 0;
-  while i < fCount do
-  begin
-    if predicate(fItems[i]) then
-    begin
-      item := fItems[i];
-      Inc(n);
-      TArrayManager.Move(fItems, i + 1, i, fCount - i - 1);
-      TArrayManager.Finalize(fItems, fCount - 1, 1);
-      Dec(fCount);
-      Changed(item, notification);
-    end
+  index := 0;
+  while index < fCount do
+    if predicate(fItems[index]) then
+      DeleteInternal(index, notification)
     else
-      Inc(i)
-  end;
+      Inc(index);
 end;
 
 function TList<T>.Extract(const item: T): T;
@@ -769,6 +776,16 @@ begin
     Result := fItems[index];
     DeleteInternal(index, caExtracted);
   end;
+end;
+
+function TList<T>.ExtractAt(index: Integer): T;
+begin
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckRange((index >= 0) and (index < fCount), 'index');
+{$ENDIF}
+
+  Result := fItems[index];
+  DeleteInternal(index, caExtracted);
 end;
 
 procedure TList<T>.ExtractAll(const predicate: TPredicate<T>);
@@ -909,19 +926,14 @@ end;
 {$REGION 'TSortedList<T>'}
 
 function TSortedList<T>.Add(const item: T): Integer;
-var
-  comparer: IComparer<T>;
 begin
   Result := fCount;
-  // This block improves performance when adding a sequence of an already sorted
-  // collection at a cost of one comparison.
   if Result > 0 then
   begin
-    comparer := fComparer;
-    // Is new item greater than the last one?
-    if comparer.Compare(fItems[Result - 1], item) > 0 then
-      TArray.BinarySearch<T>(fItems, item, Result, comparer, 0, fCount);
-    // If so, fCount is our insertion point
+    // If the new item is smaller than the last one in the list ...
+    if fComparer.Compare(item, fItems[Result - 1]) < 0 then
+      // ... search for the correct insertion point
+      TArray.BinarySearch<T>(fItems, item, Result, fComparer, 0, fCount);
   end;
   inherited Insert(Result, item);
 end;
@@ -1147,6 +1159,16 @@ begin
   end;
 end;
 
+function TCollectionList<T>.ExtractAt(index: Integer): T;
+begin
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckRange((index >= 0) and (index < Count), 'index');
+{$ENDIF}
+
+  Result := T(fCollection.Items[index]);
+  DeleteInternal(index, caExtracted);
+end;
+
 function TCollectionList<T>.GetCapacity: Integer;
 begin
   Result := fCollection.Capacity;
@@ -1299,6 +1321,28 @@ begin
   Result := fItems(index);
 end;
 
+function TAnonymousReadOnlyList<T>.GetRange(index, count: Integer): IList<T>;
+var
+  i: Integer;
+begin
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckRange((index >= 0) and (index < Self.Count), 'index');
+  Guard.CheckRange((count >= 0) and (count <= Self.Count - index), 'count');
+{$ENDIF}
+
+{$IFNDEF DELPHI2010}
+  Result := TCollections.CreateList<T>;
+{$ELSE}
+  Result := TList<T>.Create;
+{$ENDIF}
+  Result.Count := count;
+  for i := 0 to count - 1 do
+  begin
+    Result[i] := fItems(index);
+    Inc(index);
+  end;
+end;
+
 function TAnonymousReadOnlyList<T>.IndexOf(const item: T): Integer;
 begin
   Result := IndexOf(item, 0, Count)
@@ -1328,7 +1372,7 @@ end;
 
 {$REGION 'TFoldedObjectList<T>'}
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
 function TFoldedObjectList<T>.GetElementType: PTypeInfo;
 begin
   Result := TypeInfo(T);
@@ -1340,7 +1384,7 @@ end;
 
 {$REGION 'TFoldedInterfaceList<T>'}
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
 function TFoldedInterfaceList<T>.GetElementType: PTypeInfo;
 begin
   Result := TypeInfo(T);
@@ -1352,7 +1396,7 @@ end;
 
 {$REGION 'TFoldedSortedObjectList<T>'}
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
 function TFoldedSortedObjectList<T>.GetElementType: PTypeInfo;
 begin
   Result := TypeInfo(T);
@@ -1364,7 +1408,7 @@ end;
 
 {$REGION 'TFoldedSortedInterfaceList<T>'}
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
 function TFoldedSortedInterfaceList<T>.GetElementType: PTypeInfo;
 begin
   Result := TypeInfo(T);
@@ -1401,13 +1445,13 @@ begin
 end;
 
 procedure TObservableList<T>.Changed(
-  const value: {$IFDEF DELPHIXE_UP}TObject{$ELSE}T{$ENDIF};
+  const value: {$IFNDEF DELPHI2010}TObject{$ELSE}T{$ENDIF};
   action: TCollectionChangedAction);
 var
   notifyPropertyChanged: INotifyPropertyChanged;
   propertyChanged: IEvent<TPropertyChangedEvent>;
 begin
-  if Supports({$IFDEF DELPHIXE_UP}value{$ELSE}PObject(@value)^{$ENDIF},
+  if Supports({$IFNDEF DELPHI2010}value{$ELSE}PObject(@value)^{$ENDIF},
     INotifyPropertyChanged, notifyPropertyChanged) then
   begin
     propertyChanged := notifyPropertyChanged.OnPropertyChanged;
@@ -1417,7 +1461,7 @@ begin
     end;
   end;
 
-  inherited;
+  inherited Changed(value, action);
   DoPropertyChanged('Count');
 end;
 

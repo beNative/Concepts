@@ -29,7 +29,7 @@ This unit is used as a helper for JvMemoryDataSet.pas.
 
 }
 
-unit Spring.Persistence.ObjectDataset.ExprParser;
+unit Spring.Data.ExpressionParser;
 
 interface
 

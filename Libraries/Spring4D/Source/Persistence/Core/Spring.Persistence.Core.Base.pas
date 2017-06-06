@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -222,7 +222,6 @@ implementation
 
 uses
   StrUtils,
-  SyncObjs,
   TypInfo,
   Variants,
   Spring,
@@ -363,7 +362,7 @@ end;
 
 function TDriverConnectionAdapter<T>.GenerateNewID: Integer;
 begin
-  TInterlocked.Increment(fTransationId);
+  AtomicIncrement(fTransationId);
   Result := fTransationId;
 end;
 

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -67,7 +67,8 @@ type
   {$REGION 'Implements IMock'}
     procedure Reset;
 
-    function Setup: ISetup;
+    function Setup: ISetup; overload;
+    function Setup(const sequence: IMockSequence): ISetup; overload;
 
     procedure Received; overload;
     procedure Received(const times: Times); overload;
@@ -104,7 +105,8 @@ type
     constructor Create(behavior: TMockBehavior; const args: array of TValue);
 
   {$REGION 'Implements IMock<T>'}
-    function Setup: ISetup<T>;
+    function Setup: ISetup<T>; overload;
+    function Setup(const sequence: IMockSequence): ISetup<T>; overload;
 
     function Received: T; overload;
     function Received(const times: Times): T; overload;
@@ -133,15 +135,22 @@ type
     property Instance: T read GetInstance;
   end;
 
+  TMockSequence = class(TInterfacedObject, IMockSequence)
+  private
+    fCount, fCurrent: Integer;
+    function GetCompleted: Boolean;
+    function GetCurrent: Integer;
+  public
+    function AddStep: Integer;
+    procedure MoveNext;
+  end;
+
 implementation
 
 uses
   Spring.Collections,
   Spring.Reflection,
   Spring.ResourceStrings;
-
-resourcestring
-  SCallCountExceeded = 'call count exceeded: %s';
 
 
 {$REGION 'TMock'}
@@ -177,7 +186,7 @@ begin
 {$ELSE}
     fProxy := TValue.Empty;
 {$ENDIF}
-  inherited;
+  inherited Destroy;
 end;
 
 function TMock.CreateProxy(typeInfo: PTypeInfo;
@@ -223,20 +232,23 @@ end;
 
 function TMock.Executes: IWhen;
 begin
-  fInterceptor.Returns(nil);
+  fInterceptor.Executes(
+    function(const callInfo: TCallInfo): TValue
+    begin
+    end);
   Result := Self;
 end;
 
 function TMock.Executes(const action: TMockAction): IWhen;
 begin
-  fInterceptor.Returns(action);
+  fInterceptor.Executes(action);
   Result := Self;
 end;
 
 function TMock.Raises(const exceptionClass: ExceptClass;
   const msg: string): IWhen;
 begin
-  fInterceptor.Returns(
+  fInterceptor.Executes(
     function(const callInfo: TCallInfo): TValue
     begin
       raise exceptionClass.Create(msg);
@@ -250,7 +262,7 @@ var
   s: string;
 begin
   s := Format(msg, args);
-  fInterceptor.Returns(
+  fInterceptor.Executes(
     function(const callInfo: TCallInfo): TValue
     begin
       raise exceptionClass.Create(s);
@@ -260,45 +272,20 @@ end;
 
 function TMock.Returns(const value: TValue): IWhen;
 var
-  tempValue: TValue;
+  capturedValue: TValue;
 begin
-  tempValue := value;
-  fInterceptor.Returns(
+  capturedValue := value;
+  fInterceptor.Executes(
     function(const callInfo: TCallInfo): TValue
     begin
-      Result := tempValue;
+      Result := capturedValue;
     end);
   Result := Self;
 end;
 
 function TMock.Returns(const values: array of TValue): IWhen;
-var
-  tempValues: TArray<TValue>;
-{$IFDEF AUTOREFCOUNT}
-  capturedSelf: Pointer;
-{$ENDIF}
 begin
-  tempValues := TArray.Copy<TValue>(values);
-{$IFDEF AUTOREFCOUNT}
-  // Break reference cycle held by the anonymous function closure (RSP-10176)
-  // (Do not use __ObjRelease like in other places that suffers from this issue,
-  // since the interceptor action can be reassigned and it could free Self when
-  // undesired to, use "unsafe" pointer.)
-  capturedSelf := Self;
-{$ENDIF}
-  fInterceptor.Returns(
-    function(const callInfo: TCallInfo): TValue
-    begin
-{$IFDEF AUTOREFCOUNT}
-      with TMock(capturedSelf) do
-{$ENDIF}
-        if callInfo.CallCount <= Length(tempValues) then
-          Result := tempValues[callInfo.CallCount - 1]
-        else
-          if fInterceptor.Behavior = TMockBehavior.Strict then
-            raise EMockException.CreateResFmt(@SCallCountExceeded, [
-              Times.AtMost(Length(tempValues)).ToString(callInfo.CallCount)]);
-    end);
+  fInterceptor.Returns(TArray.Copy<TValue>(values));
   Result := Self;
 end;
 
@@ -337,8 +324,15 @@ begin
   fInterceptor.CallBase := value;
 end;
 
+function TMock.Setup(const sequence: IMockSequence): ISetup;
+begin
+  fInterceptor.Sequence := sequence;
+  Result := Self;
+end;
+
 function TMock.Setup: ISetup;
 begin
+  fInterceptor.Sequence := nil;
   Result := Self;
 end;
 
@@ -436,6 +430,12 @@ begin
   Result := Self;
 end;
 
+function TMock<T>.Setup(const sequence: IMockSequence): ISetup<T>;
+begin
+  inherited Setup(sequence);
+  Result := Self;
+end;
+
 function TMock<T>.When: T;
 begin
   fInterceptor.When;
@@ -446,6 +446,32 @@ function TMock<T>.When(const match: TArgMatch): T;
 begin
   fInterceptor.When(match);
   Result := Instance;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TMockSequence'}
+
+function TMockSequence.AddStep: Integer;
+begin
+  Result := fCount;
+  Inc(fCount);
+end;
+
+function TMockSequence.GetCompleted: Boolean;
+begin
+  Result := (fCurrent > 0) and (fCurrent = fCount);
+end;
+
+function TMockSequence.GetCurrent: Integer;
+begin
+  Result := fCurrent;
+end;
+
+procedure TMockSequence.MoveNext;
+begin
+  Inc(fCurrent);
 end;
 
 {$ENDREGION}

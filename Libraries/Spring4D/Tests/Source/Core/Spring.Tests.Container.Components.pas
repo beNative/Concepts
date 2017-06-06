@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -162,12 +162,23 @@ type
     const DefaultAge: Integer = 100;
   end;
 
+  TAgeService = class(TInterfacedObject, IAgeService)
+  private
+    fAgeService: Lazy<IAgeService>;
+    function GetAge: Integer;
+    function GetAgeService: IAgeService;
+  public
+    constructor Create(const ageService: Lazy<IAgeService>);
+    property AgeService: IAgeService read GetAgeService;
+  end;
+
   TAgeServiceDecorator = class(TInterfacedObject, IAgeService)
   private
     fAgeServive: IAgeService;
   public
     constructor Create(const ageService: IAgeService);
     function GetAge: Integer;
+    property AgeService: IAgeService read fAgeServive;
   end;
 
   TAgeServiceDecorator2 = class(TInterfacedObject, IAgeService)
@@ -176,6 +187,7 @@ type
   public
     constructor Create(const ageService: IAgeService);
     function GetAge: Integer;
+    property AgeService: IAgeService read fAgeServive;
   end;
 
   {$ENDREGION}
@@ -233,6 +245,14 @@ type
     procedure Initialize;
     procedure Dispose;
     property OnDispose: TProc read fOnDispose write fOnDispose;
+  end;
+
+  TAnotherServiceDecorator = class(TInterfacedObject, IAnotherService)
+  private
+    fAnotherService: IAnotherService;
+  public
+    constructor Create(const anotherService: IAnotherService);
+    property Service: IAnotherService read fAnotherService;
   end;
 
   {$ENDREGION}
@@ -1096,6 +1116,32 @@ end;
 
 constructor TTypeB.Create(const someService: ISomeService);
 begin
+end;
+
+{ TAnotherServiceDecorator }
+
+constructor TAnotherServiceDecorator.Create(
+  const anotherService: IAnotherService);
+begin
+  inherited Create;
+  fAnotherService := anotherService;
+end;
+
+{ TAgeService }
+
+constructor TAgeService.Create(const ageService: Lazy<IAgeService>);
+begin
+  fAgeService := ageService;
+end;
+
+function TAgeService.GetAge: Integer;
+begin
+  Result := fAgeService.Value.Age;
+end;
+
+function TAgeService.GetAgeService: IAgeService;
+begin
+  Result := fAgeService;
 end;
 
 end.

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -291,22 +291,22 @@ end;
 
 function Sigma0(x: UInt64): UInt64;
 begin
-  Result := (ror64(x, 28) xor ror64(x, 34) xor ror64(x, 39));
+  Result := (RotateRight64(x, 28) xor RotateRight64(x, 34) xor RotateRight64(x, 39));
 end;
 
 function Sigma1(x: UInt64): UInt64;
 begin
-  Result := (ror64(x, 14) xor ror64(x, 18) xor ror64(x, 41));
+  Result := (RotateRight64(x, 14) xor RotateRight64(x, 18) xor RotateRight64(x, 41));
 end;
 
 function Gamma0(x: UInt64): UInt64;
 begin
-  Result := (ror64(x, 1) xor ror64(x, 8) xor (x shr 7));
+  Result := (RotateRight64(x, 1) xor RotateRight64(x, 8) xor (x shr 7));
 end;
 
 function Gamma1(x: UInt64): UInt64;
 begin
-  Result := (ror64(x, 19) xor ror64(x, 61) xor (x shr 6));
+  Result := (RotateRight64(x, 19) xor RotateRight64(x, 61) xor (x shr 6));
 end;
 
 function Ch256(x, y, z: UInt32): UInt32; assembler;
@@ -343,22 +343,22 @@ end;
 
 function E0256(x: UInt32): UInt32;
 begin
-  Result := ror(x, 2) xor ror(x, 13) xor ror(x, 22);
+  Result := RotateRight32(x, 2) xor RotateRight32(x, 13) xor RotateRight32(x, 22);
 end;
 
 function E1256(x: UInt32): UInt32;
 begin
-  Result := ror(x, 6) xor ror(x, 11) xor ror(x, 25);
+  Result := RotateRight32(x, 6) xor RotateRight32(x, 11) xor RotateRight32(x, 25);
 end;
 
 function F0256(x: UInt32): UInt32;
 begin
-  Result := ror(x, 7) xor ror(x, 18) xor (x shr 3);
+  Result := RotateRight32(x, 7) xor RotateRight32(x, 18) xor (x shr 3);
 end;
 
 function F1256(x: UInt32): UInt32;
 begin
-  Result := ror(x, 17) xor ror(x, 19) xor (x shr 10);
+  Result := RotateRight32(x, 17) xor RotateRight32(x, 19) xor (x shr 10);
 end;
 
 function ft1(t: Byte; x, y, z: UInt32): UInt32;
@@ -427,15 +427,15 @@ var
 begin
   Move(md.state, S, SizeOf(S));
   for i := 0 to 15 do
-    W[i] := Endian(PUInt32(@md.buf)[i]);
+    W[i] := ByteSwap32(PUInt32(@md.buf)[i]);
   for i := 16 to 79 do
-    W[i] := rol(W[i - 3] xor W[i - 8] xor W[i - 14] xor W[i - 16], 1);
+    W[i] := RotateLeft32(W[i - 3] xor W[i - 8] xor W[i - 14] xor W[i - 16], 1);
     for i := 0 to 79 do
     begin
-      t := rol(S[0], 5) + ft1(i, S[1], S[2], S[3]) + S[4] + Kt1(i) + W[i];
+      t := RotateLeft32(S[0], 5) + ft1(i, S[1], S[2], S[3]) + S[4] + Kt1(i) + W[i];
       S[4] := S[3];
       S[3] := S[2];
-      S[2] := rol(S[1], 30);
+      S[2] := RotateLeft32(S[1], 30);
       S[1] := S[0];
       S[0] := t;
     end;
@@ -452,7 +452,7 @@ var
 begin
   Move(md.state, S, SizeOf(S));
   for i := 0 to 15 do
-    W[i] := Endian(PUInt32(@md.buf)[i]);
+    W[i] := ByteSwap32(PUInt32(@md.buf)[i]);
   for i := 16 to 63 do
     W[i] := F1256(W[i - 2]) + W[i - 7] + F0256(W[i - 15]) + W[i - 16];
   for i := 0 to 63 do
@@ -481,7 +481,7 @@ var
 begin
   Move(md.state, S, 64);
   for i := 0 to 15 do
-    W[i] := Endian64(PInt64(UInt32(@md.buf) + i * 8)^);
+    W[i] := ByteSwap64(PUInt64(UInt32(@md.buf) + i * 8)^);
   for i := 16 to 79 do
     W[i] := Gamma1(W[i - 2]) + W[i - 7] + Gamma0(W [i - 15]) + W[i - 16];
   for i := 0 to 79 do
@@ -558,7 +558,7 @@ begin
 
 
   for i := 0 to 7 do
-    md.state[i] := endian(md.state[i]);
+    md.state[i] := ByteSwap32(md.state[i]);
 
   if sz = 256 then
     Result := TBuffer.Create(@(md.state[0]), SizeOf(UInt32) * 8)
@@ -651,7 +651,7 @@ begin
   sha512_compress(md);
 
   for i := 0 to 7 do
-    md.state[i] := endian64(md.state[i]);
+    md.state[i] := ByteSwap64(md.state[i]);
 
   if sz = 384 then
     Result := TBuffer.Create(@(md.state[0]), SizeOf(UInt64) * 6)

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -189,7 +189,7 @@ begin
   // scalar value and not a result set so only request it when needed.
   if SupportsIdentityColumn then
   begin
-    resultSet := statement.ExecuteQuery(false);
+    resultSet := statement.ExecuteQuery(False);
     value := GetIdentityValue(resultSet);
     if not value.IsEmpty then
       EntityData.PrimaryKeyColumn.Member.SetValue(entity, value);
@@ -205,7 +205,7 @@ begin
     Result := Generator.GenerateInsert(fCommand);
 
   if SupportsIdentityColumn then
-    Result := Result + sLineBreak + ' ' + fLastInsertIdSQL;
+    Result := Result + sLineBreak + fLastInsertIdSQL;
 end;
 
 function TInsertExecutor.ResolveGetSequenceSQL: string;
@@ -229,7 +229,7 @@ begin
   begin
     statement := Connection.CreateStatement;
     statement.SetSQLCommand(fLastInsertIdSQL);
-    results := statement.ExecuteQuery(false);
+    results := statement.ExecuteQuery(False);
   end;
 
   if not results.IsEmpty then

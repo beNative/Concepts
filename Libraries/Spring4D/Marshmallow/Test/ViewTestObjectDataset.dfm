@@ -1,7 +1,7 @@
-object frmObjectDatasetTest: TfrmObjectDatasetTest
+object frmObjectDataSetTest: TfrmObjectDataSetTest
   Left = 0
   Top = 0
-  Caption = 'TObjectDataset Test'
+  Caption = 'TObjectDataSet Test'
   ClientHeight = 590
   ClientWidth = 1051
   Color = clBtnFace
@@ -51,7 +51,6 @@ object frmObjectDatasetTest: TfrmObjectDatasetTest
     DataSource = dsList
     Align = alTop
     TabOrder = 1
-    ExplicitWidth = 665
   end
   object edFilter: TEdit
     Left = 0
@@ -61,8 +60,6 @@ object frmObjectDatasetTest: TfrmObjectDatasetTest
     Align = alBottom
     TabOrder = 2
     OnKeyDown = edFilterKeyDown
-    ExplicitTop = 352
-    ExplicitWidth = 665
   end
   object sbTotal: TStatusBar
     Left = 0
@@ -71,8 +68,6 @@ object frmObjectDatasetTest: TfrmObjectDatasetTest
     Height = 19
     Panels = <>
     SimplePanel = True
-    ExplicitTop = 373
-    ExplicitWidth = 665
   end
   object dbgClone: TDBGrid
     Left = 568
@@ -99,8 +94,6 @@ object frmObjectDatasetTest: TfrmObjectDatasetTest
     State = cbChecked
     TabOrder = 3
     OnClick = cbFilteredClick
-    ExplicitLeft = 683
-    ExplicitTop = 426
   end
   object dsList: TDataSource
     Left = 488

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -49,7 +49,7 @@ uses
   Spring.Tests.Container,
   Spring.Tests.Container.LifetimeManager,
   Spring.Tests.Container.Logging,
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   Spring.Tests.Interception,
   Spring.Tests.Mocking,
 {$ENDIF}
@@ -66,10 +66,8 @@ begin
     TTestNullableInt64.Suite,
     TTestGuard.Suite,
     TTestLazy.Suite,
-{$IFDEF SUPPORTS_GENERIC_EVENTS}
     TTestMulticastEvent.Suite,
     TTestMulticastEventStackSize.Suite,
-{$ENDIF}
     TTestSpringEventsMethods.Suite,
     TTestTuplesDouble.Suite,
     TTestTuplesTriple.Suite,
@@ -77,7 +75,9 @@ begin
     TTestOwned.Suite,
     TTestVector.Suite,
     TTestValueHelper.Suite,
-    TArrayTest.Suite
+    TArrayTest.Suite,
+    TWeakTest.Suite,
+    TTestVirtualClass.Suite
   ]);
 
 {$IFNDEF DELPHI2010}
@@ -108,7 +108,10 @@ begin
     TTestCollectionList.Suite,
     TTestEnumerable.Suite,
     TTestListAdapter.Suite,
-    TTestMultiMap.Suite
+    TTestMultiMap.Suite,
+    TTestBidiDictionary.Suite,
+    TTestObjectStack.Suite,
+    TTestObjectQueue.Suite
   ]);
 
   RegisterTests('Spring.Base.Collections.Extensions', [
@@ -248,7 +251,7 @@ begin
     TTestLoggingConfigurationBuilder.Suite
   ]);
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   RegisterTests('Spring.Interception', [
     TFreezableTest.Suite,
     TProxyTest.Suite,
@@ -258,7 +261,8 @@ begin
     TParameterMatchingTests.Suite,
     ReceivedChecksForInputValueOfVarParams.Suite,
     MockReturnsOtherMockInDynamicMode.Suite,
-    MockDynamicallySupportsOtherInterfaces.Suite
+    MockDynamicallySupportsOtherInterfaces.Suite,
+    MockSequenceTest.Suite
   ]);
 {$ENDIF}
 

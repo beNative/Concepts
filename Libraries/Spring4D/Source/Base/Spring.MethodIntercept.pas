@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -62,7 +62,7 @@ end;
 destructor TMethodIntercept.Destroy;
 begin
   fImplementation.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 function TMethodIntercept.GetCodeAddress: Pointer;

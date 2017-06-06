@@ -74,14 +74,14 @@ begin
   CheckTrue(bOK);
   CheckEquals('Nullable<System.string>', string(LResult.TypeInfo.Name));
 
-  Status(Format('Set %D Spring Nullable<string> values in %D ms', [LCount, sw.ElapsedMilliseconds]));
+  Status(Format('Set %d Spring Nullable<string> values in %d ms', [LCount, sw.ElapsedMilliseconds]));
 
   sw := TStopwatch.StartNew;
   for i := 1 to LCount do
     bOK := LFrom.TryConvert(TypeInfo(Nullable<string>), LResult);
   sw.Stop;
   CheckTrue(bOK);
-  Status(Format('Set %D simple string values in %D ms', [LCount, sw.ElapsedMilliseconds]));
+  Status(Format('Set %d simple string values in %d ms', [LCount, sw.ElapsedMilliseconds]));
 
   sw := TStopwatch.StartNew;
   for i := 1 to LCount do
@@ -90,7 +90,7 @@ begin
   CheckTrue(bOK);
   CheckEquals('Nullable<System.Double>', string(LResult.TypeInfo.Name));
 
-  Status(Format('Set %D Marshmallow Nullable<double> values in %D ms', [LCount, sw.ElapsedMilliseconds]));
+  Status(Format('Set %d Marshmallow Nullable<double> values in %d ms', [LCount, sw.ElapsedMilliseconds]));
 end;
 {$ENDIF}
 

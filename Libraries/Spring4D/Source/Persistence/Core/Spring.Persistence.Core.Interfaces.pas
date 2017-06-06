@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -187,12 +187,12 @@ type
     /// <summary>
     ///   Executes sql statement which does not return resultset.
     /// </summary>
-    function Execute(const query: string; const params: array of const): NativeUInt;
+    function Execute(const query: string; const params: array of TValue): NativeUInt;
 
     /// <summary>
     ///   Retrieves multiple entities from the sql statement.
     /// </summary>
-    function Query(const query: string; const params: array of const): IList<T>;
+    function Query(const query: string; const params: array of TValue): IList<T>;
   end;
 
   ICrudRepository<T: class, constructor; TID> = interface(IRepository<T, TID>)

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -53,7 +53,7 @@ implementation
 
 constructor TCollectionChangedEventImpl<T>.Create;
 begin
-  inherited;
+  inherited Create;
   TCollectionChangedEvent<T>(fInvoke) := InternalInvoke;
 end;
 

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -24,10 +24,10 @@
 
 {$I Spring.inc}
 
-///	<summary>
-///	  Defines an independent logging service.
-///	</summary>
-unit Spring.Services.Logging;
+/// <summary>
+///   Defines an independent logging service.
+/// </summary>
+unit Spring.Services.Logging deprecated 'Use Spring.Logging instead';
 
 interface
 

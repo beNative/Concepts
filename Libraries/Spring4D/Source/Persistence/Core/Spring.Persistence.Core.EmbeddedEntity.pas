@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -197,7 +197,7 @@ end;
 
 constructor TEmbeddedArrayEntity.Create;
 begin
-  inherited;
+  inherited Create;
   fValues := TCollections.CreateList<Variant>;
   fCurrent := -1;
 end;

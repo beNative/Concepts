@@ -227,18 +227,8 @@ uses
   Spring.Persistence.Criteria.Properties in 'Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Properties.pas',
   Spring.Persistence.Criteria.Restrictions in 'Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Restrictions.pas',
   Spring.Persistence.Mapping.Attributes in 'Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.Attributes.pas',
-  Spring.Persistence.Mapping.CodeGenerator in 'Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.pas',
   Spring.Persistence.Mapping.CodeGenerator.Abstract in 'Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.Abstract.pas',
   Spring.Persistence.Mapping.CodeGenerator.DB in 'Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.DB.pas',
-  Spring.Persistence.ObjectDataset in 'Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.pas',
-  Spring.Persistence.ObjectDataset.Abstract in 'Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Abstract.pas',
-  Spring.Persistence.ObjectDataset.ActiveX in 'Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ActiveX.pas',
-  Spring.Persistence.ObjectDataset.Algorithms.Sort in 'Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Algorithms.Sort.pas',
-  Spring.Persistence.ObjectDataset.Blobs in 'Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Blobs.pas',
-  Spring.Persistence.ObjectDataset.Designtime in 'Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Designtime.pas',
-  Spring.Persistence.ObjectDataset.ExprParser in 'Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ExprParser.pas',
-  Spring.Persistence.ObjectDataset.ExprParser.Functions in 'Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ExprParser.Functions.pas',
-  Spring.Persistence.ObjectDataset.IndexList in 'Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.IndexList.pas',
   Spring.Persistence.SQL.Commands in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.pas',
   Spring.Persistence.SQL.Commands.Abstract in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Abstract.pas',
   Spring.Persistence.SQL.Commands.CreateForeignKey in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateForeignKey.pas',
@@ -266,7 +256,6 @@ uses
   Spring.Persistence.SQL.Types in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Types.pas',
   Spring.ResourceStrings in 'Libraries\Spring4D\Source\Base\Spring.ResourceStrings.pas',
   Spring.Services in 'Libraries\Spring4D\Source\Core\Services\Spring.Services.pas',
-  Spring.Services.Logging in 'Libraries\Spring4D\Source\Core\Services\Spring.Services.Logging.pas',
   Spring.SystemUtils in 'Libraries\Spring4D\Source\Base\Spring.SystemUtils.pas',
   Spring.Times in 'Libraries\Spring4D\Source\Base\Spring.Times.pas',
   Spring.Utils in 'Libraries\Spring4D\Source\Extensions\Utils\Spring.Utils.pas',
@@ -445,7 +434,13 @@ uses
   FloatConv.Double in 'Libraries\TzObjectInspector\FloatConv\FloatConv.Double.pas',
   FloatConv.Extended in 'Libraries\TzObjectInspector\FloatConv\FloatConv.Extended.pas',
   FloatConv in 'Libraries\TzObjectInspector\FloatConv\FloatConv.pas',
-  FloatConv.Single in 'Libraries\TzObjectInspector\FloatConv\FloatConv.Single.pas';
+  FloatConv.Single in 'Libraries\TzObjectInspector\FloatConv\FloatConv.Single.pas',
+  Spring.Data.ActiveX in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ActiveX.pas',
+  Spring.Data.ExpressionParser.Functions in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ExpressionParser.Functions.pas',
+  Spring.Data.ExpressionParser in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ExpressionParser.pas',
+  Spring.Data.IndexList in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.IndexList.pas',
+  Spring.Data.ObjectDataSet in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ObjectDataSet.pas',
+  Spring.Data.VirtualDataSet in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.VirtualDataSet.pas';
 
 {$R *.res}
 

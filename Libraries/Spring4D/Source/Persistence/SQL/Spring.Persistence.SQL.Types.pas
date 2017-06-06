@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -305,7 +305,6 @@ implementation
 
 uses
   StrUtils,
-  SyncObjs,
   SysUtils,
   Spring,
   Spring.Persistence.Core.EntityCache,
@@ -433,7 +432,7 @@ destructor TSQLJoinSegment.Destroy;
 begin
   fForeignKeyField.Free;
   fPrimaryKeyField.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 {$ENDREGION}

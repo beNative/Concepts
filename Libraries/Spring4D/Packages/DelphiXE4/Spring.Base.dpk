@@ -65,13 +65,13 @@ contains
   Spring.Logging.NullLogger in '..\..\Source\Base\Logging\Spring.Logging.NullLogger.pas',
   Spring.Logging.ResourceStrings in '..\..\Source\Base\Logging\Spring.Logging.ResourceStrings.pas',
   Spring.Logging.Serializers in '..\..\Source\Base\Logging\Spring.Logging.Serializers.pas',
-  Spring.MethodIntercept in '..\..\Source\Core\Spring.MethodIntercept.pas',
+  Spring.MethodIntercept in '..\..\Source\Base\Spring.MethodIntercept.pas',
   Spring.Reflection in '..\..\Source\Base\Spring.Reflection.pas',
   Spring.ResourceStrings in '..\..\Source\Base\Spring.ResourceStrings.pas',
   Spring.SystemUtils in '..\..\Source\Base\Spring.SystemUtils.pas',
   Spring.Times in '..\..\Source\Base\Spring.Times.pas',
   Spring.ValueConverters in '..\..\Source\Base\Spring.ValueConverters.pas',
   Spring.VirtualClass in '..\..\Source\Base\Spring.VirtualClass.pas',
-  Spring.VirtualInterface in '..\..\Source\Core\Spring.VirtualInterface.pas';
+  Spring.VirtualInterface in '..\..\Source\Base\Spring.VirtualInterface.pas';
 
 end.

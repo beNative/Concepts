@@ -2,13 +2,9 @@ program Demo.Spring.Nullable;
 
 {$APPTYPE CONSOLE}
 
-{$R *.res}
-
 uses
   SysUtils,
   uNullableDemo in 'uNullableDemo.pas';
-
-
 
 begin
   try

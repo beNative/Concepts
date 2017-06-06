@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -63,6 +63,8 @@ type
     constructor Create(const values: TArray<T>); overload;
     function Clone: TIterator<T>; override;
     function MoveNext: Boolean; override;
+
+    function GetRange(index, count: Integer): IList<T>;
 
     function IndexOf(const item: T): Integer; overload;
     function IndexOf(const item: T; index: Integer): Integer; overload;
@@ -226,6 +228,19 @@ type
     fEnumerator: IEnumerator<T>;
   public
     constructor Create(const source: IEnumerable<T>; const comparer: IEqualityComparer<T>);
+    function Clone: TIterator<T>; override;
+    function MoveNext: Boolean; override;
+  end;
+
+  TDistinctByIterator<T,TKey> = class(TSourceIterator<T>)
+  private
+    fKeySelector: TFunc<T, TKey>;
+    fComparer: IEqualityComparer<TKey>;
+    fSet: ISet<TKey>;
+    fEnumerator: IEnumerator<T>;
+  public
+    constructor Create(const source: IEnumerable<T>; const keySelector: TFunc<T, TKey>;
+      const comparer: IEqualityComparer<TKey>);
     function Clone: TIterator<T>; override;
     function MoveNext: Boolean; override;
   end;
@@ -743,7 +758,7 @@ type
 implementation
 
 uses
-{$IFNDEF DELPHIXE_UP}
+{$IFDEF DELPHI2010}
   Spring.Collections.Sets,
 {$ENDIF}
   Spring.ResourceStrings;
@@ -799,6 +814,28 @@ begin
 {$ENDIF}
 
   Result := fValues[index];
+end;
+
+function TArrayIterator<T>.GetRange(index, count: Integer): IList<T>;
+var
+  i: Integer;
+begin
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckRange((index >= 0) and (index < Length(fValues)), 'index');
+  Guard.CheckRange((count >= 0) and (count <= Length(fValues) - index), 'count');
+{$ENDIF}
+
+{$IFNDEF DELPHI2010}
+  Result := TCollections.CreateList<T>;
+{$ELSE}
+  Result := TList<T>.Create;
+{$ENDIF}
+  Result.Count := count;
+  for i := 0 to count - 1 do
+  begin
+    Result[i] := fValues[index];
+    Inc(index);
+  end;
 end;
 
 function TArrayIterator<T>.IndexOf(const item: T): Integer;
@@ -1464,7 +1501,7 @@ begin
 
   if fState = STATE_ENUMERATOR then
   begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     fSet := TCollections.CreateSet<T>(fComparer);
 {$ELSE}
     fSet := THashSet<T>.Create(fComparer);
@@ -1479,6 +1516,63 @@ begin
     begin
       current := fEnumerator.Current;
       if fSet.Add(current) then
+      begin
+        fCurrent := current;
+        Exit(True);
+      end;
+    end;
+    fState := STATE_FINISHED;
+    fEnumerator := nil;
+    fSet := nil;
+  end;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TDistinctByIterator<T, TKey>'}
+
+constructor TDistinctByIterator<T, TKey>.Create(const source: IEnumerable<T>;
+  const keySelector: TFunc<T, TKey>; const comparer: IEqualityComparer<TKey>);
+begin
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckNotNull(Assigned(source), 'source');
+{$ENDIF}
+
+  inherited Create(source.Comparer);
+  fSource := source;
+  fKeySelector := keySelector;
+  fComparer := comparer;
+end;
+
+function TDistinctByIterator<T, TKey>.Clone: TIterator<T>;
+begin
+  Result := TDistinctByIterator<T, TKey>.Create(fSource, fKeySelector, fComparer);
+end;
+
+function TDistinctByIterator<T, TKey>.MoveNext: Boolean;
+var
+  current: T;
+begin
+  Result := False;
+
+  if fState = STATE_ENUMERATOR then
+  begin
+{$IFNDEF DELPHI2010}
+    fSet := TCollections.CreateSet<TKey>(fComparer);
+{$ELSE}
+    fSet := THashSet<TKey>.Create(fComparer);
+{$ENDIF}
+    fEnumerator := fSource.GetEnumerator;
+    fState := STATE_RUNNING;
+  end;
+
+  if fState = STATE_RUNNING then
+  begin
+    while fEnumerator.MoveNext do
+    begin
+      current := fEnumerator.Current;
+      if fSet.Add(fKeySelector(current)) then
       begin
         fCurrent := current;
         Exit(True);
@@ -1587,7 +1681,7 @@ begin
 
   if fState = STATE_ENUMERATOR then
   begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     fSet := TCollections.CreateSet<T>(fComparer);
 {$ELSE}
     fSet := THashSet<T>.Create(fComparer);
@@ -1651,7 +1745,7 @@ begin
 
   if fState = STATE_ENUMERATOR then
   begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     fSet := TCollections.CreateSet<T>(fComparer);
 {$ELSE}
     fSet := THashSet<T>.Create(fComparer);
@@ -1715,7 +1809,7 @@ begin
 
   if fState = STATE_ENUMERATOR then
   begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     fSet := TCollections.CreateSet<T>(fComparer);
 {$ELSE}
     fSet := THashSet<T>.Create(fComparer);
@@ -2061,7 +2155,7 @@ end;
 destructor TLookup<TKey, TElement>.Destroy;
 begin
   fGroupingKeys.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 function TLookup<TKey, TElement>.Contains(const key: TKey): Boolean;
@@ -2100,7 +2194,7 @@ var
 begin
   Result := GetGrouping(key, False);
   if not Assigned(Result) then
-    Result := TEnumerableBase<TElement>.Create;
+    Result := TEmptyEnumerable<TElement>.Instance;
 end;
 
 {$ENDREGION}
@@ -2112,7 +2206,7 @@ constructor TLookup<TKey, TElement>.TGrouping.Create(const key: TKey);
 begin
   inherited Create;
   fKey := key;
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   fElements := TCollections.CreateList<TElement>;
 {$ELSE}
   fElements := TList<TElement>.Create;
@@ -2153,7 +2247,7 @@ end;
 procedure TLookup<TKey, TElement>.TGroupings.Changed(const item: TGrouping;
   action: TCollectionChangedAction);
 begin
-  inherited;
+  inherited Changed(item, action);
   case action of
     caAdded: TGrouping(item)._AddRef;
     caRemoved: TGrouping(item)._Release;
@@ -2228,7 +2322,7 @@ end;
 destructor TJoinIterator<TOuter, TInner, TKey, TResult>.Destroy;
 begin
   fLookup.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 function TJoinIterator<TOuter, TInner, TKey, TResult>.Clone: TIterator<TResult>;
@@ -2322,7 +2416,7 @@ end;
 destructor TGroupJoinIterator<TOuter, TInner, TKey, TResult>.Destroy;
 begin
   fLookup.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 function TGroupJoinIterator<TOuter, TInner, TKey, TResult>.Clone: TIterator<TResult>;
@@ -2994,7 +3088,7 @@ begin
 
   if fState = STATE_ENUMERATOR then
   begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     fResult := TCollections.CreateList<T>;
 {$ELSE}
     fResult := TList<T>.Create;

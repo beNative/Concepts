@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -122,7 +122,7 @@ begin
   // Needs to be freed prior our weakrefs get cleared
   fInstances := nil;
   fLock.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 function TSimpleObjectPool.AddNewInstance(const context: ICreationContext): TObject;

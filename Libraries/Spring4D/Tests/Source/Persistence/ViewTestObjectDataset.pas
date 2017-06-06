@@ -1,4 +1,4 @@
-unit ViewTestObjectDataset;
+unit ViewTestObjectDataSet;
 
 interface
 
@@ -7,7 +7,7 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, Data.DB;
 
 type
-  TfrmObjectDatasetTest = class(TForm)
+  TfrmObjectDataSetTest = class(TForm)
   private
     { Private declarations }
   public
@@ -15,7 +15,7 @@ type
   end;
 
 var
-  frmObjectDatasetTest: TfrmObjectDatasetTest;
+  frmObjectDataSetTest: TfrmObjectDataSetTest;
 
 implementation
 

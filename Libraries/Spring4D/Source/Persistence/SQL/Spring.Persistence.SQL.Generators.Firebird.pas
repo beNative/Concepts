@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -45,6 +45,8 @@ type
     function DoGenerateBackupTable(const tableName: string): TArray<string>; override;
     function DoGenerateRestoreTable(const tableName: string;
       const createColumns: IList<TSQLCreateField>; const dbColumns: IList<string>): TArray<string>; override;
+    function DoGenerateCreateTable(const tableName: string;
+      const columns: IList<TSQLCreateField>): string; override;
   public
     function GetQueryLanguage: TQueryLanguage; override;
     function GenerateCreateSequence(const command: TCreateSequenceCommand): string; override;
@@ -71,6 +73,39 @@ function TFirebirdSQLGenerator.DoGenerateBackupTable(
   const tableName: string): TArray<string>;
 begin
   raise EORMUnsupportedOperation.CreateFmt('Firebird does not support copying table %s.', [tableName]);
+end;
+
+function TFirebirdSQLGenerator.DoGenerateCreateTable(const tableName: string;
+  const columns: IList<TSQLCreateField>): string;
+var
+  sqlBuilder: TStringBuilder;
+  i: Integer;
+  field: TSQLCreateField;
+begin
+  sqlBuilder := TStringBuilder.Create;
+  try
+    sqlBuilder.AppendFormat('CREATE TABLE %0:s ', [tableName])
+      .Append('(')
+      .AppendLine;
+    for i := 0 to columns.Count - 1 do
+    begin
+      field := columns[i];
+      if i > 0 then
+        sqlBuilder.Append(', ').AppendLine;
+
+      sqlBuilder.AppendFormat('%0:s %1:s %2:s %3:s', [
+        GetEscapedFieldName(field),
+        GetSQLDataTypeName(field),
+        IfThen(cpNotNull in field.Properties, 'NOT NULL', ''),
+        IfThen(cpPrimaryKey in field.Properties, GetPrimaryKeyDefinition(field))]);
+    end;
+
+    sqlBuilder.AppendLine.Append(')');
+
+    Result := sqlBuilder.ToString;
+  finally
+    sqlBuilder.Free;
+  end;
 end;
 
 function TFirebirdSQLGenerator.DoGenerateRestoreTable(const tableName: string;
@@ -126,9 +161,9 @@ function TFirebirdSQLGenerator.GetSQLDataTypeName(
   const field: TSQLCreateField): string;
 begin
   Result := inherited GetSQLDataTypeName(field);
-  if StartsText(Result, 'NCHAR') then
+  if StartsText('NCHAR', Result) then
     Result := Copy(Result, 2, Length(Result)) + ' CHARACTER SET UNICODE_FSS'
-  else if StartsText(Result, 'NVARCHAR') then
+  else if StartsText('NVARCHAR', Result) then
     Result := Copy(Result, 2, Length(Result)) + ' CHARACTER SET UNICODE_FSS';
 end;
 

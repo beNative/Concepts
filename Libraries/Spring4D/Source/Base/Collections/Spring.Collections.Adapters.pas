@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -289,13 +289,13 @@ end;
 function TCollectionAdapter<T>.QueryInterface(const IID: TGUID;
   out Obj): HResult;
 begin
-  if IsEqualGUID(IID, ICollection<T>) then
+  if IID = ICollection<T> then
   begin
     IInterface(obj) := fSource;
     Result := 0;
   end
   else
-    Result := inherited;
+    Result := inherited QueryInterface(IID, Obj);
 end;
 
 function TCollectionAdapter<T>.Remove(const item: TValue): Boolean;
@@ -442,13 +442,13 @@ end;
 
 function TListAdapter<T>.QueryInterface(const IID: TGUID; out Obj): HResult;
 begin
-  if IsEqualGUID(IID, IList<T>) then
+  if IID = IList<T> then
   begin
     IInterface(obj) := fSource;
     Result := 0;
   end
   else
-    Result := inherited;
+    Result := inherited QueryInterface(IID, Obj);
 end;
 
 procedure TListAdapter<T>.Reverse;
@@ -551,13 +551,13 @@ end;
 function TDictionaryAdapter<TKey, T>.QueryInterface(const IID: TGUID;
   out Obj): HResult;
 begin
-  if IsEqualGUID(IID, IDictionary<TKey, T>) then
+  if IID = IDictionary<TKey, T> then
   begin
     IInterface(obj) := fSource;
     Result := 0;
   end
   else
-    Result := inherited;
+    Result := inherited QueryInterface(IID, Obj);
 end;
 
 function TDictionaryAdapter<TKey, T>.Remove(const key: TValue): Boolean;
@@ -618,13 +618,13 @@ end;
 
 function TStackAdapter<T>.QueryInterface(const IID: TGUID; out Obj): HResult;
 begin
-  if IsEqualGUID(IID, IStack<T>) then
+  if IID = IStack<T> then
   begin
     IInterface(obj) := fSource;
     Result := 0;
   end
   else
-    Result := inherited;
+    Result := inherited QueryInterface(IID, Obj);
 end;
 
 function TStackAdapter<T>.TryPeek(out item: TValue): Boolean;
@@ -692,13 +692,13 @@ end;
 
 function TQueueAdapter<T>.QueryInterface(const IID: TGUID; out Obj): HResult;
 begin
-  if IsEqualGUID(IID, IQueue<T>) then
+  if IID = IQueue<T> then
   begin
     IInterface(obj) := fSource;
     Result := 0;
   end
   else
-    Result := inherited;
+    Result := inherited QueryInterface(IID, Obj);
 end;
 
 function TQueueAdapter<T>.TryDequeue(out item: TValue): Boolean;
@@ -766,13 +766,13 @@ end;
 
 function THashSetAdapter<T>.QueryInterface(const IID: TGUID; out Obj): HResult;
 begin
-  if IsEqualGUID(IID, ISet<T>) then
+  if IID = ISet<T> then
   begin
     IInterface(obj) := fSource;
     Result := 0;
   end
   else
-    Result := inherited;
+    Result := inherited QueryInterface(IID, Obj);
 end;
 
 function THashSetAdapter<T>.SetEquals(const other: IEnumerable): Boolean;

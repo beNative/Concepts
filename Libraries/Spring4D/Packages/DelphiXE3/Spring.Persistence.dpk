@@ -1,0 +1,106 @@
+package Spring.Persistence;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Spring4D Persistence package'}
+{$LIBSUFFIX '.DelphiXE3'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+{$I Spring.inc}
+
+requires
+  dbrtl,
+  DbxCommonDriver,
+{$IFNDEF FMX}
+  vcl,
+  vclimg,
+{$ENDIF}
+  Spring.Base;
+
+contains
+  Spring.Persistence.Adapters.FieldCache in '..\..\Source\Persistence\Adapters\Spring.Persistence.Adapters.FieldCache.pas',
+  Spring.Persistence.Core.AbstractSession in '..\..\Source\Persistence\Core\Spring.Persistence.Core.AbstractSession.pas',
+  Spring.Persistence.Core.Base in '..\..\Source\Persistence\Core\Spring.Persistence.Core.Base.pas',
+  Spring.Persistence.Core.ConnectionFactory in '..\..\Source\Persistence\Core\Spring.Persistence.Core.ConnectionFactory.pas',
+  Spring.Persistence.Core.DatabaseManager in '..\..\Source\Persistence\Core\Spring.Persistence.Core.DatabaseManager.pas',
+  Spring.Persistence.Core.EmbeddedEntity in '..\..\Source\Persistence\Core\Spring.Persistence.Core.EmbeddedEntity.pas',
+  Spring.Persistence.Core.EntityCache in '..\..\Source\Persistence\Core\Spring.Persistence.Core.EntityCache.pas',
+  Spring.Persistence.Core.EntityMap in '..\..\Source\Persistence\Core\Spring.Persistence.Core.EntityMap.pas',
+  Spring.Persistence.Core.EntityWrapper in '..\..\Source\Persistence\Core\Spring.Persistence.Core.EntityWrapper.pas',
+  Spring.Persistence.Core.Exceptions in '..\..\Source\Persistence\Core\Spring.Persistence.Core.Exceptions.pas',
+  Spring.Persistence.Core.Graphics in '..\..\Source\Persistence\Core\Spring.Persistence.Core.Graphics.pas',
+  Spring.Persistence.Core.Interfaces in '..\..\Source\Persistence\Core\Spring.Persistence.Core.Interfaces.pas',
+  Spring.Persistence.Core.ListSession in '..\..\Source\Persistence\Core\Spring.Persistence.Core.ListSession.pas',
+  Spring.Persistence.Core.Repository.Proxy in '..\..\Source\Persistence\Core\Spring.Persistence.Core.Repository.Proxy.pas',
+  Spring.Persistence.Core.Repository.Simple in '..\..\Source\Persistence\Core\Spring.Persistence.Core.Repository.Simple.pas',
+  Spring.Persistence.Core.ResourceStrings in '..\..\Source\Persistence\Core\Spring.Persistence.Core.ResourceStrings.pas',
+  Spring.Persistence.Core.Session in '..\..\Source\Persistence\Core\Spring.Persistence.Core.Session.pas',
+  Spring.Persistence.Core.ValueConverters in '..\..\Source\Persistence\Core\Spring.Persistence.Core.ValueConverters.pas',
+  Spring.Persistence.Criteria in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.pas',
+  Spring.Persistence.Criteria.Criterion.Abstract in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Abstract.pas',
+  Spring.Persistence.Criteria.Criterion.BetweenExpression in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.BetweenExpression.pas',
+  Spring.Persistence.Criteria.Criterion.Conjunction in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Conjunction.pas',
+  Spring.Persistence.Criteria.Criterion.Disjunction in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Disjunction.pas',
+  Spring.Persistence.Criteria.Criterion.InExpression in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.InExpression.pas',
+  Spring.Persistence.Criteria.Criterion.Junction in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Junction.pas',
+  Spring.Persistence.Criteria.Criterion.LikeExpression in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.LikeExpression.pas',
+  Spring.Persistence.Criteria.Criterion.LogicalExpression in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.LogicalExpression.pas',
+  Spring.Persistence.Criteria.Criterion.NullExpression in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.NullExpression.pas',
+  Spring.Persistence.Criteria.Criterion.PropertyExpression in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.PropertyExpression.pas',
+  Spring.Persistence.Criteria.Criterion.SimpleExpression in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.SimpleExpression.pas',
+  Spring.Persistence.Criteria.Interfaces in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Interfaces.pas',
+  Spring.Persistence.Criteria.OrderBy in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.OrderBy.pas',
+  Spring.Persistence.Criteria.Properties in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Properties.pas',
+  Spring.Persistence.Criteria.Restrictions in '..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Restrictions.pas',
+  Spring.Persistence.Mapping.Attributes in '..\..\Source\Persistence\Mapping\Spring.Persistence.Mapping.Attributes.pas',
+  Spring.Persistence.SQL.Commands in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.pas',
+  Spring.Persistence.SQL.Commands.Abstract in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Abstract.pas',
+  Spring.Persistence.SQL.Commands.CreateForeignKey in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateForeignKey.pas',
+  Spring.Persistence.SQL.Commands.CreateSequence in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateSequence.pas',
+  Spring.Persistence.SQL.Commands.CreateTable in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateTable.pas',
+  Spring.Persistence.SQL.Commands.Delete in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Delete.pas',
+  Spring.Persistence.SQL.Commands.Insert in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Insert.pas',
+  Spring.Persistence.SQL.Commands.Page in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Page.pas',
+  Spring.Persistence.SQL.Commands.Select in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Select.pas',
+  Spring.Persistence.SQL.Commands.Update in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Update.pas',
+  Spring.Persistence.SQL.Generators.Abstract in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Abstract.pas',
+  Spring.Persistence.SQL.Generators.Ansi in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Ansi.pas',
+  Spring.Persistence.SQL.Generators.ASA in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.ASA.pas',
+  Spring.Persistence.SQL.Generators.Firebird in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Firebird.pas',
+  Spring.Persistence.SQL.Generators.MSSQL in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.MSSQL.pas',
+  Spring.Persistence.SQL.Generators.MySQL in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.MySQL.pas',
+  Spring.Persistence.SQL.Generators.NoSQL in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.NoSQL.pas',
+  Spring.Persistence.SQL.Generators.Oracle in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Oracle.pas',
+  Spring.Persistence.SQL.Generators.PostgreSQL in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.PostgreSQL.pas',
+  Spring.Persistence.SQL.Generators.SQLite3 in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.SQLite3.pas',
+  Spring.Persistence.SQL.Generators.Register in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Register.pas',
+  Spring.Persistence.SQL.Interfaces in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Interfaces.pas',
+  Spring.Persistence.SQL.Params in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Params.pas',
+  Spring.Persistence.SQL.Register in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Register.pas',
+  Spring.Persistence.SQL.Types in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Types.pas';
+
+end.

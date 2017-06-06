@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -49,8 +49,6 @@ type
     fEntityMap: IEntityMap;
   protected
     function GetCommand: TDMLCommand; override;
-    function TryIncrementVersionFor(const entity: TObject): Boolean; virtual;
-    function HasChangedVersionColumnOnly: Boolean;
   public
     constructor Create(const connection: IDBConnection;
       const entityMap: IEntityMap); reintroduce;
@@ -93,26 +91,22 @@ procedure TUpdateExecutor.Execute(const entity: TObject);
 var
   statement: IDBStatement;
   sqlStatement: string;
+  affectedRows: Integer;
 begin
   Assert(Assigned(entity));
-
-  if EntityData.HasVersionColumn and not TryIncrementVersionFor(entity) then
-    raise EORMOptimisticLockException.Create(entity);
-
-  statement := Connection.CreateStatement;
 
   fColumns.Clear;
   if fEntityMap.IsMapped(entity) then
   begin
     fColumns := fEntityMap.GetChangedMembers(entity, EntityData);
-    if HasChangedVersionColumnOnly then
+    if fColumns.Count = 0 then
       Exit;
   end
   else
     fColumns.AddRange(EntityData.Columns);
 
+  fCommand.VersionColumn := entityData.VersionColumn;
   fCommand.SetCommandFieldsFromColumns(fColumns);
-
   if not fCommand.UpdateFields.Any then
     Exit;
 
@@ -121,41 +115,24 @@ begin
   if sqlStatement = '' then
     raise EORMCannotGenerateQueryStatement.Create(entity);
 
+  statement := Connection.CreateStatement;
   statement.SetSQLCommand(sqlStatement);
   BuildParams(entity);
   statement.SetParams(SQLParameters);
-  statement.Execute;
+  affectedRows := statement.Execute;
+
+  if EntityData.HasVersionColumn then
+  begin
+    if affectedRows = 0 then
+      raise EORMOptimisticLockException.Create(entity);
+
+    EntityData.VersionColumn.IncrementValue(entity);
+  end;
 end;
 
 function TUpdateExecutor.GetCommand: TDMLCommand;
 begin
   Result := fCommand;
-end;
-
-function TUpdateExecutor.HasChangedVersionColumnOnly: Boolean;
-begin
-  Result := (fColumns.Count = 1) and fColumns.First.IsVersionColumn;
-end;
-
-function TUpdateExecutor.TryIncrementVersionFor(const entity: TObject): Boolean;
-var
-  statement: IDBStatement;
-  version, primaryKey: TValue;
-  query: Variant;
-  metadata: TQueryMetadata;
-begin
-  statement := Connection.CreateStatement;
-  version := EntityData.VersionColumn.Member.GetValue(entity);
-  primaryKey := EntityData.PrimaryKeyColumn.Member.GetValue(entity);
-  query := Generator.GetUpdateVersionFieldQuery(fCommand, EntityData.VersionColumn,
-    version.ToVariant, primaryKey.ToVariant);
-  metadata.QueryOperation := ctUpdateVersion;
-  metadata.TableName := fCommand.Table.Name;
-  statement.SetQuery(metadata, query);
-
-  Result := statement.Execute > 0;
-  if Result then
-    EntityData.VersionColumn.Member.SetValue(entity, version.AsInteger + 1);
 end;
 
 procedure TUpdateExecutor.Build(entityClass: TClass);
@@ -176,7 +153,10 @@ begin
 
   for updateField in fCommand.UpdateFields do
   begin
-    param := Generator.CreateParam(updateField, updateField.Column.GetValue(entity));
+    if updateField.Column.IsVersionColumn then
+      param := Generator.CreateParam(updateField, updateField.Column.GetValue(entity).AsInteger + 1)
+    else
+      param := Generator.CreateParam(updateField, updateField.Column.GetValue(entity));
     SQLParameters.Add(param);
   end;
 

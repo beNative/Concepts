@@ -14,7 +14,9 @@ uses
   Windows,
 {$ENDIF}
 {$IFDEF FMX}
+  {$IFNDEF LINUX}
   FMX.Graphics,
+  {$ENDIF}
 {$ENDIF}
   SQLiteTable3,
   Spring,
@@ -69,6 +71,7 @@ type
     procedure Nullable;
     procedure GetLazyValue;
     procedure GetLazyNullable;
+    procedure GetLazyStream;
     procedure FindOne;
     procedure FindWhere;
     procedure When_UnannotatedEntity_FindOne_ThrowException;
@@ -187,24 +190,6 @@ uses
 const
   SQL_GET_ALL_CUSTOMERS = 'SELECT * FROM ' + TBL_PEOPLE + ';';
 
-function GetPictureSize(const APicture: TPicture): Int64;
-var
-  LStream: TMemoryStream;
-begin
-  Result := 0;
-  if Assigned(APicture) then
-  begin
-    LStream := TMemoryStream.Create;
-    try
-      APicture.Graphic.SaveToStream(LStream);
-
-      Result := LStream.Size;
-    finally
-      LStream.Free;
-    end;
-  end;
-end;
-
 procedure CreateTables(const AConnection: TSQLiteDatabase = nil);
 var
   LConn: TSQLiteDatabase;
@@ -281,6 +266,13 @@ begin
   TestDB.ExecSQL('INSERT INTO  ' + TBL_ORDERS + ' ([Customer_Id], [Customer_Payment_Method_Id], [Order_Status_Code], [Total_Order_Price]) '+
     ' VALUES (?,?,?,?);',
     [ACustID, ACustPaymID, AOrderStatusCode, ATotalPrice]);
+  Result := TestDB.GetLastInsertRowID;
+end;
+
+function InsertCustomerStream(AAge: Integer = 25; AName: string = 'Demo'; AHeight: Double = 15.25; const AMiddleName: string = ''; AStream: TStream = nil): Variant;
+begin
+  TestDB.ExecSQL('INSERT INTO  ' + TBL_PEOPLE + ' (['+CUSTAGE+'], ['+CUSTNAME+'], ['+CUSTHEIGHT+'], ['+CUST_MIDDLENAME+'], ['+CUST_STREAM+']) VALUES (?,?,?,?,?);',
+    [AAge, AName, AHeight, AMiddleName, AStream]);
   Result := TestDB.GetLastInsertRowID;
 end;
 
@@ -467,17 +459,17 @@ begin
 
     LCustomer.CustomerType := ctReturning;
     FSession.Save(LCustomer);
-    LVal := GetDBValue(Format('select custtype from ' + TBL_PEOPLE + ' where custid = %D', [iLastID]));
+    LVal := GetDBValue(Format('select custtype from ' + TBL_PEOPLE + ' where custid = %d', [iLastID]));
     CheckTrue(Integer(LVal) = Ord(ctReturning));
   finally
     LCustomer.Free;
   end;
 
-  InsertCustomerEnum(20);
+  InsertCustomerEnum(Ord(ctPrimary));
   iLastID := TestDB.GetLastInsertRowID;
   LCustomer := FSession.FindOne<TCustomer>(iLastID);
   try
-    CheckTrue(20 = Ord(LCustomer.CustomerType));
+    CheckTrue(ctPrimary = LCustomer.CustomerType);
   finally
     LCustomer.Free;
   end;
@@ -726,7 +718,7 @@ begin
     CheckTrue(Assigned(LCustomer));
     CheckEquals(25, LCustomer.Age);
 
-    CheckTrue(LCustomer.Avatar.Graphic <> nil);
+    CheckNotNull(LCustomer.Avatar.Graphic);
   finally
     FreeAndNil(LCustomer);
   end;
@@ -777,6 +769,32 @@ begin
 
   finally
     fsPic.Free;
+  end;
+end;
+
+procedure TSessionTest.GetLazyStream;
+var
+  customer: TCustomer;
+  stream: TMemoryStream;
+begin
+  stream := TMemoryStream.Create;
+  try
+    stream.LoadFromFile(ScannerFileName);
+
+    customer := FSession.SingleOrDefault<TCustomer>(SQL_GET_ALL_CUSTOMERS, []);
+    CheckFalse(Assigned(customer));
+    InsertCustomerStream(25, 'Stream Lazy', 2.36, 'Middle', stream);
+
+    customer := FSession.SingleOrDefault<TCustomer>(SQL_GET_ALL_CUSTOMERS, []);
+    try
+      CheckNotNull(customer.CustStream, 'Lazy should have value');
+      CheckTrue(customer.CustStream.Size > 0, 'Size should be more than 0');
+      CheckEquals(stream.Size, customer.CustStream.Size, 'file"s size not equals.');
+    finally
+      customer.Free;
+    end;
+  finally
+    stream.Free;
   end;
 end;
 
@@ -854,7 +872,7 @@ begin
     LEntity.Free;
   end;
   sw.Stop;
-  Status(Format('GenericCreate %D objects in %D ms.',
+  Status(Format('GenericCreate %d objects in %d ms.',
     [iCount, sw.ElapsedMilliseconds]));
 
   sw := TStopwatch.StartNew;
@@ -864,7 +882,7 @@ begin
     LObject.Free;
   end;
   sw.Stop;
-  Status(Format('SimpleCreate %D objects in %D ms.',
+  Status(Format('SimpleCreate %d objects in %d ms.',
     [iCount, sw.ElapsedMilliseconds]));
   sw := TStopwatch.StartNew;
   LCustomers := TCollections.CreateObjectList<TCustomer>;
@@ -873,7 +891,7 @@ begin
     LCustomers.Add(TCustomer.Create);
   end;
   sw.Stop;
-  Status(Format('Add %D objects in %D ms.',
+  Status(Format('Add %d objects in %d ms.',
     [iCount, sw.ElapsedMilliseconds]));
   //get customers
   LResultset := FSession.GetResultset('SELECT * FROM ' + TBL_PEOPLE, []);
@@ -882,7 +900,7 @@ begin
   sw.Stop;
   CheckEquals(iCount, LCustomers.Count);
 
-  Status(Format('FindAll complex TCustomer %D objects in %D ms.',
+  Status(Format('FindAll complex TCustomer %d objects in %d ms.',
     [iCount, sw.ElapsedMilliseconds]));
 
   //get products
@@ -891,7 +909,7 @@ begin
   sw.Stop;
   CheckEquals(iCount, LProducts.Count);
 
-  Status(Format('FindAll simple TProduct %D objects in %D ms.',
+  Status(Format('FindAll simple TProduct %d objects in %d ms.',
     [iCount, sw.ElapsedMilliseconds]));
 
   //get customers non object
@@ -908,7 +926,7 @@ begin
     LResultset.Next;
   end;
   sw.Stop;
-  Status(Format('Resultset %D objects in %D ms. %S',
+  Status(Format('Resultset %d objects in %d ms. %s',
     [iCount, sw.ElapsedMilliseconds, LVal2]));
 end;
 
@@ -1534,8 +1552,7 @@ begin
     LStream := LResults.FieldByName[CUST_STREAM].AsBlob;
     CheckTrue(Assigned(LStream));
     try
-      CheckTrue(LStream.Size > 0);
-      CheckEquals(LCustomer.CustStream.Size, LStream.Size);
+      CheckEquals(LCustStream.Size, LStream.Size);
     finally
       LStream.Free;
     end;
@@ -1739,37 +1756,30 @@ end;
 procedure TSessionTest.Versioning;
 var
   LModel, LModelOld, LModelLoaded: TProduct;
-  bOk: Boolean;
 begin
   LModel := TProduct.Create;
   LModel.Name := 'Initial version';
   FSession.Save(LModel);
 
-  LModelLoaded := FSession.FindOne<TProduct>(TValue.FromVariant(LModel.Id));
+  LModelLoaded := FSession.FindOne<TProduct>(LModel.Id);
   CheckEquals(1, LModelLoaded.Version);
   LModelLoaded.Name := 'Updated version No. 1';
 
-  LModelOld := FSession.FindOne<TProduct>(TValue.FromVariant(LModel.Id));
+  LModelOld := FSession.FindOne<TProduct>(LModel.Id);
   CheckEquals(1, LModelOld.Version);
   LModelOld.Name := 'Updated version No. 2';
 
   FSession.Save(LModelLoaded);
   CheckEquals(2, LModelLoaded.Version);
 
+  ExpectedException := EORMOptimisticLockException;
   try
     FSession.Save(LModelOld);
-    bOk := False;
-  except
-    on E:EORMOptimisticLockException do
-    begin
-      bOk := True;
-    end;
-  end;
-  CheckTrue(bOk, 'This should fail because version already changed to the same entity');
-
-  LModel.Free;
-  LModelLoaded.Free;
-  LModelOld.Free;
+  finally
+    LModel.Free;
+    LModelLoaded.Free;
+    LModelOld.Free;
+  end
 end;
 
 type

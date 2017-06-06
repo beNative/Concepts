@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -46,7 +46,6 @@ type
   TAnsiSQLGenerator = class(TAbstractSQLGenerator)
   protected
     function DoGenerateBackupTableUsingCreate(const tableName: string): TArray<string>;
-  protected
     function DoGenerateBackupTable(const tableName: string): TArray<string>; virtual;
     function DoGenerateRestoreTable(const tableName: string;
       const createColumns: IList<TSQLCreateField>;
@@ -82,7 +81,7 @@ type
     function GenerateInsert(const command: TInsertCommand): string; override;
     function GenerateUpdate(const command: TUpdateCommand): string; override;
     function GenerateDelete(const command: TDeleteCommand): string; override;
-    function GenerateCreateTable(const command: TCreateTableCommand):  IList<string>; override;
+    function GenerateCreateTable(const command: TCreateTableCommand): IList<string>; override;
     function GenerateCreateForeignKey(const command: TCreateForeignKeyCommand): IList<string>; override;
 
     /// <summary>
@@ -160,7 +159,6 @@ begin
       if i > 0 then
         sqlBuilder.Append(', ').AppendLine;
 
-      //0 - Column name, 1 - Column data type name, 2 - NOT NULL condition
       sqlBuilder.AppendFormat('%0:s %1:s %2:s %3:s', [
         GetEscapedFieldName(field),
         GetSQLDataTypeName(field),
@@ -351,7 +349,7 @@ begin
   if EndsStr(';', sqlStatement) then
     SetLength(sqlStatement, Length(sqlStatement) - 1);
 
-  Result := sqlStatement + Format(' LIMIT %1:d,%0:d %2:s',
+  Result := sqlStatement + Format(' LIMIT %1:d, %0:d%2:s',
     [limit, offset, GetSplitStatementSymbol]);
 end;
 
@@ -672,17 +670,20 @@ begin
 
   typeInfo := field.TypeInfo;
 
-  case field.TypeInfo.Kind of
+  case typeInfo.Kind of
     tkUnknown: ;
-    tkInteger, tkInt64, tkEnumeration, tkSet:
+    tkInteger, tkSet:
+      if field.Precision > 0 then
+        Result := Format('NUMERIC(%0:d, %1:d)', [field.Precision, field.Scale]);
+    tkEnumeration:
+      if typeInfo = System.TypeInfo(Boolean) then
+        Result := 'BIT';
+    tkInt64:
       if field.Precision > 0 then
         Result := Format('NUMERIC(%0:d, %1:d)', [field.Precision, field.Scale])
       else
-        if typeInfo = System.TypeInfo(Boolean) then
-          Result := 'BIT'
-        else
-          Result := 'INTEGER';
-    tkChar: Result := Format('CHAR(%D)', [field.Length]);
+        Result := 'BIGINT';
+    tkChar: Result := Format('CHAR(%d)', [field.Length]);
     tkFloat:
       if typeInfo = System.TypeInfo(TDate) then
         Result := 'DATE'
@@ -695,11 +696,11 @@ begin
           Result := Format('NUMERIC(%0:d, %1:d)', [field.Precision, field.Scale])
         else
           Result := 'FLOAT';
-    tkString, tkLString: Result := Format('VARCHAR(%D)', [field.Length]);
+    tkString, tkLString: Result := Format('VARCHAR(%d)', [field.Length]);
     tkClass, tkArray, tkDynArray, tkVariant: Result := 'BLOB';
     tkMethod: ;
-    tkWChar: Result := Format('NCHAR(%D)', [field.Length]);
-    tkWString, tkUString: Result := Format('NVARCHAR(%D)', [field.Length]);
+    tkWChar: Result := Format('NCHAR(%d)', [field.Length]);
+    tkWString, tkUString: Result := Format('NVARCHAR(%d)', [field.Length]);
     tkRecord:
       if IsNullable(typeInfo) or IsLazyType(typeInfo) then
       begin

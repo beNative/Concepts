@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,6 +29,7 @@ unit Spring.Persistence.Core.Repository.MongoDB;
 interface
 
 uses
+  Spring,
   Spring.Collections,
   Spring.Persistence.Core.Repository.Simple,
   Spring.Persistence.Core.Session,
@@ -42,7 +43,7 @@ type
   public
     procedure Insert(const entities: IEnumerable<T>); override;
     function Query(const query: string;
-      const params: array of const): IList<T>; override;
+      const params: array of TValue): IList<T>; override;
   public
     constructor Create(const session: TSession); override;
   end;
@@ -67,11 +68,11 @@ begin
 end;
 
 function TMongoDBRepository<T, TID>.Query(const query: string;
-  const params: array of const): IList<T>;
+  const params: array of TValue): IList<T>;
 var
   LQuery: string;
 begin
-  LQuery := Format('S[%S]%S', [Namespace, query]);
+  LQuery := Format('S[%s]%s', [Namespace, query]);
   Result := inherited Query(LQuery, params);
 end;
 

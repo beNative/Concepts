@@ -33,7 +33,7 @@ type
     FHwnd         : HWND;
 
   protected
-    procedure DoSend(const entry: TLogEntry); override;
+    procedure DoSend(const entry: TLogEvent); override;
 
   public
     procedure BeforeDestruction; override;
@@ -66,7 +66,7 @@ end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
-procedure TWinIPCAppender.DoSend(const entry: TLogEntry);
+procedure TWinIPCAppender.DoSend(const entry: TLogEvent);
 const
   ZeroBuf: Integer = 0;
 var
@@ -100,8 +100,8 @@ begin
     lmtClear       = 100
   );
 *)
-  case entry.EntryType of
-    TLogEntryType.Text:
+  case entry.EventType of
+    TLogEventType.Text:
     begin
       case entry.Level of
         TLogLevel.Unknown : LMT := 0;
@@ -114,11 +114,11 @@ begin
         TLogLevel.Fatal   : LMT := 1;
       end;
     end;
-    TLogEntryType.Value          : LMT := 3;
-    TLogEntryType.CallStack      : LMT := 9;
-    TLogEntryType.SerializedData : LMT := 0;
-    TLogEntryType.Entering       : LMT := 4;
-    TLogEntryType.Leaving        : LMT := 5;
+    TLogEventType.Value          : LMT := 3;
+    TLogEventType.CallStack      : LMT := 9;
+    TLogEventType.SerializedData : LMT := 0;
+    TLogEventType.Entering       : LMT := 4;
+    TLogEventType.Leaving        : LMT := 5;
   end;
 
 (*

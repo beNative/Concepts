@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -44,6 +44,7 @@ type
   TComponentModel = class;
   IComponentBuilder = interface;
   IComponentRegistry = interface;
+  IDecoratorResolver = interface;
   IBuilderInspector = interface;
   ISubDependencyResolver = interface;
   IDependencyResolver = interface;
@@ -89,6 +90,7 @@ type
     function GetProxyFactory: IProxyFactory;
     function GetLogger: ILogger;
     procedure SetLogger(const logger: ILogger);
+    function GetDecoratorResolver: IDecoratorResolver;
   {$ENDREGION}
     procedure AddExtension(const extension: IContainerExtension);
 
@@ -98,6 +100,7 @@ type
     property Resolver: IDependencyResolver read GetResolver;
     property ProxyFactory: IProxyFactory read GetProxyFactory;
     property Logger: ILogger read GetLogger write SetLogger;
+    property DecoratorResolver: IDecoratorResolver read GetDecoratorResolver;
   end;
 
   IKernelInternal = interface
@@ -134,7 +137,7 @@ type
     procedure RegisterService(const model: TComponentModel; serviceType: PTypeInfo;
       const serviceName: string); overload;
     procedure RegisterDefault(const model: TComponentModel; serviceType: PTypeInfo);
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     procedure RegisterFactory(const model: TComponentModel;
       paramResolution: TParamResolution = TParamResolution.ByName); overload;
     procedure RegisterFactory(const model: TComponentModel;
@@ -156,6 +159,17 @@ type
     function FindAll(serviceType: PTypeInfo): IEnumerable<TComponentModel>; overload;
 
     property OnChanged: ICollectionChangedEvent<TComponentModel> read GetOnChanged;
+  end;
+
+  IDecoratorResolver = interface
+    ['{AC84E128-1C52-465A-9B10-C79A58DD3BEA}']
+    procedure AddDecorator(decoratedType: PTypeInfo;
+      const decoratorModel: TComponentModel;
+      const condition: TPredicate<TComponentModel>);
+
+    function Resolve(const dependency: TDependencyModel;
+      const model: TComponentModel; const context: ICreationContext;
+      const decoratee: TValue): TValue;
   end;
 
   /// <summary>
@@ -278,7 +292,8 @@ type
       out instance: TValue): Boolean;
     procedure LeaveResolution(const model: TComponentModel);
 
-    procedure AddArgument(const argument: TValue);
+    function AddArgument(const argument: TValue): Integer;
+    procedure RemoveTypedArgument(index: Integer);
     procedure AddPerResolve(const model: TComponentModel; const instance: TValue);
     function TryHandle(const injection: IInjection;
       out handled: IInjection): Boolean;
@@ -443,7 +458,6 @@ type
 implementation
 
 uses
-  SyncObjs,
   TypInfo,
   Spring.Container.ResourceStrings,
   Spring.Reflection;
@@ -627,17 +641,17 @@ begin
 {$ELSE}
   fValue^.AsObject.DisposeOf;
 {$ENDIF}
-  inherited;
+  inherited Destroy;
 end;
 
 function TValueHolder.TComponentHolder._AddRef: Integer;
 begin
-  Result := TInterlocked.Increment(fRefCount);
+  Result := AtomicIncrement(fRefCount);
 end;
 
 function TValueHolder.TComponentHolder._Release: Integer;
 begin
-  Result := TInterlocked.Decrement(fRefCount);
+  Result := AtomicDecrement(fRefCount);
   if Result = 0 then
     Destroy;
 end;
@@ -645,7 +659,7 @@ end;
 procedure TValueHolder.TComponentHolder.Notification(Component: TComponent;
   Operation: TOperation);
 begin
-  inherited;
+  inherited Notification(Component, Operation);
   if Operation = opRemove then
     fValue^ := nil;
 end;

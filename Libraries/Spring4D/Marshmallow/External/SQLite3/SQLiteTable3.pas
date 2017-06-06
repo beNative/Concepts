@@ -112,6 +112,13 @@ type
 {$IFDEF NEXTGEN}
   PAnsiChar = MarshaledAString;
   PPAnsiChar = ^PAnsiChar;
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
+{$IF NOT Declared(AnsiString)}
+  {$IF Declared(RawByteString)}
+  AnsiString = RawByteString;
+  {$ELSE}
+  {$DEFINE USE_CUSTOM_ANSISTRING}
   AnsiString = record
   private
     FBytes: TBytes;
@@ -120,9 +127,8 @@ type
     class operator Implicit(const s: AnsiString): string;
     class operator Explicit(const s: AnsiString): PAnsiChar;
   end;
-
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
+  {$IFEND}
+{$IFEND}
 const
   SQLITE_STATIC : TBindDestructor = TBindDestructor(System.Sqlite.SQLITE_STATIC);
   SQLITE_TRANSIENT : TBindDestructor = TBindDestructor(System.Sqlite.SQLITE_TRANSIENT);
@@ -270,6 +276,7 @@ type
     procedure SetSynchronised(Value: boolean);
     procedure DoQuery(const value: string);
     procedure SetEvents();
+    class procedure EnsureInitialized; static;
   public
     {$REGION 'Doc'}
       /// <summary>
@@ -860,7 +867,7 @@ type
     VType: TVarType;
     Reserved1, Reserved2, Reserved3: Word;
     DataSet: TSQLiteUniTable;
-    Reserved4: LongInt;
+    Reserved4: Pointer;
   end;
 
 var
@@ -1329,7 +1336,7 @@ begin
       else
         sVal := 'False';
 
-      ExecSQL(Format('PRAGMA read_uncommitted = %S',[sVal]));
+      ExecSQL(Format('PRAGMA read_uncommitted = %s',[sVal]));
       FReadUncommitted := Value;
     end;
   end;
@@ -1360,6 +1367,18 @@ begin
     if Assigned(Stmt) then
       Sqlite3_Finalize(stmt);
   end;
+end;
+
+class procedure TSQLiteDatabase.EnsureInitialized;
+begin
+{$IF Declared(sqlite3_initialize)}
+  try
+    if sqlite3_initialize <> SQLITE_OK then
+      raise ESqliteException.Create('SQLite library cannot be initialized');
+  except on EExternalException do
+    raise ESqliteException.Create('SQLite library cannot be found');
+  end;
+{$IFEND}
 end;
 
 {$WARNINGS OFF}
@@ -1548,7 +1567,7 @@ begin
   if (sqlite3_table_column_metadata(fDB, ADbName, PAnsiChar(TableName), PAnsiChar(ColumnName), ADatatype,
     ACollSeq, ANotNull, APrimKey, AAutoinc) <> SQLITE_OK) then
   begin
-    RaiseError(Format('Cannot get table ([%S]) column ([%S]) metadata.', [TableName, ColumnName]), '');
+    RaiseError(Format('Cannot get table ([%s]) column ([%s]) metadata.', [TableName, ColumnName]), '');
   end;
 
   bNotNull := Boolean(ANotNull);
@@ -1636,13 +1655,16 @@ var
   Msg: PAnsiChar;
   iResult: Integer;
 begin
+  EnsureInitialized;
+
   FConnected := False;
-  iResult := SQLITE_OK;
 
   case FEncoding of
     seUTF8: iResult := sqlite3_open_v2(PAnsiChar(UTF8Encode(FFileName)), Fdb,
       SQLITE_OPEN_CREATE or SQLITE_OPEN_READWRITE or SQLITE_OPEN_URI, nil);
     seUTF16: iResult := SQLite3_Open16(PChar(FFileName), Fdb);
+  else
+    iResult := SQLITE_OK;
   end;
 
   if iResult <> SQLITE_OK then
@@ -1840,6 +1862,7 @@ end;
 
 function TSQLiteDatabase.Version: string;
 begin
+  EnsureInitialized;
   Result := UTF8ToString(SQLite3_Version);
 end;
 
@@ -2957,7 +2980,7 @@ begin
         ['', 'Error']);
 
     Value.Position := 0;
-    Value.Read(par.valueptr^, par.blobsize);
+    Value.ReadBuffer(par.valueptr^, par.blobsize);
   end;
   fParams.Add(par);
 end;
@@ -3165,6 +3188,7 @@ var
   bStream: TMemoryStream;
   ptr: Pointer;
   iDim: Integer;
+  len: Integer;
 begin
   vType := VarType(Value);
   case vType of
@@ -3198,8 +3222,8 @@ begin
         iDim := VarArrayDimCount(Value);
         ptr := VarArrayLock(Value);
         try
-          bStream.WriteBuffer(ptr^, VarArrayHighBound(Value, iDim));
-
+          len := VarArrayHighBound(Value, iDim) - VarArrayLowBound(Value, iDim) + 1;
+          bStream.WriteBuffer(ptr^, len);
           SetParamBlobInternal(bStream, I, name);
         finally
           VarArrayUnlock(Value);
@@ -3929,7 +3953,7 @@ end;
 
 { AnsiString }
 
-{$IF Defined(USE_SYSTEM_SQLITE) AND Defined(NEXTGEN)}
+{$IFDEF USE_CUSTOM_ANSISTRING}
 
 class operator AnsiString.Explicit(const s: AnsiString): PAnsiChar;
 begin
@@ -3953,7 +3977,7 @@ begin
   Len := Enc.GetByteCount(s);
   // Add trailing zero
   SetLength(Result.FBytes, Len + 1);
-  Enc.GetBytes(s, 0, Length(s), Result.FBytes, 0);
+  Enc.GetBytes(s, Low(string), Length(s), Result.FBytes, 0);
   Result.FBytes[Len] := 0;
 end;
 
@@ -3964,7 +3988,7 @@ begin
   else Result := TEncoding.ANSI.GetString(s.FBytes);
 end;
 
-{$IFEND}
+{$ENDIF}
 
 { ESQLiteException }
 

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -251,7 +251,7 @@ destructor TSingletonPerThreadLifetimeManager.Destroy;
 begin
   // Needs to be freed prior our weakrefs get cleared
   fInstances := nil;
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TSingletonPerThreadLifetimeManager.HandleValueChanged(sender: TObject;

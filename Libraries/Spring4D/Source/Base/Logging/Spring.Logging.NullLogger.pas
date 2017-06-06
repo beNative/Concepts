@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -34,6 +34,8 @@ uses
   Spring.Logging;
 
 type
+  {$REGION 'TNullLogger'}
+
   /// <summary>
   ///   Logger that does nothing and does it in fastes way possible.
   /// </summary>
@@ -41,12 +43,12 @@ type
   private
     class var fGlobalInstance: ILogger;
     class constructor Create;
-  public
-    function GetEnabled: Boolean;
-    function GetLevels: TLogLevels;
-    function GetEntryTypes: TLogEntryTypes;
 
-    function IsEnabled(level: TLogLevel; entryTypes: TLogEntryTypes): Boolean; inline;
+    function GetEnabled: Boolean;
+    function GetEventTypes: TLogEventTypes;
+    function GetLevels: TLogLevels;
+  public
+    function IsEnabled(level: TLogLevel; eventTypes: TLogEventTypes): Boolean; inline;
     function IsFatalEnabled: Boolean;
     function IsErrorEnabled: Boolean;
     function IsWarnEnabled: Boolean;
@@ -55,7 +57,7 @@ type
     function IsDebugEnabled: Boolean;
     function IsTraceEnabled: Boolean;
 
-    procedure Log(const entry: TLogEntry); overload;
+    procedure Log(const event: TLogEvent); overload;
 
     procedure LogValue(const name: string; const value: TValue); overload;
     procedure LogValue(level: TLogLevel; const name: string;
@@ -143,6 +145,9 @@ type
     class property GlobalInstance: ILogger read fGlobalInstance;
   end;
 
+  {$ENDREGION}
+
+
 implementation
 
 
@@ -153,7 +158,7 @@ begin
   fGlobalInstance := TNullLogger.Create;
 end;
 
-procedure TNullLogger.Log(const entry: TLogEntry);
+procedure TNullLogger.Log(const event: TLogEvent);
 begin //FI:W519
 end;
 
@@ -238,7 +243,7 @@ begin
   Result := False;
 end;
 
-function TNullLogger.GetEntryTypes: TLogEntryTypes;
+function TNullLogger.GetEventTypes: TLogEventTypes;
 begin
   Result := [];
 end;
@@ -274,7 +279,7 @@ begin
   Result := False;
 end;
 
-function TNullLogger.IsEnabled(level: TLogLevel; entryTypes: TLogEntryTypes): Boolean;
+function TNullLogger.IsEnabled(level: TLogLevel; eventTypes: TLogEventTypes): Boolean;
 begin
   Result := False;
 end;
@@ -433,5 +438,6 @@ begin //FI:W519
 end;
 
 {$ENDREGION}
+
 
 end.

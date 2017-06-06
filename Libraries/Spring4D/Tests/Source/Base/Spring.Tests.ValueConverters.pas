@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -853,11 +853,7 @@ begin
     TypeInfo(TGUID));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<TGUID>(outGuid));
-{$IFDEF DELPHI2010}
-  CheckTrue(TGUID.Create(GuidString).Equals(outGuid));
-{$ELSE}
   CheckTrue(TGUID.Create(GuidString) = outGuid);
-{$ENDIF}
   CheckFalse(fConverter.TryConvertTo(TValue.From<string>('no-guid'), TypeInfo(TGUID), outValue));
 end;
 
@@ -870,7 +866,7 @@ begin
     TypeInfo(Nullable<TGUID>));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<Nullable<TGUID>>(outGuid));
-  CheckTrue(TGUID.Create(GuidString) = outGuid);
+  CheckTrue(TGUID.Create(GuidString) = outGuid.Value);
 end;
 
 procedure TTestFromString.TestStringToEnum;

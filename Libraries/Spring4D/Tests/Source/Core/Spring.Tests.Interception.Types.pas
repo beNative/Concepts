@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -38,7 +38,7 @@ uses
   Spring.Container.Common,
   Spring.Container.Core,
   Spring.Interception,
-  Spring.Services.Logging;
+  Spring.Logging;
 
 type
   IHasCount = interface
@@ -306,6 +306,7 @@ implementation
 uses
   StrUtils,
   Spring.Helpers,
+  Spring.Logging.NullLogger,
   Spring.Reflection;
 
 
@@ -504,7 +505,7 @@ end;
 
 constructor TCallLoggingInterceptor.Create;
 begin
-//  fLogger := DefaultLogger;
+  fLogger := TNullLogger.GlobalInstance;
 end;
 
 constructor TCallLoggingInterceptor.Create(const logger: ILogger);
@@ -519,7 +520,7 @@ end;
 
 procedure TCallLoggingInterceptor.Intercept(const invocation: IInvocation);
 begin
-//  fLogger.EnterMethod(invocation.Target, invocation.Method.Name);
+  fLogger.Enter(invocation.Target.AsObject, invocation.Method.Name);
   try
     try
       Inc(fCount);
@@ -527,12 +528,12 @@ begin
     except
       on E: Exception do
       begin
-//        fLogger.LogException(E);
+        fLogger.Log('exception', E);
         raise;
       end;
     end;
   finally
-//    fLogger.LeaveMethod(invocation.Target, invocation.Method.Name);
+    fLogger.Leave(invocation.Target.AsObject, invocation.Method.Name);
   end;
 end;
 

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -75,14 +75,14 @@ resourcestring
   SUnexpectedTypeKind  = 'Unexpected type kind: %s.';
   SNotEnumeratedType   = 'Type "%s" is not enumerated type.';
   SIncorrectFormat     = 'Unable to convert %s.';
-  SInvalidDateTime     = '"%S" is not a valid date and time.';
+  SInvalidDateTime     = '"%s" is not a valid date and time.';
   SIllegalFieldCount   = 'fieldCount is more than the number of components defined in the current Version object.';
 
   SBadObjectInheritance = 'Argument %s of type %s does not inherit from type %s.';
 
   SUnknownDescription  = 'Unknown';
   SVersionDescription  = 'Version';
-//  SOSVersionStringFormat = '%S Version %s %s';
+//  SOSVersionStringFormat = '%s Version %s %s';
 
   SSizeStringFormat    = '%s %s';   // e.g. '20.5 MB'
 
@@ -176,7 +176,7 @@ resourcestring
 
   {$REGION 'Spring.Utils'}
 
-  SDriveNotReady              = 'Drive "%S" is not ready.';
+  SDriveNotReady              = 'Drive "%s" is not ready.';
 
   SUnknownDriveDescription    = 'Unknown Drive';
   SNoRootDirectoryDescription = 'No Root Directory';
