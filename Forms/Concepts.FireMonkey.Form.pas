@@ -44,7 +44,6 @@ type
     tbcExample  : TTabControl;
     tbiExample1 : TTabItem;
     tbiExample2 : TTabItem;
-    tbrExample  : TToolBar;
     trbExample  : TTrackBar;
     edtExample  : TEdit;
     btnExample  : TButton;

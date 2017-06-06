@@ -24,12 +24,15 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes,
   FMX.Forms,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
 
   Parnassus.FMXContainer;
 
 type
   TfrmFMXContainer = class(TForm)
+    pnlFMXContainer : TPanel;
+    pnlHeader       : TPanel;
+
   private
     FFMXContainer: TFireMonkeyContainer;
 
@@ -56,10 +59,10 @@ uses
 procedure TfrmFMXContainer.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FFMXContainer := TFireMonkeyContainer.Create(Self);
-  FFMXContainer.Parent := Self;
-  FFMXContainer.Align := alClient;
-  FFMXContainer.OnCreateFMXForm := FFMXContainerCreateFMXForm;
+  FFMXContainer                  := TFireMonkeyContainer.Create(Self);
+  FFMXContainer.Parent           := pnlFMXContainer;
+  FFMXContainer.Align            := alClient;
+  FFMXContainer.OnCreateFMXForm  := FFMXContainerCreateFMXForm;
   FFMXContainer.OnDestroyFMXForm := FFMXContainerDestroyFMXForm;
 end;
 {$ENDREGION}
@@ -74,7 +77,7 @@ end;
 procedure TfrmFMXContainer.FFMXContainerDestroyFMXForm(
   var Form: FMX.Forms.TCommonCustomForm; var Action: TCloseHostedFMXFormAction);
 begin
-  Action :=  fcaFree;
+  Action := fcaFree;
 end;
 {$ENDREGION}
 
