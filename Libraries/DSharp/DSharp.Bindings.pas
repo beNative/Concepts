@@ -309,6 +309,7 @@ procedure NotifyPropertyChanged(ASender: TObject; const APropertyName: string;
 implementation
 
 uses
+  System.Types,
   DSharp.Bindings.Exceptions,
   DSharp.Bindings.Validations,
   DSharp.Core.Reflection,

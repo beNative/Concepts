@@ -86,7 +86,7 @@ implementation
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.StrUtils, System.Variants, System.Character,
+  System.StrUtils, System.Variants, System.Character, System.UITypes,
   Vcl.Forms, Vcl.Dialogs;
 
 var

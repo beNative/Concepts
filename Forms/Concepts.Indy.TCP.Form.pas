@@ -232,8 +232,6 @@ const
 
 {$REGION 'construction and destruction'}
 procedure TfrmIndyTCP.AfterConstruction;
-var
-  I : Integer;
 begin
   inherited AfterConstruction;
   FCommands := TCollections.CreateObjectList<TContainedAction>(False);
@@ -569,9 +567,7 @@ end;
 
 procedure TfrmIndyTCP.SendString(const AString: RawByteString);
 var
-  S : string;
-  R : string;
-  RV : string;
+  S  : string;
 begin
   Client.IOHandler.Write(AString);
 

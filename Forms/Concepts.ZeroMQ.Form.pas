@@ -348,8 +348,6 @@ begin
 end;
 
 procedure TfrmZMQConcept.actConnectExecute(Sender: TObject);
-var
-  S    : string;
 begin
   if Assigned(Pair) then
   begin

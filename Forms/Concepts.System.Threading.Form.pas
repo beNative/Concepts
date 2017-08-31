@@ -61,10 +61,8 @@ type
   strict private
     FProc      : TProc<Integer>;
     FCount     : Integer;
-    FLock      : Lock;
     FLog       : TLogTree;
     FTasks     : IList<ITask>;
-    FTaskCount : Integer;
 
     function GetIterations: Integer;
     function GetStrides: Integer;

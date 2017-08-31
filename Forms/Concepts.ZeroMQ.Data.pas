@@ -33,9 +33,9 @@ type
   private
     FZMQ       : IZeroMQ;
     FPair      : IZMQPair;
-    FEventProc : TZMQEventProc;
+    //FEventProc : TZMQEventProc;
     FEvents    : ZMQEvents;
-    FPoll      : IZMQPoll;
+    //FPoll      : IZMQPoll;
     FPort      : Integer;
     FName      : string;
 

@@ -152,6 +152,10 @@ object frmIndyTCP: TfrmIndyTCP
         object tsCommands: TTabSheet
           Caption = 'Commands'
           ImageIndex = 1
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object pnlCommands: TGridPanel
             AlignWithMargins = True
             Left = 3
@@ -338,6 +342,10 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
         end
         object tsSentText: TTabSheet
           Caption = 'Text'
@@ -348,6 +356,10 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object mmoSentText: TMemo
             Left = 0
             Top = 0
@@ -445,6 +457,10 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
         end
         object tsReceivedText: TTabSheet
           Caption = 'Text'
@@ -455,6 +471,10 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object mmoReceivedText: TMemo
             Left = 0
             Top = 0
@@ -822,7 +842,7 @@ object frmIndyTCP: TfrmIndyTCP
     Intercept = IdConnectionIntercept
     ConnectTimeout = 0
     IPVersion = Id_IPv4
-    Port = 0
+    Port = ecNone
     ReadTimeout = -1
     Left = 43
     Top = 43
