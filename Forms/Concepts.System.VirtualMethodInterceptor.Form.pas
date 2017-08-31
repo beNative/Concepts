@@ -40,8 +40,6 @@ type
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
 
-
-
   end;
 
 implementation
@@ -60,9 +58,8 @@ end;
 
 procedure TfrmVirtualMethodInterceptor.BeforeDestruction;
 begin
-  inherited;
+  inherited BeforeDestruction;
 //  ShowMessage(FButton.Caption);
-
 end;
 
 procedure TfrmVirtualMethodInterceptor.btn1Click(Sender: TObject);
@@ -70,7 +67,6 @@ begin
   FreeAndNil(FPanel);
   if Assigned(FButton) then
     ShowMessage(FButton.ClassName);
-
 end;
 
 procedure TfrmVirtualMethodInterceptor.FormClose(Sender: TObject;

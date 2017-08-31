@@ -22,10 +22,9 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  System.Actions, Vcl.ActnList, Vcl.Grids, Vcl.ValEdit, Vcl.ExtCtrls,
-  Vcl.ComCtrls;
+  System.SysUtils, System.Variants, System.Classes, System.Actions,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids,
+  Vcl.ActnList, Vcl.ValEdit, Vcl.ExtCtrls, Vcl.ComCtrls;
 
 type
   TfrmStringList = class(TForm)

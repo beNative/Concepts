@@ -1,0 +1,96 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{B0629CDA-0C3C-41DE-8B93-A68E42D50DEB}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="..\..\..\Packages\Delphi10Berlin\Spring.Base.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\..\Packages\Delphi10Berlin\Spring.Core.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\..\Packages\Delphi10Berlin\Spring.Extensions.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\..\Packages\Delphi10Berlin\Spring.Persistence.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="SpringTestsMobile.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="SpringORMTestsMobile.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Spring_Base">
+        <MSBuild Projects="..\..\..\Packages\Delphi10Berlin\Spring.Base.dproj"/>
+    </Target>
+    <Target Name="Spring_Base:Clean">
+        <MSBuild Projects="..\..\..\Packages\Delphi10Berlin\Spring.Base.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Spring_Base:Make">
+        <MSBuild Projects="..\..\..\Packages\Delphi10Berlin\Spring.Base.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Spring_Core">
+        <MSBuild Projects="..\..\..\Packages\Delphi10Berlin\Spring.Core.dproj"/>
+    </Target>
+    <Target Name="Spring_Core:Clean">
+        <MSBuild Projects="..\..\..\Packages\Delphi10Berlin\Spring.Core.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Spring_Core:Make">
+        <MSBuild Projects="..\..\..\Packages\Delphi10Berlin\Spring.Core.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Spring_Extensions">
+        <MSBuild Projects="..\..\..\Packages\Delphi10Berlin\Spring.Extensions.dproj"/>
+    </Target>
+    <Target Name="Spring_Extensions:Clean">
+        <MSBuild Projects="..\..\..\Packages\Delphi10Berlin\Spring.Extensions.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Spring_Extensions:Make">
+        <MSBuild Projects="..\..\..\Packages\Delphi10Berlin\Spring.Extensions.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Spring_Persistence">
+        <MSBuild Projects="..\..\..\Packages\Delphi10Berlin\Spring.Persistence.dproj"/>
+    </Target>
+    <Target Name="Spring_Persistence:Clean">
+        <MSBuild Projects="..\..\..\Packages\Delphi10Berlin\Spring.Persistence.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Spring_Persistence:Make">
+        <MSBuild Projects="..\..\..\Packages\Delphi10Berlin\Spring.Persistence.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SpringTestsMobile">
+        <MSBuild Projects="SpringTestsMobile.dproj"/>
+    </Target>
+    <Target Name="SpringTestsMobile:Clean">
+        <MSBuild Projects="SpringTestsMobile.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SpringTestsMobile:Make">
+        <MSBuild Projects="SpringTestsMobile.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SpringORMTestsMobile">
+        <MSBuild Projects="SpringORMTestsMobile.dproj"/>
+    </Target>
+    <Target Name="SpringORMTestsMobile:Clean">
+        <MSBuild Projects="SpringORMTestsMobile.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SpringORMTestsMobile:Make">
+        <MSBuild Projects="SpringORMTestsMobile.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Spring_Base;Spring_Core;Spring_Extensions;Spring_Persistence;SpringTestsMobile;SpringORMTestsMobile"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Spring_Base:Clean;Spring_Core:Clean;Spring_Extensions:Clean;Spring_Persistence:Clean;SpringTestsMobile:Clean;SpringORMTestsMobile:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Spring_Base:Make;Spring_Core:Make;Spring_Extensions:Make;Spring_Persistence:Make;SpringTestsMobile:Make;SpringORMTestsMobile:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

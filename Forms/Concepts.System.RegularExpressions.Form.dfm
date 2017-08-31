@@ -11,6 +11,7 @@ object frmRegularExpressions: TfrmRegularExpressions
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  ShowHint = True
   DesignSize = (
     564
     373)

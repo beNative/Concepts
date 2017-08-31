@@ -11,6 +11,7 @@ object frmMulticastEvents: TfrmMulticastEvents
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  ShowHint = True
   OnClose = FormClose
   DesignSize = (
     288

@@ -69,7 +69,6 @@
 			<DCCReference Include="..\..\Source\Persistence\Core\Spring.Persistence.Core.AbstractSession.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\Core\Spring.Persistence.Core.Base.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\Core\Spring.Persistence.Core.ConnectionFactory.pas"/>
-			<DCCReference Include="..\..\Source\Persistence\Core\Spring.Persistence.Core.Consts.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\Core\Spring.Persistence.Core.DatabaseManager.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\Core\Spring.Persistence.Core.EmbeddedEntity.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\Core\Spring.Persistence.Core.EntityCache.pas"/>
@@ -80,6 +79,7 @@
 			<DCCReference Include="..\..\Source\Persistence\Core\Spring.Persistence.Core.Interfaces.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\Core\Spring.Persistence.Core.ListSession.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\Core\Spring.Persistence.Core.Repository.Simple.pas"/>
+			<DCCReference Include="..\..\Source\Persistence\Core\Spring.Persistence.Core.ResourceStrings.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\Core\Spring.Persistence.Core.Session.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\Core\Spring.Persistence.Core.ValueConverters.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.pas"/>
@@ -99,14 +99,6 @@
 			<DCCReference Include="..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Properties.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\Criteria\Spring.Persistence.Criteria.Restrictions.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\Mapping\Spring.Persistence.Mapping.Attributes.pas"/>
-			<DCCReference Include="..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.pas"/>
-			<DCCReference Include="..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Abstract.pas"/>
-			<DCCReference Include="..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ActiveX.pas"/>
-			<DCCReference Include="..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Algorithms.Sort.pas"/>
-			<DCCReference Include="..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Blobs.pas"/>
-			<DCCReference Include="..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ExprParser.Functions.pas"/>
-			<DCCReference Include="..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ExprParser.pas"/>
-			<DCCReference Include="..\..\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.IndexList.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Abstract.pas"/>
 			<DCCReference Include="..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateForeignKey.pas"/>

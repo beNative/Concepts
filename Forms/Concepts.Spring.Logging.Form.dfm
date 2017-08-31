@@ -12,6 +12,7 @@ object frmSpringLogging: TfrmSpringLogging
   Font.Style = []
   OldCreateOrder = False
   Position = poDesktopCenter
+  ShowHint = True
   OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 13

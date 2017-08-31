@@ -7,15 +7,14 @@ Credits
 Current team members
 * Stefan Glienke (Stefan)
 * Honza Rameš (Honza)
-* Jeroen Wiert Pluimers (Jeroen)
-* Nick Hodges (Nick)
-* Linas Naginionis (Linas)
-* Cesar Romero (Cesar)
 
 Commiters
 * Baoquan Zuo (Baoquan)
 * Leszek Gojniczek (Leo Raster)
 * Mikołaj Milewski (Virion)
+* Nick Hodges (Nick)
+* Jeroen Wiert Pluimers (Jeroen)
+* Linas Naginionis (Linas)
 
 Contributors
 * Ryan Huang
@@ -25,7 +24,9 @@ Contributors
 Acknowledgements:
 * Nick Hodges
 * Alexandr Demcenko (Many classes in the Spring.Cryptography are based on his native cryptographical code implementation)
+* Allen Bauer (Event<T> and Nullable<T> are based on prototypes shown in his blog)
 * Linas Naginionis is the original author of the Marshmallow ORM which Spring Persistence is based on
+* Alexander Benikowski (his idea for wrapping the parameter index into any supported type used by mock parameter matching)
 
 Donations
 * Documentation Insight

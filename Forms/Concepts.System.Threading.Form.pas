@@ -49,11 +49,14 @@ type
     imlMain              : TImageList;
     pnlLog               : TPanel;
     btnCancelTask        : TButton;
+    actTestIterationsAndStrides: TAction;
+    btnTestIterationsAndStrides: TButton;
 
     procedure actExecuteParallelExecute(Sender: TObject);
     procedure actExecuteSequentialExecute(Sender: TObject);
     procedure actStartTaskExecute(Sender: TObject);
     procedure actCancelTaskExecute(Sender: TObject);
+    procedure actTestIterationsAndStridesExecute(Sender: TObject);
 
   strict private
     FProc      : TProc<Integer>;
@@ -101,7 +104,7 @@ uses
 resourcestring
   STaskStarted                  = 'Task %d started.';
   STaskFinished                 = 'Task %d finished.';
-  SFinishedParallelExecutions   = 'Finished %d parallel executions in %dms.';
+  SFinishedParallelExecutions   = 'Finished %d/%d parallel executions in %dms.';
   SFinishedSequentialExecutions = 'Finished %d sequential executions in %dms.';
 
 {$REGION 'construction and destruction'}
@@ -181,6 +184,27 @@ begin
     )
   );
 end;
+
+procedure TfrmThreading.actTestIterationsAndStridesExecute(Sender: TObject);
+var
+  N: Integer;
+begin
+  N := Iterations;
+  TTask.Run(procedure
+    begin
+      ExecuteParallel(FProc, N, 10);
+      ExecuteParallel(FProc, N, 20);
+      ExecuteParallel(FProc, N, 50);
+      ExecuteParallel(FProc, N, 100);
+      ExecuteParallel(FProc, N, 200);
+      ExecuteParallel(FProc, N, 500);
+      ExecuteParallel(FProc, N, 1000);
+      ExecuteParallel(FProc, N, 2000);
+      ExecuteParallel(FProc, N, 5000);
+    end
+  );
+end;
+
 {$ENDREGION}
 
 {$REGION 'protected methods'}
@@ -201,7 +225,7 @@ begin
     begin
       FLog.LogFmt(
         SFinishedParallelExecutions,
-        [ACount, SW.ElapsedMilliseconds]
+        [ACount, AStrides, SW.ElapsedMilliseconds]
       );
     end
   );

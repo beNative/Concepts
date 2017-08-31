@@ -10,6 +10,7 @@ object frmStringList: TfrmStringList
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  ShowHint = True
   PixelsPerInch = 96
   TextHeight = 13
   object chkSorted: TCheckBox
@@ -98,7 +99,6 @@ object frmStringList: TfrmStringList
         SizeStyle = ssAuto
       end>
     TabOrder = 5
-    ExplicitHeight = 770
     object pnlText: TPanel
       Left = 0
       Top = 0
@@ -107,7 +107,6 @@ object frmStringList: TfrmStringList
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 770
       object btnSetText: TButton
         AlignWithMargins = True
         Left = 3
@@ -117,7 +116,6 @@ object frmStringList: TfrmStringList
         Action = actSetText
         Align = alBottom
         TabOrder = 0
-        ExplicitTop = 742
       end
       object mmoText: TMemo
         AlignWithMargins = True
@@ -127,7 +125,6 @@ object frmStringList: TfrmStringList
         Height = 164
         Align = alClient
         TabOrder = 1
-        ExplicitHeight = 733
       end
     end
     object pnlDelimitedText: TPanel
@@ -138,7 +135,6 @@ object frmStringList: TfrmStringList
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 770
       object btnSetDelimitedText: TButton
         AlignWithMargins = True
         Left = 3
@@ -148,7 +144,6 @@ object frmStringList: TfrmStringList
         Action = actSetDelimitedText
         Align = alBottom
         TabOrder = 0
-        ExplicitTop = 742
       end
       object mmoDelimitedText: TMemo
         AlignWithMargins = True
@@ -158,7 +153,6 @@ object frmStringList: TfrmStringList
         Height = 164
         Align = alClient
         TabOrder = 1
-        ExplicitHeight = 733
       end
     end
     object pnlNameValues: TPanel
@@ -169,7 +163,6 @@ object frmStringList: TfrmStringList
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitHeight = 770
       object btnSetNameValues: TButton
         AlignWithMargins = True
         Left = 3
@@ -179,7 +172,6 @@ object frmStringList: TfrmStringList
         Action = actSetNameValues
         Align = alBottom
         TabOrder = 0
-        ExplicitTop = 742
       end
       object lstValueList: TValueListEditor
         AlignWithMargins = True
@@ -189,7 +181,6 @@ object frmStringList: TfrmStringList
         Height = 164
         Align = alClient
         TabOrder = 1
-        ExplicitHeight = 733
         ColWidths = (
           150
           99)

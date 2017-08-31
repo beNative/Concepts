@@ -1,0 +1,4 @@
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+TObjectDataSet BITMAP "ObjectDataSet.bmp"
+TObjectDataSet16 BITMAP "ObjectDataSet16.bmp"
+TObjectDataSet32 BITMAP "ObjectDataSet32.bmp"

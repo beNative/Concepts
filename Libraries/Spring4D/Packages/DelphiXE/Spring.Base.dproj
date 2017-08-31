@@ -83,7 +83,7 @@
 			<DCCReference Include="..\..\Source\Base\Patches\Spring.Patches.QC93646.pas"/>
 			<DCCReference Include="..\..\Source\Base\Patches\Spring.Patches.QC98671.pas"/>
 			<DCCReference Include="..\..\Source\Base\Patches\Spring.Patches.QC107219.pas"/>
-			<DCCReference Include="..\..\Source\Base\Reflection\Spring.Reflection.pas"/>
+			<DCCReference Include="..\..\Source\Base\Spring.Reflection.pas"/>
 			<DCCReference Include="..\..\Source\Base\Spring.ResourceStrings.pas"/>
 			<DCCReference Include="..\..\Source\Base\Spring.SystemUtils.pas"/>
 			<DCCReference Include="..\..\Source\Base\Spring.Times.pas"/>

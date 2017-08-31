@@ -2,8 +2,8 @@ object frmRelativePanel: TfrmRelativePanel
   Left = 0
   Top = 0
   Caption = 'RelativePanel'
-  ClientHeight = 506
-  ClientWidth = 731
+  ClientHeight = 343
+  ClientWidth = 515
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,11 +11,12 @@ object frmRelativePanel: TfrmRelativePanel
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  ShowHint = True
   PixelsPerInch = 96
   TextHeight = 13
   object pnlRelativePanel: TRelativePanel
-    Left = 48
-    Top = 32
+    Left = 8
+    Top = 8
     Width = 497
     Height = 321
     ControlCollection = <

@@ -10,6 +10,7 @@ object frmMulticastEventsChild: TfrmMulticastEventsChild
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  ShowHint = True
   DesignSize = (
     585
     42)

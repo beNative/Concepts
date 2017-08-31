@@ -11,6 +11,7 @@ object frmInterfaceImplementationByAggregation: TfrmInterfaceImplementationByAgg
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  ShowHint = True
   DesignSize = (
     379
     124)

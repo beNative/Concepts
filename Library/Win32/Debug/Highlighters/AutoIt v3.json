@@ -2,8 +2,8 @@
    "Highlighter": {
       "Info": {
          "General": {
-            "Version": "1.0",
-            "Date": "26.01.2016",
+            "Version": "1.5.2",
+            "Date": "06.05.2016",
             "Sample": [
                "MsgBox(64, \"Tutorial\", \"Hello World!\")"
             ]
@@ -597,6 +597,32 @@
             ]
          }
       }
+   },
+   "CodeFolding": {
+      "Ranges": [
+         {
+            "FoldRegion": [
+               {
+                  "OpenToken": "FUNC",
+                  "CloseToken": "ENDFUNC"
+               },
+							 {
+                  "OpenToken": "IF",
+                  "CloseToken": "ENDIF",
+									"Properties": {
+                     "SharedClose": true
+                  }
+               },
+               {
+                  "OpenToken": "ELSE",
+                  "CloseToken": "ENDIF",
+									"Properties": {
+                     "SharedClose": true
+                  }
+               }
+            ]
+         }
+      ]
    },
    "MatchingPair": {
       "Pairs": [

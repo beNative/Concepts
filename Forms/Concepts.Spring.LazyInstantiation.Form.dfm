@@ -11,6 +11,7 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  ShowHint = True
   DesignSize = (
     418
     249)
