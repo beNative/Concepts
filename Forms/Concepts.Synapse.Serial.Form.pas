@@ -36,7 +36,6 @@ uses
 
   synaser;
 
-
 { TODO
   Adjustable settings:
 

@@ -33,22 +33,22 @@ uses
 type
   TfrmSpringUtils = class(TForm)
     aclMain                    : TActionList;
-    mmoMain                    : TMemo;
-    pnlTop                     : TGridPanel;
-    actApplicationVersionInfo  : TAction;
-    actOperatingSystem         : TAction;
-    btnFileVersionInfo         : TButton;
-    btnOperatingSystem         : TButton;
     actApplicationVersion      : TAction;
-    btnApplicationVersion      : TButton;
+    actApplicationVersionInfo  : TAction;
     actEnvironment             : TAction;
-    btnEnvironment             : TButton;
     actGetCommandLineArgs      : TAction;
     actGetEnvironmentVariables : TAction;
+    actGetLogicalDrives        : TAction;
+    actOperatingSystem         : TAction;
+    btnApplicationVersion      : TButton;
+    btnEnvironment             : TButton;
+    btnFileVersionInfo         : TButton;
     btnGetCommandLineArgs      : TButton;
     btnGetEnvironmentVariables : TButton;
-    actGetLogicalDrives        : TAction;
     btnGetLogicalDrives        : TButton;
+    btnOperatingSystem         : TButton;
+    mmoMain                    : TMemo;
+    pnlTop                     : TGridPanel;
 
     procedure actOperatingSystemExecute(Sender: TObject);
     procedure actApplicationVersionInfoExecute(Sender: TObject);

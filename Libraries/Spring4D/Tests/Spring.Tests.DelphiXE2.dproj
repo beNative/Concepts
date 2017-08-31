@@ -54,7 +54,7 @@
 			<DCC_Define>SPRING_ENABLE_GUARD;$(DCC_Define)</DCC_Define>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<Manifest_File>None</Manifest_File>
-			<DCC_UnitSearchPath>..\Source;..\Source\Base;..\Source\Base\Collections;..\Source\Base\Logging;..\Source\Base\Reflection;..\Source\Core\Container;..\Source\Core\Interception;..\Source\Core\Logging;..\Source\Core\Mocking;..\Source\Core\Services;..\Source\Extensions\Cryptography;..\Source\Extensions\Utils;.\Source;.\Source\dUnit;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\Source;..\Source\Base;..\Source\Base\Collections;..\Source\Base\Logging;..\Source\Core\Container;..\Source\Core\Interception;..\Source\Core\Logging;..\Source\Core\Mocking;..\Source\Core\Services;..\Source\Extensions\Cryptography;..\Source\Extensions\Utils;.\Source;.\Source\dUnit;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_ExeOutput>Bin\DelphiXE2\$(Platform)\$(Config)</DCC_ExeOutput>
 			<DCC_DcuOutput>Lib\DelphiXE2\$(Platform)\$(Config)</DCC_DcuOutput>
 			<VerInfo_Locale>1033</VerInfo_Locale>

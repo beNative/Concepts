@@ -21,13 +21,16 @@ unit Concepts.System.Rtti.Form;
 interface
 
 uses
-  System.Classes,
-  Vcl.Controls, Vcl.StdCtrls, Vcl.Forms;
+  System.Classes, System.Actions,
+  Vcl.Controls, Vcl.StdCtrls, Vcl.Forms, Vcl.ActnList;
 
 type
   TfrmRTTI = class(TForm)
-    btn1: TButton;
-    procedure btn1Click(Sender: TObject);
+    btnExecute : TButton;
+    aclMain    : TActionList;
+    actExecute : TAction;
+
+    procedure actExecuteExecute(Sender: TObject);
 
   end;
 
@@ -44,12 +47,12 @@ type
   TTest    = (ttOne, ttTwo, ttThree);
   TTestSet =  set of TTest;
 
-procedure TfrmRTTI.btn1Click(Sender: TObject);
+procedure TfrmRTTI.actExecuteExecute(Sender: TObject);
 var
-  s: TTestSet;
+  S : TTestSet;
 begin
-  s := [ttOne, ttThree];
-  ShowMessage(SetToString(TypeInfo(TTestSet), s));
+  S := [ttOne, ttThree];
+  ShowMessage(SetToString(TypeInfo(TTestSet), S));
 end;
 
 end.

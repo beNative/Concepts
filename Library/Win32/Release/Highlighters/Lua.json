@@ -2,8 +2,8 @@
    "Highlighter": {
       "Info": {
          "General": {
-            "Version": "1.3",
-            "Date": "26.01.2016",
+            "Version": "1.5.2",
+            "Date": "21.02.2016",
             "Sample": [
                "-- Hello World in Lua\r\n",
                "\r\n",
@@ -31,6 +31,26 @@
                   },
                   "TokenRange": {
                      "Open": "--"
+                  }
+               },
+               {
+                  "Type": "BlockComment",
+                  "Attributes": {
+                     "Element": "Comment"
+                  },
+                  "TokenRange": {
+                     "Open": "--[[",
+                     "Close": "]]"
+                  }
+               },
+               {
+                  "Type": "BlockComment",
+                  "Attributes": {
+                     "Element": "Comment"
+                  },
+                  "TokenRange": {
+                     "Open": "--[=",
+                     "Close": "=]"
                   }
                },
                {
@@ -76,6 +96,26 @@
                            }
                         }
                      ]
+                  }
+               },
+               {
+                  "Type": "String",
+                  "Attributes": {
+                     "Element": "String"
+                  },
+                  "TokenRange": {
+                     "Open": "[[",
+                     "Close": "]]"
+                  }
+               },
+               {
+                  "Type": "String",
+                  "Attributes": {
+                     "Element": "String"
+                  },
+                  "TokenRange": {
+                     "Open": "[=",
+                     "Close": "=]"
                   }
                },
                {

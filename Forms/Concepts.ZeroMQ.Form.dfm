@@ -12,6 +12,7 @@ object frmZMQConcept: TfrmZMQConcept
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  ShowHint = True
   OnClose = FormClose
   DesignSize = (
     917

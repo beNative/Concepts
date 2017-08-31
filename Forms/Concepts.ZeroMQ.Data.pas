@@ -110,8 +110,6 @@ const
 
 implementation
 
-{ TZeroMQDevice }
-
 {$REGION 'construction and destruction'}
 procedure TZeroMQDevice.AfterConstruction;
 begin

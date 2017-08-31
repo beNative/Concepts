@@ -72,7 +72,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_UnitSearchPath>..\..\..\Source\Base;..\..\..\Source\Base\Reflection;..\..\..\Source\Base\Collections;..\..\..\Source\Core\Container;..\..\..\Source\Core\Services;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\..\Source\Base;..\..\..\Source\Base\Collections;..\..\..\Source\Core\Container;..\..\..\Source\Core\Services;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
         <DCC_DcpOutput>.\$(Platform)\$(Config)</DCC_DcpOutput>
         <DCC_BplOutput>.\$(Platform)\$(Config)</DCC_BplOutput>

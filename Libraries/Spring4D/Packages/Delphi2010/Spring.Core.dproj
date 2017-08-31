@@ -57,7 +57,6 @@
 			<DCCReference Include="..\..\Source\Core\Container\Spring.Container.ComponentActivator.pas"/>
 			<DCCReference Include="..\..\Source\Core\Container\Spring.Container.Core.pas"/>
 			<DCCReference Include="..\..\Source\Core\Container\Spring.Container.CreationContext.pas"/>
-			<DCCReference Include="..\..\Source\Core\Container\Spring.Container.DecoratorExtension.pas"/>
 			<DCCReference Include="..\..\Source\Core\Container\Spring.Container.Extensions.pas"/>
 			<DCCReference Include="..\..\Source\Core\Container\Spring.Container.Injection.pas"/>
 			<DCCReference Include="..\..\Source\Core\Container\Spring.Container.LifetimeManager.pas"/>

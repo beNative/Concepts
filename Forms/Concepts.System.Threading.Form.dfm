@@ -10,6 +10,7 @@ object frmThreading: TfrmThreading
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  ShowHint = True
   PixelsPerInch = 96
   TextHeight = 13
   object btnExecute: TButton
@@ -92,6 +93,14 @@ object frmThreading: TfrmThreading
     Action = actCancelTask
     TabOrder = 6
   end
+  object btnTestIterationsAndStrides: TButton
+    Left = 326
+    Top = 39
+    Width = 153
+    Height = 25
+    Action = actTestIterationsAndStrides
+    TabOrder = 7
+  end
   object aclMain: TActionList
     Left = 304
     Top = 176
@@ -110,6 +119,10 @@ object frmThreading: TfrmThreading
     object actCancelTask: TAction
       Caption = 'Cancel task'
       OnExecute = actCancelTaskExecute
+    end
+    object actTestIterationsAndStrides: TAction
+      Caption = 'Test multiple setups'
+      OnExecute = actTestIterationsAndStridesExecute
     end
   end
   object imlMain: TImageList

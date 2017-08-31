@@ -36,7 +36,7 @@ uses
 
 type
   TfrmLiveBindings = class(TForm)
-    absMain: TAdapterBindSource;
+    absMain                   : TAdapterBindSource;
     aclMain                   : TActionList;
     actAlterContactCompany    : TAction;
     actGenerateContact        : TAction;

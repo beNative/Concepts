@@ -209,8 +209,8 @@ begin
       builder.Append(',').Append(columnData.ColumnScale.GetValueOrDefault(0));
     end;
 
-    if columnData.ColumnDescription.HasValue then
-      builder.Append(',').Append(columnData.ColumnDescription);
+    //if columnData.ColumnDescription.HasValue then
+      //builder.Append(',').Append(columnData.ColumnDescription);
 
     builder.Append(')');
     builder.Append(']');

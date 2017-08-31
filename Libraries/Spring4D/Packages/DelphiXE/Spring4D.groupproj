@@ -9,6 +9,12 @@
 			<Projects Include="Spring.Core.dproj">
 				<Dependencies>Spring.Base.dproj</Dependencies>
 			</Projects>
+			<Projects Include="Spring.Data.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="Spring.Data.Designtime.dproj">
+				<Dependencies/>
+			</Projects>
 			<Projects Include="Spring.Persistence.dproj">
 				<Dependencies>Spring.Base.dproj</Dependencies>
 			</Projects>
@@ -44,6 +50,24 @@
 		<Target Name="Spring_Core:Make" DependsOnTargets="Spring.Base:Make">
 			<MSBuild Targets="Make" Projects="Spring.Core.dproj"/>
 		</Target>
+		<Target Name="Spring_Data">
+			<MSBuild Projects="Spring.Data.dproj"/>
+		</Target>
+		<Target Name="Spring_Data:Clean">
+			<MSBuild Targets="Clean" Projects="Spring.Data.dproj"/>
+		</Target>
+		<Target Name="Spring_Data:Make">
+			<MSBuild Targets="Make" Projects="Spring.Data.dproj"/>
+		</Target>
+		<Target Name="Spring_Data_Designtime">
+			<MSBuild Projects="Spring.Data.Designtime.dproj"/>
+		</Target>
+		<Target Name="Spring_Data_Designtime:Clean">
+			<MSBuild Targets="Clean" Projects="Spring.Data.Designtime.dproj"/>
+		</Target>
+		<Target Name="Spring_Data_Designtime:Make">
+			<MSBuild Targets="Make" Projects="Spring.Data.Designtime.dproj"/>
+		</Target>
 		<Target Name="Spring_Persistence" DependsOnTargets="Spring.Base">
 			<MSBuild Projects="Spring.Persistence.dproj"/>
 		</Target>
@@ -72,13 +96,13 @@
 			<MSBuild Targets="Make" Projects="..\..\Tests\Spring.Tests.DelphiXE.dproj"/>
 		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="Spring_Base;Spring_Core;Spring_Persistence;Spring_Extensions;Spring_Tests_DelphiXE"/>
+			<CallTarget Targets="Spring_Base;Spring_Core;Spring_Data;Spring_Data_Designtime;Spring_Persistence;Spring_Extensions;Spring_Tests_DelphiXE"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="Spring_Base:Clean;Spring_Core:Clean;Spring_Persistence:Clean;Spring_Extensions:Clean;Spring_Tests_DelphiXE:Clean"/>
+			<CallTarget Targets="Spring_Base:Clean;Spring_Core:Clean;Spring_Data:Clean;Spring_Data_Designtime:Clean;Spring_Persistence:Clean;Spring_Extensions:Clean;Spring_Tests_DelphiXE:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="Spring_Base:Make;Spring_Core:Make;Spring_Persistence:Make;Spring_Extensions:Make;Spring_Tests_DelphiXE:Make"/>
+			<CallTarget Targets="Spring_Base:Make;Spring_Core:Make;Spring_Data:Make;Spring_Data_Designtime:Make;Spring_Persistence:Make;Spring_Extensions:Make;Spring_Tests_DelphiXE:Make"/>
 		</Target>
 		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
 		<ItemGroup Condition="'$(BuildGroup)'=='Release'">
@@ -94,10 +118,22 @@
 				<Platforms>Win32</Platforms>
 				<Enabled>True</Enabled>
 			</BuildGroupProject>
+			<BuildGroupProject Include="Spring.Extensions.dproj">
+				<ProjectGuid>{36393DF7-0772-4944-A0D3-B24C69A26D34}</ProjectGuid>
+				<Configurations>Release</Configurations>
+				<Platforms>Win32</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
 			<BuildGroupProject Include="..\..\Tests\Spring.Tests.DelphiXE.dproj">
 				<ProjectGuid>{E251DCB9-1C49-4573-A299-509A6B9B5D68}</ProjectGuid>
 				<Configurations>Debug</Configurations>
 				<Platforms>Win32</Platforms>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Spring.Data.dproj">
+				<ProjectGuid>{79D669AD-353B-45EC-8F79-79417FF68AB7}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
 				<Enabled>False</Enabled>
 			</BuildGroupProject>
 			<BuildGroupProject Include="Spring.Persistence.dproj">
@@ -106,11 +142,11 @@
 				<Platforms/>
 				<Enabled>False</Enabled>
 			</BuildGroupProject>
-			<BuildGroupProject Include="Spring.Extensions.dproj">
-				<ProjectGuid>{36393DF7-0772-4944-A0D3-B24C69A26D34}</ProjectGuid>
-				<Configurations>Release</Configurations>
-				<Platforms>Win32</Platforms>
-				<Enabled>True</Enabled>
+			<BuildGroupProject Include="Spring.Data.Designtime.dproj">
+				<ProjectGuid>{309A3FD0-3423-4E6D-8A5A-343A22CDE32B}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
 			</BuildGroupProject>
 		</ItemGroup>
 	</Project>

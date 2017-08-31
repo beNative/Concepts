@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -35,14 +35,27 @@ interface
 uses
   SysUtils,
   Spring,
-  Spring.Logging,
-  Spring.Logging.Loggers;
+  Spring.Logging;
 
 type
   {$REGION 'TLogAppenderBase'}
-
-  TLogAppenderBase = class abstract(TLoggerBase, ILogAppender)
+  TLogAppenderBase = class abstract(TInterfacedObject, ILogAppender,
+    ILoggerProperties)
   private
+    fDefaultLevel: TLogLevel;
+    fEnabled: Boolean;
+    fLevels: TLogLevels;
+    fEntryTypes: TLogEntryTypes;
+
+    function GetDefaultLevel: TLogLevel;
+    function GetEnabled: Boolean;
+    function GetLevels: TLogLevels;
+    function GetEntryTypes: TLogEntryTypes;
+
+    procedure SetDefaultLevel(value: TLogLevel);
+    procedure SetEnabled(value: Boolean);
+    procedure SetLevels(value: TLogLevels);
+    procedure SetEntryTypes(value: TLogEntryTypes);
   {$REGION 'Helper constants and functions'}
   protected const
     //May or may not be used by descendants, its here just for convenience
@@ -67,8 +80,8 @@ type
       '[FATAL]'
     );
   public
-    class function FormatText(const event: TLogEvent): string; static; inline;
-    class function FormatMsg(const event: TLogEvent): string; static; inline;
+    class function FormatText(const entry: TLogEntry): string; static; inline;
+    class function FormatMsg(const entry: TLogEntry): string; static; inline;
     class function FormatException(const e: Exception): string; static; //noinline
     class function FormatMethodName(classType: TClass;
       const methodName: string): string; static; inline;
@@ -78,11 +91,19 @@ type
       const methodName: string): string; static; inline;
   {$ENDREGION}
   protected
-    procedure DoSend(const event: TLogEvent); virtual; abstract;
+    function IsEnabled(level: TLogLevel;
+      entryType: TLogEntryType): Boolean; inline;
+    procedure DoSend(const entry: TLogEntry); virtual; abstract;
   public
-    procedure Send(const event: TLogEvent);
-  end;
+    constructor Create;
 
+    procedure Send(const entry: TLogEntry);
+
+    property DefaultLevel: TLogLevel read GetDefaultLevel write SetDefaultLevel;
+    property Enabled: Boolean read GetEnabled write SetEnabled;
+    property Levels: TLogLevels read GetLevels write SetLevels;
+    property EntryTypes: TLogEntryTypes read GetEntryTypes write SetEntryTypes;
+  end;
   {$ENDREGION}
 
 
@@ -93,6 +114,14 @@ uses
 
 
 {$REGION 'TLogAppenderBase'}
+
+constructor TLogAppenderBase.Create;
+begin
+  inherited Create;
+  fEnabled := True;
+  fLevels := LOG_BASIC_LEVELS;
+  fEntryTypes := LOG_BASIC_ENTRY_TYPES;
+end;
 
 class function TLogAppenderBase.FormatEntering(classType: TClass;
   const methodName: string): string;
@@ -124,37 +153,83 @@ begin
     Result := methodName;
 end;
 
-class function TLogAppenderBase.FormatMsg(const event: TLogEvent): string;
+class function TLogAppenderBase.FormatMsg(const entry: TLogEntry): string;
 begin
-  if event.Exception = nil then
-    Result := FormatText(event)
+  if entry.Exception = nil then
+    Result := FormatText(entry)
   else
-    if event.Msg <> '' then
-      Result := FormatText(event) + ': ' + FormatException(event.Exception)
+    if entry.Msg <> '' then
+      Result := FormatText(entry) + ': ' + FormatException(entry.Exception)
     else
-      Result := FormatException(event.Exception);
+      Result := FormatException(entry.Exception);
 end;
 
-class function TLogAppenderBase.FormatText(const event: TLogEvent): string;
+class function TLogAppenderBase.FormatText(const entry: TLogEntry): string;
 begin
-  case event.EventType of
-    TLogEventType.Text,
-    TLogEventType.SerializedData,
-    TLogEventType.CallStack:
-      Result := event.Msg;
+  case entry.EntryType of
+    TLogEntryType.Text,
+    TLogEntryType.SerializedData,
+    TLogEntryType.CallStack:
+      Result := entry.Msg;
 
-    TLogEventType.Entering:
-      Result := FormatEntering(event.ClassType, event.Msg);
+    TLogEntryType.Entering:
+      Result := FormatEntering(entry.ClassType, entry.Msg);
 
-    TLogEventType.Leaving:
-      Result := FormatLeaving(event.ClassType, event.Msg);
+    TLogEntryType.Leaving:
+      Result := FormatLeaving(entry.ClassType, entry.Msg);
   end;
 end;
 
-procedure TLogAppenderBase.Send(const event: TLogEvent);
+function TLogAppenderBase.GetDefaultLevel: TLogLevel;
 begin
-  if IsEnabled(event.Level, [event.EventType]) then
-    DoSend(event);
+  Result := fDefaultLevel;
+end;
+
+function TLogAppenderBase.GetEnabled: Boolean;
+begin
+  Result := fEnabled;
+end;
+
+function TLogAppenderBase.GetEntryTypes: TLogEntryTypes;
+begin
+  Result := fEntryTypes;
+end;
+
+function TLogAppenderBase.GetLevels: TLogLevels;
+begin
+  Result := fLevels;
+end;
+
+function TLogAppenderBase.IsEnabled(level: TLogLevel;
+  entryType: TLogEntryType): Boolean;
+begin
+  Result := fEnabled and (level in fLevels) and (entryType in fEntryTypes);
+end;
+
+procedure TLogAppenderBase.Send(const entry: TLogEntry);
+begin
+  if IsEnabled(entry.Level, entry.EntryType) then
+    DoSend(entry);
+end;
+
+procedure TLogAppenderBase.SetDefaultLevel(value: TLogLevel);
+begin
+  fDefaultLevel := value;
+end;
+
+procedure TLogAppenderBase.SetEnabled(value: Boolean);
+begin
+  fEnabled := value;
+end;
+
+procedure TLogAppenderBase.SetEntryTypes(value: TLogEntryTypes);
+begin
+  fEntryTypes := value;
+end;
+
+procedure TLogAppenderBase.SetLevels(value: TLogLevels);
+begin
+  fLevels := value;
 end;
 
 {$ENDREGION}

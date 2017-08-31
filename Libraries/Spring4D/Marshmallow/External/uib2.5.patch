@@ -1,0 +1,74 @@
+--- uiblib.pas	Fri Oct  8 17:29:28 2010
++++ uiblib.pas	Tue Nov  3 11:41:54 2015
+@@ -1666,7 +1666,7 @@
+     CurPos  := PAnsiChar(Params);
+     while (CurPos <> nil) do
+     begin
+-      NextPos := StrScan(CurPos, Delimiter);
++      NextPos := SysUtils.StrScan(CurPos, Delimiter);
+       if (NextPos = nil) then
+         CurStr := CurPos else
+         begin
+@@ -1683,7 +1683,7 @@
+           CurValue := Copy(CurStr, EqualPos+1, Length(CurStr) - EqualPos);
+           CurStr   := Copy(CurStr, 0, EqualPos-1);
+         end;
+-        StrLower(PAnsiChar(CurStr));
++        SysUtils.StrLower(PAnsiChar(CurStr));
+         CurStr := Trim(CurStr);
+         CurValue := Trim(CurValue);
+         for Code := 1 to isc_dpb_Max_Value do
+@@ -1903,7 +1903,7 @@
+     begin
+       for Result := low(TCharacterSet) to High(TCharacterSet) do
+         if (len = Length(CharacterSetStr[Result])) and
+-          (StrIComp(PAnsiChar(CharacterSetStr[Result]), PAnsiChar(CharacterSet)) = 0) then
++          (SysUtils.StrIComp(PAnsiChar(CharacterSetStr[Result]), PAnsiChar(CharacterSet)) = 0) then
+             Exit;
+       raise Exception.CreateFmt(EUIB_CHARSETNOTFOUND, [CharacterSet]);
+     end;
+@@ -2523,7 +2523,7 @@
+     CurPos  := PAnsiChar(Params);
+     while (CurPos <> nil) do
+     begin
+-      NextPos := StrScan(CurPos, Delimiter);
++      NextPos := SysUtils.StrScan(CurPos, Delimiter);
+       if (NextPos = nil) then
+         CurStr := CurPos else
+         begin
+@@ -2540,7 +2540,7 @@
+           CurValue := Copy(CurStr, EqualPos+1, Length(CurStr) - EqualPos);
+           CurStr   := Copy(CurStr, 0, EqualPos-1);
+         end;
+-        StrLower(PAnsiChar(CurStr));
++        SysUtils.StrLower(PAnsiChar(CurStr));
+         CurStr := Trim(CurStr);
+         CurValue := Trim(CurValue);
+         for Code := 1 to isc_bpb_Max_Value do
+@@ -5027,7 +5027,7 @@
+   begin
+     for i := 0 to GetAllocatedFields - 1 do
+       if FXSQLDA.sqlvar[i].AliasNameLength = Length(name) then
+-        if StrLIComp(PansiChar(@FXSQLDA.sqlvar[i].aliasname), PAnsiChar(Name),
++        if SysUtils.StrLIComp(PansiChar(@FXSQLDA.sqlvar[i].aliasname), PAnsiChar(Name),
+           FXSQLDA.sqlvar[i].AliasNameLength) = 0 then
+           begin
+             index := i;
+@@ -6073,7 +6073,7 @@
+     if FXSQLDA.sqln > 1 then
+       for i := 0 to FXSQLDA.sqln - 2 do
+         if not ((FXSQLDA.sqlvar[i].RelNameLength = FXSQLDA.sqlvar[i+1].RelNameLength) and
+-          (StrIComp(FXSQLDA.sqlvar[i].RelName, FXSQLDA.sqlvar[i+1].RelName) = 0)) then
++          (SysUtils.StrIComp(FXSQLDA.sqlvar[i].RelName, FXSQLDA.sqlvar[i+1].RelName) = 0)) then
+             exit;
+     if FXSQLDA.sqln > 0 then
+       SetString(Result, FXSQLDA.sqlvar[0].RelName, FXSQLDA.sqlvar[0].RelNameLength);
+@@ -6638,7 +6638,7 @@
+   begin
+     for Field := 0 to FXSQLDA.sqln - 1 do
+       if FXSQLDA.sqlvar[Field].ParamNameLength = Length(name) then
+-        if StrLIComp(@FXSQLDA.sqlvar[Field].ParamName, PAnsiChar(Name),
++        if SysUtils.StrLIComp(@FXSQLDA.sqlvar[Field].ParamName, PAnsiChar(Name),
+           FXSQLDA.sqlvar[Field].ParamNameLength) = 0 then
+           begin
+             Result := true;

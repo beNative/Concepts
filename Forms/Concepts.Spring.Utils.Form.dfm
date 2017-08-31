@@ -11,6 +11,7 @@ object frmSpringUtils: TfrmSpringUtils
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  ShowHint = True
   PixelsPerInch = 96
   TextHeight = 13
   object mmoMain: TMemo
@@ -44,7 +45,7 @@ object frmSpringUtils: TfrmSpringUtils
     BevelOuter = bvNone
     ColumnCollection = <
       item
-        Value = 25.083825053569430000
+        Value = 25.083825053569420000
       end
       item
         Value = 24.973965258534360000

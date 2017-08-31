@@ -24,12 +24,12 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_Define>SPRING_ENABLE_GUARD;$(DCC_Define)</DCC_Define>
+			<DCC_Define>SPRING_ENABLE_GUARD;TESTINSIGHT;$(DCC_Define)</DCC_Define>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
 			<DCC_DcuOutput>Lib\DelphiXE\$(Platform)\$(Config)</DCC_DcuOutput>
 			<DCC_ExeOutput>Bin\DelphiXE\$(Platform)\$(Config)</DCC_ExeOutput>
 			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;WinTypes=Windows;WinProcs=Windows;$(DCC_UnitAlias)</DCC_UnitAlias>
-			<DCC_UnitSearchPath>..\Source;..\Source\Base;..\Source\Base\Collections;..\Source\Base\Interception;..\Source\Base\Logging;..\Source\Base\Patches;..\Source\Base\Reflection;..\Source\Core\Container;..\Source\Core\Interception;..\Source\Core\Logging;..\Source\Core\Mocking;..\Source\Core\Services;..\Source\Extensions\Cryptography;..\Source\Extensions\Utils;.\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\Source;..\Source\Base;..\Source\Base\Collections;..\Source\Base\Logging;..\Source\Base\Patches;..\Source\Core\Container;..\Source\Core\Interception;..\Source\Core\Logging;..\Source\Core\Mocking;..\Source\Core\Services;..\Source\Extensions\Cryptography;..\Source\Extensions\Utils;.\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_N>false</DCC_N>
 			<DCC_S>false</DCC_S>
 			<DCC_K>false</DCC_K>
@@ -43,6 +43,8 @@
 			<DCC_DebugInformation>false</DCC_DebugInformation>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_RangeChecking>true</DCC_RangeChecking>
+			<DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
 			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
 			<DCC_Optimize>false</DCC_Optimize>
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
@@ -52,6 +54,7 @@
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="Source\Spring.TestBootstrap.pas"/>
+			<DCCReference Include="Source\Spring.Testing.pas"/>
 			<DCCReference Include="Source\Spring.TestRegistration.pas"/>
 			<DCCReference Include="Source\Spring.TestRunner.pas"/>
 			<DCCReference Include="Source\Spring.TestUtils.pas"/>
@@ -75,6 +78,7 @@
 			<DCCReference Include="Source\Core\Spring.Tests.Interception.Types.pas"/>
 			<DCCReference Include="Source\Core\Spring.Tests.Pool.pas"/>
 			<DCCReference Include="Source\Extensions\Spring.Tests.Cryptography.pas"/>
+			<DCCReference Include="Source\Spring.Tests.Testing.pas"/>
 			<DCCReference Include="Source\Extensions\Spring.Tests.Utils.pas"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>

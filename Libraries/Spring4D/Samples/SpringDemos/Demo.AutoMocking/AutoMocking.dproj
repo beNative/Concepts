@@ -26,13 +26,12 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_UnitSearchPath>..\..\..\Source;..\..\..\Source\Base;..\..\..\Source\Base\Collections;..\..\..\Source\Base\Interception;..\..\..\Source\Base\Logging;..\..\..\Source\Base\Patches;..\..\..\Source\Base\Reflection;..\..\..\Source\Core\Container;..\..\..\Source\Core\Interception;..\..\..\Source\Core\Mocking;..\..\..\Source\Core\Services;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\..\..\Source;..\..\..\Source\Base;..\..\..\Source\Base\Collections;..\..\..\..\Source\Base\Logging;..\..\..\Source\Base\Patches;..\..\..\Source\Core\Container;..\..\..\Source\Core\Interception;..\..\..\Source\Core\Mocking;..\..\..\Source\Core\Services;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<VerInfo_Locale>1031</VerInfo_Locale>
 			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
 			<SanitizedProjectName>AutoMocking</SanitizedProjectName>
 			<DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
-			<DCC_UsePackage>vclx;vcl;VclSmp;rtl;vclimg;bdertl;TeeUI;Tee;TeeDB;vclactnband;vcldb;dbrtl;vcldbx;vcltouch;xmlrtl;dsnap;dsnapcon;vclib;ibxpress;adortl;IndyCore;IndySystem;IndyProtocols;vclie;inet;websnap;webdsnap;inetdb;inetdbbde;inetdbxpress;soaprtl;dbexpress;DbxCommonDriver;DataSnapIndy10ServerTransport;DataSnapProviderClient;DbxClientDriver;DataSnapClient;dbxcds;DataSnapServer;AzureCloud;DBXInterBaseDriver;DBXMySQLDriver;DBXFirebirdDriver;DBXSybaseASEDriver;DBXSybaseASADriver;DBXOracleDriver;DBXMSSQLDriver;DBXInformixDriver;DBXDb2Driver;CodeSiteExpressVcl;VirtualTreesR;StackOverflow;DataBindings;TreeViewPresenter;$(DCC_UsePackage)</DCC_UsePackage>
 			<DCC_ExeOutput>.\$(Config)\$(Platform)</DCC_ExeOutput>
 			<DCC_DcuOutput>.\$(Config)\$(Platform)</DCC_DcuOutput>
 			<DCC_F>false</DCC_F>

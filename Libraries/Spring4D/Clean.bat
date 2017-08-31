@@ -21,7 +21,13 @@ del /f /q /s Samples\*.exe
 del /f /q /s Tests\Bin\*.*
 del /f /q /s Tests\Lib\*.*
 
+rmdir Library /s /q
+rmdir Logs /s /q
+
 for /f "tokens=* delims=" %%i in ('dir /s /b /a:d __history') do (
+  rd /s /q "%%i"
+)
+for /f "tokens=* delims=" %%i in ('dir /s /b /a:d __recovery') do (
   rd /s /q "%%i"
 )
 if "%1"=="" goto :eof

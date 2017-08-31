@@ -63,8 +63,8 @@ type
     grpLogEntry        : TGroupBox;
     imlLogLevels       : TImageList;
     imlMain            : TImageList;
-    lblMessage         : TLabel;
     lblData            : TLabel;
+    lblMessage         : TLabel;
     pnlLeft            : TPanel;
     pnlLoggerInspector : TPanel;
     pnlRight           : TPanel;

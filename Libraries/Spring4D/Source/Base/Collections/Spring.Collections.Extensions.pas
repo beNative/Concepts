@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2016 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -228,19 +228,6 @@ type
     fEnumerator: IEnumerator<T>;
   public
     constructor Create(const source: IEnumerable<T>; const comparer: IEqualityComparer<T>);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
-  end;
-
-  TDistinctByIterator<T,TKey> = class(TSourceIterator<T>)
-  private
-    fKeySelector: TFunc<T, TKey>;
-    fComparer: IEqualityComparer<TKey>;
-    fSet: ISet<TKey>;
-    fEnumerator: IEnumerator<T>;
-  public
-    constructor Create(const source: IEnumerable<T>; const keySelector: TFunc<T, TKey>;
-      const comparer: IEqualityComparer<TKey>);
     function Clone: TIterator<T>; override;
     function MoveNext: Boolean; override;
   end;
@@ -758,7 +745,7 @@ type
 implementation
 
 uses
-{$IFDEF DELPHI2010}
+{$IFNDEF DELPHIXE_UP}
   Spring.Collections.Sets,
 {$ENDIF}
   Spring.ResourceStrings;
@@ -825,7 +812,7 @@ begin
   Guard.CheckRange((count >= 0) and (count <= Length(fValues) - index), 'count');
 {$ENDIF}
 
-{$IFNDEF DELPHI2010}
+{$IFDEF DELPHIXE_UP}
   Result := TCollections.CreateList<T>;
 {$ELSE}
   Result := TList<T>.Create;
@@ -1501,7 +1488,7 @@ begin
 
   if fState = STATE_ENUMERATOR then
   begin
-{$IFNDEF DELPHI2010}
+{$IFDEF DELPHIXE_UP}
     fSet := TCollections.CreateSet<T>(fComparer);
 {$ELSE}
     fSet := THashSet<T>.Create(fComparer);
@@ -1516,63 +1503,6 @@ begin
     begin
       current := fEnumerator.Current;
       if fSet.Add(current) then
-      begin
-        fCurrent := current;
-        Exit(True);
-      end;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-    fSet := nil;
-  end;
-end;
-
-{$ENDREGION}
-
-
-{$REGION 'TDistinctByIterator<T, TKey>'}
-
-constructor TDistinctByIterator<T, TKey>.Create(const source: IEnumerable<T>;
-  const keySelector: TFunc<T, TKey>; const comparer: IEqualityComparer<TKey>);
-begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckNotNull(Assigned(source), 'source');
-{$ENDIF}
-
-  inherited Create(source.Comparer);
-  fSource := source;
-  fKeySelector := keySelector;
-  fComparer := comparer;
-end;
-
-function TDistinctByIterator<T, TKey>.Clone: TIterator<T>;
-begin
-  Result := TDistinctByIterator<T, TKey>.Create(fSource, fKeySelector, fComparer);
-end;
-
-function TDistinctByIterator<T, TKey>.MoveNext: Boolean;
-var
-  current: T;
-begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
-  begin
-{$IFNDEF DELPHI2010}
-    fSet := TCollections.CreateSet<TKey>(fComparer);
-{$ELSE}
-    fSet := THashSet<TKey>.Create(fComparer);
-{$ENDIF}
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    while fEnumerator.MoveNext do
-    begin
-      current := fEnumerator.Current;
-      if fSet.Add(fKeySelector(current)) then
       begin
         fCurrent := current;
         Exit(True);
@@ -1681,7 +1611,7 @@ begin
 
   if fState = STATE_ENUMERATOR then
   begin
-{$IFNDEF DELPHI2010}
+{$IFDEF DELPHIXE_UP}
     fSet := TCollections.CreateSet<T>(fComparer);
 {$ELSE}
     fSet := THashSet<T>.Create(fComparer);
@@ -1745,7 +1675,7 @@ begin
 
   if fState = STATE_ENUMERATOR then
   begin
-{$IFNDEF DELPHI2010}
+{$IFDEF DELPHIXE_UP}
     fSet := TCollections.CreateSet<T>(fComparer);
 {$ELSE}
     fSet := THashSet<T>.Create(fComparer);
@@ -1809,7 +1739,7 @@ begin
 
   if fState = STATE_ENUMERATOR then
   begin
-{$IFNDEF DELPHI2010}
+{$IFDEF DELPHIXE_UP}
     fSet := TCollections.CreateSet<T>(fComparer);
 {$ELSE}
     fSet := THashSet<T>.Create(fComparer);
@@ -2206,7 +2136,7 @@ constructor TLookup<TKey, TElement>.TGrouping.Create(const key: TKey);
 begin
   inherited Create;
   fKey := key;
-{$IFNDEF DELPHI2010}
+{$IFDEF DELPHIXE_UP}
   fElements := TCollections.CreateList<TElement>;
 {$ELSE}
   fElements := TList<TElement>.Create;
@@ -3088,7 +3018,7 @@ begin
 
   if fState = STATE_ENUMERATOR then
   begin
-{$IFNDEF DELPHI2010}
+{$IFDEF DELPHIXE_UP}
     fResult := TCollections.CreateList<T>;
 {$ELSE}
     fResult := TList<T>.Create;

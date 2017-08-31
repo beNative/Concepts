@@ -22,7 +22,7 @@
 		<PropertyGroup Condition="'$(Base)'!=''">
 			<DCC_ExeOutput>Bin\Delphi2010\Win32\$(Config)</DCC_ExeOutput>
 			<DCC_Define>SPRING_ENABLE_GUARD;$(DCC_Define)</DCC_Define>
-			<DCC_UnitSearchPath>..\Source;..\Source\Base;..\Source\Base\Collections;..\Source\Base\Logging;..\Source\Base\Reflection;..\Source\Core\Container;..\Source\Core\Logging;..\Source\Core\Services;..\Source\Extensions\Cryptography;..\Source\Extensions\Utils;.\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\Source;..\Source\Base;..\Source\Base\Collections;..\Source\Base\Logging;..\Source\Core\Container;..\Source\Core\Logging;..\Source\Core\Services;..\Source\Extensions\Cryptography;..\Source\Extensions\Utils;.\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_DependencyCheckOutputName>Bin\Delphi2010\Win32\%Config%\Spring.Tests.exe</DCC_DependencyCheckOutputName>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
 			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;$(DCC_UnitAlias)</DCC_UnitAlias>

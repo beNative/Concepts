@@ -8,6 +8,7 @@
 *.stat
 *.tvsconfig
 __history/
+__recovery/
 
 # Delphi Compiler output files
 *.dcu
@@ -24,10 +25,14 @@ __history/
 # Added in XE8
 *.stat
 
-# Spring4D files:
+# Spring4D files
 *.bak
 *.ficfg
 *.mes
+Library/
 Logs/
 Samples/**/*.exe
 Tests/Bin/
+
+# TestInsight files
+TestInsightSettings.ini

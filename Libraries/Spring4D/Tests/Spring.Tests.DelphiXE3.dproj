@@ -49,7 +49,7 @@
         <DCC_ImageBase>00400000</DCC_ImageBase>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=;CFBundleDisplayName=;CFBundleIdentifier=;CFBundleVersion=;CFBundlePackageType=;CFBundleSignature=;CFBundleAllowMixedLocalizations=;CFBundleExecutable=</VerInfo_Keys>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_UnitSearchPath>..\Source;..\Source\Base;..\Source\Base\Collections;..\Source\Base\Logging;..\Source\Base\Reflection;..\Source\Core\Container;..\Source\Core\Interception;..\Source\Core\Logging;..\Source\Core\Mocking;..\Source\Core\Services;..\Source\Extensions\Cryptography;..\Source\Extensions\Utils;.\Source;.\Source\dUnit;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\Source;..\Source\Base;..\Source\Base\Collections;..\Source\Base\Logging;..\Source\Core\Container;..\Source\Core\Interception;..\Source\Core\Logging;..\Source\Core\Mocking;..\Source\Core\Services;..\Source\Extensions\Cryptography;..\Source\Extensions\Utils;.\Source;.\Source\dUnit;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_ExeOutput>Bin\DelphiXE3\$(Platform)\$(Config)</DCC_ExeOutput>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_K>false</DCC_K>

@@ -156,7 +156,7 @@
         <DCCReference Include="..\..\Source\Base\Logging\Spring.Logging.ResourceStrings.pas"/>
         <DCCReference Include="..\..\Source\Base\Logging\Spring.Logging.Serializers.pas"/>
         <DCCReference Include="..\..\Source\Core\Spring.MethodIntercept.pas"/>
-        <DCCReference Include="..\..\Source\Base\Reflection\Spring.Reflection.pas"/>
+        <DCCReference Include="..\..\Source\Base\Spring.Reflection.pas"/>
         <DCCReference Include="..\..\Source\Base\Spring.ResourceStrings.pas"/>
         <DCCReference Include="..\..\Source\Base\Spring.SystemUtils.pas"/>
         <DCCReference Include="..\..\Source\Base\Spring.Times.pas"/>
