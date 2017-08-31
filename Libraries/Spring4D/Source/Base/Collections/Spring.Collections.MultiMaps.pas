@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -131,7 +131,7 @@ type
   {$REGION 'Implements IMultiMap<TKey, TValue>'}
     procedure AddRange(const key: TKey; const values: array of TValue); overload;
     procedure AddRange(const key: TKey; const collection: IEnumerable<TValue>); overload;
-    function ExtractValues(const key: TKey): IReadOnlyList<TValue>;
+    function ExtractValues(const key: TKey): IList<TValue>;
     function TryGetValues(const key: TKey; out values: IReadOnlyList<TValue>): Boolean;
     property Items[const key: TKey]: IReadOnlyList<TValue> read GetItems; default;
   {$ENDREGION}
@@ -197,7 +197,7 @@ begin
   fValueComparer := valueComparer;
   inherited Create;
   fDictionary := CreateDictionary(keyComparer);
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   fEmpty := TCollections.CreateList<TValue>;
 {$ELSE}
   fEmpty := TList<TValue>.Create;
@@ -306,16 +306,13 @@ begin
 end;
 
 function TMultiMapBase<TKey, TValue>.ExtractValues(
-  const key: TKey): IReadOnlyList<TValue>;
-var
-  list: IList<TValue>;
+  const key: TKey): IList<TValue>;
 begin
-  if not fDictionary.TryGetValue(key, list) then
+  if not fDictionary.TryGetValue(key, Result) then
     raise EListError.CreateRes(@SGenericItemNotFound);
 
-  Dec(fCount, list.Count);
-  fDictionary.Remove(key);
-  Result := list as IReadOnlyList<TValue>;
+  Dec(fCount, Result.Count);
+  fDictionary.Extract(key);
 end;
 
 function TMultiMapBase<TKey, TValue>.GetCount: Integer;
@@ -498,7 +495,7 @@ end;
 function TMultiMap<TKey, TValue>.CreateCollection(
   const comparer: IComparer<TValue>): IList<TValue>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   Result := TCollections.CreateList<TValue>(comparer);
 {$ELSE}
   Result := TList<TValue>.Create(comparer);
@@ -535,6 +532,7 @@ begin
       Item.Clear;
       Item.OnChanged.Remove(DoValueChanged);
     end;
+    caExtracted: Item.OnChanged.Remove(DoValueChanged);
   end;
 end;
 

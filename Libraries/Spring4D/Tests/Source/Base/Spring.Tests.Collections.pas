@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -128,6 +128,9 @@ type
     procedure TestRemoveAll;
 
     procedure TestAddRange_EmptySource;
+
+    procedure TestExtractAt;
+    procedure TestExtractRange;
   end;
 
   TTestSortedList = class(TTestCase)
@@ -210,7 +213,7 @@ type
     procedure TestStackPeekOrDefault;
     procedure TestStackTryPeek;
     procedure TestStackTryPop;
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     procedure TestStackTrimExcess;
 {$ENDIF}
   end;
@@ -243,28 +246,6 @@ type
     procedure TestNonGenericChangedEvent;
   end;
 
-  TTestObjectStack = class(TTestCase)
-  private
-    SUT: IStack<TObject>;
-  protected
-    procedure SetUp; override;
-    procedure TearDown; override;
-  published
-    procedure PopDestroysItemAndReturnsNil;
-    procedure ExtractDoesNotDestroysItemButReturnsIt;
-  end;
-
-  TTestObjectQueue = class(TTestCase)
-  private
-    SUT: IQueue<TObject>;
-  protected
-    procedure SetUp; override;
-    procedure TearDown; override;
-  published
-    procedure DequeueDestroysItemAndReturnsNil;
-    procedure ExtractDoesNotDestroysItemButReturnsIt;
-  end;
-
   TTestEmptyQueueOfInteger = class(TTestCase)
   private
     SUT: IQueue<Integer>;
@@ -293,7 +274,7 @@ type
     procedure TestQueuePeekOrDefault;
     procedure TestQueueTryDequeue;
     procedure TestQueueTryPeek;
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     procedure TestQueueTrimExcess;
 {$ENDIF}
   end;
@@ -392,6 +373,7 @@ type
     procedure TestObjectListCreate;
     procedure TestSetOwnsObjects;
     procedure TestGetElementType;
+    procedure TestExtractAt;
   end;
 
   TTestInterfaceList = class(TTestCase)
@@ -515,11 +497,34 @@ type
     procedure TestInternalEventHandlersDetached;
     procedure TestValueChangedCalledProperly;
     procedure TestValuesOrdered;
+    procedure TestExtractValues;
   end;
 
   TTestBidiDictionary = class(TTestCase)
   published
     procedure AddDictionary;
+  end;
+
+  TTestObjectStack = class(TTestCase)
+  private
+    SUT: IStack<TObject>;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure PopDestroysItemAndReturnsNil;
+    procedure ExtractDoesNotDestroysItemButReturnsIt;
+  end;
+
+  TTestObjectQueue = class(TTestCase)
+  private
+    SUT: IQueue<TObject>;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure DequeueDestroysItemAndReturnsNil;
+    procedure ExtractDoesNotDestroysItemButReturnsIt;
   end;
 
 implementation
@@ -838,6 +843,28 @@ begin
     end);
   CheckEquals(1, callCount);
   CheckEquals(0, SUT.Count);
+end;
+
+procedure TTestIntegerList.TestExtractAt;
+begin
+  SimpleFillList;
+  CheckEquals(2, SUT.ExtractAt(1));
+  CheckEquals(2, SUT.Count);
+  CheckEquals(1, SUT[0]);
+  CheckEquals(3, SUT[1]);
+end;
+
+procedure TTestIntegerList.TestExtractRange;
+var
+  values: TArray<Integer>;
+begin
+  SimpleFillList;
+  values := SUT.ExtractRange(0, 3);
+  CheckEquals(0, SUT.Count);
+  CheckEquals(3, Length(values));
+  CheckEquals(1, values[0]);
+  CheckEquals(2, values[1]);
+  CheckEquals(3, values[2]);
 end;
 
 procedure TTestIntegerList.TestExtract_ItemNotInList;
@@ -1532,7 +1559,7 @@ begin
   CheckEquals(0, SUT.Count);
 end;
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
 procedure TTestStackOfInteger.TestStackTrimExcess;
 var
   stack: TStack<Integer>;
@@ -1819,7 +1846,7 @@ begin
   CheckEquals(MaxItems, SUT.PeekOrDefault);
 end;
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
 procedure TTestQueueOfInteger.TestQueueTrimExcess;
 var
   queue: TQueue<Integer>;
@@ -2276,6 +2303,19 @@ procedure TTestObjectList.TearDown;
 begin
   inherited;
   SUT := nil;
+end;
+
+procedure TTestObjectList.TestExtractAt;
+var
+  obj1, obj2, obj3: TPersistent;
+begin
+  obj1 := TPersistent.Create;
+  obj2 := TPersistent.Create;
+  SUT.AddRange([obj1, obj2]);
+  obj3 := SUT.ExtractAt(1);
+  CheckEquals(1, SUT.Count);
+  CheckSame(obj2, obj3);
+  obj3.Free;
 end;
 
 procedure TTestObjectList.TestGetElementType;
@@ -2835,6 +2875,23 @@ begin
   pair.Value := 'World';
   map.Add('Test', pair);
   CheckEquals(1, map.Count);
+end;
+
+procedure TTestMultiMap.TestExtractValues;
+var
+  map: IMultiMap<Integer,TObject>;
+  list: IList<TObject>;
+  obj: TObject;
+begin
+  map := TCollections.CreateMultiMap<Integer,TObject>([doOwnsValues]);
+  map.Add(1, TObject.Create);
+  list := map.ExtractValues(1);
+  CheckEquals(0, map.Count);
+  CheckEquals(1, list.Count);
+  map := nil;
+  obj := list.ExtractAt(0);
+  obj.Free;
+  list := nil;
 end;
 
 procedure TTestMultiMap.TestInternalEventHandlersDetached;

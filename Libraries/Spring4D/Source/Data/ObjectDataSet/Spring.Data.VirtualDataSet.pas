@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -93,22 +93,21 @@ type
   protected
     type
       TBlobStream = class(TMemoryStream)
-      private
+      strict private
         fField: TBlobField;
         fDataSet: TCustomVirtualDataSet;
-        fBuffer: TRecordBuffer;
         fFieldNo: Integer;
         fModified: Boolean;
         fData: Variant;
         fFieldData: Variant;
-      protected
         procedure ReadBlobData;
-        function Realloc(var NewCapacity: Longint): Pointer; override;
+      protected
+        function Realloc(var NewCapacity: LongInt): Pointer; override;
       public
         constructor Create(Field: TBlobField; Mode: TBlobStreamMode);
         destructor Destroy; override;
 
-        function Write(const Buffer; Count: LongInt): Longint; override;
+        function Write(const Buffer; Count: LongInt): LongInt; override;
         procedure Truncate;
       end;
 
@@ -124,7 +123,7 @@ type
 
     // Basic overrides
     function GetCanModify: Boolean; override;
-    function GetRecNo: Longint; override;
+    function GetRecNo: {$IFDEF DELPHIX_TOKYO_UP}Integer{$ELSE}LongInt{$ENDIF}; override;
     function GetRecordCount: Integer; override;
     procedure SetFiltered(Value: Boolean); override;
 
@@ -185,6 +184,7 @@ type
     procedure SetBookmarkFlag(Buffer: TRecordBuffer; Value: TBookmarkFlag); override;
 
     function InternalGetRecord(Buffer: TRecordBuffer; GetMode: TGetMode; DoCheck: Boolean): TGetResult; virtual;
+    procedure SetFieldData(const field: TField; const buffer: Variant); overload;
 
     property FilterCache: IDictionary<string, Variant> read fFilterCache;
     property IndexList: TIndexList read fIndexList;
@@ -209,8 +209,8 @@ type
     function GetActiveRecBuf(var RecBuf: TRecordBuffer): Boolean; virtual;
     function GetFieldData(Field: TField; {$IFDEF DELPHIXE4_UP}var{$ENDIF} Buffer: TValueBuffer): Boolean; override;
     function GetFieldData(Field: TField; {$IFDEF DELPHIXE4_UP}var{$ENDIF} Buffer: TValueBuffer; NativeFormat: Boolean): Boolean; override;
-    procedure SetFieldData(Field: TField; Buffer: TValueBuffer); override;
-    procedure SetFieldData(Field: TField; Buffer: TValueBuffer; NativeFormat: Boolean); override;
+    procedure SetFieldData(Field: TField; Buffer: TValueBuffer); overload; override;
+    procedure SetFieldData(Field: TField; Buffer: TValueBuffer; NativeFormat: Boolean); overload; override;
 
     /// <summary>
     ///   Represents current cursor index in the dataset.
@@ -289,10 +289,10 @@ resourcestring
 type
   TDBBitConverter = class
   private
-    class procedure InternalFromMove<T>(const Value: T; var B: TArray<Byte>; Offset: Integer = 0); static; inline;
+    class procedure InternalFromMove<T>(const Value: T; var B: TArray<Byte>; Offset: Integer = 0); static; {$IFNDEF DELPHIXE4}inline;{$ENDIF}
     class function InternalIntoMove<T>(const B: TArray<Byte>; Offset: Integer = 0): T; static; inline;
   public
-    class procedure UnsafeFrom<T>(const Value: T; var B: TArray<Byte>; Offset: Integer = 0); static; inline;
+    class procedure UnsafeFrom<T>(const Value: T; var B: TArray<Byte>; Offset: Integer = 0); static; {$IFNDEF DELPHIXE4}inline;{$ENDIF}
     class function UnsafeInTo<T>(const B: TArray<Byte>; Offset: Integer = 0): T; static; inline;
 
     class procedure UnsafeFromVariant(const Value: Variant; var B: TArray<Byte>; Offset: Integer = 0); static; inline;
@@ -712,6 +712,7 @@ var
         PAnsiChar(Buffer)[Field.Size] := #0;
         TempBuff := TEncoding.Default.GetBytes(string(tagVariant(Data).bStrVal));
         Move(TempBuff[0], Buffer[0], Length(TempBuff));
+        PAnsiChar(Buffer)[Min(Field.Size, Length(TempBuff))] := #0;
       end;
       ftFixedWideChar, ftWideString:
       begin
@@ -721,6 +722,16 @@ var
         TempBuff[Length(TempBuff) - 1] := 0;
         Move(TempBuff[0], Buffer[0], Length(TempBuff));
       end;
+      ftShortint:
+        if tagVariant(Data).vt = VT_UI1 then
+          TDBBitConverter.UnsafeFrom<ShortInt>(ShortInt(tagVariant(Data).cVal), Buffer)
+        else
+          TDBBitConverter.UnsafeFrom<ShortInt>(ShortInt(tagVariant(Data).bVal), Buffer);
+      ftByte:
+        if tagVariant(Data).vt = VT_UI1 then
+          TDBBitConverter.UnsafeFrom<Byte>(Byte(tagVariant(Data).cVal), Buffer)
+        else
+          TDBBitConverter.UnsafeFrom<Byte>(tagVariant(Data).bVal, Buffer);
       ftSmallint:
         if tagVariant(Data).vt = VT_UI1 then
           TDBBitConverter.UnsafeFrom<SmallInt>(Byte(tagVariant(Data).cVal), Buffer)
@@ -733,6 +744,8 @@ var
           TDBBitConverter.UnsafeFrom<Word>(tagVariant(Data).uiVal, Buffer);
       ftAutoInc, ftInteger:
         TDBBitConverter.UnsafeFrom<Integer>(Data, Buffer);
+      ftLongWord:
+        TDBBitConverter.UnsafeFrom<Cardinal>(Data, Buffer);
       ftFloat, ftCurrency:
         if tagVariant(Data).vt = VT_R8 then
           TDBBitConverter.UnsafeFrom<Double>(tagVariant(Data).dblVal, Buffer)
@@ -761,7 +774,7 @@ var
         begin
           PData := VarArrayLock(Data);
           try
-            DataConvert(Field, BytesOf(PData, VarArrayHighBound(Data, 1) - VarArrayLowBound(Data, 1) + 1), Buffer, True);
+            DataConvert(Field, BytesOf(PData, VarArrayLength(Data, 1)), Buffer, True);
           finally
             VarArrayUnlock(Data);
           end;
@@ -802,6 +815,7 @@ var
         PAnsiChar(Buffer)[Field.Size] := #0;
         TempBuff := TEncoding.Default.GetBytes(string(tagVariant(Data).bStrVal));
         Move(TempBuff[0], PByte(Buffer)[0], Length(TempBuff));
+        PAnsiChar(Buffer)[Min(Field.Size, Length(TempBuff))] := #0;
       end;
       ftFixedWideChar, ftWideString:
       begin
@@ -811,6 +825,16 @@ var
         TempBuff[Length(TempBuff) - 1] := 0;
         Move(TempBuff[0], PByte(Buffer)[0], Length(TempBuff));
       end;
+      ftShortint:
+        if tagVariant(Data).vt = VT_UI1 then
+          ShortInt(Buffer^) := ShortInt(tagVariant(Data).cVal)
+        else
+          ShortInt(Buffer^) := ShortInt(tagVariant(Data).bVal);
+      ftByte:
+        if tagVariant(Data).vt = VT_UI1 then
+          Byte(Buffer^) := Byte(tagVariant(Data).cVal)
+        else
+          Byte(Buffer^) := tagVariant(Data).bVal;
       ftSmallint:
         if tagVariant(Data).vt = VT_UI1 then
           SmallInt(Buffer^) := Byte(tagVariant(Data).cVal)
@@ -823,6 +847,8 @@ var
           Word(Buffer^) := tagVariant(Data).uiVal;
       ftAutoInc, ftInteger:
         Integer(Buffer^) := Data;
+      ftLongWord:
+        Cardinal(Buffer^) := tagVariant(Data).uintVal;
       ftFloat, ftCurrency:
         if tagVariant(Data).vt = VT_R8 then
           Double(Buffer^) := tagVariant(Data).dblVal
@@ -858,10 +884,10 @@ var
       ftIDispatch:
         IDispatch(Buffer^) := Data;
       ftLargeInt:
-        if Decimal(Data).sign > 0 then
-          LargeInt(Buffer^) := -1 * Decimal(Data).Lo64
+        if PDecimal(@Data).sign > 0 then
+          LargeInt(Buffer^) := -1 * PDecimal(@Data).Lo64
         else
-          LargeInt(Buffer^) := Decimal(Data).Lo64;
+          LargeInt(Buffer^) := PDecimal(@Data).Lo64;
       ftBlob .. ftTypedBinary, ftVariant, ftWideMemo:
         OleVariant(Buffer^) := Data;
     else
@@ -930,7 +956,7 @@ begin
     Result := PArrayRecInfo(recBuf).Index;
 end;
 
-function TCustomVirtualDataSet.GetRecNo: Longint;
+function TCustomVirtualDataSet.GetRecNo: {$IFDEF DELPHIX_TOKYO_UP}Integer{$ELSE}LongInt{$ENDIF};
 var
   recBuf: TRecordBuffer;
 begin
@@ -1271,7 +1297,13 @@ procedure TCustomVirtualDataSet.SetFieldData(Field: TField; Buffer: TValueBuffer
       ftWideString, ftFixedWideChar:
         Data := WideString(PWideChar(Buffer));
       ftAutoInc, ftInteger:
-        Data := TDBBitConverter.UnsafeInto<LongInt>(Buffer);
+        Data := TDBBitConverter.UnsafeInto<Integer>(Buffer);
+      ftLongWord:
+        Data := TDBBitConverter.UnsafeInto<Cardinal>(Buffer);
+      ftShortint:
+        Data := TDBBitConverter.UnsafeInto<ShortInt>(Buffer);
+      ftByte:
+        Data := TDBBitConverter.UnsafeInto<Byte>(Buffer);
       ftSmallInt:
         Data := TDBBitConverter.UnsafeInto<SmallInt>(Buffer);
       ftWord:
@@ -1337,7 +1369,13 @@ procedure TCustomVirtualDataSet.SetFieldData(Field: TField; Buffer: TValueBuffer
       ftWideString, ftFixedWideChar:
         Data := WideString(PWideChar(Buffer));
       ftAutoInc, ftInteger:
-        Data := LongInt(Buffer^);
+        Data := Integer(Buffer^);
+      ftLongWord:
+        Data := Cardinal(Buffer^);
+      ftShortint:
+        Data := ShortInt(Buffer^);
+      ftByte:
+        Data := Byte(Buffer^);
       ftSmallInt:
         Data := SmallInt(Buffer^);
       ftWord:
@@ -1409,6 +1447,34 @@ begin
     DataEvent(deFieldChange, NativeInt(Field));
 end;
 
+procedure TCustomVirtualDataSet.SetFieldData(const field: TField;
+  const buffer: Variant);
+var
+  recBuf: TRecordBuffer;
+begin
+  if not (State in dsWriteModes) then
+    DatabaseError(SNotEditing, Self);
+
+  GetActiveRecBuf(recBuf);
+
+  if field.FieldNo > 0 then
+  begin
+    if ReadOnly and not(State in [dsSetKey, dsFilter]) then
+      DatabaseErrorFmt(SFieldReadOnly, [field.DisplayName]);
+
+    if not fModifiedFields.Contains(field) then
+    begin
+      PVariantList(fOldValueBuffer + SizeOf(TArrayRecInfo))[field.Index] := field.OldValue;
+      fModifiedFields.Add(field);
+    end;
+  end;
+
+  PVariantList(recBuf + SizeOf(TArrayRecInfo))[field.Index] := buffer;
+
+  if not (State in [dsCalcFields, dsInternalCalc, dsFilter, dsNewValue]) then
+    DataEvent(deFieldChange, NativeInt(field));
+end;
+
 procedure TCustomVirtualDataSet.SetFiltered(Value: Boolean);
 begin
   if Filtered <> Value then
@@ -1472,8 +1538,6 @@ begin
   fDataSet := fField.Dataset as TCustomVirtualDataSet;
   fFieldData := Null;
   fData := Null;
-  if not fDataSet.GetActiveRecBuf(fBuffer) then
-    Exit;
   if Mode <> bmRead then
   begin
     if fField.ReadOnly then
@@ -1490,22 +1554,21 @@ end;
 destructor TCustomVirtualDataSet.TBlobStream.Destroy;
 begin
   if fModified then
-  begin
-    fDataSet.SetFieldData(fField, TValueBuffer(@fData));
-    fField.Modified := True;
-    fDataSet.DataEvent(deFieldChange, NativeInt(fField));
-  end;
+    fDataSet.SetFieldData(fField, fData);
   inherited Destroy;
 end;
 
 procedure TCustomVirtualDataSet.TBlobStream.ReadBlobData;
+var
+  buffer: TBytes;
+  recBuf: TRecordBuffer;
 begin
-{$WARN SYMBOL_DEPRECATED OFF}
-//  {$IF CompilerVersion >= 24}
-//  fFieldData := fField.AsVariant;
-//  {$ELSE}
-  fDataSet.GetFieldData(fField, @fFieldData, True);
-//  {$IFEND}
+  fFieldData := Null;
+  // Pass empty buffer here to not copy any data
+  // but ensure the record holds valid data.
+  if fDataSet.GetFieldData(fField, buffer, True) then
+    if fDataSet.GetActiveRecBuf(recBuf) then
+      fFieldData := PVariantList(recBuf + SizeOf(TArrayRecInfo))[fField.Index];
   if not VarIsNull(fFieldData) then
   begin
     if VarType(fFieldData) = varOleStr then
@@ -1524,13 +1587,13 @@ begin
       end;
     end
     else
-      Size := VarArrayHighBound(fFieldData, 1) + 1;
+      Size := VarArrayLength(fFieldData, 1);
     fFieldData := Null;
   end;
 end;
 
 function TCustomVirtualDataSet.TBlobStream.Realloc(
-  var NewCapacity: Integer): Pointer;
+  var NewCapacity: LongInt): Pointer;
 
   procedure VarAlloc(var V: Variant; Field: TFieldType);
   var
@@ -1600,7 +1663,7 @@ begin
 end;
 
 function TCustomVirtualDataSet.TBlobStream.Write(const Buffer;
-  Count: Integer): Longint;
+  Count: LongInt): LongInt;
 begin
   Result := inherited Write(Buffer, Count);
   fModified := True;

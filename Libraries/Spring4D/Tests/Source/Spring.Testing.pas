@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -404,6 +404,8 @@ function TTestCase.GetName: string;
         Result := FormatArray(Self);
       tkChar, tkString, tkWChar, tkLString, tkWString, tkUString:
         Result := QuotedStr(value.ToString);
+      tkClassRef:
+        Result := value.AsClass.ClassName;
     else
       Result := value.ToString;
     end;
@@ -451,7 +453,7 @@ begin
   FTestMethodInvoked := True;
   if Assigned(fExpectedException) then
     StartExpectingException(fExpectedException);
-  if Assigned(fMethod) then
+  if Assigned(fMethod) and (fMethod.CodeAddress = TMethod(AMethod).Code) then
   begin
     if fMethod.ReturnType = nil then
       fMethod.Invoke(Self, fArgs)
@@ -655,6 +657,7 @@ end;
 constructor TTestCaseData.Create(const values: array of TValue);
 begin
   fValues := TArray.Copy<TValue>(values);
+  fExceptionType := nil;
 end;
 
 function TTestCaseData.Raises(exceptionType: ExceptionClass;

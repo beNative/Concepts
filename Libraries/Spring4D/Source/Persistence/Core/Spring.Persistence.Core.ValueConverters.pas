@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -67,13 +67,15 @@ uses
 {$ELSE}
   SysUtils,
 {$IFEND}
-{$IFNDEF FMX}
+{$IFDEF MSWINDOWS}
   GIFImg,
   Graphics,
   jpeg,
   pngimage,
 {$ELSE}
+  {$IFNDEF LINUX}
   FMX.Graphics,
+  {$ENDIF}
 {$ENDIF}
   Variants;
 
@@ -95,7 +97,6 @@ var
   stream: TStream;
 begin
   stream := TStream(value.AsObject);
-  stream.Position := 0;
   Result := TValue.From<Variant>(StreamToVariant(stream));
 end;
 
@@ -141,10 +142,7 @@ begin
   end;
 end;
 
-{$ENDREGION}
-
-
-{$IFNDEF FMX}
+{$IFDEF MSWINDOWS}
 function FindGraphicClass(const Buffer; const BufferSize: Int64;
   out GraphicClass: TGraphicClass): Boolean; overload;
 const
@@ -194,7 +192,7 @@ begin
       picture.Assign(nil);
       Exit(True);
     end;
-{$IFNDEF FMX}
+{$IFDEF MSWINDOWS}
     if not FindGraphicClass(LStream.Memory^, LStream.Size, LGraphicClass) then
       Exit(False);
 {$ELSE}
@@ -211,6 +209,9 @@ begin
     LGraphic.Free;
   end;
 end;
+
+{$ENDREGION}
+
 
 initialization
   RegisterConverters;

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -557,7 +557,7 @@ type
     /// </returns>
     function Max: T; overload;
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     function Max(const selector: TFunc<T, Integer>): Integer; overload;
 {$ENDIF}
 
@@ -582,7 +582,7 @@ type
     /// </returns>
     function Min: T; overload;
 
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
     function Min(const selector: TFunc<T, Integer>): Integer; overload;
 {$ENDIF}
 
@@ -616,6 +616,13 @@ type
     ///   Inverts the order of the elements in a sequence.
     /// </summary>
     function Reversed: IEnumerable<T>;
+
+    /// <summary>
+    ///   Returns the sequence in a shuffled order.
+    /// </summary>
+{$IFNDEF DELPHI2010}
+    function Shuffled: IEnumerable<T>;
+{$ENDIF}
 
     /// <summary>
     ///   Returns the only element of a sequence, and throws an exception if
@@ -1050,6 +1057,18 @@ type
     procedure DeleteRange(index, count: Integer);
 
     /// <summary>
+    ///   Extracts the item at the specified index.
+    /// </summary>
+    /// <param name="index">
+    ///   The zero-based index of the item to extract.
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///   <i>index</i> is not a valid index in the IList&lt;T&gt;.
+    /// </exception>
+    function ExtractAt(index: Integer): T;
+    function ExtractRange(index, count: Integer): TArray<T>; overload;
+
+    /// <summary>
     ///   Creates a new list that contains a range of the elements in the
     ///   original list.
     /// </summary>
@@ -1076,6 +1095,8 @@ type
     procedure Sort; overload;
     procedure Sort(const comparer: IComparer<T>); overload;
     procedure Sort(const comparer: TComparison<T>); overload;
+    procedure Sort(const comparer: IComparer<T>; index, count: Integer); overload;
+    procedure Sort(const comparer: TComparison<T>; index, count: Integer); overload;
 
     /// <summary>
     ///   Determines the index of a specific item in the IList&lt;T&gt;.
@@ -1972,7 +1993,15 @@ type
 
     function AsReadOnlyMultiMap: IReadOnlyMultiMap<TKey,TValue>;
 
-    function ExtractValues(const key: TKey): IReadOnlyList<TValue>;
+    /// <summary>
+    ///   Extracts all values for the given key from the multimap.
+    /// </summary>
+    /// <remarks>
+    ///   If the multimap has doOwnsValues set the items in the returned list
+    ///   are not being owned by the list but have to be freed manually or
+    ///   being passed to a collection that takes ownership.
+    /// </remarks>
+    function ExtractValues(const key: TKey): IList<TValue>;
     function TryGetValues(const key: TKey; out values: IReadOnlyList<TValue>): Boolean;
     property Items[const key: TKey]: IReadOnlyList<TValue> read GetItems; default;
   end;
@@ -2600,6 +2629,19 @@ type
     class function SelectMany<T, TResult>(const source: IEnumerable<T>;
       const selector: TFunc<T, IEnumerable<TResult>>): IEnumerable<TResult>; overload; static;
 
+    class function ToLookup<T, TKey>(const source: IEnumerable<T>;
+      const keySelector: TFunc<T, TKey>): ILookup<TKey, T>; overload; static;
+
+    class function Distinct<T>(const source: IEnumerable<T>): IEnumerable<T>; overload; static;
+    class function Distinct<T>(const source: IEnumerable<T>;
+      const comparer: IEqualityComparer<T>): IEnumerable<T>; overload; static;
+
+    class function DistinctBy<T, TKey>(const source: IEnumerable<T>;
+      const keySelector: TFunc<T, TKey>): IEnumerable<T>; overload; static;
+    class function DistinctBy<T, TKey>(const source: IEnumerable<T>;
+      const keySelector: TFunc<T, TKey>;
+      const comparer: IEqualityComparer<TKey>): IEnumerable<T>; overload; static;
+
     class function GroupBy<T, TKey>(const source: IEnumerable<T>;
       const keySelector: TFunc<T, TKey>): IEnumerable<IGrouping<TKey,T>>; overload; static;
     class function GroupBy<T, TKey, TElement>(const source: IEnumerable<T>;
@@ -2670,7 +2712,6 @@ implementation
 
 uses
   Character,
-  SyncObjs,
 {$IFDEF DELPHIXE8_UP}
   System.Hash,
 {$ENDIF}
@@ -2796,7 +2837,7 @@ end;
 
 class function TCollections.CreateList<T>(ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(ownsObjects);
@@ -2806,7 +2847,7 @@ end;
 class function TCollections.CreateList<T>(const comparer: IComparer<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(
     IComparer<TObject>(comparer), ownsObjects);
 {$ELSE}
@@ -2817,7 +2858,7 @@ end;
 class function TCollections.CreateList<T>(const comparer: TComparison<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(
     IComparer<TObject>(PPointer(@comparer)^), ownsObjects);
 {$ELSE}
@@ -2827,7 +2868,7 @@ end;
 
 class function TCollections.CreateObjectList<T>(ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(ownsObjects);
@@ -2837,7 +2878,7 @@ end;
 class function TCollections.CreateObjectList<T>(const comparer: IComparer<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(
     IComparer<TObject>(comparer), ownsObjects);
 {$ELSE}
@@ -2848,7 +2889,7 @@ end;
 class function TCollections.CreateObjectList<T>(const comparer: TComparison<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(
     IComparer<TObject>(PPointer(@comparer)^), ownsObjects);
 {$ELSE}
@@ -2859,7 +2900,7 @@ end;
 class function TCollections.CreateObjectList<T>(const values: array of T;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(ownsObjects);
@@ -2870,7 +2911,7 @@ end;
 class function TCollections.CreateObjectList<T>(const values: IEnumerable<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(ownsObjects);
@@ -2880,7 +2921,7 @@ end;
 
 class function TCollections.CreateInterfaceList<T>: IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedInterfaceList<T>.Create;
 {$ELSE}
   Result := TList<T>.Create;
@@ -2890,7 +2931,7 @@ end;
 class function TCollections.CreateInterfaceList<T>(
   const comparer: IComparer<T>): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) :=
     TFoldedInterfaceList<T>.Create(IComparer<IInterface>(comparer));
 {$ELSE}
@@ -2901,7 +2942,7 @@ end;
 class function TCollections.CreateInterfaceList<T>(
   const comparer: TComparison<T>): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedInterfaceList<T>.Create(
     IComparer<IInterface>(PPointer(@comparer)^));
 {$ELSE}
@@ -2912,7 +2953,7 @@ end;
 class function TCollections.CreateInterfaceList<T>(
   const values: array of T): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedInterfaceList<T>.Create;
 {$ELSE}
   Result := TList<T>.Create;
@@ -2923,7 +2964,7 @@ end;
 class function TCollections.CreateInterfaceList<T>(
   const values: IEnumerable<T>): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedInterfaceList<T>.Create;
 {$ELSE}
   Result := TList<T>.Create;
@@ -2934,7 +2975,7 @@ end;
 class function TCollections.CreateObservableList<T>(
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TObservableList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TObservableList<T>.Create(ownsObjects);
@@ -3172,7 +3213,7 @@ end;
 class function TCollections.CreateSortedList<T>(
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TSortedObjectList<T>.Create(ownsObjects);
@@ -3182,7 +3223,7 @@ end;
 class function TCollections.CreateSortedList<T>(const comparer: IComparer<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(
     IComparer<TObject>(comparer), ownsObjects);
 {$ELSE}
@@ -3193,7 +3234,7 @@ end;
 class function TCollections.CreateSortedList<T>(const comparer: TComparison<T>;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(
     IComparer<TObject>(PPointer(@comparer)^), ownsObjects);
 {$ELSE}
@@ -3204,7 +3245,7 @@ end;
 class function TCollections.CreateSortedObjectList<T>(
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TSortedObjectList<T>.Create(ownsObjects);
@@ -3214,7 +3255,7 @@ end;
 class function TCollections.CreateSortedObjectList<T>(
   const comparer: IComparer<T>; ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(
     IComparer<TObject>(comparer), ownsObjects);
 {$ELSE}
@@ -3225,7 +3266,7 @@ end;
 class function TCollections.CreateSortedObjectList<T>(
   const comparer: TComparison<T>; ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(
     IComparer<TObject>(PPointer(@comparer)^), ownsObjects);
 {$ELSE}
@@ -3236,7 +3277,7 @@ end;
 class function TCollections.CreateSortedObjectList<T>(const values: array of T;
   ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TSortedObjectList<T>.Create(ownsObjects);
@@ -3247,7 +3288,7 @@ end;
 class function TCollections.CreateSortedObjectList<T>(
   const values: IEnumerable<T>; ownsObjects: Boolean): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<TObject>(Result) := TFoldedSortedObjectList<T>.Create(ownsObjects);
 {$ELSE}
   Result := TSortedObjectList<T>.Create(ownsObjects);
@@ -3257,7 +3298,7 @@ end;
 
 class function TCollections.CreateSortedInterfaceList<T>: IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedSortedInterfaceList<T>.Create;
 {$ELSE}
   Result := TSortedList<T>.Create;
@@ -3267,7 +3308,7 @@ end;
 class function TCollections.CreateSortedInterfaceList<T>(
   const comparer: IComparer<T>): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) :=
     TFoldedSortedInterfaceList<T>.Create(IComparer<IInterface>(comparer));
 {$ELSE}
@@ -3278,7 +3319,7 @@ end;
 class function TCollections.CreateSortedInterfaceList<T>(
   const comparer: TComparison<T>): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedSortedInterfaceList<T>.Create(
     IComparer<IInterface>(PPointer(@comparer)^));
 {$ELSE}
@@ -3289,7 +3330,7 @@ end;
 class function TCollections.CreateSortedInterfaceList<T>(
   const values: array of T): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedSortedInterfaceList<T>.Create;
 {$ELSE}
   Result := TSortedList<T>.Create;
@@ -3300,7 +3341,7 @@ end;
 class function TCollections.CreateSortedInterfaceList<T>(
   const values: IEnumerable<T>): IList<T>;
 begin
-{$IFDEF DELPHIXE_UP}
+{$IFNDEF DELPHI2010}
   IList<IInterface>(Result) := TFoldedSortedInterfaceList<T>.Create;
 {$ELSE}
   Result := TSortedList<T>.Create;
@@ -3312,6 +3353,31 @@ end;
 
 
 {$REGION 'TEnumerable'}
+
+class function TEnumerable.Distinct<T>(
+  const source: IEnumerable<T>): IEnumerable<T>;
+begin
+  Result := TDistinctIterator<T>.Create(source, nil);
+end;
+
+class function TEnumerable.Distinct<T>(const source: IEnumerable<T>;
+  const comparer: IEqualityComparer<T>): IEnumerable<T>;
+begin
+  Result := TDistinctIterator<T>.Create(source, comparer);
+end;
+
+class function TEnumerable.DistinctBy<T, TKey>(const source: IEnumerable<T>;
+  const keySelector: TFunc<T, TKey>): IEnumerable<T>;
+begin
+  Result := TDistinctByIterator<T, TKey>.Create(source, keySelector, nil);
+end;
+
+class function TEnumerable.DistinctBy<T, TKey>(const source: IEnumerable<T>;
+  const keySelector: TFunc<T, TKey>;
+  const comparer: IEqualityComparer<TKey>): IEnumerable<T>;
+begin
+  Result := TDistinctByIterator<T, TKey>.Create(source, keySelector, comparer);
+end;
 
 class function TEnumerable.Empty<T>: IEnumerable<T>;
 begin
@@ -3424,6 +3490,16 @@ class function TEnumerable.SelectMany<T, TResult>(const source: IEnumerable<T>;
   const selector: TFunc<T, IEnumerable<TResult>>): IEnumerable<TResult>;
 begin
   Result := TSelectManyIterator<T, TResult>.Create(source, selector);
+end;
+
+class function TEnumerable.ToLookup<T, TKey>(const source: IEnumerable<T>;
+  const keySelector: TFunc<T, TKey>): ILookup<TKey, T>;
+begin
+  Result := TLookup<TKey, T>.Create<T>(source, keySelector,
+    function(x: T): T
+    begin
+      Result := x
+    end);
 end;
 
 class function TEnumerable.Union<T>(const first, second: IEnumerable<T>): IEnumerable<T>;

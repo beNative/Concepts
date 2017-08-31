@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -30,7 +30,6 @@ interface
 
 uses
   Rtti,
-  SyncObjs,
   SysUtils,
   Spring,
   Spring.Collections,
@@ -703,6 +702,7 @@ function TDecoratorResolver.Resolve(const dependency: TDependencyModel;
 
 var
   decoratorModel: TComponentModel;
+  index: Integer;
 begin
   Result := decoratee;
   for decoratorModel in GetDecorators(dependency.TypeInfo, model) do
@@ -711,8 +711,13 @@ begin
     if Result.IsObject and (dependency.TypeInfo.Kind = tkInterface) then
       Result := ConvClass2Inf(Result.AsObject, dependency.TypeInfo);
   {$ENDIF}
-    context.AddArgument(TTypedValue.Create(dependency.TypeInfo, Result));
-    Result := decoratorModel.LifetimeManager.Resolve(context, decoratorModel);
+    // TODO: make this more explicit to just inject on the decorator constructor
+    index := context.AddArgument(TTypedValue.Create(Result, dependency.TypeInfo));
+    try
+      Result := decoratorModel.LifetimeManager.Resolve(context, decoratorModel).Cast(dependency.TypeInfo);
+    finally
+      context.RemoveTypedArgument(index);
+    end;
   end;
 end;
 

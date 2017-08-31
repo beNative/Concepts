@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -47,16 +47,17 @@ type
     fTypeInfo: PTypeInfo;
   {$IFDEF PUREPASCAL}
     fProxy: Pointer;
+  protected
     procedure InternalInvokeMethod(UserData: Pointer;
-      const Args: TArray<TValue>; out Result: TValue);
+      const Args: TArray<TValue>; out Result: TValue); virtual;
     procedure InternalInvokeDelegate(Method: TRttiMethod;
-      const Args: TArray<TValue>; out Result: TValue);
+      const Args: TArray<TValue>; out Result: TValue); virtual;
   {$ELSE}
     fInvocations: TObject;
-    procedure InternalInvoke(Params: Pointer; StackSize: Integer);
     procedure Invoke;
-  {$ENDIF}
   protected
+    procedure InternalInvoke(Params: Pointer; StackSize: Integer); virtual;
+  {$ENDIF}
     procedure Notify(Sender: TObject; const Item: TMethodPointer;
       Action: TCollectionNotification); override;
   public

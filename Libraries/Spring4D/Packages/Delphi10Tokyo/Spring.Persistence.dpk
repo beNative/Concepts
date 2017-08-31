@@ -34,10 +34,10 @@ package Spring.Persistence;
 
 requires
   dbrtl,
-{$IFNDEF FMX}
+{$IFNDEF FMX}{$IFDEF MSWINDOWS}
   vcl,
   vclimg,
-{$ENDIF}
+{$ENDIF}{$ENDIF}
   Spring.Base;
 
 contains

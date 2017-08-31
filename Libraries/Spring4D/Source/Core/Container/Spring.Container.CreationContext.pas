@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2016 Spring4D Team                           }
+{           Copyright (c) 2009-2017 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -59,7 +59,8 @@ type
       out instance: TValue): Boolean;
     procedure LeaveResolution(const model: TComponentModel);
 
-    procedure AddArgument(const argument: TValue);
+    function AddArgument(const argument: TValue): Integer;
+    procedure RemoveTypedArgument(index: Integer);
     procedure AddPerResolve(const model: TComponentModel; const instance: TValue);
     function TryHandle(const injection: IInjection;
       out handled: IInjection): Boolean;
@@ -68,7 +69,6 @@ type
 implementation
 
 uses
-  SyncObjs,
   SysUtils,
   TypInfo,
   Spring.Container.Injection,
@@ -106,19 +106,19 @@ var
 begin
   for instance in fPerResolveInstances.Values do
     if instance.TryAsType<TInterfacedObject>(interfacedObject) and Assigned(interfacedObject) then
-      TInterlocked.Decrement(TInterfacedObjectAccess(interfacedObject).fRefCount);
+      AtomicDecrement(TInterfacedObjectAccess(interfacedObject).fRefCount);
   inherited Destroy;
 end;
 {$ENDIF}
 
-procedure TCreationContext.AddArgument(const argument: TValue);
+function TCreationContext.AddArgument(const argument: TValue): Integer;
 begin
   if argument.IsType<TTypedValue> then
-    fTypedArguments.Add(argument)
+    Result := fTypedArguments.Add(argument)
   else if argument.IsType<TNamedValue> then
-    fNamedArguments.Add(argument)
+    Result := fNamedArguments.Add(argument)
   else
-    fArguments.Add(argument);
+    Result := fArguments.Add(argument);
 end;
 
 procedure TCreationContext.AddPerResolve(const model: TComponentModel;
@@ -131,7 +131,7 @@ begin
   fPerResolveInstances.Add(model, instance);
 {$IFNDEF AUTOREFCOUNT}
   if instance.TryAsType<TInterfacedObject>(interfacedObject) and Assigned(interfacedObject) then
-    TInterlocked.Increment(TInterfacedObjectAccess(interfacedObject).fRefCount);
+    AtomicIncrement(TInterfacedObjectAccess(interfacedObject).fRefCount);
 {$ENDIF}
 end;
 
@@ -220,6 +220,11 @@ procedure TCreationContext.LeaveResolution(const model: TComponentModel);
 begin
   if fResolutionStack.Pop <> model then
     raise EResolveException.CreateRes(@SResolutionStackUnbalanced);
+end;
+
+procedure TCreationContext.RemoveTypedArgument(index: Integer);
+begin
+  fTypedArguments.Delete(index);
 end;
 
 function TCreationContext.Resolve(const context: ICreationContext;

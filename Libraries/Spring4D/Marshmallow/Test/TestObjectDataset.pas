@@ -3,6 +3,7 @@ unit TestObjectDataSet;
 interface
 
 uses
+  Classes,
   TestFramework,
   TestEntities,
   Spring.Collections,
@@ -17,6 +18,7 @@ type
   protected
     function CreateCustomersList(ASize: Integer = 10; ACreateMock: Boolean = False): IList<TCustomer>; virtual;
     function CreateCustomersOrdersList(ASize: Integer = 10): IList<TCustomer_Orders>; virtual;
+    function CreateCustomersStreamList(const stream: TMemoryStream): IObjectList;
     procedure DoListChanged(Sender: TObject; const Item: TCustomer; Action: TCollectionChangedAction); virtual;
   public
     procedure SetUp; override;
@@ -66,6 +68,7 @@ type
     procedure SimpleSort;
     procedure Sort;
     procedure Sort_Regression;
+    procedure StreamRead;
 
     procedure SimpleDefinedFields;
     procedure LookUpField;
@@ -337,6 +340,23 @@ begin
 
     Result.Add(LOrder);
   end;
+end;
+
+function TObjectDataSetTest.CreateCustomersStreamList(
+  const stream: TMemoryStream): IObjectList;
+var
+  customer: TCustomerWithStream;
+  customers: IList<TCustomerWithStream>;
+begin
+  customers := TCollections.CreateObjectList<TCustomerWithStream>(True);
+  customer := TCustomerWithStream.Create;
+  customers.Add(customer);
+  customer.Name := 'FirstName';
+  customer.Age := 42;
+  customer.EMail := 'aaa@aaa.com';
+  customer.Height := 100.5;
+  customer.StreamLazy := TMemoryStream(stream);
+  Result := customers as IObjectList;
 end;
 
 procedure TObjectDataSetTest.Delete;
@@ -1011,6 +1031,28 @@ begin
   CheckEquals(2, FDataset.FieldByName('Age').AsInteger);
 
  // CheckEquals('Bob', FDataset.FieldByName('Name').AsString);
+end;
+
+procedure TObjectDataSetTest.StreamRead;
+var
+  actual, bytes: TBytes;
+  field: TField;
+  stream: Managed<TBytesStream>;
+begin
+  bytes := TBytes.Create(1, 2, 3);
+  stream := TBytesStream.Create(bytes);
+  FDataset.DataList := CreateCustomersStreamList(stream);
+  FDataset.Open;
+
+  field := FDataset.FieldByName('CUSTSTREAM');
+
+  CheckIs(field, TBlobField);
+  CheckEquals(Length(bytes), TBlobField(field).BlobSize);
+  actual := TBlobField(field).AsBytes;
+  CheckEquals(Length(bytes), Length(actual));
+  CheckEquals(bytes[0], actual[0]);
+  CheckEquals(bytes[1], actual[1]);
+  CheckEquals(bytes[2], actual[2]);
 end;
 
 procedure TObjectDataSetTest.TearDown;
