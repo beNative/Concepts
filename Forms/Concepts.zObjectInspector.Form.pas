@@ -28,9 +28,9 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes,
+  System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls,
-  Vcl.ExtCtrls, Vcl.ButtonGroup, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.ButtonGroup, Vcl.StdCtrls, Vcl.ActnList,
 
   Concepts.Types.Contact,
 
@@ -44,13 +44,17 @@ type
     chkCheckBox     : TCheckBox;
     edtButtonedEdit : TButtonedEdit;
     edtEdit         : TEdit;
-    lblLabel        : TLabel;
     pnlLeft         : TPanel;
     pnlMain         : TPanel;
     pnlRight        : TPanel;
     sbrStatusBar    : TStatusBar;
     splSplitter     : TSplitter;
     trbTrackBar     : TTrackBar;
+    pnlHeader       : TPanel;
+    lblHeader       : TLabel;
+    aclMain         : TActionList;
+    actTest1        : TAction;
+    actTest2        : TAction;
 
     procedure cbxControlsChange(Sender: TObject);
 
@@ -75,11 +79,12 @@ implementation
 {$R *.dfm}
 
 uses
-  System.Rtti,
+  System.Rtti, System.TypInfo,
 
   DDuce.Logger,
 
-  Concepts.Factories;
+  Concepts.Resources, Concepts.Factories,
+  Concepts.zObjectInspector.ValueManager;
 
 {$REGION 'construction and destruction'}
 procedure TfrmzObjectInspector.AfterConstruction;
@@ -95,6 +100,9 @@ begin
   FObjectInspector.AlignWithMargins := True;
   FObjectInspector.Name             := 'FObjectInspector';
   FObjectInspector.OnBeforeAddItem  := FObjectInspectorBeforeAddItem;
+  aclMain.Images := dmResources.imlMain;
+  btnButton.Images := dmResources.imlMain;
+
   FObjectHost := TzObjectHost.Create;
   for I := 0 to ComponentCount - 1 do
   begin
@@ -105,7 +113,9 @@ begin
   for I := 0 to bgMain.Images.Count - 1 do
     with bgMain.Items.Add do
       ImageIndex := I;
-  FObjectHost.AddObject(FObjectInspector, 'ObjectInspector');
+  //FObjectHost.AddObject(FObjectInspector, 'ObjectInspector');
+  FObjectHost.AddObject(FContact, 'FContact');
+
   FObjectInspector.Component := FObjectHost;
   FObjectInspector.SplitterPos := FObjectInspector.Width div 2;
   FObjectInspector.SortByCategory := False;

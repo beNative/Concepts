@@ -16,30 +16,32 @@ object frmFMXContainer: TfrmFMXContainer
   TextHeight = 13
   object pnlFMXContainer: TPanel
     Left = 0
-    Top = 25
+    Top = 26
     Width = 632
-    Height = 358
+    Height = 357
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 103
-    ExplicitHeight = 280
+    ExplicitTop = 25
+    ExplicitHeight = 358
   end
   object pnlHeader: TPanel
     Left = 0
     Top = 0
     Width = 632
-    Height = 25
+    Height = 26
     Align = alTop
     BevelOuter = bvNone
     Caption = 
       'This VCL form hosts a FireMonkey form by using the FMXContainter' +
       ' control.'
+    Color = clWhite
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clNavy
     Font.Height = -11
     Font.Name = 'Tahoma'
     Font.Style = []
+    ParentBackground = False
     ParentFont = False
     TabOrder = 1
   end

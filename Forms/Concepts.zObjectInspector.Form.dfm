@@ -15,17 +15,19 @@ object frmzObjectInspector: TfrmzObjectInspector
   TextHeight = 13
   object pnlMain: TPanel
     Left = 0
-    Top = 0
+    Top = 28
     Width = 799
-    Height = 716
+    Height = 688
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 0
+    ExplicitHeight = 716
     object splSplitter: TSplitter
       Left = 313
       Top = 0
       Width = 8
-      Height = 697
+      Height = 669
       ResizeStyle = rsUpdate
       ExplicitLeft = 273
       ExplicitTop = 1
@@ -35,10 +37,11 @@ object frmzObjectInspector: TfrmzObjectInspector
       Left = 0
       Top = 0
       Width = 313
-      Height = 697
+      Height = 669
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 697
       object cbxControls: TComboBox
         AlignWithMargins = True
         Left = 3
@@ -64,44 +67,22 @@ object frmzObjectInspector: TfrmzObjectInspector
       Left = 321
       Top = 0
       Width = 478
-      Height = 697
+      Height = 669
       Align = alClient
       BevelOuter = bvNone
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 1
+      ExplicitHeight = 697
       DesignSize = (
         478
-        697)
-      object lblLabel: TLabel
-        Left = 6
-        Top = 3
-        Width = 467
-        Height = 62
-        Alignment = taCenter
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Caption = 
-          'This form demonstrates the TzObjectInspector control. '#13#10'You can ' +
-          'adjust properties of any control shown on this form.'
-        EllipsisPosition = epWordEllipsis
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentFont = False
-        Layout = tlCenter
-        WordWrap = True
-        ExplicitWidth = 245
-      end
+        669)
       object btnButton: TButton
-        Left = 225
-        Top = 71
+        Left = 223
+        Top = 6
         Width = 109
         Height = 25
-        Caption = 'TButton'
-        ImageIndex = 0
+        Action = actTest1
         ImageMargins.Left = 3
         ImageMargins.Top = 3
         ImageMargins.Right = 3
@@ -109,8 +90,8 @@ object frmzObjectInspector: TfrmzObjectInspector
         TabOrder = 1
       end
       object chkCheckBox: TCheckBox
-        Left = 6
-        Top = 132
+        Left = 22
+        Top = 69
         Width = 218
         Height = 17
         Anchors = [akLeft, akTop, akRight]
@@ -120,7 +101,7 @@ object frmzObjectInspector: TfrmzObjectInspector
       end
       object edtEdit: TEdit
         Left = 6
-        Top = 73
+        Top = 6
         Width = 107
         Height = 21
         TabOrder = 0
@@ -128,9 +109,9 @@ object frmzObjectInspector: TfrmzObjectInspector
       end
       object bgMain: TButtonGroup
         Left = 6
-        Top = 155
+        Top = 104
         Width = 467
-        Height = 536
+        Height = 559
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvNone
         BevelKind = bkFlat
@@ -142,7 +123,7 @@ object frmzObjectInspector: TfrmzObjectInspector
       end
       object trbTrackBar: TTrackBar
         Left = 6
-        Top = 100
+        Top = 33
         Width = 467
         Height = 26
         Anchors = [akLeft, akTop, akRight]
@@ -151,8 +132,8 @@ object frmzObjectInspector: TfrmzObjectInspector
         TabOrder = 4
       end
       object edtButtonedEdit: TButtonedEdit
-        Left = 121
-        Top = 73
+        Left = 119
+        Top = 6
         Width = 98
         Height = 21
         RightButton.Hint = 'Hint'
@@ -166,12 +147,56 @@ object frmzObjectInspector: TfrmzObjectInspector
     end
     object sbrStatusBar: TStatusBar
       Left = 0
-      Top = 697
+      Top = 669
       Width = 799
       Height = 19
       Panels = <>
       ParentShowHint = False
       ShowHint = True
+      ExplicitTop = 697
+    end
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Top = 0
+    Width = 799
+    Height = 28
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    ParentBackground = False
+    TabOrder = 1
+    object lblHeader: TLabel
+      Left = 0
+      Top = 0
+      Width = 799
+      Height = 28
+      Align = alClient
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 
+        'This form demonstrates the TzObjectInspector control. You can ad' +
+        'just properties of any control shown on this form.'
+      EllipsisPosition = epWordEllipsis
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clNavy
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      Layout = tlCenter
+      WordWrap = True
+      ExplicitHeight = 26
+    end
+  end
+  object aclMain: TActionList
+    Left = 520
+    Top = 96
+    object actTest1: TAction
+      Caption = 'Test 1 action'
+    end
+    object actTest2: TAction
+      Caption = 'actTest2'
     end
   end
 end

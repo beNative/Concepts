@@ -182,7 +182,7 @@ type
   protected
     /// <summary> Use custom ListBox .
     /// </summary>
-    class function GetListClass(const PItem: PPropItem): TPopupListClass;
+    class function GetListClass(const PItem: PPropItem): TPopupListClass; virtual;
     class procedure SetValue(const PItem: PPropItem; var Value: TValue); virtual;
     class function StrToValue<T>(const PItem: PPropItem; const s: string): T;
     class function GetValue(const PItem: PPropItem; const Value): TValue; virtual;
@@ -4422,7 +4422,6 @@ begin
   end;
   if HasList(PItem) or HasDialog(PItem) then
     Result := True;
-
 end;
 
 class function TzCustomValueManager.HasDialog(const PItem: PPropItem): Boolean;
@@ -4438,11 +4437,7 @@ begin
         else if PItem.Value.AsObject is TCollection then
           Result := True;
       end;
-      vtString:
-      begin
-        Result := True;
-      end;
-      vtColor, vtFont, vtIcon:
+      vtColor, vtFont, vtIcon, vtString:
       begin
         Exit(True);
       end;

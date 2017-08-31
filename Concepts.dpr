@@ -440,7 +440,8 @@ uses
   Spring.Data.ExpressionParser in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ExpressionParser.pas',
   Spring.Data.IndexList in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.IndexList.pas',
   Spring.Data.ObjectDataSet in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ObjectDataSet.pas',
-  Spring.Data.VirtualDataSet in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.VirtualDataSet.pas';
+  Spring.Data.VirtualDataSet in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.VirtualDataSet.pas',
+  Concepts.zObjectInspector.ValueManager in 'Forms\Concepts.zObjectInspector.ValueManager.pas';
 
 {$R *.res}
 
