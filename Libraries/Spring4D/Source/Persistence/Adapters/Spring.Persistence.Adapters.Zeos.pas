@@ -179,7 +179,8 @@ function TZeosConnectionAdapter.BeginTransaction: IDBTransaction;
 begin
   if Assigned(Connection) then
   try
-    Connection.Connected := True;
+    if not Connection.Ping then
+      Connection.Reconnect;
 
     if not Connection.InTransaction then
       Connection.StartTransaction;

@@ -159,6 +159,11 @@ implementation
 
 {$REGION 'Routines'}
 
+function GetClassData(classType: TClass): PClassData;
+begin
+  Result := Pointer(NativeInt(classType) + vmtSelfPtr);
+end;
+
 function CreateVirtualClass(classType: TClass): TClass;
 var
   virtualMethodCount: Integer;
@@ -177,11 +182,6 @@ end;
 procedure DestroyVirtualClass(classType: TClass);
 begin
   FreeMem(PByte(classType) + vmtSelfPtr);
-end;
-
-function GetClassData(classType: TClass): PClassData;
-begin
-  Result := Pointer(NativeInt(classType) + vmtSelfPtr);
 end;
 
 function GetVirtualMethodIndex(classType: TClass; method: Pointer): SmallInt;

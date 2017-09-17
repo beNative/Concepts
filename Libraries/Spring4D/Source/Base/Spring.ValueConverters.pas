@@ -67,7 +67,7 @@ type
     /// </param>
     /// <returns>
     ///   Returns <paramref name="value" /> converted to type pointing by <paramref name="targetTypeInfo" />
-    ///   parameter
+    ///    parameter
     /// </returns>
     function ConvertTo(const value: TValue;
       const targetTypeInfo: PTypeInfo;

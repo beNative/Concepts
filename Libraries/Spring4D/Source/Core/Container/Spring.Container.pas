@@ -652,7 +652,8 @@ begin
   Result := fContainer.Resolve(serviceType);
 end;
 
-function TServiceLocatorAdapter.GetService(serviceType: PTypeInfo; const serviceName: string): TValue;
+function TServiceLocatorAdapter.GetService(serviceType: PTypeInfo; //FI:O804
+  const serviceName: string): TValue;
 begin
   Result := fContainer.Resolve({serviceType, }serviceName);
 end;
@@ -663,7 +664,7 @@ begin
   Result := fContainer.Resolve(serviceType, args);
 end;
 
-function TServiceLocatorAdapter.GetService(serviceType: PTypeInfo;
+function TServiceLocatorAdapter.GetService(serviceType: PTypeInfo; //FI:O804
   const serviceName: string; const args: array of TValue): TValue;
 begin
   Result := fContainer.Resolve({serviceType, }serviceName, args);

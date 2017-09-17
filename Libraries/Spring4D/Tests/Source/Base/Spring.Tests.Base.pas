@@ -41,6 +41,7 @@ uses
   TestFramework,
   Spring.TestUtils,
   Spring,
+  Spring.Collections,
   Spring.Events,
   Spring.Utils;
 
@@ -164,6 +165,8 @@ type
     procedure TestNotify;
     procedure TestNotifyDelegate;
     procedure TestRemove;
+    procedure TestClear;
+    procedure TestAddNil;
 
     procedure TestClassProcedureHandler;
     procedure TestInstanceProcedureHandler;
@@ -364,7 +367,7 @@ type
     procedure Test_Unpack_ThreeValues;
   end;
 
-  TTestOwned = class(TTestCase)
+  TTestShared = class(TTestCase)
   published
     procedure TestInterfaceType_Instance_Gets_Created;
     procedure TestInterfaceType_Instance_Gets_Destroyed_When_Created;
@@ -513,13 +516,14 @@ type
     fWideCharValue: WideChar;
     [Default('z')]
     fCharValue: Char;
-  {$IFNDEF DELPHI2010}
     [Managed(TInterfacedObject)]
     fIntfValue: IInterface;
-  {$ENDIF}
 
     fIntValue_Prop: Integer;
     fStrValue_Prop: string;
+
+    [AutoInit]
+    fList: IList<TPersistent>;
     procedure SetStrValue_Prop(const Value: string); virtual;
   public
     constructor Create;
@@ -585,7 +589,7 @@ end;
 procedure TTestNullableInteger.TearDown;
 begin
   inherited;
-  fInteger := Nullable.Null;
+  fInteger := nil;
 end;
 
 procedure TTestNullableInteger.TestAssignFive;
@@ -612,7 +616,7 @@ var
   n: Nullable<Integer>;
 begin
   n := 5;
-  n := Nullable.Null;
+  n := nil;
   Check(not n.HasValue);
 end;
 
@@ -654,17 +658,19 @@ var
   dirtyValue: Nullable<Integer>;  { lives in stack }
 begin
   CheckFalse(dirtyValue.HasValue);
+  CheckTrue(dirtyValue = nil);
   dirtyValue := 5;
+  CheckTrue(dirtyValue <> nil);
 end;
 
 procedure TTestNullableInteger.TestNullableNull;
 begin
   fInteger := 42;
   CheckEquals(42, fInteger.Value);
-  fInteger := Nullable.Null;
+  fInteger := nil;
   Check(not fInteger.HasValue);
-  Check(fInteger = Nullable.Null);
-  CheckFalse(fInteger <> Nullable.Null);
+  Check(fInteger = nil);
+  CheckFalse(fInteger <> nil);
 end;
 
 procedure TTestNullableInteger.TestTryGetValue;
@@ -732,7 +738,7 @@ end;
 procedure TTestNullableBoolean.TearDown;
 begin
   inherited;
-  fBoolean := Nullable.Null;
+  fBoolean := nil;
 end;
 
 procedure TTestNullableBoolean.TestIssue55;
@@ -814,6 +820,20 @@ begin
   Inc(fHandlerInvokeCount);
 end;
 
+procedure TTestMulticastEvent.TestAddNil;
+var
+  e: Event<TNotifyEvent>;
+  e2: Event<TProc<Integer, string>>;
+begin
+  e.Add(nil);
+  e.Invoke(nil);
+  CheckEquals(0, fHandlerInvokeCount);
+
+  e2.Add(nil);
+  e2.Invoke(0, '');
+  CheckEquals(0, fHandlerInvokeCount);
+end;
+
 procedure TTestMulticastEvent.TestClassProcedureHandler;
 var
   e: Event<TEventInt64>;
@@ -822,6 +842,17 @@ begin
   e.Invoke(42);
   e.Remove(TEventHandler.HandleInt64Static);
   CheckTrue(TEventHandler.fClassHandlerInvoked);
+end;
+
+procedure TTestMulticastEvent.TestClear;
+var
+  e: Event<TNotifyEvent>;
+begin
+  e.Add(HandleChanged);
+  e.Clear;
+  e.Invoke(nil);
+  CheckEquals(0, fHandlerInvokeCount);
+  e.Clear;
 end;
 
 procedure TTestMulticastEvent.TestDelegate;
@@ -933,11 +964,6 @@ var
   expected: Integer;
 begin
   expected := 0;
-
-  eventInt64 := Event<TEventInt64>.Create();
-  eventSingle := Event<TEventSingle>.Create();
-  eventDouble := Event<TEventDouble>.Create();
-  eventExtended := Event<TEventExtended>.Create();
 
   eventInt64.Add(HandlerInt64);
   eventSingle.Add(HandlerSingle);
@@ -1313,7 +1339,6 @@ begin
 {$IFDEF LogConsole}
   LogEnter(expected, 'TestIssue60Double');
 {$ENDIF LogConsole}
-  eventDouble := Event<TEventDouble>.Create();
   eventDouble.Add(HandlerDouble);
   eventDouble.Invoke(42);
   Inc(expected);
@@ -1332,7 +1357,6 @@ begin
 {$IFDEF LogConsole}
   LogEnter(expected, 'TestIssue60DoubleAssignedConst');
 {$ENDIF LogConsole}
-  eventDouble := Event<TEventDouble>.Create();
   eventDouble.Add(HandlerDouble);
   eventDouble.Invoke(Double42);
   Inc(expected);
@@ -1351,7 +1375,6 @@ begin
 {$IFDEF LogConsole}
   LogEnter(expected, 'TestIssue60Extended');
 {$ENDIF LogConsole}
-  eventExtended := Event<TEventExtended>.Create();
   eventExtended.Add(HandlerExtended);
   eventExtended.Invoke(42);
   Inc(expected);
@@ -1370,7 +1393,6 @@ begin
 {$IFDEF LogConsole}
   LogEnter(expected, 'TestIssue60ExtendedAssignedConst');
 {$ENDIF LogConsole}
-  eventExtended := Event<TEventExtended>.Create();
   eventExtended.Add(HandlerExtended);
   eventExtended.Invoke(Extended42);
   Inc(expected);
@@ -1391,7 +1413,6 @@ begin
   Writeln('TTestMulticastEventStackSize.TestIssue60GuidAssignedConst');
   Writeln(Format('Entry: Expected=%d, got fHandlerInvokeCount=%d', [expected, fHandlerInvokeCount]));
 {$ENDIF LogConsole}
-  eventExtended := Event<TEventGuid>.Create();
   eventExtended.Add(HandlerGuid);
   guid := GUID42;
   eventExtended.Invoke(guid); // pass variable to avoid AV during method interception
@@ -1412,7 +1433,6 @@ begin
   Writeln('TTestMulticastEventStackSize.TestIssue60Int64');
   Writeln(Format('Entry: Expected=%d, got fHandlerInvokeCount=%d', [expected, fHandlerInvokeCount]));
 {$ENDIF LogConsole}
-  eventInt64 := Event<TEventInt64>.Create();
   eventInt64.Add(HandlerInt64);
   eventInt64.Invoke(42);
   Inc(expected);
@@ -1432,7 +1452,6 @@ begin
   Writeln('TTestMulticastEventStackSize.TestIssue60Int64AssignedConst');
   Writeln(Format('Entry: Expected=%d, got fHandlerInvokeCount=%d', [expected, fHandlerInvokeCount]));
 {$ENDIF LogConsole}
-  eventInt64 := Event<TEventInt64>.Create();
   eventInt64.Add(HandlerInt64);
   eventInt64.Invoke(Int6442);
   Inc(expected);
@@ -1452,7 +1471,6 @@ begin
   Writeln('TTestMulticastEventStackSize.TestIssue60Single');
   Writeln(Format('Entry: Expected=%d, got fHandlerInvokeCount=%d', [expected, fHandlerInvokeCount]));
 {$ENDIF LogConsole}
-  eventSingle := Event<TEventSingle>.Create();
   eventSingle.Add(HandlerSingle);
   eventSingle.Invoke(42);
   Inc(expected);
@@ -1472,7 +1490,6 @@ begin
   Writeln('TTestMulticastEventStackSize.TestIssue60SingleAssignedConst');
   Writeln(Format('Entry: Expected=%d, got fHandlerInvokeCount=%d', [expected, fHandlerInvokeCount]));
 {$ENDIF LogConsole}
-  eventSingle := Event<TEventSingle>.Create();
   eventSingle.Add(HandlerSingle);
   eventSingle.Invoke(Single42);
   Inc(expected);
@@ -2343,21 +2360,21 @@ begin
   inherited;
 end;
 
-procedure TTestOwned.TestInterfaceType_Instance_Gets_Created;
+procedure TTestShared.TestInterfaceType_Instance_Gets_Created;
 var
-  p: IManaged<TTestClass>;
+  p: IShared<TTestClass>;
 begin
-  p := TManaged<TTestClass>.Create();
+  p := Shared<TTestClass>.New;
   CheckTrue(p.CreateCalled);
 end;
 
-procedure TTestOwned.TestInterfaceType_Instance_Gets_Destroyed_When_Created;
+procedure TTestShared.TestInterfaceType_Instance_Gets_Destroyed_When_Created;
 var
-  p: IManaged<TTestClass>;
+  p: IShared<TTestClass>;
   t: TTestClass;
   destroyCalled: Boolean;
 begin
-  p := TManaged<TTestClass>.Create();
+  p := Shared<TTestClass>.New;
   t := p;
   t.DestroyCalled := @destroyCalled;
 {$IFDEF AUTOREFCOUNT}
@@ -2368,15 +2385,15 @@ begin
   CheckTrue(destroyCalled);
 end;
 
-procedure TTestOwned.TestInterfaceType_Instance_Gets_Destroyed_When_Injected;
+procedure TTestShared.TestInterfaceType_Instance_Gets_Destroyed_When_Injected;
 var
   t: TTestClass;
-  p: IManaged<TTestClass>;
+  p: IShared<TTestClass>;
   destroyCalled: Boolean;
 begin
   t := TTestClass.Create;
   t.DestroyCalled := @destroyCalled;
-  p := TManaged<TTestClass>.Create(t);
+  p := Shared.New(t);
 {$IFDEF AUTOREFCOUNT}
   t := nil;
 {$ENDIF}
@@ -2385,9 +2402,9 @@ begin
   CheckTrue(destroyCalled);
 end;
 
-procedure TTestOwned.TestRecordType_Implicit_FromInstance_Works;
+procedure TTestShared.TestRecordType_Implicit_FromInstance_Works;
 var
-  p: Managed<TTestClass>;
+  p: Shared<TTestClass>;
   t: TTestClass;
 begin
   t := TTestClass.Create;
@@ -2395,9 +2412,9 @@ begin
   CheckSame(t, p.Value);
 end;
 
-procedure TTestOwned.TestRecordType_Implicit_ToInstance_Works;
+procedure TTestShared.TestRecordType_Implicit_ToInstance_Works;
 var
-  p: Managed<TTestClass>;
+  p: Shared<TTestClass>;
   t, t2: TTestClass;
 begin
   t := TTestClass.Create;
@@ -2406,9 +2423,9 @@ begin
   CheckSame(t, t2);
 end;
 
-procedure TTestOwned.TestRecordType_Instance_Gets_Destroyed;
+procedure TTestShared.TestRecordType_Instance_Gets_Destroyed;
 var
-  p: Managed<TTestClass>;
+  p: Shared<TTestClass>;
   t: TTestClass;
   destroyCalled: Boolean;
 begin
@@ -2419,7 +2436,7 @@ begin
   t := nil;
 {$ENDIF}
   destroyCalled := False;
-  p := Default(Managed<TTestClass>);
+  p := Default(Shared<TTestClass>);
   CheckTrue(destroyCalled);
 end;
 
@@ -2430,11 +2447,11 @@ type
     s: string;
   end;
 
-procedure TTestOwned.TestRecordType_Manage_Typed_Pointer;
+procedure TTestShared.TestRecordType_Manage_Typed_Pointer;
 var
-  p: IManaged<PMyRecord>;
+  p: IShared<PMyRecord>;
 begin
-  p := TManaged<PMyRecord>.Create();
+  p := Shared<PMyRecord>.New;
   p.x := 11;
   p.y := 22;
   p.s := 'Hello World';
@@ -2958,7 +2975,7 @@ procedure TTestValueHelper.NullableToString;
 begin
   fSUT := TValue.From(Nullable<Integer>(42));
   CheckEqualsString('42', fSUT.ToString);
-  fSUT := TValue.From(Nullable<Integer>(Nullable.Null));
+  fSUT := TValue.From(Nullable<Integer>(nil));
   CheckEqualsString('(null)', fSUT.ToString);
 end;
 
@@ -3101,7 +3118,7 @@ end;
 
 procedure TTestNullableDateTime.TearDown;
 begin
-  fDateTime := Nullable.Null;
+  fDateTime := nil;
   inherited;
 end;
 
@@ -3150,7 +3167,7 @@ end;
 
 procedure TTestNullableInt64.TearDown;
 begin
-  fInt64 := Nullable.Null;
+  fInt64 := nil;
   inherited;
 end;
 
@@ -3215,14 +3232,16 @@ begin
   {$ENDIF}
     CheckEquals('y', Char(obj.fWideCharValue));
     CheckEquals('z', Char(obj.fCharValue));
-  {$IFNDEF DELPHI2010}
+
     CheckNotNull(obj.fIntfValue);
     CheckIs(obj.fIntfValue as TObject, TInterfacedObject);
-  {$ENDIF}
 
     // check property initializations
     CheckEquals(43, obj.fIntValue_Prop);
     CheckEquals('hello', obj.fStrValue_Prop);
+
+    CheckNotNull(obj.fList);
+    Check(obj.fList.ElementType = TypeInfo(TPersistent));
   finally
     obj.Free;
   end;

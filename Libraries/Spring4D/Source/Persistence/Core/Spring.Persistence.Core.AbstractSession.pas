@@ -113,7 +113,7 @@ type
       const list: IObjectList; entityClass: TClass);
 
     /// <summary>
-    /// Maps resultset row into an entity instance
+    ///   Maps resultset row into an entity instance
     /// </summary>
     function MapEntityFromResultSetRow(const resultSet: IDBResultSet;
       entityClass: TClass): TObject;

@@ -130,6 +130,7 @@ type
   end;
 
   IMockSequence = interface
+    ['{EDD1681F-1FC7-42B8-89FF-3EE8C8C9A26B}']
   {$REGION 'Property Accessors'}
     function GetCompleted: Boolean;
     function GetCurrent: Integer;
@@ -359,6 +360,12 @@ begin
   Result.fMock := TMock<T>.Create(behavior, args);
 end;
 
+procedure Mock<T>.EnsureInitialized;
+begin
+  if not Assigned(fMock) then
+    fMock := TMock<T>.Create(DefaultMockBehavior, [])
+end;
+
 function Mock<T>.AsType<TInterface>: Mock<TInterface>;
 var
   typeData: PTypeData;
@@ -376,12 +383,6 @@ begin
   proxy.AddAdditionalInterface(TypeInfo(TInterface), TProxyGenerationOptions.Default);
   PInterface(@source)^.QueryInterface(typeData.Guid, target);
   Result.fMock := Mock.From<TInterface>(target).fMock;
-end;
-
-procedure Mock<T>.EnsureInitialized;
-begin
-  if not Assigned(fMock) then
-    fMock := TMock<T>.Create(DefaultMockBehavior, [])
 end;
 
 procedure Mock<T>.Free;

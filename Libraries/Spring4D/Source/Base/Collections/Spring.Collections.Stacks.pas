@@ -55,7 +55,6 @@ type
         constructor Create(const stack: TStack<T>);
         destructor Destroy; override;
         function MoveNext: Boolean; override;
-        procedure Reset; override;
       end;
   private
     fCount: Integer;
@@ -63,7 +62,6 @@ type
     fVersion: Integer;
     fOnChanged: ICollectionChangedEvent<T>;
     procedure Grow;
-    procedure IncreaseVersion; inline;
   protected
   {$REGION 'Property Accessors'}
     function GetCapacity: Integer;
@@ -208,13 +206,6 @@ begin
   SetLength(fItems, newCapacity);
 end;
 
-{$IFOPT Q+}{$DEFINE OVERFLOW_CHECKS_ON}{$Q-}{$ENDIF}
-procedure TStack<T>.IncreaseVersion;
-begin
-  Inc(fVersion);
-end;
-{$IFDEF OVERFLOW_CHECKS_ON}{$Q+}{$ENDIF}
-
 function TStack<T>.Peek: T;
 begin
   if fCount = 0 then
@@ -239,10 +230,11 @@ function TStack<T>.PopInternal(notification: TCollectionChangedAction): T;
 begin
   if fCount = 0 then
     raise EListError.CreateRes(@SUnbalancedOperation);
+
+  IncUnchecked(fVersion);
   Dec(fCount);
   Result := fItems[fCount];
   fItems[fCount] := Default(T);
-  IncreaseVersion;
 
   Changed(Result, notification);
 end;
@@ -251,9 +243,10 @@ procedure TStack<T>.Push(const item: T);
 begin
   if fCount = Length(fItems) then
     Grow;
+
+  IncUnchecked(fVersion);
   fItems[fCount] := item;
   Inc(fCount);
-  IncreaseVersion;
 
   Changed(item, caAdded);
 end;
@@ -336,15 +329,6 @@ begin
   end
   else
     fCurrent := Default(T);
-end;
-
-procedure TStack<T>.TEnumerator.Reset;
-begin
-  if fVersion <> fStack.fVersion then
-    raise EInvalidOperationException.CreateRes(@SEnumFailedVersion);
-
-  fIndex := 0;
-  fCurrent := Default(T);
 end;
 
 {$ENDREGION}

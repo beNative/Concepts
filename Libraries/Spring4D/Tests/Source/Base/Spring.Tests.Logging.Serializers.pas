@@ -339,7 +339,7 @@ end;
 
 procedure TTestReflectionTypeSerializer.TestNestedClass;
 var
-  controller: Managed<TLoggerController>;
+  controller: Shared<TLoggerController>;
   o: TSampleObject;
   result: string;
   s, c: string;
@@ -405,7 +405,7 @@ end;
 
 procedure TTestReflectionTypeSerializer.TestNestingClass;
 var
-  controller: Managed<TLoggerController>;
+  controller: Shared<TLoggerController>;
   o: TSampleObject;
   result: string;
 begin
@@ -536,7 +536,7 @@ end;
 
 procedure TTestArrayOfValueSerializer.TestNested;
 var
-  controller: Managed<TLoggerController>;
+  controller: Shared<TLoggerController>;
   values: TArray<TValue>;
   result: string;
   i: IInterface;

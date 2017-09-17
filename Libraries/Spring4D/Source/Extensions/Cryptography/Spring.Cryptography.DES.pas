@@ -300,7 +300,7 @@ procedure cycleMove(var inData: array of Byte; bitMove: Byte);
 var
   i: Integer;
 begin
-  for i := 0 to bitMove - 1 do
+  for i := 0 to bitMove - 1 do //FI:W528
   begin
     inData[0] := (inData[0] shl 1) or (inData[1] shr 7);
     inData[1] := (inData[1] shl 1) or (inData[2] shr 7);
@@ -425,7 +425,7 @@ begin
 end;
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'TDES'}{$ENDIF}
+{$REGION 'TDES'}
 
 constructor TDES.Create;
 begin
@@ -446,10 +446,10 @@ begin
   DecryptData(Key.AsBytes, inputBuffer, outputBuffer);
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'TTripleDES'}{$ENDIF}
+{$REGION 'TTripleDES'}
 
 constructor TTripleDES.Create;
 begin
@@ -498,6 +498,7 @@ begin
     raise ECryptographicException.CreateResFmt(@SIllegalKeySize, [value.Size]);
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
+
 
 end.

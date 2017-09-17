@@ -170,9 +170,10 @@ type
     fContext: TRttiContext;
     fIndex: Integer;
     fTypes: TArray<TRttiType>;
-  public
+  protected
     function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   end;
 
   {$ENDREGION}
@@ -978,27 +979,24 @@ begin
   Result := TRttiTypeIterator<T>.Create;
 end;
 
-function TRttiTypeIterator<T>.MoveNext: Boolean;
+procedure TRttiTypeIterator<T>.Start;
 begin
-  Result := False;
+  fTypes := fContext.GetTypes;
+  inherited;
+end;
 
-  if fState = STATE_ENUMERATOR then
+function TRttiTypeIterator<T>.TryMoveNext(var current: T): Boolean;
+var
+  typ: TRttiType;
+begin
+  while fIndex < Length(fTypes) do
   begin
-    fIndex := -1;
-    fTypes := fContext.GetTypes;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    while fIndex < High(fTypes) do
+    typ := fTypes[fIndex];
+    Inc(fIndex);
+    if typ.InheritsFrom(T) then
     begin
-      Inc(fIndex);
-      if fTypes[fIndex].InheritsFrom(T) then
-      begin
-        fCurrent := T(fTypes[fIndex]);
-        Exit(True);
-      end;
+      current := T(typ);
+      Exit(True);
     end;
   end;
 end;

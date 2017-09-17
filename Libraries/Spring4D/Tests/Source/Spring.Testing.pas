@@ -299,7 +299,7 @@ end;
 
 {$REGION 'RangeAttribute'}
 
-constructor RangeAttribute.Create(const low, high, step: Integer);
+constructor RangeAttribute.Create(const low, high, step: Integer); //FI:W525
 var
   i: Integer;
 begin
@@ -308,7 +308,7 @@ begin
     fValues[i] := low + i * step;
 end;
 
-constructor RangeAttribute.Create(const low, high, step: Extended);
+constructor RangeAttribute.Create(const low, high, step: Extended); //FI:W525
 var
   i: Integer;
 begin

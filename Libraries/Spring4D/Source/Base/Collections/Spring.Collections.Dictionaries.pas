@@ -104,11 +104,13 @@ type
       {$REGION 'Property Accessors'}
         function GetCount: Integer; override;
       {$ENDREGION}
+        procedure Dispose; override;
+        procedure Start; override;
+        function TryMoveNext(var current: TGenericPair): Boolean; override;
       public
         constructor Create(const source: TDictionary<TKey, TValue>);
         destructor Destroy; override;
         function Clone: TIterator<TGenericPair>; override;
-        function MoveNext: Boolean; override;
       end;
 
 {$IFDEF DELPHI2010}
@@ -692,6 +694,12 @@ begin
   inherited Destroy;
 end;
 
+procedure TDictionary<TKey, TValue>.TOrderedEnumerable.Dispose;
+begin
+  inherited Dispose;
+  fSortedKeys := nil;
+end;
+
 function TDictionary<TKey, TValue>.TOrderedEnumerable.Clone: TIterator<TGenericPair>;
 begin
   Result := TOrderedEnumerable.Create(fSource);
@@ -702,34 +710,27 @@ begin
   Result := fDictionary.Count;
 end;
 
-function TDictionary<TKey, TValue>.TOrderedEnumerable.MoveNext: Boolean;
+procedure TDictionary<TKey, TValue>.TOrderedEnumerable.Start;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
-  begin
-    fIndex := -1;
 {$IFDEF DELPHI2010}
-    fSortedKeys := TKeyCollectionHelper(fDictionary.Keys).ToArray;
+  fSortedKeys := TKeyCollectionHelper(fDictionary.Keys).ToArray;
 {$ELSE}
-    fSortedKeys := fDictionary.Keys.ToArray;
+  fSortedKeys := fDictionary.Keys.ToArray;
 {$ENDIF}
-    TArray.Sort<TKey>(fSortedKeys);
-    fState := STATE_RUNNING;
-  end;
+  TArray.Sort<TKey>(fSortedKeys);
+  inherited Start;
+end;
 
-  if fState = STATE_RUNNING then
+function TDictionary<TKey, TValue>.TOrderedEnumerable.TryMoveNext(var current: TGenericPair): Boolean;
+begin
+  if fIndex < Length(fSortedKeys) then
   begin
-    if fIndex < High(fSortedKeys) then
-    begin
-      Inc(fIndex);
-      fCurrent.Key := fSortedKeys[fIndex];
-      fCurrent.Value := fDictionary[fSortedKeys[fIndex]];
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
-    fSortedKeys := nil;
+    current.Key := fSortedKeys[fIndex];
+    current.Value := fDictionary[fSortedKeys[fIndex]];
+    Inc(fIndex);
+    Exit(True);
   end;
+  Result := False;
 end;
 
 {$ENDREGION}

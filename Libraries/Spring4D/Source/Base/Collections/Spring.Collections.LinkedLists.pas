@@ -59,7 +59,6 @@ type
         constructor Create(const list: TLinkedList<T>);
         destructor Destroy; override;
         function MoveNext: Boolean; override;
-        procedure Reset; override;
       end;
   private
     // ARC notes: It is assumed that once a node enters some list it belongs to
@@ -74,7 +73,6 @@ type
     fCount: Integer;
     fVersion: Integer;
     function EnsureNode(const value: T): TLinkedListNode<T>;
-    procedure IncreaseVersion; inline;
     procedure InternalInsertNodeBefore(const node: TLinkedListNode<T>;
       const newNode: TLinkedListNode<T>);
     procedure InternalInsertNodeToEmptyList(const newNode: TLinkedListNode<T>);
@@ -227,6 +225,7 @@ begin
   SetLength(oldItems, fCount);
   i := 0;
 
+  IncUnchecked(fVersion);
   node1 := fHead;
   while Assigned(node1) do
   begin
@@ -256,7 +255,6 @@ begin
     node1.__ObjRelease;
 {$ENDIF}
   end;
-  IncreaseVersion;
 
   for i := Low(oldItems) to High(oldItems) do
     Changed(oldItems[i], caRemoved);
@@ -297,14 +295,12 @@ end;
 function TLinkedList<T>.Find(const value: T): TLinkedListNode<T>;
 var
   node: TLinkedListNode<T>;
-  comparer: IEqualityComparer<T>;
 begin
   Result := nil;
   node := fHead;
-  comparer := EqualityComparer;
   if Assigned(node) then
   begin
-    while not comparer.Equals(node.fItem, value) do
+    while not Equals(node.fItem, value) do
     begin
       node := node.fNext;
       if node = fHead then
@@ -317,16 +313,14 @@ end;
 function TLinkedList<T>.FindLast(const value: T): TLinkedListNode<T>;
 var
   node1, node2: TLinkedListNode<T>;
-  comparer: IEqualityComparer<T>;
 begin
   if not Assigned(fHead) then
     Exit(nil);
   node1 := fHead.fPrev;
   node2 := node1;
-  comparer := EqualityComparer;
   if Assigned(node2) then
   begin
-    while not comparer.Equals(node2.fItem, value) do
+    while not Equals(node2.fItem, value) do
     begin
       node2 := node2.fPrev;
       if node2 = node1 then
@@ -372,22 +366,15 @@ begin
   Result := fOnChanged;
 end;
 
-{$IFOPT Q+}{$DEFINE OVERFLOW_CHECKS_ON}{$Q-}{$ENDIF}
-procedure TLinkedList<T>.IncreaseVersion;
-begin
-  Inc(fVersion);
-end;
-{$IFDEF OVERFLOW_CHECKS_ON}{$Q+}{$ENDIF}
-
 procedure TLinkedList<T>.InternalInsertNodeBefore(
   const node: TLinkedListNode<T>; const newNode: TLinkedListNode<T>);
 begin
+  IncUnchecked(fVersion);
   newNode.fList := Self;
   newNode.fNext := node;
   newNode.fPrev := node.fPrev;
   node.fPrev.fNext := newNode;
   node.fPrev := newNode;
-  IncreaseVersion;
   Inc(fCount);
   Changed(newNode.Value, caAdded);
 end;
@@ -395,11 +382,11 @@ end;
 procedure TLinkedList<T>.InternalInsertNodeToEmptyList(
   const newNode: TLinkedListNode<T>);
 begin
+  IncUnchecked(fVersion);
   newNode.fList := Self;
   newNode.fNext := newNode;
   newNode.fPrev := newNode;
   fHead := newNode;
-  IncreaseVersion;
   Inc(fCount);
   Changed(newNode.Value, caAdded);
 end;
@@ -408,6 +395,7 @@ procedure TLinkedList<T>.InternalRemoveNode(const node: TLinkedListNode<T>);
 var
   item: T;
 begin
+  IncUnchecked(fVersion);
   item := node.Value;
   if node.fNext = node then
     fHead := nil
@@ -420,7 +408,6 @@ begin
   end;
   InvalidateNode(node);
   Dec(fCount);
-  IncreaseVersion;
   Changed(item, caRemoved);
 end;
 
@@ -540,15 +527,6 @@ begin
     fNode := fNode.Next;
     Result := True;
   end;
-end;
-
-procedure TLinkedList<T>.TEnumerator.Reset;
-begin
-  if fVersion <> fList.fVersion then
-    raise EInvalidOperationException.CreateRes(@SEnumFailedVersion);
-
-  fCurrent := Default(T);
-  fNode := fList.fHead;
 end;
 
 {$ENDREGION}

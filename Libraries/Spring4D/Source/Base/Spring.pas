@@ -230,15 +230,19 @@ type
   ///   supported when the interface type has a GUID.
   /// </remarks>
   ManagedAttribute = class(TBaseAttribute)
-  private
+  strict private
     fCreateInstance: Boolean;
     fInstanceClass: TClass;
+    fFactory: TFunc<PTypeInfo,Pointer>;
+  strict protected
+    constructor Create(const factory: TFunc<PTypeInfo,Pointer>); overload;
   public
     constructor Create(createInstance: Boolean = True); overload;
     constructor Create(instanceClass: TClass) overload;
 
     property CreateInstance: Boolean read fCreateInstance;
     property InstanceClass: TClass read fInstanceClass;
+    property Factory: TFunc<PTypeInfo,Pointer> read fFactory;
   end;
 
   {$ENDREGION}
@@ -248,49 +252,51 @@ type
 
   TInitTable = class
   strict private type
-    TDefaultField = class abstract
+    TInitializableField = class abstract
     public
       procedure InitializeValue(instance: Pointer); virtual; abstract;
     end;
 
-    TDefaultField<T> = class(TDefaultField)
+    TDefaultField<T> = class(TInitializableField)
     strict private type
       PT = ^T;
-    var
-      fValue: T;
+    private
       fOffset: Integer;
+      fValue: T;
     public
-      constructor Create(const value: Variant; offset: Integer);
-      procedure InitializeValue(instance: Pointer); override;
+      constructor Create(offset: Integer; const value: Variant);
+      procedure InitializeValue(instance: Pointer); override; final;
     end;
 
-    TDefaultProperty<T> = class(TDefaultField)
+    TDefaultProperty<T> = class(TInitializableField)
     strict private type
       TGetter = function: T of object;
       TIndexedGetter = function(index: Integer): T of object;
       TSetter = procedure(const value: T) of object;
       TIndexedSetter = procedure(index: Integer; const value: T) of object;
     var
-      fValue: T;
       fPropInfo: PPropInfo;
+      fValue: T;
     public
-      constructor Create(const value: Variant; propInfo: PPropInfo);
-      procedure InitializeValue(instance: Pointer); override;
+      constructor Create(propInfo: PPropInfo; const value: Variant);
+      procedure InitializeValue(instance: Pointer); override; final;
     end;
 
-    TManagedField = class abstract
+    TFinalizableField = class abstract(TInitializableField)
     public
-      procedure InitializeValue(instance: Pointer); virtual; abstract;
       procedure FinalizeValue(instance: Pointer); virtual; abstract;
     end;
 
-    TManagedObjectField = class(TManagedField)
+    TManagedObjectField = class(TFinalizableField)
     private
       fOffset: Integer;
+      fFieldType: PTypeInfo;
       fCls: TClass;
       fCtor: TConstructor;
+      fFactory: TFunc<PTypeInfo,Pointer>;
     public
-      constructor Create(cls: TClass; offset: Integer);
+      constructor Create(offset: Integer; fieldType: PTypeInfo; cls: TClass;
+        const factory: TFunc<PTypeInfo,Pointer>);
       procedure InitializeValue(instance: Pointer); override;
       procedure FinalizeValue(instance: Pointer); override;
     end;
@@ -298,8 +304,10 @@ type
     TManagedInterfaceField = class(TManagedObjectField)
     private
       fEntry: PInterfaceEntry;
+      function CreateInstance: Pointer;
     public
-      constructor Create(cls: TClass; offset: Integer; entry: PInterfaceEntry);
+      constructor Create(offset: Integer; fieldType: PTypeInfo; cls: TClass;
+        const factory: TFunc<PTypeInfo,Pointer>; entry: PInterfaceEntry);
       procedure InitializeValue(instance: Pointer); override;
       procedure FinalizeValue(instance: Pointer); override;
     end;
@@ -317,8 +325,10 @@ type
   {$MESSAGE Fatal 'Unrecognized pointer size'}
   {$IFEND OTHER_PTR_SIZE}
   strict private
-    DefaultFields: TArray<TDefaultField>;
-    ManagedFields: TArray<TManagedField>;
+    DefaultFields: TArray<TInitializableField>;
+    ManagedFields: TArray<TFinalizableField>;
+    DefaultFieldCount: Integer;
+    ManagedFieldCount: Integer;
   private class var
 {$IFDEF USE_VMTAUTOTABLE}
     InitTables: TObjectList<TInitTable>;
@@ -330,8 +340,7 @@ type
       offset: Integer);
     procedure AddDefaultProperty(fieldType: PTypeInfo; const value: Variant;
       propInfo: PPropInfo);
-    procedure AddManagedField(fieldType: PTypeInfo; offset: Integer;
-      classType: TClass; createInstance: Boolean);
+    procedure AddManagedField(const field: TRttiField; const attribute: ManagedAttribute);
     class function GetCodePointer(instance: TObject; p: Pointer): Pointer; static; inline;
   public
     class constructor Create;
@@ -698,6 +707,31 @@ type
   {$ENDREGION}
 
 
+  {$REGION 'TRttiInvokableTypeHelper'}
+
+  {$IFDEF DELPHIXE2_UP}
+  TRttiInvokableTypeHelper = class helper for TRttiInvokableType
+  public
+    function CreateImplementation(AUserData: Pointer;
+      const ACallback: TMethodImplementationCallback): TMethodImplementation;
+  end;
+  {$ENDIF}
+
+  {$ENDREGION}
+
+
+  {$REGION 'TMethodImplementationHelper'}
+
+  {$IFNDEF DELPHI2010}
+  TMethodImplementationHelper = class helper for TMethodImplementation
+  public
+    function AsMethod: TMethod;
+  end;
+  {$ENDIF}
+
+  {$ENDREGION}
+
+
   {$REGION 'Procedure types'}
 
   /// <summary>
@@ -853,8 +887,6 @@ type
     procedure SetOnChanged(value: TNotifyEvent);
     procedure EnsureInitialized;
   public
-    class function Create: Event<T>; static;
-
     procedure Add(const handler: T);
     procedure Remove(const handler: T);
     procedure RemoveAll(instance: Pointer);
@@ -1162,27 +1194,27 @@ type
     /// <param name="msg">
     ///   The general error message.
     /// </param>
-    class procedure RaiseArgumentException(const msg: string); overload; static; inline;
+    class procedure RaiseArgumentException(const msg: string); overload; static;
 
     /// <summary>
     ///   Raises an <see cref="EFormatException" /> exception.
     /// </summary>
-    class procedure RaiseArgumentFormatException(const argumentName: string); overload; static; inline;
+    class procedure RaiseArgumentFormatException(const argumentName: string); overload; static;
 
     /// <summary>
     ///   Raises an <see cref="EArgumentNullException" /> exception.
     /// </summary>
-    class procedure RaiseArgumentNullException(const argumentName: string); overload; static; inline;
+    class procedure RaiseArgumentNullException(const argumentName: string); overload; static;
 
     /// <summary>
     ///   Raises an <see cref="EArgumentOutOfRangeException" /> exception.
     /// </summary>
-    class procedure RaiseArgumentOutOfRangeException(const argumentName: string); overload; static; inline;
+    class procedure RaiseArgumentOutOfRangeException(const argumentName: string); overload; static;
 
     /// <summary>
     ///   Raises an <see cref="EInvalidEnumArgumentException" /> exception.
     /// </summary>
-    class procedure RaiseInvalidEnumArgumentException(const argumentName: string); overload; static; inline;
+    class procedure RaiseInvalidEnumArgumentException(const argumentName: string); overload; static;
   end;
 
   TArgument = Guard deprecated 'Use Guard instead';
@@ -1195,9 +1227,7 @@ type
   Nullable = record
   private
     const HasValue = 'True';
-    class function GetNull: Nullable; static; inline;
-  public
-    class property Null: Nullable read GetNull;
+    type Null = interface end;
   end;
 
   /// <summary>
@@ -1213,7 +1243,8 @@ type
     fValue: T;
     fHasValue: string;
     class var fComparer: IEqualityComparer<T>;
-    class function EqualsInternal(const left, right: T): Boolean; static;
+    class function EqualsComparer(const left, right: T): Boolean; static;
+    class function EqualsInternal(const left, right: T): Boolean; static; inline;
     function GetValue: T; inline;
     function GetHasValue: Boolean; inline;
   public
@@ -1301,8 +1332,8 @@ type
     /// </exception>
     property Value: T read GetValue;
 
-    class operator Implicit(const value: Nullable): Nullable<T>; inline;
-    class operator Implicit(const value: T): Nullable<T>; {$IFNDEF DELPHIXE4}inline;{$ENDIF}
+    class operator Implicit(const value: Nullable.Null): Nullable<T>;
+    class operator Implicit(const value: T): Nullable<T>;
 
 {$IFDEF IMPLICIT_NULLABLE}
     class operator Implicit(const value: Nullable<T>): T; inline;
@@ -1319,9 +1350,14 @@ type
 {$ENDIF}
 
     class operator Explicit(const value: Variant): Nullable<T>;
+    class operator Explicit(const value: Nullable<T>): T; inline;
 
     class operator Equal(const left, right: Nullable<T>): Boolean; inline;
+    class operator Equal(const left: Nullable<T>; const right: Nullable.Null): Boolean; inline;
+    class operator Equal(const left: Nullable<T>; const right: T): Boolean; inline;
     class operator NotEqual(const left, right: Nullable<T>): Boolean; inline;
+    class operator NotEqual(const left: Nullable<T>; const right: Nullable.Null): Boolean; inline;
+    class operator NotEqual(const left: Nullable<T>; const right: T): Boolean; inline;
   end;
 
   TNullableString = Nullable<string>;
@@ -1658,7 +1694,55 @@ type
   {$ENDREGION}
 
 
-  {$REGION 'Weak Reference'}
+  {$REGION 'Shared smart pointer'}
+
+  IShared<T> = reference to function: T;
+
+  Shared<T> = record
+  strict private
+    fValue: T;
+    fFinalizer: IInterface;
+    class function GetNew: IShared<T>; static;
+  public
+    class operator Implicit(const value: T): Shared<T>;
+    class operator Implicit(const value: Shared<T>): T; {$IFNDEF DELPHIXE4}inline;{$ENDIF}
+    property Value: T read fValue;
+
+    class property New: IShared<T> read GetNew;
+  end;
+
+  Shared = record
+  private type
+    TObjectFinalizer = class(TInterfacedObject, IShared<TObject>)
+    private
+      fValue: TObject;
+      function Invoke: TObject;
+    public
+      constructor Create(typeInfo: PTypeInfo); overload;
+      constructor Create(const value: TObject); overload;
+    {$IFNDEF AUTOREFCOUNT}
+      destructor Destroy; override;
+    {$ENDIF}
+    end;
+
+    TRecordFinalizer = class(TInterfacedObject, IShared<Pointer>)
+    private
+      fValue: Pointer;
+      fTypeInfo: PTypeInfo;
+      function Invoke: Pointer;
+    public
+      constructor Create(typeInfo: PTypeInfo); overload;
+      constructor Create(const value: Pointer; typeInfo: PTypeInfo); overload;
+      destructor Destroy; override;
+    end;
+  public
+    class function New<T>(const value: T): IShared<T>; overload; static;
+  end;
+
+  {$ENDREGION}
+
+
+  {$REGION 'Weak smart pointer'}
 
   IWeakReference<T> = interface
   {$REGION 'Property Accessors'}
@@ -1684,8 +1768,9 @@ type
 
   TWeakReference<T> = class(TWeakReference, IWeakReference<T>)
   private
-    function GetTarget: T; inline;
+    function GetTarget: T;
     procedure SetTarget(const value: T);
+    constructor CreateInternal(const target: T; var ref: PPointer);
   public
     constructor Create(const target: T);
     destructor Destroy; override;
@@ -1695,19 +1780,22 @@ type
   end;
 
   Weak<T> = record
-  private
+  strict private
+    fTarget: PPointer;
     fReference: IWeakReference<T>;
-    function GetIsAlive: Boolean; inline;
-    function GetTarget: T; inline;
-    procedure SetTarget(const value: T); inline;
+    function GetIsAlive: Boolean;
+    function GetTarget: T;
+    procedure SetTarget(const value: T);
+    type PT = ^T;
   public
     constructor Create(const target: T);
 
-    class operator Implicit(const value: T): Weak<T>; overload; inline;
-    class operator Implicit(const value: Weak<T>): T; overload; inline;
+    class operator Implicit(const value: Shared<T>): Weak<T>;
+    class operator Implicit(const value: T): Weak<T>;
+    class operator Implicit(const value: Weak<T>): T;
 
-    class operator Equal(const left: Weak<T>; const right: T): Boolean; overload; inline;
-    class operator NotEqual(const left: Weak<T>; const right: T): Boolean; overload; inline;
+    class operator Equal(const left: Weak<T>; const right: T): Boolean; inline;
+    class operator NotEqual(const left: Weak<T>; const right: T): Boolean; inline;
 
     function TryGetTarget(out target: T): Boolean;
     property Target: T read GetTarget write SetTarget;
@@ -1908,38 +1996,6 @@ type
     ///   its destruction.
     /// </remarks>
     function ScopedLock: IInterface;
-  end;
-
-  {$ENDREGION}
-
-
-  {$REGION 'Smart pointer'}
-
-  IManaged<T> = reference to function: T;
-
-  TManaged<T> = class(TInterfacedObject, IManaged<T>)
-  private
-    fValue: T;
-    function Invoke: T; inline;
-  public
-    constructor Create; overload;
-    constructor Create(const value: T); overload;
-    destructor Destroy; override;
-  end;
-
-  Managed<T> = record
-  strict private
-    fValue: T;
-    fFinalizer: IInterface;
-  public
-    class operator Implicit(const value: T): Managed<T>;
-    class operator Implicit(const value: Managed<T>): T; {$IFNDEF DELPHIXE4}inline;{$ENDIF}
-    property Value: T read fValue;
-  end;
-
-  Managed = record
-  public
-    class function New<T>(const value: T): IManaged<T>; static;
   end;
 
   {$ENDREGION}
@@ -2178,6 +2234,17 @@ type
       const comparer: IEqualityComparer<T>): Integer; overload; static;
 
     /// <summary>
+    ///   Reverses the elements in the entire array.
+    /// </summary>
+    class procedure Reverse<T>(var values: array of T); overload; static;
+
+    /// <summary>
+    ///   Reverses the elements in the specified range in the array.
+    /// </summary>
+    class procedure Reverse<T>(var values: array of T;
+      index, count: Integer); overload; static;
+
+    /// <summary>
     ///   Shuffles the elements in the array using the Fisher-Yates algorithm.
     /// </summary>
     class procedure Shuffle<T>(var values: array of T); overload; static;
@@ -2413,9 +2480,6 @@ function CompareValue(const left, right: TValue): Integer; overload;
 /// </summary>
 function TypesOf(const values: array of TValue): TArray<PTypeInfo>;
 
-procedure FinalizeValue(const value; typeInfo: PTypeInfo); inline;
-procedure FinalizeRecordPointer(const value; typeInfo: PTypeInfo); inline;
-
 function MethodReferenceToMethodPointer(const methodRef): TMethodPointer;
 function MethodPointerToMethodReference(const method: TMethodPointer): IInterface;
 
@@ -2434,18 +2498,22 @@ function SameValue(const left, right: Variant): Boolean; overload;
 /// <summary>
 ///   Determines whether a variant value is null or empty.
 /// </summary>
-function VarIsNullOrEmpty(const value: Variant): Boolean; inline;
+function VarIsNullOrEmpty(const value: Variant): Boolean;
 
 /// <summary>
 ///   Returns the length of the variant array for the specified dimension.
 /// </summary>
 function VarArrayLength(const value: Variant; dim: Integer): Integer;
 
+{$IFDEF USE_VMTAUTOTABLE}
+function CreateFieldTable(classType: TClass): TInitTable;
+{$ENDIF}
+
 /// <summary>
 ///   Returns the field table for the given class that contains all fields that
 ///   have Default or Managed attribute annotations.
 /// </summary>
-function GetInitTable(ClassType: TClass): TInitTable;
+function GetInitTable(classType: TClass): TInitTable; {$IFDEF USE_VMTAUTOTABLE}inline;{$ENDIF}
 
 function GetVirtualMethod(const classType: TClass; const index: Integer): Pointer; inline;
 
@@ -2457,6 +2525,8 @@ function AtomicDecrement(var target: Integer): Integer;
 function AtomicCmpExchange(var target: Integer; newValue, comparand: Integer): Integer; overload;
 function AtomicCmpExchange(var target: Pointer; newValue, comparand: Pointer): TObject; overload;
 {$ENDIF}
+
+procedure IncUnchecked(var i: Integer; const n: Integer = 1); inline;
 
   {$ENDREGION}
 
@@ -2799,30 +2869,14 @@ begin
     Result[i] := values[i].TypeInfo;
 end;
 
-procedure FinalizeValue(const value; typeInfo: PTypeInfo);
-begin
-  case typeInfo.Kind of
-    tkClass: {$IFNDEF AUTOREFCOUNT}TObject(value).Free;{$ELSE}TObject(value).DisposeOf;{$ENDIF}
-    tkPointer: FinalizeRecordPointer(value, typeInfo);
-  end;
-end;
-
-procedure FinalizeRecordPointer(const value; typeInfo: PTypeInfo);
-var
-  recTypeInfo: PTypeInfo;
-begin
-  recTypeInfo := typeInfo.TypeData.RefType^;
-  FinalizeArray(Pointer(value), recTypeInfo, 1);
-  FillChar(Pointer(value)^, recTypeInfo.TypeData.RecSize, 0);
-  FreeMem(Pointer(value));
-end;
-
 function MethodReferenceToMethodPointer(const methodRef): TMethodPointer;
 type
   TVtable = array[0..3] of Pointer;
   PVtable = ^TVtable;
   PPVtable = ^PVtable;
 begin
+  if Pointer(methodRef) = nil then
+    Exit(nil);
   // 3 is offset of Invoke, after QI, AddRef, Release
   TMethod(Result).Code := PPVtable(methodRef)^^[3];
   TMethod(Result).Data := Pointer(methodRef);
@@ -3063,6 +3117,13 @@ asm
 end;
 {$ENDIF}
 
+procedure IncUnchecked(var i: Integer; const n: Integer = 1); inline;
+begin
+  {$IFOPT Q+}{$DEFINE OVERFLOWCHECKS_ON}{$Q-}{$ENDIF}
+  Inc(i, n);
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}
+end;
+
 {$ENDREGION}
 
 
@@ -3302,6 +3363,12 @@ begin
   fInstanceClass := instanceClass;
 end;
 
+constructor ManagedAttribute.Create(const factory: TFunc<PTypeInfo,Pointer>);
+begin
+  Create(instanceClass);
+  fFactory := factory;
+end;
+
 {$ENDREGION}
 
 
@@ -3341,8 +3408,7 @@ begin
         AddDefaultField(f.FieldType.Handle, DefaultAttribute(a).Value, f.Offset)
       else if a is ManagedAttribute then
         if f.FieldType.TypeKind in [tkClass, tkInterface] then
-          AddManagedField(f.FieldType.Handle, f.Offset,
-            ManagedAttribute(a).InstanceClass, ManagedAttribute(a).CreateInstance);
+          AddManagedField(f, ManagedAttribute(a));
 
   for p in t.GetProperties do
     for a in p.GetAttributes do
@@ -3381,138 +3447,145 @@ end;
 procedure TInitTable.AddDefaultField(fieldType: PTypeInfo;
   const value: Variant; offset: Integer);
 var
-  i: Integer;
-  defaultField: TDefaultField;
+  defaultField: TInitializableField;
 begin
   defaultField := nil;
   case fieldType.Kind of
     tkInteger, tkEnumeration:
       case fieldType.TypeData.OrdType of
-        otSByte: defaultField := TDefaultField<ShortInt>.Create(value, offset);
-        otSWord: defaultField := TDefaultField<SmallInt>.Create(value, offset);
-        otSLong: defaultField := TDefaultField<Integer>.Create(value, offset);
-        otUByte: defaultField := TDefaultField<Byte>.Create(value, offset);
-        otUWord: defaultField := TDefaultField<Word>.Create(value, offset);
-        otULong: defaultField := TDefaultField<Cardinal>.Create(value, offset);
+        otSByte: defaultField := TDefaultField<ShortInt>.Create(offset, value);
+        otSWord: defaultField := TDefaultField<SmallInt>.Create(offset, value);
+        otSLong: defaultField := TDefaultField<Integer>.Create(offset, value);
+        otUByte: defaultField := TDefaultField<Byte>.Create(offset, value);
+        otUWord: defaultField := TDefaultField<Word>.Create(offset, value);
+        otULong: defaultField := TDefaultField<Cardinal>.Create(offset, value);
       end;
     {$IFNDEF NEXTGEN}
     tkChar:
-      defaultField  := TDefaultField<AnsiChar>.Create(value, offset);
+      defaultField  := TDefaultField<AnsiChar>.Create(offset, value);
     {$ENDIF}
     tkFloat:
       if (fieldType = TypeInfo(TDateTime)) and (VarType(value) = varUString) then
-        defaultField := TDefaultField<TDateTime>.Create(StrToDateTime(value, FormatSettings), offset)
+        defaultField := TDefaultField<TDateTime>.Create(offset, StrToDateTime(value, FormatSettings))
       else if (fieldType = TypeInfo(TDate)) and (VarType(value) = varUString) then
-        defaultField := TDefaultField<TDate>.Create(StrToDate(value, FormatSettings), offset)
+        defaultField := TDefaultField<TDate>.Create(offset, StrToDate(value, FormatSettings))
       else if (fieldType = TypeInfo(TTime)) and (VarType(value) = varUString) then
-        defaultField := TDefaultField<TTime>.Create(StrToTime(value, FormatSettings), offset)
+        defaultField := TDefaultField<TTime>.Create(offset, StrToTime(value, FormatSettings))
       else
         case FieldType.TypeData.FloatType of
-          ftSingle: defaultField := TDefaultField<Single>.Create(value, offset);
-          ftDouble: defaultField := TDefaultField<Double>.Create(value, offset);
-          ftExtended: defaultField := TDefaultField<Extended>.Create(value, offset);
-          ftComp: defaultField := TDefaultField<Comp>.Create(value, offset);
-          ftCurr: defaultField := TDefaultField<Currency>.Create(value, offset);
+          ftSingle: defaultField := TDefaultField<Single>.Create(offset, value);
+          ftDouble: defaultField := TDefaultField<Double>.Create(offset, value);
+          ftExtended: defaultField := TDefaultField<Extended>.Create(offset, value);
+          ftComp: defaultField := TDefaultField<Comp>.Create(offset, value);
+          ftCurr: defaultField := TDefaultField<Currency>.Create(offset, value);
         end;
     tkWChar:
-      defaultField := TDefaultField<Char>.Create(value, offset);
+      defaultField := TDefaultField<Char>.Create(offset, value);
     {$IFNDEF NEXTGEN}
     tkWString:
-      defaultField := TDefaultField<WideString>.Create(value, offset);
+      defaultField := TDefaultField<WideString>.Create(offset, value);
     {$ENDIF}
     tkVariant:
-      defaultField := TDefaultField<Variant>.Create(value, offset);
+      defaultField := TDefaultField<Variant>.Create(offset, value);
     tkInt64:
       if fieldType.TypeData.MinInt64Value > fieldType.TypeData.MaxInt64Value then
-        defaultField := TDefaultField<UInt64>.Create(value, offset)
+        defaultField := TDefaultField<UInt64>.Create(offset, value)
       else
-        defaultField := TDefaultField<Int64>.Create(value, offset);
+        defaultField := TDefaultField<Int64>.Create(offset, value);
     tkUString:
-      defaultField := TDefaultField<UnicodeString>.Create(value, offset);
+      defaultField := TDefaultField<UnicodeString>.Create(offset, value);
     tkClassRef, tkPointer:
-      defaultField := TDefaultField<Pointer>.Create(value, offset);
+      defaultField := TDefaultField<Pointer>.Create(offset, value);
   end;
   if defaultField <> nil then
   begin
-    i := Length(DefaultFields);
-    SetLength(DefaultFields, i + 1);
-    DefaultFields[i] := defaultField;
+    DefaultFieldCount := Length(DefaultFields) + 1;
+    SetLength(DefaultFields, DefaultFieldCount);
+    DefaultFields[DefaultFieldCount - 1] := defaultField;
   end;
 end;
 
 procedure TInitTable.AddDefaultProperty(fieldType: PTypeInfo;
   const value: Variant; propInfo: PPropInfo);
 var
-  i: Integer;
-  defaultField: TDefaultField;
+  defaultField: TInitializableField;
 begin
   defaultField := nil;
   case fieldType.Kind of
     tkInteger, tkEnumeration:
       case fieldType.TypeData.OrdType of
-        otSByte: defaultField := TDefaultProperty<ShortInt>.Create(value, propInfo);
-        otSWord: defaultField := TDefaultProperty<SmallInt>.Create(value, propInfo);
-        otSLong: defaultField := TDefaultProperty<Integer>.Create(value, propInfo);
-        otUByte: defaultField := TDefaultProperty<Byte>.Create(value, propInfo);
-        otUWord: defaultField := TDefaultProperty<Word>.Create(value, propInfo);
-        otULong: defaultField := TDefaultProperty<Cardinal>.Create(value, propInfo);
+        otSByte: defaultField := TDefaultProperty<ShortInt>.Create(propInfo, value);
+        otSWord: defaultField := TDefaultProperty<SmallInt>.Create(propInfo, value);
+        otSLong: defaultField := TDefaultProperty<Integer>.Create(propInfo, value);
+        otUByte: defaultField := TDefaultProperty<Byte>.Create(propInfo, value);
+        otUWord: defaultField := TDefaultProperty<Word>.Create(propInfo, value);
+        otULong: defaultField := TDefaultProperty<Cardinal>.Create(propInfo, value);
       end;
     {$IFNDEF NEXTGEN}
     tkChar:
-      defaultField  := TDefaultProperty<AnsiChar>.Create(value, propInfo);
+      defaultField  := TDefaultProperty<AnsiChar>.Create(propInfo, value);
     {$ENDIF}
     tkFloat:
       if (fieldType = TypeInfo(TDateTime)) and (VarType(value) = varUString) then
-        defaultField := TDefaultProperty<TDateTime>.Create(StrToDateTime(value, FormatSettings), propInfo)
+        defaultField := TDefaultProperty<TDateTime>.Create(propInfo, StrToDateTime(value, FormatSettings))
       else if (fieldType = TypeInfo(TDate)) and (VarType(value) = varUString) then
-        defaultField := TDefaultProperty<TDate>.Create(StrToDate(value, FormatSettings), propInfo)
+        defaultField := TDefaultProperty<TDate>.Create(propInfo, StrToDate(value, FormatSettings))
       else if (fieldType = TypeInfo(TTime)) and (VarType(value) = varUString) then
-        defaultField := TDefaultProperty<TTime>.Create(StrToTime(value, FormatSettings), propInfo)
+        defaultField := TDefaultProperty<TTime>.Create(propInfo, StrToTime(value, FormatSettings))
       else
         case fieldType.TypeData.FloatType of
-          ftSingle: defaultField := TDefaultProperty<Single>.Create(value, propInfo);
-          ftDouble: defaultField := TDefaultProperty<Double>.Create(value, propInfo);
-          ftExtended: defaultField := TDefaultProperty<Extended>.Create(value, propInfo);
-          ftComp: defaultField := TDefaultProperty<Comp>.Create(value, propInfo);
-          ftCurr: defaultField := TDefaultProperty<Currency>.Create(value, propInfo);
+          ftSingle: defaultField := TDefaultProperty<Single>.Create(propInfo, value);
+          ftDouble: defaultField := TDefaultProperty<Double>.Create(propInfo, value);
+          ftExtended: defaultField := TDefaultProperty<Extended>.Create(propInfo, value);
+          ftComp: defaultField := TDefaultProperty<Comp>.Create(propInfo, value);
+          ftCurr: defaultField := TDefaultProperty<Currency>.Create(propInfo, value);
         end;
     tkWChar:
-      defaultField := TDefaultProperty<Char>.Create(value, propInfo);
+      defaultField := TDefaultProperty<Char>.Create(propInfo, value);
     {$IFNDEF NEXTGEN}
     tkWString:
-      defaultField := TDefaultProperty<WideString>.Create(value, propInfo);
+      defaultField := TDefaultProperty<WideString>.Create(propInfo, value);
     {$ENDIF}
     tkVariant:
-      defaultField := TDefaultProperty<Variant>.Create(value, propInfo);
+      defaultField := TDefaultProperty<Variant>.Create(propInfo, value);
     tkInt64:
       if fieldType.TypeData.MinInt64Value > fieldType.TypeData.MaxInt64Value then
-        defaultField := TDefaultProperty<UInt64>.Create(value, propInfo)
+        defaultField := TDefaultProperty<UInt64>.Create(propInfo, value)
       else
-        defaultField := TDefaultProperty<Int64>.Create(value, propInfo);
+        defaultField := TDefaultProperty<Int64>.Create(propInfo, value);
     tkUString:
-      defaultField := TDefaultProperty<UnicodeString>.Create(value, propInfo);
+      defaultField := TDefaultProperty<UnicodeString>.Create(propInfo, value);
     tkClassRef, tkPointer:
-      defaultField := TDefaultProperty<Pointer>.Create(value, propInfo);
+      defaultField := TDefaultProperty<Pointer>.Create(propInfo, value);
   end;
   if defaultField <> nil then
   begin
-    i := Length(DefaultFields);
-    SetLength(DefaultFields, i + 1);
-    DefaultFields[i] := defaultField;
+    DefaultFieldCount := Length(DefaultFields) + 1;
+    SetLength(DefaultFields, DefaultFieldCount);
+    DefaultFields[DefaultFieldCount - 1] := defaultField;
   end;
 end;
 
-procedure TInitTable.AddManagedField(fieldType: PTypeInfo; offset: Integer;
-  classType: TClass; createInstance: Boolean);
+procedure TInitTable.AddManagedField(const field: TRttiField;
+  const attribute: ManagedAttribute);
 
   function GetInterfaceEntry(cls: TClass; intf: PTypeInfo): PInterfaceEntry;
   var
+    intfGuid: TGUID;
     interfaceTable: PInterfaceTable;
     {$IFNDEF DELPHI2010}
     p: PPPTypeInfo;
     {$ENDIF}
     i: Integer;
   begin
+    {$IFDEF DELPHI2010}
+    // Delphi 2010 does not have the PPTypeInfo array
+    // after the TInterfaceEntry array in TInterfaceTable
+    // so only interfaces with a GUID can be used
+    if not (ifHasGuid in intf.TypeData.IntfFlags) then
+      Exit(nil);
+    {$ENDIF}
+    intfGuid := intf.TypeData.Guid;
     repeat
       interfaceTable := cls.GetInterfaceTable;
       if interfaceTable <> nil then
@@ -3527,10 +3600,9 @@ procedure TInitTable.AddManagedField(fieldType: PTypeInfo; offset: Integer;
           if p^^ = intf then
             Exit;
           Inc(p);
-          {$ELSE}
+          {$ENDIF}
           if Result.IID = intf.TypeData.Guid then
             Exit;
-          {$ENDIF}
         end;
       end;
       cls := cls.ClassParent;
@@ -3539,60 +3611,76 @@ procedure TInitTable.AddManagedField(fieldType: PTypeInfo; offset: Integer;
   end;
 
 var
-  i: Integer;
-  managedField: TManagedField;
+  fieldType: PTypeInfo;
+  offset: Integer;
+  createInstance: Boolean;
+  cls: TClass;
+  factory: TFunc<PTypeInfo,Pointer>;
+  managedField: TFinalizableField;
+  entry: PInterfaceEntry;
 begin
+  fieldType := field.FieldType.Handle;
+  offset := field.Offset;
+  createInstance := attribute.CreateInstance;
+  cls := attribute.InstanceClass;
+  factory := attribute.Factory;
   managedField := nil;
   case fieldType.Kind of
     tkClass:
     begin
-      if not Assigned(classType) and createInstance then
-        classType := fieldType.TypeData.ClassType;
-      managedField := TManagedObjectField.Create(classType, offset)
+      if not Assigned(factory) and not Assigned(cls) and createInstance then
+        cls := fieldType.TypeData.ClassType;
+      managedField := TManagedObjectField.Create(offset, fieldType, cls, factory);
     end;
     tkInterface:
-      {$IFDEF DELPHI2010}
-      // Delphi 2010 does not have the PPTypeInfo array
-      // after the TInterfaceEntry array in TInterfaceTable
-      // so only interfaces with a GUID can be used
-      if ifHasGuid in fieldType.TypeData.IntfFlags then
-      {$ENDIF}
-      managedField := TManagedInterfaceField.Create(classType, offset, GetInterfaceEntry(classType, fieldType));
+    begin
+      if Assigned(cls) then
+      begin
+        entry := GetInterfaceEntry(cls, fieldType);
+        if entry = nil then
+          raise EInvalidOperationException.CreateFmt(
+            'class %s is not compatible with interface %s (field %s)', [
+            cls.ClassName, fieldType.TypeName, field.Name]);
+      end
+      else
+        entry := nil;
+      managedField := TManagedInterfaceField.Create(offset, fieldType, cls, factory, entry);
+    end;
   end;
   if managedField <> nil then
   begin
-    i := Length(ManagedFields);
-    SetLength(ManagedFields, i + 1);
-    ManagedFields[i] := managedField;
+    ManagedFieldCount := Length(ManagedFields) + 1;
+    SetLength(ManagedFields, ManagedFieldCount);
+    ManagedFields[ManagedFieldCount - 1] := managedField;
   end;
 end;
 
 {$IFDEF USE_VMTAUTOTABLE}
-function CreateFieldTable(ClassType: TClass): TInitTable;
+function CreateFieldTable(classType: TClass): TInitTable;
 var
   n: UINT_PTR;
 begin
-  Result := TInitTable.Create(ClassType);
+  Result := TInitTable.Create(classType);
   WriteProcessMemory(GetCurrentProcess,
-    Pointer(NativeInt(ClassType) + vmtAutoTable), @Result, SizeOf(Pointer), n);
+    Pointer(NativeInt(classType) + vmtAutoTable), @Result, SizeOf(Pointer), n);
   TInitTable.InitTables.Add(Result);
 end;
 {$ENDIF}
 
-function GetInitTable(ClassType: TClass): TInitTable;
+function GetInitTable(classType: TClass): TInitTable;
 {$IFDEF USE_VMTAUTOTABLE}
 begin
-  Result := PPointer(NativeInt(ClassType) + vmtAutoTable)^;
+  Result := PPointer(NativeInt(classType) + vmtAutoTable)^;
   if Result = nil then
-    Result := CreateFieldTable(ClassType);
+    Result := CreateFieldTable(classType);
 {$ELSE}
 begin
   TMonitor.Enter(TInitTable.InitTables);
   try
-    if not TInitTable.InitTables.TryGetValue(ClassType, Result) then
+    if not TInitTable.InitTables.TryGetValue(classType, Result) then
     begin
-      Result := TInitTable.Create(ClassType);
-      TInitTable.InitTables.Add(ClassType, Result);
+      Result := TInitTable.Create(classType);
+      TInitTable.InitTables.Add(classType, Result);
     end;
   finally
     TMonitor.Exit(TInitTable.InitTables);
@@ -3600,36 +3688,52 @@ begin
 {$ENDIF}
 end;
 
+{$IFDEF RANGECHECKS_ON}{$RANGECHECKS OFF}{$ENDIF}
 procedure TInitTable.InitInstance(instance: Pointer);
 var
+  f: ^TInitializableField;
   i: Integer;
 begin
-  for i := 0 to High(DefaultFields) do
-    DefaultFields[i].InitializeValue(instance);
-  for i := 0 to High(ManagedFields) do
-    ManagedFields[i].InitializeValue(instance);
+  f := @DefaultFields[0];
+  for i := 0 to DefaultFieldCount - 1 do //FI:W528
+  begin
+    f.InitializeValue(instance);
+    Inc(f);
+  end;
+  f := @ManagedFields[0];
+  for i := 0 to ManagedFieldCount - 1 do //FI:W528
+  begin
+    f.InitializeValue(instance);
+    Inc(f);
+  end;
 end;
 
 {$IFNDEF AUTOREFCOUNT}
 procedure TInitTable.CleanupInstance(instance: Pointer);
 var
+  f: ^TFinalizableField;
   i: Integer;
 begin
-  for i := 0 to High(ManagedFields) do
-    ManagedFields[i].FinalizeValue(instance);
+  f := @ManagedFields[0];
+  for i := 0 to ManagedFieldCount - 1 do //FI:W528
+  begin
+    f.FinalizeValue(instance);
+    Inc(f);
+  end;
 end;
 {$ENDIF}
+{$IFDEF RANGECHECKS_ON}{$RANGECHECKS ON}{$ENDIF}
 
 {$ENDREGION}
 
 
 {$REGION 'TInitTable.TDefaultField<T>'}
 
-constructor TInitTable.TDefaultField<T>.Create(const value: Variant; offset: Integer);
+constructor TInitTable.TDefaultField<T>.Create(offset: Integer; const value: Variant);
 begin
   inherited Create;
-  fValue := TValue.FromVariant(value).AsType<T>; // TODO
   fOffset := offset;
+  fValue := TValue.FromVariant(value).AsType<T>; // TODO
 end;
 
 procedure TInitTable.TDefaultField<T>.InitializeValue(instance: Pointer);
@@ -3642,11 +3746,11 @@ end;
 
 {$REGION 'TInitTable.TDefaultProperty<T>'}
 
-constructor TInitTable.TDefaultProperty<T>.Create(const value: Variant; propInfo: PPropInfo);
+constructor TInitTable.TDefaultProperty<T>.Create(propInfo: PPropInfo; const value: Variant);
 begin
   inherited Create;
-  fValue := TValue.FromVariant(value).AsType<T>; // TODO
   fPropInfo := propInfo;
+  fValue := TValue.FromVariant(value).AsType<T>; // TODO
 end;
 
 class function TInitTable.GetCodePointer(instance: TObject; p: Pointer): Pointer;
@@ -3674,12 +3778,15 @@ end;
 
 {$REGION 'TInitTable.TManagedObjectField'}
 
-constructor TInitTable.TManagedObjectField.Create(cls: TClass; offset: Integer);
+constructor TInitTable.TManagedObjectField.Create(offset: Integer;
+  fieldType: PTypeInfo; cls: TClass; const factory: TFunc<PTypeInfo,Pointer>);
 begin
   inherited Create;
   fOffset := offset;
+  fFieldType := fieldType;
   fCls := cls;
-  if Assigned(cls) then
+  fFactory := factory;
+  if Assigned(cls) and not Assigned(factory) then
     fCtor := TActivator.FindConstructor(cls);
 end;
 
@@ -3691,7 +3798,9 @@ end;
 procedure TInitTable.TManagedObjectField.InitializeValue(instance: Pointer);
 begin
   if Assigned(fCtor) then
-    TObject(Pointer(PByte(instance) + fOffset)^) := TObject(fCtor(fCls));
+    TObject(Pointer(PByte(instance) + fOffset)^) := TObject(fCtor(fCls))
+  else if Assigned(fFactory) then
+    TObject(Pointer(PByte(instance) + fOffset)^) := fFactory(fFieldType);
 end;
 
 {$ENDREGION}
@@ -3733,11 +3842,30 @@ begin
   {$IFEND}
 end;
 
-constructor TInitTable.TManagedInterfaceField.Create(cls: TClass; offset: Integer;
+constructor TInitTable.TManagedInterfaceField.Create(offset: Integer;
+  fieldType: PTypeInfo; cls: TClass; const factory: TFunc<PTypeInfo,Pointer>;
   entry: PInterfaceEntry);
 begin
-  inherited Create(cls, offset);
-  fEntry := entry
+  inherited Create(offset, fieldType, cls, factory);
+  fEntry := entry;
+end;
+
+function TInitTable.TManagedInterfaceField.CreateInstance: Pointer;
+var
+  obj: Pointer;
+begin
+  obj := fCtor(fCls);
+  if fEntry.IOffset <> 0 then
+  begin
+    Result := Pointer(PByte(obj) + fEntry.IOffset);
+    if Result <> nil then
+      IInterface(Result)._AddRef;
+  end
+  else
+  begin
+    Result := nil;
+    IInterface(Result) := InvokeImplGetter(obj, fEntry.ImplGetter);
+  end;
 end;
 
 procedure TInitTable.TManagedInterfaceField.FinalizeValue(instance: Pointer);
@@ -3746,19 +3874,15 @@ end;
 
 procedure TInitTable.TManagedInterfaceField.InitializeValue(instance: Pointer);
 var
-  obj: Pointer;
   intf: Pointer;
 begin
-  obj := fCtor(fCls);
-  intf := nil;
-  if fEntry.IOffset <> 0 then
-  begin
-    intf := Pointer(PByte(obj) + fEntry.IOffset);
-    if intf <> nil then
-      IInterface(intf)._AddRef;
-  end
+  if Assigned(fCtor) then
+    intf := CreateInstance
+  else if Assigned(fFactory) then
+    intf := fFactory(fFieldType)
   else
-    IInterface(intf) := InvokeImplGetter(obj, fEntry.ImplGetter);
+    Exit;
+
   PPointer(PByte(instance) + fOffset)^ := intf;
 end;
 
@@ -3893,7 +4017,7 @@ begin
     RaiseConversionError(TypeInfo, System.TypeInfo(T));
 end;
 
-function EqualsFail(const left, right: TValue): Boolean;
+function EqualsFail(const left, right: TValue): Boolean; //FI:O804
 begin
   Result := False;
 end;
@@ -4951,7 +5075,7 @@ end;
 type
   TConvertFunc = function(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
 
-function ConvFail(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvFail(const source: TValue; target: PTypeInfo; out value: TValue): Boolean; //FI:O804
 begin
   Result := False;
 end;
@@ -5594,6 +5718,156 @@ end;
 {$ENDREGION}
 
 
+{$REGION 'TRttiInvokableTypeHelper'}
+
+{$IFDEF DELPHIXE2_UP}
+type
+  // this is the class used to create a TMethodImplementation for a
+  // TRttiInvokableType by passing in an instance of TRttiInvokableType
+  // and "overriding" its private virtual methods
+  TRttiInvokableMethod = class(TRttiMethod)
+  private
+    FType: TRttiInvokableType;
+    constructor Create(AType: TRttiInvokableType);
+  end;
+
+  // this classes is needed to access FParent
+  // it needs to have the exact same fields as System.Rtti.TRttiObject
+  TRttiObjectHack = class abstract
+  protected
+    FHandle: Pointer;
+    FRttiDataSize: Integer;
+    {$IFDEF WEAKINSTREF}[Weak]{$ENDIF}
+    FPackage: TRttiPackage;
+    {$IFDEF WEAKINSTREF}[Weak]{$ENDIF}
+    FParent: TRttiObject;
+  end;
+
+  // this class is needed to "override" private virtual methods
+  // it needs to have the exact same virtual methods as System.Rtti.TRttiMethod
+  TRttiInvokableMethodHack = class(TRttiMember)
+  protected
+    FInvokeInfo: TObject; //TMethodImplementation.TInvokeInfo
+    FType: TRttiInvokableType;
+    function GetMethodKind: TMethodKind; virtual; abstract;
+    function GetCallingConvention: TCallConv; virtual;
+    function GetReturnType: TRttiType; virtual;
+    function GetDispatchKind: TDispatchKind; virtual; abstract;
+    function GetHasExtendedInfo: Boolean; virtual; abstract;
+    function GetVirtualIndex: SmallInt; virtual; abstract;
+    function GetCodeAddress: Pointer; virtual; abstract;
+    function GetIsClassMethod: Boolean; virtual;
+    function GetIsStatic: Boolean; virtual;
+    function DispatchInvoke(Instance: TValue; const Args: array of TValue): TValue; virtual; abstract;
+  public
+    function GetParameters: TArray<TRttiParameter>; virtual;
+  end;
+
+  // this class is needed to "override" the destructor of
+  // the TMethodImplementation instances that are created inside of
+  // TRttiMethod.CreateImplementation
+  TMethodImplementationHack = class(TMethodImplementation)
+  {$IFDEF DELPHIXE2}
+  private
+    function FInvokeInfo: TObject; inline;
+  {$ENDIF}
+  public
+    destructor Destroy; override;
+  end;
+
+function TRttiInvokableMethodHack.GetCallingConvention: TCallConv;
+begin
+  Result := FType.CallingConvention;
+end;
+
+function TRttiInvokableMethodHack.GetIsClassMethod: Boolean;
+begin
+  Result := False;
+end;
+
+function TRttiInvokableMethodHack.GetIsStatic: Boolean;
+begin
+  Result := FType is TRttiProcedureType;
+end;
+
+function TRttiInvokableMethodHack.GetParameters: TArray<TRttiParameter>;
+begin
+  Result := FType.GetParameters;
+end;
+
+function TRttiInvokableMethodHack.GetReturnType: TRttiType;
+begin
+  Result := FType.ReturnType;
+end;
+
+{$IFDEF DELPHIXE2}
+function TMethodImplementationHack.FInvokeInfo: TObject;
+begin
+  Result := PPointer(PByte(Self) + SizeOf(Pointer) * 2)^;
+end;
+{$ENDIF}
+
+destructor TMethodImplementationHack.Destroy;
+begin
+  if FInvokeInfo <> nil then
+    FInvokeInfo.Free;
+  inherited Destroy;
+end;
+
+constructor TRttiInvokableMethod.Create(AType: TRttiInvokableType);
+var
+  ctx: TRttiContext;
+begin
+  inherited Create;
+  // GetInvokeInfo need the Parent property
+  TRttiObjectHack(Self).FParent := ctx.GetType(TObject);
+  FType := AType;
+  // change the type of this class to the class that has its private
+  // methods "overridden"
+  PPointer(Self)^ := TRttiInvokableMethodHack;
+end;
+
+function TRttiInvokableTypeHelper.CreateImplementation(AUserData: Pointer; //FI:O804
+  const ACallback: TMethodImplementationCallback): TMethodImplementation;
+var
+  m: TRttiMethod;
+begin
+  {$WARN CONSTRUCTING_ABSTRACT OFF}
+  m := TRttiInvokableMethod.Create(Self);
+  try
+    // there is no way to directly create a TMethodImplementation instance
+    // because it requires an instance of the private TInvokeInfo class to be
+    // passed which can only be produced by the private method GetInvokeInfo
+
+    // since TRttiInvokableMethod has the necessary private virtual methods
+    // "overridden" it will create the correct TMethodImplementation instance
+    // for the given TRttiInvokableType
+    Result := m.CreateImplementation(Self, ACallback);
+    // "override" the destructor so FInvokeMethod which is not owned by the
+    // TRttiInvokableMethod is properly destroyed at the end
+    PPointer(Result)^ := TMethodImplementationHack;
+  finally
+    m.Free;
+  end;
+end;
+{$ENDIF}
+
+{$ENDREGION}
+
+
+{$REGION 'TMethodImplementationHelper'}
+
+{$IFNDEF DELPHI2010}
+function TMethodImplementationHelper.AsMethod: TMethod;
+begin
+  Result.Code := CodeAddress;
+  Result.Data := Self;
+end;
+{$ENDIF}
+
+{$ENDREGION}
+
+
 {$REGION 'TNamedValue'}
 
 constructor TNamedValue.Create(const value: TValue; const name: string);
@@ -5699,6 +5973,57 @@ end;
 
 {$REGION 'Guard'}
 
+class procedure Guard.RaiseArgumentException(const msg: string);
+begin
+  raise EArgumentException.Create(msg) at ReturnAddress;
+end;
+
+class procedure Guard.RaiseArgumentNullException(const argumentName: string);
+begin
+  raise EArgumentNullException.CreateResFmt(
+    @SArgumentNullException, [argumentName]) at ReturnAddress;
+end;
+
+class procedure Guard.RaiseArgumentOutOfRangeException(const argumentName: string);
+begin
+  raise EArgumentOutOfRangeException.CreateResFmt(
+    @SArgumentOutOfRangeException, [argumentName]) at ReturnAddress;
+end;
+
+class procedure Guard.RaiseArgumentException(typeKind: TTypeKind; const argumentName: string);
+begin
+  raise EArgumentException.CreateResFmt(@SUnexpectedTypeKindArgument,
+    [GetEnumName(TypeInfo(TTypeKind), Ord(typeKind)), argumentName]) at ReturnAddress;
+end;
+
+class procedure Guard.RaiseArgumentFormatException(const argumentName: string);
+begin
+  raise EFormatException.CreateResFmt(
+    @SInvalidArgumentFormat, [argumentName]) at ReturnAddress;
+end;
+
+class procedure Guard.RaiseInvalidEnumArgumentException(const argumentName: string);
+begin
+  raise EInvalidEnumArgumentException.CreateResFmt(
+    @SInvalidEnumArgument, [argumentName]) at ReturnAddress;
+end;
+
+class procedure Guard.RaiseInvalidTypeCast(sourceType, targetType: PTypeInfo);
+begin
+  raise EInvalidCastException.CreateResFmt(@SInvalidTypeCast, [
+    sourceType.TypeName, targetType.TypeName]) at ReturnAddress;
+end;
+
+class procedure Guard.RaiseNullableHasNoValue;
+begin
+  raise EInvalidOperationException.CreateRes(@SNullableHasNoValue) at ReturnAddress;
+end;
+
+class procedure Guard.RaiseNoDelegateAssigned;
+begin
+  raise EInvalidOperationException.CreateRes(@SNoDelegateAssigned) at ReturnAddress;
+end;
+
 class procedure Guard.CheckIndex(length, index, indexBase: Integer);
 const
   IndexArgName = 'index';
@@ -5737,7 +6062,7 @@ class procedure Guard.CheckTypeKind(typeKind: TTypeKind;
   expectedTypeKind: TTypeKind; const argumentName: string);
 begin
   if typeKind <> expectedTypeKind then
-    RaiseArgumentException(typeKind, argumentName);
+    Guard.RaiseArgumentException(typeKind, argumentName);
 end;
 
 class procedure Guard.CheckTypeKind(typeKind: TTypeKind;
@@ -5993,74 +6318,6 @@ begin
       Result := not Assigned(PPointer(@value)^);
 end;
 
-{$IFOPT O+}
-  {$DEFINE OPTIMIZATIONS_ON}
-  {$O-}
-{$ENDIF}
-class procedure Guard.RaiseArgumentException(const msg: string);
-begin
-  raise EArgumentException.Create(msg) at ReturnAddress;
-end;
-
-class procedure Guard.RaiseArgumentNullException(const argumentName: string);
-begin
-  raise EArgumentNullException.CreateResFmt(
-    @SArgumentNullException, [argumentName]) at ReturnAddress;
-end;
-
-class procedure Guard.RaiseArgumentOutOfRangeException(const argumentName: string);
-begin
-  raise EArgumentOutOfRangeException.CreateResFmt(
-    @SArgumentOutOfRangeException, [argumentName]) at ReturnAddress;
-end;
-
-class procedure Guard.RaiseArgumentException(typeKind: TTypeKind; const argumentName: string);
-begin
-  raise EArgumentException.CreateResFmt(@SUnexpectedTypeKindArgument,
-    [GetEnumName(TypeInfo(TTypeKind), Ord(typeKind)), argumentName]) at ReturnAddress;
-end;
-
-class procedure Guard.RaiseArgumentFormatException(const argumentName: string);
-begin
-  raise EFormatException.CreateResFmt(
-    @SInvalidArgumentFormat, [argumentName]) at ReturnAddress;
-end;
-
-class procedure Guard.RaiseInvalidEnumArgumentException(const argumentName: string);
-begin
-  raise EInvalidEnumArgumentException.CreateResFmt(
-    @SInvalidEnumArgument, [argumentName]) at ReturnAddress;
-end;
-
-class procedure Guard.RaiseInvalidTypeCast(sourceType, targetType: PTypeInfo);
-begin
-  raise EInvalidCastException.CreateResFmt(@SInvalidTypeCast, [
-    sourceType.TypeName, targetType.TypeName]) at ReturnAddress;
-end;
-
-class procedure Guard.RaiseNullableHasNoValue;
-begin
-  raise EInvalidOperationException.CreateRes(@SNullableHasNoValue) at ReturnAddress;
-end;
-
-class procedure Guard.RaiseNoDelegateAssigned;
-begin
-  raise EInvalidOperationException.CreateRes(@SNoDelegateAssigned) at ReturnAddress;
-end;
-{$IFDEF OPTIMIZATIONS_ON}
-  {$UNDEF OPTIMIZATIONS_ON}
-  {$O+}
-{$ENDIF}
-
-{$ENDREGION}
-
-
-{$REGION 'Nullable'}
-
-class function Nullable.GetNull: Nullable; //FI:W521
-begin //FI:W519
-end;
-
 {$ENDREGION}
 
 
@@ -6117,60 +6374,64 @@ begin
     Result := defaultValue;
 end;
 
+class function Nullable<T>.EqualsComparer(const left, right: T): Boolean;
+begin
+  if not Assigned(fComparer) then
+    fComparer := TEqualityComparer<T>.Default;
+  Result := fComparer.Equals(left, right);
+end;
+
+class function Nullable<T>.EqualsInternal(const left, right: T): Boolean;
+begin
+  case TType.Kind<T> of
+    tkInteger, tkEnumeration:
+    begin
+      case SizeOf(T) of
+        1: Result := PByte(@left)^ = PByte(@right)^;
+        2: Result := PWord(@left)^ = PWord(@right)^;
+        4: Result := PCardinal(@left)^ = PCardinal(@right)^;
+      end;
+    end;
+{$IFNDEF NEXTGEN}
+    tkChar: Result := PAnsiChar(@left)^ = PAnsiChar(@right)^;
+    tkString: Result := PShortString(@left)^ = PShortString(@right)^;
+    tkLString: Result := PAnsiString(@left)^ = PAnsiString(@right)^;
+    tkWString: Result := PWideString(@left)^ = PWideString(@right)^;
+{$ENDIF}
+    tkFloat:
+    begin
+      if TypeInfo(T) = TypeInfo(Single) then
+        Result := Math.SameValue(PSingle(@left)^, PSingle(@right)^)
+      else if TypeInfo(T) = TypeInfo(Double) then
+        Result := Math.SameValue(PDouble(@left)^, PDouble(@right)^)
+      else if TypeInfo(T) = TypeInfo(Extended) then
+        Result := Math.SameValue(PExtended(@left)^, PExtended(@right)^)
+      else if TypeInfo(T) = TypeInfo(TDateTime) then
+        Result := SameDateTime(PDateTime(@left)^, PDateTime(@right)^)
+      else
+        case GetTypeData(TypeInfo(T)).FloatType of
+          ftSingle: Result := Math.SameValue(PSingle(@left)^, PSingle(@right)^);
+          ftDouble: Result := Math.SameValue(PDouble(@left)^, PDouble(@right)^);
+          ftExtended: Result := Math.SameValue(PExtended(@left)^, PExtended(@right)^);
+          ftComp: Result := PComp(@left)^ = PComp(@right)^;
+          ftCurr: Result := PCurrency(@left)^ = PCurrency(@right)^;
+        end;
+    end;
+    tkWChar: Result := PWideChar(@left)^ = PWideChar(@right)^;
+    tkInt64: Result := PInt64(@left)^ = PInt64(@right)^;
+    tkUString: Result := PUnicodeString(@left)^ = PUnicodeString(@right)^;
+  else
+    Result := EqualsComparer(left, right);
+  end;
+end;
+
 function Nullable<T>.Equals(const other: Nullable<T>): Boolean;
 begin
   if not HasValue then
     Exit(not other.HasValue);
   if not other.HasValue then
     Exit(False);
-
-  case TType.Kind<T> of
-    tkInteger, tkEnumeration:
-    begin
-      case SizeOf(T) of
-        1: Result := PByte(@fValue)^ = PByte(@other.fValue)^;
-        2: Result := PWord(@fValue)^ = PWord(@other.fValue)^;
-        4: Result := PCardinal(@fValue)^ = PCardinal(@other.fValue)^;
-      end;
-    end;
-{$IFNDEF NEXTGEN}
-    tkChar: Result := PAnsiChar(@fValue)^ = PAnsiChar(@other.fValue)^;
-    tkString: Result := PShortString(@fValue)^ = PShortString(@other.fValue)^;
-    tkLString: Result := PAnsiString(@fValue)^ = PAnsiString(@other.fValue)^;
-    tkWString: Result := PWideString(@fValue)^ = PWideString(@other.fValue)^;
-{$ENDIF}
-    tkFloat:
-    begin
-      if TypeInfo(T) = TypeInfo(Single) then
-        Result := Math.SameValue(PSingle(@fValue)^, PSingle(@other.fValue)^)
-      else if TypeInfo(T) = TypeInfo(Double) then
-        Result := Math.SameValue(PDouble(@fValue)^, PDouble(@other.fValue)^)
-      else if TypeInfo(T) = TypeInfo(Extended) then
-        Result := Math.SameValue(PExtended(@fValue)^, PExtended(@other.fValue)^)
-      else if TypeInfo(T) = TypeInfo(TDateTime) then
-        Result := SameDateTime(PDateTime(@fValue)^, PDateTime(@other.fValue)^)
-      else
-        case GetTypeData(TypeInfo(T)).FloatType of
-          ftSingle: Result := Math.SameValue(PSingle(@fValue)^, PSingle(@other.fValue)^);
-          ftDouble: Result := Math.SameValue(PDouble(@fValue)^, PDouble(@other.fValue)^);
-          ftExtended: Result := Math.SameValue(PExtended(@fValue)^, PExtended(@other.fValue)^);
-          ftComp: Result := PComp(@fValue)^ = PComp(@other.fValue)^;
-          ftCurr: Result := PCurrency(@fValue)^ = PCurrency(@other.fValue)^;
-        end;
-    end;
-    tkWChar: Result := PWideChar(@fValue)^ = PWideChar(@other.fValue)^;
-    tkInt64: Result := PInt64(@fValue)^ = PInt64(@other.fValue)^;
-    tkUString: Result := PUnicodeString(@fValue)^ = PUnicodeString(@other.fValue)^;
-  else
-    Result := EqualsInternal(fValue, other.fValue);
-  end;
-end;
-
-class function Nullable<T>.EqualsInternal(const left, right: T): Boolean;
-begin
-  if not Assigned(fComparer) then
-    fComparer := TEqualityComparer<T>.Default;
-  Result := fComparer.Equals(left, right);
+  Result := EqualsInternal(fValue, other.fValue);
 end;
 
 class operator Nullable<T>.Implicit(const value: T): Nullable<T>;
@@ -6232,9 +6493,15 @@ begin
     Result := Default(Nullable<T>);
 end;
 
-class operator Nullable<T>.Implicit(const value: Nullable): Nullable<T>;
+class operator Nullable<T>.Explicit(const value: Nullable<T>): T;
 begin
-  Result := Default(Nullable<T>);
+  Result := value.Value;
+end;
+
+class operator Nullable<T>.Implicit(const value: Nullable.Null): Nullable<T>;
+begin
+  Result.fValue := Default(T);
+  Result.fHasValue := '';
 end;
 
 class operator Nullable<T>.Equal(const left, right: Nullable<T>): Boolean;
@@ -6242,9 +6509,37 @@ begin
   Result := left.Equals(right);
 end;
 
+class operator Nullable<T>.Equal(const left: Nullable<T>;
+  const right: T): Boolean;
+begin
+  if left.fHasValue = '' then
+    Exit(False);
+  Result := EqualsInternal(left.fValue, right);
+end;
+
+class operator Nullable<T>.Equal(const left: Nullable<T>;
+  const right: Nullable.Null): Boolean;
+begin
+  Result := left.fHasValue = '';
+end;
+
 class operator Nullable<T>.NotEqual(const left, right: Nullable<T>): Boolean;
 begin
   Result := not left.Equals(right);
+end;
+
+class operator Nullable<T>.NotEqual(const left: Nullable<T>;
+  const right: Nullable.Null): Boolean;
+begin
+  Result := left.fHasValue <> '';
+end;
+
+class operator Nullable<T>.NotEqual(const left: Nullable<T>;
+  const right: T): Boolean;
+begin
+  if left.fHasValue = '' then
+    Exit(True);
+  Result := not EqualsInternal(left.fValue, right);
 end;
 
 function Nullable<T>.ToString: string;
@@ -6533,6 +6828,118 @@ end;
 {$ENDREGION}
 
 
+{$REGION 'Shared<T>'}
+
+class operator Shared<T>.Implicit(const value: T): Shared<T>;
+begin
+  Result.fValue := value;
+  case TType.Kind<T> of
+{$IFNDEF AUTOREFCOUNT}
+    tkClass:
+      if PPointer(@value)^ = nil then
+        Result.fFinalizer := nil
+      else
+        Result.fFinalizer := Shared.TObjectFinalizer.Create(PObject(@value)^);
+{$ENDIF}
+    tkPointer:
+      if PPointer(@value)^ = nil then
+        Result.fFinalizer := nil
+      else
+        Result.fFinalizer := Shared.TRecordFinalizer.Create(PPointer(@value)^, TypeInfo(T));
+  end;
+end;
+
+class function Shared<T>.GetNew: IShared<T>;
+begin
+  case TType.Kind<T> of
+    tkClass: IShared<TObject>(Result) := Shared.TObjectFinalizer.Create(TypeInfo(T));
+    tkPointer: IShared<Pointer>(Result) := Shared.TRecordFinalizer.Create(TypeInfo(T));
+  end;
+end;
+
+class operator Shared<T>.Implicit(const value: Shared<T>): T;
+begin
+  Result := value.fValue;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'Shared'}
+
+class function Shared.New<T>(const value: T): IShared<T>;
+begin
+  case TType.Kind<T> of
+    tkClass: IShared<TObject>(Result) := Shared.TObjectFinalizer.Create(PObject(@value)^);
+    tkPointer: IShared<Pointer>(Result) := Shared.TRecordFinalizer.Create(PPointer(@value)^, TypeInfo(T));
+  end;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'Shared.TObjectFinalizer'}
+
+constructor Shared.TObjectFinalizer.Create(typeInfo: PTypeInfo);
+begin
+  inherited Create;
+  fValue := TActivator.CreateInstance(typeInfo.TypeData.ClassType);
+end;
+
+constructor Shared.TObjectFinalizer.Create(const value: TObject);
+begin
+  inherited Create;
+  fValue := value;
+end;
+
+{$IFNDEF AUTOREFCOUNT}
+destructor Shared.TObjectFinalizer.Destroy;
+begin
+  fValue.Free;
+  inherited;
+end;
+{$ENDIF}
+
+function Shared.TObjectFinalizer.Invoke: TObject;
+begin
+  Result := fValue;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'Shared.TRecordFinalizer'}
+
+constructor Shared.TRecordFinalizer.Create(typeInfo: PTypeInfo);
+begin
+  inherited Create;
+  fTypeInfo := typeInfo.TypeData.RefType^;
+  fValue := AllocMem(GetTypeSize(fTypeInfo));
+end;
+
+constructor Shared.TRecordFinalizer.Create(const value: Pointer; typeInfo: PTypeInfo);
+begin
+  inherited Create;
+  fTypeInfo := typeInfo.TypeData.RefType^;
+  fValue := value;
+end;
+
+destructor Shared.TRecordFinalizer.Destroy;
+begin
+  FinalizeArray(fValue, fTypeInfo, 1);
+  FillChar(fValue^, fTypeInfo.TypeData.RecSize, 0);
+  FreeMem(fValue);
+  inherited;
+end;
+
+function Shared.TRecordFinalizer.Invoke: Pointer;
+begin
+  Result := fValue;
+end;
+
+{$ENDREGION}
+
+
 {$REGION 'TWeakReferences'}
 
 type
@@ -6644,7 +7051,7 @@ begin
   freeInstance(Self);
 end;
 
-procedure TWeakReference.RegisterWeakRef(address, instance: Pointer);
+procedure TWeakReference.RegisterWeakRef(address, instance: Pointer); //FI:O804
 begin
   TVirtualClasses.Default.Proxify(instance);
   GetClassData(TObject(instance).ClassType).FreeInstance := WeakRefFreeInstance;
@@ -6665,6 +7072,14 @@ constructor TWeakReference<T>.Create(const target: T);
 begin
   inherited Create;
   SetTarget(target);
+end;
+
+constructor TWeakReference<T>.CreateInternal(const target: T;
+  var ref: PPointer);
+begin
+  inherited Create;
+  SetTarget(target);
+  ref := @fTarget;
 end;
 
 destructor TWeakReference<T>.Destroy;
@@ -6715,18 +7130,18 @@ end;
 
 constructor Weak<T>.Create(const target: T);
 begin
-  fReference := TWeakReference<T>.Create(target);
+  fReference := TWeakReference<T>.CreateInternal(target, fTarget);
 end;
 
 function Weak<T>.GetIsAlive: Boolean;
 begin
-  Result := Assigned(fReference) and fReference.IsAlive;
+  Result := Assigned(fReference) and Assigned(fTarget^);
 end;
 
 function Weak<T>.GetTarget: T;
 begin
   if Assigned(fReference) then
-    Result := fReference.Target
+    Result := PT(fTarget)^
   else
     Result := Default(T);
 end;
@@ -6736,12 +7151,18 @@ begin
   if Assigned(fReference) then
     fReference.Target := value
   else
-    fReference := TWeakReference<T>.Create(value);
+    fReference := TWeakReference<T>.CreateInternal(value, fTarget);
 end;
 
 function Weak<T>.TryGetTarget(out target: T): Boolean;
 begin
-  Result := Assigned(fReference) and fReference.TryGetTarget(target);
+  Result := Assigned(fReference) and Assigned(fTarget^);
+  target := PT(fTarget)^;
+end;
+
+class operator Weak<T>.Implicit(const value: Shared<T>): Weak<T>;
+begin
+  Result.Target := value.Value;
 end;
 
 class operator Weak<T>.Implicit(const value: T): Weak<T>;
@@ -6758,7 +7179,7 @@ class operator Weak<T>.Equal(const left: Weak<T>;
   const right: T): Boolean;
 begin
   if Assigned(left.fReference) then
-    Result := PPointer(@right)^ = (left.fReference as TWeakReference).fTarget
+    Result := PPointer(@right)^ = left.fTarget^
   else
     Result := PPointer(@right)^ = nil;
 end;
@@ -6767,7 +7188,7 @@ class operator Weak<T>.NotEqual(const left: Weak<T>;
   const right: T): Boolean;
 begin
   if Assigned(left.fReference) then
-    Result := PPointer(@right)^ <> (left.fReference as TWeakReference).fTarget
+    Result := PPointer(@right)^ <> left.fTarget^
   else
     Result := PPointer(@right)^ <> nil;
 end;
@@ -6776,11 +7197,6 @@ end;
 
 
 {$REGION 'Event<T>'}
-
-class function Event<T>.Create: Event<T>;
-begin
-  Result := TEvent<T>.Create;
-end;
 
 procedure Event<T>.Add(const handler: T);
 begin
@@ -7031,77 +7447,6 @@ function Lock.ScopedLock: IInterface;
 begin
   EnsureInitialized;
   Result := fCriticalSection.ScopedLock;
-end;
-
-{$ENDREGION}
-
-
-{$REGION 'TManaged<T>'}
-
-constructor TManaged<T>.Create;
-begin
-  inherited Create;
-  case TType.Kind<T> of
-    tkClass: PObject(@fValue)^ := TActivator.CreateInstance(TypeInfo(T));
-    tkPointer: PPointer(@fValue)^ := AllocMem(GetTypeSize(GetTypeData(TypeInfo(T)).RefType^));
-  end;
-end;
-
-constructor TManaged<T>.Create(const value: T);
-begin
-  inherited Create;
-  fValue := value;
-end;
-
-destructor TManaged<T>.Destroy;
-begin
-  case TType.Kind<T> of
-{$IFNDEF AUTOREFCOUNT}
-    tkClass: PObject(@fValue).Free;
-{$ENDIF}
-    tkPointer: FinalizeRecordPointer(fValue, TypeInfo(T));
-  end;
-  inherited Destroy;
-end;
-
-function TManaged<T>.Invoke: T;
-begin
-  Result := fValue;
-end;
-
-{$ENDREGION}
-
-
-{$REGION 'Managed<T>'}
-
-class operator Managed<T>.Implicit(const value: T): Managed<T>;
-begin
-  Result.fValue := value;
-  case TType.Kind<T> of
-{$IFNDEF AUTOREFCOUNT}
-    tkClass,
-{$ENDIF}
-    tkPointer:
-      if PPointer(@value)^ = nil then
-        Result.fFinalizer := nil
-      else
-        Result.fFinalizer := TManaged<T>.Create(value);
-  end;
-end;
-
-class operator Managed<T>.Implicit(const value: Managed<T>): T;
-begin
-  Result := value.fValue;
-end;
-
-{$ENDREGION}
-
-
-{$REGION 'Managed'}
-
-class function Managed.New<T>(const value: T): IManaged<T>;
-begin
-  Result := TManaged<T>.Create(value);
 end;
 
 {$ENDREGION}
@@ -7774,16 +8119,32 @@ begin
   Result := -1;
 end;
 
-class procedure TArray.Sort<T>(var values: array of T;
-  const comparison: TComparison<T>);
+class procedure TArray.Reverse<T>(var values: array of T);
 begin
-  Sort<T>(values, IComparer<T>(PPointer(@comparison)^));
+  Reverse<T>(values, 0, Length(values));
 end;
 
-class procedure TArray.Sort<T>(var values: array of T;
-  const comparison: TComparison<T>; index, count: Integer);
+class procedure TArray.Reverse<T>(var values: array of T; index,
+  count: Integer);
+var
+  temp: T;
+  index1, index2: Integer;
 begin
-  Sort<T>(values, IComparer<T>(PPointer(@comparison)^), index, count);
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckRange((index >= 0) and (index <= Length(values)), 'index');
+  Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
+{$ENDIF}
+
+  index1 := index;
+  index2 := index + count - 1;
+  while index1 < index2 do
+  begin
+    temp := values[index1];
+    values[index1] := values[index2];
+    values[index2] := temp;
+    Inc(index1);
+    Dec(index2);
+  end;
 end;
 
 class procedure TArray.Shuffle<T>(var values: array of T);
@@ -7799,7 +8160,7 @@ end;
 class procedure TArray.Shuffle<T>(var values: array of T; index,
   count: Integer);
 var
-  i, n: Integer;
+  i: Integer;
   temp: T;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
@@ -7807,13 +8168,27 @@ begin
   Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
 {$ENDIF}
 
-  for i := index to index + count - 1 do
+  while count > 1 do
   begin
-    n := Random(index + count - i) + i;
-    temp := values[i];
-    values[i] := values[n];
-    values[n] := temp;
+    i := Random(count) + index;
+    Dec(count);
+    temp := values[index];
+    values[index] := values[i];
+    values[i] := temp;
+    Inc(index);
   end;
+end;
+
+class procedure TArray.Sort<T>(var values: array of T;
+  const comparison: TComparison<T>);
+begin
+  Sort<T>(values, IComparer<T>(PPointer(@comparison)^));
+end;
+
+class procedure TArray.Sort<T>(var values: array of T;
+  const comparison: TComparison<T>; index, count: Integer);
+begin
+  Sort<T>(values, IComparer<T>(PPointer(@comparison)^), index, count);
 end;
 
 {$ENDREGION}
@@ -7894,6 +8269,16 @@ end;
 procedure Vector<T>.Clear;
 begin
   fData := nil;
+end;
+
+function Vector<T>.IndexOf(const item: T): Integer;
+begin
+  case TType.Kind<T> of
+    tkInteger: Result := InternalIndexOfInt(PInteger(@item)^);
+    tkUString: Result := InternalIndexOfStr(PUnicodeString(@item)^);
+  else
+    Result := InternalIndexOf(item);
+  end;
 end;
 
 function Vector<T>.Contains(const item: T): Boolean;
@@ -8098,16 +8483,6 @@ class operator Vector<T>.In(const left: TArray<T>;
   const right: Vector<T>): Boolean;
 begin
   Result := right.Contains(left);
-end;
-
-function Vector<T>.IndexOf(const item: T): Integer;
-begin
-  case TType.Kind<T> of
-    tkInteger: Result := InternalIndexOfInt(PInteger(@item)^);
-    tkUString: Result := InternalIndexOfStr(PUnicodeString(@item)^);
-  else
-    Result := InternalIndexOf(item);
-  end;
 end;
 
 procedure Vector<T>.Insert(index: Integer; const item: T);

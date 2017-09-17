@@ -95,7 +95,7 @@ begin
       v := value;
 
     if v.IsEmpty or (v.IsString and (v.AsString = '')) then
-      TOracleDBParam(Result).fParamType := ftOraBlob
+      TOracleDBParam(Result).fParamType := ftOraClob
     else
       TOracleDBParam(Result).fParamType := ftWideMemo;
   end;

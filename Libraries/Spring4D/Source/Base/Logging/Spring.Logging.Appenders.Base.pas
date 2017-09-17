@@ -94,12 +94,6 @@ uses
 
 {$REGION 'TLogAppenderBase'}
 
-class function TLogAppenderBase.FormatEntering(classType: TClass;
-  const methodName: string): string;
-begin
-  Result := SLogEntering + FormatMethodName(classType, methodName);
-end;
-
 class function TLogAppenderBase.FormatException(const e: Exception): string;
 var
   len: Integer;
@@ -107,12 +101,6 @@ begin
   SetLength(Result, 1024);
   len := ExceptionErrorMessage(e, ExceptAddr, @Result[1], Length(Result));
   SetLength(Result, len);
-end;
-
-class function TLogAppenderBase.FormatLeaving(classType: TClass;
-  const methodName: string): string;
-begin
-  Result := SLogLeaving + FormatMethodName(classType, methodName);
 end;
 
 class function TLogAppenderBase.FormatMethodName(classType: TClass;
@@ -124,15 +112,16 @@ begin
     Result := methodName;
 end;
 
-class function TLogAppenderBase.FormatMsg(const event: TLogEvent): string;
+class function TLogAppenderBase.FormatEntering(classType: TClass;
+  const methodName: string): string;
 begin
-  if event.Exception = nil then
-    Result := FormatText(event)
-  else
-    if event.Msg <> '' then
-      Result := FormatText(event) + ': ' + FormatException(event.Exception)
-    else
-      Result := FormatException(event.Exception);
+  Result := SLogEntering + FormatMethodName(classType, methodName);
+end;
+
+class function TLogAppenderBase.FormatLeaving(classType: TClass;
+  const methodName: string): string;
+begin
+  Result := SLogLeaving + FormatMethodName(classType, methodName);
 end;
 
 class function TLogAppenderBase.FormatText(const event: TLogEvent): string;
@@ -149,6 +138,17 @@ begin
     TLogEventType.Leaving:
       Result := FormatLeaving(event.ClassType, event.Msg);
   end;
+end;
+
+class function TLogAppenderBase.FormatMsg(const event: TLogEvent): string;
+begin
+  if event.Exception = nil then
+    Result := FormatText(event)
+  else
+    if event.Msg <> '' then
+      Result := FormatText(event) + ': ' + FormatException(event.Exception)
+    else
+      Result := FormatException(event.Exception);
 end;
 
 procedure TLogAppenderBase.Send(const event: TLogEvent);

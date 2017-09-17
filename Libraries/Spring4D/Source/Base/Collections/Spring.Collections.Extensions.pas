@@ -58,11 +58,11 @@ type
     function GetCount: Integer; override;
     function GetItem(index: Integer): T;
   {$ENDREGION}
+    function Clone: TIterator<T>; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const values: array of T); overload;
     constructor Create(const values: TArray<T>); overload;
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
 
     function GetRange(index, count: Integer): IList<T>;
 
@@ -85,6 +85,7 @@ type
   private
     fSource: TGenericEnumerable;
     fEnumerator: TGenericEnumerator;
+    procedure Start;
   protected
     function GetCurrent: T; override;
   public
@@ -113,11 +114,18 @@ type
   private
     fPredicate: TPredicate<T>;
     fEnumerator: IEnumerator<T>;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>;
       const predicate: TPredicate<T>);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
+
+{$IFNDEF DELPHI2010}
+    function Where(const predicate: TPredicate<T>): IEnumerable<T>; override;
+{$ENDIF}
   end;
 
   TWhereIndexIterator<T> = class(TSourceIterator<T>)
@@ -125,11 +133,14 @@ type
     fPredicate: TFunc<T, Integer, Boolean>;
     fEnumerator: IEnumerator<T>;
     fIndex: Integer;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>;
       const predicate: TFunc<T, Integer, Boolean>);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TSkipIterator<T> = class(TSourceIterator<T>)
@@ -137,10 +148,13 @@ type
     fCount: Integer;
     fEnumerator: IEnumerator<T>;
     fIndex: Integer;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>; count: Integer);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TSkipWhileIterator<T> = class(TSourceIterator<T>)
@@ -148,10 +162,13 @@ type
     fPredicate: TPredicate<T>;
     fEnumerator: IEnumerator<T>;
     fYielding: Boolean;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>; const predicate: TPredicate<T>);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TSkipWhileIndexIterator<T> = class(TSourceIterator<T>)
@@ -160,10 +177,13 @@ type
     fEnumerator: IEnumerator<T>;
     fIndex: Integer;
     fYielding: Boolean;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>; const predicate: TFunc<T, Integer, Boolean>);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TTakeIterator<T> = class(TSourceIterator<T>)
@@ -171,21 +191,26 @@ type
     fCount: Integer;
     fEnumerator: IEnumerator<T>;
     fIndex: Integer;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>; count: Integer);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TTakeWhileIterator<T> = class(TSourceIterator<T>)
   private
     fPredicate: TPredicate<T>;
     fEnumerator: IEnumerator<T>;
-    fStopped: Boolean;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>; const predicate: TPredicate<T>);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TTakeWhileIndexIterator<T> = class(TSourceIterator<T>)
@@ -194,10 +219,12 @@ type
     fEnumerator: IEnumerator<T>;
     fIndex: Integer;
     fStopped: Boolean;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>; const predicate: TFunc<T, Integer, Boolean>);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TConcatIterator<T> = class(TSourceIterator<T>)
@@ -205,20 +232,26 @@ type
     fSecond: IEnumerable<T>;
     fEnumerator: IEnumerator<T>;
     fFlag: Boolean;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const first, second: IEnumerable<T>);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TReversedIterator<T> = class(TSourceIterator<T>)
   private
     fBuffer: TArray<T>;
     fIndex: Integer;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TDistinctIterator<T> = class(TSourceIterator<T>)
@@ -226,10 +259,13 @@ type
     fComparer: IEqualityComparer<T>;
     fSet: ISet<T>;
     fEnumerator: IEnumerator<T>;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>; const comparer: IEqualityComparer<T>);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TDistinctByIterator<T,TKey> = class(TSourceIterator<T>)
@@ -238,11 +274,14 @@ type
     fComparer: IEqualityComparer<TKey>;
     fSet: ISet<TKey>;
     fEnumerator: IEnumerator<T>;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>; const keySelector: TFunc<T, TKey>;
       const comparer: IEqualityComparer<TKey>);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
 {$IFDEF DELPHI2010}
@@ -254,11 +293,11 @@ type
     fCount: Integer;
     fIndex: Integer;
   protected
+    function Clone: TIterator<Integer>; override;
     function GetCount: Integer; override;
+    function TryMoveNext(var current: Integer): Boolean; override;
   public
     constructor Create(start, count: Integer);
-    function Clone: TIterator<Integer>; override;
-    function MoveNext: Boolean; override;
 
     function ToArray: TArray<Integer>; override;
   end;
@@ -270,11 +309,14 @@ type
     fComparer: IEqualityComparer<T>;
     fSet: ISet<T>;
     fEnumerator: IEnumerator<T>;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const first, second: IEnumerable<T>); overload;
     constructor Create(const first, second: IEnumerable<T>; const comparer: IEqualityComparer<T>); overload;
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TIntersectIterator<T> = class(TSourceIterator<T>)
@@ -283,11 +325,14 @@ type
     fComparer: IEqualityComparer<T>;
     fSet: ISet<T>;
     fEnumerator: IEnumerator<T>;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const first, second: IEnumerable<T>); overload;
     constructor Create(const first, second: IEnumerable<T>; const comparer: IEqualityComparer<T>); overload;
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TUnionIterator<T> = class(TSourceIterator<T>)
@@ -297,11 +342,14 @@ type
     fSet: ISet<T>;
     fEnumerator: IEnumerator<T>;
     fFlag: Boolean;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const first, second: IEnumerable<T>); overload;
     constructor Create(const first, second: IEnumerable<T>; const comparer: IEqualityComparer<T>); overload;
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TSelectIterator<TSource, TResult> = class(TIterator<TResult>)
@@ -309,11 +357,14 @@ type
     fSource: IEnumerable<TSource>;
     fSelector: TFunc<TSource, TResult>;
     fEnumerator: IEnumerator<TSource>;
+  protected
+    function Clone: TIterator<TResult>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: TResult): Boolean; override;
   public
     constructor Create(const source: IEnumerable<TSource>;
       const selector: TFunc<TSource, TResult>);
-    function Clone: TIterator<TResult>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TSelectIndexIterator<TSource, TResult> = class(TIterator<TResult>)
@@ -322,11 +373,14 @@ type
     fSelector: TFunc<TSource, Integer, TResult>;
     fEnumerator: IEnumerator<TSource>;
     fIndex: Integer;
+  protected
+    function Clone: TIterator<TResult>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: TResult): Boolean; override;
   public
     constructor Create(const source: IEnumerable<TSource>;
       const selector: TFunc<TSource, Integer, TResult>);
-    function Clone: TIterator<TResult>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TGroupedEnumerable<TSource, TKey, TElement> = class(TEnumerableBase<IGrouping<TKey, TElement>>)
@@ -340,6 +394,7 @@ type
         fComparer: IEqualityComparer<TKey>;
         fLookup: ILookup<TKey, TElement>;
         fEnumerator: IEnumerator<IGrouping<TKey, TElement>>;
+        procedure Start;
       protected
         function GetCurrent: IGrouping<TKey, TElement>; override;
       public
@@ -475,6 +530,11 @@ type
     fFlag: Boolean;
     fGrouping: TLookup<TKey, TInner>.TGrouping;
     fIndex: Integer;
+  protected
+    function Clone: TIterator<TResult>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: TResult): Boolean; override;
   public
     constructor Create(const outer: IEnumerable<TOuter>;
       const inner: IEnumerable<TInner>;
@@ -488,8 +548,6 @@ type
       const resultSelector: TFunc<TOuter, TInner, TResult>;
       const comparer: IEqualityComparer<TKey>); overload;
     destructor Destroy; override;
-    function Clone: TIterator<TResult>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TGroupJoinIterator<TOuter, TInner, TKey, TResult> = class(TIterator<TResult>)
@@ -502,6 +560,11 @@ type
     fComparer: IEqualityComparer<TKey>;
     fLookup: TLookup<TKey, TInner>;
     fEnumerator: IEnumerator<TOuter>;
+  protected
+    function Clone: TIterator<TResult>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: TResult): Boolean; override;
   public
     constructor Create(const outer: IEnumerable<TOuter>;
       const inner: IEnumerable<TInner>;
@@ -515,8 +578,6 @@ type
       const resultSelector: TFunc<TOuter, IEnumerable<TInner>, TResult>;
       const comparer: IEqualityComparer<TKey>); overload;
     destructor Destroy; override;
-    function Clone: TIterator<TResult>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TSelectManyIterator<TSource, TResult> = class(TIterator<TResult>)
@@ -526,11 +587,14 @@ type
     fEnumerator: IEnumerator<TSource>;
     fFlag: Boolean;
     fEnumerator2: IEnumerator<TResult>;
+  protected
+    function Clone: TIterator<TResult>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: TResult): Boolean; override;
   public
     constructor Create(const source: IEnumerable<TSource>;
       const selector: TFunc<TSource, IEnumerable<TResult>>);
-    function Clone: TIterator<TResult>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TSelectManyIndexIterator<TSource, TResult> = class(TIterator<TResult>)
@@ -541,11 +605,14 @@ type
     fFlag: Boolean;
     fIndex: Integer;
     fEnumerator2: IEnumerator<TResult>;
+  protected
+    function Clone: TIterator<TResult>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: TResult): Boolean; override;
   public
     constructor Create(const source: IEnumerable<TSource>;
       const selector: TFunc<TSource, Integer, IEnumerable<TResult>>);
-    function Clone: TIterator<TResult>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TSelectManyIterator<TSource, TCollection, TResult> = class(TIterator<TResult>)
@@ -556,14 +623,16 @@ type
     fEnumerator: IEnumerator<TSource>;
     fFlag: Boolean;
     fEnumerator2: IEnumerator<TCollection>;
-    fCurrent1: TSource;
-    fCurrent2: TCollection;
+    fItem: TSource;
+  protected
+    function Clone: TIterator<TResult>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: TResult): Boolean; override;
   public
     constructor Create(const source: IEnumerable<TSource>;
       const collectionSelector: TFunc<TSource, IEnumerable<TCollection>>;
       const resultSelector: TFunc<TSource, TCollection, TResult>);
-    function Clone: TIterator<TResult>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TSelectManyIndexIterator<TSource, TCollection, TResult> = class(TIterator<TResult>)
@@ -575,14 +644,16 @@ type
     fFlag: Boolean;
     fIndex: Integer;
     fEnumerator2: IEnumerator<TCollection>;
-    fCurrent1: TSource;
-    fCurrent2: TCollection;
+    fItem: TSource;
+  protected
+    function Clone: TIterator<TResult>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: TResult): Boolean; override;
   public
     constructor Create(const source: IEnumerable<TSource>;
       const collectionSelector: TFunc<TSource, Integer, IEnumerable<TCollection>>;
       const resultSelector: TFunc<TSource, TCollection, TResult>);
-    function Clone: TIterator<TResult>; override;
-    function MoveNext: Boolean; override;
   end;
 
   IEnumerableSorter<T> = interface
@@ -662,11 +733,14 @@ type
     fComparer: IComparer<T>;
     fValues: TArray<T>;
     fIndex: Integer;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>;
       const comparer: IComparer<T>);// descending: Boolean);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TZipIterator<TFirst, TSecond, TResult> = class(TIterator<TResult>)
@@ -676,23 +750,29 @@ type
     fResultSelector: TFunc<TFirst, TSecond, TResult>;
     fEnumerator1: IEnumerator<TFirst>;
     fEnumerator2: IEnumerator<TSecond>;
+  protected
+    function Clone: TIterator<TResult>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: TResult): Boolean; override;
   public
     constructor Create(const first: IEnumerable<TFirst>;
       const second: IEnumerable<TSecond>;
       const resultSelector: TFunc<TFirst, TSecond, TResult>);
-    function Clone: TIterator<TResult>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TDefaultIfEmptyIterator<T> = class(TSourceIterator<T>)
   private
     fDefaultValue: T;
     fEnumerator: IEnumerator<T>;
-    fFoundAny: Boolean;
+    fFlag: Boolean;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>; const defaultValue: T);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TExtremaByIterator<T, TKey> = class(TSourceIterator<T>)
@@ -701,32 +781,41 @@ type
     fCompare: TFunc<TKey, TKey, Integer>;
     fResult: IList<T>;
     fEnumerator: IEnumerator<T>;
+  protected
+    function Clone: TIterator<T>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>;
       const keySelector: TFunc<T, TKey>;
       const compare: TFunc<TKey, TKey, Integer>);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TCastIterator<T, TResult> = class(TIterator<TResult>)
   private
     fSource: IEnumerable<T>;
     fEnumerator: IEnumerator<T>;
+  protected
+    function Clone: TIterator<TResult>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: TResult): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>);
-    function Clone: TIterator<TResult>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TOfTypeIterator<T, TResult> = class(TIterator<TResult>)
   private
     fSource: IEnumerable<T>;
     fEnumerator: IEnumerator<T>;
+  protected
+    function Clone: TIterator<TResult>; override;
+    procedure Dispose; override;
+    procedure Start; override;
+    function TryMoveNext(var current: TResult): Boolean; override;
   public
     constructor Create(const source: IEnumerable<T>);
-    function Clone: TIterator<TResult>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TRepeatIterator<T> = class(TIterator<T>)
@@ -735,11 +824,11 @@ type
     fCount: Integer;
     fIndex: Integer;
   protected
+    function Clone: TIterator<T>; override;
     function GetCount: Integer; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const element: T; count: Integer);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
   TAnonymousIterator<T> = class(TIterator<T>)
@@ -748,11 +837,11 @@ type
     fItems: TFunc<Integer, T>;
     fIndex: Integer;
   protected
+    function Clone: TIterator<T>; override;
     function GetCount: Integer; override;
+    function TryMoveNext(var current: T): Boolean; override;
   public
     constructor Create(const count: TFunc<Integer>; const items: TFunc<Integer, T>);
-    function Clone: TIterator<T>; override;
-    function MoveNext: Boolean; override;
   end;
 
 implementation
@@ -852,7 +941,6 @@ function TArrayIterator<T>.IndexOf(const item: T; index,
   count: Integer): Integer;
 {$IFDEF DELPHI2010}
 var
-  comparer: IEqualityComparer<T>;
   i: Integer;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
@@ -860,14 +948,13 @@ begin
   Guard.CheckRange((count >= 0) and (count <= Length(fValues) - index), 'count');
 {$ENDIF}
 
-  comparer := EqualityComparer;
   for i := index to index + count - 1 do
-    if comparer.Equals(fValues[i], item) then
+    if Equals(fValues[i], item) then
       Exit(i);
   Result := -1;
 {$ELSE}
 begin
-  Result := TArray.IndexOf<T>(fValues, item, index, count, EqualityComparer);
+  Result := TArray.IndexOf<T>(fValues, item, index, count, Self);
 {$ENDIF}
 end;
 
@@ -876,25 +963,13 @@ begin
   Result := TArrayIterator<T>.Create(fValues);
 end;
 
-function TArrayIterator<T>.MoveNext: Boolean;
+function TArrayIterator<T>.TryMoveNext(var current: T): Boolean;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
+  Result := fIndex < Length(fValues);
+  if Result then
   begin
-    fIndex := -1;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    if fIndex < High(fValues) then
-    begin
-      Inc(fIndex);
-      fCurrent := fValues[fIndex];
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
+    current := fValues[fIndex];
+    Inc(fIndex);
   end;
 end;
 
@@ -933,8 +1008,13 @@ end;
 function TEnumeratorAdapter<T>.MoveNext: Boolean;
 begin
   if not Assigned(fEnumerator) then
-    fEnumerator := fSource.GetEnumerator;
+    Start;
   Result := fEnumerator.MoveNext;
+end;
+
+procedure TEnumeratorAdapter<T>.Start;
+begin
+  fEnumerator := fSource.GetEnumerator;
 end;
 
 {$ENDREGION}
@@ -980,33 +1060,37 @@ begin
   Result := TWhereIterator<T>.Create(fSource, fPredicate);
 end;
 
-function TWhereIterator<T>.MoveNext: Boolean;
-var
-  current: T;
+procedure TWhereIterator<T>.Dispose;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
-  begin
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    while fEnumerator.MoveNext do
-    begin
-      current := fEnumerator.Current;
-      if fPredicate(current) then
-      begin
-        fCurrent := current;
-        Exit(True);
-      end;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-  end;
+  inherited;
+  fEnumerator := nil;
 end;
+
+function TWhereIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  while fEnumerator.MoveNext do
+  begin
+    current := fEnumerator.Current;
+    if fPredicate(current) then
+      Exit(True);
+  end;
+  Result := False;
+end;
+
+procedure TWhereIterator<T>.Start;
+begin
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
+end;
+
+{$IFNDEF DELPHI2010}
+function TWhereIterator<T>.Where(
+  const predicate: TPredicate<T>): IEnumerable<T>;
+begin
+  Result := TWhereIterator<T>.Create(fSource,
+    TEnumerable.CombinePredicates<T>(fPredicate, predicate));
+end;
+{$ENDIF}
 
 {$ENDREGION}
 
@@ -1031,34 +1115,29 @@ begin
   Result := TWhereIndexIterator<T>.Create(fSource, fPredicate);
 end;
 
-function TWhereIndexIterator<T>.MoveNext: Boolean;
-var
-  current: T;
+procedure TWhereIndexIterator<T>.Dispose;
 begin
+  inherited;
+  fEnumerator := nil;
+end;
+
+function TWhereIndexIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  while fEnumerator.MoveNext do
+  begin
+    current := fEnumerator.Current;
+    Inc(fIndex);
+    if fPredicate(current, fIndex) then
+      Exit(True);
+  end;
   Result := False;
+end;
 
-  if fState = STATE_ENUMERATOR then
-  begin
-    fIndex := -1;
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    while fEnumerator.MoveNext do
-    begin
-      current := fEnumerator.Current;
-      Inc(fIndex);
-      if fPredicate(current, fIndex) then
-      begin
-        fCurrent := current;
-        Exit(True);
-      end;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-  end;
+procedure TWhereIndexIterator<T>.Start;
+begin
+  fIndex := -1;
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -1083,29 +1162,26 @@ begin
   Result := TSkipIterator<T>.Create(fSource, fCount);
 end;
 
-function TSkipIterator<T>.MoveNext: Boolean;
+procedure TSkipIterator<T>.Dispose;
 begin
-  Result := False;
+  inherited;
+  fEnumerator := nil;
+end;
 
-  if fState = STATE_ENUMERATOR then
-  begin
-    fEnumerator := fSource.GetEnumerator;
-    fIndex := fCount;
-    fState := STATE_RUNNING;
-  end;
+function TSkipIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  while (fIndex > 0) and fEnumerator.MoveNext do
+    Dec(fIndex);
+  Result := fEnumerator.MoveNext;
+  if Result then
+    current := fEnumerator.Current;
+end;
 
-  if fState = STATE_RUNNING then
-  begin
-    while (fIndex > 0) and fEnumerator.MoveNext do
-      Dec(fIndex);
-    if fEnumerator.MoveNext then
-    begin
-      fCurrent := fEnumerator.Current;
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-  end;
+procedure TSkipIterator<T>.Start;
+begin
+  fEnumerator := fSource.GetEnumerator;
+  fIndex := fCount;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -1131,34 +1207,29 @@ begin
   Result := TSkipWhileIterator<T>.Create(fSource, fPredicate);
 end;
 
-function TSkipWhileIterator<T>.MoveNext: Boolean;
-var
-  current: T;
+procedure TSkipWhileIterator<T>.Dispose;
 begin
+  inherited;
+  fEnumerator := nil;
+end;
+
+function TSkipWhileIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  while fEnumerator.MoveNext do
+  begin
+    current := fEnumerator.Current;
+    if not fYielding and not fPredicate(current) then
+      fYielding := True;
+    if fYielding then
+      Exit(True);
+  end;
   Result := False;
+end;
 
-  if fState = STATE_ENUMERATOR then
-  begin
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    while fEnumerator.MoveNext do
-    begin
-      current := fEnumerator.Current;
-      if not fYielding and not fPredicate(current) then
-        fYielding := True;
-      if fYielding then
-      begin
-        fCurrent := current;
-        Exit(True);
-      end;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-  end;
+procedure TSkipWhileIterator<T>.Start;
+begin
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -1184,36 +1255,31 @@ begin
   Result := TSkipWhileIndexIterator<T>.Create(fSource, fPredicate);
 end;
 
-function TSkipWhileIndexIterator<T>.MoveNext: Boolean;
-var
-  current: T;
+procedure TSkipWhileIndexIterator<T>.Dispose;
 begin
+  inherited;
+  fEnumerator := nil;
+end;
+
+function TSkipWhileIndexIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  while fEnumerator.MoveNext do
+  begin
+    current := fEnumerator.Current;
+    Inc(fIndex);
+    if not fYielding and not fPredicate(current, fIndex) then
+      fYielding := True;
+    if fYielding then
+      Exit(True);
+  end;
   Result := False;
+end;
 
-  if fState = STATE_ENUMERATOR then
-  begin
-    fEnumerator := fSource.GetEnumerator;
-    fIndex := -1;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    while fEnumerator.MoveNext do
-    begin
-      current := fEnumerator.Current;
-      Inc(fIndex);
-      if not fYielding and not fPredicate(current, fIndex) then
-        fYielding := True;
-      if fYielding then
-      begin
-        fCurrent := current;
-        Exit(True);
-      end;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-  end;
+procedure TSkipWhileIndexIterator<T>.Start;
+begin
+  fEnumerator := fSource.GetEnumerator;
+  fIndex := -1;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -1238,28 +1304,26 @@ begin
   Result := TTakeIterator<T>.Create(fSource, fCount);
 end;
 
-function TTakeIterator<T>.MoveNext: Boolean;
+procedure TTakeIterator<T>.Dispose;
 begin
-  Result := False;
+  inherited;
+  fEnumerator := nil;
+end;
 
-  if fState = STATE_ENUMERATOR then
+function TTakeIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  Result := (fIndex < fCount) and fEnumerator.MoveNext;
+  if Result then
   begin
-    fEnumerator := fSource.GetEnumerator;
-    fIndex := 0;
-    fState := STATE_RUNNING;
+    current := fEnumerator.Current;
+    Inc(fIndex);
   end;
+end;
 
-  if fState = STATE_RUNNING then
-  begin
-    while (fIndex < fCount) and fEnumerator.MoveNext do
-    begin
-      fCurrent := fEnumerator.Current;
-      Inc(fIndex);
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-  end;
+procedure TTakeIterator<T>.Start;
+begin
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -1280,39 +1344,31 @@ begin
   fPredicate := predicate;
 end;
 
+procedure TTakeWhileIterator<T>.Dispose;
+begin
+  inherited;
+  fEnumerator := nil;
+end;
+
 function TTakeWhileIterator<T>.Clone: TIterator<T>;
 begin
   Result := TTakeWhileIterator<T>.Create(fSource, fPredicate);
 end;
 
-function TTakeWhileIterator<T>.MoveNext: Boolean;
-var
-  current: T;
+function TTakeWhileIterator<T>.TryMoveNext(var current: T): Boolean;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
+  Result := fEnumerator.MoveNext;
+  if Result then
   begin
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
+    current := fEnumerator.Current;
+    Result := fPredicate(current);
   end;
+end;
 
-  if fState = STATE_RUNNING then
-  begin
-    while not fStopped and fEnumerator.MoveNext do
-    begin
-      current := fEnumerator.Current;
-      if fPredicate(current) then
-      begin
-        fCurrent := current;
-        Exit(True);
-      end
-      else
-        fStopped := True;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-  end;
+procedure TTakeWhileIterator<T>.Start;
+begin
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -1339,34 +1395,25 @@ begin
   Result := TTakeWhileIndexIterator<T>.Create(fSource, fPredicate);
 end;
 
-function TTakeWhileIndexIterator<T>.MoveNext: Boolean;
-var
-  current: T;
+function TTakeWhileIndexIterator<T>.TryMoveNext(var current: T): Boolean;
 begin
+  while not fStopped and fEnumerator.MoveNext do
+  begin
+    current := fEnumerator.Current;
+    Inc(fIndex);
+    if fPredicate(current, findex) then
+      Exit(True)
+    else
+      fStopped := True;
+  end;
   Result := False;
+end;
 
-  if fState = STATE_ENUMERATOR then
-  begin
-    fIndex := -1;
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    while not fStopped and fEnumerator.MoveNext do
-    begin
-      current := fEnumerator.Current;
-      Inc(fIndex);
-      if fPredicate(current, findex) then
-      begin
-        fCurrent := current;
-        Exit(True);
-      end
-      else
-        fStopped := True;
-    end;
-  end;
+procedure TTakeWhileIndexIterator<T>.Start;
+begin
+  fIndex := -1;
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -1391,40 +1438,40 @@ begin
   Result := TConcatIterator<T>.Create(fSource, fSecond);
 end;
 
-function TConcatIterator<T>.MoveNext: Boolean;
+procedure TConcatIterator<T>.Dispose;
 begin
-  Result := False;
+  inherited;
+  fEnumerator := nil;
+end;
 
-  if fState = STATE_ENUMERATOR then
+function TConcatIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  while Assigned(fEnumerator) do
+  begin
+    if fEnumerator.MoveNext then
+    begin
+      current := fEnumerator.Current;
+      Exit(True);
+    end;
+
+    if fFlag then
+      Break;
+
+    fFlag := True;
+    Start;
+  end;
+  Result := False;
+end;
+
+procedure TConcatIterator<T>.Start;
+begin
+  if not fFlag then
   begin
     fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    repeat
-      if fEnumerator.MoveNext then
-      begin
-        fCurrent := fEnumerator.Current;
-        Exit(True);
-      end
-      else
-      begin
-        if not fFlag then
-        begin
-          fEnumerator := fSecond.GetEnumerator;
-          fFlag := True;
-        end
-        else
-        begin
-          fState := STATE_FINISHED;
-          fEnumerator := nil;
-          Break;
-        end;
-      end;
-    until Result;
-  end;
+    inherited Start;
+  end
+  else
+    fEnumerator := fSecond.GetEnumerator;
 end;
 
 {$ENDREGION}
@@ -1447,28 +1494,27 @@ begin
   Result := TReversedIterator<T>.Create(fSource);
 end;
 
-function TReversedIterator<T>.MoveNext: Boolean;
+procedure TReversedIterator<T>.Dispose;
 begin
-  Result := False;
+  inherited;
+  fBuffer := nil;
+end;
 
-  if fState = STATE_ENUMERATOR then
+function TReversedIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  Result := fIndex > 0;
+  if Result then
   begin
-    fBuffer := fSource.ToArray;
-    fIndex := Length(fBuffer);
-    fState := STATE_RUNNING;
+    Dec(fIndex);
+    current := fBuffer[fIndex];
   end;
+end;
 
-  if fState = STATE_RUNNING then
-  begin
-    if fIndex > 0 then
-    begin
-      Dec(fIndex);
-      fCurrent := fBuffer[fIndex];
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
-    fBuffer := nil;
-  end;
+procedure TReversedIterator<T>.Start;
+begin
+  fBuffer := fSource.ToArray;
+  fIndex := Length(fBuffer);
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -1493,38 +1539,33 @@ begin
   Result := TDistinctIterator<T>.Create(fSource, fComparer);
 end;
 
-function TDistinctIterator<T>.MoveNext: Boolean;
-var
-  current: T;
+procedure TDistinctIterator<T>.Dispose;
 begin
+  inherited;
+  fSet := nil;
+  fEnumerator := nil;
+end;
+
+function TDistinctIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  while fEnumerator.MoveNext do
+  begin
+    current := fEnumerator.Current;
+    if fSet.Add(current) then
+      Exit(True);
+  end;
   Result := False;
+end;
 
-  if fState = STATE_ENUMERATOR then
-  begin
+procedure TDistinctIterator<T>.Start;
+begin
 {$IFNDEF DELPHI2010}
-    fSet := TCollections.CreateSet<T>(fComparer);
+  fSet := TCollections.CreateSet<T>(fComparer);
 {$ELSE}
-    fSet := THashSet<T>.Create(fComparer);
+  fSet := THashSet<T>.Create(fComparer);
 {$ENDIF}
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    while fEnumerator.MoveNext do
-    begin
-      current := fEnumerator.Current;
-      if fSet.Add(current) then
-      begin
-        fCurrent := current;
-        Exit(True);
-      end;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-    fSet := nil;
-  end;
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -1550,38 +1591,33 @@ begin
   Result := TDistinctByIterator<T, TKey>.Create(fSource, fKeySelector, fComparer);
 end;
 
-function TDistinctByIterator<T, TKey>.MoveNext: Boolean;
-var
-  current: T;
+procedure TDistinctByIterator<T, TKey>.Dispose;
 begin
+  inherited;
+  fSet := nil;
+  fEnumerator := nil;
+end;
+
+function TDistinctByIterator<T, TKey>.TryMoveNext(var current: T): Boolean;
+begin
+  while fEnumerator.MoveNext do
+  begin
+    current := fEnumerator.Current;
+    if fSet.Add(fKeySelector(current)) then
+      Exit(True);
+  end;
   Result := False;
+end;
 
-  if fState = STATE_ENUMERATOR then
-  begin
+procedure TDistinctByIterator<T, TKey>.Start;
+begin
 {$IFNDEF DELPHI2010}
-    fSet := TCollections.CreateSet<TKey>(fComparer);
+  fSet := TCollections.CreateSet<TKey>(fComparer);
 {$ELSE}
-    fSet := THashSet<TKey>.Create(fComparer);
+  fSet := THashSet<TKey>.Create(fComparer);
 {$ENDIF}
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    while fEnumerator.MoveNext do
-    begin
-      current := fEnumerator.Current;
-      if fSet.Add(fKeySelector(current)) then
-      begin
-        fCurrent := current;
-        Exit(True);
-      end;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-    fSet := nil;
-  end;
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -1612,25 +1648,13 @@ begin
   Result := fCount;
 end;
 
-function TRangeIterator.MoveNext: Boolean;
+function TRangeIterator.TryMoveNext(var current: Integer): Boolean;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
+  Result := fIndex < fCount;
+  if Result then
   begin
-    fIndex := 0;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    if fIndex < fCount then
-    begin
-      fCurrent := fStart + fIndex;
-      Inc(fIndex);
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
+    current := fStart + fIndex;
+    Inc(fIndex);
   end;
 end;
 
@@ -1673,39 +1697,34 @@ begin
   Result := TExceptIterator<T>.Create(fSource, fSecond, fComparer);
 end;
 
-function TExceptIterator<T>.MoveNext: Boolean;
-var
-  current: T;
+procedure TExceptIterator<T>.Dispose;
 begin
+  inherited;
+  fSet := nil;
+  fEnumerator := nil;
+end;
+
+function TExceptIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  while fEnumerator.MoveNext do
+  begin
+    current := fEnumerator.Current;
+    if fSet.Add(current) then
+      Exit(True);
+  end;
   Result := False;
+end;
 
-  if fState = STATE_ENUMERATOR then
-  begin
+procedure TExceptIterator<T>.Start;
+begin
 {$IFNDEF DELPHI2010}
-    fSet := TCollections.CreateSet<T>(fComparer);
+  fSet := TCollections.CreateSet<T>(fComparer);
 {$ELSE}
-    fSet := THashSet<T>.Create(fComparer);
+  fSet := THashSet<T>.Create(fComparer);
 {$ENDIF}
-    fSet.AddRange(fSecond);
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    while fEnumerator.MoveNext do
-    begin
-      current := fEnumerator.Current;
-      if fSet.Add(current) then
-      begin
-        fCurrent := current;
-        Exit(True);
-      end;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-    fSet := nil;
-  end;
+  fSet.AddRange(fSecond);
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -1737,39 +1756,34 @@ begin
   Result := TIntersectIterator<T>.Create(fSource, fSecond, fComparer);
 end;
 
-function TIntersectIterator<T>.MoveNext: Boolean;
-var
-  current: T;
+procedure TIntersectIterator<T>.Dispose;
 begin
+  inherited;
+  fSet := nil;
+  fEnumerator := nil;
+end;
+
+function TIntersectIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  while fEnumerator.MoveNext do
+  begin
+    current := fEnumerator.Current;
+    if fSet.Remove(current) then
+      Exit(True);
+  end;
   Result := False;
+end;
 
-  if fState = STATE_ENUMERATOR then
-  begin
+procedure TIntersectIterator<T>.Start;
+begin
 {$IFNDEF DELPHI2010}
-    fSet := TCollections.CreateSet<T>(fComparer);
+  fSet := TCollections.CreateSet<T>(fComparer);
 {$ELSE}
-    fSet := THashSet<T>.Create(fComparer);
+  fSet := THashSet<T>.Create(fComparer);
 {$ENDIF}
-    fSet.AddRange(fSecond);
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    while fEnumerator.MoveNext do
-    begin
-      current := fEnumerator.Current;
-      if fSet.Remove(current) then
-      begin
-        fCurrent := current;
-        Exit(True);
-      end;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-    fSet := nil;
-  end;
+  fSet.AddRange(fSecond);
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -1801,13 +1815,36 @@ begin
   Result := TUnionIterator<T>.Create(fSource, fSecond, fComparer);
 end;
 
-function TUnionIterator<T>.MoveNext: Boolean;
-var
-  current: T;
+procedure TUnionIterator<T>.Dispose;
 begin
-  Result := False;
+  inherited;
+  fSet := nil;
+  fEnumerator := nil;
+end;
 
-  if fState = STATE_ENUMERATOR then
+function TUnionIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  while Assigned(fEnumerator) do
+  begin
+    while fEnumerator.MoveNext do
+    begin
+      current := fEnumerator.Current;
+      if fSet.Add(current) then
+        Exit(True);
+    end;
+
+    if fFlag then
+      Break;
+
+    fFlag := True;
+    Start;
+  end;
+  Result := False;
+end;
+
+procedure TUnionIterator<T>.Start;
+begin
+  if not fFlag then
   begin
 {$IFNDEF DELPHI2010}
     fSet := TCollections.CreateSet<T>(fComparer);
@@ -1815,38 +1852,10 @@ begin
     fSet := THashSet<T>.Create(fComparer);
 {$ENDIF}
     fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    repeat
-      if fEnumerator.MoveNext then
-      begin
-        current := fEnumerator.Current;
-        if fSet.Add(current) then
-        begin
-          fCurrent := current;
-          Result := True;
-        end;
-      end
-      else
-      begin
-        if not fFlag then
-        begin
-          fEnumerator := fSecond.GetEnumerator;
-          fFlag := True;
-        end
-        else
-        begin
-          fState := STATE_FINISHED;
-          fEnumerator := nil;
-          fSet := nil;
-          Break;
-        end;
-      end;
-    until Result;
-  end;
+    inherited Start;
+  end
+  else
+    fEnumerator := fSecond.GetEnumerator;
 end;
 
 {$ENDREGION}
@@ -1872,26 +1881,23 @@ begin
   Result := TSelectIterator<TSource, TResult>.Create(fSource, fSelector)
 end;
 
-function TSelectIterator<TSource, TResult>.MoveNext: Boolean;
+procedure TSelectIterator<TSource, TResult>.Dispose;
 begin
-  Result := False;
+  inherited;
+  fEnumerator := nil;
+end;
 
-  if fState = STATE_ENUMERATOR then
-  begin
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
+function TSelectIterator<TSource, TResult>.TryMoveNext(var current: TResult): Boolean;
+begin
+  Result := fEnumerator.MoveNext;
+  if Result then
+    current := fSelector(fEnumerator.Current);
+end;
 
-  if fState = STATE_RUNNING then
-  begin
-    if fEnumerator.MoveNext then
-    begin
-      fCurrent := fSelector(fEnumerator.Current);
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-  end;
+procedure TSelectIterator<TSource, TResult>.Start;
+begin
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -1918,31 +1924,29 @@ begin
   Result := TSelectIndexIterator<TSource, TResult>.Create(fSource, fSelector);
 end;
 
-function TSelectIndexIterator<TSource, TResult>.MoveNext: Boolean;
-var
-  current: TSource;
+procedure TSelectIndexIterator<TSource, TResult>.Dispose;
 begin
-  Result := False;
+  inherited;
+  fEnumerator := nil;
+end;
 
-  if fState = STATE_ENUMERATOR then
+function TSelectIndexIterator<TSource, TResult>.TryMoveNext(var current: TResult): Boolean;
+var
+  item: TSource;
+begin
+  Result := fEnumerator.MoveNext;
+  if Result then
   begin
-    fIndex := -1;
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
+    item := fEnumerator.Current;
+    current := fSelector(item, fIndex);
+    Inc(fIndex);
   end;
+end;
 
-  if fState = STATE_RUNNING then
-  begin
-    if fEnumerator.MoveNext then
-    begin
-      current := fEnumerator.Current;
-      Inc(fIndex);
-      fCurrent := fSelector(current, fIndex);
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-  end;
+procedure TSelectIndexIterator<TSource, TResult>.Start;
+begin
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -2007,13 +2011,16 @@ end;
 function TGroupedEnumerable<TSource, TKey, TElement>.TEnumerator.MoveNext: Boolean;
 begin
   if not Assigned(fEnumerator) then
-  begin
-    fLookup := TLookup<TKey, TElement>.Create<TSource>(
-      fSource, fKeySelector, fElementSelector, fComparer);
-    fEnumerator := fLookup.GetEnumerator;
-  end;
+    Start;
 
   Result := fEnumerator.MoveNext;
+end;
+
+procedure TGroupedEnumerable<TSource, TKey, TElement>.TEnumerator.Start;
+begin
+  fLookup := TLookup<TKey, TElement>.Create<TSource>(
+    fSource, fKeySelector, fElementSelector, fComparer);
+  fEnumerator := fLookup.GetEnumerator;
 end;
 
 {$ENDREGION}
@@ -2331,47 +2338,46 @@ begin
     fOuterKeySelector, fInnerKeySelector, fResultSelector, fComparer);
 end;
 
-function TJoinIterator<TOuter, TInner, TKey, TResult>.MoveNext: Boolean;
-var
-  current: TOuter;
+procedure TJoinIterator<TOuter, TInner, TKey, TResult>.Dispose;
 begin
-  Result := False;
+  inherited;
+  fEnumerator := nil;
+  FreeAndNil(fLookup);
+end;
 
-  if fState = STATE_ENUMERATOR then
+function TJoinIterator<TOuter, TInner, TKey, TResult>.TryMoveNext(var current: TResult): Boolean;
+var
+  item: TOuter;
+begin
+  while fFlag or fEnumerator.MoveNext do
   begin
-    fLookup := TLookup<TKey, TInner>.CreateForJoin(fInner, fInnerKeySelector, fComparer);
-    fEnumerator := fOuter.GetEnumerator;
-    fFlag := True;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    while not fFlag or fEnumerator.MoveNext do
+    item := fEnumerator.Current;
+    if not fFlag then
     begin
-      current := fEnumerator.Current;
-      if fFlag then
-      begin
-        fGrouping := fLookup.GetGrouping(fOuterKeySelector(current), False);
-        if not Assigned(fGrouping) then
-          Continue;
-        fFlag := False;
-        fIndex := 0;
-      end;
-
-      if fIndex < fGrouping.Count then
-      begin
-        fCurrent := fResultSelector(current, fGrouping.fElements[fIndex]);
-        Inc(fIndex);
-        Exit(True);
-      end
-      else
-        fFlag := True;
+      fGrouping := fLookup.GetGrouping(fOuterKeySelector(item), False);
+      if not Assigned(fGrouping) then
+        Continue;
+      fFlag := True;
+      fIndex := 0;
     end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-    FreeAndNil(fLookup);
+
+    if fIndex < fGrouping.Count then
+    begin
+      current := fResultSelector(item, fGrouping.fElements[fIndex]);
+      Inc(fIndex);
+      Exit(True);
+    end
+    else
+      fFlag := False;
   end;
+  Result := False;
+end;
+
+procedure TJoinIterator<TOuter, TInner, TKey, TResult>.Start;
+begin
+  fLookup := TLookup<TKey, TInner>.CreateForJoin(fInner, fInnerKeySelector, fComparer);
+  fEnumerator := fOuter.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -2425,31 +2431,29 @@ begin
     fInner, fOuterKeySelector, fInnerKeySelector, fResultSelector, fComparer);
 end;
 
-function TGroupJoinIterator<TOuter, TInner, TKey, TResult>.MoveNext: Boolean;
-var
-  current: TOuter;
+procedure TGroupJoinIterator<TOuter, TInner, TKey, TResult>.Dispose;
 begin
-  Result := False;
+  inherited;
+  fEnumerator := nil;
+end;
 
-  if fState = STATE_ENUMERATOR then
+function TGroupJoinIterator<TOuter, TInner, TKey, TResult>.TryMoveNext(var current: TResult): Boolean;
+var
+  item: TOuter;
+begin
+  Result := fEnumerator.MoveNext;
+  if Result then
   begin
-    fLookup := TLookup<TKey, TInner>.CreateForJoin(fInner, fInnerKeySelector, fComparer);
-    fEnumerator := fOuter.GetEnumerator;
-    fState := STATE_RUNNING;
+    item := fEnumerator.Current;
+    current := fResultSelector(item, fLookup[fOuterKeySelector(item)]);
   end;
+end;
 
-  if fState = STATE_RUNNING then
-  begin
-    if fEnumerator.MoveNext then
-    begin
-      current := fEnumerator.Current;
-      fCurrent := fResultSelector(current, fLookup[fOuterKeySelector(current)]);
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-    FreeAndNil(fLookup);
-  end;
+procedure TGroupJoinIterator<TOuter, TInner, TKey, TResult>.Start;
+begin
+  fLookup := TLookup<TKey, TInner>.CreateForJoin(fInner, fInnerKeySelector, fComparer);
+  fEnumerator := fOuter.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -2476,43 +2480,47 @@ begin
   Result := TSelectManyIterator<TSource, TResult>.Create(fSource, fSelector);
 end;
 
-function TSelectManyIterator<TSource, TResult>.MoveNext: Boolean;
+procedure TSelectManyIterator<TSource, TResult>.Dispose;
+begin
+  inherited;
+  fEnumerator := nil;
+end;
+
+function TSelectManyIterator<TSource, TResult>.TryMoveNext(var current: TResult): Boolean;
+begin
+  while not fFlag or fEnumerator.MoveNext do
+  begin
+    if fFlag then
+      Start;
+
+    if fEnumerator2.MoveNext then
+    begin
+      current := fEnumerator2.Current;
+      Exit(True);
+    end
+    else
+      fFlag := True;
+  end;
+  Result := False;
+end;
+
+procedure TSelectManyIterator<TSource, TResult>.Start;
 var
   current: TSource;
   collection: IEnumerable<TResult>;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
+  if not fFlag then
   begin
     fEnumerator := fSource.GetEnumerator;
     fFlag := True;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
+    inherited Start;
+  end
+  else
   begin
-    while not fFlag or fEnumerator.MoveNext do
-    begin
-      if fFlag then
-      begin
-        current := fEnumerator.Current;
-        collection := fSelector(current);
-        fEnumerator2 := collection.GetEnumerator;
-        fFlag := False;
-      end;
-
-      if fEnumerator2.MoveNext then
-      begin
-        fCurrent := fEnumerator2.Current;
-        Exit(True);
-      end
-      else
-        fFlag := True;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator2 := nil;
-    fEnumerator := nil;
+    current := fEnumerator.Current;
+    collection := fSelector(current);
+    fEnumerator2 := collection.GetEnumerator;
+    fFlag := False;
   end;
 end;
 
@@ -2540,45 +2548,50 @@ begin
   Result := TSelectManyIndexIterator<TSource, TResult>.Create(fSource, fSelector);
 end;
 
-function TSelectManyIndexIterator<TSource, TResult>.MoveNext: Boolean;
+procedure TSelectManyIndexIterator<TSource, TResult>.Dispose;
+begin
+  inherited;
+  fEnumerator := nil;
+  fEnumerator2 := nil;
+end;
+
+function TSelectManyIndexIterator<TSource, TResult>.TryMoveNext(var current: TResult): Boolean;
+begin
+  while not fFlag or fEnumerator.MoveNext do
+  begin
+    if fFlag then
+      Start;
+
+    if fEnumerator2.MoveNext then
+    begin
+      current := fEnumerator2.Current;
+      Exit(True);
+    end
+    else
+      fFlag := True;
+  end;
+  Result := False;
+end;
+
+procedure TSelectManyIndexIterator<TSource, TResult>.Start;
 var
   current: TSource;
   collection: IEnumerable<TResult>;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
+  if not fFlag then
   begin
     fIndex := -1;
     fEnumerator := fSource.GetEnumerator;
     fFlag := True;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
+    inherited Start;
+  end
+  else
   begin
-    while not fFlag or fEnumerator.MoveNext do
-    begin
-      if fFlag then
-      begin
-        current := fEnumerator.Current;
-        Inc(fIndex);
-        collection := fSelector(current, fIndex);
-        fEnumerator2 := collection.GetEnumerator;
-        fFlag := False;
-      end;
-
-      if fEnumerator2.MoveNext then
-      begin
-        fCurrent := fEnumerator2.Current;
-        Exit(True);
-      end
-      else
-        fFlag := True;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator2 := nil;
-    fEnumerator := nil;
+    current := fEnumerator.Current;
+    Inc(fIndex);
+    collection := fSelector(current, fIndex);
+    fEnumerator2 := collection.GetEnumerator;
+    fFlag := False;
   end;
 end;
 
@@ -2610,43 +2623,51 @@ begin
     fSource, fCollectionSelector, fResultSelector);
 end;
 
-function TSelectManyIterator<TSource, TCollection, TResult>.MoveNext: Boolean;
+procedure TSelectManyIterator<TSource, TCollection, TResult>.Dispose;
+begin
+  inherited;
+  fItem := Default(TSource);
+  fEnumerator2 := nil;
+  fEnumerator := nil;
+end;
+
+function TSelectManyIterator<TSource, TCollection, TResult>.TryMoveNext(var current: TResult): Boolean;
+var
+  subItem: TCollection;
+begin
+  while not fFlag or fEnumerator.MoveNext do
+  begin
+    if fFlag then
+      Start;
+
+    if fEnumerator2.MoveNext then
+    begin
+      subItem := fEnumerator2.Current;
+      current := fResultSelector(fItem, subItem);
+      Exit(True);
+    end
+    else
+      fFlag := True;
+  end;
+  Result := False;
+end;
+
+procedure TSelectManyIterator<TSource, TCollection, TResult>.Start;
 var
   collection: IEnumerable<TCollection>;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
+  if not fFlag then
   begin
     fEnumerator := fSource.GetEnumerator;
     fFlag := True;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
+    inherited Start;
+  end
+  else
   begin
-    while not fFlag or fEnumerator.MoveNext do
-    begin
-      if fFlag then
-      begin
-        fCurrent1 := fEnumerator.Current;
-        collection := fCollectionSelector(fCurrent1);
-        fEnumerator2 := collection.GetEnumerator;
-        fFlag := False;
-      end;
-
-      if fEnumerator2.MoveNext then
-      begin
-        fCurrent2 := fEnumerator2.Current;
-        fCurrent := fResultSelector(fCurrent1, fCurrent2);
-        Exit(True);
-      end
-      else
-        fFlag := True;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator2 := nil;
-    fEnumerator := nil;
+    fItem := fEnumerator.Current;
+    collection := fCollectionSelector(fItem);
+    fEnumerator2 := collection.GetEnumerator;
+    fFlag := False;
   end;
 end;
 
@@ -2678,45 +2699,53 @@ begin
     fSource, fCollectionSelector, fResultSelector);
 end;
 
-function TSelectManyIndexIterator<TSource, TCollection, TResult>.MoveNext: Boolean;
+procedure TSelectManyIndexIterator<TSource, TCollection, TResult>.Dispose;
+begin
+  inherited;
+  fItem := Default(TSource);
+  fEnumerator2 := nil;
+  fEnumerator := nil;
+end;
+
+function TSelectManyIndexIterator<TSource, TCollection, TResult>.TryMoveNext(var current: TResult): Boolean;
+var
+  subItem: TCollection;
+begin
+  while not fFlag or fEnumerator.MoveNext do
+  begin
+    if fFlag then
+      Start;
+
+    if fEnumerator2.MoveNext then
+    begin
+      subItem := fEnumerator2.Current;
+      current := fResultSelector(fItem, subItem);
+      Exit(True);
+    end
+    else
+      fFlag := True;
+  end;
+  Result := False;
+end;
+
+procedure TSelectManyIndexIterator<TSource, TCollection, TResult>.Start;
 var
   collection: IEnumerable<TCollection>;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
+  if not fFlag then
   begin
     fIndex := -1;
     fEnumerator := fSource.GetEnumerator;
     fFlag := True;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
+    inherited Start;
+  end
+  else
   begin
-    while not fFlag or fEnumerator.MoveNext do
-    begin
-      if fFlag then
-      begin
-        fCurrent1 := fEnumerator.Current;
-        Inc(fIndex);
-        collection := fCollectionSelector(fCurrent1, fIndex);
-        fEnumerator2 := collection.GetEnumerator;
-        fFlag := False;
-      end;
-
-      if fEnumerator2.MoveNext then
-      begin
-        fCurrent2 := fEnumerator2.Current;
-        fCurrent := fResultSelector(fCurrent1, fCurrent2);
-        Exit(True);
-      end
-      else
-        fFlag := True;
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator2 := nil;
-    fEnumerator := nil;
+    fItem := fEnumerator.Current;
+    Inc(fIndex);
+    collection := fCollectionSelector(fItem, fIndex);
+    fEnumerator2 := collection.GetEnumerator;
+    fFlag := False;
   end;
 end;
 
@@ -2920,29 +2949,27 @@ begin
   Result := TOrderedIterator<T>.Create(fSource, fComparer);
 end;
 
-function TOrderedIterator<T>.MoveNext: Boolean;
+procedure TOrderedIterator<T>.Dispose;
 begin
-  Result := False;
+  inherited;
+  fValues := nil;
+end;
 
-  if fState = STATE_ENUMERATOR then
+function TOrderedIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  Result := fIndex < Length(fValues);
+  if Result then
   begin
-    fIndex := -1;
-    fValues := fSource.ToArray;
-    TArray.Sort<T>(fValues, fComparer);
-    fState := STATE_RUNNING;
+    current := fValues[fIndex];
+    Inc(fIndex);
   end;
+end;
 
-  if fState = STATE_RUNNING then
-  begin
-    if fIndex < High(fValues) then
-    begin
-      Inc(fIndex);
-      fCurrent := fValues[fIndex];
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
-    fValues := nil;
-  end;
+procedure TOrderedIterator<T>.Start;
+begin
+  fValues := fSource.ToArray;
+  TArray.Sort<T>(fValues, fComparer);
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -2971,28 +2998,25 @@ begin
   Result := TZipIterator<TFirst, TSecond, TResult>.Create(fFirst, fSecond, fResultSelector);
 end;
 
-function TZipIterator<TFirst, TSecond, TResult>.MoveNext: Boolean;
+procedure TZipIterator<TFirst, TSecond, TResult>.Dispose;
 begin
-  Result := False;
+  inherited;
+  fEnumerator2 := nil;
+  fEnumerator1 := nil;
+end;
 
-  if fState = STATE_ENUMERATOR then
-  begin
-    fEnumerator1 := fFirst.GetEnumerator;
-    fEnumerator2 := fSecond.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
+function TZipIterator<TFirst, TSecond, TResult>.TryMoveNext(var current: TResult): Boolean;
+begin
+  Result := fEnumerator1.MoveNext and fEnumerator2.MoveNext;
+  if Result then
+    current := fResultSelector(fEnumerator1.Current, fEnumerator2.Current);
+end;
 
-  if fState = STATE_RUNNING then
-  begin
-    if fEnumerator1.MoveNext and fEnumerator2.MoveNext then
-    begin
-      fCurrent := fResultSelector(fEnumerator1.Current, fEnumerator2.Current);
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator2 := nil;
-    fEnumerator1 := nil;
-  end;
+procedure TZipIterator<TFirst, TSecond, TResult>.Start;
+begin
+  fEnumerator1 := fFirst.GetEnumerator;
+  fEnumerator2 := fSecond.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -3017,39 +3041,34 @@ begin
   Result := TDefaultIfEmptyIterator<T>.Create(fSource, fDefaultValue);
 end;
 
-function TDefaultIfEmptyIterator<T>.MoveNext: Boolean;
+procedure TDefaultIfEmptyIterator<T>.Dispose;
 begin
-  Result := False;
+  inherited;
+  fEnumerator := nil;
+end;
 
-  if fState = STATE_ENUMERATOR then
+function TDefaultIfEmptyIterator<T>.TryMoveNext(var current: T): Boolean;
+begin
+  if fEnumerator.MoveNext then
   begin
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    if fEnumerator.MoveNext then
+    current := fEnumerator.Current;
+    fFlag := True;
+    Exit(True);
+  end
+  else
+    if not fFlag then
     begin
-      fFoundAny := True;
-      fCurrent := fEnumerator.Current;
-      Result := True;
-    end
-    else
-    begin
-      if not fFoundAny then
-      begin
-        fCurrent := fDefaultValue;
-        fFoundAny := True;
-        Result := True;
-      end
-      else
-      begin
-        fState := STATE_FINISHED;
-        fEnumerator := nil;
-      end;
+      current := fDefaultValue;
+      fFlag := True;
+      Exit(True);
     end;
-  end;
+  Result := False;
+end;
+
+procedure TDefaultIfEmptyIterator<T>.Start;
+begin
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -3077,62 +3096,57 @@ begin
   Result := TExtremaByIterator<T, TKey>.Create(fSource, fkeySelector, fCompare);
 end;
 
-function TExtremaByIterator<T, TKey>.MoveNext: Boolean;
+procedure TExtremaByIterator<T, TKey>.Dispose;
+begin
+  inherited;
+  fEnumerator := nil;
+  fResult := nil;
+end;
+
+function TExtremaByIterator<T, TKey>.TryMoveNext(var current: T): Boolean;
+begin
+  Result := fEnumerator.MoveNext;
+  if Result then
+    current := fEnumerator.Current;
+end;
+
+procedure TExtremaByIterator<T, TKey>.Start;
 var
   current: T;
   resultKey: TKey;
   key: TKey;
   compareResult: Integer;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
-  begin
 {$IFNDEF DELPHI2010}
-    fResult := TCollections.CreateList<T>;
+  fResult := TCollections.CreateList<T>;
 {$ELSE}
-    fResult := TList<T>.Create;
+  fResult := TList<T>.Create;
 {$ENDIF}
-    fEnumerator := fSource.GetEnumerator;
-    if not fEnumerator.MoveNext then
-      raise EInvalidOperationException.CreateRes(@SSequenceContainsNoElements);
+  fEnumerator := fSource.GetEnumerator;
+  if not fEnumerator.MoveNext then
+    raise EInvalidOperationException.CreateRes(@SSequenceContainsNoElements);
 
-    current := fEnumerator.Current;
-    resultKey := fKeySelector(current);
-    fResult.Add(current);
+  current := fEnumerator.Current;
+  resultKey := fKeySelector(current);
+  fResult.Add(current);
 
-    while fEnumerator.MoveNext do
-    begin
-      current := fEnumerator.Current;
-      key := fKeySelector(current);
-      compareResult := fCompare(key, resultKey);
-      if compareResult = 0 then
-      begin
-        fResult.Add(current);
-      end else
-      if compareResult > 0 then
-      begin
-        fResult.Clear;
-        fResult.Add(current);
-        resultKey := key;
-      end;
-    end;
-
-    fEnumerator := fResult.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
+  while fEnumerator.MoveNext do
   begin
-    if fEnumerator.MoveNext then
+    current := fEnumerator.Current;
+    key := fKeySelector(current);
+    compareResult := fCompare(key, resultKey);
+    if compareResult = 0 then
+      fResult.Add(current)
+    else if compareResult > 0 then
     begin
-      fCurrent := fEnumerator.Current;
-      Exit(True);
+      fResult.Clear;
+      fResult.Add(current);
+      resultKey := key;
     end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-    fResult := nil;
   end;
+
+  fEnumerator := fResult.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -3150,36 +3164,35 @@ begin
   fSource := source;
 end;
 
+procedure TCastIterator<T, TResult>.Dispose;
+begin
+  inherited;
+  fEnumerator := nil;
+end;
+
 function TCastIterator<T, TResult>.Clone: TIterator<TResult>;
 begin
   Result := TCastIterator<T, TResult>.Create(fSource);
 end;
 
-function TCastIterator<T, TResult>.MoveNext: Boolean;
+function TCastIterator<T, TResult>.TryMoveNext(var current: TResult): Boolean;
 var
-  current: T;
+  item: T;
   value: TValue;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
+  Result := fEnumerator.MoveNext;
+  if Result then
   begin
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
+    item := fEnumerator.Current;
+    value := TValue.From<T>(item);
+    current := value.AsType<TResult>;
   end;
+end;
 
-  if fState = STATE_RUNNING then
-  begin
-    if fEnumerator.MoveNext then
-    begin
-      current := fEnumerator.Current;
-      value := TValue.From<T>(current);
-      fCurrent := value.AsType<TResult>;
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-  end;
+procedure TCastIterator<T, TResult>.Start;
+begin
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -3197,36 +3210,36 @@ begin
   fSource := source;
 end;
 
+procedure TOfTypeIterator<T, TResult>.Dispose;
+begin
+  inherited;
+  fEnumerator := nil;
+end;
+
 function TOfTypeIterator<T, TResult>.Clone: TIterator<TResult>;
 begin
   Result := TOfTypeIterator<T, TResult>.Create(fSource);
 end;
 
-function TOfTypeIterator<T, TResult>.MoveNext: Boolean;
+function TOfTypeIterator<T, TResult>.TryMoveNext(var current: TResult): Boolean;
 var
-  current: T;
+  item: T;
   value: TValue;
 begin
+  while fEnumerator.MoveNext do
+  begin
+    item := fEnumerator.Current;
+    value := TValue.From<T>(item);
+    if value.TryAsType<TResult>(current) then
+      Exit(True);
+  end;
   Result := False;
+end;
 
-  if fState = STATE_ENUMERATOR then
-  begin
-    fEnumerator := fSource.GetEnumerator;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    while fEnumerator.MoveNext do
-    begin
-      current := fEnumerator.Current;
-      value := TValue.From<T>(current);
-      if value.TryAsType<TResult>(fCurrent) then
-        Exit(True);
-    end;
-    fState := STATE_FINISHED;
-    fEnumerator := nil;
-  end;
+procedure TOfTypeIterator<T, TResult>.Start;
+begin
+  fEnumerator := fSource.GetEnumerator;
+  inherited Start;
 end;
 
 {$ENDREGION}
@@ -3255,24 +3268,12 @@ begin
   Result := fCount;
 end;
 
-function TRepeatIterator<T>.MoveNext: Boolean;
+function TRepeatIterator<T>.TryMoveNext(var current: T): Boolean;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
+  Result := fIndex < fCount;
   begin
-    fIndex := 0;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    if fIndex < fCount then
-    begin
-      Inc(fIndex);
-      fCurrent := fElement;
-      Result := True;
-    end;
+    Inc(fIndex);
+    current := fElement;
   end;
 end;
 
@@ -3299,25 +3300,13 @@ begin
   Result := fCount;
 end;
 
-function TAnonymousIterator<T>.MoveNext: Boolean;
+function TAnonymousIterator<T>.TryMoveNext(var current: T): Boolean;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
+  Result :=  fIndex < fCount;
+  if Result then
   begin
-    fIndex := -1;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    if fIndex < fCount then
-    begin
-      Inc(fIndex);
-      fCurrent := fItems(fIndex);
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
+    current := fItems(fIndex);
+    Inc(fIndex);
   end;
 end;
 

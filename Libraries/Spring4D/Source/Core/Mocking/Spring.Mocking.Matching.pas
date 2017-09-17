@@ -170,12 +170,12 @@ begin
   Result := v.AsVariant;
 end;
 
-procedure SetIndexFail(typeInfo: PTypeInfo; index: Integer; var Result);
+procedure SetIndexFail(typeInfo: PTypeInfo; index: Integer; var Result); //FI:O804
 begin
   raise ENotSupportedException.CreateResFmt(@STypeNotSupported, [typeInfo.TypeName]);
 end;
 
-procedure SetIndexOrdinal(typeInfo: PTypeInfo; index: Integer; var Result);
+procedure SetIndexOrdinal(typeInfo: PTypeInfo; index: Integer; var Result); //FI:O804
 begin
   PByte(@Result)^ := index;
 end;
@@ -218,12 +218,12 @@ begin
   end;
 end;
 
-procedure SetIndexObject(typeInfo: PTypeInfo; index: Integer; var Result);
+procedure SetIndexObject(typeInfo: PTypeInfo; index: Integer; var Result); //FI:O804
 begin
   TObject(PPointer(@Result)^) := TIndexWrapper.Create(index);
 end;
 
-procedure SetIndexInterface(typeInfo: PTypeInfo; index: Integer; var Result);
+procedure SetIndexInterface(typeInfo: PTypeInfo; index: Integer; var Result); //FI:O804
 begin
   IInterface(PPointer(@Result)^) := TIndexWrapper.Create(index);
 end;
@@ -246,7 +246,7 @@ begin
   TMatcherFactory.SetIndex(typeInfo.TypeData.DynArrElType^, index, PPointer(@Result)^^);
 end;
 
-procedure SetIndexVariant(typeInfo: PTypeInfo; index: Integer; var Result);
+procedure SetIndexVariant(typeInfo: PTypeInfo; index: Integer; var Result); //FI:O804
 begin
   PVariant(@Result)^ := index;
 end;

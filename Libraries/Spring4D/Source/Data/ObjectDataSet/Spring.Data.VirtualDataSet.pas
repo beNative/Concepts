@@ -282,7 +282,6 @@ uses
 resourcestring
   SUnsupportedFieldType = 'Unsupported field type (%s) in field %s';
   SPersistentFieldsRequired = 'Virtual dataset can only be used with persistent fields.';
-  SIndexOutOfRange = 'Index out of range';
 
 
 {$IF Defined(DELPHIXE3_UP) and not Defined(DELPHIXE8_UP)}
@@ -558,7 +557,8 @@ begin
   inherited DoOnNewRecord;
 end;
 
-procedure TCustomVirtualDataSet.DoPostRecord(Index: Integer; Append: Boolean);
+procedure TCustomVirtualDataSet.DoPostRecord(Index: Integer;
+  Append: Boolean); //FI:O804
 begin
   case State of
     dsEdit:

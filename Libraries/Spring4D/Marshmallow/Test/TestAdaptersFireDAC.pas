@@ -140,7 +140,7 @@ end;
 
 procedure TFireDACExceptionHandlerTest.TestGetAdapterException_EDatabaseError;
 var
-  exc, result: Managed<Exception>;
+  exc, result: Shared<Exception>;
 begin
   exc := EDatabaseError.Create('');
   result := SUT.GetAdapterException(exc, 'message');
@@ -151,7 +151,7 @@ end;
 
 procedure TFireDACExceptionHandlerTest.TestGetAdapterException_EFDDBEngineException_ekFKViolated_Returns_EORMConstraintException;
 var
-  exc, result: Managed<Exception>;
+  exc, result: Shared<Exception>;
 begin
   exc := CreateException(ekFKViolated);
   result := SUT.GetAdapterException(exc, 'message');
@@ -162,7 +162,7 @@ end;
 
 procedure TFireDACExceptionHandlerTest.TestGetAdapterException_EFDDBEngineException_ekUKViolated_Returns_EORMConstraintException;
 var
-  exc, result: Managed<Exception>;
+  exc, result: Shared<Exception>;
 begin
   exc := CreateException(ekUKViolated);
   result := SUT.GetAdapterException(exc, 'message');
@@ -173,7 +173,7 @@ end;
 
 procedure TFireDACExceptionHandlerTest.TestGetAdapterException_EFDDBEngineException_Others;
 var
-  exc, result: Managed<Exception>;
+  exc, result: Shared<Exception>;
 begin
   exc := CreateException(ekInvalidParams);
   result := SUT.GetAdapterException(exc, 'message');
@@ -184,7 +184,7 @@ end;
 
 procedure TFireDACExceptionHandlerTest.TestGetAdapterException_Others_Return_Nil;
 var
-  exc, result: Managed<Exception>;
+  exc, result: Shared<Exception>;
 begin
   exc := Exception.Create('');
   result := SUT.GetAdapterException(exc, '');

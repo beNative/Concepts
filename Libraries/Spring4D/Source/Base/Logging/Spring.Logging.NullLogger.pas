@@ -279,7 +279,7 @@ begin
   Result := False;
 end;
 
-function TNullLogger.IsEnabled(level: TLogLevel; eventTypes: TLogEventTypes): Boolean;
+function TNullLogger.IsEnabled(level: TLogLevel; eventTypes: TLogEventTypes): Boolean; //FI:O804
 begin
   Result := False;
 end;
@@ -377,20 +377,17 @@ procedure TNullLogger.Text(const fmt: string; const args: array of const;
 begin //FI:W519
 end;
 
-function TNullLogger.Track(const instance: TObject;
-  const methodName: string): IInterface;
+function TNullLogger.Track(const instance: TObject; const methodName: string): IInterface; //FI:O804
 begin
   Result := nil;
 end;
 
-function TNullLogger.Track(const classType: TClass;
-  const methodName: string): IInterface;
+function TNullLogger.Track(const classType: TClass; const methodName: string): IInterface; //FI:O804
 begin
   Result := nil;
 end;
 
-function TNullLogger.Track(level: TLogLevel; const classType: TClass;
-  const methodName: string): IInterface;
+function TNullLogger.Track(level: TLogLevel; const classType: TClass; const methodName: string): IInterface; //FI:O804
 begin
   Result := nil;
 end;

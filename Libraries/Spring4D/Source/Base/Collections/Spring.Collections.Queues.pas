@@ -55,7 +55,6 @@ type
         constructor Create(const queue: TQueue<T>);
         destructor Destroy; override;
         function MoveNext: Boolean; override;
-        procedure Reset; override;
       end;
       TArrayManager = TArrayManager<T>;
   private
@@ -66,7 +65,6 @@ type
     fVersion: Integer;
     fOnChanged: ICollectionChangedEvent<T>;
     procedure Grow;
-    procedure IncreaseVersion; inline;
   protected
   {$REGION 'Property Accessors'}
     function GetCapacity: Integer;
@@ -187,10 +185,11 @@ begin
   if fCount = 0 then
     raise EListError.CreateRes(@SUnbalancedOperation);
   Result := fItems[fTail];
+
+  IncUnchecked(fVersion);
   fItems[fTail] := Default(T);
   fTail := (fTail + 1) mod Length(fItems);
   Dec(fCount);
-  IncreaseVersion;
 
   Changed(Result, notification);
 end;
@@ -199,10 +198,11 @@ procedure TQueue<T>.Enqueue(const item: T);
 begin
   if fCount = Length(fItems) then
     Grow;
+
+  IncUnchecked(fVersion);
   fItems[fHead] := item;
   fHead := (fHead + 1) mod Length(fItems);
   Inc(fCount);
-  IncreaseVersion;
 
   Changed(item, caAdded);
 end;
@@ -243,13 +243,6 @@ begin
     OutOfMemoryError;
   SetCapacity(newCapacity);
 end;
-
-{$IFOPT Q+}{$DEFINE OVERFLOW_CHECKS_ON}{$Q-}{$ENDIF}
-procedure TQueue<T>.IncreaseVersion;
-begin
-  Inc(fVersion);
-end;
-{$IFDEF OVERFLOW_CHECKS_ON}{$Q+}{$ENDIF}
 
 function TQueue<T>.Peek: T;
 begin
@@ -383,15 +376,6 @@ begin
   end
   else
     fCurrent := Default(T);
-end;
-
-procedure TQueue<T>.TEnumerator.Reset;
-begin
-  if fVersion <> fQueue.fVersion then
-    raise EInvalidOperationException.CreateRes(@SEnumFailedVersion);
-
-  fIndex := 0;
-  fCurrent := Default(T);
 end;
 
 {$ENDREGION}

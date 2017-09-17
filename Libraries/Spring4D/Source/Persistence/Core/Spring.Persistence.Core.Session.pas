@@ -114,7 +114,7 @@ type
       const params: array of TValue; out value: T): Boolean;
 
     /// <summary>
-    ///   Retrieves first and only model from the sql statement.  Raises an <c>
+    ///   Retrieves first and only model from the sql statement. Raises an <c>
     ///   exception</c> if model does not exist.
     /// </summary>
     function First<T: class, constructor>(const sql: string;
@@ -217,7 +217,7 @@ type
 
     /// <summary>
     ///   Fetches data in pages. You do not need to write custom sql for this,
-    ///   just use ordinary sql. All the work will be done for you.  Pages are
+    ///   just use ordinary sql. All the work will be done for you. Pages are
     ///   1-indexed.
     /// </summary>
     function Page<T: class, constructor>(index, size: Integer;
@@ -225,7 +225,7 @@ type
 
     /// <summary>
     ///   Fetches data in pages. You do not need to write custom sql for this,
-    ///   just use ordinary sql. All the work will be done for you.  Pages are
+    ///   just use ordinary sql. All the work will be done for you. Pages are
     ///   1-indexed.
     /// </summary>
     function Page<T: class, constructor>(index, size: Integer;
@@ -361,7 +361,7 @@ var
   results: IDBResultSet;
 begin
   selecter := GetSelectCommandExecutor(T);
-  results := selecter.SelectAll(T);
+  results := selecter.SelectAll;
   Result := TCollections.CreateObjectList<T>(True);
   MapEntitiesFromResultSet(results, Result as IObjectList, T);
 end;

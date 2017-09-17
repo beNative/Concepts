@@ -238,6 +238,7 @@ begin
   begin
     statement := TADOQuery.Create(nil);
     statement.Connection := Connection;
+    statement.CommandTimeout := Connection.CommandTimeout;
 
     adapter := TADOStatementAdapter.Create(statement, ExceptionHandler);
     adapter.ExecutionListeners := ExecutionListeners;

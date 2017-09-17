@@ -125,18 +125,6 @@ type
     function MoveNext: Boolean;
 
     /// <summary>
-    ///   Sets the enumerator to its initial position, which is before the
-    ///   first element in the collection.
-    /// </summary>
-    /// <exception cref="Spring|EInvalidOperationException">
-    ///   The collection was modified after the enumerator was created.
-    /// </exception>
-    /// <exception cref="Spring|ENotSupportedException">
-    ///   The Reset method is not supported.
-    /// </exception>
-    procedure Reset;
-
-    /// <summary>
     ///   Gets the current element in the collection.
     /// </summary>
     /// <value>
@@ -692,10 +680,10 @@ type
 //    function Sum(const selector: TFunc<T, Int64>): Int64; overload;
 //    function Sum(const selector: TFunc<T, Double>): Double; overload;
 
-    ///	<summary>
-    ///	  Returns a specified number of contiguous elements from the start of a
-    ///	  sequence.
-    ///	</summary>
+    /// <summary>
+    ///   Returns a specified number of contiguous elements from the start of a
+    ///   sequence.
+    /// </summary>
     function Take(count: Integer): IEnumerable<T>;
 
     /// <summary>
@@ -886,7 +874,7 @@ type
     procedure RemoveRange(const collection: IEnumerable<T>); overload;
 
     function Extract(const item: T): T;
-    procedure ExtractAll(const predicate: TPredicate<T>);
+    function ExtractAll(const predicate: TPredicate<T>): IReadOnlyList<T>;
     procedure ExtractRange(const values: array of T); overload;
     procedure ExtractRange(const collection: IEnumerable<T>); overload;
 
@@ -1944,7 +1932,8 @@ type
 
     /// <summary>
     ///   Gets the key for a given value if a matching value exists in the
-    ///   dictionary; returns the given default value for <c>TKey</c> otherwise.
+    ///   dictionary; returns the given default value for <c>TKey</c>
+    ///   otherwise.
     /// </summary>
     function GetKeyOrDefault(const value: TValue; const defaultValue: TKey): TKey; overload;
 
@@ -2501,7 +2490,7 @@ type
   /// <summary>
   ///   Provides static methods to create an instance of various interfaced
   ///   generic collections such as <see cref="IList&lt;T&gt;" /> or <see cref="IDictionary&lt;TKey, TValue&gt;" />
-  ///   .
+  ///    .
   /// </summary>
   TCollections = class
   public
@@ -2582,6 +2571,21 @@ type
 
   TEnumerable = class
   public
+    class function CombinePredicates<T>(const predicate1, predicate2: TPredicate<T>): TPredicate<T>; static;
+
+    /// <summary>
+    ///   Returns the elements of the specified sequence or the type
+    ///   parameter's default value in a singleton collection if the sequence
+    ///   is empty.
+    /// </summary>
+    class function DefaultIfEmpty<T>(const source: IEnumerable<T>): IEnumerable<T>; overload; static;
+
+    /// <summary>
+    ///   Returns the elements of the specified sequence or the specified value
+    ///   in a singleton collection if the sequence is empty.
+    /// </summary>
+    class function DefaultIfEmpty<T>(const source: IEnumerable<T>; const defaultValue: T): IEnumerable<T>; overload; static;
+
     /// <summary>
     ///   Returns an empty <see cref="IEnumerable&lt;T&gt;" /> that has the
     ///   specified type argument.
@@ -2706,6 +2710,12 @@ type
       const index, count: Integer); static; inline;
   end;
 
+{$IFNDEF DELPHI2010}
+  AutoInitAttribute = class(ManagedAttribute)
+    constructor Create(ownsObjects: Boolean = True);
+  end;
+{$ENDIF}
+
 function GetInstanceComparer: Pointer;
 
 implementation
@@ -2715,6 +2725,8 @@ uses
 {$IFDEF DELPHIXE8_UP}
   System.Hash,
 {$ENDIF}
+  Rtti,
+  TypInfo,
   Spring.Collections.Dictionaries,
   Spring.Collections.Extensions,
   Spring.Collections.Lists,
@@ -2727,22 +2739,22 @@ uses
 
 
 {$REGION 'Instance comparer'}
-function NopAddref(inst: Pointer): Integer; stdcall;
+function NopAddref(inst: Pointer): Integer; stdcall; //FI:O804
 begin
   Result := -1;
 end;
 
-function NopRelease(inst: Pointer): Integer; stdcall;
+function NopRelease(inst: Pointer): Integer; stdcall; //FI:O804
 begin
   Result := -1;
 end;
 
-function NopQueryInterface(inst: Pointer; const IID: TGUID; out Obj): HResult; stdcall;
+function NopQueryInterface(inst: Pointer; const IID: TGUID; out Obj): HResult; stdcall; //FI:O804
 begin
   Result := E_NOINTERFACE;
 end;
 
-function Compare_Instance(Inst: Pointer; const Left, Right: TObject): Integer;
+function Compare_Instance(Inst: Pointer; const Left, Right: TObject): Integer; //FI:O804
 var
   comparable: IComparable;
 begin
@@ -2779,9 +2791,9 @@ end;
 class function TCollections.CreateList<T>: IList<T>;
 begin
 {$IFDEF DELPHIXE7_UP}
-  case TType.Kind<T> of
-    tkClass: IList<TObject>(Result) := TFoldedObjectList<T>.Create(False);
-    tkInterface: IList<IInterface>(Result) := TFoldedInterfaceList<T>.Create;
+  case GetTypeKind(T) of
+    tkClass: IList<TObject>(Result) := TFoldedObjectList.Create(TypeInfo(T), nil, False);
+    tkInterface: IList<IInterface>(Result) := TFoldedInterfaceList.Create(TypeInfo(T), nil);
   else
     Result := TList<T>.Create;
   end;
@@ -2793,11 +2805,11 @@ end;
 class function TCollections.CreateList<T>(const comparer: IComparer<T>): IList<T>;
 begin
 {$IFDEF DELPHIXE7_UP}
-  case TType.Kind<T> of
+  case GetTypeKind(T) of
     tkClass: IList<TObject>(Result) :=
-      TFoldedObjectList<T>.Create(IComparer<TObject>(comparer), False);
+      TFoldedObjectList.Create(TypeInfo(T), IComparer<TObject>(comparer), False);
     tkInterface: IList<IInterface>(Result) :=
-      TFoldedInterfaceList<T>.Create(IComparer<IInterface>(comparer));
+      TFoldedInterfaceList.Create(TypeInfo(T), IComparer<IInterface>(comparer));
   else
     Result := TList<T>.Create(comparer);
   end;
@@ -2810,11 +2822,11 @@ class function TCollections.CreateList<T>(
   const comparer: TComparison<T>): IList<T>;
 begin
 {$IFDEF DELPHIXE7_UP}
-  case TType.Kind<T> of
+  case GetTypeKind(T) of
     tkClass: IList<TObject>(Result) :=
-      TFoldedObjectList<T>.Create(IComparer<TObject>(PPointer(@comparer)^), False);
+      TFoldedObjectList.Create(TypeInfo(T), IComparer<TObject>(PPointer(@comparer)^), False);
     tkInterface: IList<IInterface>(Result) :=
-      TFoldedInterfaceList<T>.Create(IComparer<IInterface>(PPointer(@comparer)^));
+      TFoldedInterfaceList.Create(TypeInfo(T), IComparer<IInterface>(PPointer(@comparer)^));
   else
     Result := TList<T>.Create(IComparer<T>(PPointer(@comparer)^));
   end;
@@ -2838,7 +2850,7 @@ end;
 class function TCollections.CreateList<T>(ownsObjects: Boolean): IList<T>;
 begin
 {$IFNDEF DELPHI2010}
-  IList<TObject>(Result) := TFoldedObjectList<T>.Create(ownsObjects);
+  IList<TObject>(Result) := TFoldedObjectList.Create(TypeInfo(T), nil, ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(ownsObjects);
 {$ENDIF}
@@ -2848,7 +2860,7 @@ class function TCollections.CreateList<T>(const comparer: IComparer<T>;
   ownsObjects: Boolean): IList<T>;
 begin
 {$IFNDEF DELPHI2010}
-  IList<TObject>(Result) := TFoldedObjectList<T>.Create(
+  IList<TObject>(Result) := TFoldedObjectList.Create(TypeInfo(T),
     IComparer<TObject>(comparer), ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(comparer, ownsObjects);
@@ -2859,7 +2871,7 @@ class function TCollections.CreateList<T>(const comparer: TComparison<T>;
   ownsObjects: Boolean): IList<T>;
 begin
 {$IFNDEF DELPHI2010}
-  IList<TObject>(Result) := TFoldedObjectList<T>.Create(
+  IList<TObject>(Result) := TFoldedObjectList.Create(TypeInfo(T),
     IComparer<TObject>(PPointer(@comparer)^), ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(IComparer<T>(PPointer(@comparer)^), ownsObjects);
@@ -2869,7 +2881,7 @@ end;
 class function TCollections.CreateObjectList<T>(ownsObjects: Boolean): IList<T>;
 begin
 {$IFNDEF DELPHI2010}
-  IList<TObject>(Result) := TFoldedObjectList<T>.Create(ownsObjects);
+  IList<TObject>(Result) := TFoldedObjectList.Create(TypeInfo(T), nil, ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(ownsObjects);
 {$ENDIF}
@@ -2879,7 +2891,7 @@ class function TCollections.CreateObjectList<T>(const comparer: IComparer<T>;
   ownsObjects: Boolean): IList<T>;
 begin
 {$IFNDEF DELPHI2010}
-  IList<TObject>(Result) := TFoldedObjectList<T>.Create(
+  IList<TObject>(Result) := TFoldedObjectList.Create(TypeInfo(T),
     IComparer<TObject>(comparer), ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(comparer, ownsObjects);
@@ -2890,7 +2902,7 @@ class function TCollections.CreateObjectList<T>(const comparer: TComparison<T>;
   ownsObjects: Boolean): IList<T>;
 begin
 {$IFNDEF DELPHI2010}
-  IList<TObject>(Result) := TFoldedObjectList<T>.Create(
+  IList<TObject>(Result) := TFoldedObjectList.Create(TypeInfo(T),
     IComparer<TObject>(PPointer(@comparer)^), ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(IComparer<T>(PPointer(@comparer)^), ownsObjects);
@@ -2901,7 +2913,7 @@ class function TCollections.CreateObjectList<T>(const values: array of T;
   ownsObjects: Boolean): IList<T>;
 begin
 {$IFNDEF DELPHI2010}
-  IList<TObject>(Result) := TFoldedObjectList<T>.Create(ownsObjects);
+  IList<TObject>(Result) := TFoldedObjectList.Create(TypeInfo(T), nil, ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(ownsObjects);
 {$ENDIF}
@@ -2912,7 +2924,7 @@ class function TCollections.CreateObjectList<T>(const values: IEnumerable<T>;
   ownsObjects: Boolean): IList<T>;
 begin
 {$IFNDEF DELPHI2010}
-  IList<TObject>(Result) := TFoldedObjectList<T>.Create(ownsObjects);
+  IList<TObject>(Result) := TFoldedObjectList.Create(TypeInfo(T), nil, ownsObjects);
 {$ELSE}
   Result := TObjectList<T>.Create(ownsObjects);
 {$ENDIF}
@@ -2922,7 +2934,7 @@ end;
 class function TCollections.CreateInterfaceList<T>: IList<T>;
 begin
 {$IFNDEF DELPHI2010}
-  IList<IInterface>(Result) := TFoldedInterfaceList<T>.Create;
+  IList<IInterface>(Result) := TFoldedInterfaceList.Create(TypeInfo(T), nil);
 {$ELSE}
   Result := TList<T>.Create;
 {$ENDIF}
@@ -2933,7 +2945,7 @@ class function TCollections.CreateInterfaceList<T>(
 begin
 {$IFNDEF DELPHI2010}
   IList<IInterface>(Result) :=
-    TFoldedInterfaceList<T>.Create(IComparer<IInterface>(comparer));
+    TFoldedInterfaceList.Create(TypeInfo(T), IComparer<IInterface>(comparer));
 {$ELSE}
   Result := TList<T>.Create(comparer);
 {$ENDIF}
@@ -2943,7 +2955,7 @@ class function TCollections.CreateInterfaceList<T>(
   const comparer: TComparison<T>): IList<T>;
 begin
 {$IFNDEF DELPHI2010}
-  IList<IInterface>(Result) := TFoldedInterfaceList<T>.Create(
+  IList<IInterface>(Result) := TFoldedInterfaceList.Create(TypeInfo(T),
     IComparer<IInterface>(PPointer(@comparer)^));
 {$ELSE}
   Result := TList<T>.Create(IComparer<T>(PPointer(@comparer)^));
@@ -2954,7 +2966,7 @@ class function TCollections.CreateInterfaceList<T>(
   const values: array of T): IList<T>;
 begin
 {$IFNDEF DELPHI2010}
-  IList<IInterface>(Result) := TFoldedInterfaceList<T>.Create;
+  IList<IInterface>(Result) := TFoldedInterfaceList.Create(TypeInfo(T), nil);
 {$ELSE}
   Result := TList<T>.Create;
 {$ENDIF}
@@ -2965,7 +2977,7 @@ class function TCollections.CreateInterfaceList<T>(
   const values: IEnumerable<T>): IList<T>;
 begin
 {$IFNDEF DELPHI2010}
-  IList<IInterface>(Result) := TFoldedInterfaceList<T>.Create;
+  IList<IInterface>(Result) := TFoldedInterfaceList.Create(TypeInfo(T), nil);
 {$ELSE}
   Result := TList<T>.Create;
 {$ENDIF}
@@ -3353,6 +3365,28 @@ end;
 
 
 {$REGION 'TEnumerable'}
+
+class function TEnumerable.CombinePredicates<T>(const predicate1,
+  predicate2: TPredicate<T>): TPredicate<T>;
+begin
+  Result :=
+    function(const x: T): Boolean
+    begin
+      Result := predicate1(x) and predicate2(x);
+    end;
+end;
+
+class function TEnumerable.DefaultIfEmpty<T>(
+  const source: IEnumerable<T>): IEnumerable<T>;
+begin
+  Result := TDefaultIfEmptyIterator<T>.Create(source, Default(T));
+end;
+
+class function TEnumerable.DefaultIfEmpty<T>(const source: IEnumerable<T>;
+  const defaultValue: T): IEnumerable<T>;
+begin
+  Result := TDefaultIfEmptyIterator<T>.Create(source, defaultValue);
+end;
 
 class function TEnumerable.Distinct<T>(
   const source: IEnumerable<T>): IEnumerable<T>;
@@ -3749,6 +3783,42 @@ begin
 {$ENDIF}
     System.Move(fromItems[fromIndex], toItems[toIndex], count * SizeOf(T));
 end;
+
+{$ENDREGION}
+
+
+{$REGION 'AutoInitAttribute'}
+
+{$IFNDEF DELPHI2010}
+
+function InitElementType(fieldType: PTypeInfo): PTypeInfo;
+begin
+  Assert(fieldType.Kind = tkInterface);
+  Assert(fieldType.TypeData.GUID = IList<TObject>);
+  Result := TRttiDynamicArrayType(fieldType.RttiType.GetMethod('ToArray').ReturnType)
+    .ElementType.Handle;
+  Assert(Result.Kind in [tkClass, tkInterface]);
+end;
+
+constructor AutoInitAttribute.Create(ownsObjects: Boolean);
+var
+  elementType: PTypeInfo;
+begin
+  elementType := nil;
+  inherited Create(
+    function(fieldType: PTypeInfo): Pointer
+    begin
+      if elementType = nil then
+        elementType := InitElementType(fieldType);
+
+      Result := nil;
+      case elementType.Kind of
+        tkClass: IList<TObject>(Result) := TFoldedObjectList.Create(elementType, nil, ownsObjects);
+        tkInterface: IList<IInterface>(Result) := TFoldedInterfaceList.Create(elementType, nil);
+      end;
+    end);
+end;
+{$ENDIF}
 
 {$ENDREGION}
 

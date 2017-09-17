@@ -98,7 +98,6 @@ resourcestring
 
   {$REGION 'Spring.Collections'}
 
-  SCannotResetEnumerator = 'Cannot reset the enumerator.';
   SEnumNotStarted = 'Enum not started.';
   SEnumEnded = 'Enum ended.';
   SEnumEmpty = 'Invalid Operation. The enumeration is empty.';

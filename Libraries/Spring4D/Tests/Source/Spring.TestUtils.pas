@@ -97,7 +97,7 @@ begin
 end;
 {$ENDIF}
 
-procedure TAbstractTestHelper.CheckEqualsString(const expected, actual: string; msg: string);
+procedure TAbstractTestHelper.CheckEqualsString(const expected, actual: string; msg: string); //FI:O801
 
   procedure EqualsFail(index: Integer); overload;
   const

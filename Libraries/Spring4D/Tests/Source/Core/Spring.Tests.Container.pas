@@ -103,6 +103,8 @@ type
 
     procedure TestResolveComponentDoesNotFallbackToTObject;
     procedure TestResolveComponentDoesCallOverriddenConstructor;
+
+    procedure TestRecordConstructorNotConsidered;
   end;
 
   // Same Service, Different Implementations
@@ -742,6 +744,17 @@ begin
   CheckEquals(3, count);
   service3 := fContainer.Resolve<INameService>; // pool creates a new instance again
   CheckEquals(4, count);
+end;
+
+procedure TTestSimpleContainer.TestRecordConstructorNotConsidered;
+begin
+  fContainer.RegisterType<Lazy<INameService>>.DelegateTo(
+    function: Lazy<INameService>
+    begin
+    end);
+  // Lazy<T> has a constructor which the TConstructorInspector mistakenly inspected
+  fContainer.Build;
+  Pass;
 end;
 
 procedure TTestSimpleContainer.TestRecyclable;

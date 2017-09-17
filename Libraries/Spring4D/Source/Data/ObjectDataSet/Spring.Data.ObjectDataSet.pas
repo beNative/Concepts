@@ -200,6 +200,7 @@ type
     property BeforePost;
     property BeforeRefresh;
     property BeforeScroll;
+    property OnCalcFields;
     property OnDeleteError;
     property OnEditError;
     property OnFilterRecord;
@@ -530,6 +531,7 @@ procedure TObjectDataSet.InitRttiPropertiesFromItemType(AItemTypeInfo: PTypeInfo
 var
   itemType: TRttiType;
   prop: TRttiProperty;
+  field: TField;
 begin
   if AItemTypeInfo = nil then
     Exit;
@@ -542,10 +544,14 @@ begin
     if not (prop.Visibility in [mvPublic, mvPublished]) then
       Continue;
 
-    if (Fields.Count > 0) and Assigned(Fields.FindField(prop.Name)) then
+    if Fields.Count > 0 then
     begin
-      fProperties.Add(prop);
-      Continue;
+      field := Fields.FindField(prop.Name);
+      if Assigned(field) and (field.FieldKind = fkData) then
+      begin
+        fProperties.Add(prop);
+        Continue;
+      end;
     end;
 
     if Assigned(fColumnAttributeClass) then
@@ -606,6 +612,7 @@ end;
 
 procedure TObjectDataSet.InternalRefresh;
 begin
+  inherited InternalRefresh;
   if Sorted then
     InternalSetSort(Sort);
 end;

@@ -97,8 +97,8 @@ type
   end;
 
   /// <summary>
-  ///   <see cref="Spring.Persistence.Criteria.Interfaces|ICriteria&lt;T&gt;" /> is
-  ///   a simplified API for retrieving entities by composing <see cref="Spring.Persistence.Criteria.Interfaces|ICriterion" />
+  ///   <see cref="Spring.Persistence.Criteria.Interfaces|ICriteria&lt;T&gt;" />
+  ///    is a simplified API for retrieving entities by composing <see cref="Spring.Persistence.Criteria.Interfaces|ICriterion" />
   ///    objects. This is a very convenient approach for functionality like
   ///   "search" screens where there is a variable number of conditions to be
   ///   placed upon the result set. The <see cref="Spring.Persistence.Core.Session|TSession" />
@@ -168,7 +168,7 @@ type
   /// </summary>
   /// <remarks>
   ///   For detailed methods documentation look in <see cref="Spring.Persistence.Criteria.Restrictions|Restrictions" />
-  ///   .
+  ///    .
   /// </remarks>
   IProperty = interface(IInvokable)
     ['{2F58C81C-4817-43E7-BA3F-7570FE2A6823}']

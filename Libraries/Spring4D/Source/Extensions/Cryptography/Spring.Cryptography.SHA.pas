@@ -142,7 +142,7 @@ uses
   Spring.Cryptography.Utils;
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'TSHA1'}{$ENDIF}
+{$REGION 'TSHA1'}
 
 function TSHA1.GetHashSize: Integer;
 begin
@@ -164,10 +164,10 @@ begin
   Result := SHA256Final(fContext, 1);
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'TSHA256'}{$ENDIF}
+{$REGION 'TSHA256'}
 
 function TSHA256.GetHashSize: Integer;
 begin
@@ -189,10 +189,10 @@ begin
   Result := SHA256Final(fContext, 256);
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'TSHA384'}{$ENDIF}
+{$REGION 'TSHA384'}
 
 function TSHA384.GetHashSize: Integer;
 begin
@@ -214,10 +214,10 @@ begin
   Result := SHA512Final(fContext, 384);
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'TSHA512'}{$ENDIF}
+{$REGION 'TSHA512'}
 
 function TSHA512.GetHashSize: Integer;
 begin
@@ -239,10 +239,10 @@ begin
   Result := SHA512Final(fContext, 512);
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'Internal data and functions'}{$ENDIF}
+{$REGION 'Internal data and functions'}
 
 const
   cnstK256: array[0..63] of UInt32 =
@@ -501,10 +501,10 @@ begin
     Inc(md.state[i], S[i]);
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'SHA1'}{$ENDIF}
+{$REGION 'SHA1'}
 
 procedure SHA1Init(var md: TSHA256Ctx);
 begin
@@ -516,10 +516,10 @@ begin
   md.state[4] := $c3d2e1f0;
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'SHA256'}{$ENDIF}
+{$REGION 'SHA256'}
 
 function SHA256Final(var md: TSHA256Ctx; sz: Word): TBuffer;
 var
@@ -599,10 +599,10 @@ begin
   end;
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'SHA384'}{$ENDIF}
+{$REGION 'SHA384'}
 
 procedure SHA384Init(var md: TSHA512Ctx);
 begin
@@ -617,10 +617,10 @@ begin
   md.state[7] := $47b5481dbefa4fa4;
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'SHA512'}{$ENDIF}
+{$REGION 'SHA512'}
 
 function SHA512Final(var md: TSHA512Ctx; sz: Word): TBuffer;
 var
@@ -689,6 +689,7 @@ begin
   end;
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
+
 
 end.

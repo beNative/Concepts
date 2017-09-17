@@ -304,6 +304,7 @@ var
   i: Integer;
 begin
   if model.ConstructorInjections.Any then Exit;  // TEMP
+  if model.ComponentTypeInfo.Kind <> tkClass then Exit;
   predicate := TMethodFilters.IsConstructor
     and not TMethodFilters.HasParameterFlags([pfVar, pfArray, pfOut]);
   for method in model.ComponentType.Methods.Where(predicate) do
@@ -412,7 +413,10 @@ procedure TComponentActivatorInspector.DoProcessModel(
 begin
   if not Assigned(model.ComponentActivator) then
     if not Assigned(model.ActivatorDelegate) then
-      model.ComponentActivator := TReflectionComponentActivator.Create(kernel, model)
+      if model.ComponentType.TypeKind = tkClass then
+        model.ComponentActivator := TReflectionComponentActivator.Create(kernel, model)
+      else
+        raise EBuilderException.CreateResFmt(@SRegistrationIncomplete, [model.ComponentTypeName])
     else
       model.ComponentActivator := TDelegateComponentActivator.Create(kernel, model);
 end;

@@ -151,8 +151,8 @@ type
   TORMAdapterExceptionClass = class of EORMAdapterException;
 
   /// <summary>
-  ///   Used by adapaters to obtain concrete exception from driver
-  ///   (ADO, DBX, ...) specific information.
+  ///   Used by adapaters to obtain concrete exception from driver (ADO, DBX,
+  ///   ...) specific information.
   /// </summary>
   IORMExceptionHandler = interface
     ['{2ACF3197-867F-49FB-9E37-0A35742D66B0}']

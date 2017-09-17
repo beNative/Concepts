@@ -72,6 +72,7 @@ implementation
 const
   UNIT_ATTRIBUTES = 'Spring.Persistence.Mapping.Attributes';
   UNIT_GRAPHICS = 'Spring.Persistence.Core.Graphics';
+  UNIT_NULLABLES = 'Spring';
 
 
 {$REGION 'TDelphiUnitCodeGenerator'}
@@ -157,6 +158,8 @@ begin
 
   fIntfBuilder.Append('uses').AppendLine.Append(Indent).Append(UNIT_ATTRIBUTES);
   AddUnit(UNIT_GRAPHICS);
+  if fUseNullableTypes then
+    AddUnit(UNIT_NULLABLES);
   fIntfBuilder.Append(';');
 
   fIntfBuilder.AppendLine.AppendLine;

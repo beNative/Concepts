@@ -1037,7 +1037,7 @@ procedure TObjectDataSetTest.StreamRead;
 var
   actual, bytes: TBytes;
   field: TField;
-  stream: Managed<TBytesStream>;
+  stream: Shared<TBytesStream>;
 begin
   bytes := TBytes.Create(1, 2, 3);
   stream := TBytesStream.Create(bytes);

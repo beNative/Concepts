@@ -31,6 +31,7 @@ interface
 uses
   Classes,
   Generics.Collections,
+  Generics.Defaults,
   TestFramework,
   Spring.TestUtils,
   Spring,
@@ -122,8 +123,6 @@ type
     procedure TestExtractAll_MultipleItemsInList_RemoveSome;
 
     procedure TestEnumeratorMoveNext_VersionMismatch;
-    procedure TestEnumeratorReset;
-    procedure TestEnumeratorReset_VersionMismatch;
 
     procedure TestRemoveAll;
 
@@ -131,6 +130,15 @@ type
 
     procedure TestExtractAt;
     procedure TestExtractRange;
+  end;
+
+  TTestStringList = class(TTestCase)
+  private
+    SUT: IList<string>;
+  protected
+    procedure TearDown; override;
+  published
+    procedure TestCaseInsensitive;
   end;
 
   TTestSortedList = class(TTestCase)
@@ -374,6 +382,7 @@ type
     procedure TestSetOwnsObjects;
     procedure TestGetElementType;
     procedure TestExtractAt;
+    procedure TestGetRangeElementType;
   end;
 
   TTestInterfaceList = class(TTestCase)
@@ -410,8 +419,6 @@ type
     procedure TestMove;
 
     procedure TestEnumeratorMoveNext_VersionMismatch;
-    procedure TestEnumeratorReset;
-    procedure TestEnumeratorReset_VersionMismatch;
   end;
 
   TTestEnumerable = class(TTestCase)
@@ -530,11 +537,11 @@ type
 implementation
 
 uses
-  Generics.Defaults,
   Spring.Collections.Queues,
   Spring.Collections.Stacks,
   StrUtils,
-  SysUtils;
+  SysUtils,
+  TypInfo;
 
 const
   MaxItems = 1000;
@@ -786,43 +793,23 @@ begin
   ExpectedException := nil;
 end;
 
-procedure TTestIntegerList.TestEnumeratorReset;
-var
-  e: IEnumerator<Integer>;
-begin
-  SimpleFillList;
-  e := SUT.GetEnumerator;
-  while e.MoveNext do;
-  e.Reset;
-  CheckTrue(e.MoveNext);
-  CheckEquals(1, e.Current);
-end;
-
-procedure TTestIntegerList.TestEnumeratorReset_VersionMismatch;
-var
-  e: IEnumerator<Integer>;
-begin
-  SimpleFillList;
-  e := SUT.GetEnumerator;
-  while e.MoveNext do;
-  SUT.Add(4);
-  ExpectedException := EInvalidOperationException;
-  e.Reset;
-  ExpectedException := nil;
-end;
-
 procedure TTestIntegerList.TestExtractAll_MultipleItemsInList_RemoveSome;
 var
   callCount: Integer;
+  items: IReadOnlyList<Integer>;
 begin
   callCount := 0;
   SUT.AddRange([1, 2, 3, 4, 5]);
-  SUT.RemoveAll(
+  items := SUT.ExtractAll(
     function(const i: Integer): Boolean
     begin
       Result := Odd(i);
       Inc(callCount);
     end);
+  CheckEquals(3, items.Count);
+  CheckEquals(1, items[0]);
+  CheckEquals(3, items[1]);
+  CheckEquals(5, items[2]);
   CheckEquals(5, callCount);
   CheckEquals(2, SUT.Count);
   CheckEquals(2, SUT[0]);
@@ -832,15 +819,18 @@ end;
 procedure TTestIntegerList.TestExtractAll_OneItemInList;
 var
   callCount: Integer;
+  items: IReadOnlyList<Integer>;
 begin
   callCount := 0;
   SUT.Add(1);
-  SUT.RemoveAll(
+  items := SUT.ExtractAll(
     function(const i: Integer): Boolean
     begin
       Result := True;
       Inc(callCount);
     end);
+  CheckEquals(1, items.Count);
+  CheckEquals(1, items[0]);
   CheckEquals(1, callCount);
   CheckEquals(0, SUT.Count);
 end;
@@ -1200,6 +1190,23 @@ begin
   SUT.Add(1);
   SUT.Add(2);
   SUT.Add(3);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestStringList'}
+
+procedure TTestStringList.TearDown;
+begin
+  SUT := nil;
+end;
+
+procedure TTestStringList.TestCaseInsensitive;
+begin
+  SUT := TCollections.CreateList<string>(TStringComparer.OrdinalIgnoreCase());
+  SUT.AddRange(['AAA', 'BBB', 'CCC']);
+  CheckTrue(SUT.Contains('aaa'));
 end;
 
 {$ENDREGION}
@@ -2296,13 +2303,20 @@ end;
 
 procedure TTestObjectList.SetUp;
 begin
-  SUT := TObjectList<TPersistent>.Create as IList<TPersistent>;
+  SUT := TObjectList<TPersistent>.Create;
 end;
 
 procedure TTestObjectList.TearDown;
 begin
   inherited;
   SUT := nil;
+end;
+
+procedure TTestObjectList.TestGetRangeElementType;
+begin
+  SUT := TCollections.CreateObjectList<TPersistent>;
+  SUT.Add(TPersistent.Create);
+  CheckEquals(TPersistent, SUT.GetRange(0, 1).ElementType.TypeData.ClassType);
 end;
 
 procedure TTestObjectList.TestExtractAt;
@@ -2486,36 +2500,6 @@ begin
   e := SUT.GetEnumerator;
   while e.MoveNext do
     SUT.Add(TMyCollectionItem.Create(nil));
-  ExpectedException := nil;
-end;
-
-procedure TTestCollectionList.TestEnumeratorReset;
-var
-  item: TCollectionItem;
-  e: IEnumerator<TCollectionItem>;
-begin
-  item := TMyCollectionItem.Create(Coll);
-  TMyCollectionItem.Create(Coll);
-  TMyCollectionItem.Create(Coll);
-  e := SUT.GetEnumerator;
-  while e.MoveNext do;
-  e.Reset;
-  CheckTrue(e.MoveNext);
-  CheckSame(item, e.Current);
-end;
-
-procedure TTestCollectionList.TestEnumeratorReset_VersionMismatch;
-var
-  e: IEnumerator<TCollectionItem>;
-begin
-  TMyCollectionItem.Create(Coll);
-  TMyCollectionItem.Create(Coll);
-  TMyCollectionItem.Create(Coll);
-  e := SUT.GetEnumerator;
-  while e.MoveNext do;
-  SUT.Add(TMyCollectionItem.Create(nil));
-  ExpectedException := EInvalidOperationException;
-  e.Reset;
   ExpectedException := nil;
 end;
 

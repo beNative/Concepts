@@ -69,7 +69,7 @@ type
   private
     {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fConfiguration: TLoggingConfiguration;
-    procedure EnsureConfiguration; inline;
+    procedure EnsureConfiguration;
   public
     function CanResolve(const context: ICreationContext;
       const dependency: TDependencyModel;

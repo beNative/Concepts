@@ -137,9 +137,10 @@ type
     ): Boolean;
 
     procedure CreateCommandControls;
-    function MakeLogString(const AString: string): string;
 
   protected
+    function MakeLogString(const AString: string): string;
+
     procedure LoadSettings; virtual;
     procedure SaveSettings; virtual;
 

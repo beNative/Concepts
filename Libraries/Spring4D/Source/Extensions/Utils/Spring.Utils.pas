@@ -1307,6 +1307,11 @@ begin
   InternalCreate(4, major, minor, build, reversion);
 end;
 
+function TVersion.IsDefined(const component: Integer): Boolean;
+begin
+  Result := component <> fCUndefined;
+end;
+
 constructor TVersion.InternalCreate(defined, major, minor, build, reversion: Integer);
 begin
   Guard.CheckTrue(defined in [2, 3, 4], '"defined" should be in [2, 3, 4]');
@@ -1334,11 +1339,6 @@ begin
       fReversion := reversion;
     end;
   end;
-end;
-
-function TVersion.IsDefined(const component: Integer): Boolean;
-begin
-  Result := component <> fCUndefined;
 end;
 
 function TVersion.Equals(const version: TVersion): Boolean;
@@ -1797,7 +1797,9 @@ begin
     end;
   finally
     Windows.LocalFree(HLocal(pArgs));
-  end;
+  end
+  else
+    Result := nil;
 {$ELSE}
 begin
   count := ParamCount;
@@ -1877,7 +1879,9 @@ begin
     Result := buffer;
   finally
     CloseHandle(hToken);
-  end;
+  end
+  else
+    Result := '';
 end;
 {$ENDIF MSWINDOWS}
 

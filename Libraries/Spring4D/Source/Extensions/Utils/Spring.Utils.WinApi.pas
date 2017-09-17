@@ -81,7 +81,7 @@ const
   {$EXTERNALSYM VER_SUITE_COMPUTE_SERVER}
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'IP Types'}{$ENDIF}
+{$REGION 'IP Types'}
 
 const
   iphlpapilib = 'iphlpapi.dll';
@@ -163,10 +163,10 @@ type
 
 function GetAdaptersInfo(pAdapterInfo: PIP_ADAPTER_INFO; var pOutBufLen: ULONG): DWORD; stdcall;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'Service Control'}{$ENDIF}
+{$REGION 'Service Control'}
 
 const
 
@@ -332,7 +332,8 @@ function EnumServicesStatusEx(hSCManager: SC_HANDLE; InfoLevel: SC_ENUM_TYPE;
   pszGroupName: LPCTSTR): BOOL; stdcall;
 {$EXTERNALSYM EnumServicesStatusEx}
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
+
 
 function ConvertSidToStringSid(sid: PSID; var stringSid: LPWSTR): BOOL; stdcall;
 {$ENDIF}

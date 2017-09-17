@@ -75,12 +75,8 @@ uses
   {$IFDEF TESTINSIGHT}
   TestInsight.DUnit;
   {$ELSE}
-  {$IFNDEF FMX}
   Forms,
   GUITestRunner;
-  {$ELSE}
-  FMXTestRunner;
-  {$ENDIF}
   {$ENDIF}
 {$ENDIF CONSOLE_TESTRUNNER}
 

@@ -44,11 +44,12 @@ type
   private
     function GetCurrentNonGeneric: TValue; virtual; abstract;
     function IEnumerator.GetCurrent = GetCurrentNonGeneric;
+  {$IFDEF CPUX86}
+    function MoveNextInternal: Boolean;
+    function IEnumerator.MoveNext = MoveNextInternal;
+  {$ENDIF}
   public
     function MoveNext: Boolean; virtual;
-    procedure Reset; virtual;
-
-    property Current: TValue read GetCurrentNonGeneric;
   end;
 
   /// <summary>
@@ -58,10 +59,13 @@ type
   TEnumeratorBase<T> = class abstract(TEnumeratorBase, IEnumerator<T>)
   private
     function GetCurrentNonGeneric: TValue; override; final;
+  {$IFDEF DELPHIXE3_UP}{$IFDEF CPUX86}
+    function GetCurrentInternal: T;
+    function IEnumerator<T>.GetCurrent = GetCurrentInternal;
+    function IEnumerator<T>.MoveNext = MoveNextInternal;
+  {$ENDIF}{$ENDIF}
   protected
     function GetCurrent: T; virtual;
-  public
-    property Current: T read GetCurrent;
   end;
 
   /// <summary>
@@ -100,16 +104,24 @@ type
   ///   Provides a default implementation for the <see cref="Spring.Collections|IEnumerable&lt;T&gt;" />
   ///    interface.
   /// </summary>
-  TEnumerableBase<T> = class abstract(TEnumerableBase, IEnumerable<T>)
+  TEnumerableBase<T> = class abstract(TEnumerableBase, IEnumerable<T>,
+    IEqualityComparer<T>)
   private
-    class var fEqualityComparer: IEqualityComparer<T>;
     function GetEnumeratorNonGeneric: IEnumerator; override; final;
+  {$IFDEF DELPHIXE3_UP}{$IFDEF CPUX86}
+    function GetEnumeratorInternal: IEnumerator<T>;
+    function IEnumerable<T>.GetEnumerator = GetEnumeratorInternal;
+  {$ENDIF}{$ENDIF}
+  {$REGION 'IEqualityComparer<T>'}
+    function GetHashCode(const value: T): Integer; reintroduce;
+  protected
+    function Equals(const left, right: T): Boolean; reintroduce;
+  {$ENDREGION}
   protected
     fComparer: IComparer<T>;
   {$REGION 'Property Accessors'}
     function GetComparer: IComparer<T>;
     function GetElementType: PTypeInfo; override;
-    class function GetEqualityComparer: IEqualityComparer<T>; static;
   {$ENDREGION}
     function TryGetElementAt(out value: T; index: Integer): Boolean; virtual;
     function TryGetFirst(out value: T): Boolean; overload; virtual;
@@ -120,13 +132,10 @@ type
     function TryGetSingle(out value: T; const predicate: TPredicate<T>): Boolean; overload;
 
     property Comparer: IComparer<T> read GetComparer;
-    class property EqualityComparer: IEqualityComparer<T> read GetEqualityComparer;
   public
     constructor Create; overload; virtual;
     constructor Create(const comparer: IComparer<T>); overload;
     constructor Create(const comparer: TComparison<T>); overload;
-
-    class destructor Destroy;
 
     function GetEnumerator: IEnumerator<T>; virtual;
 
@@ -210,30 +219,32 @@ type
     function ToArray: TArray<T>; virtual;
   end;
 
-  TIteratorBase<T> = class(TEnumerableBase<T>, IEnumerator)
-  protected
-    function GetCurrentNonGeneric: TValue; virtual; abstract;
-    function IEnumerator.GetCurrent = GetCurrentNonGeneric;
-  public
-    function MoveNext: Boolean; virtual;
-    procedure Reset; virtual;
-  end;
-
-  TIterator<T> = class(TIteratorBase<T>, IEnumerator<T>)
+  TIteratorBase<T> = class abstract(TEnumerableBase<T>, IEnumerator)
   private
-    fInitialThreadId: TThreadID;
-  protected
-    fState: Integer;
     fCurrent: T;
+    fState: Integer;
     const
       STATE_INITIAL    = -2; // initial state, before GetEnumerator
       STATE_FINISHED   = -1; // end of enumerator
       STATE_ENUMERATOR = 0;  // before calling MoveNext
       STATE_RUNNING    = 1;  // enumeration is running
+    function GetCurrentNonGeneric: TValue; virtual; abstract;
+    function IEnumerator.GetCurrent = GetCurrentNonGeneric;
+  protected
+    procedure Dispose; virtual;
+    procedure Start; virtual;
+    function TryMoveNext(var current: T): Boolean; virtual; abstract;
+  public
+    function MoveNext: Boolean;
+  end;
+
+  TIterator<T> = class abstract(TIteratorBase<T>, IEnumerator<T>)
+  private
+    fInitialThreadId: TThreadID;
+    function GetCurrentNonGeneric: TValue; override; final;
+    function GetCurrent: T;
   protected
     function Clone: TIterator<T>; virtual; abstract;
-    function GetCurrent: T;
-    function GetCurrentNonGeneric: TValue; override; final;
   public
     constructor Create; override;
     function GetEnumerator: IEnumerator<T>; override; final;
@@ -246,11 +257,11 @@ type
     fCount: Integer;
     fIndex: Integer;
   protected
+    function Clone: TIterator<Integer>; override;
     function GetCount: Integer; override;
+    function TryMoveNext(var current: Integer): Boolean; override;
   public
     constructor Create(start, count: Integer);
-    function Clone: TIterator<Integer>; override;
-    function MoveNext: Boolean; override;
 
     function ToArray: TArray<Integer>; override;
   end;
@@ -297,7 +308,7 @@ type
     procedure RemoveRange(const collection: IEnumerable<T>); overload; virtual;
 
     function Extract(const item: T): T; virtual; abstract;
-    procedure ExtractAll(const predicate: TPredicate<T>); virtual;
+    function ExtractAll(const predicate: TPredicate<T>): IReadOnlyList<T>; virtual;
     procedure ExtractRange(const values: array of T); overload; virtual;
     procedure ExtractRange(const collection: IEnumerable<T>); overload; virtual;
 
@@ -420,7 +431,8 @@ type
   {$REGION 'Implements IInterface'}
     function QueryInterface(const IID: TGUID; out Obj): HResult; override; stdcall;
   {$ENDREGION}
-    procedure AddInternal(const item: T); override;
+    procedure AddInternal(const item: T); override; final;
+    function CreateList: TListBase<T>; virtual;
     function TryGetElementAt(out value: T; index: Integer): Boolean; override;
     function TryGetFirst(out value: T): Boolean; override;
     function TryGetLast(out value: T): Boolean; override;
@@ -428,7 +440,7 @@ type
   public
     destructor Destroy; override;
 
-    function Add(const item: T): Integer; reintroduce; virtual;
+    function Add(const item: T): Integer; virtual;
     procedure AddRange(const values: array of T); override;
     procedure AddRange(const collection: IEnumerable<T>); override;
 
@@ -505,10 +517,12 @@ begin
   Result := False;
 end;
 
-procedure TEnumeratorBase.Reset;
+{$IFDEF CPUX86}
+function TEnumeratorBase.MoveNextInternal: Boolean;
 begin
-  raise ENotSupportedException.CreateRes(@SCannotResetEnumerator);
+  Result := MoveNext;
 end;
+{$ENDIF}
 
 {$ENDREGION}
 
@@ -519,6 +533,13 @@ function TEnumeratorBase<T>.GetCurrent: T;
 begin
   raise EInvalidOperationException.CreateRes(@SEnumEmpty);
 end;
+
+{$IFDEF DELPHIXE3_UP}{$IFDEF CPUX86}
+function TEnumeratorBase<T>.GetCurrentInternal: T;
+begin
+  Result := GetCurrent;
+end;
+{$ENDIF}{$ENDIF}
 
 function TEnumeratorBase<T>.GetCurrentNonGeneric: TValue;
 begin
@@ -604,11 +625,6 @@ begin
   Create(IComparer<T>(PPointer(@comparer)^));
 end;
 
-class destructor TEnumerableBase<T>.Destroy;
-begin
-  fEqualityComparer := nil;
-end;
-
 function TEnumerableBase<T>.Aggregate(const func: TFunc<T, T, T>): T;
 var
   enumerator: IEnumerator<T>;
@@ -666,7 +682,7 @@ end;
 
 function TEnumerableBase<T>.Contains(const value: T): Boolean;
 begin
-  Result := Contains(value, EqualityComparer);
+  Result := Contains(value, Self);
 end;
 
 function TEnumerableBase<T>.Contains(const value: T;
@@ -712,17 +728,15 @@ end;
 
 function TEnumerableBase<T>.EqualsTo(const values: array of T): Boolean;
 var
-  comparer: IEqualityComparer<T>;
   e: IEnumerator<T>;
   i: Integer;
 begin
-  comparer := EqualityComparer;
   e := GetEnumerator;
   i := 0;
 
   while e.MoveNext do
   begin
-    if not ((i < Length(values)) and comparer.Equals(e.Current, values[i])) then
+    if not ((i < Length(values)) and Equals(e.Current, values[i])) then
       Exit(False);
     Inc(i);
   end;
@@ -731,7 +745,18 @@ end;
 
 function TEnumerableBase<T>.EqualsTo(const collection: IEnumerable<T>): Boolean;
 begin
-  Result := EqualsTo(collection, EqualityComparer);
+  Result := EqualsTo(collection, Self);
+end;
+
+function TEnumerableBase<T>.Equals(const left, right: T): Boolean;
+begin
+  if TType.Kind<T> = tkClass then
+    if PObject(@left)^ = nil then
+      Result := PObject(@right)^ = nil
+    else
+      Result := PObject(@left).Equals(PObject(@right)^)
+  else
+    Result := fComparer.Compare(left, right) = 0;
 end;
 
 function TEnumerableBase<T>.EqualsTo(const collection: IEnumerable<T>;
@@ -841,19 +866,21 @@ begin
   Result := TEnumeratorBase<T>.Create;
 end;
 
+{$IFDEF DELPHIXE3_UP}{$IFDEF CPUX86}
+function TEnumerableBase<T>.GetEnumeratorInternal: IEnumerator<T>;
+begin
+  Result := GetEnumerator;
+end;
+{$ENDIF}{$ENDIF}
+
 function TEnumerableBase<T>.GetEnumeratorNonGeneric: IEnumerator;
 begin
   Result := GetEnumerator;
 end;
 
-class function TEnumerableBase<T>.GetEqualityComparer: IEqualityComparer<T>;
+function TEnumerableBase<T>.GetHashCode(const value: T): Integer;
 begin
-  if not Assigned(fEqualityComparer) then
-    if TType.Kind<T> = tkClass then
-      IEqualityComparer<TObject>(fEqualityComparer) := TEqualityComparer<TObject>.Default
-    else
-      fEqualityComparer := TEqualityComparer<T>.Default;
-  Result := fEqualityComparer;
+  raise ENotSupportedException.Create('GetHashCode');
 end;
 
 function TEnumerableBase<T>.Last: T;
@@ -1363,14 +1390,33 @@ end;
 
 {$REGION 'TIteratorBase<T>' }
 
+procedure TIteratorBase<T>.Dispose;
+begin
+  fCurrent := Default(T);
+  fState := STATE_FINISHED;
+end;
+
 function TIteratorBase<T>.MoveNext: Boolean;
 begin
+  case fState of
+    STATE_ENUMERATOR,
+    STATE_RUNNING:
+    begin
+      if fState = STATE_ENUMERATOR then
+        Start;
+
+      if TryMoveNext(fCurrent) then
+        Exit(True);
+
+      Dispose;
+    end;
+  end;
   Result := False;
 end;
 
-procedure TIteratorBase<T>.Reset;
+procedure TIteratorBase<T>.Start;
 begin
-  raise ENotSupportedException.CreateRes(@SCannotResetEnumerator);
+  fState := STATE_RUNNING;
 end;
 
 {$ENDREGION}
@@ -1440,25 +1486,13 @@ begin
   Result := fCount;
 end;
 
-function TRangeIterator.MoveNext: Boolean;
+function TRangeIterator.TryMoveNext(var current: Integer): Boolean;
 begin
-  Result := False;
-
-  if fState = STATE_ENUMERATOR then
+  Result := fIndex < fCount;
+  if Result then
   begin
-    fIndex := 0;
-    fState := STATE_RUNNING;
-  end;
-
-  if fState = STATE_RUNNING then
-  begin
-    if fIndex < fCount then
-    begin
-      fCurrent := fStart + fIndex;
-      Inc(fIndex);
-      Exit(True);
-    end;
-    fState := STATE_FINISHED;
+    current := fStart + fIndex;
+    Inc(fIndex);
   end;
 end;
 
@@ -1515,7 +1549,7 @@ var
   i: Integer;
 begin
   for i := Low(values) to High(values) do
-    Add(values[i]);
+    AddInternal(values[i]);
 end;
 
 procedure TCollectionBase<T>.AddRange(const collection: IEnumerable<T>);
@@ -1527,7 +1561,7 @@ begin
 {$ENDIF}
 
   for item in collection do
-    Add(item);
+    AddInternal(item);
 end;
 
 procedure TCollectionBase<T>.Changed(const item: T; action: TCollectionChangedAction);
@@ -1551,9 +1585,13 @@ begin
   end;
 end;
 
-procedure TCollectionBase<T>.ExtractAll(const predicate: TPredicate<T>);
+function TCollectionBase<T>.ExtractAll(const predicate: TPredicate<T>): IReadOnlyList<T>;
+var
+  items: TArray<T>;
 begin
-  ExtractRange(Where(predicate).ToArray);
+  items := Where(predicate).ToArray;
+  ExtractRange(items);
+  Result := TArrayIterator<T>.Create(items);
 end;
 
 procedure TCollectionBase<T>.ExtractRange(const values: array of T);
@@ -1829,6 +1867,11 @@ begin
     DeleteRange(0, Count);
 end;
 
+function TListBase<T>.CreateList: TListBase<T>;
+begin
+  Result := TList<T>.Create;
+end;
+
 procedure TListBase<T>.DeleteRange(index, count: Integer);
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
@@ -1893,11 +1936,7 @@ begin
   Guard.CheckRange((count >= 0) and (count <= Self.Count - index), 'count');
 {$ENDIF}
 
-{$IFNDEF DELPHI2010}
-  Result := TCollections.CreateList<T>;
-{$ELSE}
-  Result := TList<T>.Create;
-{$ENDIF}
+  Result := CreateList;
   Result.Count := count;
   for i := 0 to count - 1 do
   begin
@@ -1918,7 +1957,6 @@ end;
 
 function TListBase<T>.IndexOf(const item: T; index, count: Integer): Integer;
 var
-  comparer: IEqualityComparer<T>;
   i: Integer;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
@@ -1926,9 +1964,8 @@ begin
   Guard.CheckRange((count >= 0) and (count <= Self.Count - index), 'count');
 {$ENDIF}
 
-  comparer := EqualityComparer;
   for i := index to index + count - 1 do
-    if comparer.Equals(Items[i], item) then
+    if Equals(Items[i], item) then
       Exit(i);
   Result := -1;
 end;
@@ -2019,7 +2056,6 @@ end;
 function TListBase<T>.LastIndexOf(const item: T; index,
   count: Integer): Integer;
 var
-  comparer: IEqualityComparer<T>;
   i: Integer;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
@@ -2027,9 +2063,8 @@ begin
   Guard.CheckRange((count >= 0) and (count <= index + 1), 'count');
 {$ENDIF}
 
-  comparer := EqualityComparer;
   for i := index downto index - count + 1 do
-    if comparer.Equals(Items[i], item) then
+    if Equals(Items[i], item) then
       Exit(i);
   Result := -1;
 end;

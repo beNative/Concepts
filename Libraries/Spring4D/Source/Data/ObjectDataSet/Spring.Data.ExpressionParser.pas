@@ -915,12 +915,11 @@ end;
 
 function TNodeUnary.Eval: Variant;
 begin
-  case FOperator.Chr of
-    '-': Result := -FRightNode.Eval;
-    '!': Result := not FRightNode.Eval;
-  else
-    Result := FRightNode.Eval;
-  end;
+  Result := FRightNode.Eval;
+  if FOperator.Chr = '-' then
+    Result := -Result;
+  if FOperator.Chr = '!' then
+    Result := not Result;
 end;
 
 { TNodeCValue }

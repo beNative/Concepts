@@ -474,8 +474,8 @@ begin
   dependencyModel := TDependencyModel.Create(targetType, dependency.Target);
   if Kernel.Registry.HasService(targetType.Handle) then
   begin
-  componentModel := Kernel.Registry.FindOne(targetType.Handle, argument);
-  hasEntered := context.EnterResolution(componentModel, Result);
+    componentModel := Kernel.Registry.FindOne(targetType.Handle, argument);
+    hasEntered := context.EnterResolution(componentModel, Result);
   end
   else
   begin

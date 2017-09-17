@@ -88,7 +88,7 @@ uses
 
 const
   //This polynomial ( 0xEDB88320L) DOES generate the same CRC values as ZMODEM and PKZIP
-  crc32_table_b: array[0..255] of UInt32 =
+  crc32_table_b: array[0..255] of UInt32 = //FI:O803
   (
     $00000000, $77073096, $EE0E612C, $990951BA, $076DC419,
     $706AF48F, $E963A535, $9E6495A3, $0EDB8832, $79DCB8A4,
@@ -146,7 +146,8 @@ const
 
 
   //This polynomial ($04c11db7) is used at: AUTODIN II, Ethernet, & FDDI
-  crc32_table: array[0..255] of UInt32 = (
+  crc32_table: array[0..255] of UInt32 = //FI:O803
+  (
     $00000000, $04c11db7, $09823b6e, $0d4326d9,
     $130476dc, $17c56b6b, $1a864db2, $1e475005,
     $2608edb8, $22c9f00f, $2f8ad6d6, $2b4bcb61,
@@ -375,7 +376,7 @@ var
   i: Integer;
 begin
   p := buffer;
-  for i := 1 to len do
+  for i := 1 to len do //FI:W528
   begin
     crc := Hi(crc) xor Crc16_Table[p^ xor Lo(crc)];
     Inc(p);
@@ -388,7 +389,7 @@ begin
 end;
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'TCRC16'}{$ENDIF}
+{$REGION 'TCRC16'}
 
 function TCRC16.GetCrcValue: UInt16;
 begin
@@ -415,10 +416,10 @@ begin
   Result := CRC16Final(fCRCValue);
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'TCRC32'}{$ENDIF}
+{$REGION 'TCRC32'}
 
 function TCRC32.GetCrcValue: UInt32;
 begin
@@ -445,6 +446,7 @@ begin
   Result := CRC32Final(fCRCValue);
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
+
 
 end.

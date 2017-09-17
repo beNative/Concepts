@@ -85,7 +85,7 @@ var
   );
 
 
-{$IFDEF SUPPORTS_REGION}{$REGION 'TMD5'}{$ENDIF}
+{$REGION 'TMD5'}
 
 function TMD5.GetHashSize: Integer;
 begin
@@ -114,7 +114,8 @@ begin
   MD5Init(fContext);
 end;
 
-{$IFDEF SUPPORTS_REGION}{$ENDREGION}{$ENDIF}
+{$ENDREGION}
+
 
 procedure CopyMemory(Destination: Pointer; Source: Pointer; Length: UInt32);
 begin
@@ -242,7 +243,7 @@ var
 begin
   S := Source;
   T := Target;
-  for I := 1 to Count div 4 do
+  for I := 1 to Count div 4 do //FI:W528
   begin
     T^ := S^;
     inc(S);
@@ -265,7 +266,7 @@ var
 begin
   S := Source;
   T := Target;
-  for I := 1 to Count do
+  for I := 1 to Count do //FI:W528
   begin
     T^ := S^ and $ff;
     inc(T);
@@ -427,4 +428,3 @@ begin
 end;
 
 end.
-
