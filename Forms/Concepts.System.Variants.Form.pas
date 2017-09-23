@@ -30,6 +30,7 @@ uses
 
 type
   TfrmVariants = class(TForm)
+    {$REGION 'designer controls'}
     aclMain                    : TActionList;
     actAssignEmptyParam        : TAction;
     actAssignNull              : TAction;
@@ -41,6 +42,7 @@ type
     btnShowAsString            : TButton;
     btnUnassigned              : TButton;
     chkNullStrictConvert       : TCheckBox;
+    {$ENDREGION}
 
     procedure actToggleNullStrictConvertExecute(Sender: TObject);
     procedure actAssignUnassignedExecute(Sender: TObject);

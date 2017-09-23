@@ -29,6 +29,7 @@ uses
 
 type
   TfrmLockPaint = class(TForm)
+    {$REGION 'designer controls'}
     btnLockPaint          : TButton;
     btnUnlockPaint        : TButton;
     btnLockWindowUpdate   : TButton;
@@ -39,6 +40,7 @@ type
     actLockWindowUpdate   : TAction;
     actUnlockWindowUpdate : TAction;
     actDraw               : TAction;
+    {$ENDREGION}
 
     procedure actLockPaintExecute(Sender: TObject);
     procedure actUnlockPaintExecute(Sender: TObject);

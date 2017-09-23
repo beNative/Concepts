@@ -22,8 +22,6 @@ object frmFMXContainer: TfrmFMXContainer
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 25
-    ExplicitHeight = 358
   end
   object pnlHeader: TPanel
     Left = 0

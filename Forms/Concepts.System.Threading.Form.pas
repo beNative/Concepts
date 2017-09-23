@@ -36,21 +36,23 @@ uses
 
 type
   TfrmThreading = class(TForm)
-    aclMain              : TActionList;
-    actCancelTask        : TAction;
-    actExecuteParallel   : TAction;
-    actExecuteSequential : TAction;
-    actStartTask         : TAction;
-    btnExecute           : TButton;
-    btnExecuteSequential : TButton;
-    btnStartTask         : TButton;
-    edtIterations        : TLabeledEdit;
-    edtStrides           : TLabeledEdit;
-    imlMain              : TImageList;
-    pnlLog               : TPanel;
-    btnCancelTask        : TButton;
-    actTestIterationsAndStrides: TAction;
-    btnTestIterationsAndStrides: TButton;
+    {$REGION 'designer controls'} 
+    aclMain                     : TActionList;
+    actCancelTask               : TAction;
+    actExecuteParallel          : TAction;
+    actExecuteSequential        : TAction;
+    actStartTask                : TAction;
+    actTestIterationsAndStrides : TAction;
+    btnCancelTask               : TButton;
+    btnExecute                  : TButton;
+    btnExecuteSequential        : TButton;
+    btnStartTask                : TButton;
+    btnTestIterationsAndStrides : TButton;
+    edtIterations               : TLabeledEdit;
+    edtStrides                  : TLabeledEdit;
+    imlMain                     : TImageList;
+    pnlLog                      : TPanel;
+    {$ENDREGION}
 
     procedure actExecuteParallelExecute(Sender: TObject);
     procedure actExecuteSequentialExecute(Sender: TObject);
@@ -202,7 +204,6 @@ begin
     end
   );
 end;
-
 {$ENDREGION}
 
 {$REGION 'protected methods'}

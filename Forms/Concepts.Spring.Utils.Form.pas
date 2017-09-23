@@ -32,6 +32,7 @@ uses
 
 type
   TfrmSpringUtils = class(TForm)
+    {$REGION 'designer controls'}
     aclMain                    : TActionList;
     actApplicationVersion      : TAction;
     actApplicationVersionInfo  : TAction;
@@ -49,6 +50,7 @@ type
     btnOperatingSystem         : TButton;
     mmoMain                    : TMemo;
     pnlTop                     : TGridPanel;
+    {$ENDREGION}
 
     procedure actOperatingSystemExecute(Sender: TObject);
     procedure actApplicationVersionInfoExecute(Sender: TObject);

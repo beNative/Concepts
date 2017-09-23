@@ -46,8 +46,7 @@ implementation
 
 {$R *.dfm}
 
-{ TfrmVirtualMethodInterceptor }
-
+{$REGION 'construction and destruction'}
 procedure TfrmVirtualMethodInterceptor.AfterConstruction;
 begin
   inherited AfterConstruction;
@@ -61,7 +60,9 @@ begin
   inherited BeforeDestruction;
 //  ShowMessage(FButton.Caption);
 end;
+{$ENDREGION}
 
+{$REGION 'event handlers'}
 procedure TfrmVirtualMethodInterceptor.btn1Click(Sender: TObject);
 begin
   FreeAndNil(FPanel);
@@ -74,5 +75,6 @@ procedure TfrmVirtualMethodInterceptor.FormClose(Sender: TObject;
 begin
   Action := caFree;
 end;
+{$ENDREGION}
 
 end.

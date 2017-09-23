@@ -38,6 +38,7 @@ uses
 
 type
   TfrmzObjectInspector = class(TForm)
+    {$REGION 'designer controls'}
     bgMain          : TButtonGroup;
     btnButton       : TButton;
     cbxControls     : TComboBox;
@@ -55,6 +56,7 @@ type
     aclMain         : TActionList;
     actTest1        : TAction;
     actTest2        : TAction;
+    {$ENDREGION}
 
     procedure cbxControlsChange(Sender: TObject);
 

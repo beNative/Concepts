@@ -57,11 +57,13 @@ type
   end;
 
   TfrmClassProxy = class(TForm)
+    {$REGION 'designer controls'}
     aclMain                      : TActionList;
     btnAddFormProxy              : TButton;
     btnReleaseFormProxy          : TButton;
     actCallClassProxyMethods     : TAction;
     actCallInterfaceProxyMethods : TAction;
+    {$ENDREGION}
 
     procedure actCallClassProxyMethodsExecute(Sender: TObject);
     procedure actCallInterfaceProxyMethodsExecute(Sender: TObject);

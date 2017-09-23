@@ -384,7 +384,6 @@ begin
  Logger.Send('ClientStatus', AStatusText);
 end;
 
-
 procedure TfrmIndyTCP.InspectorModified(Sender: TObject);
 begin
   Modified;

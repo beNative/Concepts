@@ -32,6 +32,7 @@ uses
 
 type
   TFireMonkeyForm = class(TForm)
+    {$REGION 'designer controls'}
     chkExample  : TCheckBox;
     cmbExample  : TComboBox;
     grpExample  : TGroupBox;
@@ -47,6 +48,7 @@ type
     trbExample  : TTrackBar;
     edtExample  : TEdit;
     btnExample  : TButton;
+    {$ENDREGION}
   end;
 
 implementation

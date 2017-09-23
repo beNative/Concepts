@@ -36,6 +36,7 @@ uses
 
 type
   TfrmBindings = class(TForm)
+    {$REGION 'designer controls'}
     aclMain          : TActionList;
     actValidate      : TAction;
     btnValidate      : TButton;
@@ -49,6 +50,7 @@ type
     lblDoubleNumber  : TLabel;
     lblProp          : TLabel;
     sbrMain          : TStatusBar;
+    {$ENDREGION}
 
     procedure actValidateExecute(Sender: TObject);
 

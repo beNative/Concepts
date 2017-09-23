@@ -42,6 +42,7 @@ uses
 
 type
   TfrmTreeViewPresenterTree = class(TForm)
+    {$REGION 'designer controls'}
     pnlTop               : TPanel;
     pnlBottom            : TPanel;
     pnlLeft              : TPanel;
@@ -57,6 +58,7 @@ type
     btnExecute           : TButton;
     mmoDetails           : TMemo;
     pnlType              : TPanel;
+    {$ENDREGION}
 
     procedure actExecuteExecute(Sender: TObject);
 

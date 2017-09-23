@@ -30,8 +30,10 @@ uses
 
 type
   TfrmFMXContainer = class(TForm)
+    {$REGION 'designer controls'}
     pnlFMXContainer : TPanel;
     pnlHeader       : TPanel;
+    {$ENDREGION}
 
   private
     FFMXContainer: TFireMonkeyContainer;

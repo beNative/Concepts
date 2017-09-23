@@ -28,6 +28,7 @@ uses
 
 type
   TfrmStringList = class(TForm)
+    {$REGION 'designer controls'}
     aclMain             : TActionList;
     actClear            : TAction;
     actLoadFromFile     : TAction;
@@ -51,6 +52,7 @@ type
     pnlGrid             : TGridPanel;
     pnlNameValues       : TPanel;
     pnlText             : TPanel;
+    {$ENDREGION}
 
     procedure actClearExecute(Sender: TObject);
     procedure actUpdateExecute(Sender: TObject);

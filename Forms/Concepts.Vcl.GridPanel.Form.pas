@@ -30,6 +30,7 @@ uses
 
 type
   TfrmGridPanel = class(TForm)
+    {$REGION 'designer controls'}
     pnlGrid         : TGridPanel;
     pnl1            : TPanel;
     pnl2            : TPanel;
@@ -48,6 +49,7 @@ type
     chk7            : TCheckBox;
     chk8            : TCheckBox;
     btnUpdateLayout : TButton;
+    {$ENDREGION}
 
     procedure btnUpdateLayoutClick(Sender: TObject);
 

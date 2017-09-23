@@ -22,8 +22,6 @@ object frmzObjectInspector: TfrmzObjectInspector
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 0
-    ExplicitHeight = 716
     object splSplitter: TSplitter
       Left = 313
       Top = 0
@@ -42,7 +40,6 @@ object frmzObjectInspector: TfrmzObjectInspector
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 697
       object cbxControls: TComboBox
         AlignWithMargins = True
         Left = 3
@@ -74,7 +71,6 @@ object frmzObjectInspector: TfrmzObjectInspector
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 1
-      ExplicitHeight = 697
       DesignSize = (
         478
         669)
@@ -154,7 +150,6 @@ object frmzObjectInspector: TfrmzObjectInspector
       Panels = <>
       ParentShowHint = False
       ShowHint = True
-      ExplicitTop = 697
     end
   end
   object pnlHeader: TPanel

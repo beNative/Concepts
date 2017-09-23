@@ -30,10 +30,11 @@ type
   TfrmRelativePanel = class(TForm)
     pnlRelativePanel : TRelativePanel;
     btn1             : TButton;
+
   private
-    { Private declarations }
+
   public
-    { Public declarations }
+
   end;
 
 implementation

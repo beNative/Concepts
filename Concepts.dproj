@@ -74,7 +74,7 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;Bde;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Locale>2067</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=Tim Sinaeve;FileDescription=;FileVersion=1.0.0.0;InternalName=Concepts;LegalCopyright=(c) 2015 Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Tim Sinaeve;FileDescription=;FileVersion=1.0.0.0;InternalName=Concepts;LegalCopyright=(c) 2017 Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <DCC_DependencyCheckOutputName>Concepts.exe</DCC_DependencyCheckOutputName>
         <DCC_ImageBase>00400000</DCC_ImageBase>
         <DCC_Platform>x86</DCC_Platform>
@@ -96,7 +96,7 @@
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <VerInfo_Build>3</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=Tim Sinaeve;FileDescription=;FileVersion=1.0.0.3;InternalName=Concepts;LegalCopyright=(c) 2015 Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Tim Sinaeve;FileDescription=;FileVersion=1.0.0.3;InternalName=Concepts;LegalCopyright=(c) 2017 Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <DCC_ImportedDataReferences>false</DCC_ImportedDataReferences>
         <DCC_DebugInfoInExe>false</DCC_DebugInfoInExe>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -123,7 +123,7 @@
         <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
         <VerInfo_Build>14</VerInfo_Build>
         <DCC_ExeOutput>.\Library\$(Platform)\$(Config)\</DCC_ExeOutput>
-        <VerInfo_Keys>CompanyName=(c) Tim Sinaeve;FileDescription=Concepts;FileVersion=1.0.0.14;InternalName=Concepts;LegalCopyright=(c) Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=A collection of modules demonstrating some Delphi programming concepts and libraries</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=(c) Tim Sinaeve;FileDescription=Concepts;FileVersion=1.0.0.14;InternalName=Concepts;LegalCopyright=(c) 2017 Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=A collection of modules demonstrating some Delphi programming concepts and libraries</VerInfo_Keys>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
@@ -427,18 +427,8 @@
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Properties.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Restrictions.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.Attributes.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.Abstract.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.DB.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Abstract.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ActiveX.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Algorithms.Sort.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Blobs.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.Designtime.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ExprParser.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.ExprParser.Functions.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\ObjectDataset\Spring.Persistence.ObjectDataset.IndexList.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Abstract.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateForeignKey.pas"/>
@@ -466,7 +456,6 @@
         <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Types.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.ResourceStrings.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Core\Services\Spring.Services.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Core\Services\Spring.Services.Logging.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.SystemUtils.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.Times.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Extensions\Utils\Spring.Utils.pas"/>
@@ -498,7 +487,6 @@
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Consts.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.ActiveLine.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Base.pas"/>
-        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Bookmarks.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.NonBlinking.Colors.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.NonBlinking.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.Offsets.pas"/>
@@ -521,14 +509,12 @@
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Glyph.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.InternalImage.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.KeyCommands.pas"/>
-        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Bookmarks.Panel.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Bookmarks.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Border.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Colors.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.LineNumbers.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.LineState.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.pas"/>
-        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LineSpacing.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.MatchingPair.Colors.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.MatchingPair.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.Colors.pas"/>
@@ -582,7 +568,6 @@
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Search.RegularExpressions.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Search.Wildcard.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.StyleHooks.pas"/>
-        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.TextDrawer.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Types.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Utils.pas"/>
         <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Minimap.Shadow.pas"/>
@@ -664,9 +649,32 @@
             <Form>frmStringList</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Marks.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.MultiEdit.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Caret.MultiEdit.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.Indicator.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.CodeFolding.Hint.Indicator.Colors.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.MarksPanel.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.LeftMargin.Marks.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Scroll.Shadow.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.Search.InSelection.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Search.Normal.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.PaintHelper.pas"/>
+        <DCCReference Include="Libraries\TBCEditor\Source\BCEditor.Editor.UnknownChars.pas"/>
+        <DCCReference Include="Libraries\DDuce\Modules\DDuce.FormSettings.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\FloatConv\FloatConv.Double.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\FloatConv\FloatConv.Extended.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\FloatConv\FloatConv.pas"/>
+        <DCCReference Include="Libraries\TzObjectInspector\FloatConv\FloatConv.Single.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ActiveX.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ExpressionParser.Functions.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ExpressionParser.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.IndexList.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ObjectDataSet.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.VirtualDataSet.pas"/>
+        <DCCReference Include="Forms\Concepts.zObjectInspector.ValueManager.pas"/>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
-        <None Include="C:\Tools\Editors\Notepas\notepas.exe"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -761,13 +769,16 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="C:\Tools\Editors\Notepas\notepas.exe" Configuration="Debug" Class="ProjectFile">
+                <DeployClass Name="DependencyModule">
                     <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
                     </Platform>
-                </DeployFile>
-                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
                         <RemoteDir>Contents\Resources</RemoteDir>
@@ -1081,16 +1092,7 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="DependencyModule">
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.dll;.bpl</Extensions>
-                    </Platform>
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
@@ -1106,11 +1108,3 @@
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
 </Project>
-
-<!-- EurekaLog First Line
-[Exception Log]
-EurekaLog Version=7007
-Activate=0
-DeleteMapAfterCompile=0
-Encrypt Password=""
-EurekaLog Last Line -->
