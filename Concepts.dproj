@@ -7,7 +7,7 @@
         <ProjectVersion>18.0</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
     </PropertyGroup>
@@ -389,75 +389,6 @@
         <DCCReference Include="Libraries\Spring4D\Source\Base\Patches\Spring.Patches.QC107219.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Base\Patches\Spring.Patches.QC93646.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Base\Patches\Spring.Patches.QC98671.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.ADO.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.ASA.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.DBX.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.FieldCache.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.FireDAC.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.MSSQL.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.Oracle.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.AbstractSession.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Base.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ConnectionFactory.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.DatabaseManager.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.DetachedSession.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EmbeddedEntity.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EntityCache.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EntityMap.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EntityWrapper.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Exceptions.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Graphics.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Interfaces.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ListSession.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Repository.Proxy.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Repository.Simple.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ResourceStrings.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Session.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ValueConverters.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Abstract.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.BetweenExpression.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Conjunction.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Disjunction.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.InExpression.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Junction.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.LikeExpression.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.LogicalExpression.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.NullExpression.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.PropertyExpression.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.SimpleExpression.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Interfaces.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.OrderBy.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Properties.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Restrictions.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.Attributes.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.Abstract.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.DB.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Abstract.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateForeignKey.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateSequence.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateTable.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Delete.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Insert.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Page.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Select.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Update.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Abstract.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Ansi.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.ASA.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Firebird.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.MSSQL.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.MySQL.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.NoSQL.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Oracle.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.PostgreSQL.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Register.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.SQLite3.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Interfaces.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Params.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Register.pas"/>
-        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Types.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.ResourceStrings.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Core\Services\Spring.Services.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Base\Spring.SystemUtils.pas"/>
@@ -677,6 +608,89 @@
         <DCCReference Include="Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ObjectDataSet.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.VirtualDataSet.pas"/>
         <DCCReference Include="Forms\Concepts.zObjectInspector.ValueManager.pas"/>
+        <DCCReference Include="ORM\ORM.Chinook.Album.pas"/>
+        <DCCReference Include="ORM\ORM.Chinook.Artist.pas"/>
+        <DCCReference Include="ORM\ORM.Chinook.Customer.pas"/>
+        <DCCReference Include="ORM\ORM.Chinook.Employee.pas"/>
+        <DCCReference Include="ORM\ORM.Chinook.Genre.pas"/>
+        <DCCReference Include="ORM\ORM.Chinook.Invoice.pas"/>
+        <DCCReference Include="ORM\ORM.Chinook.InvoiceLine.pas"/>
+        <DCCReference Include="ORM\ORM.Chinook.MediaType.pas"/>
+        <DCCReference Include="ORM\ORM.Chinook.Playlist.pas"/>
+        <DCCReference Include="ORM\ORM.Chinook.PlaylistTrack.pas"/>
+        <DCCReference Include="ORM\ORM.Chinook.Track.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Marshmallow\External\SQLite3\SQLite3.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Marshmallow\External\SQLite3\SQLiteTable3.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.ADO.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.ASA.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.DBX.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.FieldCache.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.FireDAC.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.MSSQL.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.Oracle.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Adapters\Spring.Persistence.Adapters.SQLite.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.AbstractSession.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Base.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ConnectionFactory.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.DatabaseManager.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.DetachedSession.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EmbeddedEntity.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EntityCache.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EntityMap.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.EntityWrapper.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Exceptions.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Graphics.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Interfaces.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ListSession.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Repository.Proxy.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Repository.Simple.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ResourceStrings.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.Session.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Core\Spring.Persistence.Core.ValueConverters.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Abstract.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.BetweenExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Conjunction.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Disjunction.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.InExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.Junction.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.LikeExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.LogicalExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.NullExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.PropertyExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Criterion.SimpleExpression.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Interfaces.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.OrderBy.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Properties.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Criteria\Spring.Persistence.Criteria.Restrictions.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.Attributes.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.Abstract.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\Mapping\Spring.Persistence.Mapping.CodeGenerator.DB.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Abstract.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateForeignKey.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateSequence.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.CreateTable.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Delete.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Insert.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Page.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Select.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Update.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Abstract.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Ansi.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.ASA.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Firebird.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.MSSQL.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.MySQL.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.NoSQL.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Oracle.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.PostgreSQL.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.Register.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Generators.SQLite3.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Interfaces.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Params.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Register.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Types.pas"/>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
         <BuildConfiguration Include="Debug">
@@ -823,16 +837,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployClass Name="DependencyModule">
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.dll;.bpl</Extensions>
-                    </Platform>
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
                         <RemoteDir>Contents\Resources</RemoteDir>
@@ -1146,7 +1151,16 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>

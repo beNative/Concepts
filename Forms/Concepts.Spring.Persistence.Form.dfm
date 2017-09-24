@@ -13,4 +13,8 @@ object frmSpringPersistence: TfrmSpringPersistence
   ShowHint = True
   PixelsPerInch = 96
   TextHeight = 13
+  object dscMain: TDataSource
+    Left = 200
+    Top = 144
+  end
 end

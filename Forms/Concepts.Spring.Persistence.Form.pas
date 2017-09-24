@@ -23,14 +23,89 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.DBGrids,
+  Data.DB,
+
+  SQLiteTable3,
+
+  Spring, Spring.Collections,
+  Spring.Persistence.Core.Interfaces, Spring.Persistence.Core.Session,
+  Spring.Data.ObjectDataSet,
+
+  ORM.Chinook.Artist, ORM.Chinook.Album, ORM.Chinook.Track,
+  ORM.Chinook.Employee, ORM.Chinook.Customer, ORM.Chinook.Invoice,
+  ORM.Chinook.MediaType, ORM.Chinook.Playlist, ORM.Chinook.PlaylistTrack,
+  ORM.Chinook.InvoiceLine, ORM.Chinook.Genre;
 
 type
   TfrmSpringPersistence = class(TForm)
+    dscMain: TDataSource;
+
+  private
+    FConnection: IDBConnection;
+    FDatabase: TSQLiteDatabase;
+    //FProducts: IList<TProduct>;
+    FSession: TSession;
+    FObjectDataSet : TObjectDataSet;
+    FDBGrid        : TDBGrid;
+
+    FArtists: IList<TArtist>;
+    FTracks: IList<TTrack>;
+
+  protected
+
+  public
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
+
+
   end;
 
 implementation
 
 {$R *.dfm}
+
+uses
+  Spring.Persistence.Adapters.SQLite,
+
+  Concepts.Factories, Concepts.Utils;
+
+{$REGION 'construction and destruction'}
+procedure TfrmSpringPersistence.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  FDatabase := TSQLiteDatabase.Create(Self);
+  FDatabase.Filename := '..\..\..\Data\Chinook_Sqlite.sqlite';
+  FConnection := TSQLiteConnectionAdapter.Create(FDatabase);
+
+  FConnection.AutoFreeConnection := True;
+  FConnection.Connect;
+  FSession := TSession.Create(FConnection);
+  FArtists := FSession.FindAll<TArtist>;
+
+  FObjectDataSet          := TObjectDataset.Create(Self);
+  FObjectDataSet.DataList := FArtists as IObjectList;
+  FObjectDataSet.Active := True;
+  AutoSizeDisplayWidths(FObjectDataSet);
+
+  dscMain.DataSet := FObjectDataSet;
+  FDBGrid := TConceptFactories.CreateDBGrid(Self, Self, dscMain);
+
+  //ShowMessage(AsPropString(FArtists.First));
+
+
+
+  //FProducts := TCollections.CreateObjectList<TProduct>(True);
+
+end;
+
+procedure TfrmSpringPersistence.BeforeDestruction;
+begin
+  FSession.Free;
+  FObjectDataSet.Free;
+  inherited BeforeDestruction;
+end;
+{$ENDREGION}
+
 
 end.

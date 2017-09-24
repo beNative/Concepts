@@ -186,7 +186,7 @@ begin
   );
   ConceptManager.Register(
     TfrmSpringPersistence,
-    'Persistence',
+    'ORM',
     'Spring',
     'Spring entities',
     FCategoryColor

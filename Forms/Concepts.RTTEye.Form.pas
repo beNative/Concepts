@@ -84,7 +84,7 @@ implementation
 {$R *.dfm}
 
 uses
-  System.SysUtils, System.TypInfo,
+  System.SysUtils, System.TypInfo, System.Threading,
   Vcl.Dialogs, Vcl.Graphics,
 
   Concepts.Utils;
@@ -444,7 +444,7 @@ procedure TfrmRTTEye.LoadTree;
   function GetUnitName(T: TRttiType): string;
   begin
     Result := T.QualifiedName;
-    StringReplace(T.QualifiedName, '.' + T.Name, '', [rfReplaceAll]);
+    //Result := StringReplace(T.QualifiedName, '.' + T.Name, '', [rfReplaceAll]);
   end;
 
 var
@@ -478,9 +478,11 @@ begin
         );
       end;
       PNode := nil;
+
       for T in TypeList do
       begin
         UnitName := GetUnitName(T);
+
         if Units.IndexOf(UnitName) < 0 then
         begin
           Units.Add(UnitName);
@@ -488,6 +490,38 @@ begin
         end;
 
         Node := tvRTTI.Items.AddChildObject(PNode, T.ToString, T);
+
+//       TTask.Run(procedure
+//      var F           : TRttiField;
+//         begin
+//          for F in T.GetDeclaredFields do
+//            tvRTTI.Items.AddChildObject(Node, F.ToString, F);
+//         end
+//       );
+//
+//              TTask.Run(procedure
+//      var M           : TRttiMethod;
+//         begin
+//           for M in T.GetDeclaredMethods do
+//          tvRTTI.Items.AddChildObject(Node, M.ToString, M);
+//         end
+//       );                 TTask.Run(procedure
+//      var
+//        P           : TRttiProperty;
+//         begin
+//            for P in T.GetDeclaredProperties do
+//          tvRTTI.Items.AddChildObject(Node, P.ToString, P);
+//         end
+//       );
+//
+//       TTask.Run(procedure var
+//        IP          : TRttiIndexedProperty;
+//         begin
+//        for IP in T.GetDeclaredIndexedProperties do
+//          tvRTTI.Items.AddChildObject(Node, IP.ToString, IP);
+//         end
+//       );
+
 
         for F in T.GetDeclaredFields do
           tvRTTI.Items.AddChildObject(Node, F.ToString, F);
