@@ -28,26 +28,47 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls, FMX.Effects,
   FMX.Colors, FMX.TabControl, FMX.Menus, FMX.Filter.Effects, FMX.Edit,
   FMX.ExtCtrls, FMX.EditBox, FMX.SpinBox, FMX.ListBox, FMX.Layouts,
-  FMX.Controls.Presentation;
+  FMX.Controls.Presentation, FMX.DateTimeCtrls, FMX.Calendar, FMX.MagnifierGlass;
 
 type
   TFireMonkeyForm = class(TForm)
     {$REGION 'designer controls'}
-    chkExample  : TCheckBox;
-    cmbExample  : TComboBox;
-    grpExample  : TGroupBox;
-    lblExample  : TLabel;
-    lstExample  : TListBox;
-    pbrExample  : TProgressBar;
-    sbrExample  : TStatusBar;
-    spbExample  : TSpinBox;
-    swExample   : TSwitch;
-    tbcExample  : TTabControl;
-    tbiExample1 : TTabItem;
-    tbiExample2 : TTabItem;
-    trbExample  : TTrackBar;
-    edtExample  : TEdit;
-    btnExample  : TButton;
+    btnCornerExample : TCornerButton;
+    btnExample       : TButton;
+    calExample       : TCalendar;
+    cbxColor         : TColorComboBox;
+    cbxColorBox      : TColorBox;
+    chkExample       : TCheckBox;
+    cmbExample       : TComboBox;
+    edtDate          : TDateEdit;
+    edtExample       : TEdit;
+    grpExample       : TGroupBox;
+    lblExample       : TLabel;
+    lbxColors        : TColorListBox;
+    lstExample       : TListBox;
+    MenuItem1        : TMenuItem;
+    MenuItem10       : TMenuItem;
+    MenuItem11       : TMenuItem;
+    MenuItem12       : TMenuItem;
+    MenuItem2        : TMenuItem;
+    MenuItem3        : TMenuItem;
+    MenuItem4        : TMenuItem;
+    MenuItem5        : TMenuItem;
+    MenuItem6        : TMenuItem;
+    MenuItem7        : TMenuItem;
+    MenuItem8        : TMenuItem;
+    MenuItem9        : TMenuItem;
+    mgTest           : TMagnifierGlass;
+    mnuMenuBar       : TMenuBar;
+    pbrExample       : TProgressBar;
+    rbtRadioButton   : TRadioButton;
+    sbrExample       : TStatusBar;
+    spbExample       : TSpinBox;
+    swExample        : TSwitch;
+    tbcExample       : TTabControl;
+    tbiExample1      : TTabItem;
+    tbiExample2      : TTabItem;
+    trbExample       : TTrackBar;
     {$ENDREGION}
   end;
 

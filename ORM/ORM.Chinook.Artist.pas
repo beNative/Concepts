@@ -22,8 +22,7 @@ uses
   System.Classes,
 
   Spring,
-  Spring.Persistence.Mapping.Attributes,
-  Spring.Persistence.Core.Graphics;
+  Spring.Persistence.Mapping.Attributes,  Spring.Persistence.Core.Graphics;
 
 type
   [Entity]

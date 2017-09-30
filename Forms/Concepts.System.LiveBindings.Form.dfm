@@ -1,6 +1,7 @@
 object frmLiveBindings: TfrmLiveBindings
   Left = 177
   Top = 140
+  Caption = 'LiveBindings demo'
   ClientHeight = 532
   ClientWidth = 892
   Color = clBtnFace

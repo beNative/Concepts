@@ -22,7 +22,9 @@ uses
   System.Classes,
 
   Spring,
-  Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics;
+  Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics,
+
+  ORM.Chinook.Customer;
 
 type
   [Entity]
@@ -30,7 +32,6 @@ type
   TInvoice = class(TPersistent)
   private
     FInvoiceId         : Integer;
-    FCustomerId        : Integer;
     FInvoiceDate       : TDateTime;
     FBillingAddress    : Nullable<string>;
     FBillingCity       : Nullable<string>;
@@ -38,15 +39,13 @@ type
     FBillingCountry    : Nullable<string>;
     FBillingPostalCode : Nullable<string>;
     FTotal             : Double;
+    FCustomerId        : Integer;
+    FCustomer          : TCustomer;
 
   published
     [Column('InvoiceId', [cpRequired, cpPrimaryKey, cpNotNull], 9, 0)]
     property InvoiceId: Integer
       read FInvoiceId write FInvoiceId;
-
-    [Column('CustomerId', [cpRequired, cpNotNull], 9, 0)]
-    property CustomerId: Integer
-      read FCustomerId write FCustomerId;
 
     [Column('InvoiceDate', [cpRequired, cpNotNull])]
     property InvoiceDate: TDateTime
@@ -75,6 +74,14 @@ type
     [Column('Total', [cpRequired, cpNotNull], 2, 0)]
     property Total: Double
       read FTotal write FTotal;
+
+    [Column('CustomerId', [cpRequired, cpNotNull], 9, 0)]
+    property CustomerId: Integer
+      read FCustomerId write FCustomerId;
+
+    [ManyToOne(True, [], 'CustomerId')]
+    property Customer: TCustomer
+      read FCustomer write FCustomer;
   end;
 
 implementation

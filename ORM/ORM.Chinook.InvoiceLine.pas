@@ -21,7 +21,9 @@ interface
 uses
   System.Classes,
 
-  Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics;
+  Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics,
+
+  ORM.Chinook.Invoice, ORM.Chinook.Track;
 
 type
   [Entity]
@@ -33,15 +35,13 @@ type
     FTrackId       : Integer;
     FUnitPrice     : Double;
     FQuantity      : Integer;
+    FInvoice       : TInvoice;
+    FTrack         : TTrack;
 
   published
     [Column('InvoiceLineId', [cpRequired, cpPrimaryKey, cpNotNull], 9, 0)]
     property InvoiceLineId: Integer
       read FInvoiceLineId write FInvoiceLineId;
-
-    [Column('InvoiceId', [cpRequired, cpNotNull], 9, 0)]
-    property InvoiceId: Integer
-      read FInvoiceId write FInvoiceId;
 
     [Column('TrackId', [cpRequired, cpNotNull], 9, 0)]
     property TrackId: Integer
@@ -54,6 +54,18 @@ type
     [Column('Quantity', [cpRequired, cpNotNull], 9, 0)]
     property Quantity: Integer
       read FQuantity write FQuantity;
+
+    [Column('InvoiceId', [cpRequired, cpNotNull], 9, 0)]
+    property InvoiceId: Integer
+      read FInvoiceId write FInvoiceId;
+
+    [ManyToOne(True, [], 'InvoiceId')]
+    property Invoice: TInvoice
+      read FInvoice write FInvoice;
+
+    [ManyToOne(True, [], 'TrackId')]
+    property Track: TTrack
+      read FTrack write FTrack;
   end;
 
 implementation

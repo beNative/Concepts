@@ -22,7 +22,9 @@ uses
   System.Classes,
 
   Spring,
-  Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics;
+  Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics,
+
+  ORM.Chinook.Genre, ORM.Chinook.Album, ORM.Chinook.MediaType;
 
 type
   [Entity]
@@ -31,13 +33,16 @@ type
   private
     FTrackId      : Integer;
     FName         : string;
-    FAlbumId      : Nullable<Integer>;
-    FMediaTypeId  : Integer;
-    FGenreId      : Nullable<Integer>;
     FComposer     : Nullable<string>;
     FMilliseconds : Integer;
     FBytes        : Nullable<Integer>;
-    FUnitPrice    : Double;
+    //FUnitPrice    : Double;
+    FAlbumId      : Nullable<Integer>;
+    FMediaTypeId  : Integer;
+    FGenreId      : Nullable<Integer>;
+    FAlbum        : TAlbum;
+    FMediaType    : TMediaType;
+    FGenre        : TGenre;
 
   published
     [Column('TrackId', [cpRequired, cpPrimaryKey, cpNotNull], 9, 0)]
@@ -47,18 +52,6 @@ type
     [Column('Name', [cpRequired, cpNotNull], 200)]
     property name: string
       read FName write FName;
-
-    [Column('AlbumId', [], 9, 0)]
-    property AlbumId: Nullable<Integer>
-      read FAlbumId write FAlbumId;
-
-    [Column('MediaTypeId', [cpRequired, cpNotNull], 9, 0)]
-    property MediaTypeId: Integer
-      read FMediaTypeId write FMediaTypeId;
-
-    [Column('GenreId', [], 9, 0)]
-    property GenreId: Nullable<Integer>
-      read FGenreId write FGenreId;
 
     [Column('Composer', [], 220)]
     property Composer: Nullable<string>
@@ -72,9 +65,33 @@ type
     property Bytes: Nullable<Integer>
       read FBytes write FBytes;
 
-    [Column('UnitPrice', [cpRequired, cpNotNull], 0, 5, 2)]
-    property UnitPrice: Double
-      read FUnitPrice write FUnitPrice;
+//    [Column('UnitPrice', [cpRequired, cpNotNull], 0, 5, 2)]
+//    property UnitPrice: Double
+//      read FUnitPrice write FUnitPrice;
+
+    [Column('AlbumId', [], 9, 0)]
+    property AlbumId: Nullable<Integer>
+      read FAlbumId write FAlbumId;
+
+    [Column('MediaTypeId', [cpRequired, cpNotNull], 9, 0)]
+    property MediaTypeId: Integer
+      read FMediaTypeId write FMediaTypeId;
+
+    [Column('GenreId', [], 9, 0)]
+    property GenreId: Nullable<Integer>
+      read FGenreId write FGenreId;
+
+    [ManyToOne(True, [], 'MediaTypeId')]
+    property Genre: TGenre
+      read FGenre write FGenre;
+
+    [ManyToOne(True, [], 'AlbumId')]
+    property Album: TAlbum
+      read FAlbum write FAlbum;
+
+    [ManyToOne(True, [], 'MediaTypeId')]
+    property MediaType: TMediaType
+      read FMediaType write FMediaType;
   end;
 
 implementation

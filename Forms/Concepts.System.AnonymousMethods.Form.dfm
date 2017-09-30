@@ -2,9 +2,13 @@ object frmAnonymousMethods: TfrmAnonymousMethods
   Left = 0
   Top = 0
   Caption = 'Anonymous Methods'
-  ClientHeight = 68
-  ClientWidth = 296
+  ClientHeight = 38
+  ClientWidth = 280
   Color = clBtnFace
+  Constraints.MaxHeight = 77
+  Constraints.MaxWidth = 296
+  Constraints.MinHeight = 77
+  Constraints.MinWidth = 296
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -23,15 +27,15 @@ object frmAnonymousMethods: TfrmAnonymousMethods
     TabOrder = 0
   end
   object btnExecuteProc: TButton
-    Left = 8
-    Top = 39
+    Left = 143
+    Top = 8
     Width = 129
     Height = 25
     Action = actExecuteProc
     TabOrder = 1
   end
   object aclMain: TActionList
-    Left = 256
+    Left = 32
     Top = 8
     object actAssignProcVariable: TAction
       Caption = 'Assign TProc variable'

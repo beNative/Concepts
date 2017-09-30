@@ -1,9 +1,9 @@
 object frmRegularExpressions: TfrmRegularExpressions
   Left = 0
   Top = 0
-  Caption = 'Regular expressions'
-  ClientHeight = 373
-  ClientWidth = 564
+  Caption = 'Regular expressions demo'
+  ClientHeight = 369
+  ClientWidth = 472
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,14 +13,14 @@ object frmRegularExpressions: TfrmRegularExpressions
   OldCreateOrder = False
   ShowHint = True
   DesignSize = (
-    564
-    373)
+    472
+    369)
   PixelsPerInch = 96
   TextHeight = 13
   object lblError: TLabel
     Left = 8
     Top = 145
-    Width = 455
+    Width = 363
     Height = 28
     Alignment = taCenter
     Anchors = [akLeft, akTop, akRight]
@@ -33,9 +33,10 @@ object frmRegularExpressions: TfrmRegularExpressions
     ParentFont = False
     Layout = tlCenter
     WordWrap = True
+    ExplicitWidth = 455
   end
   object lblWorking: TLabel
-    Left = 475
+    Left = 383
     Top = 163
     Width = 81
     Height = 13
@@ -48,11 +49,12 @@ object frmRegularExpressions: TfrmRegularExpressions
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
+    ExplicitLeft = 475
   end
   object mmoInput: TMemo
     Left = 8
     Top = 8
-    Width = 548
+    Width = 456
     Height = 105
     Anchors = [akLeft, akTop, akRight]
     Font.Charset = DEFAULT_CHARSET
@@ -64,12 +66,13 @@ object frmRegularExpressions: TfrmRegularExpressions
     ScrollBars = ssVertical
     TabOrder = 0
     OnChange = mmoInputChange
+    ExplicitWidth = 548
   end
   object mmoOutput: TMemo
     Left = 8
     Top = 208
-    Width = 548
-    Height = 159
+    Width = 456
+    Height = 155
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -79,11 +82,13 @@ object frmRegularExpressions: TfrmRegularExpressions
     ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 1
+    ExplicitWidth = 548
+    ExplicitHeight = 159
   end
   object edtRegExpression: TEdit
     Left = 8
     Top = 119
-    Width = 548
+    Width = 456
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     Font.Charset = DEFAULT_CHARSET
@@ -95,11 +100,12 @@ object frmRegularExpressions: TfrmRegularExpressions
     TabOrder = 2
     TextHint = 'Regular expression'
     OnChange = edtRegExpressionChange
+    ExplicitWidth = 548
   end
   object edtReplace: TEdit
     Left = 8
     Top = 181
-    Width = 548
+    Width = 456
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     Font.Charset = DEFAULT_CHARSET
@@ -111,14 +117,16 @@ object frmRegularExpressions: TfrmRegularExpressions
     TabOrder = 3
     TextHint = 'Replace with'
     OnChange = edtReplaceChange
+    ExplicitWidth = 548
   end
   object chkThreaded: TCheckBox
-    Left = 476
+    Left = 384
     Top = 145
     Width = 80
     Height = 17
     Anchors = [akTop, akRight]
     Caption = 'Threaded'
     TabOrder = 4
+    ExplicitLeft = 476
   end
 end

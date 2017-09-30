@@ -40,6 +40,7 @@ type
     trbImageIndex : TTrackBar;
 
     procedure actExecuteExecute(Sender: TObject);
+
     procedure trbImageIndexChange(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
 

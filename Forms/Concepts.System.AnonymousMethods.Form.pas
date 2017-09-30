@@ -66,6 +66,7 @@ type
 
   public
     function Method(AParam: Integer): string;
+
     procedure AfterConstruction; override;
 
   end;

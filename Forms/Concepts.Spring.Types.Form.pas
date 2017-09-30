@@ -32,7 +32,7 @@ uses
 
 type
   TfrmSpringTypes = class(TForm)
-    aclMain: TActionList;
+    aclMain : TActionList;
   private
 
   public

@@ -21,7 +21,9 @@ interface
 uses
   System.Classes,
 
-  Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics;
+  Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics,
+
+  ORM.Chinook.Track, ORM.Chinook.Playlist;
 
 type
   [Entity]
@@ -30,6 +32,8 @@ type
   private
     FPlaylistId : Integer;
     FTrackId    : Integer;
+    FPlayList   : TPlaylist;
+    FTrack      : TTrack;
 
   published
     [Column('PlaylistId', [cpRequired, cpPrimaryKey, cpNotNull], 9, 0)]
@@ -39,6 +43,15 @@ type
     [Column('TrackId', [cpRequired, cpPrimaryKey, cpNotNull], 9, 0)]
     property TrackId: Integer
       read FTrackId write FTrackId;
+
+    [ManyToOne(True, [], 'PlayListId')]
+    property Playlist: TPlaylist
+      read FPlaylist write FPlaylist;
+
+    [ManyToOne(True, [], 'TrackId')]
+    property Track: TTrack
+      read FTrack write FTrack;
+
   end;
 
 implementation

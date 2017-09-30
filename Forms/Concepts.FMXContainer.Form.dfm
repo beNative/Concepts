@@ -12,6 +12,7 @@ object frmFMXContainer: TfrmFMXContainer
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  ShowHint = True
   PixelsPerInch = 96
   TextHeight = 13
   object pnlFMXContainer: TPanel

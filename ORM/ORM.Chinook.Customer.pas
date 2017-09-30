@@ -22,7 +22,9 @@ uses
   System.Classes,
 
   Spring,
-  Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics;
+  Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics,
+
+  ORM.Chinook.Employee;
 
 type
   [Entity]
@@ -42,6 +44,7 @@ type
     FFax          : Nullable<string>;
     FEmail        : string;
     FSupportRepId : Nullable<Integer>;
+    FSupportRep   : TEmployee;
 
   public
     [Column('CustomerId', [cpRequired, cpPrimaryKey, cpNotNull], 9, 0)]
@@ -95,6 +98,10 @@ type
     [Column('SupportRepId', [], 9, 0)]
     property SupportRepId: Nullable<Integer>
       read FSupportRepId write FSupportRepId;
+
+    [ManyToOne(True, [], 'SupportRepId')]
+    property SupportRep: TEmployee
+      read FSupportRep write FSupportRep;
   end;
 
 implementation

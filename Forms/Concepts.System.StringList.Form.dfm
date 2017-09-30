@@ -14,8 +14,8 @@ object frmStringList: TfrmStringList
   PixelsPerInch = 96
   TextHeight = 13
   object chkSorted: TCheckBox
-    Left = 24
-    Top = 31
+    Left = 111
+    Top = 8
     Width = 97
     Height = 17
     Caption = 'Sorted'
@@ -23,8 +23,8 @@ object frmStringList: TfrmStringList
     OnClick = chkSortedClick
   end
   object chkStrictDelimiter: TCheckBox
-    Left = 24
-    Top = 54
+    Left = 214
+    Top = 8
     Width = 97
     Height = 15
     Caption = 'StrictDelimiter'
@@ -32,7 +32,7 @@ object frmStringList: TfrmStringList
     OnClick = chkStrictDelimiterClick
   end
   object chkCaseSensitive: TCheckBox
-    Left = 24
+    Left = 8
     Top = 8
     Width = 97
     Height = 17
@@ -41,16 +41,16 @@ object frmStringList: TfrmStringList
     OnClick = chkCaseSensitiveClick
   end
   object btnClear: TButton
-    Left = 300
-    Top = 4
+    Left = 473
+    Top = 3
     Width = 150
     Height = 25
     Action = actClear
     TabOrder = 3
   end
   object btnLoadFromFile: TButton
-    Left = 144
-    Top = 4
+    Left = 317
+    Top = 3
     Width = 150
     Height = 25
     Action = actLoadFromFile
@@ -58,9 +58,9 @@ object frmStringList: TfrmStringList
   end
   object pnlGrid: TGridPanel
     Left = 0
-    Top = 96
+    Top = 31
     Width = 781
-    Height = 201
+    Height = 266
     Align = alBottom
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
@@ -103,84 +103,93 @@ object frmStringList: TfrmStringList
       Left = 0
       Top = 0
       Width = 260
-      Height = 201
+      Height = 266
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 201
       object btnSetText: TButton
         AlignWithMargins = True
         Left = 3
-        Top = 173
+        Top = 238
         Width = 254
         Height = 25
         Action = actSetText
         Align = alBottom
         TabOrder = 0
+        ExplicitTop = 173
       end
       object mmoText: TMemo
         AlignWithMargins = True
         Left = 3
         Top = 3
         Width = 254
-        Height = 164
+        Height = 229
         Align = alClient
         TabOrder = 1
+        ExplicitHeight = 164
       end
     end
     object pnlDelimitedText: TPanel
       Left = 260
       Top = 0
       Width = 260
-      Height = 201
+      Height = 266
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitHeight = 201
       object btnSetDelimitedText: TButton
         AlignWithMargins = True
         Left = 3
-        Top = 173
+        Top = 238
         Width = 254
         Height = 25
         Action = actSetDelimitedText
         Align = alBottom
         TabOrder = 0
+        ExplicitTop = 173
       end
       object mmoDelimitedText: TMemo
         AlignWithMargins = True
         Left = 3
         Top = 3
         Width = 254
-        Height = 164
+        Height = 229
         Align = alClient
         TabOrder = 1
+        ExplicitHeight = 164
       end
     end
     object pnlNameValues: TPanel
       Left = 520
       Top = 0
       Width = 261
-      Height = 201
+      Height = 266
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 2
+      ExplicitHeight = 201
       object btnSetNameValues: TButton
         AlignWithMargins = True
         Left = 3
-        Top = 173
+        Top = 238
         Width = 255
         Height = 25
         Action = actSetNameValues
         Align = alBottom
         TabOrder = 0
+        ExplicitTop = 173
       end
       object lstValueList: TValueListEditor
         AlignWithMargins = True
         Left = 3
         Top = 3
         Width = 255
-        Height = 164
+        Height = 229
         Align = alClient
         TabOrder = 1
+        ExplicitHeight = 164
         ColWidths = (
           150
           99)
@@ -188,8 +197,7 @@ object frmStringList: TfrmStringList
     end
   end
   object aclMain: TActionList
-    Left = 512
-    Top = 24
+    Left = 744
     object actClear: TAction
       Caption = 'Clear'
       OnExecute = actClearExecute

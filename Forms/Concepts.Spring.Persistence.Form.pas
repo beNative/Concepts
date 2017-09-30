@@ -49,15 +49,14 @@ type
     FObjectDataSet : TObjectDataSet;
     FDBGrid        : TDBGrid;
 
-    FArtists: IList<TArtist>;
-    FTracks: IList<TTrack>;
+    FArtists : IList<TArtist>;
+    FTracks  : IList<TTrack>;
 
   protected
 
   public
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
-
 
   end;
 
@@ -82,9 +81,11 @@ begin
   FConnection.Connect;
   FSession := TSession.Create(FConnection);
   FArtists := FSession.FindAll<TArtist>;
+  FTracks  := FSession.FindAll<TTrack>;
 
   FObjectDataSet          := TObjectDataset.Create(Self);
-  FObjectDataSet.DataList := FArtists as IObjectList;
+  //FObjectDataSet.DataList := FArtists as IObjectList;
+  FObjectDataSet.DataList := FTracks as IObjectList;
   FObjectDataSet.Active := True;
   AutoSizeDisplayWidths(FObjectDataSet);
 
@@ -94,6 +95,7 @@ begin
   //ShowMessage(AsPropString(FArtists.First));
 
 
+  ShowMessage(FTracks.First.Album.Artist.Name.Value);
 
   //FProducts := TCollections.CreateObjectList<TProduct>(True);
 

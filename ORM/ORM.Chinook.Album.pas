@@ -21,7 +21,9 @@ interface
 uses
   System.Classes,
 
-  Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics;
+  Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics,
+
+  ORM.Chinook.Artist;
 
 type
   [Entity]
@@ -31,6 +33,7 @@ type
     FAlbumId  : Integer;
     FTitle    : string;
     FArtistId : Integer;
+    FArtist   : TArtist;
 
   published
     [Column('AlbumId', [cpRequired, cpPrimaryKey, cpNotNull], 9, 0)]
@@ -44,6 +47,10 @@ type
     [Column('ArtistId', [cpRequired, cpNotNull], 9, 0)]
     property ArtistId: Integer
       read FArtistId write FArtistId;
+
+    [ManyToOne(True, [], 'ArtistId')]
+    property Artist: TArtist
+      read FArtist write FArtist;
   end;
 
 implementation
