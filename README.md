@@ -13,10 +13,11 @@
 * [TzObjectInspector](http://github.com/MahdiSafsafi/zcontrols)
 * [TBCEditor](http://github.com/bonecode/TBCEditor)
 * [JsonDataObjects](http://github.com/ahausladen/JsonDataObjects)
-* [Ararat Synapse](https://sourceforge.net/projects/synalist/)
+* [Ararat Synapse](http://sourceforge.net/projects/synalist/)
 * [The Indy project](http://www.indyproject.org/)
 * [TFireMonkeyContainer](http://parnassus.co/open-source/tfiremonkeycontainer/)
 * [BTMemoryModule](http://github.com/DSPlayer/memorymodule)
+* [Chinook] (http://github.com/lerocha/chinook-database)
 
 ![Concepts](https://github.com/beNative/Concepts/blob/master/Wiki/Concepts_14-02-2017%2015-07-20.png)
 
