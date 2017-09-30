@@ -18,6 +18,7 @@
 * [TFireMonkeyContainer](http://parnassus.co/open-source/tfiremonkeycontainer/)
 * [BTMemoryModule](http://github.com/DSPlayer/memorymodule)
 * [Chinook database](http://github.com/lerocha/chinook-database)
+* [SQLite](https://www.sqlite.org/)
 
 ![Concepts](https://github.com/beNative/Concepts/blob/master/Wiki/Concepts_14-02-2017%2015-07-20.png)
 
