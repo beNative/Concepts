@@ -21,6 +21,7 @@ interface
 uses
   System.Classes,
 
+  Spring,
   Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics,
 
   ORM.Chinook.Track, ORM.Chinook.Playlist;
@@ -34,6 +35,9 @@ type
     FTrackId    : Integer;
     FPlayList   : TPlaylist;
     FTrack      : TTrack;
+
+  public
+    procedure BeforeDestruction; override;
 
   published
     [Column('PlaylistId', [cpRequired, cpPrimaryKey, cpNotNull], 9, 0)]
@@ -56,5 +60,16 @@ type
 
 implementation
 
+uses
+  System.SysUtils;
+
+{$REGION 'construction and destruction'}
+procedure TPlaylistTrack.BeforeDestruction;
+begin
+  FreeAndNil(FPlayList);
+  FreeAndNil(FTrack);
+  inherited BeforeDestruction;
+end;
+{$ENDREGION}
 
 end.

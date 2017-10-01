@@ -156,9 +156,6 @@
         <DCCReference Include="Forms\Concepts.DevExpress.cxEditors.Form.pas">
             <Form>frmcxEditors</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Concepts.DSharp.Bindings.Form.pas">
-            <Form>frmBindings</Form>
-        </DCCReference>
         <DCCReference Include="Forms\Concepts.DSharp.TreeViewPresenter.Tree.Form.pas">
             <Form>frmTreeViewPresenterTree</Form>
         </DCCReference>
@@ -238,7 +235,6 @@
             <Form>frmVirtualMethodInterceptor</Form>
         </DCCReference>
         <DCCReference Include="Types\Concepts.Types.Contact.pas"/>
-        <DCCReference Include="Types\Concepts.Types.ValidationRules.pas"/>
         <DCCReference Include="Concepts.Utils.pas"/>
         <DCCReference Include="Forms\Concepts.Vcl.GridPanel.Form.pas">
             <Form>frmGridPanel</Form>

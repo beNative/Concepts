@@ -38,6 +38,9 @@ type
     FInvoice       : TInvoice;
     FTrack         : TTrack;
 
+  public
+    procedure BeforeDestruction; override;
+
   published
     [Column('InvoiceLineId', [cpRequired, cpPrimaryKey, cpNotNull], 9, 0)]
     property InvoiceLineId: Integer
@@ -70,5 +73,16 @@ type
 
 implementation
 
+uses
+  System.SysUtils;
+
+{$REGION 'construction and destruction'}
+procedure TInvoiceLine.BeforeDestruction;
+begin
+  FreeAndNil(FInvoice);
+  FreeAndNil(FTrack);
+  inherited BeforeDestruction;
+end;
+{$ENDREGION}
 
 end.

@@ -44,6 +44,9 @@ type
     FMediaType    : TMediaType;
     FGenre        : TGenre;
 
+  public
+    procedure BeforeDestruction; override;
+
   published
     [Column('TrackId', [cpRequired, cpPrimaryKey, cpNotNull], 9, 0)]
     property TrackId: Integer
@@ -96,5 +99,17 @@ type
 
 implementation
 
+uses
+  System.SysUtils;
+
+{$REGION 'construction and destruction'}
+procedure TTrack.BeforeDestruction;
+begin
+  FreeAndNil(FMediaType);
+  FreeAndNil(FAlbum);
+  FreeAndNil(FGenre);
+  inherited BeforeDestruction;
+end;
+{$ENDREGION}
 
 end.

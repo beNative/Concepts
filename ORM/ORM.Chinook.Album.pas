@@ -21,6 +21,7 @@ interface
 uses
   System.Classes,
 
+  Spring,
   Spring.Persistence.Mapping.Attributes, Spring.Persistence.Core.Graphics,
 
   ORM.Chinook.Artist;
@@ -34,6 +35,9 @@ type
     FTitle    : string;
     FArtistId : Integer;
     FArtist   : TArtist;
+
+  public
+    procedure BeforeDestruction; override;
 
   published
     [Column('AlbumId', [cpRequired, cpPrimaryKey, cpNotNull], 9, 0)]
@@ -55,5 +59,15 @@ type
 
 implementation
 
+uses
+  System.SysUtils;
+
+{$REGION 'construction and destruction'}
+procedure TAlbum.BeforeDestruction;
+begin
+  FreeAndNil(FArtist);
+  inherited BeforeDestruction;
+end;
+{$ENDREGION}
 
 end.

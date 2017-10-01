@@ -42,6 +42,9 @@ type
     FCustomerId        : Integer;
     FCustomer          : TCustomer;
 
+  public
+    procedure BeforeDestruction; override;
+
   published
     [Column('InvoiceId', [cpRequired, cpPrimaryKey, cpNotNull], 9, 0)]
     property InvoiceId: Integer
@@ -86,5 +89,15 @@ type
 
 implementation
 
+uses
+  System.SysUtils;
+
+{$REGION 'construction and destruction'}
+procedure TInvoice.BeforeDestruction;
+begin
+  FreeAndNil(FCustomer);
+  inherited BeforeDestruction;
+end;
+{$ENDREGION}
 
 end.

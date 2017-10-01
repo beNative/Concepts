@@ -30,7 +30,10 @@ type
   TParameter = class
   private
     FRttiParameter: TRttiParameter;
+
+  protected
     function GetName: string;
+
   public
     constructor Create(AParameter: TRttiParameter);
 
@@ -46,10 +49,9 @@ type
     FRttiMember : TRttiMember;
     FParameters : IList<TParameter>;
 
+  protected
     function GetRttiMember: TRttiMember;
     function GetParameters: IObjectList;
-
-  protected
     function GetName: string; virtual;
 
   public
@@ -66,12 +68,8 @@ type
   end;
 
   TMethodData = class(TMemberData)
-  private
-    FParameters: IList<TParameter>;
-
-    function GetRttiMethod: TRttiMethod;
-
   protected
+    function GetRttiMethod: TRttiMethod;
     function GetName: string; override;
 
   public

@@ -360,7 +360,7 @@ end;
 
 procedure TfrmIndyTCP.actSendExecute(Sender: TObject);
 begin
-  SendString(cbxSent.Text);
+  SendString(RawByteString(cbxSent.Text));
 end;
 {$ENDREGION}
 
@@ -370,9 +370,9 @@ procedure TfrmIndyTCP.IdConnectionInterceptReceive(
 begin
   //ToHex()
   //DoStringReceived(RawByteString(PAnsiChar(ABuffer)));
-  DoStringReceived(ToHex(ABuffer));
+  DoStringReceived(RawByteString(ToHex(ABuffer)));
   UpdateControls;
-  Logger.Send('InterceptReceive', PAnsiChar(ABuffer));
+  Logger.Send('InterceptReceive', string(PAnsiChar(ABuffer)));
 end;
 
 procedure TfrmIndyTCP.IdTCPClientStatus(ASender: TObject;
@@ -391,7 +391,7 @@ end;
 
 procedure TfrmIndyTCP.FCommandExecute(Sender: TObject);
 begin
-  SendString((Sender as TContainedAction).Caption);
+  SendString(RawByteString((Sender as TContainedAction).Caption));
 end;
 
 function TfrmIndyTCP.FInspectorBeforeAddItem(Sender: TControl;
@@ -449,13 +449,13 @@ end;
 procedure TfrmIndyTCP.DoStringReceived(const AString: RawByteString);
 begin
   if Assigned(FLogin) then
-    FLogIn.Log(AString);
+    FLogIn.Log(string(AString));
 
 
     //MakeLogString(string(AString)));
   mmoReceivedText.DisableAlign;
   mmoReceivedText.Text :=
-    mmoReceivedText.Text + AdjustLineBreaks(AString, tlbsCRLF);
+    mmoReceivedText.Text + AdjustLineBreaks(string(AString), tlbsCRLF);
   mmoReceivedText.EnableAlign;
   // scroll to last entry
   mmoReceivedText.SelStart := Length(mmoReceivedText.Text) - 1;
@@ -569,11 +569,11 @@ procedure TfrmIndyTCP.SendString(const AString: RawByteString);
 var
   S  : string;
 begin
-  Client.IOHandler.Write(AString);
+  Client.IOHandler.Write(string(AString));
 
   //DoStringReceived(Client.IOHandler.AllData);
-  FLogOut.Log(AString);
-  S := Trim(AString);
+  FLogOut.Log(string(AString));
+  S := string(Trim(AString));
   if cbxSent.Items.IndexOf(S) = -1 then
     cbxSent.Items.Add(S);
   mmoSentText.Lines.Add(string(AString));
