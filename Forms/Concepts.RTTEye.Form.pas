@@ -87,6 +87,8 @@ uses
   System.SysUtils, System.TypInfo, System.Threading,
   Vcl.Dialogs, Vcl.Graphics,
 
+  Spring, Spring.Reflection,
+
   Concepts.Utils;
 
 const
@@ -460,7 +462,9 @@ var
   UnitName    : string;
   Package     : TRttiPackage;
   PackageNode : TTreeNode;
+  Tasks       : Vector<ITask>;
 begin
+  Tasks.Length := 4;
   tvRTTI.Items.BeginUpdate;
   tvRTTI.Items.Clear;
   Units := TStringList.Create;
@@ -479,6 +483,7 @@ begin
       end;
       PNode := nil;
 
+
       for T in TypeList do
       begin
         UnitName := GetUnitName(T);
@@ -491,7 +496,7 @@ begin
 
         Node := tvRTTI.Items.AddChildObject(PNode, T.ToString, T);
 
-//       TTask.Run(procedure
+//      Tasks[0] := TTask.Create(procedure
 //      var F           : TRttiField;
 //         begin
 //          for F in T.GetDeclaredFields do
@@ -499,13 +504,16 @@ begin
 //         end
 //       );
 //
-//              TTask.Run(procedure
+//      Tasks[1] := TTask.Create(procedure
 //      var M           : TRttiMethod;
 //         begin
 //           for M in T.GetDeclaredMethods do
 //          tvRTTI.Items.AddChildObject(Node, M.ToString, M);
 //         end
-//       );                 TTask.Run(procedure
+//       );
+//
+//
+//      Tasks[2] := TTask.Create(procedure
 //      var
 //        P           : TRttiProperty;
 //         begin
@@ -514,13 +522,23 @@ begin
 //         end
 //       );
 //
-//       TTask.Run(procedure var
+//       Tasks[3] := TTask.Create(procedure var
 //        IP          : TRttiIndexedProperty;
 //         begin
 //        for IP in T.GetDeclaredIndexedProperties do
 //          tvRTTI.Items.AddChildObject(Node, IP.ToString, IP);
 //         end
 //       );
+//
+//       Tasks[0].Start;
+//       Tasks[1].Start;
+//       Tasks[2].Start;
+//       Tasks[3].Start;
+//
+//
+//       TTask.WaitForAll(Tasks.Data);
+
+
 
 
         for F in T.GetDeclaredFields do
