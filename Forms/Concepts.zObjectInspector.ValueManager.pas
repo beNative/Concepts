@@ -58,7 +58,7 @@ type
     //class function HasDialog(const PItem: PPropItem): Boolean; override;
     /// <summary> Get customized dialog for current item .
     /// </summary>
-    //class function GetDialog(const PItem: PPropItem): TComponentClass; override;
+    class function GetDialog(const PItem: PPropItem): TComponentClass; override;
     //class procedure DialogCode(const PItem: PPropItem; Dialog: TComponent; Code: Integer); override;
     /// <summary> Get the value returned after editing from the dialog .
     /// </summary>
@@ -77,9 +77,21 @@ type
 implementation
 
 uses
+  Concepts.zObjectInspector.StringsDialog.Form,
+
   DDuce.Logger;
 
 { TValueManager }
+
+class function TValueManager.GetDialog(const PItem: PPropItem): TComponentClass;
+begin
+  if GetValueType(PItem) = vtString then
+  begin
+    Result := TfrmStringsDialog;
+  end
+  else
+    Result := inherited GetDialog(PItem);
+end;
 
 class procedure TValueManager.SetValue(const PItem: PPropItem;
   var Value: TValue);

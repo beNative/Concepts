@@ -453,7 +453,8 @@ uses
   Spring.Persistence.SQL.Interfaces in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Interfaces.pas',
   Spring.Persistence.SQL.Params in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Params.pas',
   Spring.Persistence.SQL.Register in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Register.pas',
-  Spring.Persistence.SQL.Types in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Types.pas';
+  Spring.Persistence.SQL.Types in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Types.pas',
+  Concepts.zObjectInspector.StringsDialog.Form in 'Forms\Concepts.zObjectInspector.StringsDialog.Form.pas' {frmStringsDialog};
 
 {$R *.res}
 

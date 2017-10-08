@@ -26,7 +26,7 @@ uses
   System.Classes,
   Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms,
 
-  DDuce.Components.PropertyInspector,
+  DDuce.Components.PropertyInspector,   zObjInspector,
 
   ChromeTabs, ChromeTabsClasses, ChromeTabsTypes;
 
@@ -57,6 +57,7 @@ type
     );
 
   private
+    FObjectInspector   : TzObjectInspector;
     FPropertyInspector : TPropertyInspector;
     FCTTop             : TChromeTabs;
 
@@ -76,6 +77,10 @@ type
 implementation
 
 uses
+  System.TypInfo,
+
+  Concepts.Factories,
+
   DDuce.Components.Factories;
 
 {$R *.dfm}
@@ -93,17 +98,27 @@ begin
   FCTTop.OnTabDragDrop          := FCTTopTabDragDrop;
   FCTTop.OnNeedDragImageControl := FCTTopNeedDragImageControl;
 
-  FPropertyInspector :=
-    TDDuceComponents.CreatePropertyInspector(Self, pnlLeft, FCTTop);
-  for I := 0 to ComponentCount - 1 do
-  begin
-    if Components[I] is TWinControl then
-    begin
-      C := TWinControl(Components[I]);
-      cbxControls.AddItem(C.Name, C);
-    end;
-  end;
-  cbxControls.ItemIndex := 0;
+  FObjectInspector := TConceptFactories.CreatezObjectInspector(
+    Self,
+    pnlLeft
+  );
+
+  //FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
+  FObjectInspector.ObjectVisibility := mvPublic;
+  FObjectInspector.Component := FCTTop;
+  FObjectInspector.ExpandAll;
+
+//  FPropertyInspector :=
+//    TDDuceComponents.CreatePropertyInspector(Self, pnlLeft, FCTTop);
+//  for I := 0 to ComponentCount - 1 do
+//  begin
+//    if Components[I] is TWinControl then
+//    begin
+//      C := TWinControl(Components[I]);
+//      cbxControls.AddItem(C.Name, C);
+//    end;
+//  end;
+//  cbxControls.ItemIndex := 0;
 end;
 {$ENDREGION}
 

@@ -115,7 +115,7 @@ begin
   for I := 0 to bgMain.Images.Count - 1 do
     with bgMain.Items.Add do
       ImageIndex := I;
-  //FObjectHost.AddObject(FObjectInspector, 'ObjectInspector');
+  FObjectHost.AddObject(FObjectInspector, 'ObjectInspector');
   FObjectHost.AddObject(FContact, 'FContact');
 
   FObjectInspector.Component := FObjectHost;
