@@ -40,19 +40,6 @@ object frmChromeTabs: TfrmChromeTabs
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
-      object cbxControls: TComboBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 307
-        Height = 21
-        Margins.Bottom = 0
-        Align = alTop
-        Style = csDropDownList
-        DropDownCount = 20
-        TabOrder = 0
-        OnChange = cbxControlsChange
-      end
     end
     object pnlRight: TPanel
       Left = 321

@@ -26,7 +26,7 @@ uses
   System.Classes,
   Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms,
 
-  DDuce.Components.PropertyInspector,   zObjInspector,
+  zObjInspector,
 
   ChromeTabs, ChromeTabsClasses, ChromeTabsTypes;
 
@@ -36,13 +36,11 @@ type
     pnlMain       : TPanel;
     pnlLeft       : TPanel;
     pnlRight      : TPanel;
-    cbxControls   : TComboBox;
     sbrStatusBar  : TStatusBar;
     splSplitter   : TSplitter;
     pnlDrag       : TPanel;
     {$ENDREGION}
 
-    procedure cbxControlsChange(Sender: TObject);
     procedure FCTTopNeedDragImageControl(
       Sender          : TObject;
       ATab            : TChromeTab;
@@ -55,11 +53,14 @@ type
       Cancelled          : Boolean;
       var TabDropOptions : TTabDropOptions
     );
+    function FObjectInspectorBeforeAddItem(
+      Sender : TControl;
+      PItem  : PPropItem
+    ): Boolean;
 
   private
-    FObjectInspector   : TzObjectInspector;
-    FPropertyInspector : TPropertyInspector;
-    FCTTop             : TChromeTabs;
+    FObjectInspector : TzObjectInspector;
+    FCTTop           : TChromeTabs;
 
   protected
     procedure ProcessDroppedTab(
@@ -77,7 +78,7 @@ type
 implementation
 
 uses
-  System.TypInfo,
+  System.TypInfo, System.Rtti,
 
   Concepts.Factories,
 
@@ -102,35 +103,13 @@ begin
     Self,
     pnlLeft
   );
-
-  //FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
+  FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
   FObjectInspector.ObjectVisibility := mvPublic;
   FObjectInspector.Component := FCTTop;
-  FObjectInspector.ExpandAll;
-
-//  FPropertyInspector :=
-//    TDDuceComponents.CreatePropertyInspector(Self, pnlLeft, FCTTop);
-//  for I := 0 to ComponentCount - 1 do
-//  begin
-//    if Components[I] is TWinControl then
-//    begin
-//      C := TWinControl(Components[I]);
-//      cbxControls.AddItem(C.Name, C);
-//    end;
-//  end;
-//  cbxControls.ItemIndex := 0;
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
-procedure TfrmChromeTabs.cbxControlsChange(Sender: TObject);
-var
-  C: TWinControl;
-begin
-  C := cbxControls.Items.Objects[cbxControls.ItemIndex] as TWinControl;
-  FPropertyInspector.Objects[0] := C;
-end;
-
 procedure TfrmChromeTabs.FCTTopNeedDragImageControl(Sender: TObject;
   ATab: TChromeTab; var DragControl: TWinControl);
 begin
@@ -142,6 +121,12 @@ procedure TfrmChromeTabs.FCTTopTabDragDrop(Sender: TObject; X, Y: Integer;
   var TabDropOptions: TTabDropOptions);
 begin
   ProcessDroppedTab(Sender, X, Y, DragTabObject, Cancelled, TabDropOptions);
+end;
+
+function TfrmChromeTabs.FObjectInspectorBeforeAddItem(Sender: TControl;
+  PItem: PPropItem): Boolean;
+begin
+  Result := not (PItem.Prop.PropertyType is TRttiMethodType);
 end;
 {$ENDREGION}
 

@@ -82,6 +82,7 @@ object FireMonkeyForm: TFireMonkeyForm
       Position.X = 24.000000000000000000
       Position.Y = 128.000000000000000000
       TabOrder = 5
+      OnChange = trbExampleChange
     end
     object spbExample: TSpinBox
       Hint = 'TSpinBox'
@@ -115,8 +116,8 @@ object FireMonkeyForm: TFireMonkeyForm
     object pbrExample: TProgressBar
       Hint = 'TProgressBar'
       Orientation = Horizontal
-      Position.X = 24.000000000000000000
-      Position.Y = 152.000000000000000000
+      Position.X = 27.000000000000000000
+      Position.Y = 160.000000000000000000
     end
     object lstExample: TListBox
       Hint = 'TListBox'
@@ -152,9 +153,9 @@ object FireMonkeyForm: TFireMonkeyForm
     end
     object btnExample: TButton
       Hint = 'TButton'
-      Position.X = 24.000000000000000000
-      Position.Y = 23.000000000000000000
-      Size.Width = 105.000000000000000000
+      Position.X = 16.000000000000000000
+      Position.Y = 16.000000000000000000
+      Size.Width = 81.000000000000000000
       Size.Height = 22.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 1
@@ -162,8 +163,9 @@ object FireMonkeyForm: TFireMonkeyForm
     end
     object calExample: TCalendar
       Date = 43008.000000000000000000
-      Position.X = 288.000000000000000000
-      Position.Y = 184.000000000000000000
+      Position.X = 312.000000000000000000
+      Position.Y = 152.000000000000000000
+      RotationAngle = 30.000000000000000000
       Size.Width = 180.000000000000000000
       Size.Height = 145.000000000000000000
       Size.PlatformDefault = False
@@ -179,10 +181,10 @@ object FireMonkeyForm: TFireMonkeyForm
     end
     object btnCornerExample: TCornerButton
       Hint = 'TCornerButton'
-      Position.X = 24.000000000000000000
-      Position.Y = 48.000000000000000000
+      Position.X = 16.000000000000000000
+      Position.Y = 40.000000000000000000
       Sides = [Top, Left, Bottom, Right]
-      Size.Width = 105.000000000000000000
+      Size.Width = 81.000000000000000000
       Size.Height = 25.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 16
@@ -192,7 +194,8 @@ object FireMonkeyForm: TFireMonkeyForm
     end
     object lbxColors: TColorListBox
       Position.X = 472.000000000000000000
-      Position.Y = 184.000000000000000000
+      Position.Y = 96.000000000000000000
+      RotationAngle = -10.000000000000000000
       Size.Width = 193.000000000000000000
       Size.Height = 145.000000000000000000
       Size.PlatformDefault = False
@@ -216,6 +219,7 @@ object FireMonkeyForm: TFireMonkeyForm
       DropDownKind = Custom
       Color = claNull
       DisableFocusEffect = False
+      ItemIndex = 147
       Position.X = 208.000000000000000000
       Position.Y = 16.000000000000000000
       TabOrder = 18
@@ -225,15 +229,6 @@ object FireMonkeyForm: TFireMonkeyForm
       Position.Y = 16.000000000000000000
       TabOrder = 19
       Text = 'TRadioButton'
-    end
-    object mgTest: TMagnifierGlass
-      LoupeScale = 2.000000000000000000
-      HitTest = True
-      Position.X = 312.000000000000000000
-      Position.Y = 176.000000000000000000
-      Size.Width = 150.000000000000000000
-      Size.Height = 150.000000000000000000
-      Size.PlatformDefault = False
     end
   end
   object sbrExample: TStatusBar

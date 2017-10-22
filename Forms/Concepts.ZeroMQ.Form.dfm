@@ -23,12 +23,12 @@ object frmZMQConcept: TfrmZMQConcept
     Left = 8
     Top = 8
     Width = 420
-    Height = 697
+    Height = 717
     BevelOuter = bvNone
     TabOrder = 0
     DesignSize = (
       420
-      697)
+      717)
     object edtAddress: TLabeledEdit
       Left = 168
       Top = 32
@@ -186,7 +186,7 @@ object frmZMQConcept: TfrmZMQConcept
     end
     object btnSubscribe: TButton
       Left = 264
-      Top = 227
+      Top = 245
       Width = 131
       Height = 25
       Action = actSubscribe
@@ -196,7 +196,7 @@ object frmZMQConcept: TfrmZMQConcept
       Left = 264
       Top = 63
       Width = 156
-      Height = 96
+      Height = 104
       Caption = 'Transport'
       Columns = 2
       ItemIndex = 0
@@ -210,7 +210,7 @@ object frmZMQConcept: TfrmZMQConcept
     end
     object btnCreateNew: TButton
       Left = 264
-      Top = 165
+      Top = 173
       Width = 156
       Height = 25
       Action = actCreateNew
@@ -279,7 +279,7 @@ object frmZMQConcept: TfrmZMQConcept
       Left = 127
       Top = 565
       Width = 285
-      Height = 122
+      Height = 132
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11

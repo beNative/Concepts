@@ -58,7 +58,6 @@ type
     MenuItem7        : TMenuItem;
     MenuItem8        : TMenuItem;
     MenuItem9        : TMenuItem;
-    mgTest           : TMagnifierGlass;
     mnuMenuBar       : TMenuBar;
     pbrExample       : TProgressBar;
     rbtRadioButton   : TRadioButton;
@@ -69,11 +68,17 @@ type
     tbiExample1      : TTabItem;
     tbiExample2      : TTabItem;
     trbExample       : TTrackBar;
+    procedure trbExampleChange(Sender: TObject);
     {$ENDREGION}
   end;
 
 implementation
 
 {$R *.fmx}
+
+procedure TFireMonkeyForm.trbExampleChange(Sender: TObject);
+begin
+  pbrExample.Value := trbExample.Value;
+end;
 
 end.
