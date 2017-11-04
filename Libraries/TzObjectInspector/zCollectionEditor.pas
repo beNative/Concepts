@@ -19,13 +19,13 @@ unit zCollectionEditor;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.TypInfo, System.ImageList,
+  System.SysUtils, System.Classes, System.TypInfo,
   System.Actions, System.Rtti,
   Winapi.Windows,
-  Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.ActnList, Vcl.ImgList, Vcl.ToolWin,
+  Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.ActnList,
   Vcl.Controls, Vcl.Forms, Vcl.Menus,
-
-  zObjInspector;
+  zObjInspTypes,
+  zObjInspector, System.ImageList, Vcl.ImgList, Vcl.ToolWin;
 
 type
   TzCollectionEditorDialog = class(TzInspDialog)
@@ -108,7 +108,7 @@ implementation
 {$R *.dfm}
 
 uses
-  DDuce.Reflect, DDuce.Logger;
+  DDuce.Logger;
 
 {$REGION 'construction and destruction'}
 {$ENDREGION}
@@ -222,16 +222,16 @@ var
   I  : Integer;
 //  S  : string;
 //  V  : TValue;
-//  O  : TObject;
+  //O  : TObject;
 begin
   for I := 0 to lvCollectionItems.Items.Count - 1 do
   begin
     if lvCollectionItems.Items[I].Selected then
     begin
-//      O := FCollection.Items[I];
-//
-//
-//      // TODO : does not work anymore!
+      //O := FCollection.Items[I];
+
+
+      // TODO : does not work anymore!
 //      Reflect.Properties<TCollectionItem>(FCollection.Items[I]).Values[PItem.Name] := NewValue;
 //      .Values[PItem.Name] := NewValue;
 
@@ -263,14 +263,10 @@ begin
     begin
       FInspector.Component :=
         TPersistent(lvCollectionItems.Items[lvCollectionItems.ItemIndex].Data);
-//      FInspector.Add(
-//        TPersistent(lvCollectionItems.Items[lvCollectionItems.ItemIndex].Data)
-//      );
-
       for I := 0 to FInspector.Items.Count - 1 do
       begin
-//        if FInspector.Items[I].Expandable = mieYes then
-//          FInspector.Items[I].Expand;
+        if FInspector.Items.Items[I].HasChild then
+          FInspector.ExpandItem(FInspector.Items.Items[I]);
       end;
     end;
   finally

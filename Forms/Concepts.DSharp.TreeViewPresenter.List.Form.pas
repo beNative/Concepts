@@ -44,7 +44,7 @@ uses
 
   VirtualTrees,
 
-  zObjInspector,
+  zObjInspector, zObjInspTypes,
 
   DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter,
   DSharp.Bindings, DSharp.Windows.CustomPresenter,

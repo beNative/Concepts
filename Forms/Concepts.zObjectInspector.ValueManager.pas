@@ -18,13 +18,14 @@ unit Concepts.zObjectInspector.ValueManager;
 
 interface
 
-{ This class allows us to customize the property editor. }
+{ This class allows us to customize the property editors of the object
+  inspector instance. }
 
 uses
   System.Classes, System.Rtti, System.Types,
   Vcl.Graphics,
 
-  zObjInspector;
+  zObjInspector, zObjInspTypes, zValueManager;
 
 type
   TValueManager = class(TzCustomValueManager)
@@ -32,7 +33,7 @@ type
     /// <summary> Use custom ListBox .
     /// </summary>
     //class function GetListClass(const PItem: PPropItem): TPopupListClass; override;
-    class procedure SetValue(const PItem: PPropItem; var Value: TValue); override;
+    procedure SetValue(const PItem: PPropItem; var Value: TValue); override;
 ///    class function GetValue(const PItem: PPropItem; const Value): TValue; override;
 //    class function GetValueName(const PItem: PPropItem): string; override;
     /// <summary> Check if item can assign value that is not listed in ListBox .
@@ -58,7 +59,7 @@ type
     //class function HasDialog(const PItem: PPropItem): Boolean; override;
     /// <summary> Get customized dialog for current item .
     /// </summary>
-    class function GetDialog(const PItem: PPropItem): TComponentClass; override;
+    function GetDialog(const PItem: PPropItem): TComponentClass; override;
     //class procedure DialogCode(const PItem: PPropItem; Dialog: TComponent; Code: Integer); override;
     /// <summary> Get the value returned after editing from the dialog .
     /// </summary>
@@ -83,7 +84,7 @@ uses
 
 { TValueManager }
 
-class function TValueManager.GetDialog(const PItem: PPropItem): TComponentClass;
+function TValueManager.GetDialog(const PItem: PPropItem): TComponentClass;
 begin
   if GetValueType(PItem) = vtString then
   begin
@@ -93,15 +94,12 @@ begin
     Result := inherited GetDialog(PItem);
 end;
 
-class procedure TValueManager.SetValue(const PItem: PPropItem;
+procedure TValueManager.SetValue(const PItem: PPropItem;
   var Value: TValue);
 begin
   Logger.Track('SetValue');
   Logger.Watch('Value', Value);
   inherited;
 end;
-
-initialization
-  DefaultValueManager := TValueManager;
 
 end.

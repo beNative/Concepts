@@ -35,7 +35,7 @@ uses
 
   Spring.Collections,
 
-  zObjInspector,
+  zObjInspector, zObjInspTypes,
 
   BCEditor.Editor.Base, BCEditor.Editor, BCEditor.Highlighter;
 

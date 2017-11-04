@@ -34,7 +34,7 @@ uses
 
   Concepts.Types.Contact,
 
-  zObjInspector;
+  zObjInspector, zObjInspTypes;
 
 type
   TfrmzObjectInspector = class(TForm)

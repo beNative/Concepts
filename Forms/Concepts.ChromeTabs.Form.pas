@@ -26,7 +26,7 @@ uses
   System.Classes,
   Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms,
 
-  zObjInspector,
+  zObjInspector, zObjInspTypes,
 
   ChromeTabs, ChromeTabsClasses, ChromeTabsTypes;
 

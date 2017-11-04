@@ -88,6 +88,10 @@
           TabOrder = 0
           object tsSampleCode: TTabSheet
             Caption = 'Sample code'
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object pnlExampleCodeHeader: TPanel
               AlignWithMargins = True
               Left = 3

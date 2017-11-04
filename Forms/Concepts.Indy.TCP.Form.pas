@@ -38,7 +38,7 @@ uses
 
   DDuce.Components.LogTree, DDuce.Components.PropertyInspector, DDuce.Logger,
 
-  zObjInspector,
+  zObjInspector, zObjInspTypes,
 
   IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdCmdTCPClient,
   IdContext, IdIntercept, IdGlobal, IdIOHandler, IdIOHandlerSocket,
