@@ -1,6 +1,6 @@
 # Concepts
 
-**Concepts** is a modular Delphi application which illustrates some language features, design patterns and some interresting frameworks and components which include:
+**Concepts** is a modular Delphi application which illustrates some language features, design patterns and some interesting frameworks and components which include:
 
 * [Delphi Run-Time Library (or RTL)](http://docwiki.embarcadero.com/RADStudio/Tokyo/en/Using_the_RTL_(Run-Time_Library))
 * [FireMonkey (FMX)](http://docwiki.embarcadero.com/Libraries/Tokyo/en/FMX)
