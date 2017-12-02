@@ -30,8 +30,8 @@ type
     function GetFloatPreference: TzFloatPreference;
     procedure SetFloatPreference(const Value: TzFloatPreference);
   public
-    constructor Create;
-    destructor Destroy; override;
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
 
     /// <summary> Use custom ListBox .
     /// </summary>
@@ -80,8 +80,8 @@ type
       read GetFloatPreference write SetFloatPreference;
   end;
 
-  function IsPropTypeDerivedFromClass(const PropType: TRttiType; BaseClass: TClass): Boolean;
-  function IsValueSigned(const Value: TValue): Boolean;
+function IsPropTypeDerivedFromClass(const PropType: TRttiType; BaseClass: TClass): Boolean;
+function IsValueSigned(const Value: TValue): Boolean;
 
 implementation
 
@@ -264,21 +264,19 @@ begin
     inherited Assign(Source);
 end;
 
-constructor TzCustomValueManager.Create;
+procedure TzCustomValueManager.AfterConstruction;
 begin
+  inherited AfterConstruction;
   FFloatPreference := TzFloatPreference.Create;
-
-  with FFloatPreference do
-  begin
-    ExpPrecision := cDefaultExpPrecision;
-    MaxDigits := cDefaultMaxDigits;
-    FormatOptions := cDefaultFormatOptions;
-  end;
+  FFloatPreference.ExpPrecision  := cDefaultExpPrecision;
+  FFloatPreference.MaxDigits     := cDefaultMaxDigits;
+  FFloatPreference.FormatOptions := cDefaultFormatOptions;
 end;
 
-destructor TzCustomValueManager.Destroy;
+procedure TzCustomValueManager.BeforeDestruction;
 begin
   FFloatPreference.Free;
+  inherited BeforeDestruction;
 end;
 
 procedure TzCustomValueManager.DialogCode(const PItem: PPropItem; Dialog: TComponent; Code: Integer);

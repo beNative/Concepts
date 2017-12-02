@@ -229,6 +229,7 @@ type
     FObjectVisibility: TMemberVisibility;
     FIsSettingComponent: Boolean;
     FValueManager: TzCustomValueManager;
+    FIsDefaultValueManager: Boolean; // created/destroyed by ObjInspector
     FCanvasStack: TzCanvasStack;
     procedure SetComponent(Value: TObject);
     function GetItemOrder(PItem: PPropItem): Integer;
@@ -242,6 +243,10 @@ type
     procedure ComponentChanged; virtual;
     procedure Changed; virtual;
   public
+    constructor Create(AOwner: TComponent; AValueManager: TzCustomValueManager = nil); reintroduce; virtual;
+    destructor Destroy; override;
+    procedure AfterConstruction; override;
+
     procedure Invalidate; override;
     procedure BeginUpdate;
     procedure EndUpdate;
@@ -252,8 +257,6 @@ type
     procedure RegisterPropertyInCategory(const CategoryName: string; const PropertyName: string);
     procedure UpdateProperties(const Repaint: Boolean = False); virtual;
     function IsValueNoDefault(QualifiedName: String; Value: String): Boolean;
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     property CanvasStack: TzCanvasStack read FCanvasStack;
     property Category: TList<String> read FCategory;
     property Component: TObject read FComponent write SetComponent;
@@ -280,7 +283,7 @@ type
   protected
     procedure CreateParams(var Params: TCreateParams); override;
   public
-    constructor Create(AOwner: TComponent); override;
+    procedure AfterConstruction; override;
     property BorderStyle: TBorderStyle read FBorderStyle write SetBorderStyle;
     property ReadOnly: Boolean read FReadOnly write FReadOnly;
   end;
@@ -304,7 +307,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure Paint; override;
   public
-    constructor Create(AOwner: TComponent); override;
+    procedure AfterConstruction; override;
     property SplitterColor: TColor read FSplitterColor write SetSplitterColor;
     property SplitterPos: Integer read FSplitterPos write SetSplitterPos;
     property FixedSplitter: Boolean read FFixedSplitter write FFixedSplitter;
@@ -333,7 +336,7 @@ type
     procedure Paint; override;
     procedure PaintHeader; virtual;
   public
-    constructor Create(AOwner: TComponent); override;
+    procedure AfterConstruction; override;
     property HeaderRect: TRect read GetHeaderRect;
     property HeaderPropRect: TRect read GetHeaderPropRect;
     property HeaderValueRect: TRect read GetHeaderValueRect;
@@ -367,7 +370,7 @@ type
     procedure PaintItem(Index: Integer); virtual;
     procedure CreateParams(var Params: TCreateParams); override;
   public
-    constructor Create(AOwner: TComponent); override;
+    procedure AfterConstruction; override;
     property VisiblePropCount: Integer read GetVisiblePropCount;
   end;
 
@@ -463,6 +466,8 @@ type
     procedure PaintCategory(Index: Integer); virtual;
     procedure PaintItemValue(PItem: PPropItem; Index: Integer); virtual;
   public
+    procedure AfterConstruction; override;
+
     function SetPropValue(PropItem: PPropItem; var Value: TValue): Boolean;
     /// <summary> Update the Inspector .
     /// </summary>
@@ -474,7 +479,6 @@ type
     procedure CollapseAll;
     function ExpandItem(PItem: PPropItem): Boolean;
     function CollapseItem(PItem: PPropItem): Boolean;
-    constructor Create(AOwner: TComponent); override;
     property SelectedIndex: Integer read FSelectedIndex;
     property PlusMinBtnRect[Index: Integer]: TRect read GetPlusMinBtnRect;
     property PropTextRect[Index: Integer]: TRect read GetPropTextRect;
@@ -611,9 +615,16 @@ type
 
 { TzObjInspectorBase }
 
-constructor TzObjInspectorBase.Create(AOwner: TComponent);
+constructor TzObjInspectorBase.Create(AOwner: TComponent;
+  AValueManager: TzCustomValueManager);
 begin
-  inherited;
+  inherited Create(AOwner);
+  FValueManager := AValueManager;
+end;
+
+procedure TzObjInspectorBase.AfterConstruction;
+begin
+  inherited AfterConstruction;
   FLockUpdate := False;
   FCanvasStack := TzCanvasStack.Create();
   ControlStyle := ControlStyle - [csAcceptsControls];
@@ -632,13 +643,16 @@ begin
   FOnBeforeAddItem := nil;
   FComponent := nil;
   FObjectVisibility := mvPublic;
-  FValueManager := TzCustomValueManager.Create;
+  if not Assigned(FValueManager) then
+  begin
+    FIsDefaultValueManager := True;
+    FValueManager := TzCustomValueManager.Create;
+  end;
 end;
 
 destructor TzObjInspectorBase.Destroy;
 begin
   FCanvasStack.Free;
-  FValueManager.Free;
   if Assigned(FExpandedList) then
     FreeAndNil(FExpandedList);
   if Assigned(FPropInstance) then
@@ -658,6 +672,10 @@ begin
   if Assigned(FDefPropValue) then
     FreeAndNil(FDefPropValue);
   FContext.Free;
+  if FIsDefaultValueManager then
+    FValueManager.Free
+  else
+    FValueManager := nil;
   inherited;
 end;
 
@@ -1136,9 +1154,9 @@ end;
 
 { TzObjInspectorList }
 
-constructor TzObjInspectorList.Create(AOwner: TComponent);
+procedure TzObjInspectorList.AfterConstruction;
 begin
-  inherited;
+  inherited AfterConstruction;
   Width := 300;
   Height := 300;
   FBorderStyle := bsSingle;
@@ -1164,9 +1182,9 @@ end;
 
 { TzObjInspectorSizing }
 
-constructor TzObjInspectorSizing.Create(AOwner: TComponent);
+procedure TzObjInspectorSizing.AfterConstruction;
 begin
-  inherited;
+  inherited AfterConstruction;
   FOnSplitterPosChanged := nil;
   Color := clWhite;
   FFixedSplitter := False;
@@ -1279,9 +1297,9 @@ end;
 
 { TzObjInspectorHeader }
 
-constructor TzObjInspectorHeader.Create(AOwner: TComponent);
+procedure TzObjInspectorHeader.AfterConstruction;
 begin
-  inherited;
+  inherited AfterConstruction;
   FOnHeaderMouseDown := nil;
   FHeaderPressed := False;
   FHeaderPropPressed := False;
@@ -1419,17 +1437,17 @@ end;
 
 { TzScrollObjInspectorList }
 
+procedure TzScrollObjInspectorList.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  FPrevScrollPos := 0;
+end;
+
 procedure TzScrollObjInspectorList.CMFONTCHANGED(var Message: TMessage);
 begin
   inherited;
   Canvas.Font.Assign(Font);
   FItemHeight := Canvas.TextHeight('WA') + 4; // 17;
-end;
-
-constructor TzScrollObjInspectorList.Create(AOwner: TComponent);
-begin
-  inherited;
-  FPrevScrollPos := 0;
 end;
 
 procedure TzScrollObjInspectorList.CreateParams(var Params: TCreateParams);
@@ -1700,26 +1718,9 @@ end;
 
 { TzCustomObjInspector }
 
-function TzCustomObjInspector.CanDrawChevron(Index: Integer): Boolean;
-var
-  PItem: PPropItem;
-  iOrd: Integer;
+procedure TzCustomObjInspector.AfterConstruction;
 begin
-  Result := False;
-  if (Index > -1) and (Index = FSelectedIndex) then
-  begin
-    PItem := FVisibleItems.Items[Index];
-    iOrd := GetItemOrder(PItem);
-    if iOrd > 0 then
-      Exit(True)
-    else if (iOrd = 0) and not(PItem.HasChild) then
-      Exit(True);
-  end;
-end;
-
-constructor TzCustomObjInspector.Create(AOwner: TComponent);
-begin
-  inherited;
+  inherited AfterConstruction;
   if csDesigning in ComponentState then
     Component := Self;
   FAllowSearch := True;
@@ -1761,6 +1762,23 @@ begin
   if not(csDesigning In ComponentState) then
     FPropInspEdit.Parent := Self;
   FPropInspEdit.BorderStyle := bsNone;
+end;
+
+function TzCustomObjInspector.CanDrawChevron(Index: Integer): Boolean;
+var
+  PItem: PPropItem;
+  iOrd: Integer;
+begin
+  Result := False;
+  if (Index > -1) and (Index = FSelectedIndex) then
+  begin
+    PItem := FVisibleItems.Items[Index];
+    iOrd := GetItemOrder(PItem);
+    if iOrd > 0 then
+      Exit(True)
+    else if (iOrd = 0) and not(PItem.HasChild) then
+      Exit(True);
+  end;
 end;
 
 procedure TzCustomObjInspector.CreateWnd;
