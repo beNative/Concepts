@@ -24,10 +24,17 @@ unit ChromeTabsClasses;
 interface
 
 uses
-  Windows, Classes, SysUtils, ImgList, Controls, Graphics,
-  Forms, Contnrs, Messages, Dialogs,
-
-  {$IF CompilerVersion >= 23}System.UITypes,{$IFEND}
+  {$IF CompilerVersion >= 23.0}
+  System.SysUtils,System.Classes,System.Types,System.Math,System.Contnrs,
+  System.UITypes,
+  Vcl.Graphics,Vcl.Controls,Vcl.ExtCtrls,Vcl.Forms,Vcl.GraphUtil,Vcl.ImgList,
+  Vcl.Dialogs,
+  WinApi.Windows, WinApi.Messages,
+  {$ELSE}
+  SysUtils,Classes,Math,Contnrs,
+  Graphics,Controls,ExtCtrls,Forms,GraphUtil,ImgList,Dialogs,
+  Windows,Messages,
+  {$ifend}
 
   GDIPObj, GDIPAPI,
 
@@ -43,8 +50,8 @@ type
   IChromeTab = interface
     ['{B1B1F10B-3E5C-4A9E-B62F-8C322C803902}']
     function GetCaption: TCaption;
-    function GetImageIndex: TImageIndex;
-    function GetImageIndexOverlay: TImageIndex;
+    function GetImageIndex: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex;
+    function GetImageIndexOverlay: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex;
     function GetActive: Boolean;
     function GetPinned: Boolean;
     function GetIndex: Integer;
@@ -108,8 +115,8 @@ type
     FCollection: TCollection;
     FCaption: TCaption;
     FData: Pointer;
-    FImageIndex: TImageIndex;
-    FImageIndexOverlay: TImageIndex;
+    FImageIndex: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex;
+    FImageIndexOverlay: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex;
     FTag: integer;
     FPinned: Boolean;
     FTabControl: TObject;
@@ -122,10 +129,10 @@ type
 
     procedure SetActive(Value: boolean);
     procedure SetCaption(Value: TCaption);
-    procedure SetImageIndex(Value: TImageIndex);
+    procedure SetImageIndex(Value: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex);
     procedure SetTag(const Value: integer);
     procedure SetPinned(const Value: Boolean);
-    procedure SetImageIndexOverlay(const Value: TImageIndex);
+    procedure SetImageIndexOverlay(const Value: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex);
     procedure SetVisible(const Value: Boolean);
     procedure SetModified(const Value: Boolean);
     procedure SetSpinnerState(const Value: TChromeTabSpinnerState);
@@ -135,8 +142,8 @@ type
 
     function GetDisplayCaption: String;
     function GetCaption: TCaption;
-    function GetImageIndex: TImageIndex;
-    function GetImageIndexOverlay: TImageIndex;
+    function GetImageIndex: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex;
+    function GetImageIndexOverlay: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex;
     function GetActive: boolean;
     function GetPinned: Boolean;
     function GetIndex: Integer;
@@ -168,8 +175,8 @@ type
     property Caption: TCaption read GetCaption write SetCaption;
     property Active: boolean read GetActive write SetActive;
     property Tag: integer read GetTag write SetTag;
-    property ImageIndex: TImageIndex read GetImageIndex write SetImageIndex;
-    property ImageIndexOverlay: TImageIndex read GetImageIndexOverlay write SetImageIndexOverlay;
+    property ImageIndex: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex read GetImageIndex write SetImageIndex;
+    property ImageIndexOverlay: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex read GetImageIndexOverlay write SetImageIndexOverlay;
     property Pinned: Boolean read GetPinned write SetPinned;
     property Visible: Boolean read GetVisible write SetVisible;
     property Modified: Boolean read GetModified write SetModified;
@@ -975,6 +982,8 @@ type
   public
     constructor Create(AOwner: TPersistent); override;
     destructor Destroy; override;
+
+    property CanvasSmoothingMode: TSmoothingMode read FCanvasSmoothingMode write SetCanvasSmoothingMode;
   published
     property SeeThroughTabs: Boolean read FSeeThroughTabs write SetSeeThroughTabs;
     property TabOverlap: Integer read FTabOverlap write SetOverlap;
@@ -991,7 +1000,6 @@ type
     property ImageOffsetLeft: Integer read FImageOffsetLeft write SetImageOffsetLeft;
     property TextTrimType: TTextTrimType read FTextTrimType write SetTextTrimType;
     property Orientation: TTabOrientation read FOrientation write SetOrientation;
-    property CanvasSmoothingMode: TSmoothingMode read FCanvasSmoothingMode write SetCanvasSmoothingMode;
     property BaseLineTabRegionOnly: Boolean read FBaseLineTabRegionOnly write SetBaseLineTabRegionOnly;
     property WordWrap: Boolean read FWordWrap write SetWordWrap;
     property TextAlignmentHorizontal: TAlignment read FTextHorizontalAlignment write SetTextAlignmentHorizontal;
@@ -1372,12 +1380,12 @@ begin
   Result := FHideCloseButton;
 end;
 
-function TChromeTab.GetImageIndex: TImageIndex;
+function TChromeTab.GetImageIndex: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex;
 begin
   Result := FImageIndex;
 end;
 
-function TChromeTab.GetImageIndexOverlay: TImageIndex;
+function TChromeTab.GetImageIndexOverlay: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex;
 begin
   Result := FImageIndexOverlay;
 end;
@@ -1461,7 +1469,12 @@ end;
 
 procedure TChromeTab.SetHideCloseButton(const Value: Boolean);
 begin
-  FHideCloseButton := Value;
+  if FHideCloseButton <> Value then
+  begin
+    FHideCloseButton := Value;
+
+    DoChanged;
+  end;
 end;
 
 function TChromeTab.ImageIsVisible: Boolean;
@@ -1490,7 +1503,7 @@ begin
   end;
 end;
 
-procedure TChromeTab.SetImageIndex(Value: TImageIndex);
+procedure TChromeTab.SetImageIndex(Value: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex);
 begin
   if FImageIndex <> Value then
   begin
@@ -1500,7 +1513,7 @@ begin
   end;
 end;
 
-procedure TChromeTab.SetImageIndexOverlay(const Value: TImageIndex);
+procedure TChromeTab.SetImageIndexOverlay(const Value: {$IF CompilerVersion >= 23.0}System.UITypes.{$IFEND}TImageIndex);
 begin
   if FImageIndexOverlay <> Value then
   begin
@@ -1594,6 +1607,9 @@ begin
 
     if NewIdx > Count - 1 then
       NewIdx := Count - 1;
+
+    while ((NewIdx <> -1)) and (not(Items[NewIdx].Visible)) do
+      Dec(NewIdx);
 
     if NewIdx <> -1 then
       Items[NewIdx].Active := TRUE;

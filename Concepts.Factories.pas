@@ -458,13 +458,14 @@ var
   VST : TVirtualStringTree;
 begin
   Guard.CheckNotNull(AParent, 'AParent');
-  VST          := TVirtualStringTree.Create(AOwner);
-  VST.AlignWithMargins := True;
-  VST.Parent   := AParent;
-  VST.HintMode := hmTooltip;
-  VST.Align    := alClient;
-  VST.DrawSelectionMode := smBlendedRectangle;
-  VST.Header.Height := 18;
+  VST                              := TVirtualStringTree.Create(AOwner);
+  VST.AlignWithMargins             := True;
+  VST.Parent                       := AParent;
+  VST.HintMode                     := hmTooltip;
+  VST.Align                        := alClient;
+  VST.DrawSelectionMode            := smBlendedRectangle;
+  VST.Indent                       := 2;
+  VST.Header.Height                := 18;
   VST.Header.Options               := DEFAULT_VST_HEADEROPTIONS;
   VST.TreeOptions.SelectionOptions := DEFAULT_VST_SELECTIONOPTIONS;
   VST.TreeOptions.MiscOptions      := DEFAULT_VST_MISCOPTIONS;

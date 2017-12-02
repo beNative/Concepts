@@ -33,14 +33,14 @@ type
   TBitmap = Vcl.Graphics.TBitmap;
 
 procedure AppendLine(
-  var   AToString : string;
-  const ALine     : string
+  var AToString : string;
+  const ALine   : string
 ); overload;
 
 procedure AppendLine(
-  var   AToString : string;
-  const ALine     : string;
-  const AArgs     : array of const
+  var AToString : string;
+  const ALine   : string;
+  const AArgs   : array of const
 ); overload;
 
 function AsPropString(AValue: TValue): string;

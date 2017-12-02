@@ -380,6 +380,8 @@ object frmMain: TfrmMain
     LookAndFeel.ScrollButtons.Arrow.Disabled.OutlineAlpha = 200
     Align = alTop
     TabOrder = 0
+    OnMouseEnter = ChromeTabs1MouseEnter
+    OnMouseLeave = ChromeTabs1MouseLeave
   end
   object ChromeTabs2: TChromeTabs
     Left = 0
@@ -396,6 +398,10 @@ object frmMain: TfrmMain
     OnShowHint = ChromeTabs1ShowHint
     OnTabDragDrop = ChromeTabs2TabDragDrop
     ActiveTabIndex = -1
+    Images = ImageList1
+    ImagesOverlay = ImageList2
+    ImagesSpinnerUpload = ImageList4
+    ImagesSpinnerDownload = ImageList3
     Options.Display.CloseButton.Offsets.Vertical = 6
     Options.Display.CloseButton.Offsets.Horizontal = 2
     Options.Display.CloseButton.Height = 14
@@ -778,7 +784,7 @@ object frmMain: TfrmMain
       Top = 29
       Width = 1017
       Height = 519
-      ActivePage = TabSheet3
+      ActivePage = TabSheet1
       Align = alClient
       TabOrder = 1
       object TabSheet1: TTabSheet
@@ -794,7 +800,7 @@ object frmMain: TfrmMain
           object Label1: TLabel
             Left = 11
             Top = 22
-            Width = 25
+            Width = 24
             Height = 15
             Caption = 'Text:'
             FocusControl = edtTabCaption
@@ -955,7 +961,7 @@ object frmMain: TfrmMain
               object Label12: TLabel
                 Left = 108
                 Top = 20
-                Width = 83
+                Width = 82
                 Height = 15
                 Caption = 'Max Tab Width:'
                 FocusControl = edtMaxTabWidth
@@ -963,7 +969,7 @@ object frmMain: TfrmMain
               object lblMinTabWidth: TLabel
                 Left = 8
                 Top = 21
-                Width = 82
+                Width = 81
                 Height = 15
                 Caption = 'Min Tab Width:'
                 FocusControl = edtMinTabWidth
@@ -971,7 +977,7 @@ object frmMain: TfrmMain
               object Label17: TLabel
                 Left = 278
                 Top = 20
-                Width = 120
+                Width = 119
                 Height = 15
                 Caption = 'Tab/Container Offsets:'
                 FocusControl = edtTabOffsetTop
@@ -979,7 +985,7 @@ object frmMain: TfrmMain
               object Label51: TLabel
                 Left = 283
                 Top = 131
-                Width = 115
+                Width = 114
                 Height = 15
                 Caption = 'Tab Content Margins:'
                 FocusControl = edtTabOffsetTop
@@ -987,7 +993,7 @@ object frmMain: TfrmMain
               object Label71: TLabel
                 Left = 108
                 Top = 76
-                Width = 67
+                Width = 66
                 Height = 15
                 Caption = 'Tab Overlap:'
                 FocusControl = edtTabOverlap
@@ -1227,7 +1233,7 @@ object frmMain: TfrmMain
                 object Label54: TLabel
                   Left = 227
                   Top = 50
-                  Width = 77
+                  Width = 76
                   Height = 15
                   Caption = 'Vertical Offset:'
                   FocusControl = edtModifiedGlowVerticalOffset
@@ -1259,7 +1265,7 @@ object frmMain: TfrmMain
                 object Label78: TLabel
                   Left = 163
                   Top = 2
-                  Width = 114
+                  Width = 113
                   Height = 15
                   Caption = 'Animation Ease Type:'
                   FocusControl = cbModifiedGlowEaseType
@@ -1392,7 +1398,7 @@ object frmMain: TfrmMain
                   object Label9: TLabel
                     Left = 233
                     Top = -1
-                    Width = 77
+                    Width = 76
                     Height = 15
                     Caption = 'Vertical Offset:'
                     FocusControl = edtMouseGlowVerticalOffset
@@ -1481,6 +1487,10 @@ object frmMain: TfrmMain
               object Spinners: TTabSheet
                 Caption = 'Spinners'
                 ImageIndex = 2
+                ExplicitLeft = 0
+                ExplicitTop = 0
+                ExplicitWidth = 0
+                ExplicitHeight = 0
                 object Label82: TLabel
                   Left = 3
                   Top = 2
@@ -1522,6 +1532,10 @@ object frmMain: TfrmMain
                   object TabSheet19: TTabSheet
                     Caption = 'Upload'
                     ImageIndex = 1
+                    ExplicitLeft = 0
+                    ExplicitTop = 0
+                    ExplicitWidth = 0
+                    ExplicitHeight = 0
                     object Label86: TLabel
                       Left = 3
                       Top = 5
@@ -1650,6 +1664,10 @@ object frmMain: TfrmMain
                   end
                   object TabSheet18: TTabSheet
                     Caption = 'Download'
+                    ExplicitLeft = 0
+                    ExplicitTop = 0
+                    ExplicitWidth = 0
+                    ExplicitHeight = 0
                     object Label83: TLabel
                       Left = 3
                       Top = 5
@@ -1794,7 +1812,7 @@ object frmMain: TfrmMain
               object Label14: TLabel
                 Left = 8
                 Top = 20
-                Width = 158
+                Width = 157
                 Height = 15
                 Caption = 'Default Text Rendoring Mode:'
                 FocusControl = cbFontHintMode
@@ -1901,7 +1919,7 @@ object frmMain: TfrmMain
               object Label67: TLabel
                 Left = 13
                 Top = 99
-                Width = 90
+                Width = 89
                 Height = 15
                 Caption = 'Trimming Mode:'
                 FocusControl = cbTextTrimming
@@ -1917,7 +1935,7 @@ object frmMain: TfrmMain
               object Label52: TLabel
                 Left = 174
                 Top = 51
-                Width = 101
+                Width = 100
                 Height = 15
                 Caption = 'Vertical Alignment:'
                 FocusControl = cbTextVerticalAlignment
@@ -2026,7 +2044,7 @@ object frmMain: TfrmMain
                 object Label42: TLabel
                   Left = 235
                   Top = 56
-                  Width = 77
+                  Width = 76
                   Height = 15
                   Caption = 'Vertical Offset:'
                   FocusControl = edtCloseButtonVerticalOffset
@@ -2168,7 +2186,7 @@ object frmMain: TfrmMain
                 object Label37: TLabel
                   Left = 235
                   Top = 56
-                  Width = 77
+                  Width = 76
                   Height = 15
                   Caption = 'Vertical Offset:'
                   FocusControl = edtAddButtonVerticalOffset
@@ -2336,7 +2354,7 @@ object frmMain: TfrmMain
                   object Label40: TLabel
                     Left = 235
                     Top = 20
-                    Width = 77
+                    Width = 76
                     Height = 15
                     Caption = 'Vertical Offset:'
                     FocusControl = edtLeftScrollButtonsVerticalOffset
@@ -2420,7 +2438,7 @@ object frmMain: TfrmMain
                   object Label58: TLabel
                     Left = 235
                     Top = 20
-                    Width = 77
+                    Width = 76
                     Height = 15
                     Caption = 'Vertical Offset:'
                     FocusControl = edtRightScrollButtonVerticalOffset
@@ -2546,6 +2564,10 @@ object frmMain: TfrmMain
           object Scrolling: TTabSheet
             Caption = 'Scrolling'
             ImageIndex = 4
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object chkScrolling: TCheckBox
               Left = 3
               Top = 3
@@ -2722,6 +2744,10 @@ object frmMain: TfrmMain
           object TabSheet2: TTabSheet
             Caption = 'Behaviour'
             ImageIndex = 2
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object Label53: TLabel
               Left = 24
               Top = 166
@@ -2857,7 +2883,7 @@ object frmMain: TfrmMain
               object Label70: TLabel
                 Left = 164
                 Top = 76
-                Width = 157
+                Width = 156
                 Height = 15
                 Caption = 'Default Movement Ease Type:'
                 FocusControl = cbMovementEaseType
@@ -2865,7 +2891,7 @@ object frmMain: TfrmMain
               object Label72: TLabel
                 Left = 164
                 Top = 127
-                Width = 124
+                Width = 123
                 Height = 15
                 Caption = 'Default Style Ease Type:'
                 FocusControl = cbStyleEaseType
@@ -3001,7 +3027,7 @@ object frmMain: TfrmMain
                 object Label73: TLabel
                   Left = 24
                   Top = 103
-                  Width = 116
+                  Width = 115
                   Height = 15
                   Caption = 'Movement Ease Type:'
                   FocusControl = cbMoveTabEase
@@ -3081,7 +3107,7 @@ object frmMain: TfrmMain
                 object Label75: TLabel
                   Left = 24
                   Top = 103
-                  Width = 116
+                  Width = 115
                   Height = 15
                   Caption = 'Movement Ease Type:'
                   FocusControl = cbDeleteTabEase
@@ -3161,7 +3187,7 @@ object frmMain: TfrmMain
                 object Label77: TLabel
                   Left = 24
                   Top = 103
-                  Width = 116
+                  Width = 115
                   Height = 15
                   Caption = 'Movement Ease Type:'
                   FocusControl = cbAddTabEase
@@ -3523,18 +3549,22 @@ object frmMain: TfrmMain
       object TabSheet15: TTabSheet
         Caption = 'General'
         ImageIndex = 4
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object Label7: TLabel
           Left = 16
           Top = 8
-          Width = 117
+          Width = 116
           Height = 15
           Caption = 'Tab Container Height:'
           FocusControl = edtTabHeight
         end
         object Label5: TLabel
-          Left = 30
+          Left = 31
           Top = 88
-          Width = 90
+          Width = 89
           Height = 15
           Alignment = taRightJustify
           Caption = 'Glass Height Top'
@@ -3730,6 +3760,10 @@ object frmMain: TfrmMain
       object tabDebug: TTabSheet
         Caption = 'Debug'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object Panel10: TPanel
           Left = 0
           Top = 0
@@ -3756,7 +3790,7 @@ object frmMain: TfrmMain
     Left = 48
     Top = 472
     Bitmap = {
-      494C0101060009000C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010106000900100010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000002F3E46FF2F3E46FF2F3E46FF2F3E46FF2F3E46FF2F3E46FF2F3E
@@ -4032,7 +4066,7 @@ object frmMain: TfrmMain
     Left = 88
     Top = 472
     Bitmap = {
-      494C0101020005000C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010102000500100010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000A3D0CA324802EDB001500610000
@@ -4240,7 +4274,7 @@ object frmMain: TfrmMain
     Left = 128
     Top = 472
     Bitmap = {
-      494C01010B000D000C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C01010B000D00100010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000B0B0B0C000000000000000000000000000000000000
@@ -4648,7 +4682,7 @@ object frmMain: TfrmMain
     Left = 168
     Top = 472
     Bitmap = {
-      494C01010A000D000C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C01010A000D00100010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       00001F1F1F24505050895F5F5FCB656565EB656565EB5F5F5FCB505050891F1F

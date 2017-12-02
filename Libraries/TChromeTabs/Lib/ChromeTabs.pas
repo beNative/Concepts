@@ -77,10 +77,18 @@ interface
 { TODO -cBug : Why does setting a pen thinckess to a fraction (e.g. 1.5) not have any effect? }
 
 uses
-  Windows, SysUtils, Classes, Controls, ExtCtrls, Graphics, Forms, Messages,
-  ImgList, Dialogs, Menus, StdCtrls, GraphUtil,
-
-  {$IF CompilerVersion >= 23}System.Types,{$IFEND}
+  {$IF CompilerVersion >= 23.0}
+  System.SysUtils,System.Classes,System.Types,System.Math,
+  Vcl.Controls,Vcl.ExtCtrls,Vcl.Forms,Vcl.GraphUtil,Vcl.ImgList,
+  Vcl.Dialogs,Vcl.Menus,
+  WinApi.Windows, WinApi.Messages,
+  Vcl.Graphics,
+  {$ELSE}
+  SysUtils,Classes,Math,
+  Controls,ExtCtrls,Forms,GraphUtil,ImgList,Dialogs,Menus,
+  Windows,Messages,
+  Graphics,
+  {$ifend}
 
   GDIPObj, GDIPAPI,
 
@@ -115,6 +123,7 @@ type
   TOnAnimateMovement = procedure(Sender: TObject; ChromeTabsControl: TBaseChromeTabsControl; var AnimationTimeMS: Cardinal; var EaseType: TChromeTabsEaseType) of object;
   TOnButtonAddClick = procedure(Sender: TObject; var Handled: Boolean) of object;
   TOnSetTabWidth = procedure(Sender: TObject; ATabControl: TChromeTabControl; var TabWidth: Integer) of object;
+  TOnTabPopupMenu = procedure(Sender: TObject; const ATab: TChromeTab; const PopupMenu: TPopupMenu) of object;
 
   // Why do we need this?
   // See http://stackoverflow.com/questions/13915160/why-are-a-forms-system-buttons-highlighted-when-calling-windowfrompoint-in-mous/13943390#13943390
@@ -123,6 +132,7 @@ type
     FPoint: TPoint;
     FRange: Integer;
     FStep: Integer;
+    FChromeTabs: TCustomChromeTabs;
   public
     constructor Create(Pt: TPoint; Range, Step: Integer);
 
@@ -152,8 +162,6 @@ type
     FOnChange: TOnChange;
     FOnButtonAddClick: TOnButtonAddClick;
     FOnButtonCloseTabClick: TOnButtonCloseTabClick;
-    FOnMouseEnter: TNotifyEvent;
-    FOnMouseLeave: TNotifyEvent;
     FOnDebugLog: TOnDebugLog;
     FOnNeedDragImageControl: TOnNeedDragImageControl;
     FOnCreateDragForm: TOnCreateDragForm;
@@ -175,6 +183,7 @@ type
     FOnAnimateMovement: TOnAnimateMovement;
     FOnSetTabWidth: TOnSetTabWidth;
     FOnAfterDragImageCreated: TNotifyEvent;
+    FOnTabPopupMenu: TOnTabPopupMenu;
 
     // Persistent Properties
     FOptions: TOptions;
@@ -189,8 +198,8 @@ type
     FDragTabObject: IDragTabObject;
     FActiveDragTabObject: IDragTabObject;
 
-    FCanvasBmp: TBitmap;
-    FBackgroundBmp: TBitmap;
+    FCanvasBmp: {$IF CompilerVersion >= 23.0}Vcl.Graphics.{$IFEND}TBitmap;
+    FBackgroundBmp: {$IF CompilerVersion >= 23.0}Vcl.Graphics.{$IFEND}TBitmap;
     FTabPopupMenu: TPopupMenu;
     FImages: TCustomImageList;
     FImagesOverlay: TCustomImageList;
@@ -296,6 +305,7 @@ type
     procedure CalculateTabRects; virtual;
     procedure DrawCanvas; virtual;
     procedure SetControlDrawStates(ForceUpdate: Boolean = FALSE); virtual;
+    procedure Loaded; override;
   protected
     FMouseButton: TMouseButton;
     FMouseDownHitTest: THitTestResult;
@@ -347,8 +357,9 @@ type
     procedure DoOnAnimateMovement(ChromeTabsControl: TBaseChromeTabsControl; var AnimationTimeMS: Cardinal; var EaseType: TChromeTabsEaseType); virtual;
     procedure DoOnSetTabWidth(ATabControl: TChromeTabControl; var TabWidth: Integer); virtual;
     procedure DoOnAfterDragImageCreated; virtual;
+    procedure DoOnTabMenuPopup(const ATab: TChromeTab; const PopupMenu: TPopupMenu); virtual;
 
-    // Virtual (IChromeTabInterface)
+    // Virtual (IChromeTabs)
     procedure DoOnBeforeDrawItem(TargetCanvas: TGPGraphics; ItemRect: TRect; ItemType: TChromeTabItemType; TabIndex: Integer; var Handled: Boolean); virtual;
     procedure DoOnAfterDrawItem(const TargetCanvas: TGPGraphics; ItemRect: TRect; ItemType: TChromeTabItemType; TabIndex: Integer); virtual;
     procedure DoOnGetControlPolygons(ChromeTabsControl: TObject; ItemRect: TRect; ItemType: TChromeTabItemType; Orientation: TTabOrientation; var Polygons: IChromeTabPolygons); virtual;
@@ -387,6 +398,7 @@ type
     property OnAnimateMovement: TOnAnimateMovement read FOnAnimateMovement write FOnAnimateMovement;
     property OnSetTabWidth: TOnSetTabWidth read FOnSetTabWidth write FOnSetTabWidth;
     property OnAfterDragImageCreated: TNotifyEvent read FOnAfterDragImageCreated write FOnAfterDragImageCreated;
+    property OnTabPopupMenu: TOnTabPopupMenu read FOnTabPopupMenu write FOnTabPopupMenu;
 
     property LookAndFeel: TChromeTabsLookAndFeel read GetLookAndFeel write SetLookAndFeel;
     property ActiveTabIndex: Integer read GetActiveTabIndex write SetActiveTabIndex;
@@ -472,6 +484,7 @@ type
     property OnAnimateMovement;
     property OnSetTabWidth;
     property OnAfterDragImageCreated;
+    property OnTabPopupMenu;
 
     property ActiveTabIndex;
     property Images;
@@ -530,7 +543,8 @@ var
 begin
   WindowFromPointFixThread := TWindowFromPointFixThread.Create(Pt, Range, Step);
   try
-    Result := TCustomChromeTabs(WindowFromPointFixThread.WaitFor);
+    WindowFromPointFixThread.WaitFor;
+    Result := WindowFromPointFixThread.FChromeTabs;
   finally
     FreeAndNil(WindowFromPointFixThread);
   end;
@@ -640,8 +654,10 @@ procedure TCustomChromeTabs.CMMouseEnter(var Msg: TMessage);
 begin
   FCancelTabSmartResizeTimer.Enabled := FALSE;
 
-  if Assigned(FOnMouseEnter) then
-    FOnMouseEnter(Self);
+  {$if CompilerVersion >= 18.0}
+  if Assigned(OnMouseEnter) then
+    OnMouseEnter(Self);
+  {$ifend}
 end;
 
 procedure TCustomChromeTabs.CMMouseLeave(var Msg: TMessage);
@@ -684,8 +700,10 @@ procedure TCustomChromeTabs.DoOnMouseLeave;
 begin
   //SetControlDrawStates(TRUE);
 
-  if Assigned(FOnMouseLeave) then
-    FOnMouseLeave(Self);
+  {$if CompilerVersion >= 18.0}
+  if Assigned(OnMouseLeave) then
+    OnMouseLeave(Self);
+  {$ifend}
 end;
 
 function TCustomChromeTabs.InsertDroppedTab: TChromeTab;
@@ -710,6 +728,7 @@ begin
       Result.ImageIndex := FActiveDragTabObject.DragTab.ImageIndex;
       Result.ImageIndexOverlay := FActiveDragTabObject.DragTab.ImageIndexOverlay;
       Result.Pinned := FActiveDragTabObject.DragTab.Pinned;
+      Result.HideCloseButton := FActiveDragTabObject.DragTab.HideCloseButton;
       Result.SpinnerState := FActiveDragTabObject.DragTab.SpinnerState;
       Result.Tag := FActiveDragTabObject.DragTab.Tag;
       Result.Visible := FActiveDragTabObject.DragTab.Visible;
@@ -718,9 +737,12 @@ begin
       Tabs.Move(Result.Index, FActiveDragTabObject.DropTabIndex);
 
       // Move the dropped tab to a new position
-      SetControlPosition(TabControls[FActiveDragTabObject.DropTabIndex],
-                         FDragTabControl.ControlRect,
-                         FALSE);
+      if FDragTabControl <> nil then
+      begin
+        SetControlPosition(TabControls[FActiveDragTabObject.DropTabIndex],
+                           FDragTabControl.ControlRect,
+                           FALSE);
+      end;
 
       Result.Active := TRUE;
     finally
@@ -1104,7 +1126,9 @@ begin
     FDragCancelled := FALSE;
 
     if (tdDeleteDraggedTab in TabDropOptions) and (ActiveTabIndex <> -1) then
-      DeleteTab(ActiveTabIndex);
+    begin
+      FTabs.DeleteTab(ActiveTabIndex, True);
+    end;
 
     RemoveState(stsDragging);
   end;
@@ -1400,6 +1424,9 @@ var
     FTabPopupMenu.Items.Add(AMenuItem);
   end;
 
+var
+  ATab: TChromeTab;
+  HitTestResult: THitTestResult;
 begin
   if FTabPopupMenu <> nil then
     FreeAndNil(FTabPopupMenu);
@@ -1425,7 +1452,26 @@ begin
   for i := 0 to Tabs.Count - 1 do
     AddMenuItem(GetTabDescription(i), i + 10);
 
+  HitTestResult := HitTest(Point(FLastMouseX, FLastMouseY));
+
+  if HitTestResult.TabIndex = -1 then
+  begin
+    ATab := nil;
+  end
+  else
+  begin
+    ATab := FTabs[HitTestResult.TabIndex];
+  end;
+
+  DoOnTabMenuPopup(ATab, FTabPopupMenu);
+
   FTabPopupMenu.Popup(APoint.x, APoint.y);
+end;
+
+procedure TCustomChromeTabs.DoOnTabMenuPopup(const ATab: TChromeTab; const PopupMenu: TPopupMenu);
+begin
+  if Assigned(FOnTabPopupMenu) then
+    FOnTabPopupMenu(Self, ATab, PopupMenu);
 end;
 
 constructor TCustomChromeTabs.Create(AOwner: TComponent);
@@ -1436,10 +1482,10 @@ begin
                                   csCaptureMouse];
 
   // Canvas Bitmaps
-  FCanvasBmp := TBitmap.Create;
+  FCanvasBmp := {$IF CompilerVersion >= 23.0}Vcl.Graphics.{$IFEND}TBitmap.Create;
   FCanvasBmp.PixelFormat := pf32Bit;
 
-  FBackgroundBmp := TBitmap.Create;
+  FBackgroundBmp := {$IF CompilerVersion >= 23.0}Vcl.Graphics.{$IFEND}TBitmap.Create;
   FBackgroundBmp.PixelFormat := pf32bit;
 
   // Options
@@ -2093,7 +2139,7 @@ const
 var
   DragControl: TWinControl;
   DragCanvas: TGPGraphics;
-  Bitmap, ScaledBitmap: TBitmap;
+  Bitmap, ScaledBitmap: {$IF CompilerVersion >= 23.0}Vcl.Graphics.{$IFEND}TBitmap;
   TempRect: TRect;
   TabTop, ControlTop, TabEndX, BorderOffset: Integer;
   ActualDragDisplay: TChromeTabDragDisplay;
@@ -2133,7 +2179,7 @@ begin
         FDragTabObject.DragFormOffset := Point(Round(BiDiX * FOptions.DragDrop.DragControlImageResizeFactor),
                                                Round(FDragTabObject.DragCursorOffset.Y * FOptions.DragDrop.DragControlImageResizeFactor));
 
-      Bitmap := TBitmap.Create;
+      Bitmap := {$IF CompilerVersion >= 23.0}Vcl.Graphics.{$IFEND}TBitmap.Create;
       try
         TabTop := 0;
         ControlTop := 0;
@@ -2248,7 +2294,7 @@ begin
           FreeAndNil(DragCanvas);
         end;
 
-        ScaledBitmap := TBitmap.Create;
+        ScaledBitmap := {$IF CompilerVersion >= 23.0}Vcl.Graphics.{$IFEND}TBitmap.Create;
         try
           // Scale the image
           if ActualDragDisplay = ddTab then
@@ -2294,9 +2340,14 @@ begin
   ScrollOffset := 0;
 
   // Fix the draw states
-  FAddButtonControl.SetDrawState(dsNotActive, 0, ttNone, TRUE);
-  FScrollButtonLeftControl.SetDrawState(dsNotActive, 0, ttNone, TRUE);
-  FScrollButtonRightControl.SetDrawState(dsNotActive, 0, ttNone, TRUE);
+  if FAddButtonControl.DrawState = dsUnknown then
+    FAddButtonControl.SetDrawState(dsNotActive, 0, ttNone, TRUE);
+
+  if FScrollButtonLeftControl.DrawState = dsUnknown then
+    FScrollButtonLeftControl.SetDrawState(dsNotActive, 0, ttNone, TRUE);
+
+  if FScrollButtonRightControl.DrawState = dsUnknown then
+    FScrollButtonRightControl.SetDrawState(dsNotActive, 0, ttNone, TRUE);
 
   SetControlDrawStates(TRUE);
 
@@ -2593,7 +2644,7 @@ var
   FileStream: TFileStream;
 begin
   if FileExists(Filename) then
-    DeleteFile(Filename);
+    {$IF CompilerVersion >= 23.0}System.{$IFEND}SysUtils.DeleteFile(Filename);
 
   FileStream := TFileStream.Create(Filename, fmCreate);
   try
@@ -2608,7 +2659,7 @@ var
   FileStream: TFileStream;
 begin
   if FileExists(Filename) then
-    DeleteFile(Filename);
+    {$IF CompilerVersion >= 23.0}System.{$IFEND}SysUtils.DeleteFile(Filename);
 
   FileStream := TFileStream.Create(Filename, fmCreate);
   try
@@ -3412,6 +3463,17 @@ begin
   end;
 end;
 
+procedure TCustomChromeTabs.Loaded;
+begin
+  inherited;
+
+  // Make sure the active tab is drawn correctly
+  if ActiveTab <> nil then
+  begin
+    TabControls[ActiveTabIndex].SetDrawState({$IF CompilerVersion >= 18.0}TDrawState.{$IFEND}dsActive, 0, {$IF CompilerVersion >= 18.0}TChromeTabsEaseType.{$IFEND}ttNone, True);
+  end;
+end;
+
 procedure TCustomChromeTabs.LoadLookAndFeel(const Filename: String);
 var
   FileStream: TFileStream;
@@ -3590,8 +3652,6 @@ begin
             FDragTabControl.ScrollableControl := TRUE;
 
           FScrollTimer.Enabled := FALSE;
-
-          FDragTabControl := nil;
 
           if DraggingInOwnContainer then
           begin
@@ -4328,7 +4388,6 @@ begin
   end;
 end;
 
-
 { TWindowFromPointFixThread }
 
 constructor TWindowFromPointFixThread.Create(Pt: TPoint; Range, Step: Integer);
@@ -4338,6 +4397,7 @@ begin
   FPoint := Pt;
   FRange := Range;
   FStep := Step;
+  FChromeTabs := nil;
 end;
 
 function FindChromeTabsControlAt(X, Y: Integer; var ChromeTabs: TCustomChromeTabs): Boolean;
@@ -4360,27 +4420,24 @@ end;
 procedure TWindowFromPointFixThread.Execute;
 var
   i: Integer;
-  ChromeTabs: TCustomChromeTabs;
 begin
   i := FRange;
 
   while i >= 0 do
   begin
     if i = 0 then
-      FindChromeTabsControlAt(FPoint.X, FPoint.Y, ChromeTabs)
+      FindChromeTabsControlAt(FPoint.X, FPoint.Y, FChromeTabs)
     else
     begin
-      if (FindChromeTabsControlAt(FPoint.X - i, FPoint.Y - i, ChromeTabs)) or
-         (FindChromeTabsControlAt(FPoint.X + i, FPoint.Y - i, ChromeTabs)) or
-         (FindChromeTabsControlAt(FPoint.X + i, FPoint.Y + i, ChromeTabs)) or
-         (FindChromeTabsControlAt(FPoint.X - i, FPoint.Y + i, ChromeTabs)) then
+      if (FindChromeTabsControlAt(FPoint.X - i, FPoint.Y - i, FChromeTabs)) or
+         (FindChromeTabsControlAt(FPoint.X + i, FPoint.Y - i, FChromeTabs)) or
+         (FindChromeTabsControlAt(FPoint.X + i, FPoint.Y + i, FChromeTabs)) or
+         (FindChromeTabsControlAt(FPoint.X - i, FPoint.Y + i, FChromeTabs)) then
         Break;
     end;
 
     i := i - FStep;
   end;
-
-  ReturnValue := Integer(ChromeTabs);
 end;
 
 end.
