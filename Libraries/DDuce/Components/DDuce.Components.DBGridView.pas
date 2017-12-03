@@ -406,9 +406,8 @@ type
     AllowDeleteRecord - is it possible to move away records from the table with
                         the pressure of key DELETE; DataSource - bond with the
                         source of data.
-    DefaultLayout - the sign of the automatic apportionment of the columns of
-                    table in accordance with the collection pour on the source
-                    of data.
+    DefaultLayout - Columns are automatically created for each corresponding
+                    field in the dataset.
     EditColumn - current edited column. It sootvestvuyet to the column, in which
                 is located the line of introduction. EditField - current edited
                 field of source. It sootvestvuyet to the field of the column of
@@ -634,6 +633,8 @@ type
     procedure UpdateSelection(var Cell: TGridCell;
       var Selected: Boolean); override;
     procedure DefaultDrawCell(Cell: TGridCell; Rect: TRect); override;
+    procedure AutoSizeCols(AIncludeTitles: Boolean = True;
+      OnlyVisibleRows: Boolean = True); override;
 
     property AllowDeleteRecord: Boolean
       read FAllowDeleteRecord write FAllowDeleteRecord default True;
@@ -920,6 +921,7 @@ type
     constructor Create(AGrid: TCustomDBGridView);
     destructor Destroy; override;
 
+
     procedure Clear; // free all bookmarks
     function Find(const Item: TBookmark; var Index: Integer): Boolean;
     function IndexOf(const Item: TBookmark): Integer;
@@ -1182,14 +1184,19 @@ end;
 
 procedure TDBGridColumns.Update(Item: TCollectionItem);
 begin
+  { If any column property is changed, DefaultLayout is disabled which means
+    that columns are not automatically in sync anymore with the dataset. This
+    property by definition means that columns are not created automatically for
+    every field anymore when the dataset is opened. If DefaultLayout is false,
+    columns are not automatically cleared when the dataset closes. }
   if (Grid <> nil) and (Grid.LayoutLock = 0) then
     Grid.DefaultLayout := False;
-  inherited;
+  inherited Update(Item);
 end;
 
 function TDBGridColumns.Add: TDBGridColumn;
 begin
-  Result := TDBGridColumn( inherited Add);
+  Result := TDBGridColumn(inherited Add);
 end;
 
 function TDBGridColumns.Find(AFieldName: string): TDBGridColumn;
@@ -1730,7 +1737,7 @@ end;
 
 function TCustomDBGridView.GetEditColumn: TDBGridColumn;
 begin
-  Result := TDBGridColumn( inherited EditColumn);
+  Result := TDBGridColumn(inherited EditColumn);
 end;
 
 function TCustomDBGridView.GetEditField: TField;
@@ -1742,7 +1749,7 @@ end;
 
 function TCustomDBGridView.GetFixed: TDBGridFixed;
 begin
-  Result := TDBGridFixed( inherited Fixed);
+  Result := TDBGridFixed(inherited Fixed);
 end;
 
 function TCustomDBGridView.GetHeader: TDBGridHeader;
@@ -2266,7 +2273,7 @@ var
   B      : Boolean;
 begin
 // updated TS : eventhandler should be able to overrule the other restrictions
-  b := DataLink.Active and
+  B := DataLink.Active and
     (not DataLink.ReadOnly) and (not IsReadOnlyField(EditField)) and
     (EditField <> nil) and (EditField.CanModify);
   Result := inherited EditCanModify(Cell) or b;
@@ -3074,6 +3081,14 @@ begin
     end;
     DataFieldUpdated(EditField);
   end;
+end;
+
+procedure TCustomDBGridView.AutoSizeCols(AIncludeTitles,
+  OnlyVisibleRows: Boolean);
+begin
+  LockLayout;
+  inherited AutoSizeCols(AIncludeTitles, OnlyVisibleRows);
+  UnlockLayout(True);
 end;
 
 procedure TCustomDBGridView.CancelEdit;

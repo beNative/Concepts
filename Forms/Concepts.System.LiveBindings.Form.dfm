@@ -3,7 +3,7 @@ object frmLiveBindings: TfrmLiveBindings
   Top = 140
   Caption = 'LiveBindings demo'
   ClientHeight = 532
-  ClientWidth = 892
+  ClientWidth = 878
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -16,12 +16,12 @@ object frmLiveBindings: TfrmLiveBindings
   ShowHint = True
   OnResize = FormResize
   DesignSize = (
-    892
+    878
     532)
   PixelsPerInch = 96
   TextHeight = 13
   object splVertical: TSplitter
-    Left = 274
+    Left = 305
     Top = 0
     Width = 6
     Height = 513
@@ -31,7 +31,7 @@ object frmLiveBindings: TfrmLiveBindings
   object pnlLeft: TPanel
     Left = 0
     Top = 0
-    Width = 274
+    Width = 305
     Height = 513
     Align = alLeft
     BevelOuter = bvNone
@@ -40,7 +40,7 @@ object frmLiveBindings: TfrmLiveBindings
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 268
+      Width = 299
       Height = 21
       Margins.Bottom = 0
       Align = alTop
@@ -51,9 +51,9 @@ object frmLiveBindings: TfrmLiveBindings
     end
   end
   object pnlRight: TPanel
-    Left = 280
+    Left = 311
     Top = 0
-    Width = 612
+    Width = 567
     Height = 513
     Align = alClient
     BevelOuter = bvNone
@@ -65,7 +65,7 @@ object frmLiveBindings: TfrmLiveBindings
     ParentFont = False
     TabOrder = 1
     DesignSize = (
-      612
+      567
       513)
     object lblLabel: TLabel
       Left = 6
@@ -126,7 +126,7 @@ object frmLiveBindings: TfrmLiveBindings
     object trbTrackBar: TTrackBar
       Left = 116
       Top = 36
-      Width = 483
+      Width = 438
       Height = 45
       CustomHint = hntMain
       Anchors = [akLeft, akTop, akRight]
@@ -143,7 +143,7 @@ object frmLiveBindings: TfrmLiveBindings
       Tag = 3
       Left = 6
       Top = 240
-      Width = 601
+      Width = 556
       Height = 267
       Anchors = [akLeft, akTop, akRight]
       ColCount = 3
@@ -155,6 +155,108 @@ object frmLiveBindings: TfrmLiveBindings
         120
         120
         120)
+      RowHeights = (
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24
+        24)
     end
     object edtLastName: TEdit
       Left = 205
@@ -165,15 +267,15 @@ object frmLiveBindings: TfrmLiveBindings
     end
   end
   object edtButtonCaption: TEdit
-    Left = 403
+    Left = 434
     Top = 8
-    Width = 212
+    Width = 167
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 2
   end
   object btnButton: TButton
-    Left = 621
+    Left = 607
     Top = 5
     Width = 258
     Height = 25
@@ -181,9 +283,9 @@ object frmLiveBindings: TfrmLiveBindings
     TabOrder = 3
   end
   object pbProgressBar: TProgressBar
-    Left = 403
+    Left = 434
     Top = 72
-    Width = 476
+    Width = 431
     Height = 17
     Hint = 
       'The Position property is linked to the Position property of the ' +
@@ -198,7 +300,7 @@ object frmLiveBindings: TfrmLiveBindings
   object sbrMain: TStatusBar
     Left = 0
     Top = 513
-    Width = 892
+    Width = 878
     Height = 19
     Hint = 'Shows the panel'#39's width and height property values.'
     CustomHint = hntMain
@@ -207,21 +309,21 @@ object frmLiveBindings: TfrmLiveBindings
     SimpleText = 'TPanel, Width: 348, Height: 440'
   end
   object edtCompanyName: TEdit
-    Left = 485
+    Left = 516
     Top = 126
-    Width = 164
+    Width = 133
     Height = 21
     TabOrder = 6
   end
   object edtFirstName: TEdit
-    Left = 485
+    Left = 516
     Top = 153
-    Width = 164
+    Width = 133
     Height = 21
     TabOrder = 7
   end
   object btnGenerateContact: TButton
-    Left = 396
+    Left = 434
     Top = 95
     Width = 157
     Height = 25
@@ -231,15 +333,16 @@ object frmLiveBindings: TfrmLiveBindings
     TabOrder = 8
   end
   object btnAlterContactCompany: TButton
-    Left = 559
+    Left = 703
     Top = 95
     Width = 162
     Height = 25
     Action = actAlterContactCompany
+    Anchors = [akTop, akRight]
     TabOrder = 9
   end
   object bndnvgtrNavigatorabsMain1: TBindNavigator
-    Left = 286
+    Left = 317
     Top = 209
     Width = 220
     Height = 25
@@ -344,8 +447,8 @@ object frmLiveBindings: TfrmLiveBindings
     AutoPost = False
     RecordCount = 100
     Options = [loptAllowInsert, loptAllowDelete, loptAllowModify]
-    Left = 736
-    Top = 88
+    Left = 672
+    Top = 176
   end
   object absMain: TAdapterBindSource
     AutoActivate = True

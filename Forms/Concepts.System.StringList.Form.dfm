@@ -41,20 +41,12 @@ object frmStringList: TfrmStringList
     OnClick = chkCaseSensitiveClick
   end
   object btnClear: TButton
-    Left = 473
+    Left = 317
     Top = 3
     Width = 150
     Height = 25
     Action = actClear
     TabOrder = 3
-  end
-  object btnLoadFromFile: TButton
-    Left = 317
-    Top = 3
-    Width = 150
-    Height = 25
-    Action = actLoadFromFile
-    TabOrder = 4
   end
   object pnlGrid: TGridPanel
     Left = 0
@@ -67,13 +59,13 @@ object frmStringList: TfrmStringList
     Caption = 'pnlGrid'
     ColumnCollection = <
       item
-        Value = 33.333333333333340000
+        Value = 33.333333333333330000
       end
       item
-        Value = 33.333333333333340000
+        Value = 33.333333333333330000
       end
       item
-        Value = 33.333333333333340000
+        Value = 33.333333333333330000
       end>
     ControlCollection = <
       item
@@ -98,7 +90,7 @@ object frmStringList: TfrmStringList
       item
         SizeStyle = ssAuto
       end>
-    TabOrder = 5
+    TabOrder = 4
     object pnlText: TPanel
       Left = 0
       Top = 0
@@ -107,7 +99,6 @@ object frmStringList: TfrmStringList
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 201
       object btnSetText: TButton
         AlignWithMargins = True
         Left = 3
@@ -117,7 +108,6 @@ object frmStringList: TfrmStringList
         Action = actSetText
         Align = alBottom
         TabOrder = 0
-        ExplicitTop = 173
       end
       object mmoText: TMemo
         AlignWithMargins = True
@@ -127,7 +117,6 @@ object frmStringList: TfrmStringList
         Height = 229
         Align = alClient
         TabOrder = 1
-        ExplicitHeight = 164
       end
     end
     object pnlDelimitedText: TPanel
@@ -138,7 +127,6 @@ object frmStringList: TfrmStringList
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 201
       object btnSetDelimitedText: TButton
         AlignWithMargins = True
         Left = 3
@@ -148,7 +136,6 @@ object frmStringList: TfrmStringList
         Action = actSetDelimitedText
         Align = alBottom
         TabOrder = 0
-        ExplicitTop = 173
       end
       object mmoDelimitedText: TMemo
         AlignWithMargins = True
@@ -158,7 +145,6 @@ object frmStringList: TfrmStringList
         Height = 229
         Align = alClient
         TabOrder = 1
-        ExplicitHeight = 164
       end
     end
     object pnlNameValues: TPanel
@@ -169,7 +155,6 @@ object frmStringList: TfrmStringList
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitHeight = 201
       object btnSetNameValues: TButton
         AlignWithMargins = True
         Left = 3
@@ -179,7 +164,6 @@ object frmStringList: TfrmStringList
         Action = actSetNameValues
         Align = alBottom
         TabOrder = 0
-        ExplicitTop = 173
       end
       object lstValueList: TValueListEditor
         AlignWithMargins = True
@@ -188,11 +172,15 @@ object frmStringList: TfrmStringList
         Width = 255
         Height = 229
         Align = alClient
+        DisplayOptions = [doColumnTitles, doAutoColResize]
+        KeyOptions = [keyEdit, keyAdd, keyDelete]
         TabOrder = 1
-        ExplicitHeight = 164
         ColWidths = (
-          150
-          99)
+          121
+          128)
+        RowHeights = (
+          18
+          18)
       end
     end
   end
@@ -202,10 +190,6 @@ object frmStringList: TfrmStringList
       Caption = 'Clear'
       OnExecute = actClearExecute
     end
-    object actUpdate: TAction
-      Caption = 'Update'
-      OnExecute = actUpdateExecute
-    end
     object actSetText: TAction
       Caption = 'SetText'
       OnExecute = actSetTextExecute
@@ -213,13 +197,6 @@ object frmStringList: TfrmStringList
     object actSetDelimitedText: TAction
       Caption = 'SetDelimitedText'
       OnExecute = actSetDelimitedTextExecute
-    end
-    object actLoadFromFile: TAction
-      Caption = 'LoadFromFile'
-    end
-    object actSaveToFile: TAction
-      Caption = 'SaveToFile'
-      OnExecute = actSaveToFileExecute
     end
     object actSetNameValues: TAction
       Caption = 'SetNameValues'

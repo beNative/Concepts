@@ -102,7 +102,7 @@ begin
   FObjectInspector.AlignWithMargins := True;
   FObjectInspector.Name             := 'FObjectInspector';
   FObjectInspector.OnBeforeAddItem  := FObjectInspectorBeforeAddItem;
-  aclMain.Images := dmResources.imlMain;
+  aclMain.Images   := dmResources.imlMain;
   btnButton.Images := dmResources.imlMain;
 
   FObjectHost := TzObjectHost.Create;
@@ -118,8 +118,8 @@ begin
   FObjectHost.AddObject(FObjectInspector, 'ObjectInspector');
   FObjectHost.AddObject(FContact, 'FContact');
 
-  FObjectInspector.Component := FObjectHost;
-  FObjectInspector.SplitterPos := FObjectInspector.Width div 2;
+  FObjectInspector.Component      := FObjectHost;
+  FObjectInspector.SplitterPos    := FObjectInspector.Width div 2;
   FObjectInspector.SortByCategory := False;
 end;
 

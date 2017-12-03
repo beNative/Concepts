@@ -31,8 +31,7 @@ type
     FLogTree : TLogTree;
 
   protected
-
-    procedure DoSend(const entry: TLogEvent); override;
+    procedure DoSend(const ALogEvent: TLogEvent); override;
 
   public
     constructor Create(ALogTree: TLogTree);
@@ -63,32 +62,32 @@ end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
-procedure TLogTreeAppender.DoSend(const entry: TLogEvent);
+procedure TLogTreeAppender.DoSend(const ALogEvent: TLogEvent);
 var
   LL : TLogLevel;
 begin
   LL := llNone;
-  case entry.EventType of
+  case ALogEvent.EventType of
     TLogEventType.Text:
     begin
-      case entry.Level of
+      case ALogEvent.Level of
         Spring.Logging.TLogLevel.Unknown: LL := llNone;
-        Spring.Logging.TLogLevel.Trace: LL := llNone;
-        Spring.Logging.TLogLevel.Debug: LL := llDebug;
-        Spring.Logging.TLogLevel.Text: LL := llNone;
-        Spring.Logging.TLogLevel.Info: LL := llInfo;
-        Spring.Logging.TLogLevel.Warn: LL := llWarning;
-        Spring.Logging.TLogLevel.Error: LL := llError;
-        Spring.Logging.TLogLevel.Fatal: LL := llError;
+        Spring.Logging.TLogLevel.Trace: LL   := llNone;
+        Spring.Logging.TLogLevel.Debug: LL   := llDebug;
+        Spring.Logging.TLogLevel.Text: LL    := llNone;
+        Spring.Logging.TLogLevel.Info: LL    := llInfo;
+        Spring.Logging.TLogLevel.Warn: LL    := llWarning;
+        Spring.Logging.TLogLevel.Error: LL   := llError;
+        Spring.Logging.TLogLevel.Fatal: LL   := llError;
       end;
     end;
-    TLogEventType.Value: LL := llInfo;
-    TLogEventType.CallStack: LL := llInfo;
+    TLogEventType.Value: LL          := llInfo;
+    TLogEventType.CallStack: LL      := llInfo;
     TLogEventType.SerializedData: LL := llInfo;
-    TLogEventType.Entering: LL := llInfo;
-    TLogEventType.Leaving: LL := llInfo;
+    TLogEventType.Entering: LL       := llInfo;
+    TLogEventType.Leaving: LL        := llInfo;
   end;
-  FLogTree.Log(entry.Msg, LL, entry.TimeStamp);
+  FLogTree.Log(ALogEvent.Msg, LL, ALogEvent.TimeStamp);
 end;
 {$ENDREGION}
 

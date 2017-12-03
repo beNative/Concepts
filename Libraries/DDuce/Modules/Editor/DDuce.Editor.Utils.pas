@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -1228,11 +1228,11 @@ var
   NewLength     : Integer;
   P             : Integer;
   StartPos      : Integer;
-  Src           : PAnsiChar;
-  Dest          : PAnsiChar;
+  Src           : PChar;
+  Dest          : PChar;
   EndLen        : Integer;
-  EndPos        : PAnsiChar;
-  NewLineEnding : AnsiString;
+  EndPos        : PChar;
+  NewLineEnding : string;
 begin
   case ALineBreakStyle of
     tlbsLF   : NewLineEnding := #10;
@@ -1250,11 +1250,11 @@ begin
   P := 1;
   while P < Length(AString) do
   begin
-    if AString[P] in [#10, #13] then
+    if CharInSet(AString[P], [#10, #13]) then
     begin
       StartPos := P;
       Inc(P);
-      if (AString[P] in [#10, #13]) and (AString[P] <> AString[P - 1]) then
+      if CharInSet(AString[P], [#10, #13]) and (AString[P] <> AString[P - 1]) then
         Inc(P);
       Inc(NewLength, EndLen - (P - StartPos));
     end
@@ -1262,19 +1262,19 @@ begin
       Inc(P);
   end;
   SetLength(Result, NewLength);
-  Src := PAnsiChar(AString);
-  Dest := PAnsiChar(Result);
+  Src := PChar(AString);
+  Dest := PChar(Result);
   EndPos := Dest + NewLength;
   while Dest < EndPos do
   begin
-    if Src^ in [#10, #13] then
+    if  CharInSet(Src^, [#10, #13]) then
     begin
       for P := 1 to EndLen do
       begin
         Dest^ := NewLineEnding[P];
         Inc(Dest);
       end;
-      if (Src[1] in [#10, #13]) and (Src^ <> Src[1]) then
+      if CharInSet(Src[1], [#10, #13]) and (Src^ <> Src[1]) then
         Inc(Src, 2)
       else
         Inc(Src);
@@ -1296,14 +1296,12 @@ begin
   Result := tlbsCRLF;
   while I <= Length(AString) do
   begin
-    if AString[I] in [#10,#13] then
+    if CharInSet(AString[I], [#10,#13]) then
     begin
       if AString[I] = #10 then
         Result := tlbsLF
       else if (I < Length(AString)) and (AString[I + 1] = #10) then
         Result := tlbsCRLF;
-//      else
-//        Result := tlbsCR;
       Break;
     end;
     Inc(I);
@@ -1312,8 +1310,6 @@ end;
 
 function StrToLineBreakStyle(const AString: string): TTextLineBreakStyle;
 begin
-//  if SameText(AString, 'CR') then
-//    Result := tlbsCR
   if SameText(AString, 'LF') then
     Result := tlbsLF
   else
@@ -1343,13 +1339,13 @@ begin
       I2 := Length(S);
       if AFirst then
       begin
-        while (I1 < Length(S)) and (S[I1] in AIgnoreChars) do
+        while (I1 < Length(S)) and CharInSet(S[I1], AIgnoreChars) do
           Inc(I1);
         Inc(I1);
       end;
       if ALast then
       begin
-        while (I2 > I1) and (S[I2] in AIgnoreChars) do
+        while (I2 > I1) and CharInSet(S[I2], AIgnoreChars) do
           Dec(I2);
         Dec(I2);
       end;
@@ -1433,7 +1429,7 @@ var
     begin
       for I := 1 to Length(S) do
       begin
-        if not (S[I] in [' ', #9, #13, #10]) then
+        if not CharInSet(S[I], [' ', #9, #13, #10]) then
         begin
           Result := False;
           Exit;
@@ -1508,6 +1504,7 @@ var
   REO : TRegExOptions;
   M   : TMatch;
 begin
+  Result := False;
   if ACaseSensitive then
   begin
     REO := [];
@@ -1522,6 +1519,7 @@ begin
   begin
     AMatch := M.Value;
     AMatchPos := M.Index;
+    Result := True;
   end;
 end;
 
@@ -1633,8 +1631,9 @@ var
       if soWholeWord in AOptions then
       begin
         I := APos+AStartPosition-1;
-        if ( (I = 1) or (AString[I-1] in AWordBorders) ) and
-        ( (I+length(subS)-1 = length(AString)) or (AString[I+length(subS)] in AWordBorders) )
+        if ((I = 1) or CharInSet(AString[I - 1], AWordBorders)) and
+        ((I + Length(subS) - 1 = Length(AString))
+        or CharInSet(AString[I + Length(subS)], AWordBorders))
      then
        Result := True
     end
@@ -1754,15 +1753,23 @@ var
       TokStart: Integer;
     begin
       repeat
-        if SeekPos > Length(s) then begin Result := ''; Exit end;
-        if S[SeekPos] in TokenDelims then Inc(SeekPos) else Break;
-      until false;
+        if SeekPos > Length(s) then
+        begin
+          Result := '';
+          Exit;
+        end;
+        if CharInSet(S[SeekPos], TokenDelims) then
+          Inc(SeekPos)
+        else
+          Break;
+      until False;
       TokStart := SeekPos; { TokStart := first character not in TokenDelims }
 
-      while (SeekPos <= Length(s)) and not(S[SeekPos] in TokenDelims) do Inc(SeekPos);
+      while (SeekPos <= Length(s)) and not CharInSet(S[SeekPos], TokenDelims) do
+        Inc(SeekPos);
 
       { Calculate Result := s[TokStart, ... , SeekPos-1] }
-      Result := Copy(s, TokStart, SeekPos-TokStart);
+      Result := Copy(s, TokStart, SeekPos - TokStart);
 
       { We don't have to do Inc(seekPos) below. But it's obvious that searching
         for next token can skip SeekPos, since we know S[SeekPos] is TokenDelim. }
@@ -1828,24 +1835,29 @@ begin
    begin
     L := Length(LRight);
     {zwieksz L tak zeby objelo biale znaki az do ')'}
-    while N+L <= Length(LLeft) do
+    while N + L <= Length(LLeft) do
     begin
-     if LLeft[N+L] = ')' then
-      begin Inc(L); break end else
-     if LLeft[N+L] in WhiteSpaces then
-      Inc(L) else
-      break;
+      if LLeft[N + L] = ')' then
+    begin inc(L); Break end else
+      if CharInSet(LLeft[N + L], WhiteSpaces) then
+        Inc(L)
+      else
+        Break;
     end;
-    while N-1 >= 1 do
+    while N - 1 >= 1 do
     begin
-     if LLeft[N-1] = '(' then
-      begin Dec(N); Inc(L); break end else
-     if LLeft[N-1] in WhiteSpaces then
-      begin Dec(N); Inc(L) end else
-      break;
-    end;
-    Delete(LLeft, N, L);
-    Result := Trim(LLeft);
+      if LLeft[N - 1] = '(' then
+      begin
+        dec(N);
+        inc(L);
+        Break
+      end
+      else if CharInSet(LLeft[N - 1], WhiteSpaces) then
+      begin dec(N); inc(L) end else
+        Break;
+      end;
+      Delete(LLeft, N, L);
+      Result := Trim(LLeft);
    end;
   end;
  end;
@@ -1875,7 +1887,7 @@ function CompressWhiteSpace(const AString: string): string;
 
   function SCharIs(const AString: string; AIndex: Integer; const AChars: TSysCharSet): Boolean;
   begin
-    Result:=(AIndex <= Length(AString)) and (AString[AIndex] in AChars)
+    Result := (AIndex <= Length(AString)) and CharInSet(AString[AIndex], AChars);
   end;
 
 var
@@ -1896,13 +1908,13 @@ begin
 
   while SPos <= Length(AString) do
   begin
-    Assert(not (AString[SPos] in WhiteSpaces));
+    Assert(not CharInSet(AString[SPos], WhiteSpaces));
 
     { read next non-white-space chunk }
 
     NextSPos := SPos + 1;
     while (NextSPos <= Length(AString)) and
-          not (AString[NextSPos] in WhiteSpaces) do
+          not CharInSet(AString[NextSPos], WhiteSpaces) do
       Inc(NextSPos);
 
     Move(AString[SPos], Result[ResultPos], NextSPos - SPos);

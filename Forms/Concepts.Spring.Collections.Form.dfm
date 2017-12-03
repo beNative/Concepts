@@ -39,7 +39,7 @@ object frmCollections: TfrmCollections
     Left = 8
     Top = 126
     Width = 479
-    Height = 309
+    Height = 292
     Anchors = [akLeft, akTop, akRight, akBottom]
     ReadOnly = True
     ScrollBars = ssVertical
@@ -67,7 +67,7 @@ object frmCollections: TfrmCollections
   end
   object edtFirstName: TEdit
     Left = 264
-    Top = 35
+    Top = 66
     Width = 223
     Height = 21
     Anchors = [akLeft, akTop, akRight]
@@ -76,7 +76,7 @@ object frmCollections: TfrmCollections
   end
   object edtLastName: TEdit
     Left = 264
-    Top = 66
+    Top = 97
     Width = 223
     Height = 21
     Anchors = [akLeft, akTop, akRight]
@@ -107,6 +107,32 @@ object frmCollections: TfrmCollections
     PositionToolTip = ptTop
     ShowSelRange = False
     TabOrder = 7
+    OnChange = trbRecordCountChange
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 424
+    Width = 495
+    Height = 19
+    Panels = <>
+  end
+  object Edit1: TEdit
+    Left = 264
+    Top = 35
+    Width = 223
+    Height = 21
+    Alignment = taCenter
+    BevelInner = bvNone
+    BevelOuter = bvNone
+    BorderStyle = bsNone
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentColor = True
+    ParentFont = False
+    TabOrder = 9
   end
   object aclMain: TActionList
     Images = dmResources.imlMain
@@ -135,6 +161,22 @@ object frmCollections: TfrmCollections
       Caption = 'Combine both conditions'
       ImageIndex = 454
       OnExecute = actBothExecute
+    end
+  end
+  object lstBindings: TBindingsList
+    Methods = <>
+    OutputConverters = <>
+    Left = 240
+    Top = 224
+    object BindExpression1: TBindExpression
+      Category = 'Binding Expressions'
+      ControlComponent = Edit1
+      SourceComponent = trbRecordCount
+      SourceExpression = 'Position'
+      ControlExpression = 'Text'
+      Managed = False
+      NotifyOutputs = True
+      Direction = dirSourceToControl
     end
   end
 end

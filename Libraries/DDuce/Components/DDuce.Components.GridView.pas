@@ -10640,8 +10640,8 @@ begin
     Exit;
   end;
   if IncludeTitles then
-    // we reserve a margin of 6 pixels for to draw a sorting arrow in the header
-    Result := GetTextWidth(Columns[Column].Caption, Font) + 26
+    // we reserve a margin to draw a sorting arrow in the header
+    Result := GetTextWidth(Columns[Column].Caption, Header.Font) + 26
   else
     Result := 0;
 

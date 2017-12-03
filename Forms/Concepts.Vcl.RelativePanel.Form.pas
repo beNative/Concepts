@@ -28,6 +28,7 @@ uses
 
 type
   TfrmRelativePanel = class(TForm)
+
     pnlRelativePanel : TRelativePanel;
     btn1             : TButton;
 

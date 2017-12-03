@@ -237,8 +237,6 @@ end;
 
 procedure TfrmCollectionEditor.FInspectorModified(Sender: TObject);
 var
-  I  : Integer;
-  J  : Integer;
   S  : string;
   V  : TValue;
   AI : TPropsPageItem;
@@ -258,16 +256,17 @@ begin
       SL.Add(PI.Caption);
       PI := PI.Parent;
     end;
-    for I := 0 to lvCollectionItems.Items.Count - 1 do
-    begin
-      if lvCollectionItems.Items[I].Selected then
-      begin
-        O := FCollection.Items[I];
-        for J := SL.Count -1 downto 1 do
-          O := GetObjectProp(O, SL[J]);
-        Reflect.Properties(O).Values[S] := V;
-      end;
-    end;
+    // todo TS fix this!
+//    for I := 0 to lvCollectionItems.Items.Count - 1 do
+//    begin
+//      if lvCollectionItems.Items[I].Selected then
+//      begin
+//        O := FCollection.Items[I];
+//        for J := SL.Count -1 downto 1 do
+//          O := GetObjectProp(O, SL[J]);
+//        Reflect.Properties(O).Values[S] := V;
+//      end;
+//    end;
   finally
     SL.Free;
   end;

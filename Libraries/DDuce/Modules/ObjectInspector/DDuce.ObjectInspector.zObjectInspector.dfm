@@ -1,12 +1,10 @@
-object frmComponentInspector: TfrmComponentInspector
+object frmComponentInspectorzObjectInspector: TfrmComponentInspectorzObjectInspector
   Left = 0
   Top = 0
   BorderStyle = bsSizeToolWin
   ClientHeight = 647
   ClientWidth = 392
   Color = clBtnFace
-  DoubleBuffered = True
-  DragKind = dkDock
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

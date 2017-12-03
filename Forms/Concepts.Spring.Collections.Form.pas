@@ -40,7 +40,8 @@ uses
 
   Spring, Spring.Collections,
 
-  Concepts.Types.Contact;
+  Concepts.Types.Contact, Data.Bind.EngExt, Vcl.Bind.DBEngExt, System.Rtti,
+  System.Bindings.Outputs, Vcl.Bind.Editors, Data.Bind.Components;
 
 type
   TfrmCollections = class(TForm)
@@ -59,11 +60,16 @@ type
     lblRecordCount  : TLabel;
     mmoList         : TMemo;
     trbRecordCount  : TTrackBar;
+    StatusBar1: TStatusBar;
+    lstBindings: TBindingsList;
+    Edit1: TEdit;
+    BindExpression1: TBindExpression;
 
     procedure actPopulateListExecute(Sender: TObject);
     procedure actFirstNameIsExecute(Sender: TObject);
     procedure actLastNameIsExecute(Sender: TObject);
     procedure actBothExecute(Sender: TObject);
+    procedure trbRecordCountChange(Sender: TObject);
 
   private
     FList        : IList<TContact>;
@@ -181,6 +187,12 @@ begin
     FList as IObjectList,
     trbRecordCount.Position
   );
+end;
+
+procedure TfrmCollections.trbRecordCountChange(Sender: TObject);
+begin
+
+//  lstBindings.Notify(Sender, '');
 end;
 
 procedure TfrmCollections.DefinePredicates;

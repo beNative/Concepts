@@ -21,6 +21,10 @@ inherited frmCharacterMap: TfrmCharacterMap
     TabOrder = 0
     object tsANSI: TTabSheet
       Caption = 'ANSI'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         361
         376)

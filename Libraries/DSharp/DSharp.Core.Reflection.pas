@@ -2925,8 +2925,8 @@ type
 
 procedure TRttiObjectAccess.Init(Parent: TRttiType; PropInfo: PPropInfo);
 begin
-  Self.FParent := Parent;
-  Self.FHandle := PropInfo;
+//  Self.FParent := Parent;
+//  Self.FHandle := PropInfo;
 end;
 
 { TRttiPropertyExtension }

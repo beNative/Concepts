@@ -18,7 +18,10 @@
 
 unit Concepts.System.VirtualMethodInterceptor.Form;
 
-{ Form demonstrating how to use the TVirtualMethodInterceptor class. }
+{ Form demonstrating how to use the TVirtualMethodInterceptor class.
+
+  (TODO)
+}
 
 interface
 
@@ -29,12 +32,7 @@ uses
 
 type
   TfrmVirtualMethodInterceptor = class(TForm)
-    btn1: TButton;
-    procedure btn1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-  private
-    FPanel : TPanel;
-    FButton: TButton;
 
   public
     procedure AfterConstruction; override;
@@ -50,26 +48,15 @@ implementation
 procedure TfrmVirtualMethodInterceptor.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FPanel := TPanel.Create(nil);
-  FButton := TButton.Create(nil);
-  FButton.Parent := Self;
 end;
 
 procedure TfrmVirtualMethodInterceptor.BeforeDestruction;
 begin
   inherited BeforeDestruction;
-//  ShowMessage(FButton.Caption);
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
-procedure TfrmVirtualMethodInterceptor.btn1Click(Sender: TObject);
-begin
-  FreeAndNil(FPanel);
-  if Assigned(FButton) then
-    ShowMessage(FButton.ClassName);
-end;
-
 procedure TfrmVirtualMethodInterceptor.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin

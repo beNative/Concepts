@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,6 +18,21 @@ unit DDuce.Factories;
 
 interface
 
+{
+Missing properties in
+  TTreeViewPresenter:
+    - AutoScroll ?
+    - Last: set focus to last item
+    - First: set focus to first item
+
+  IColumnDefinitions
+    - Delete(index)
+    - Clear
+
+  TColumnDefinition
+    -
+}
+
 uses
   System.Classes,
   Vcl.Controls,
@@ -25,44 +40,51 @@ uses
   Spring, Spring.Collections,
 
   DSharp.Windows.TreeViewPresenter, DSharp.Core.DataTemplates,
-  DSharp.Bindings.Collections,
+  DSharp.Bindings.Collections, DSharp.Windows.ColumnDefinitions,
 
   VirtualTrees,
 
-  zObjInspector;
+  zObjInspector, zValueManager;
 
 type
   TFactories = class sealed
-  private
-    class procedure InitializeTVP(
-      ATVP      : TTreeViewPresenter;
-      AVST      : TVirtualStringTree = nil;
-      ASource   : IObjectList = nil;
-      ATemplate : IDataTemplate = nil;
-      AFilter   : TFilterEvent = nil
-    ); static;
   public
+    class procedure InitializeTVP(
+      ATVP              : TTreeViewPresenter;
+      AVST              : TVirtualStringTree = nil;
+      ASource           : IObjectList = nil;
+      AColumDefinitions : IColumnDefinitions = nil;
+      ATemplate         : IDataTemplate = nil;
+      AFilter           : TFilterEvent = nil
+    ); static;
+
     class function CreateVirtualStringTree(
       AOwner      : TComponent;
       AParent     : TWinControl;
       const AName : string = ''
-    ) : TVirtualStringTree;
+    ): TVirtualStringTree; static;
+
+    class function CreateColumnDefinitions(
+      ATVP: TTreeViewPresenter = nil
+    ): IColumnDefinitions; static;
 
     class function CreateTreeViewPresenter(
-      AOwner      : TComponent;
-      AVST        : TVirtualStringTree = nil;
-      ASource     : IObjectList = nil;
-      ATemplate   : IDataTemplate = nil;
-      AFilter     : TFilterEvent = nil;
-      const AName : string = ''
-    ): TTreeViewPresenter; static;
+      AOwner            : TComponent;
+      AVST              : TVirtualStringTree = nil;
+      ASource           : IObjectList = nil;
+      AColumDefinitions : IColumnDefinitions = nil;
+      ATemplate         : IDataTemplate = nil;
+      AFilter           : TFilterEvent = nil;
+      const AName       : string = ''
+    ): TTreeViewPresenter; overload; static;
 
     class function CreatezObjectInspector(
-      AOwner      : TComponent;
-      AParent     : TWinControl;
-      AObject     : TObject = nil;
-      const AName : string = ''
-      ): TzObjectInspector; static;
+      AOwner        : TComponent;
+      AParent       : TWinControl;
+      AObject       : TObject = nil;
+      AValueManager : TzCustomValueManager = nil;
+      const AName   : string = ''
+    ): TzObjectInspector; static;
   end;
 
 implementation
@@ -112,7 +134,7 @@ const
       (CS_HREDRAW/CS_VREDRAW). }
 //    toFullRepaintOnResize,
     { Use some special enhancements to simulate and support grid behavior. }
-//    toGridExtensions,
+    toGridExtensions,
     { Initialize nodes when saving a tree to a stream. }
     toInitOnSave,
     { Tree behaves like TListView in report mode. }
@@ -163,9 +185,9 @@ const
       node). }
     toShowRoot,
     { Display tree lines to show hierarchy of nodes. }
-    toShowTreeLines,
+//    toShowTreeLines,
     { Display vertical lines (depending on columns) to simulate a grid. }
-//    toShowVertGridLines,
+    toShowVertGridLines,
     { Draw UI elements (header, tree buttons etc.) according to the current
       theme if enabled (Windows XP+ only, application must be themed). }
     toThemeAware,
@@ -184,7 +206,7 @@ const
     { Enable alpha blending for node selections. }
     toUseBlendedSelection,
     { Show simple static background instead of a tiled one. }
-    toStaticBackground,
+    toStaticBackground//,
     { Display child nodes above their parent. }
 //    toChildrenAbove,
     { Draw the tree with a fixed indent. }
@@ -192,7 +214,7 @@ const
     { Use the explorer theme if run under Windows Vista (or above). }
 //    toUseExplorerTheme
     { Do not show tree lines if theming is used. }
-    toHideTreeLinesIfThemed
+//    toHideTreeLinesIfThemed
     { Draw nodes even if they are filtered out. }
 //    toShowFilteredNodes
   ];
@@ -291,18 +313,30 @@ const
 {$ENDREGION}
 
 class procedure TFactories.InitializeTVP(ATVP: TTreeViewPresenter;
-  AVST: TVirtualStringTree; ASource: IObjectList; ATemplate: IDataTemplate;
-  AFilter: TFilterEvent);
+  AVST: TVirtualStringTree; ASource: IObjectList; AColumDefinitions
+  : IColumnDefinitions; ATemplate: IDataTemplate; AFilter: TFilterEvent);
 var
   P : TRttiProperty;
   C : TRttiContext;
 begin
-  if Assigned(ASource) then // auto create column definitions
+  if Assigned(ASource) then
   begin
-    for P in C.GetType(ASource.ElementType).GetProperties do
+    if Assigned(AColumDefinitions) then
     begin
-      with ATVP.ColumnDefinitions.Add(P.Name) do
-        ValuePropertyName := P.Name;
+      if ATVP.ColumnDefinitions <> AColumDefinitions then
+        ATVP.ColumnDefinitions := AColumDefinitions
+    end
+    else // auto create column definitions
+    begin
+      ATVP.ColumnDefinitions.Clear;
+      for P in C.GetType(ASource.ElementType).GetProperties do
+      begin
+        with ATVP.ColumnDefinitions.Add(P.Name) do
+        begin
+          ValuePropertyName := P.Name;
+          HintPropertyName  := P.Name;
+        end;
+      end;
     end;
   end;
   ATVP.TreeView := AVST;
@@ -320,6 +354,25 @@ begin
     ATVP.View.Filter.Add(AFilter);
 end;
 
+class function TFactories.CreateColumnDefinitions(ATVP: TTreeViewPresenter):
+  IColumnDefinitions;
+begin
+  Result := TColumnDefinitions.Create(ATVP);
+end;
+
+class function TFactories.CreateTreeViewPresenter(AOwner: TComponent;
+  AVST: TVirtualStringTree; ASource: IObjectList;
+  AColumDefinitions: IColumnDefinitions; ATemplate: IDataTemplate;
+  AFilter: TFilterEvent; const AName: string): TTreeViewPresenter;
+var
+  TVP: TTreeViewPresenter;
+begin
+  Guard.CheckNotNull(AOwner, 'AOwner');
+  TVP := TTreeViewPresenter.Create(AOwner);
+  InitializeTVP(TVP, AVST, ASource, AColumDefinitions, ATemplate, AFilter);
+  Result := TVP;
+end;
+
 class function TFactories.CreateVirtualStringTree(AOwner: TComponent;
   AParent: TWinControl; const AName: string): TVirtualStringTree;
 var
@@ -327,16 +380,15 @@ var
 begin
   Guard.CheckNotNull(AOwner, 'AOwner');
   Guard.CheckNotNull(AParent, 'AParent');
-  VST          := TVirtualStringTree.Create(AOwner);
-  VST.AlignWithMargins := True;
-  VST.Parent   := AParent;
-  VST.HintMode := hmTooltip;
-  VST.Align    := alClient;
+  VST := TVirtualStringTree.Create(AOwner);
+  VST.AlignWithMargins  := True;
+  VST.Parent            := AParent;
+  VST.HintMode          := hmTooltip;
+  VST.Align             := alClient;
   VST.DrawSelectionMode := smBlendedRectangle;
   VST.Colors.SelectionRectangleBlendColor := clGray;
   VST.Colors.SelectionTextColor := clBlack;
   VST.Colors.GridLineColor      := clGray;
-
   VST.Header.Height := 18;
   VST.Header.Options               := DEFAULT_VST_HEADEROPTIONS;
   VST.TreeOptions.SelectionOptions := DEFAULT_VST_SELECTIONOPTIONS;
@@ -348,24 +400,13 @@ begin
   Result := VST;
 end;
 
-class function TFactories.CreateTreeViewPresenter(AOwner: TComponent;
-  AVST: TVirtualStringTree; ASource: IObjectList; ATemplate: IDataTemplate;
-  AFilter: TFilterEvent; const AName: string): TTreeViewPresenter;
-var
-  TVP: TTreeViewPresenter;
-begin
-  Guard.CheckNotNull(AOwner, 'AOwner');
-  TVP := TTreeViewPresenter.Create(AOwner);
-  InitializeTVP(TVP, AVST, ASource, ATemplate, AFilter);
-  Result := TVP;
-end;
-
 class function TFactories.CreatezObjectInspector(AOwner: TComponent;
-  AParent: TWinControl; AObject: TObject; const AName: string): TzObjectInspector;
+  AParent: TWinControl; AObject: TObject; AValueManager: TzCustomValueManager;
+  const AName: string): TzObjectInspector;
 var
   OI: TzObjectInspector;
 begin
-  OI                  := TzObjectInspector.Create(AOwner);
+  OI                  := TzObjectInspector.Create(AOwner, AValueManager);
   OI.Parent           := AParent;
   OI.Align            := alClient;
   OI.AlignWithMargins := True;

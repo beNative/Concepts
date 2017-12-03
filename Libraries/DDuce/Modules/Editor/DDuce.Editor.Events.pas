@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,12 +16,7 @@
 
 unit DDuce.Editor.Events;
 
-{ Events dispatched by the IEditorManager and active IEditorView instance.
-
-  TMethodList is used to emulate multicast events hence these events can be
-  dispatched to multiple event handlers. This is an implementation of the
-  observer pattern where multiple observers can respond to changes in a subject.
-}
+{ Events dispatched by the IEditorManager and active IEditorView instance. }
 
 interface
 
@@ -47,7 +42,7 @@ type
     FOnBeforeSave          : Event<TStorageEvent>;
     FOnAfterSave           : Event<TStorageEvent>;
     FOnSave                : Event<TStorageEvent>;
-    FOnAddEditorView       : Event<TAddEditorViewEvent>;
+    FOnAddEditorView       : Event<TEditorViewEvent>;
     FOnShowEditorToolView  : Event<TEditorToolViewEvent>;
     FOnHideEditorToolView  : Event<TEditorToolViewEvent>;
     FOnOpenOtherInstance   : Event<TOpenOtherInstanceEvent>;
@@ -57,7 +52,7 @@ type
     function GetOnAfterSave: IEvent<TStorageEvent>;
     function GetOnBeforeSave: IEvent<TStorageEvent>;
     function GetView: IEditorView;
-    function GetOnAddEditorView: IEvent<TAddEditorViewEvent>;
+    function GetOnAddEditorView: IEvent<TEditorViewEvent>;
     function GetOnHideEditorToolView: IEvent<TEditorToolViewEvent>;
     function GetOnNew: IEvent<TNewEvent>;
     function GetOnLoad: IEvent<TStorageEvent>;
@@ -91,7 +86,7 @@ type
       const AText : string = ''
     );
 
-    property OnAddEditorView: IEvent<TAddEditorViewEvent>
+    property OnAddEditorView: IEvent<TEditorViewEvent>
       read GetOnAddEditorView;
 
     property OnShowEditorToolView: IEvent<TEditorToolViewEvent>
@@ -205,7 +200,7 @@ begin
   Result := FOnActiveViewChange;
 end;
 
-function TEditorEvents.GetOnAddEditorView: IEvent<TAddEditorViewEvent>;
+function TEditorEvents.GetOnAddEditorView: IEvent<TEditorViewEvent>;
 begin
   Result := FOnAddEditorView;
 end;

@@ -30,13 +30,13 @@ Coordinates=103,173,70,33
 Coordinates=229,252,63,51
 
 [lblLabel]
-Coordinates=774,10,53,69
+Coordinates=760,0,53,69
 
 [trbTrackBar]
 Coordinates=622,10,72,69
 
 [pbProgressBar]
-Coordinates=454,19,88,51
+Coordinates=450,30,88,51
 
 [bndpstn1]
 Coordinates=398,168,60,51
@@ -48,13 +48,10 @@ Coordinates=372,252,101,51
 Coordinates=10,252,57,69
 
 [grdMain]
-Coordinates=214,10,54,105
+Coordinates=240,70,54,105
 
 [hntMain]
 Coordinates=387,308,53,33
-
-[bndnvgtrNavigatorabsMain1]
-Coordinates=165,175,153,51
 
 [aclMain]
 Coordinates=398,1,52,33
@@ -93,9 +90,12 @@ Coordinates=140,347,97,51
 Coordinates=368,347,139,51
 
 [dgaMain]
-Coordinates=113,1,61,33
+Coordinates=113,1,56,33
 Visible=False
 
 [absMain]
 Coordinates=10,56,75,123
+
+[bndnvgtrNavigatorabsMain1]
+Coordinates=110,20,153,51
 

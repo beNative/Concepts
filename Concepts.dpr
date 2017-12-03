@@ -17,7 +17,6 @@ uses
   ChromeTabsTypes in 'Libraries\TChromeTabs\Lib\ChromeTabsTypes.pas',
   ChromeTabsUtils in 'Libraries\TChromeTabs\Lib\ChromeTabsUtils.pas',
   Concepts.ChromeTabs.Form in 'Forms\Concepts.ChromeTabs.Form.pas' {frmChromeTabs},
-  Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
   Concepts.DSharp.TreeViewPresenter.Tree.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.Tree.Form.pas' {frmTreeViewPresenterTree},
   Concepts.Factories in 'Concepts.Factories.pas',
   Concepts.MainForm in 'Concepts.MainForm.pas' {frmMain},
@@ -312,16 +311,6 @@ uses
   DDetours in 'Libraries\DDetours\DDetours.pas',
   InstDecode in 'Libraries\DDetours\InstDecode.pas',
   Concepts.DDetours.Form in 'Forms\Concepts.DDetours.Form.pas' {frmDDetours},
-  zBase in 'Libraries\TzObjectInspector\zBase.pas',
-  zCollectionEditor in 'Libraries\TzObjectInspector\zCollectionEditor.pas' {zCollectionEditorDialog},
-  zCanvasStack in 'Libraries\TzObjectInspector\zCanvasStack.pas',
-  zGraphicDialog in 'Libraries\TzObjectInspector\zGraphicDialog.pas' {GraphicDialog},
-  zObjInspDialogs in 'Libraries\TzObjectInspector\zObjInspDialogs.pas',
-  zObjInspector in 'Libraries\TzObjectInspector\zObjInspector.pas',
-  zObjInspList in 'Libraries\TzObjectInspector\zObjInspList.pas',
-  zRecList in 'Libraries\TzObjectInspector\zRecList.pas',
-  zStringsDialog in 'Libraries\TzObjectInspector\zStringsDialog.pas' {StringsDialog},
-  zUtils in 'Libraries\TzObjectInspector\zUtils.pas',
   Concepts.zObjectInspector.Form in 'Forms\Concepts.zObjectInspector.Form.pas' {frmzObjectInspector},
   Concepts.ComponentInspector in 'Concepts.ComponentInspector.pas' {frmComponentInspector},
   Concepts.Spring.Persistence.Form in 'Forms\Concepts.Spring.Persistence.Form.pas' {frmSpringPersistence},
@@ -336,7 +325,6 @@ uses
   DDuce.Logger.Base in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Base.pas',
   DDuce.Logger.Channels.Base in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.Base.pas',
   DDuce.Logger.Channels.LogFile in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.LogFile.pas',
-  DDuce.Logger.Channels in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.pas',
   DDuce.Logger.Channels.WinIPC in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.WinIPC.pas',
   DDuce.Logger.Channels.WinODS in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.WinODS.pas',
   DDuce.Logger.Channels.ZeroMQ in 'Libraries\DDuce\Modules\Logger\DDuce.Logger.Channels.ZeroMQ.pas',
@@ -454,7 +442,20 @@ uses
   Spring.Persistence.SQL.Params in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Params.pas',
   Spring.Persistence.SQL.Register in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Register.pas',
   Spring.Persistence.SQL.Types in 'Libraries\Spring4D\Source\Persistence\SQL\Spring.Persistence.SQL.Types.pas',
-  Concepts.zObjectInspector.StringsDialog.Form in 'Forms\Concepts.zObjectInspector.StringsDialog.Form.pas' {frmStringsDialog};
+  Concepts.zObjectInspector.StringsDialog.Form in 'Forms\Concepts.zObjectInspector.StringsDialog.Form.pas' {frmStringsDialog},
+  zBase in 'Libraries\TzObjectInspector\zBase.pas',
+  zCanvasStack in 'Libraries\TzObjectInspector\zCanvasStack.pas',
+  zCollectionEditor in 'Libraries\TzObjectInspector\zCollectionEditor.pas' {zCollectionEditorDialog},
+  zControlsReg in 'Libraries\TzObjectInspector\zControlsReg.pas',
+  zGraphicDialog in 'Libraries\TzObjectInspector\zGraphicDialog.pas' {GraphicDialog},
+  zObjInspDialogs in 'Libraries\TzObjectInspector\zObjInspDialogs.pas',
+  zObjInspector in 'Libraries\TzObjectInspector\zObjInspector.pas',
+  zObjInspList in 'Libraries\TzObjectInspector\zObjInspList.pas',
+  zObjInspTypes in 'Libraries\TzObjectInspector\zObjInspTypes.pas',
+  zRecList in 'Libraries\TzObjectInspector\zRecList.pas',
+  zStringsDialog in 'Libraries\TzObjectInspector\zStringsDialog.pas' {StringsDialog},
+  zUtils in 'Libraries\TzObjectInspector\zUtils.pas',
+  zValueManager in 'Libraries\TzObjectInspector\zValueManager.pas';
 
 {$R *.res}
 
@@ -466,6 +467,7 @@ const
   //EXECUTE_BY_NAME = 'TStringList';
   //EXECUTE_BY_NAME = 'Indy';
   //EXECUTE_BY_NAME = 'Parallel Library';
+
 
 begin
   {$WARNINGS OFF}

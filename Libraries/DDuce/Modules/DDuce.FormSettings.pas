@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,12 +22,14 @@ interface
 
 uses
   System.Classes,
-  Vcl.Forms, Vcl.Controls;
+  Vcl.Forms, Vcl.Controls,
+
+  Spring;
 
 type
   TFormSettings = class(TPersistent)
   private
-    FOnChanged   : TNotifyEvent;
+    FOnChanged   : Event<TNotifyEvent>;
     FWidth       : Integer;
     FHeight      : Integer;
     FLeft        : Integer;
@@ -35,23 +37,25 @@ type
     FFormStyle   : TFormStyle;
     FWindowState : TWindowState;
 
+  protected
     procedure SetFormStyle(AValue: TFormStyle);
     procedure SetHeight(AValue: Integer);
     procedure SetLeft(AValue: Integer);
     procedure SetTop(AValue: Integer);
     procedure SetWidth(AValue: Integer);
     procedure SetWindowState(AValue: TWindowState);
+    function GetOnChanged: IEvent<TNotifyEvent>;
 
-  protected
-    procedure Changed;
+    procedure DoChanged;
 
   public
     procedure AfterConstruction; override;
+
     procedure AssignTo(Dest: TPersistent); override;
     procedure Assign(Source: TPersistent); override;
 
-    property OnChanged: TNotifyEvent
-      read FOnChanged write FOnChanged;
+    property OnChanged: IEvent<TNotifyEvent>
+      read GetOnChanged;
 
   published
     property Left: Integer
@@ -75,77 +79,84 @@ type
 
 implementation
 
-{$region 'construction and destruction' /fold}
-
+{$REGION 'construction and destruction'}
 procedure TFormSettings.AfterConstruction;
 begin
   inherited AfterConstruction;
   FWidth  := 800;
   FHeight := 600;
 end;
+{$ENDREGION}
 
-{$endregion}
-
-{$region 'property access mehods' /fold}
-
+{$REGION 'property access mehods'}
 procedure TFormSettings.SetWindowState(AValue: TWindowState);
 begin
   if (AValue <> WindowState) and (AValue <> wsMinimized) then
   begin
     FWindowState := AValue;
-    Changed;
+    DoChanged;
   end;
 end;
 
 procedure TFormSettings.SetFormStyle(AValue: TFormStyle);
 begin
-  if FFormStyle = AValue then Exit;
-  FFormStyle := AValue;
-  Changed;
+  if FFormStyle <> AValue then
+  begin
+    FFormStyle := AValue;
+    DoChanged;
+  end;
 end;
 
 procedure TFormSettings.SetHeight(AValue: Integer);
 begin
-  if FHeight = AValue then Exit;
-  FHeight := AValue;
-  Changed;
+  if Height <> AValue then
+  begin
+    FHeight := AValue;
+    DoChanged;
+  end;
 end;
 
 procedure TFormSettings.SetLeft(AValue: Integer);
 begin
-  if FLeft = AValue then Exit;
-  FLeft := AValue;
-  Changed;
+  if Left <> AValue then
+  begin
+    FLeft := AValue;
+    DoChanged;
+  end;
 end;
 
 procedure TFormSettings.SetTop(AValue: Integer);
 begin
-  if FTop = AValue then Exit;
-  FTop := AValue;
-  Changed;
+  if Top <> AValue then
+  begin
+    FTop := AValue;
+    DoChanged;
+  end;
 end;
 
 procedure TFormSettings.SetWidth(AValue: Integer);
 begin
-  if FWidth = AValue then Exit;
-  FWidth := AValue;
-  Changed;
+  if Width <> AValue then
+  begin
+    FWidth := AValue;
+    DoChanged;
+  end;
 end;
 
-{$endregion}
-
-{$region 'protected methods' /fold}
-
-procedure TFormSettings.Changed;
+function TFormSettings.GetOnChanged: IEvent<TNotifyEvent>;
 begin
-  if Assigned(FOnChanged) then
-    FOnChanged(Self);
+  Result := FOnChanged;
 end;
+{$ENDREGION}
 
-{$endregion}
+{$REGION 'event dispatch methods'}
+procedure TFormSettings.DoChanged;
+begin
+  FOnChanged.Invoke(Self);
+end;
+{$ENDREGION}
 
-{$region 'public methods' /fold}
-
+{$REGION 'public methods'}
 procedure TFormSettings.Assign(Source: TPersistent);
 var
   F : TForm;
@@ -161,7 +172,7 @@ begin
     WindowState := F.WindowState;
   end
   else
-    inherited;
+    inherited Assign(Source);
 end;
 
 procedure TFormSettings.AssignTo(Dest: TPersistent);
@@ -179,9 +190,8 @@ begin
     F.WindowState := WindowState;
   end
   else
-    inherited;
+    inherited AssignTo(Dest);
 end;
-
-{$endregion}
+{$ENDREGION}
 
 end.

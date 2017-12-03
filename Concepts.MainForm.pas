@@ -34,19 +34,19 @@ uses
 type
   TfrmMain = class(TForm)
     {$REGION 'designer controls'}
-    aclMain         : TActionList;
-    actExecute      : TAction;
-    actClose        : TAction;
-    actExecuteModal : TAction;
-    pnlVST          : TPanel;
-    edtFilter       : TEdit;
-    sbrMain         : TStatusBar;
-    pnlButtons      : TGridPanel;
-    btnExecute      : TButton;
-    btnClose        : TButton;
-    btnExecuteModal : TButton;
-    tbrMain         : TTaskbar;
-    actCenterMainForm: TAction;
+    aclMain           : TActionList;
+    actCenterMainForm : TAction;
+    actClose          : TAction;
+    actExecute        : TAction;
+    actExecuteModal   : TAction;
+    btnClose          : TButton;
+    btnExecute        : TButton;
+    btnExecuteModal   : TButton;
+    edtFilter         : TEdit;
+    pnlButtons        : TGridPanel;
+    pnlVST            : TPanel;
+    sbrMain           : TStatusBar;
+    tbrMain           : TTaskbar;
     {$ENDREGION}
 
     procedure actExecuteExecute(Sender: TObject);
@@ -164,7 +164,9 @@ procedure TfrmMain.AfterConstruction;
 begin
   inherited AfterConstruction;
   FVST := TConceptFactories.CreateVirtualStringTree(Self, pnlVST);
+  FVST.Header.Font.Style := FVST.Header.Font.Style + [fsBold];
   FTVP := TConceptFactories.CreateTreeViewPresenter(Self);
+  FTVP.Sorting := False;
   InitializePresenter;
   sbrMain.SimpleText := Format(SConceptsLoaded, [ConceptManager.ItemList.Count]);
   LoadSettings;

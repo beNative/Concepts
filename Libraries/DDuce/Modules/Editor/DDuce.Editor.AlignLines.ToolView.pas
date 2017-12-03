@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -78,8 +78,8 @@ type
     sbrMain          : TScrollBox;
 
     procedure actExecuteExecute(Sender: TObject);
-    procedure FormResize(Sender: TObject);
 
+    procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FTVPDoubleClick(Sender: TObject);
     procedure gbxInsertSpaceItemClick(Sender: TObject; Index: integer);
@@ -90,8 +90,8 @@ type
     procedure rgpSortDirectionClick(Sender: TObject);
 
   strict private
-    FTVP    : TTreeViewPresenter;
-    FVST    : TVirtualStringTree;
+    //FTVP    : TTreeViewPresenter;
+    //FVST    : TVirtualStringTree;
     FTokens : TObjectList; // list of alignment tokens found in selection
 
   strict protected
@@ -127,7 +127,7 @@ uses
 resourcestring
   SToken = 'Token';
 
-{$region 'TToken' /fold}
+{$REGION 'TToken'}
 type
   TToken = class(TPersistent)
   private
@@ -146,9 +146,9 @@ begin
   inherited Create;
   FToken := AToken;
 end;
-{$endregion}
+{$ENDREGION}
 
-{$region 'construction and destruction' /fold}
+{$REGION 'construction and destruction'}
 procedure TfrmAlignLines.AfterConstruction;
 begin
   inherited AfterConstruction;
@@ -177,16 +177,16 @@ begin
   FTokens.Free;
   inherited BeforeDestruction;
 end;
-{$endregion}
+{$ENDREGION}
 
-{$region 'action handlers' /fold}
+{$REGION 'action handlers'}
 procedure TfrmAlignLines.actExecuteExecute(Sender: TObject);
 begin
   Execute;
 end;
-{$endregion}
+{$ENDREGION}
 
-{$region 'event handlers' /fold}
+{$REGION 'event handlers'}
 procedure TfrmAlignLines.FormShow(Sender: TObject);
 begin
 //  mmoTokens.Lines.Assign(Settings.Tokens);
@@ -209,8 +209,8 @@ begin
 end;
 
 procedure TfrmAlignLines.gbxInsertSpaceItemClick(Sender: TObject; Index: integer);
-var
-  B : Boolean;
+//var
+//  B : Boolean;
 begin
 //  B := (Sender as TCheckGroup).Checked[Index];
 //  case Index of
@@ -220,8 +220,8 @@ begin
 end;
 
 procedure TfrmAlignLines.gbxOptionsItemClick(Sender: TObject; Index: integer);
-var
-  B : Boolean;
+//var
+//  B : Boolean;
 begin
 //  B := (Sender as TCheckGroup).Checked[Index];
 //  case Index of
@@ -251,28 +251,28 @@ procedure TfrmAlignLines.rgpSortDirectionClick(Sender: TObject);
 begin
 //  Settings.SortDirection := TSortDirection((Sender as TRadioGroup).ItemIndex);
 end;
-{$endregion}
+{$ENDREGION}
 
-{$region 'property access mehods' /fold}
+{$REGION 'property access mehods'}
 function TfrmAlignLines.GetSettings: TAlignLinesSettings;
 begin
   Result := inherited Settings.ToolSettings.ItemsByClass[TAlignLinesSettings]
     as TAlignLinesSettings;
 end;
-{$endregion}
+{$ENDREGION}
 
-{$region 'protected methods' /fold}
+{$REGION 'protected methods'}
 procedure TfrmAlignLines.UpdateTokenList;
-var
-  S  : string;
-  O  : string;
-  T  : TToken;
-  ST : TToken; // selected token
+//var
+//  S  : string;
+//  O  : string;
+//  T  : TToken;
+//  ST : TToken; // selected token
 begin
-  FTVP.BeginUpdate;
-  ST := nil;
-  O  := '';
-  T  := nil;
+//  FTVP.BeginUpdate;
+//  ST := nil;
+//  O  := '';
+//  T  := nil;
 //  if Assigned(FTVP.CurrentItem) then
 //  begin
 //    O := TToken(FTVP.CurrentItem).Token;
@@ -319,8 +319,8 @@ begin
 end;
 
 procedure TfrmAlignLines.Execute;
-var
-  T : string;
+//var
+//  T : string;
 begin
 //  if Assigned(FTVP.CurrentItem) then
 //  begin
@@ -351,7 +351,7 @@ begin
 //  rgpSortDirection.ItemIndex := Integer(Settings.SortDirection);
 //  rgpAlignAt.ItemIndex       := Integer(Settings.AlignToToken);
 end;
-{$endregion}
+{$ENDREGION}
 
 end.
 

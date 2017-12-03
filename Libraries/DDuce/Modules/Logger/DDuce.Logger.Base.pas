@@ -113,15 +113,30 @@ type
     procedure SendComponent(const AName: string; AValue: TComponent);
     { Will send object data using RTTI information. }
     procedure SendObject(const AName: string; AValue: TObject);
+
     procedure SendDateTime(const AName: string; AValue: TDateTime);
     procedure SendDate(const AName: string; AValue: TDate);
     procedure SendTime(const AName: string; AValue: TTime);
+
     procedure SendRect(const AName: string; const AValue: TRect);
     procedure SendPoint(const AName: string; const APoint: TPoint);
+
     procedure SendPointer(const AName: string; APointer: Pointer);
     procedure SendException(const AName: string; AException: Exception);
-    procedure SendMemory(const AName: string; AAddress: Pointer; ASize: LongWord);
+    procedure SendMemory(
+      const AName: string;
+      AAddress   : Pointer;
+      ASize      : LongWord
+    );
     procedure SendShortCut(const AName: string; AShortCut: TShortCut);
+
+    { Send methods for text that can be displayed with a dedicated
+      highlighter. }
+    procedure SendText(
+      const AName        : string;
+      const AText        : string;
+      const AHighlighter : string = ''
+    );
 
     procedure SendIf(
       const AText : string;
@@ -184,13 +199,14 @@ type
     procedure Watch(const AName: string; const AValue: TValue); overload;
     procedure Watch(const AName: string; const AValue: string = ''); overload;
 
-    { List of channels where logmessages will be sent to }
+    { List of channels where logmessages will be posted to }
     property Channels: TChannelList
       read GetChannels;
 
     property LogStack: TStrings
       read FLogStack;
 
+    { not used yet }
     property MaxStackCount: Integer
       read FMaxStackCount write SetMaxStackCount default DEFAULT_MAXSTACKCOUNT;
 
@@ -208,7 +224,7 @@ var
 implementation
 
 uses
-  System.TypInfo, System.StrUtils, System.UIConsts,
+  System.TypInfo, System.UIConsts,
   Vcl.Forms, Vcl.Menus,
 
   Spring,
@@ -261,10 +277,10 @@ var
   LM : TLogMessage;
   LC : ILogChannel;
 begin
-  LM.MsgType := Integer(AMsgType);
-  LM.MsgTime := Now;
-  LM.MsgText := AnsiString(AText);
-  LM.Data    := AStream;
+  LM.MsgType   := Integer(AMsgType);
+  LM.TimeStamp := Now;
+  LM.Text      := UTF8String(AText);
+  LM.Data      := AStream;
   for LC in Channels do
     if LC.Active then
       LC.Write(LM);
@@ -354,6 +370,11 @@ end;
 procedure TLogger.SendDate(const AName: string; AValue: TDate);
 begin
   Send(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.SendText(const AName, AText, AHighlighter: string);
+begin
+//  InternalSend(lmtText, AName + ' = ' + S);
 end;
 
 procedure TLogger.SendTime(const AName: string; AValue: TTime);
@@ -665,8 +686,7 @@ begin
   // ensure that Leave will be called allways if there's a unpaired Enter
   if FLogStack.Count = 0 then
     Exit;
-  // todo: see if is necessary to do Uppercase (set case sensitive to false?)
-  I := FLogStack.IndexOf(UpperCase(AName));
+  I := FLogStack.IndexOf(AName);
   if I <> -1 then
     FLogStack.Delete(I)
   else

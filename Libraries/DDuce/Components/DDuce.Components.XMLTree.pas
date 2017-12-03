@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ uses
 
   VirtualTrees,
 
-  DDuce.Logger,
+  //DDuce.Logger,
   DDuce.Components.XMLTree.NodeAttributes;
 
 const
@@ -367,7 +367,7 @@ type
       Kind        : TVTImageKind;
       Column      : TColumnIndex;
       var Ghosted : Boolean;
-      var Index   : Integer
+      var Index   : TImageIndex
     ): TCustomImageList; override;
     procedure DoPaintText(
       ANode        : PVirtualNode;
@@ -476,7 +476,6 @@ type
     );
 
     procedure DeleteNode(Node: PVirtualNode; Reindex: Boolean = True);
-
 
     property XMLDocument: TNativeXml
       read GetXMLDocument;
@@ -711,7 +710,7 @@ implementation
 uses
   TypInfo,
 
-  DDuce.Reflect,
+
 
   DDuce.Components.XMLTree.Editors;
 
@@ -942,7 +941,7 @@ begin
   TreeOptions.AnimationOptions := DEFAULT_VST_ANIMATIONOPTIONS;
   TreeOptions.AutoOptions      := DEFAULT_VST_AUTOOPTIONS;
 
-  FNodeAttributes := TNodeAttributes.Create(Self);
+  FNodeAttributes := TNodeAttributes.Create(Self, TNodeAttributesItem);
   InitializeNodeAttributes;
 
   FExpandedState := TExpandedState.Create;
@@ -971,7 +970,6 @@ var
   NX : TNativeXml;
   P  : PNodeData;
 begin
-  Logger.Enter(Self, 'SetNodeXML');
   NX := TNativeXml.Create(Self);
   try
     NX.ReadFromString(UTF8String(Value));
@@ -984,7 +982,6 @@ begin
   finally
     NX.Free;
   end;
-  Logger.Leave(Self, 'SetNodeXML');
 end;
 
 function TXMLTree.GetOptions: TStringTreeOptions;
@@ -1026,7 +1023,6 @@ begin
 
     //AddChildren(nil, FXMLDocument.Root);
     AddChildren(RootNode, FXMLDocument.Root);
-    Logger.Send('XML', XMLDocument.WriteToString);
 
     if not WasCleared then
       ExpandedStateRestore
@@ -1089,15 +1085,12 @@ procedure TXMLTree.DoMeasureItem(TargetCanvas: TCanvas; Node: PVirtualNode;
 var
   N: Cardinal;
 begin
-  Logger.Enter('DoMeasureItem');
   inherited DoMeasureItem(TargetCanvas, Node, NodeHeight);
   N := ComputeNodeHeight(TargetCanvas, Node, 0);
   if N > (DefaultNodeHeight + 5) then
   begin
     NodeHeight := N;
   end;
-  Logger.Watch('NodeHeight', NodeHeight);
-  Logger.Leave('DoMeasureItem');
 end;
 
 procedure TXMLTree.DoFreeNode(ANode: PVirtualNode);
@@ -1196,7 +1189,7 @@ begin
 end;
 
 function TXMLTree.DoGetImageIndex(ANode: PVirtualNode; Kind: TVTImageKind;
-  Column: TColumnIndex; var Ghosted: Boolean; var Index: Integer)
+  Column: TColumnIndex; var Ghosted: Boolean; var Index: TImageIndex)
   : TCustomImageList;
 begin
   if (Column = Header.MainColumn) and (Kind in [ikNormal, ikSelected]) then
@@ -1338,7 +1331,6 @@ var
 begin
   inherited;
   ND := GetData(ANode);
-  Logger.Send('RawData', ND.XMLNode);
   if (Column = FValueColumn)
     and (ND.NodeType in [ntElement, ntAttribute, ntText, ntNode])
     and (ND.XMLNode.Value <> UTF8String(Text)) then
@@ -1422,8 +1414,6 @@ begin
   repeat
     B := ANewXMLNode.ElementType in [xeElement, xeAttribute, xeComment];
     NT := GetDefaultNodeType(ANewXMLNode);
-    Logger.Watch('B', B);
-    Logger.Watch('ANewXMLNode', string(ANewXMLNode.Content));
 
     DoCheckNode(ANode, ANewXMLNode, NT, B);
     if not(B and Assigned(ANewXMLNode)) then
@@ -1449,7 +1439,6 @@ var
   ParentPath : string;
   I          : Integer;
 begin
-  Logger.Enter(Self, 'AddChildren');
   Result := 0;
   if AXMLNode.ElementType in [xeElement, xeAttribute] then
   begin
@@ -1462,7 +1451,6 @@ begin
       end
       else
         ParentPath := GetData(ANode).XMLPath + '/';
-      Logger.Watch('ParentPath', ParentPath);
       if AXMLNode.NodeCount > 0 then
       begin
         for I := 0 to AXMLNode.NodeCount - 1 do
@@ -1473,59 +1461,58 @@ begin
       EndUpdate;
     end;
   end;
-  Logger.Leave(Self, 'AddChildren');
 end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
 procedure TXMLTree.InitializeNodeAttributes;
-var
-  NAI: TNodeAttributesItem;
+//var
+//  NAI: TNodeAttributesItem;
 begin
-  NAI := FNodeAttributes.Add;
-  NAI.Name     := 'Attribute';
-  NAI.NodeType := ntAttribute;
-  NAI.BackGroundColor := DEFAULT_BGCOLOR_ATTRIBUTE;
-  NAI.Font.Name := 'Consolas';
-
-  NAI := FNodeAttributes.Add;
-  NAI.Name     := 'Comment';
-  NAI.NodeType := ntComment;
-  NAI.BackGroundColor := DEFAULT_BGCOLOR_COMMENT;
-  NAI.Font.Name  := 'Consolas';
-  NAI.Font.Style := [fsItalic];
-  NAI.Font.Color := clMedGray;
-
-  NAI := FNodeAttributes.Add;
-  NAI.Name     := 'Element';
-  NAI.NodeType := ntElement;
-  NAI.BackGroundColor := DEFAULT_BGCOLOR_ELEMENT;
-  NAI.Font.Name := 'Consolas';
-
-  NAI := FNodeAttributes.Add;
-  NAI.Name     := 'Unknown';
-  NAI.NodeType := ntUnknown;
-  NAI.BackGroundColor := DEFAULT_BGCOLOR_ELEMENT;
-  //NAI.BackGroundColor := DEFAULT_BGCOLOR_UNKNOWN;
-  NAI.Font.Name := 'Consolas';
-
-  NAI := FNodeAttributes.Add;
-  NAI.Name     := 'Root';
-  NAI.NodeType := ntRoot;
-  NAI.BackGroundColor := DEFAULT_BGCOLOR_ROOT;
-  NAI.Font.Name := 'Consolas';
-
-  NAI := FNodeAttributes.Add;
-  NAI.Name     := 'Text';
-  NAI.NodeType := ntText;
-  NAI.BackGroundColor := DEFAULT_BGCOLOR_TEXT;
-  NAI.Font.Name := 'Consolas';
-
-  NAI := FNodeAttributes.Add;
-  NAI.Name     := 'Node';
-  NAI.NodeType := ntNode;
-  NAI.BackGroundColor := DEFAULT_BGCOLOR_NODE;
-  NAI.Font.Name := 'Consolas';
+//  NAI := FNodeAttributes.Add;
+//  NAI.Name     := 'Attribute';
+//  NAI.NodeType := ntAttribute;
+//  NAI.BackGroundColor := DEFAULT_BGCOLOR_ATTRIBUTE;
+//  NAI.Font.Name := 'Consolas';
+//
+//  NAI := FNodeAttributes.Add;
+//  NAI.Name     := 'Comment';
+//  NAI.NodeType := ntComment;
+//  NAI.BackGroundColor := DEFAULT_BGCOLOR_COMMENT;
+//  NAI.Font.Name  := 'Consolas';
+//  NAI.Font.Style := [fsItalic];
+//  NAI.Font.Color := clMedGray;
+//
+//  NAI := FNodeAttributes.Add;
+//  NAI.Name     := 'Element';
+//  NAI.NodeType := ntElement;
+//  NAI.BackGroundColor := DEFAULT_BGCOLOR_ELEMENT;
+//  NAI.Font.Name := 'Consolas';
+//
+//  NAI := FNodeAttributes.Add;
+//  NAI.Name     := 'Unknown';
+//  NAI.NodeType := ntUnknown;
+//  NAI.BackGroundColor := DEFAULT_BGCOLOR_ELEMENT;
+//  //NAI.BackGroundColor := DEFAULT_BGCOLOR_UNKNOWN;
+//  NAI.Font.Name := 'Consolas';
+//
+//  NAI := FNodeAttributes.Add;
+//  NAI.Name     := 'Root';
+//  NAI.NodeType := ntRoot;
+//  NAI.BackGroundColor := DEFAULT_BGCOLOR_ROOT;
+//  NAI.Font.Name := 'Consolas';
+//
+//  NAI := FNodeAttributes.Add;
+//  NAI.Name     := 'Text';
+//  NAI.NodeType := ntText;
+//  NAI.BackGroundColor := DEFAULT_BGCOLOR_TEXT;
+//  NAI.Font.Name := 'Consolas';
+//
+//  NAI := FNodeAttributes.Add;
+//  NAI.Name     := 'Node';
+//  NAI.NodeType := ntNode;
+//  NAI.BackGroundColor := DEFAULT_BGCOLOR_NODE;
+//  NAI.Font.Name := 'Consolas';
 end;
 
 procedure TXMLTree.InitializeHeader;
@@ -1682,8 +1669,6 @@ begin
   else
     Result := ntUnknown;
   end;
-  Logger.Watch('ElementType', Reflect.EnumName(AXMLNode.ElementType));
-  Logger.Watch('NodeType', Reflect.EnumName(Result));
 end;
 
 procedure TXMLTree.RefreshNode(ANode: PVirtualNode; AParent: Boolean = False);
@@ -1710,9 +1695,6 @@ procedure TXMLTree.NewNode(ANode: PVirtualNode; ANewNodeType: TNodeType;
 //var
 //  N : TXmlNode;
 begin
-  Logger.Enter(Self, 'NewNode');
-
-
   if not Assigned(ANode) then
     AXmlNode := GetXMLNode(FocusedNode);
 
@@ -1779,7 +1761,6 @@ begin
   if not ABefore then
     Expanded[ANode] := True;
   RefreshNode(ANode, True);
-  Logger.Leave(Self, 'NewNode');
 end;
 
 procedure TXMLTree.DeleteNode(Node: PVirtualNode; Reindex: Boolean);

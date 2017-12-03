@@ -21,10 +21,10 @@ unit DDuce.Components.PropertyInspector.StringsEditor;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.Actions, System.ImageList,
+  System.SysUtils, System.Classes, System.Actions,
 
   Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.StdActns,
-  Vcl.ActnList, Vcl.Menus, Vcl.ImgList;
+  Vcl.ActnList, Vcl.Menus, System.ImageList, Vcl.ImgList;
 
 resourcestring
   SCaption            = 'String List Editor';
@@ -72,19 +72,7 @@ implementation
 
 {$R *.dfm}
 
-{ TStringsEditorDialog }
-
-function TStringsEditorDialog.Execute: Boolean;
-begin
-  Caption := SCaption;
-  btnOk.Caption := SOkBtnCaption;
-  btnCancel.Caption := SCancelBtnCaption;
-  lbLineCount.Caption := Format(SLinesCountTemplate,
-    [memMain.Lines.Count]);
-
-  Result := (ShowModal = mrOk);
-end;
-
+{$REGION 'property access methods'}
 function TStringsEditorDialog.GetLines: TStrings;
 begin
   Result := memMain.Lines;
@@ -94,11 +82,25 @@ procedure TStringsEditorDialog.SetLines(const Value: TStrings);
 begin
   memMain.Lines := Value;
 end;
+{$ENDREGION}
 
+{$REGION 'event handlers'}
 procedure TStringsEditorDialog.memMainChange(Sender: TObject);
 begin
   lbLineCount.Caption := Format(SLinesCountTemplate,
     [memMain.Lines.Count]);
 end;
+{$ENDREGION}
+
+{$REGION 'public methods'}
+function TStringsEditorDialog.Execute: Boolean;
+begin
+  Caption := SCaption;
+  btnOk.Caption := SOkBtnCaption;
+  btnCancel.Caption := SCancelBtnCaption;
+  lbLineCount.Caption := Format(SLinesCountTemplate, [memMain.Lines.Count]);
+  Result := (ShowModal = mrOk);
+end;
+{$ENDREGION}
 
 end.

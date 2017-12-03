@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 unit DDuce.Editor.Manager;
 
-{$REGION'documentation'}
+{$REGION 'documentation'}
 {
   Datamodule holding common actions, menu's to manage one or more IEditorView
   instances.
@@ -107,7 +107,7 @@ type
                                         IEditorSettings,
                                         IEditorSearchEngine
   )
-    {$REGION'designer controls'}
+    {$REGION 'designer controls'}
     aclActions                        : TActionList;
     actAbout                          : TAction;
     actAlignSelection                 : TAction;
@@ -241,6 +241,7 @@ type
     actToggleHighlighter              : TAction;
     actToggleMaximized                : TAction;
     actShowMinimap                    : TAction;
+    actShowSearchmap                  : TAction;
     actToggleWordWrap                 : TAction;
     actUndo                           : TAction;
     actUnindent                       : TAction;
@@ -276,10 +277,9 @@ type
     ppmSelectionEncode                : TPopupMenu;
     ppmSelectionMode                  : TPopupMenu;
     ppmSettings                       : TPopupMenu;
-    actShowSearchmap: TAction;
     {$ENDREGION}
 
-    {$REGION'action handlers'}
+    {$REGION 'action handlers'}
     procedure aclActionsExecute(AAction: TBasicAction; var Handled: Boolean);
     procedure actAboutExecute(Sender: TObject);
     procedure actAlignAndSortSelectionExecute(Sender: TObject);
@@ -420,7 +420,7 @@ type
     FViewList         : IList<IEditorView>;
     FSearchEngine     : IEditorSearchEngine;
 
-    {$REGION'property access methods'}
+    {$REGION 'property access methods'}
     function GetActionList: TActionList;
     function GetActions: IEditorActions;
     function GetClipboardPopupMenu: TPopupMenu;
@@ -508,7 +508,7 @@ type
       ANativeFormat : Boolean = True
     );
 
-    {$REGION'IEditorViews'}
+    {$REGION 'IEditorViews'}
     function IEditorViews.Add = AddView;
     function IEditorViews.GetCount = GetViewCount;
     function IEditorViews.Delete = DeleteView;
@@ -548,7 +548,7 @@ type
     procedure UpdateFoldingActions;
     procedure UpdateFileActions;
 
-    {$REGION'IEditorManager'}
+    {$REGION 'IEditorManager'}
     function ActivateView(const AName: string): Boolean;
     function OpenFile(const AFileName: string): IEditorView;
     function NewFile(
@@ -564,7 +564,7 @@ type
     property Items[AName: string]: TCustomAction
       read GetItem; default;
 
-    {$REGION'IEditorMenus'}
+    {$REGION 'IEditorMenus'}
     property ClipboardPopupMenu: TPopupMenu
       read GetClipboardPopupMenu;
 
@@ -614,7 +614,7 @@ type
       read GetSettingsPopupMenu;
     {$ENDREGION}
 
-    {$REGION'IEditorManager'}
+    {$REGION 'IEditorManager'}
     property PersistSettings: Boolean
       read GetPersistSettings write SetPersistSettings;
 
@@ -658,7 +658,7 @@ type
       read GetActiveView implements IEditorView;
     {$ENDREGION}
 
-    {$REGION'IEditorViews'}
+    {$REGION 'IEditorViews'}
     property Views[AIndex: Integer]: IEditorView
       read GetView;
 
@@ -727,7 +727,7 @@ const
   ACTION_PREFIX_SELECTIONMODE  = 'actSelectionMode';
   ACTION_PREFIX_LINEBREAKSTYLE = 'actLineBreakStyle';
 
-{$REGION'construction and destruction'}
+{$REGION 'construction and destruction'}
 constructor TdmEditorManager.Create(AOwner: TComponent;
   ASettings: IEditorSettings);
 begin
@@ -764,7 +764,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION'property access methods'}
+{$REGION 'property access methods'}
 function TdmEditorManager.GetEditorPopupMenu: TPopupMenu;
 begin
   Result := ppmEditor;
@@ -1013,7 +1013,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION'action handlers'}
+{$REGION 'action handlers'}
 procedure TdmEditorManager.actSortSelectedLinesExecute(Sender: TObject);
 begin
   Commands.SortSelectedLines;
@@ -1116,11 +1116,13 @@ end;
 procedure TdmEditorManager.actShowCodeShaperExecute(Sender: TObject);
 begin
 //  ShowToolView('CodeShaper', False, True);
+  ShowMessage(SNotImplementedYet);
 end;
 
 procedure TdmEditorManager.actShowCharacterMapExecute(Sender: TObject);
 begin
 //  ShowToolView('CharacterMap', False, False);
+  ShowMessage(SNotImplementedYet);
 end;
 
 procedure TdmEditorManager.actAlignSelectionExecute(Sender: TObject);
@@ -1138,6 +1140,7 @@ begin
 //  finally
 //    F.Free;
 //  end;
+  ShowMessage(SNotImplementedYet);
 end;
 
 procedure TdmEditorManager.actSelectionInfoExecute(Sender: TObject);
@@ -1325,6 +1328,7 @@ begin
 //    ActiveView.Editor.Gutter.CodeFoldPart,
 //    ActiveView.Editor.Gutter.SeparatorPart
 //  ]);
+  ShowMessage(SNotImplementedYet);
 end;
 
 procedure TdmEditorManager.actNewExecute(Sender: TObject);
@@ -1606,6 +1610,7 @@ begin
 //    OL.Free;
 //  end;
   // CTRL-ALT-SHIFT-F5
+  ShowMessage(SNotImplementedYet);
 end;
 
 procedure TdmEditorManager.actUnindentExecute(Sender: TObject);
@@ -1617,6 +1622,7 @@ procedure TdmEditorManager.actFindAllOccurencesExecute(Sender: TObject);
 begin
 //  SearchEngine.SearchText := ActiveView.CurrentWord;
 //  SearchEngine.Execute;
+  ShowMessage(SNotImplementedYet);
 end;
 
 procedure TdmEditorManager.actIndentExecute(Sender: TObject);
@@ -1766,7 +1772,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION'event handlers'}
+{$REGION 'event handlers'}
 procedure TdmEditorManager.EditorSettingsChanged(ASender: TObject);
 begin
   if Assigned(ActiveView) then
@@ -1774,8 +1780,8 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION'private methods'}
-{$REGION'Helpers'}
+{$REGION 'private methods'}
+{$REGION 'Helpers'}
 function TdmEditorManager.AddMenuItem(AParent: TMenuItem; AAction: TBasicAction
   ): TMenuItem;
 var
@@ -1831,7 +1837,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION'Initialization'}
+{$REGION 'Initialization'}
 procedure TdmEditorManager.InitializePopupMenus;
 begin
   BuildHighlighterPopupMenu;
@@ -1916,7 +1922,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION'Build popup menus'}
+{$REGION 'Build popup menus'}
 procedure TdmEditorManager.BuildClipboardPopupMenu;
 var
   MI: TMenuItem;
@@ -2269,7 +2275,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION'Registration'}
+{$REGION 'Registration'}
 procedure TdmEditorManager.RegisterToolViews;
 begin
   //ToolViews.Register(TfrmAlignLines, TAlignLinesSettings, 'AlignLines');
@@ -2290,7 +2296,7 @@ end;
 {$ENDREGION}
 {$ENDREGION}
 
-{$REGION'protected methods'}
+{$REGION 'protected methods'}
 { Called when the active view is set to another view in the list. }
 procedure TdmEditorManager.ActiveViewChanged;
 begin
@@ -2324,11 +2330,12 @@ end;
 { TODO -oTS : Check out if this is appropriate. }
 procedure TdmEditorManager.Notification(AComponent: TComponent; Operation: TOperation);
 begin
-  if Supports(AComponent, IEditorView) and (Operation = opRemove) then
-  begin
-    DeleteView(AComponent as IEditorView);
-    Logger.Watch('ViewCount', ViewCount);
-  end;
+// causes crash in LogViewer
+//  if Supports(AComponent, IEditorView) and (Operation = opRemove) then
+//  begin
+//    DeleteView(AComponent as IEditorView);
+//    Logger.Watch('ViewCount', ViewCount);
+//  end;
   inherited Notification(AComponent, Operation);
 end;
 
@@ -2364,7 +2371,7 @@ begin
     ETV.SetFocus;
 end;
 
-{$REGION'IEditorActions'}
+{$REGION 'IEditorActions'}
 function TdmEditorManager.AddView(const AName: string; const AFileName: string;
   const AHighlighter: string): IEditorView;
 var
@@ -2406,8 +2413,9 @@ begin
       V := Views[I];
       V.Activate
     end;
-    Views[AIndex].Close;
-    ViewList.Delete(AIndex);
+    Views[AIndex].Close; // instance still exists after closing
+    //Events.D
+    ViewList.Delete(AIndex); // automatically frees the instance
     Result := True;
   end
   else
@@ -2425,30 +2433,11 @@ function TdmEditorManager.DeleteView(AView: IEditorView): Boolean;
 var
   I : Integer;
 begin
-  Result := False;
   Logger.Enter(Self, 'DeleteView(AView)');
   if Assigned(AView) and Assigned(ViewList) then
   begin
     I := ViewList.IndexOf(AView);
-    if (ViewCount > 1) and (I > -1) then
-    begin
-      if AView = ActiveView then
-      begin
-        AView.Close;
-        ViewList.Delete(I);
-        Views[0].Activate;
-        Result := True;
-      end
-      else
-      begin
-        AView.Close;
-        ViewList.Delete(I);
-      end;
-    end
-    else
-    begin
-      Result := False;
-    end;
+    Result := DeleteView(I);
   end
   else
     Result := False;
@@ -2485,7 +2474,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION'IEditorCommands'}
+{$REGION 'IEditorCommands'}
 procedure TdmEditorManager.ExportLines(AFormat: string; AToClipBoard: Boolean;
   ANativeFormat: Boolean);
 //var
@@ -2615,7 +2604,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION'UpdateActions'}
+{$REGION 'UpdateActions'}
 { Gets called from the active editor view. }
 
 procedure TdmEditorManager.UpdateActions;
@@ -2868,7 +2857,7 @@ begin
   begin
     if FileExists(AFileName) then
     begin
-      V := AddView;
+      V := AddView('', AFileName);
       V.Load(AFileName);
     end;
     Result := V;

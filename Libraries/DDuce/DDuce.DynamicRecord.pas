@@ -26,7 +26,7 @@ uses
 
 {$REGION 'Documentation'}
 {
-  TRecord is a custom record type holding dynamically typed fields.
+  DynamicRecord is a custom record type holding dynamically typed fields.
   It consosts of a set of key-value pairs which can be assigned from/to any
   object or record instance. In that respect it behaves more or less than a
   dynamic associative array commonly found in dynamically typed languages (e.g.
@@ -35,16 +35,16 @@ uses
   values of the record.
 
   TERMINOLOGY
-    The name TRecord was chosen because it behaves as native pascal records when
+    The name DynamicRecord was chosen because it behaves as native pascal records when
     assigned to eachother. Rather than copying the reference (like classes and
     class interfaces) the data is copied.
-    When assigning two TRecord variables to eachother the data is always copied
+    When assigning two DynamicRecord variables to eachother the data is always copied
     as witch native record variables.
-    A TRecord instance manages its own data (creation and destruction).
+    A DynamicRecord instance manages its own data (creation and destruction).
 
     If you rather have a reference to a set of values, you can use the
-    IDynamicRecord interface, which is assignment compatible with TRecord
-    variables. Mixed TRecord and IDynamicRecord assignments always result in
+    IDynamicRecord interface, which is assignment compatible with DynamicRecord
+    variables. Mixed DynamicRecord and IDynamicRecord assignments always result in
     a copy of the contained data.
 
   MAIN FEATURES:
@@ -53,12 +53,12 @@ uses
     - No boilerplate code. No Create/Try/Finally/Free blocks needed as
       memory management is done behind the scenes.
     - Easy assignment from and to object/record properties as well as other
-      TRecord instances using dedicated 'From' methods.
+      DynamicRecord instances using dedicated 'From' methods.
     - Enumeration support (so we can use it in "for..in" statements) in D2006+
-      thanks to IEnumerable support (TRecordEnumerator).
+      thanks to IEnumerable support (DynamicRecordEnumerator).
       Example:
         var
-          R: TRecord;
+          R: DynamicRecord;
           F: IDynamicField;
         begin
           R['First'] := 1;
@@ -88,19 +88,19 @@ uses
     - A debug visualizer is available that shows the content of the record while
       debugging in the IDE.
 
-  TRecord<T> allows typed access to contained data. In that respect it behaves
+  DynamicRecord<T> allows typed access to contained data. In that respect it behaves
   as a managed object wrapper while remaining compatible with the basic
   instance type.
-    - TRecord<T> can be assigned to T, but only if T was created. It will copy
+    - DynamicRecord<T> can be assigned to T, but only if T was created. It will copy
       the values rather than exposing and assigning the reference.
     - The Data property is of type T.
     - The generic version does automatic instantiation of objects of type T.
-    - A TRecord<T> instance is assignment compatible with TRecord,
+    - A DynamicRecord<T> instance is assignment compatible with DynamicRecord,
       IDynamicRecord<T> and IDynamicRecord variables.
     - Does the same as Scoped instances
 
   Future enhancements:
-    - TRecord<T>: add overloaded constructor with factory method (TFunc<T>).
+    - DynamicRecord<T>: add overloaded constructor with factory method (TFunc<T>).
       This allows more customized autoconstruction.
     - Add more events
     - Control/data binding support
@@ -115,7 +115,7 @@ uses
       directive)
 
   References:
-    To make TRecord really behave as a proper value type, there had to be a
+    To make DynamicRecord really behave as a proper value type, there had to be a
     way to implement this copy on write behaviour (COW) on the managed
     interface variable (IDynamicRecord). Barry Kelly came to the rescue in his
     article where he explains how to implement user-defined copy-on-write
@@ -127,12 +127,12 @@ uses
     http://blog.barrkel.com/2009/01/implementing-user-defined-copy-on-write.html
 
     TODO does not work yet when mixing generic and non generic instances.
-      A notable side effect is that assignments from/to TRecord and
+      A notable side effect is that assignments from/to DynamicRecord and
       IDynamicRecord variables cause copies to be made where in this case we
       want to have a reference.
       We tried to compensate for this by keeping a seperate reference count
-      variable in the TRecord instance to keep track of any external user
-      defined interface variables (IDynamicRecord) that reference the TRecord
+      variable in the DynamicRecord instance to keep track of any external user
+      defined interface variables (IDynamicRecord) that reference the DynamicRecord
       instance. This does not work yet.
 }
 {$ENDREGION}
@@ -144,7 +144,7 @@ type
   IDynamicRecord<T: class, constructor> = interface;
   {$M-}
 
-  TRecordEnumerator = record
+  DynamicRecordEnumerator = record
   strict private
     FIndex  : Integer;
     FRecord : IDynamicRecord;
@@ -157,7 +157,7 @@ type
       read GetCurrent;
   end;
 
-  TRecord = record
+  DynamicRecord = record
   private
     FDynamicRecord : IDynamicRecord;
     FRecRefCount   : Integer;
@@ -189,8 +189,8 @@ type
       const AAssignNulls      : Boolean;
       const ANames            : array of string
     ); overload;
-    constructor Create(const ARecord: TRecord); overload;
-    class function Create: TRecord; overload; static;
+    constructor Create(const ARecord: DynamicRecord); overload;
+    class function Create: DynamicRecord; overload; static;
 
     class function CreateDynamicRecord: IDynamicRecord; static;
 
@@ -211,7 +211,7 @@ type
 
     procedure Assign(ADynamicRecord: IDynamicRecord); overload;
     procedure Assign(
-      const ARecord : TRecord;
+      const ARecord : DynamicRecord;
       const ANames  : array of string
     ); overload;
 
@@ -277,7 +277,7 @@ type
     function IsEmpty: Boolean;
 
     { IEnumerable }
-    function GetEnumerator: TRecordEnumerator;
+    function GetEnumerator: DynamicRecordEnumerator;
 
     procedure Clear;
 
@@ -329,19 +329,21 @@ type
       read GetInternalRefCount;
 
     { Implicit cast to our specialized invokable variant. }
-    class operator Implicit(const ASource: TRecord): Variant;
+    class operator Implicit(const ASource: DynamicRecord): Variant;
     { This cast creates a IDynamicRecord reference if needed. }
-    class operator Implicit(const ASource: TRecord): IDynamicRecord;
-    class operator Implicit(const ASource: IDynamicRecord): TRecord;
-    //class operator Implicit(const ASource: TValue): TRecord;
+    class operator Implicit(const ASource: DynamicRecord): IDynamicRecord;
+    class operator Implicit(const ASource: IDynamicRecord): DynamicRecord;
+    //class operator Implicit(const ASource: TValue): DynamicRecord;
   end;
 
-  { TRecord<T> manages a IDynamicRecord<T> instance. The data is stored in the
+  TRecord = DynamicRecord deprecated; // for backwards compatibility
+
+  { DynamicRecord<T> manages a IDynamicRecord<T> instance. The data is stored in the
     provided class type. }
 
     { TODO: Items property }
 
-  TRecord<T: class, constructor> = record
+  DynamicRecord<T: class, constructor> = record
   private
     FDynamicRecord : IDynamicRecord<T>;
     FSaveProc      : TProc;
@@ -375,11 +377,11 @@ type
       const AAssignNulls      : Boolean;
       const ANames            : array of string
     ); overload;
-    constructor Create(const ARecord: TRecord<T>); overload;
+    constructor Create(const ARecord: DynamicRecord<T>); overload;
     constructor Create(AInstance: T); overload;
     constructor Create(const ADataFactory: TFunc<T>); overload;
 
-    class function Create: TRecord<T>; overload; static;
+    class function Create: DynamicRecord<T>; overload; static;
 
     class function CreateDynamicRecord: IDynamicRecord<T>; overload; static;
     class function CreateDynamicRecord(
@@ -393,18 +395,18 @@ type
     function ToCommaText(const AFieldNames : string) : string; overload;
     function ToCommaText : string; overload;
     function ToDelimitedText(
-      const AFieldNames  : string;
-      const ADelimiter   : string;
-            AQuoteValues : Boolean = False;
-            AQuoteChar   : Char = '"'
+      const AFieldNames : string;
+      const ADelimiter  : string;
+      AQuoteValues      : Boolean = False;
+      AQuoteChar        : Char = '"'
     ): string; overload;
     function ToDelimitedText(
-      const ADelimiter   : string;
-            AQuoteValues : Boolean = False;
-            AQuoteChar   : Char = '"'
+      const ADelimiter : string;
+      AQuoteValues     : Boolean = False;
+      AQuoteChar       : Char = '"'
     ): string; overload;
 
-    procedure Assign(const ARecord : TRecord); overload;
+    procedure Assign(const ARecord : DynamicRecord); overload;
     procedure Assign(ASource: T); overload;
 
     procedure AssignTo(AInstance: TValue); overload;
@@ -437,7 +439,7 @@ type
     function IsEmpty: Boolean;
 
     { IEnumerable }
-    function GetEnumerator: TRecordEnumerator;
+    function GetEnumerator: DynamicRecordEnumerator;
 
     procedure Clear;
 
@@ -479,10 +481,10 @@ type
     property SaveProc: TProc
       read FSaveProc write FSaveProc;
 
-    class operator Implicit(const ASource: TRecord): TRecord<T>;
-    class operator Implicit(const ASource: TRecord<T>): TRecord;
-    class operator Implicit(const ASource: TRecord<T>): IDynamicRecord;
-    class operator Implicit(const ASource: TRecord<T>): IDynamicRecord<T>;
+    class operator Implicit(const ASource: DynamicRecord): DynamicRecord<T>;
+    class operator Implicit(const ASource: DynamicRecord<T>): DynamicRecord;
+    class operator Implicit(const ASource: DynamicRecord<T>): IDynamicRecord;
+    class operator Implicit(const ASource: DynamicRecord<T>): IDynamicRecord<T>;
   end;
 
   IDynamicField = interface(IInvokable)
@@ -511,7 +513,7 @@ type
     function GetCount: Integer;
     function GetRefCount: Integer;
 
-    function GetEnumerator: TRecordEnumerator;
+    function GetEnumerator: DynamicRecordEnumerator;
 
     function ContainsField(const AName: string): Boolean;
     function DeleteField(const AName: string): Boolean;
@@ -519,7 +521,7 @@ type
     procedure Clear;
 
     procedure Assign(ASource: IDynamicRecord); overload;
-    procedure Assign(const ASource: TRecord); overload;
+    procedure Assign(const ASource: DynamicRecord); overload;
 
     procedure AssignTo(AInstance: TValue); overload;
     procedure AssignTo(
@@ -564,15 +566,15 @@ type
     function ToCommaText : string; overload;
     function ToCommaText(const AFieldNames : string) : string; overload;
     function ToDelimitedText(
-      const AFieldNames  : string;
-      const ADelimiter   : string;
-            AQuoteValues : Boolean = False;
-            AQuoteChar   : Char = '"'
+      const AFieldNames : string;
+      const ADelimiter  : string;
+      AQuoteValues      : Boolean = False;
+      AQuoteChar        : Char = '"'
     ): string; overload;
     function ToDelimitedText(
-      const ADelimiter   : string;
-            AQuoteValues : Boolean = False;
-            AQuoteChar   : Char = '"'
+      const ADelimiter : string;
+      AQuoteValues     : Boolean = False;
+      AQuoteChar       : Char = '"'
     ): string; overload;
     function ToVarArray(const AFieldNames : string = '') : Variant;
 
@@ -735,7 +737,7 @@ type
     ); reintroduce; overload;
 
     procedure Assign(
-      const ARecord : TRecord
+      const ARecord : DynamicRecord
     ); reintroduce; overload;
 
     procedure AssignTo(Dest: TPersistent); overload; override;
@@ -761,7 +763,7 @@ type
     );
 
     procedure FromDataSet(
-            ADataSet     : TDataSet;
+      ADataSet           : TDataSet;
       const AAssignNulls : Boolean = False
     );
     procedure FromStrings(AStrings: TStrings);
@@ -792,15 +794,15 @@ type
     function ToCommaText(const AFieldNames : string) : string; overload;
     function ToCommaText : string; overload;
     function ToDelimitedText(
-      const AFieldNames  : string;
-      const ADelimiter   : string;
-            AQuoteValues : Boolean = False;
-            AQuoteChar   : Char = '"'
+      const AFieldNames : string;
+      const ADelimiter  : string;
+      AQuoteValues      : Boolean = False;
+      AQuoteChar        : Char = '"'
     ): string; overload;
     function ToDelimitedText(
-      const ADelimiter   : string;
-            AQuoteValues : Boolean = False;
-            AQuoteChar   : Char = '"'
+      const ADelimiter : string;
+      AQuoteValues     : Boolean = False;
+      AQuoteChar       : Char = '"'
     ): string; overload;
 
     // value convert routines
@@ -854,7 +856,7 @@ type
     constructor Create; overload; virtual;
     constructor Create(const AFieldNames : string); overload;
 
-    function GetEnumerator: TRecordEnumerator;
+    function GetEnumerator: DynamicRecordEnumerator;
 
     function ToString(AAlignValues: Boolean): string; reintroduce; overload; virtual;
     function ToString: string; overload; override;
@@ -1404,9 +1406,9 @@ end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
-function TDynamicRecord.GetEnumerator: TRecordEnumerator;
+function TDynamicRecord.GetEnumerator: DynamicRecordEnumerator;
 begin
-  Result := TRecordEnumerator.Create(Self);
+  Result := DynamicRecordEnumerator.Create(Self);
 end;
 
 { Overridden method from TCollection to make any necessary changes when the
@@ -1468,7 +1470,7 @@ begin
   end;
 end;
 
-procedure TDynamicRecord.Assign(const ARecord: TRecord);
+procedure TDynamicRecord.Assign(const ARecord: DynamicRecord);
 begin
   Assign(ARecord.DynamicRecord);
 end;
@@ -2104,14 +2106,14 @@ end;
 {$ENDREGION}
 {$ENDREGION}
 
-{$REGION 'TRecord'}
+{$REGION 'DynamicRecord'}
 {$REGION 'construction and destruction'}
-class function TRecord.Create: TRecord;
+class function DynamicRecord.Create: DynamicRecord;
 begin
   // can be used as a fake parameterless constructor
 end;
 
-constructor TRecord.Create(const AInstance: TValue; const AAssignProperties,
+constructor DynamicRecord.Create(const AInstance: TValue; const AAssignProperties,
   AAssignFields: Boolean);
 begin
   if AInstance.IsObject and (AInstance.AsObject is TDataSet) then
@@ -2120,36 +2122,36 @@ begin
     DynamicRecord.From(AInstance, AAssignProperties, AAssignFields, False, []);
 end;
 
-constructor TRecord.Create(const AInstance: TValue; const AAssignProperties,
+constructor DynamicRecord.Create(const AInstance: TValue; const AAssignProperties,
   AAssignFields, AAssignNulls: Boolean; const ANames: array of string);
 begin
   DynamicRecord.From(AInstance, AAssignProperties, AAssignFields, AAssignNulls, ANames);
 end;
 
-constructor TRecord.Create(const ARecord: TRecord);
+constructor DynamicRecord.Create(const ARecord: DynamicRecord);
 begin
   Assign(ARecord);
 end;
 
-class function TRecord.CreateDynamicRecord: IDynamicRecord;
+class function DynamicRecord.CreateDynamicRecord: IDynamicRecord;
 begin
   Result := TDynamicRecord.Create;
 end;
 {$ENDREGION}
 
 {$REGION 'property access methods'}
-function TRecord.GetCount: Integer;
+function DynamicRecord.GetCount: Integer;
 begin
   Result := DynamicRecord.Count;
 end;
 
-function TRecord.GetData: Variant;
+function DynamicRecord.GetData: Variant;
 begin
   FDynamicRecord := MutableClone;
   Result := DynamicRecord.Data;
 end;
 
-function TRecord.GetDynamicRecord: IDynamicRecord;
+function DynamicRecord.GetDynamicRecord: IDynamicRecord;
 begin
   if not Assigned(FDynamicRecord) then
   begin
@@ -2159,32 +2161,32 @@ begin
   Result := FDynamicRecord;
 end;
 
-function TRecord.GetEnumerator: TRecordEnumerator;
+function DynamicRecord.GetEnumerator: DynamicRecordEnumerator;
 begin
-  Result := TRecordEnumerator.Create(DynamicRecord);
+  Result := DynamicRecordEnumerator.Create(DynamicRecord);
 end;
 
-function TRecord.GetField(const AName: string): IDynamicField;
+function DynamicRecord.GetField(const AName: string): IDynamicField;
 begin
   Result := DynamicRecord.Fields[AName];
 end;
 
-function TRecord.GetInternalRefCount: Integer;
+function DynamicRecord.GetInternalRefCount: Integer;
 begin
   Result := FDynamicRecord.RefCount;
 end;
 
-function TRecord.GetItem(Index: Integer): IDynamicField;
+function DynamicRecord.GetItem(Index: Integer): IDynamicField;
 begin
   Result := DynamicRecord.Items[Index];
 end;
 
-function TRecord.GetItemValue(const AName: string): TValue;
+function DynamicRecord.GetItemValue(const AName: string): TValue;
 begin
   Result := DynamicRecord.Values[AName];
 end;
 
-procedure TRecord.SetItemValue(const AName: string; const AValue: TValue);
+procedure DynamicRecord.SetItemValue(const AName: string; const AValue: TValue);
 begin
   FDynamicRecord := MutableClone;
   FDynamicRecord.Values[AName] := AValue;
@@ -2192,17 +2194,17 @@ end;
 {$ENDREGION}
 
 {$REGION 'operator overloads'}
-class operator TRecord.Implicit(const ASource: IDynamicRecord): TRecord;
+class operator DynamicRecord.Implicit(const ASource: IDynamicRecord): DynamicRecord;
 begin
   Result.Assign(ASource);
 end;
 
-class operator TRecord.Implicit(const ASource: TRecord): Variant;
+class operator DynamicRecord.Implicit(const ASource: DynamicRecord): Variant;
 begin
   Result := ASource.Data;
 end;
 
-class operator TRecord.Implicit(const ASource: TRecord): IDynamicRecord;
+class operator DynamicRecord.Implicit(const ASource: DynamicRecord): IDynamicRecord;
 begin
   if not Assigned(Result) then
     Result := ASource.CreateDynamicRecord;
@@ -2211,7 +2213,7 @@ end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
-procedure TRecord.AssignProperty(const AInstance: TValue; const APropertyName,
+procedure DynamicRecord.AssignProperty(const AInstance: TValue; const APropertyName,
   AFieldName: string; const AAssignNulls: Boolean);
 begin
   DynamicRecord.AssignProperty(
@@ -2219,17 +2221,17 @@ begin
   );
 end;
 
-function TRecord.ToCommaText: string;
+function DynamicRecord.ToCommaText: string;
 begin
   Result := DynamicRecord.ToCommaText;
 end;
 
-function TRecord.ToCommaText(const AFieldNames: string): string;
+function DynamicRecord.ToCommaText(const AFieldNames: string): string;
 begin
   Result := DynamicRecord.ToCommaText(AFieldNames);
 end;
 
-function TRecord.ToDelimitedText(const AFieldNames, ADelimiter: string;
+function DynamicRecord.ToDelimitedText(const AFieldNames, ADelimiter: string;
   AQuoteValues: Boolean; AQuoteChar: Char): string;
 begin
   Result := DynamicRecord.ToDelimitedText(
@@ -2237,13 +2239,13 @@ begin
   );
 end;
 
-function TRecord.ToDelimitedText(const ADelimiter: string;
+function DynamicRecord.ToDelimitedText(const ADelimiter: string;
   AQuoteValues: Boolean; AQuoteChar: Char): string;
 begin
   Result := DynamicRecord.ToDelimitedText(ADelimiter, AQuoteValues, AQuoteChar);
 end;
 
-procedure TRecord.Assign(const ARecord: TRecord; const ANames: array of string);
+procedure DynamicRecord.Assign(const ARecord: DynamicRecord; const ANames: array of string);
 var
   F : IDynamicField;
   S : string;
@@ -2265,24 +2267,24 @@ begin
   end;
 end;
 
-procedure TRecord.Assign(ADynamicRecord: IDynamicRecord);
+procedure DynamicRecord.Assign(ADynamicRecord: IDynamicRecord);
 begin
   DynamicRecord.Assign(ADynamicRecord);
 end;
 
-procedure TRecord.AssignProperty(const AInstance: TValue;
+procedure DynamicRecord.AssignProperty(const AInstance: TValue;
   const APropertyName: string; const AAssignNulls: Boolean);
 begin
   AssignProperty(AInstance, APropertyName, '', AAssignNulls);
 end;
 
-//procedure TRecord.AssignTo(const AInstance: TValue;
+//procedure DynamicRecord.AssignTo(const AInstance: TValue;
 //  const ANames: array of string);
 //begin
 //  DynamicRecord.AssignTo(AInstance, ANames);
 //end;
 
-procedure TRecord.AssignTo(const AValue: TValue; const AAssignProperties,
+procedure DynamicRecord.AssignTo(const AValue: TValue; const AAssignProperties,
   AAssignFields, AAssignNulls: Boolean; const ANames: array of string);
 begin
   DynamicRecord.AssignTo(
@@ -2294,7 +2296,7 @@ begin
   );
 end;
 
-procedure TRecord.AssignTo(const AValue: TValue; const AAssignProperties,
+procedure DynamicRecord.AssignTo(const AValue: TValue; const AAssignProperties,
   AAssignFields, AAssignNulls: Boolean);
 begin
   DynamicRecord.AssignTo(
@@ -2306,43 +2308,43 @@ begin
   );
 end;
 
-procedure TRecord.AssignTo<T>(AInstance: T);
+procedure DynamicRecord.AssignTo<T>(AInstance: T);
 begin
   DynamicRecord.AssignTo(TValue.From<T>(AInstance));
 end;
 
-procedure TRecord.AssignTo(AInstance: TValue);
+procedure DynamicRecord.AssignTo(AInstance: TValue);
 begin
   DynamicRecord.AssignTo(AInstance);
 end;
 
-function TRecord.ToVarArray(const AFieldNames: string): Variant;
+function DynamicRecord.ToVarArray(const AFieldNames: string): Variant;
 begin
   Result := DynamicRecord.ToVarArray(AFieldNames);
 end;
 
-procedure TRecord.Clear;
+procedure DynamicRecord.Clear;
 begin
   DynamicRecord.Clear;
 end;
 
-function TRecord.ContainsField(const AName: string): Boolean;
+function DynamicRecord.ContainsField(const AName: string): Boolean;
 begin
   Result := DynamicRecord.ContainsField(AName);
 end;
 
-function TRecord.DeleteField(const AName: string): Boolean;
+function DynamicRecord.DeleteField(const AName: string): Boolean;
 begin
   Result := DynamicRecord.DeleteField(AName);
 end;
 
-procedure TRecord.From(const AInstance: TValue; const AAssignProperties,
+procedure DynamicRecord.From(const AInstance: TValue; const AAssignProperties,
   AAssignFields, AAssignNulls: Boolean; const ANames: array of string);
 begin
   DynamicRecord.From(AInstance, AAssignProperties, AAssignFields, AAssignNulls, ANames);
 end;
 
-procedure TRecord.From<T>(const AValue: T; const AAssignProperties,
+procedure DynamicRecord.From<T>(const AValue: T; const AAssignProperties,
   AAssignFields, AAssignNulls: Boolean);
 begin
   DynamicRecord.From(
@@ -2354,7 +2356,7 @@ begin
   );
 end;
 
-procedure TRecord.From<T>(const AValue: T; const AAssignProperties,
+procedure DynamicRecord.From<T>(const AValue: T; const AAssignProperties,
   AAssignFields, AAssignNulls: Boolean; const ANames: array of string);
 begin
   DynamicRecord.From(
@@ -2369,17 +2371,17 @@ end;
 { Makes a copy of the current record of a given dataset by assigning each field
   value of the dataset to a dynamic record field. }
 
-procedure TRecord.FromDataSet(ADataSet: TDataSet; const AAssignNulls: Boolean);
+procedure DynamicRecord.FromDataSet(ADataSet: TDataSet; const AAssignNulls: Boolean);
 begin
   DynamicRecord.FromDataSet(ADataSet, AAssignNulls);
 end;
 
-procedure TRecord.FromStrings(AStrings: TStrings);
+procedure DynamicRecord.FromStrings(AStrings: TStrings);
 begin
   DynamicRecord.FromStrings(AStrings);
 end;
 
-function TRecord.IsBlank(const AName: string): Boolean;
+function DynamicRecord.IsBlank(const AName: string): Boolean;
 var
   TV : TValue;
   V  : Variant;
@@ -2409,7 +2411,7 @@ begin
   end;
 end;
 
-function TRecord.IsEmpty: Boolean;
+function DynamicRecord.IsEmpty: Boolean;
 begin
   Result := DynamicRecord.IsEmpty;
 end;
@@ -2417,12 +2419,12 @@ end;
 { String representation of the record in the form:
      <Fieldname> = <Fieldvalue>   }
 
-function TRecord.ToString(AAlignValues: Boolean): string;
+function DynamicRecord.ToString(AAlignValues: Boolean): string;
 begin
   Result := DynamicRecord.ToString(AAlignValues);
 end;
 
-function TRecord.MutableClone: IDynamicRecord;
+function DynamicRecord.MutableClone: IDynamicRecord;
 var
   N : Integer;
 begin
@@ -2451,38 +2453,38 @@ begin
   end;
 end;
 
-function TRecord.ToString(const AName, ADefaultValue: string): string;
+function DynamicRecord.ToString(const AName, ADefaultValue: string): string;
 begin
   Result := DynamicRecord.ToString(AName, ADefaultValue);
 end;
 
-procedure TRecord.ToStrings(AStrings: TStrings);
+procedure DynamicRecord.ToStrings(AStrings: TStrings);
 begin
   DynamicRecord.ToStrings(AStrings);
 end;
 
-function TRecord.ToBoolean(const AName: string;
+function DynamicRecord.ToBoolean(const AName: string;
   const ADefaultValue: Boolean): Boolean;
 begin
   Result := DynamicRecord.ToBoolean(AName, ADefaultValue);
 end;
 
-function TRecord.ToFloat(const AName: string;
+function DynamicRecord.ToFloat(const AName: string;
   const ADefaultValue: Double): Double;
 begin
   Result := DynamicRecord.ToFloat(AName, ADefaultValue);
 end;
 
-function TRecord.ToInteger(const AName: string;
+function DynamicRecord.ToInteger(const AName: string;
   const ADefaultValue: Integer): Integer;
 begin
   Result := DynamicRecord.ToInteger(AName, ADefaultValue);
 end;
 {$ENDREGION}
 
-{$REGION 'TRecordEnumerator'}
+{$REGION 'DynamicRecordEnumerator'}
 {$REGION 'construction and destruction'}
-constructor TRecordEnumerator.Create(ARecord: IDynamicRecord);
+constructor DynamicRecordEnumerator.Create(ARecord: IDynamicRecord);
 begin
   FIndex  := -1;
   FRecord := ARecord;
@@ -2490,12 +2492,12 @@ end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
-function TRecordEnumerator.GetCurrent: IDynamicField;
+function DynamicRecordEnumerator.GetCurrent: IDynamicField;
 begin
   Result := FRecord.Items[FIndex];
 end;
 
-function TRecordEnumerator.MoveNext: Boolean;
+function DynamicRecordEnumerator.MoveNext: Boolean;
 begin
   Result := FIndex < FRecord.Count - 1;
   if Result then
@@ -2732,19 +2734,19 @@ end;
 {$ENDREGION}
 {$ENDREGION}
 
-{$REGION 'TRecord<T>'}
+{$REGION 'DynamicRecord<T>'}
 {$REGION 'construction and destruction'}
-class function TRecord<T>.Create: TRecord<T>;
+class function DynamicRecord<T>.Create: DynamicRecord<T>;
 begin
   // fake constructor that can be used to assign a new instance to a variable.
 end;
 
-constructor TRecord<T>.Create(const ADataFactory: TFunc<T>);
+constructor DynamicRecord<T>.Create(const ADataFactory: TFunc<T>);
 begin
   DynamicRecord.Data := ADataFactory();
 end;
 
-constructor TRecord<T>.Create(const AInstance: TValue; const AAssignProperties,
+constructor DynamicRecord<T>.Create(const AInstance: TValue; const AAssignProperties,
   AAssignFields, AAssignNulls: Boolean; const ANames: array of string);
 begin
   DynamicRecord.From(
@@ -2756,7 +2758,7 @@ begin
   );
 end;
 
-constructor TRecord<T>.Create(const AInstance: TValue; const AAssignProperties,
+constructor DynamicRecord<T>.Create(const AInstance: TValue; const AAssignProperties,
   AAssignFields: Boolean);
 begin
   DynamicRecord.From(
@@ -2768,7 +2770,7 @@ begin
   );
 end;
 
-procedure TRecord<T>.Create(const AInstance: TValue;
+procedure DynamicRecord<T>.Create(const AInstance: TValue;
   const ANames: array of string);
 begin
   DynamicRecord.From(
@@ -2780,65 +2782,65 @@ begin
   );
 end;
 
-constructor TRecord<T>.Create(AInstance: T);
+constructor DynamicRecord<T>.Create(AInstance: T);
 begin
   DynamicRecord.From(AInstance, True, False, True, []);
 end;
 
-constructor TRecord<T>.Create(const ARecord: TRecord<T>);
+constructor DynamicRecord<T>.Create(const ARecord: DynamicRecord<T>);
 begin
   Assign(ARecord);
 end;
 
-class function TRecord<T>.CreateDynamicRecord(
+class function DynamicRecord<T>.CreateDynamicRecord(
   const ADataFactory: TFunc<T>): IDynamicRecord<T>;
 begin
   Result := TDynamicRecord<T>.Create;
   Result.Data := ADataFactory;
 end;
 
-class function TRecord<T>.CreateDynamicRecord(AInstance: T): IDynamicRecord<T>;
+class function DynamicRecord<T>.CreateDynamicRecord(AInstance: T): IDynamicRecord<T>;
 begin
   Result := TDynamicRecord<T>.Create;
   Result.Assign(AInstance);
 end;
 
-class function TRecord<T>.CreateDynamicRecord: IDynamicRecord<T>;
+class function DynamicRecord<T>.CreateDynamicRecord: IDynamicRecord<T>;
 begin
   Result := TDynamicRecord<T>.Create;
 end;
 {$ENDREGION}
 
 {$REGION 'property access methods'}
-function TRecord<T>.GetCount: Integer;
+function DynamicRecord<T>.GetCount: Integer;
 begin
   Result := DynamicRecord.Count;
 end;
 
-function TRecord<T>.GetData: T;
+function DynamicRecord<T>.GetData: T;
 begin
   FDynamicRecord := MutableClone;
   Result := DynamicRecord.Data;
 end;
 
-function TRecord<T>.GetDynamicRecord: IDynamicRecord<T>;
+function DynamicRecord<T>.GetDynamicRecord: IDynamicRecord<T>;
 begin
   if not Assigned(FDynamicRecord) then
     FDynamicRecord := TDynamicRecord<T>.Create;
   Result := FDynamicRecord;
 end;
 
-function TRecord<T>.GetEnumerator: TRecordEnumerator;
+function DynamicRecord<T>.GetEnumerator: DynamicRecordEnumerator;
 begin
-  Result := TRecordEnumerator.Create(Self);
+  Result := DynamicRecordEnumerator.Create(Self);
 end;
 
-function TRecord<T>.GetItemValue(const AName: string): TValue;
+function DynamicRecord<T>.GetItemValue(const AName: string): TValue;
 begin
   Result := DynamicRecord.Values[AName];
 end;
 
-procedure TRecord<T>.SetItemValue(const AName: string; const AValue: TValue);
+procedure DynamicRecord<T>.SetItemValue(const AName: string; const AValue: TValue);
 begin
   FDynamicRecord := MutableClone;
   DynamicRecord.Values[AName] := AValue;
@@ -2846,49 +2848,49 @@ end;
 {$ENDREGION}
 
 {$REGION 'operator overloads'}
-class operator TRecord<T>.Implicit(const ASource: TRecord<T>): IDynamicRecord;
+class operator DynamicRecord<T>.Implicit(const ASource: DynamicRecord<T>): IDynamicRecord;
 begin
   if not Assigned(Result) then
     Result := TDynamicRecord.Create;
   Result.Assign(ASource.DynamicRecord);
 end;
 
-class operator TRecord<T>.Implicit(const ASource: TRecord<T>): IDynamicRecord<T>;
+class operator DynamicRecord<T>.Implicit(const ASource: DynamicRecord<T>): IDynamicRecord<T>;
 begin
   if not Assigned(Result) then
     Result := TDynamicRecord<T>.Create;
   Result.Assign(ASource.Data);
 end;
 
-class operator TRecord<T>.Implicit(const ASource: TRecord<T>): TRecord;
+class operator DynamicRecord<T>.Implicit(const ASource: DynamicRecord<T>): DynamicRecord;
 begin
   Result.From<T>(ASource.Data);
 end;
 
-class operator TRecord<T>.Implicit(const ASource: TRecord): TRecord<T>;
+class operator DynamicRecord<T>.Implicit(const ASource: DynamicRecord): DynamicRecord<T>;
 begin
   Result.Assign(ASource);
 end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
-function TRecord<T>.ToCommaText: string;
+function DynamicRecord<T>.ToCommaText: string;
 begin
   Result := DynamicRecord.ToCommaText;
 end;
 
-function TRecord<T>.ToCommaText(const AFieldNames: string): string;
+function DynamicRecord<T>.ToCommaText(const AFieldNames: string): string;
 begin
   Result := DynamicRecord.ToCommaText(AFieldNames);
 end;
 
-function TRecord<T>.ToDelimitedText(const ADelimiter: string;
+function DynamicRecord<T>.ToDelimitedText(const ADelimiter: string;
   AQuoteValues: Boolean; AQuoteChar: Char): string;
 begin
   Result := DynamicRecord.ToDelimitedText(ADelimiter, AQuoteValues, AQuoteChar);
 end;
 
-function TRecord<T>.ToDelimitedText(const AFieldNames, ADelimiter: string;
+function DynamicRecord<T>.ToDelimitedText(const AFieldNames, ADelimiter: string;
   AQuoteValues: Boolean; AQuoteChar: Char): string;
 begin
   Result := DynamicRecord.ToDelimitedText(
@@ -2896,17 +2898,17 @@ begin
   );
 end;
 
-procedure TRecord<T>.Assign(const ARecord: TRecord);
+procedure DynamicRecord<T>.Assign(const ARecord: DynamicRecord);
 begin
   DynamicRecord.Assign(ARecord);
 end;
 
-procedure TRecord<T>.Assign(ASource: T);
+procedure DynamicRecord<T>.Assign(ASource: T);
 begin
   DynamicRecord.Assign(ASource);
 end;
 
-procedure TRecord<T>.AssignProperty(const AInstance: TValue;
+procedure DynamicRecord<T>.AssignProperty(const AInstance: TValue;
   const APropertyName, AFieldName: string; const AAssignNulls: Boolean);
 begin
   DynamicRecord.AssignProperty(
@@ -2914,65 +2916,65 @@ begin
   );
 end;
 
-procedure TRecord<T>.AssignProperty(const AInstance: TValue;
+procedure DynamicRecord<T>.AssignProperty(const AInstance: TValue;
   const APropertyName: string; const AAssignNulls: Boolean);
 begin
   DynamicRecord.AssignProperty(AInstance, APropertyName, AAssignNulls);
 end;
 
-procedure TRecord<T>.AssignTo(const AInstance: TValue;
+procedure DynamicRecord<T>.AssignTo(const AInstance: TValue;
   const ANames: array of string);
 begin
   DynamicRecord.AssignTo(AInstance, ANames);
 end;
 
-procedure TRecord<T>.AssignTo(AInstance: TValue);
+procedure DynamicRecord<T>.AssignTo(AInstance: TValue);
 begin
   DynamicRecord.AssignTo(AInstance);
 end;
 
-function TRecord<T>.ToVarArray(const AFieldNames: string): Variant;
+function DynamicRecord<T>.ToVarArray(const AFieldNames: string): Variant;
 begin
   Result := DynamicRecord.ToVarArray(AFieldNames);
 end;
 
-procedure TRecord<T>.Clear;
+procedure DynamicRecord<T>.Clear;
 begin
   DynamicRecord.Clear;
 end;
 
-function TRecord<T>.ContainsField(const AName: string): Boolean;
+function DynamicRecord<T>.ContainsField(const AName: string): Boolean;
 begin
   Result := DynamicRecord.ContainsField(AName);
 end;
 
-procedure TRecord<T>.From(const Value: T);
+procedure DynamicRecord<T>.From(const Value: T);
 begin
   FDynamicRecord.From(TValue.From<T>(Value), True, False, False, []);
 end;
 
-procedure TRecord<T>.FromDataSet(ADataSet: TDataSet;
+procedure DynamicRecord<T>.FromDataSet(ADataSet: TDataSet;
   const AAssignNulls: Boolean);
 begin
   FDynamicRecord.FromDataSet(ADataSet, AAssignNulls);
 end;
 
-procedure TRecord<T>.FromStrings(AStrings: TStrings);
+procedure DynamicRecord<T>.FromStrings(AStrings: TStrings);
 begin
   FDynamicRecord.FromStrings(AStrings);
 end;
 
-function TRecord<T>.IsBlank(const AName: string): Boolean;
+function DynamicRecord<T>.IsBlank(const AName: string): Boolean;
 begin
   Result := IsEmpty or (ToString(AName) = '');
 end;
 
-function TRecord<T>.IsEmpty: Boolean;
+function DynamicRecord<T>.IsEmpty: Boolean;
 begin
   Result := DynamicRecord.IsEmpty;
 end;
 
-function TRecord<T>.MutableClone: IDynamicRecord<T>;
+function DynamicRecord<T>.MutableClone: IDynamicRecord<T>;
 begin
   if not Assigned(FDynamicRecord) then
   begin
@@ -2986,35 +2988,35 @@ begin
   end;
 end;
 
-function TRecord<T>.ToBoolean(const AName: string;
+function DynamicRecord<T>.ToBoolean(const AName: string;
   const ADefaultValue: Boolean): Boolean;
 begin
   Result := DynamicRecord.ToBoolean(AName, ADefaultValue);
 end;
 
-function TRecord<T>.ToFloat(const AName: string;
+function DynamicRecord<T>.ToFloat(const AName: string;
   const ADefaultValue: Double): Double;
 begin
   Result := DynamicRecord.ToFloat(AName, ADefaultValue);
 end;
 
-function TRecord<T>.ToInteger(const AName: string;
+function DynamicRecord<T>.ToInteger(const AName: string;
   const ADefaultValue: Integer): Integer;
 begin
   Result := DynamicRecord.ToInteger(AName, ADefaultValue);
 end;
 
-function TRecord<T>.ToString(const AName, ADefaultValue: string): string;
+function DynamicRecord<T>.ToString(const AName, ADefaultValue: string): string;
 begin
   Result := DynamicRecord.ToString(AName, ADefaultValue);
 end;
 
-function TRecord<T>.ToString(AAlignValues: Boolean): string;
+function DynamicRecord<T>.ToString(AAlignValues: Boolean): string;
 begin
   Result := DynamicRecord.ToString(AAlignValues);
 end;
 
-procedure TRecord<T>.ToStrings(AStrings: TStrings);
+procedure DynamicRecord<T>.ToStrings(AStrings: TStrings);
 begin
   DynamicRecord.ToStrings(AStrings);
 end;

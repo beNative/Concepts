@@ -31,14 +31,10 @@ type
     {$REGION 'designer controls'}
     aclMain             : TActionList;
     actClear            : TAction;
-    actLoadFromFile     : TAction;
-    actSaveToFile       : TAction;
     actSetDelimitedText : TAction;
     actSetNameValues    : TAction;
     actSetText          : TAction;
-    actUpdate           : TAction;
     btnClear            : TButton;
-    btnLoadFromFile     : TButton;
     btnSetDelimitedText : TButton;
     btnSetNameValues    : TButton;
     btnSetText          : TButton;
@@ -55,11 +51,9 @@ type
     {$ENDREGION}
 
     procedure actClearExecute(Sender: TObject);
-    procedure actUpdateExecute(Sender: TObject);
     procedure actSetTextExecute(Sender: TObject);
     procedure actSetDelimitedTextExecute(Sender: TObject);
     procedure actSetNameValuesExecute(Sender: TObject);
-    procedure actSaveToFileExecute(Sender: TObject);
 
     procedure chkCaseSensitiveClick(Sender: TObject);
     procedure chkSortedClick(Sender: TObject);
@@ -118,11 +112,6 @@ end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
-procedure TfrmStringList.actSaveToFileExecute(Sender: TObject);
-begin
-//
-end;
-
 procedure TfrmStringList.actSetDelimitedTextExecute(Sender: TObject);
 begin
   FStringList.DelimitedText := mmoDelimitedText.Text;
@@ -139,11 +128,6 @@ procedure TfrmStringList.actSetTextExecute(Sender: TObject);
 begin
   FStringList.Text := mmoText.Text;
   Modified;
-end;
-
-procedure TfrmStringList.actUpdateExecute(Sender: TObject);
-begin
-  //Modified;
 end;
 
 procedure TfrmStringList.actClearExecute(Sender: TObject);

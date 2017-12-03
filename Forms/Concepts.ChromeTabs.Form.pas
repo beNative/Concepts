@@ -88,11 +88,8 @@ uses
 
 {$REGION 'construction and destruction'}
 procedure TfrmChromeTabs.AfterConstruction;
-var
-  I : Integer;
-  C : TWinControl;
 begin
-  inherited;
+  inherited AfterConstruction;
   FCTTop                        := TChromeTabs.Create(Self);
   FCTTop.Parent                 := pnlRight;
   FCTTop.Align                  := alTop;

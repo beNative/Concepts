@@ -14,14 +14,35 @@
   limitations under the License.
 }
 
-unit DDuce.Logger.Channels;
 
-{ Register logger channel types? }
-
-//{$I DDuce.inc}
+unit DDuce.Factories.zObjInspector;
 
 interface
 
+uses
+  System.Classes,
+  Vcl.Controls,
+
+  zObjInspector, zValueManager;
+
+type
+  TzObjectInspectorFactory = class sealed
+    class function Create(
+      AOwner        : TComponent;
+      AParent       : TWinControl;
+      AObject       : TObject = nil;
+      AValueManager : TzCustomValueManager = nil;
+      const AName   : string = ''
+    ): TzObjectInspector; static;
+
+  end;
+
 implementation
+
+class function TzObjectInspectorFactory.Create(AOwner: TComponent;
+  AParent: TWinControl; AObject: TObject; AValueManager: TzCustomValueManager;
+  const AName: string): TzObjectInspector;
+begin
+end;
 
 end.

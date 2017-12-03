@@ -202,8 +202,10 @@ type
       const ARect: TRect; ASelected: Boolean); virtual;
 
   public
-    constructor Create(AOwner: TCustomPropsPage;
-      AParent: TPropsPageItem); virtual;
+    constructor Create(
+      AOwner  : TCustomPropsPage;
+      AParent : TPropsPageItem
+    ); virtual;
     destructor Destroy; override;
     procedure Expand;
     procedure Collapse;
@@ -785,12 +787,22 @@ type
     procedure SetValue(const Value: string); override;
     procedure GetValues(AValues: TStrings); override;
     function GetAttrs: TPropertyAttributes; override;
-    procedure ValuesMeasureHeight(const AValue: string; ACanvas: TCanvas;
-      var AHeight: Integer); override;
-    procedure ValuesMeasureWidth(const AValue: string; ACanvas: TCanvas;
-      var AWidth: Integer); override;
-    procedure ValuesDrawValue(const AValue: string; ACanvas: TCanvas;
-      const ARect: TRect; ASelected: Boolean); override;
+    procedure ValuesMeasureHeight(
+      const AValue : string;
+      ACanvas      : TCanvas;
+      var AHeight  : Integer
+    ); override;
+    procedure ValuesMeasureWidth(
+      const AValue : string;
+      ACanvas      : TCanvas;
+      var AWidth   : Integer
+    ); override;
+    procedure ValuesDrawValue(
+      const AValue : string;
+      ACanvas      : TCanvas;
+      const ARect  : TRect;
+      ASelected    : Boolean
+    ); override;
   end;
 
   TFontCharsetPropertyEditor = class(TIntegerPropertyEditor)
@@ -834,23 +846,43 @@ type
   TPenStylePropertyEditor = class(TEnumPropertyEditor)
   protected
     function GetAttrs: TPropertyAttributes; override;
-    procedure ValuesMeasureHeight(const AValue: string; ACanvas: TCanvas;
-      var AHeight: Integer); override;
-    procedure ValuesMeasureWidth(const AValue: string; ACanvas: TCanvas;
-      var AWidth: Integer); override;
-    procedure ValuesDrawValue(const AValue: string; ACanvas: TCanvas;
-      const ARect: TRect; ASelected: Boolean); override;
+    procedure ValuesMeasureHeight(
+      const AValue : string;
+      ACanvas      : TCanvas;
+      var AHeight  : Integer
+    ); override;
+    procedure ValuesMeasureWidth(
+      const AValue : string;
+      ACanvas      : TCanvas;
+      var AWidth   : Integer
+    ); override;
+    procedure ValuesDrawValue(
+      const AValue : string;
+      ACanvas      : TCanvas;
+      const ARect  : TRect;
+      ASelected    : Boolean
+    ); override;
   end;
 
   TBrushStylePropertyEditor = class(TEnumPropertyEditor)
   protected
     function GetAttrs: TPropertyAttributes; override;
-    procedure ValuesMeasureHeight(const AValue: string; ACanvas: TCanvas;
-      var AHeight: Integer); override;
-    procedure ValuesMeasureWidth(const AValue: string; ACanvas: TCanvas;
-      var AWidth: Integer); override;
-    procedure ValuesDrawValue(const AValue: string; ACanvas: TCanvas;
-      const ARect: TRect; ASelected: Boolean); override;
+    procedure ValuesMeasureHeight(
+      const AValue : string;
+      ACanvas      : TCanvas;
+      var AHeight  : Integer
+    ); override;
+    procedure ValuesMeasureWidth(
+      const AValue : string;
+      ACanvas      : TCanvas;
+      var AWidth   : Integer
+    ); override;
+    procedure ValuesDrawValue(
+      const AValue : string;
+      ACanvas      : TCanvas;
+      const ARect  : TRect;
+      ASelected    : Boolean
+    ); override;
   end;
 
   TTabOrderPropertyEditor = class(TIntegerPropertyEditor)
@@ -878,23 +910,14 @@ procedure ELGetObjectsProps(ADesigner: Pointer; AObjList: TList;
 
 { TPropertyInspector }
 
-{
- TODO ( TPropertyInspector ):
-
-  - It is necessary to make so that correctly they would be reflected ReadOnly
-    property, and so that they would not edit. Problem in the fact that in
-    massif TCustomPropertyInspector.Objects simultaneously can it is located
-    the objects with the property, which in some objects appears ReadOnly, but
-    do not have any others.
-}
-
 type
   TCustomPropertyInspector = class;
 
   TPropertyInspectorItem = class(TPropsPageItem)
   private
-    FEditor      : TPropertyEditor;
-    FDisplayValue: string;
+    FEditor       : TPropertyEditor;
+    FDisplayValue : string;
+
     procedure EditorModified(Sender: TObject);
     procedure EditorGetComponent(Sender: TObject; const AComponentName: string;
       var AComponent: TComponent);
@@ -959,22 +982,22 @@ type
 
   TCustomPropertyInspector = class(TCustomPropsPage)
   private
-    FObjects               : TList;
-    FEditors               : array of TPropertyInspectorEditorDescr;
-    FOnGetComponent        : TOnGetComponent;
-    FOnGetComponentNames   : TOnGetComponentNames;
-    FOnModified            : TNotifyEvent;
-    FOnGetComponentName    : TOnGetComponentName;
-    FPropKinds             : TPropertyInspectorPropKinds;
-    FOnFilterProp          : TPropertyInspectorOnFilterProp;
-    FComponentRefColor     : TColor;
-    FComponentRefChildColor: TColor;
-    FExpandComponentRefs   : Boolean;
-    FReadOnly              : Boolean;
-    FDesigner              : Pointer;
-    FOnGetCaptionColor     : TPropertyInspectorOnGetCaptionColor;
-    FObjectsLocked         : Boolean;
-    FOnGetEditorClass      : TPropertyInspectorOnGetEditorClass;
+    FObjects                : TList;
+    FEditors                : array of TPropertyInspectorEditorDescr;
+    FOnGetComponent         : TOnGetComponent;
+    FOnGetComponentNames    : TOnGetComponentNames;
+    FOnModified             : TNotifyEvent;
+    FOnGetComponentName     : TOnGetComponentName;
+    FPropKinds              : TPropertyInspectorPropKinds;
+    FOnFilterProp           : TPropertyInspectorOnFilterProp;
+    FComponentRefColor      : TColor;
+    FComponentRefChildColor : TColor;
+    FExpandComponentRefs    : Boolean;
+    FReadOnly               : Boolean;
+    FDesigner               : Pointer;
+    FOnGetCaptionColor      : TPropertyInspectorOnGetCaptionColor;
+    FObjectsLocked          : Boolean;
+    FOnGetEditorClass       : TPropertyInspectorOnGetEditorClass;
 
     procedure Change;
     procedure InternalModified;
@@ -1366,7 +1389,7 @@ begin
     end;
   end;
   try
-        { Initialize intersection }
+    { Initialize intersection }
     SetLength(Intersection, PropLists[0].Count);
     for I := 0 to PropLists[0].Count - 1 do
     begin
@@ -1396,10 +1419,10 @@ begin
           SetLength(Intersection, Length(Intersection) - 1);
         end;
       end;
-        { Create property editors }
+    { Create property editors }
     for I := 0 to High(Intersection) do
     begin
-                { Determine editor class }
+      { Determine editor class }
       EditorClass := AGetEditorClassProc(TObject(AObjList[0]),
         Intersection[I][0]);
       for J := 0 to ObjCount - 1 do
@@ -1409,7 +1432,7 @@ begin
           EditorClass := nil;
           Break;
         end;
-                { Create editor }
+     { Create editor }
       if EditorClass <> nil then
       begin
         Editor := EditorClass.Create(ADesigner, AObjList.Count);
@@ -1433,7 +1456,7 @@ begin
       end;
     end;
   finally
-        { Free prop lists }
+    { Free prop lists }
     for I := 0 to ObjCount - 1 do
       FreeMem(PropLists[I].Props);
   end;
@@ -1684,7 +1707,6 @@ begin
     end
     else
     begin
-      { Row line }  {TS : flat}
       if FBitmapBkColor <> Color then
         UpdatePattern;
       Winapi.Windows.FillRect(
@@ -2160,8 +2182,7 @@ begin
   end;
 end;
 
-function TCustomPropsPage.CreateItem(AParent: TPropsPageItem)
-  : TPropsPageItem;
+function TCustomPropsPage.CreateItem(AParent: TPropsPageItem): TPropsPageItem;
 begin
   Result := TPropsPageItem.Create(Self, AParent);
 end;
@@ -2443,7 +2464,7 @@ begin
       DoGetPickListItems;
       TCustomListBoxAccess(PickList).Color := Color;
       TCustomListBoxAccess(PickList).Font := Font;
-                    { Calc initial visible item count }
+      { Calc initial visible item count }
       if (DropDownRows > 0) and (PickList.Items.Count >= DropDownRows) then
         LVisItemCount := DropDownRows
       else
@@ -2975,14 +2996,11 @@ begin
 end;
 
 procedure TPropertyInspectorItem.UpdateParams;
-
 const
   LExpandables: array[Boolean] of TPropsPageItemExpandable = (mieNo, mieYes);
-
 var
   LPropAttrs: TPropertyAttributes;
   LStr      : string;
-
 begin
   if FEditor <> nil then
   begin

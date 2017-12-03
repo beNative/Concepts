@@ -29,8 +29,8 @@ uses
 type
   TWinIPCChannel = class(TCustomLogChannel)
   strict private
-    FClient       : TWinIPCClient; // sends to the server
-    FBuffer       : TMemoryStream;
+    FClient : TWinIPCClient; // sends to the server
+    FBuffer : TMemoryStream;
 
   strict protected
     function GetConnected: Boolean; override;
@@ -84,9 +84,20 @@ begin
   Result := True;
 end;
 
+
+{
+  Data is streamed in following order:
+    - Message type:  4 bytes (Integer)
+    - TimeStamp:     8 bytes (Double)
+    - TextSize:      4 bytes (Integer)
+    - Text:          TextSize bytes (UTF8 encoded, backwards compatible with Ansi)
+    - DataSize:      4 bytes (Integer)
+    - Data:          DataSize bytes
+}
+
 function TWinIPCChannel.Write(const AMsg: TLogMessage): Boolean;
 const
-  ZeroBuf: Integer = 0;
+  ZeroBuf : Integer = 0;
 var
   TextSize : Integer;
   DataSize : Integer;
@@ -97,12 +108,13 @@ begin
       Connect;
     if Connected then
     begin
-      TextSize := Length(AMsg.MsgText);
+      TextSize := Length(AMsg.Text);
       FBuffer.Seek(0, soFromBeginning);
       FBuffer.WriteBuffer(AMsg.MsgType, SizeOf(Integer));
-      FBuffer.WriteBuffer(AMsg.MsgTime, SizeOf(TDateTime));
+      FBuffer.WriteBuffer(AMsg.TimeStamp, SizeOf(TDateTime));
       FBuffer.WriteBuffer(TextSize, SizeOf(Integer));
-      FBuffer.WriteBuffer(AMsg.MsgText[1], TextSize);
+      if TextSize > 0 then
+        FBuffer.WriteBuffer(AMsg.Text[1], TextSize);
       if AMsg.Data <> nil then
       begin
         DataSize := AMsg.Data.Size;
@@ -111,7 +123,7 @@ begin
         FBuffer.CopyFrom(AMsg.Data, DataSize);
       end
       else
-        FBuffer.WriteBuffer(ZeroBuf, SizeOf(Integer)); // necessary?
+        FBuffer.WriteBuffer(ZeroBuf, SizeOf(Integer)); // indicates empty stream
       FClient.SendStream(FBuffer);
       Result := True;
     end

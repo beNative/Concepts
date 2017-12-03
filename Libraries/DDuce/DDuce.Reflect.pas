@@ -159,13 +159,13 @@ end;
 
 class function Reflect.Fields(const AArg: TValue): IDynamicRecord;
 begin
-  Result := TRecord.CreateDynamicRecord;
+  Result := DynamicRecord.CreateDynamicRecord;
   Result.From(AArg, False, True, True, []);
 end;
 
 class function Reflect.Fields<T>(const AArg: T): IDynamicRecord;
 begin
-  Result := TRecord.CreateDynamicRecord;
+  Result := DynamicRecord.CreateDynamicRecord;
   Result.From(TValue.From(AArg), False, True, True, []);
 end;
 
@@ -184,7 +184,7 @@ end;
 
 class function Reflect.Properties(const AArg: TValue): IDynamicRecord;
 begin
-  Result := TRecord.CreateDynamicRecord;
+  Result := DynamicRecord.CreateDynamicRecord;
   Result.From(AArg, True, False, True, []);
 end;
 
@@ -194,7 +194,7 @@ end;
 
 class function Reflect.Properties<T>(const AArg: T): IDynamicRecord;
 begin
-  Result := TRecord.CreateDynamicRecord;
+  Result := DynamicRecord.Create;
   Result.From(TValue.From(AArg), True, False, True, []);
 end;
 

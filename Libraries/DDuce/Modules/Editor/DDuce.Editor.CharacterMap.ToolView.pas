@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -57,14 +57,12 @@ type
     procedure grdUnicodeSelectCell(Sender: TObject; aCol, aRow: Integer;
       var CanSelect: Boolean);
 
-  strict private
-
+  protected
     procedure FillCharMap;
     procedure UpdateCharacterBitmap(const ACharacter: string);
     procedure UpdateUnicodeDisplay(ACol, ARow: Integer);
     procedure UpdateANSIDisplay(ACol, ARow: Integer);
 
-  strict protected
     procedure EditorSettingsChanged(Sender: TObject); override;
 
   public
@@ -114,8 +112,8 @@ end;
 
 {$REGION 'construction and destruction'}
 procedure TfrmCharacterMap.AfterConstruction;
-var
-  I : Integer;
+//var
+//  I : Integer;
 begin
   inherited AfterConstruction;
   Caption := SCharacterMap;
@@ -291,7 +289,7 @@ begin
       if R = 0 then
         grdANSI.Cells[C, R] := Format('%.2d', [Pred(C)])
       else
-        grdANSI.Cells[C, R] := AnsiToUTF8(Chr(Succ(R) * 16 + Pred(C)));
+        grdANSI.Cells[C, R] := Chr(Succ(R) * 16 + Pred(C));
     end;
   end;
 end;

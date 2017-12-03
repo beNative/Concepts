@@ -33,10 +33,8 @@ type
 
     procedure SetActive(const AValue : Boolean);
 
-    procedure DoMessage;
-
   protected
-    procedure ReadMessage;
+    procedure DoMessage;
     function AllocateHWnd: THandle;
     procedure ReadMsgData(var Msg : TMsg);
     procedure StartServer;
@@ -89,8 +87,7 @@ begin
       Msg.WParam  := WParam;
       Msg.LParam  := LParam;
       WIS.ReadMsgData(Msg);
-      if Assigned(WIS.OnMessage) then
-        WIS.ReadMessage;
+      WIS.DoMessage;
       Result := 1;
     end
   end
@@ -178,24 +175,11 @@ begin
   FActive := False;
 end;
 
-procedure TWinIPCServer.ReadMessage;
-var
-  Msg : TMsg;
-begin
-  if Winapi.Windows.PeekMessage(Msg, FServerHandle, 0, 0, PM_REMOVE)
-    and (Msg.Message = WM_COPYDATA) then
-  begin
-    ReadMsgData(Msg);
-  end;
-  DoMessage;
-end;
-
 procedure TWinIPCServer.ReadMsgData(var Msg: TMsg);
 var
   CDS : PCopyDataStruct;
 begin
   CDS := PCopyDataStruct(Msg.LParam);
-  //FMsgType      := CDS^.dwData;
   FMsgData.Size := 0;
   FMsgData.Seek(0, soFrombeginning);
   FMsgData.WriteBuffer(CDS^.lpData^, CDS^.cbData);

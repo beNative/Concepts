@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ uses
   DSharp.Core.DataTemplates, DSharp.Windows.TreeViewPresenter,
   DSharp.Windows.ColumnDefinitions.ControlTemplate,
 
-  BCEditor.Types,
+  BCEditor.Types, BCEditor.Search,
 
   DDuce.Editor.ToolView.Base, DDuce.Editor.Interfaces, DDuce.Editor.Types,
 
@@ -222,10 +222,10 @@ begin
 //    Include(Result, soRegExprMultiLine);
   if rbEntireScope.Checked then
     Include(Result, soEntireScope);
-  if rbSelection.Checked then
-    Include(Result, soSelectedOnly);
-  if rbBackward.Checked then
-    Include(Result, soBackwards);
+//  if rbSelection.Checked then
+//    Include(Result, soSelectedOnly);
+//  if rbBackward.Checked then
+//    Include(Result, soBackwards);
 end;
 
 procedure TfrmSearchForm.SetOptions(AValue: TBCEditorSearchOptions);
@@ -239,14 +239,14 @@ begin
     rbEntireScope.Checked := True
   else
     rbFromCursor.Checked  := True;
-  if soSelectedOnly in AValue then
-    rbSelection.Checked := True
-  else
-    rbActiveView.Checked   := True;
-  if soBackwards in AValue then
-    rbBackward.Checked := True
-  else
-    rbForward.Checked  := True;
+//  if soSelectedOnly in AValue then
+//    rbSelection.Checked := True
+//  else
+//    rbActiveView.Checked   := True;
+//  if soBackwards in AValue then
+//    rbBackward.Checked := True
+//  else
+//    rbForward.Checked  := True;
   Modified;
 end;
 
@@ -495,8 +495,8 @@ begin
 end;
 
 procedure TfrmSearchForm.UpdateActions;
-var
-  B: Boolean;
+//var
+//  B: Boolean;
 begin
   inherited UpdateActions;
   { Focus the corresponding search result in the list when we do find next/

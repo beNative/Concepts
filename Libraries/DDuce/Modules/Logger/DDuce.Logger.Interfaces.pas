@@ -22,7 +22,7 @@ interface
 
 uses
   System.Classes, System.Rtti, System.SysUtils, System.Types, System.UITypes,
-  System.UIConsts,
+
   Vcl.Menus,
 
   Spring.Collections;
@@ -32,51 +32,35 @@ type
     lmtInfo        = 0,
     lmtError       = 1,
     lmtWarning     = 2,
-
     lmtValue       = 3,
-
     lmtEnterMethod = 4,
     lmtLeaveMethod = 5,
-
     lmtConditional = 6,
-
     lmtCheckpoint  = 7,
-
-    lmtStrings     = 8,   // TStringList
-
-    lmtCallStack   = 9,
-
-    lmtObject      = 10,  // should be lmtComponent (dfm stream is sent)
-
+    lmtStrings     = 8,   // TStrings and descendants
+    lmtCallStack   = 9,   // not supported yet
+    lmtObject      = 10,
     lmtException   = 11,
-
     lmtBitmap      = 12,
-
-    lmtHeapInfo    = 13,
-
+    lmtHeapInfo    = 13,  // not supported yet
     lmtMemory      = 14,
-    lmtCustomData  = 15,
-
+    lmtCustomData  = 15,  // not supported yet
     lmtWatch       = 20,
     lmtCounter     = 21,
-
     lmtColor       = 22,
     lmtAlphaColor  = 23,
-
-    lmtScreenShot  = 24,
-
-    lmtDataSet     = 25,
-
-    lmtClear       = 100
+    lmtScreenShot  = 24,  // not supported yet
+    lmtText        = 25,  // arbitrary text with optional highlighter info
+    lmtClear       = 99
   );
 
   ILogger = interface;
 
   TLogMessage = packed record
-    MsgType : Integer;
-    MsgTime : TDateTime;
-    MsgText : AnsiString;
-    Data    : TStream;
+    MsgType     : Integer;
+    TimeStamp   : TDateTime;
+    Text        : UTF8String;
+    Data        : TStream;
   end;
 
   TCustomDataCallbackMethod = function(
@@ -121,7 +105,7 @@ type
     { This overload is used for Variant arguments. }
     procedure Send(const AName: string; const AValue: string = ''); overload;
 
-    { All primary types that are are implicitely ba cast to TValue will be
+    { All primary types that can implicitely be casted to TValue will be
       handled through this call. }
     procedure Send(const AName: string; const AValue: TValue); overload;
 
@@ -138,6 +122,7 @@ type
     procedure SendRect(const AName: string; const AValue: TRect);
     procedure SendPoint(const AName: string; const APoint: TPoint);
     procedure SendStrings(const AName: string; AValue: TStrings);
+    //TODO procedure SendPersistent(const AName: string; AValue: TPersistent); -> log published properties
     procedure SendComponent(const AName: string; AValue: TComponent);
     procedure SendPointer(const AName: string; APointer: Pointer);
     procedure SendException(const AName: string; AException: Exception);
@@ -148,6 +133,16 @@ type
     );
     procedure SendShortCut(const AName: string; AShortCut: TShortCut);
 
+    // SendBitmap
+
+    { Send methods for text that can be displayed with a dedicated
+      highlighter. }
+    procedure SendText(
+      const AName        : string;
+      const AText        : string;
+      const AHighlighter : string = ''
+    );
+
     procedure IncCounter(const AName: string);
     procedure DecCounter(const AName: string);
     procedure ResetCounter(const AName: string);
@@ -157,7 +152,6 @@ type
     procedure Enter(ASender: TObject; const AName: string); overload;
     procedure Leave(const AName: string); overload;
     procedure Leave(ASender: TObject; const AName: string); overload;
-
     { Track uses an interface variable to replace Enter/Leave calls in the
       scope of the method where it is called. A call to Track will create an
       instance and trigger the Enter method. When the interface variable goes

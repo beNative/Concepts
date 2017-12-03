@@ -30,7 +30,7 @@ uses
   Data.Bind.EngExt, Data.Bind.Components, Data.Bind.GenData,
   Data.Bind.ObjectScope, Data.Bind.Controls, Data.Bind.DBScope,
 
-  DDuce.Components.PropertyInspector,
+  zObjInspector,
 
   Concepts.Types.Contact;
 
@@ -79,7 +79,7 @@ type
     procedure actAlterContactCompanyExecute(Sender: TObject);
 
   private
-    FPropertyInspector : TPropertyInspector;
+    FObjectInspector   : TzObjectInspector;
     FBindScope         : TBindScope;
     FContact           : TContact;
 
@@ -107,9 +107,12 @@ procedure TfrmLiveBindings.AfterConstruction;
 begin
   inherited AfterConstruction;
   AddComponents;
-  FPropertyInspector :=
-    TDDuceComponents.CreatePropertyInspector(Self, pnlLeft, Self);
-  FPropertyInspector.UpdateItems;
+  FObjectInspector := TConceptFactories.CreatezObjectInspector(
+    Self,
+    pnlLeft
+  );
+  FObjectInspector.Component := lstBindings;
+  FObjectInspector.ExpandAll;
   FBindScope := TBindScope.Create(Self);
   FContact   := TConceptFactories.CreateRandomContact;
   FBindScope.DataObject := FContact;
@@ -166,7 +169,7 @@ var
   C: TComponent;
 begin
   C := cbxControls.Items.Objects[cbxControls.ItemIndex] as TComponent;
-  FPropertyInspector.Objects[0] := C;
+  FObjectInspector.Component := C;
 end;
 
 procedure TfrmLiveBindings.FormResize(Sender: TObject);

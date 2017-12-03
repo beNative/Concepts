@@ -33,7 +33,7 @@ type
     FHwnd         : HWND;
 
   protected
-    procedure DoSend(const entry: TLogEvent); override;
+    procedure DoSend(const ALogEvent: TLogEvent); override;
 
   public
     procedure BeforeDestruction; override;
@@ -66,44 +66,19 @@ end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
-procedure TWinIPCAppender.DoSend(const entry: TLogEvent);
+procedure TWinIPCAppender.DoSend(const ALogEvent: TLogEvent);
 const
   ZeroBuf: Integer = 0;
 var
-  CDS     : TCopyDataStruct;
+  CDS      : TCopyDataStruct;
   TextSize : Integer;
-//  DataSize : Integer;
-//  P        : Pointer;
   S        : AnsiString;
   LMT      : Integer;
 begin
-(*
-  TLogMessageType = (
-    lmtInfo        = 0,
-    lmtError       = 1,
-    lmtWarning     = 2,
-    lmtValue       = 3,
-    lmtEnterMethod = 4,
-    lmtExitMethod  = 5,
-    lmtConditional = 6,
-    lmtCheckpoint  = 7,
-    lmtStrings     = 8,
-    lmtCallStack   = 9,
-    lmtObject      = 10,
-    lmtException   = 11,
-    lmtBitmap      = 12,
-    lmtHeapInfo    = 13,
-    lmtMemory      = 14,
-    lmtCustomData  = 15,
-    lmtWatch       = 20,
-    lmtCounter     = 21,
-    lmtClear       = 100
-  );
-*)
-  case entry.EventType of
+  case ALogEvent.EventType of
     TLogEventType.Text:
     begin
-      case entry.Level of
+      case ALogEvent.Level of
         TLogLevel.Unknown : LMT := 0;
         TLogLevel.Trace   : LMT := 0;
         TLogLevel.Debug   : LMT := 0;
@@ -121,80 +96,23 @@ begin
     TLogEventType.Leaving        : LMT := 5;
   end;
 
-(*
-  LOG_ALL_LEVELS = [Low(TLogLevel)..High(TLogLevel)] - [TLogLevel.Unknown];
-  LOG_BASIC_LEVELS = [
-    TLogLevel.Info,
-    TLogLevel.Warn,
-    TLogLevel.Error,
-    TLogLevel.Fatal
-  ];
-
-type
-  TLogEntryType = (
-    /// <summary>
-    ///   Is the most basic logging type all loggers should keep enabled
-    /// </summary>
-    Text,
-    Value,
-    /// <summary>
-    ///   Should only be called if stack is sent to the appender. The appender
-    ///   may treat it in a specific way. No one else should use this entry
-    ///   type. If this entry type is not set, callstack logging will be
-    ///   disabled completely, this may have significant performance impact on
-    ///   some platforms.
-    /// </summary>
-    CallStack,
-    /// <summary>
-    ///   Should only be called if serialized data (object, record, etc.) is
-    ///   sent to the appender. The appender may treat it in a specific way. No
-    ///   one else should use this entry type. If this level is not set, data
-    ///   serialization logging will be disabled completely.
-    /// </summary>
-    SerializedData,
-    Entering,
-    Leaving
-  );
-  TLogEntryTypes = set of TLogEntryType;
-  *)
-
-  S := AnsiString(entry.Msg);
+  S := AnsiString(ALogEvent.Msg);
   TextSize := Length(S);
 
   FMemoryStream.Seek(0, soFromBeginning);
-  //FMemoryStream.WriteBuffer(entry.EntryType, SizeOf(Integer));
   FMemoryStream.WriteBuffer(LMT, SizeOf(Integer));
-  FMemoryStream.WriteBuffer(entry.TimeStamp, SizeOf(TDateTime));
+  FMemoryStream.WriteBuffer(ALogEvent.TimeStamp, SizeOf(TDateTime));
   FMemoryStream.WriteBuffer(TextSize, SizeOf(Integer));
   FMemoryStream.WriteBuffer(S[1], TextSize);
-  if not entry.Data.IsEmpty then
+  if not ALogEvent.Data.IsEmpty then
   begin
-    //S := AnsiString(entry.Data.ToString);
-    //DataSize := Length(S);
-
-    //entry.Data.DataSize;
-    //S := entry.Data.ToString;
-
-    //FMemoryStream.WriteBuffer(DataSize, SizeOf(Integer));
-    //FMemoryStream.WriteBuffer(entry.Data.GetReferenceToRawData, DataSize)
-    //FMemoryStream.WriteBuffer(S[1], DataSize);
-    // WriteLn('[IPCChannel] Size Of Stream: ',DataSize);
-
     FMemoryStream.WriteBuffer(ZeroBuf, SizeOf(Integer)); // necessary?
-
-    //AMsg.Data.Position := 0;
-    //FMemoryStream.CopyFrom( AMsg.Data, DataSize);
-    // WriteLn('DataCopied: ',CopyFrom(AMsg.Data,DataSize));
-
   end
   else
     FMemoryStream.WriteBuffer(ZeroBuf, SizeOf(Integer)); // necessary?
 
   if FHWND = 0 then
     FHWND := FindWindow(MSG_WND_CLASSNAME, PChar(MSG_WND_WINDOWNAME));
-
-//  if HWND = 0 then
-//    raise Exception.Create(Format(SErrServerNotActive, [FServerID]));
 
   if FHWND <> 0 then
   begin

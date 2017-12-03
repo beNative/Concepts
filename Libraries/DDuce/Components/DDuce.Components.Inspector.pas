@@ -93,7 +93,6 @@ type
     procedure HideFocus; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
       override;
-    procedure Paint; override;
     procedure PaintCell(ACell: TGridCell; ARect: TRect); override;
     procedure PaintFocus; override;
     procedure Resize; override;
@@ -216,7 +215,7 @@ end;
 procedure TInspectorEdit.UpdateColors;
 begin
   inherited UpdateColors;
-  Color := clWindow;
+  Color      := clWindow;
   Font.Color := clBtnText;
 end;
 
@@ -459,23 +458,18 @@ begin
   inherited MouseDown(Button, Shift, X, Y);
 end;
 
-procedure TCustomInspector.Paint;
-begin
-  inherited;
-  PaintFocus;
-end;
-
 procedure TCustomInspector.PaintCell(ACell: TGridCell; ARect: TRect);
-var
-  R: TRect;
 begin
   if IsCategoryRow(ACell.Row) then
   begin
-    ARect.Left := GetGridRect.Left;
+    ARect.Left  := GetGridRect.Left;
     ARect.Right := GetGridRect.Right;
-    if ACell.Col <> 0 then Exit;
+    if ACell.Col <> 0 then
+      Exit;
   end;
+
   inherited PaintCell(ACell, ARect);
+
   if ACell.Row <> CellFocused.Row then
   begin
 //    R := ARect;
@@ -488,7 +482,9 @@ begin
 //      Winapi.Windows.FillRect(Handle, R, FBrush);
 //    end;
   end;
+
   if (ACell.Col = 0) and (not IsCategoryRow(ACell.Row)) then
+  begin
     with Canvas do
     begin
       Pen.Color := clBtnShadow;
@@ -499,16 +495,20 @@ begin
       MoveTo(ARect.Right - 1, ARect.Bottom - 1);
       LineTo(ARect.Right - 1, ARect.Top - 1);
     end;
-  if ACell.Row = CellFocused.Row then
-    DrawEdge(Canvas.Handle, ARect, BDR_SUNKENOUTER, BF_BOTTOM)
-  else if ACell.Row = CellFocused.Row - 1 then
-  begin
-    R := ARect;
-    R.Top := R.Bottom - 2;
-    DrawEdge(Canvas.Handle, R, BDR_SUNKENOUTER, BF_TOP);
-    InflateRect(R, 0, -1);
-    DrawEdge(Canvas.Handle, R, BDR_SUNKENINNER, BF_TOP);
   end;
+
+//  if ACell.Row = CellFocused.Row then
+//  begin
+//    //DrawEdge(Canvas.Handle, ARect, BDR_SUNKENOUTER, BF_BOTTOM)
+//  end
+//  else if ACell.Row = CellFocused.Row - 1 then
+//  begin
+//    R := ARect;
+//    R.Top := R.Bottom - 2;
+////    DrawEdge(Canvas.Handle, R, BDR_SUNKENOUTER, BF_TOP);
+////    InflateRect(R, 0, -1);
+////    DrawEdge(Canvas.Handle, R, BDR_SUNKENINNER, BF_TOP);
+//  end;
 end;
 
 procedure TCustomInspector.PaintFocus;

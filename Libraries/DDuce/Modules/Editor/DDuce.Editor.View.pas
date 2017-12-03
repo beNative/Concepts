@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,26 +18,26 @@ unit DDuce.Editor.View;
 
 {$REGION'documentation'}
 {
-Form holding a complete customizable text editor based on the open source
-TBCEditor component.
-Features:
-  - accepts dropped files
-  - auto detect file encoding
-  - dynamic editor creation
-  - synchronized edit
-  - highlight selected text
-  - code folding
-  - file monitor function to watch for external file changes.
+  Form holding a complete customizable text editor based on the open source
+  TBCEditor component.
+  Features:
+    - accepts dropped files
+    - auto detect file encoding
+    - dynamic editor creation
+    - synchronized edit
+    - highlight selected text
+    - code folding
+    - file monitor function to watch for external file changes.
 
-TODO:
-  - configurable page setup and printing with preview
-  - customizable keystroke-function mappings
-  - configurable code completion proposal
-  - convert to another encoding (partially implemented)
-  - find a way to fold particular sections (now only levels are supported)
+  TODO:
+    - configurable page setup and printing with preview
+    - customizable keystroke-function mappings
+    - configurable code completion proposal
+    - convert to another encoding (partially implemented)
+    - find a way to fold particular sections (now only levels are supported)
 
-  DEPENDENCIES:
-  - BCEditor-
+    DEPENDENCIES:
+    - BCEditor-
 }
 {$ENDREGION}
 
@@ -200,7 +200,9 @@ type
       const APosition      : Integer;
       var AForegroundColor : TColor;
       var ABackgroundColor : TColor;
-      var AStyles          : TFontStyles
+      var AStyles          : TFontStyles;
+      var ATokenAddon      : TBCEditorTokenAddon;
+      var ATokenAddonColor : TColor
     );
 
   strict protected
@@ -403,10 +405,6 @@ type
     property SearchText: string
       read GetSearchText write SetSearchText;
 
-    { These options are used for highlighting the active word. }
-//    property SearchOptions: TSynSearchOptions
-//      read GetSearchOptions write SetSearchOptions;
-
     { Currently selected text in the editor. }
     property SelectedText: string
       read GetSelectedText write SetSelectedText;
@@ -444,7 +442,7 @@ uses
   System.TypInfo, System.UITypes, System.IOUtils, System.Math,
   Vcl.GraphUtil,
 
-  BCEditor.Editor.LineSpacing,
+  //BCEditor.Editor.LineSpacing,
 
   Spring,
 
@@ -481,10 +479,8 @@ begin
   if Assigned(Settings) then
     Settings.OnChanged.Remove(EditorSettingsChanged);
 
-
   FreeAndNil(FReplaceHistory);
   FreeAndNil(FFindHistory);
-  //FreeAndNil(FEditor);
   inherited BeforeDestruction;
 end;
 {$ENDREGION}
@@ -517,12 +513,6 @@ end;
 //  Logger.Leave('TEditorView.EditorCommandProcessed');
 //end;
 
-procedure TEditorView.EditorCustomTokenAttribute(Sender: TObject;
-  const AText: string; const ALine, APosition: Integer; var AForegroundColor,
-  ABackgroundColor: TColor; var AStyles: TFontStyles);
-begin
-//
-end;
 
 procedure TEditorView.EditorDropFiles(Sender: TObject; Pos: TPoint;
   AFiles: TStrings);
@@ -550,6 +540,14 @@ begin
   DoChange;
   if Assigned(Events) then
     Events.DoChange;
+end;
+
+procedure TEditorView.EditorCustomTokenAttribute(Sender: TObject;
+  const AText: string; const ALine, APosition: Integer; var AForegroundColor,
+  ABackgroundColor: TColor; var AStyles: TFontStyles;
+  var ATokenAddon: TBCEditorTokenAddon; var ATokenAddonColor: TColor);
+begin
+//
 end;
 
 //procedure TEditorView.EditorStatusChange(Sender: TObject;
@@ -630,7 +628,7 @@ begin
   if AValue <> FoldLevel then
   begin
     FFoldLevel := AValue;
-    Editor.CodeFoldingCollapseLevel(AValue);
+    Editor.FoldAllByLevel(1, AValue);
     Events.DoModified;
   end;
 end;
@@ -638,17 +636,17 @@ end;
 function TEditorView.GetTextBetween(AStartPos,
   AEndPos: TPoint): string;
 begin
-  Result := Editor.TextBetween[
-    TBCEditorTextPosition(AStartPos), TBCEditorTextPosition(AEndPos)
-  ];
+//  Result := Editor.Lines.TextBetween[
+//    TBCEditorTextPosition(AStartPos), TBCEditorTextPosition(AEndPos)
+//  ];
 end;
 
 procedure TEditorView.SetTextBetween(AStartPos, AEndPos: TPoint;
   const Value: string);
 begin
-  Editor.TextBetween[
-    TBCEditorTextPosition(AStartPos), TBCEditorTextPosition(AEndPos)
-  ] := Value;
+//  Editor.TextBetween[
+//    TBCEditorTextPosition(AStartPos), TBCEditorTextPosition(AEndPos)
+//  ] := Value;
 end;
 
 function TEditorView.GetText: string;
@@ -728,12 +726,12 @@ end;
 
 function TEditorView.GetInsertMode: Boolean;
 begin
-  Result := Editor.InsertMode;
+  Result := Editor.TextEntryMode = temInsert;
 end;
 
 procedure TEditorView.SetInsertMode(AValue: Boolean);
 begin
-  Editor.InsertMode := AValue;
+  Editor.TextEntryMode := temInsert;
 end;
 
 function TEditorView.GetIsFile: Boolean;
@@ -761,14 +759,14 @@ end;
 
 function TEditorView.GetSearchText: string;
 begin
-  Result := Editor.SearchString;
+  //Result := Editor.SearchString;
 end;
 
 procedure TEditorView.SetSearchText(const Value: string);
 begin
   if Value <> SearchText then
   begin
-    Editor.SearchString := Value;
+//    Editor.SearchString := Value;
   end;
 end;
 
@@ -801,7 +799,7 @@ end;
 
 function TEditorView.GetEncoding: TEncoding;
 begin
-  Result := Editor.Encoding;
+  Result := Editor.Lines.Encoding;
 end;
 
 function TEditorView.GetLineBreakStyle: string;
@@ -950,7 +948,7 @@ end;
 
 procedure TEditorView.SetSelStart(const AValue: Integer);
 begin
-  //Editor.SelStart := AValue;
+  Editor.SelectionStart := AValue;
 end;
 
 function TEditorView.GetSettings: IEditorSettings;
@@ -1195,12 +1193,12 @@ begin
   else
     Editor.Tabs.Options := Editor.Tabs.Options - [toPreviousLineIndent];
 
-  if Settings.EditorOptions.ShowIndentGuides then
-    Editor.CodeFolding.Options := Editor.CodeFolding.Options +
-      [cfoShowIndentGuides]
-  else
-    Editor.CodeFolding.Options := Editor.CodeFolding.Options -
-      [cfoShowIndentGuides];
+//  if Settings.EditorOptions.ShowIndentGuides then
+//    Editor.CodeFolding.Options := Editor.CodeFolding.Options +
+//      [cfoShowIndentGuides]
+//  else
+//    Editor.CodeFolding.Options := Editor.CodeFolding.Options -
+//      [cfoShowIndentGuides];
 
   Editor.RightMargin.Visible  := Settings.EditorOptions.ShowRightEdge;
   Editor.RightMargin.Position := Settings.EditorOptions.RightEdge;
@@ -1209,12 +1207,9 @@ begin
 
   Editor.MatchingPair.Enabled := Settings.EditorOptions.BracketHighlight;
   Editor.Search.Map.Visible   := Settings.EditorOptions.ShowSearchmap;
-  Editor.LineSpacing.Rule     := lsSpecified;
-  Editor.LineSpacing.Spacing  := Settings.EditorOptions.ExtraLineSpacing;
+  Editor.LineSpacing          := Settings.EditorOptions.ExtraLineSpacing;
 
-
-
-//  Editor.ExtraCharSpacing      := Settings.EditorOptions.ExtraCharSpacing;
+  //  Editor.ExtraCharSpacing      := Settings.EditorOptions.ExtraCharSpacing;
 //  Editor.BlockTabIndent        := Settings.EditorOptions.BlockTabIndent;
 //  Editor.BlockIndent           := Settings.EditorOptions.BlockIndent;
 
@@ -1222,7 +1217,7 @@ begin
 //
 //  if Settings.EditorOptions.AutoIndentOnPaste then
 //    Editor.Options := Editor.Options + [eoAutoIndentOnPaste]
-//  else
+//  else                                              ;
 //    Editor.Options := Editor.Options - [eoAutoIndentOnPaste];
 
 
@@ -1313,7 +1308,7 @@ begin
   ];
   AEditor.Selection.Options := AEditor.Selection.Options + [
     soALTSetsColumnMode,
-    soHighlightSimilarTerms,
+//    soHighlightSimilarTerms,
     soTripleClickRowSelect
   ];
 
@@ -1324,9 +1319,8 @@ begin
   AEditor.OnDropFiles            := EditorDropFiles;
   AEditor.OnCustomTokenAttribute := EditorCustomTokenAttribute;
 
+  // TEMP
   AEditor.Highlighter.Colors.LoadFromFile('tsColors.json');
-
-  //AEditor.CodeFolding.Options := AEditor.CodeFolding.Options + [cfoFoldMultilineComments];
 
   AEditor.CodeFolding.Visible := True;
   AEditor.CodeFolding.Options :=  [
@@ -1334,13 +1328,12 @@ begin
     cfoHighlightFoldingLine,
     //cfoHighlightIndentGuides,
     cfoHighlightMatchingPair,
-    cfoShowCollapsedCodeHint,
+    cfoShowCollapsedLine,
+    //cfoShowTreeLine
     //cfoShowCollapsedLine,
     //cfoShowIndentGuides,
     cfoUncollapseByHintClick
-
   ];
-
   AEditor.URIOpener := True;
 
 //  AEditor.Options := [
@@ -1374,6 +1367,13 @@ begin
 //  AEditor.OnChangeUpdating     := EditorChangeUpdating;
 //  AEditor.OnCommandProcessed   := EditorCommandProcessed;
 //  AEditor.OnReplaceText        := EditorReplaceText;
+
+  Editor.LeftMargin.Autosize := True;
+  Editor.LeftMargin.Colors.Background := clWhite;
+  Editor.LeftMargin.LineNumbers.AutosizeDigitCount := 3;
+  Editor.LeftMargin.Visible := False;
+  Editor.LeftMargin.Visible := True;
+
   ActiveControl := Editor;
 end;
 
@@ -1467,7 +1467,7 @@ end;
 
 procedure TEditorView.Activate;
 begin
-  inherited;
+  inherited Activate;
   Manager.ActiveView := Self as IEditorView;
 end;
 
@@ -1499,15 +1499,15 @@ begin
   if ADirectionForward then
   begin
     Editor.TextCaretPosition := Editor.WordStart;
-    Editor.Search.Options := Editor.Search.Options - [TBCEditorSearchOption.soBackwards];
+    //Editor.Search.Options := Editor.Search.Options - [TBCEditorSearchOption.soBackwards];
     Editor.Search.SearchText := Editor.WordAtCursor;
     Editor.FindNext;
   end
   else
   begin
-    Editor.Search.Options := Editor.Search.Options + [TBCEditorSearchOption.soBackwards];
+    //Editor.Search.Options := Editor.Search.Options + [TBCEditorSearchOption.soBackwards];
     Editor.Search.SearchText := Editor.WordAtCursor;
-    //Editor.TextCaretPosition := Editor.WordStart;
+    Editor.TextCaretPosition := Editor.WordStart;
     Editor.SetCaretAndSelection(
       Editor.SelectionBeginPosition,
       Editor.SelectionBeginPosition,
@@ -1673,8 +1673,6 @@ end;
 //  Result := Editor.GetHighlighterAttriAtRowCol(APosition, AToken, AAttri);
 //end;
 {$ENDREGION}
-
-end.
 
 {$REGION'Keyboard shortcuts'}
 (*//F1                      Topic Search
@@ -1861,3 +1859,7 @@ end.
   end;
 *)
 {$ENDREGION}
+
+end.
+
+

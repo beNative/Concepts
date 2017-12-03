@@ -81,13 +81,15 @@ begin
     GV.Name := AName;
   GV.Parent                   := AParent;
   GV.Align                    := alClient;
-  GV.Header.Flat              := False;
+  GV.Header.Flat              := True;
+  GV.Header.Font.Style        := [fsBold];
+  GV.Header.GridColor         := True;
   GV.Header.FullSynchronizing := True;
   GV.AlignWithMargins         := True;
   GV.Parent                   := AParent;
   GV.Align                    := alClient;
   GV.CursorKeys               := GV.CursorKeys + [gkReturn];
-  GV.GridStyle                := GV.GridStyle + [gsDotLines];
+  GV.GridStyle                := GV.GridStyle - [gsHorzLine];
   GV.ColumnsFullDrag          := True;
   GV.DoubleBuffered           := True;
   GV.CheckBoxes               := True;
@@ -146,10 +148,8 @@ begin
   VLT.BorderStyle        := bsNone;
   VLT.Parent             := AParent;
   VLT.Align              := alClient;
-  VLT.ShowHint           := True;
   VLT.ShowImages         := True;
-  VLT.AutoLogLevelColors := True;
-  VLT.Header.Options     := VLT.Header.Options + [hoAutoSpring, hoAutoResize];
+  VLT.Header.Options     := VLT.Header.Options + [hoAutoSpring];
   Result := VLT;
 end;
 
