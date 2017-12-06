@@ -32,7 +32,7 @@ Coordinates=10,78,88,51
 Coordinates=10,10,91,51
 
 [trbRecordCount]
-Coordinates=220,140,93,51
+Coordinates=220,140,93,69
 ExplicitSubNodes=*
 Visible=True
 

@@ -132,7 +132,7 @@ type
       Kind        : TVTImageKind;
       Column      : TColumnIndex;
       var Ghosted : Boolean;
-      var Index   : Integer
+      var Index   : TImageIndex
     ): TCustomImageList; override;
     procedure DoPaintText(
       Node         : PVirtualNode;
@@ -273,7 +273,7 @@ end;
 
 function TLogTree.DoGetImageIndex(Node: PVirtualNode; Kind: TVTImageKind;
   Column: TColumnIndex; var Ghosted: Boolean;
-  var Index: Integer): TCustomImageList;
+  var Index: TImageIndex): TCustomImageList;
 var
   NodeData: PLogNodeData;
 begin

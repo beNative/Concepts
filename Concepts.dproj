@@ -699,6 +699,8 @@
         </DCCReference>
         <DCCReference Include="Libraries\TzObjectInspector\zUtils.pas"/>
         <DCCReference Include="Libraries\TzObjectInspector\zValueManager.pas"/>
+        <DCCReference Include="Libraries\DDuce\Factories\DDuce.Factories.VirtualTrees.pas"/>
+        <DCCReference Include="Libraries\DDuce\Factories\DDuce.Factories.zObjInspector.pas"/>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
         <BuildConfiguration Include="Debug">

@@ -108,7 +108,7 @@ type
       var HintText: string);
     procedure DoGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
-      var ImageIndex: Integer);
+      var ImageIndex: TImageIndex);
     procedure DoGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType;
       var CellText: string);
@@ -946,7 +946,7 @@ end;
 
 procedure TTreeViewPresenter.DoGetImageIndex(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
-  var Ghosted: Boolean; var ImageIndex: Integer);
+  var Ghosted: Boolean; var ImageIndex: TImageIndex);
 var
   LItem: TObject;
   LItemTemplate: IDataTemplate;

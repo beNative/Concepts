@@ -191,8 +191,7 @@ end;
 
 procedure TfrmCollections.trbRecordCountChange(Sender: TObject);
 begin
-
-//  lstBindings.Notify(Sender, '');
+  lstBindings.Notify(Sender, '');
 end;
 
 procedure TfrmCollections.DefinePredicates;

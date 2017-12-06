@@ -455,7 +455,9 @@ uses
   zRecList in 'Libraries\TzObjectInspector\zRecList.pas',
   zStringsDialog in 'Libraries\TzObjectInspector\zStringsDialog.pas' {StringsDialog},
   zUtils in 'Libraries\TzObjectInspector\zUtils.pas',
-  zValueManager in 'Libraries\TzObjectInspector\zValueManager.pas';
+  zValueManager in 'Libraries\TzObjectInspector\zValueManager.pas',
+  DDuce.Factories.VirtualTrees in 'Libraries\DDuce\Factories\DDuce.Factories.VirtualTrees.pas',
+  DDuce.Factories.zObjInspector in 'Libraries\DDuce\Factories\DDuce.Factories.zObjInspector.pas';
 
 {$R *.res}
 

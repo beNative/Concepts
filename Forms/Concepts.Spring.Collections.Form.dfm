@@ -172,9 +172,9 @@ object frmCollections: TfrmCollections
       Category = 'Binding Expressions'
       ControlComponent = Edit1
       SourceComponent = trbRecordCount
+      SourceMemberName = 'Position'
       SourceExpression = 'Position'
       ControlExpression = 'Text'
-      Managed = False
       NotifyOutputs = True
       Direction = dirSourceToControl
     end
