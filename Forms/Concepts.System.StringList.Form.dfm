@@ -1,7 +1,7 @@
 object frmStringList: TfrmStringList
   Left = 0
   Top = 0
-  ClientHeight = 297
+  ClientHeight = 440
   ClientWidth = 781
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,7 +15,7 @@ object frmStringList: TfrmStringList
   TextHeight = 13
   object chkSorted: TCheckBox
     Left = 111
-    Top = 8
+    Top = 36
     Width = 97
     Height = 17
     Caption = 'Sorted'
@@ -24,7 +24,7 @@ object frmStringList: TfrmStringList
   end
   object chkStrictDelimiter: TCheckBox
     Left = 214
-    Top = 8
+    Top = 36
     Width = 97
     Height = 15
     Caption = 'StrictDelimiter'
@@ -33,7 +33,7 @@ object frmStringList: TfrmStringList
   end
   object chkCaseSensitive: TCheckBox
     Left = 8
-    Top = 8
+    Top = 36
     Width = 97
     Height = 17
     Caption = 'CaseSensitive'
@@ -42,7 +42,7 @@ object frmStringList: TfrmStringList
   end
   object btnClear: TButton
     Left = 317
-    Top = 3
+    Top = 31
     Width = 150
     Height = 25
     Action = actClear
@@ -50,22 +50,22 @@ object frmStringList: TfrmStringList
   end
   object pnlGrid: TGridPanel
     Left = 0
-    Top = 31
+    Top = 56
     Width = 781
-    Height = 266
+    Height = 384
     Align = alBottom
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     Caption = 'pnlGrid'
     ColumnCollection = <
       item
-        Value = 33.333333333333330000
+        Value = 33.333333333333340000
       end
       item
-        Value = 33.333333333333330000
+        Value = 33.333333333333340000
       end
       item
-        Value = 33.333333333333330000
+        Value = 33.333333333333340000
       end>
     ControlCollection = <
       item
@@ -95,14 +95,14 @@ object frmStringList: TfrmStringList
       Left = 0
       Top = 0
       Width = 260
-      Height = 266
+      Height = 384
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
       object btnSetText: TButton
         AlignWithMargins = True
         Left = 3
-        Top = 238
+        Top = 356
         Width = 254
         Height = 25
         Action = actSetText
@@ -114,7 +114,7 @@ object frmStringList: TfrmStringList
         Left = 3
         Top = 3
         Width = 254
-        Height = 229
+        Height = 347
         Align = alClient
         TabOrder = 1
       end
@@ -123,14 +123,14 @@ object frmStringList: TfrmStringList
       Left = 260
       Top = 0
       Width = 260
-      Height = 266
+      Height = 384
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
       object btnSetDelimitedText: TButton
         AlignWithMargins = True
         Left = 3
-        Top = 238
+        Top = 356
         Width = 254
         Height = 25
         Action = actSetDelimitedText
@@ -142,7 +142,7 @@ object frmStringList: TfrmStringList
         Left = 3
         Top = 3
         Width = 254
-        Height = 229
+        Height = 347
         Align = alClient
         TabOrder = 1
       end
@@ -151,14 +151,14 @@ object frmStringList: TfrmStringList
       Left = 520
       Top = 0
       Width = 261
-      Height = 266
+      Height = 384
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 2
       object btnSetNameValues: TButton
         AlignWithMargins = True
         Left = 3
-        Top = 238
+        Top = 356
         Width = 255
         Height = 25
         Action = actSetNameValues
@@ -170,7 +170,7 @@ object frmStringList: TfrmStringList
         Left = 3
         Top = 3
         Width = 255
-        Height = 229
+        Height = 347
         Align = alClient
         DisplayOptions = [doColumnTitles, doAutoColResize]
         KeyOptions = [keyEdit, keyAdd, keyDelete]
@@ -182,6 +182,36 @@ object frmStringList: TfrmStringList
           18
           18)
       end
+    end
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Top = 0
+    Width = 781
+    Height = 29
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentBackground = False
+    ParentFont = False
+    TabOrder = 5
+    object lblHeader: TLabel
+      Left = 0
+      Top = 0
+      Width = 781
+      Height = 29
+      Align = alClient
+      Alignment = taCenter
+      Caption = 'This form demonstrates some freatures of the TStringList  class.'
+      Layout = tlCenter
+      WordWrap = True
+      ExplicitWidth = 363
+      ExplicitHeight = 13
     end
   end
   object aclMain: TActionList

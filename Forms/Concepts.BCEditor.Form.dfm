@@ -16,9 +16,9 @@
   TextHeight = 13
   object pnlMain: TPanel
     Left = 0
-    Top = 0
+    Top = 29
     Width = 1191
-    Height = 721
+    Height = 692
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
@@ -26,7 +26,7 @@
       Left = 433
       Top = 0
       Width = 8
-      Height = 702
+      Height = 673
       ResizeStyle = rsUpdate
       ExplicitLeft = 273
       ExplicitTop = 1
@@ -36,13 +36,13 @@
       Left = 0
       Top = 0
       Width = 433
-      Height = 702
+      Height = 673
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
       object splLeftHorizontal: TSplitter
         Left = 0
-        Top = 403
+        Top = 374
         Width = 433
         Height = 5
         Cursor = crVSplit
@@ -72,7 +72,7 @@
       end
       object pnlLeftBottom: TPanel
         Left = 0
-        Top = 408
+        Top = 379
         Width = 433
         Height = 294
         Align = alBottom
@@ -88,10 +88,6 @@
           TabOrder = 0
           object tsSampleCode: TTabSheet
             Caption = 'Sample code'
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
             object pnlExampleCodeHeader: TPanel
               AlignWithMargins = True
               Left = 3
@@ -120,7 +116,7 @@
       Left = 441
       Top = 0
       Width = 750
-      Height = 702
+      Height = 673
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
@@ -148,11 +144,15 @@
           Top = 3
           Width = 744
           Height = 379
-          ActivePage = tsHighlighter
+          ActivePage = tsColors
           Align = alClient
           TabOrder = 0
           object tsHighlighter: TTabSheet
             Caption = 'Highlighter definition'
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object pnlHighlighter: TPanel
               Left = 153
               Top = 0
@@ -263,7 +263,7 @@
         Left = 0
         Top = 391
         Width = 750
-        Height = 311
+        Height = 282
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
@@ -271,12 +271,42 @@
     end
     object sbrStatusBar: TStatusBar
       Left = 0
-      Top = 702
+      Top = 673
       Width = 1191
       Height = 19
       Panels = <>
       ParentShowHint = False
       ShowHint = True
+    end
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Top = 0
+    Width = 1191
+    Height = 29
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentBackground = False
+    ParentFont = False
+    TabOrder = 1
+    object lblHeader: TLabel
+      Left = 0
+      Top = 0
+      Width = 1191
+      Height = 29
+      Align = alClient
+      Alignment = taCenter
+      Caption = 'This form demonstrates the TBCEditor control.'
+      Layout = tlCenter
+      WordWrap = True
+      ExplicitWidth = 261
+      ExplicitHeight = 13
     end
   end
   object aclMain: TActionList

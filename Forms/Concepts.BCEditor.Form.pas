@@ -79,6 +79,8 @@ type
     tsColors              : TTabSheet;
     tsHighlighter         : TTabSheet;
     tsSampleCode          : TTabSheet;
+    pnlHeader             : TPanel;
+    lblHeader             : TLabel;
     {$ENDREGION}
 
     procedure actSaveHighlighterExecute(Sender: TObject);

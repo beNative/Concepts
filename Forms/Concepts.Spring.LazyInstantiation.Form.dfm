@@ -2,7 +2,7 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   Left = 0
   Top = 0
   Caption = 'Lazy instantiation'
-  ClientHeight = 249
+  ClientHeight = 366
   ClientWidth = 418
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -14,13 +14,13 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   ShowHint = True
   DesignSize = (
     418
-    249)
+    366)
   PixelsPerInch = 96
   TextHeight = 13
   object lblDescription: TLabel
     AlignWithMargins = True
     Left = 3
-    Top = 3
+    Top = 32
     Width = 412
     Height = 41
     Align = alTop
@@ -40,7 +40,7 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   end
   object btnAddTextToLazyMemo: TButton
     Left = 8
-    Top = 47
+    Top = 76
     Width = 130
     Height = 25
     Action = actAddTextToLazyMemo
@@ -48,16 +48,16 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   end
   object pnlMemo: TPanel
     Left = 8
-    Top = 78
+    Top = 112
     Width = 402
-    Height = 110
+    Height = 193
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 1
   end
   object pnlCheckBox: TPanel
     Left = 8
-    Top = 194
+    Top = 311
     Width = 402
     Height = 47
     Anchors = [akLeft, akRight, akBottom]
@@ -66,7 +66,7 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   end
   object btnToggleLazyCheckbox: TButton
     Left = 144
-    Top = 47
+    Top = 76
     Width = 130
     Height = 25
     Action = actToggleLazyCheckbox
@@ -74,11 +74,41 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   end
   object btnShowClassName: TButton
     Left = 280
-    Top = 47
+    Top = 76
     Width = 130
     Height = 25
     Action = actShowClassName
     TabOrder = 4
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Top = 0
+    Width = 418
+    Height = 29
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentBackground = False
+    ParentFont = False
+    TabOrder = 5
+    object lblHeader: TLabel
+      Left = 0
+      Top = 0
+      Width = 418
+      Height = 29
+      Align = alClient
+      Alignment = taCenter
+      Caption = 'This form demonstrates the Spring4D ILazy type.'
+      Layout = tlCenter
+      WordWrap = True
+      ExplicitWidth = 278
+      ExplicitHeight = 13
+    end
   end
   object aclMain: TActionList
     Left = 200

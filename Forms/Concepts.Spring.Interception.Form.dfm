@@ -15,7 +15,7 @@ object frmSpringInterception: TfrmSpringInterception
   TextHeight = 13
   object btnStart: TButton
     Left = 8
-    Top = 8
+    Top = 40
     Width = 75
     Height = 25
     Action = actStart
@@ -23,7 +23,7 @@ object frmSpringInterception: TfrmSpringInterception
   end
   object btnStop: TButton
     Left = 89
-    Top = 8
+    Top = 40
     Width = 75
     Height = 25
     Action = actStop
@@ -31,11 +31,41 @@ object frmSpringInterception: TfrmSpringInterception
   end
   object btnMove: TButton
     Left = 170
-    Top = 8
+    Top = 40
     Width = 75
     Height = 25
     Action = actMove
     TabOrder = 2
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Top = 0
+    Width = 257
+    Height = 29
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentBackground = False
+    ParentFont = False
+    TabOrder = 3
+    object lblHeader: TLabel
+      Left = 0
+      Top = 0
+      Width = 257
+      Height = 29
+      Align = alClient
+      Alignment = taCenter
+      Caption = 'This form demonstrates Spring interception.'
+      Layout = tlCenter
+      WordWrap = True
+      ExplicitWidth = 250
+      ExplicitHeight = 13
+    end
   end
   object aclMain: TActionList
     Left = 64

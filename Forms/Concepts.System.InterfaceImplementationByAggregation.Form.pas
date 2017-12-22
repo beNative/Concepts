@@ -32,7 +32,7 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ActnList;
+  Vcl.ActnList, Vcl.ExtCtrls;
 
 type
   IInnerInterface = interface
@@ -96,6 +96,8 @@ type
     actOuterMethod : TAction;
     btnInnerMethod : TButton;
     btnOuterMethod : TButton;
+    pnlHeader      : TPanel;
+    lblHeader      : TLabel;
 
     procedure actInnerMethodExecute(Sender: TObject);
     procedure actOuterMethodExecute(Sender: TObject);

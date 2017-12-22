@@ -26,7 +26,7 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ActnList;
+  Vcl.ActnList, Vcl.ExtCtrls;
 
 type
   TfrmVariants = class(TForm)
@@ -42,6 +42,8 @@ type
     btnShowAsString            : TButton;
     btnUnassigned              : TButton;
     chkNullStrictConvert       : TCheckBox;
+    pnlHeader                  : TPanel;
+    lblHeader                  : TLabel;
     {$ENDREGION}
 
     procedure actToggleNullStrictConvertExecute(Sender: TObject);

@@ -132,6 +132,10 @@ uses
 
   Concepts.Indy.TCP.Form,
 
+  Concepts.SynEdit.Form,
+
+  Concepts.VirtualTreeView.Form,
+
   Concepts.FMXContainer.Form,
 
   Concepts.Manager;
@@ -436,6 +440,13 @@ begin
   );
   {$ENDIF}
 
+  ConceptManager.Register(
+    TfrmSynEdit,
+    'SynEdit',
+    'SynEdit',
+    'Demonstrates the TSynEdit component'
+  );
+
   {$IFDEF BTMEMORYMODULE}
   ConceptManager.Register(
     TfrmBTMemoryModule,
@@ -491,6 +502,13 @@ begin
     'TFireMonkeyContainer',
     'FMXContainer',
     'Demonstrates the Parnassus TFireMonkeyContainer component.'
+  );
+
+  ConceptManager.Register(
+    TfrmVirtualTreeView,
+    'Virtual treeview',
+    'TVirtualStringTree',
+    'Demonstrates the TVirtualStringTree component.'
   );
 
   RegisterSpringConcepts;

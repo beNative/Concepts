@@ -22,17 +22,18 @@ object frmLiveBindings: TfrmLiveBindings
   TextHeight = 13
   object splVertical: TSplitter
     Left = 305
-    Top = 0
+    Top = 29
     Width = 6
-    Height = 513
+    Height = 484
     ExplicitLeft = 251
+    ExplicitTop = 0
     ExplicitHeight = 459
   end
   object pnlLeft: TPanel
     Left = 0
-    Top = 0
+    Top = 29
     Width = 305
-    Height = 513
+    Height = 484
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
@@ -52,9 +53,9 @@ object frmLiveBindings: TfrmLiveBindings
   end
   object pnlRight: TPanel
     Left = 311
-    Top = 0
+    Top = 29
     Width = 567
-    Height = 513
+    Height = 484
     Align = alClient
     BevelOuter = bvNone
     Font.Charset = DEFAULT_CHARSET
@@ -66,7 +67,7 @@ object frmLiveBindings: TfrmLiveBindings
     TabOrder = 1
     DesignSize = (
       567
-      513)
+      484)
     object lblLabel: TLabel
       Left = 6
       Top = 35
@@ -349,6 +350,36 @@ object frmLiveBindings: TfrmLiveBindings
     DataSource = absMain
     Orientation = orHorizontal
     TabOrder = 10
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Top = 0
+    Width = 878
+    Height = 29
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentBackground = False
+    ParentFont = False
+    TabOrder = 11
+    object lblHeader: TLabel
+      Left = 0
+      Top = 0
+      Width = 878
+      Height = 29
+      Align = alClient
+      Alignment = taCenter
+      Caption = 'This form demonstrates how to setup LiveBindings.'
+      Layout = tlCenter
+      WordWrap = True
+      ExplicitWidth = 288
+      ExplicitHeight = 13
+    end
   end
   object lstBindings: TBindingsList
     Methods = <>

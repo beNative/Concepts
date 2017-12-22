@@ -457,7 +457,14 @@ uses
   zUtils in 'Libraries\TzObjectInspector\zUtils.pas',
   zValueManager in 'Libraries\TzObjectInspector\zValueManager.pas',
   DDuce.Factories.VirtualTrees in 'Libraries\DDuce\Factories\DDuce.Factories.VirtualTrees.pas',
-  DDuce.Factories.zObjInspector in 'Libraries\DDuce\Factories\DDuce.Factories.zObjInspector.pas';
+  DDuce.Factories.zObjInspector in 'Libraries\DDuce\Factories\DDuce.Factories.zObjInspector.pas',
+  Concepts.SynEdit.Form in 'Forms\Concepts.SynEdit.Form.pas' {frmSynEdit},
+  DSharp.DevExpress.GridViewPresenter in 'Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas',
+  DSharp.DevExpress.PresenterDataSource in 'Libraries\DSharp\DSharp.DevExpress.PresenterDataSource.pas',
+  DSharp.DevExpress.TreeListPresenter in 'Libraries\DSharp\DSharp.DevExpress.TreeListPresenter.pas',
+  Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
+  Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter},
+  Concepts.VirtualTreeView.Form in 'Forms\Concepts.VirtualTreeView.Form.pas' {frmVirtualTreeView};
 
 {$R *.res}
 

@@ -40,7 +40,7 @@
 { DDuce - http://github.com/beNative/dduce }
 {$DEFINE DDUCE}
 { DevExpress - http://www.devexpress.com/Products/VCL/ }
-{.$DEFINE DEVEXPRESS}
+{$DEFINE DEVEXPRESS}
 { RTTEye }
 {$DEFINE RTTEYE}
 { BTMemoryModule.pas }

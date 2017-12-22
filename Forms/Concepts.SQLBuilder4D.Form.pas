@@ -24,16 +24,18 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  System.Actions, Vcl.ActnList;
+  System.Actions, Vcl.ActnList, Vcl.ExtCtrls;
 
 type
   TfrmSQLBuilder4D = class(TForm)
-    mmoMain  : TMemo;
-    aclMain  : TActionList;
-    actTest1 : TAction;
-    actTest2 : TAction;
-    btnTest1 : TButton;
-    btnTest2 : TButton;
+    mmoMain   : TMemo;
+    aclMain   : TActionList;
+    actTest1  : TAction;
+    actTest2  : TAction;
+    btnTest1  : TButton;
+    btnTest2  : TButton;
+    pnlHeader : TPanel;
+    lblHeader : TLabel;
 
     procedure actTest1Execute(Sender: TObject);
     procedure actTest2Execute(Sender: TObject);

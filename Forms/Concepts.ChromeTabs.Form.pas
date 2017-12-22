@@ -39,6 +39,8 @@ type
     sbrStatusBar  : TStatusBar;
     splSplitter   : TSplitter;
     pnlDrag       : TPanel;
+    pnlHeader     : TPanel;
+    lblHeader     : TLabel;
     {$ENDREGION}
 
     procedure FCTTopNeedDragImageControl(

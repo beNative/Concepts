@@ -34,7 +34,7 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
       Top = 3
       Width = 829
       Height = 526
-      ActivePage = tsTreelist
+      ActivePage = tsGridView
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 0
@@ -67,9 +67,9 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
             OptionsBehavior.CellHints = True
             OptionsBehavior.DragDropText = True
             OptionsBehavior.GoToNextCellOnEnter = True
-            OptionsBehavior.ImmediateEditor = False
             OptionsBehavior.NavigatorHints = True
             OptionsBehavior.EditAutoHeight = eahEditor
+            OptionsBehavior.ImmediateEditor = False
             OptionsCustomize.ColumnHiding = True
             OptionsCustomize.ColumnsQuickCustomization = True
             OptionsData.Appending = True

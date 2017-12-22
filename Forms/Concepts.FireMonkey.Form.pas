@@ -28,7 +28,8 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls, FMX.Effects,
   FMX.Colors, FMX.TabControl, FMX.Menus, FMX.Filter.Effects, FMX.Edit,
   FMX.ExtCtrls, FMX.EditBox, FMX.SpinBox, FMX.ListBox, FMX.Layouts,
-  FMX.Controls.Presentation, FMX.DateTimeCtrls, FMX.Calendar, FMX.MagnifierGlass;
+  FMX.Controls.Presentation, FMX.DateTimeCtrls, FMX.Calendar, FMX.MagnifierGlass,
+  System.Actions, FMX.ActnList;
 
 type
   TFireMonkeyForm = class(TForm)
@@ -61,24 +62,33 @@ type
     mnuMenuBar       : TMenuBar;
     pbrExample       : TProgressBar;
     rbtRadioButton   : TRadioButton;
-    sbrExample       : TStatusBar;
     spbExample       : TSpinBox;
     swExample        : TSwitch;
     tbcExample       : TTabControl;
     tbiExample1      : TTabItem;
     tbiExample2      : TTabItem;
     trbExample       : TTrackBar;
-    procedure trbExampleChange(Sender: TObject);
     {$ENDREGION}
+
+    procedure trbExampleChange(Sender: TObject);
+    procedure actButtonPressedExecute(Sender: TObject);
+
   end;
 
 implementation
 
 {$R *.fmx}
 
+{$REGION 'event handlers'}
+procedure TFireMonkeyForm.actButtonPressedExecute(Sender: TObject);
+begin
+  ShowMessage('Button pressed!');
+end;
+
 procedure TFireMonkeyForm.trbExampleChange(Sender: TObject);
 begin
   pbrExample.Value := trbExample.Value;
 end;
+{$ENDREGION}
 
 end.

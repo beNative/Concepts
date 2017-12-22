@@ -701,6 +701,25 @@
         <DCCReference Include="Libraries\TzObjectInspector\zValueManager.pas"/>
         <DCCReference Include="Libraries\DDuce\Factories\DDuce.Factories.VirtualTrees.pas"/>
         <DCCReference Include="Libraries\DDuce\Factories\DDuce.Factories.zObjInspector.pas"/>
+        <DCCReference Include="Forms\Concepts.SynEdit.Form.pas">
+            <Form>frmSynEdit</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.GridViewPresenter.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.PresenterDataSource.pas"/>
+        <DCCReference Include="Libraries\DSharp\DSharp.DevExpress.TreeListPresenter.pas"/>
+        <DCCReference Include="Forms\Concepts.DevExpress.cxEditors.Form.pas">
+            <Form>frmcxEditors</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas">
+            <Form>frmcxGridViewPresenter</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.VirtualTreeView.Form.pas">
+            <Form>frmVirtualTreeView</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
         <BuildConfiguration Include="Debug">

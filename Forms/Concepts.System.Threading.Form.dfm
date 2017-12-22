@@ -15,7 +15,7 @@ object frmThreading: TfrmThreading
   TextHeight = 13
   object btnExecute: TButton
     Left = 8
-    Top = 8
+    Top = 39
     Width = 153
     Height = 25
     Action = actExecuteParallel
@@ -23,7 +23,7 @@ object frmThreading: TfrmThreading
   end
   object btnExecuteSequential: TButton
     Left = 167
-    Top = 8
+    Top = 39
     Width = 153
     Height = 25
     Action = actExecuteSequential
@@ -32,9 +32,9 @@ object frmThreading: TfrmThreading
   object pnlLog: TPanel
     AlignWithMargins = True
     Left = 3
-    Top = 70
+    Top = 104
     Width = 707
-    Height = 433
+    Height = 399
     Align = alBottom
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
@@ -43,7 +43,7 @@ object frmThreading: TfrmThreading
   end
   object edtIterations: TLabeledEdit
     Left = 400
-    Top = 8
+    Top = 39
     Width = 57
     Height = 21
     Hint = 'Number of iterations in for loop.'
@@ -60,7 +60,7 @@ object frmThreading: TfrmThreading
   end
   object edtStrides: TLabeledEdit
     Left = 504
-    Top = 8
+    Top = 39
     Width = 57
     Height = 21
     Hint = 
@@ -79,7 +79,7 @@ object frmThreading: TfrmThreading
   end
   object btnStartTask: TButton
     Left = 8
-    Top = 39
+    Top = 70
     Width = 153
     Height = 25
     Action = actStartTask
@@ -87,7 +87,7 @@ object frmThreading: TfrmThreading
   end
   object btnCancelTask: TButton
     Left = 167
-    Top = 39
+    Top = 70
     Width = 153
     Height = 25
     Action = actCancelTask
@@ -95,11 +95,43 @@ object frmThreading: TfrmThreading
   end
   object btnTestIterationsAndStrides: TButton
     Left = 326
-    Top = 39
+    Top = 70
     Width = 153
     Height = 25
     Action = actTestIterationsAndStrides
     TabOrder = 7
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Top = 0
+    Width = 713
+    Height = 29
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentBackground = False
+    ParentFont = False
+    TabOrder = 8
+    object lblHeader: TLabel
+      Left = 0
+      Top = 0
+      Width = 713
+      Height = 29
+      Align = alClient
+      Alignment = taCenter
+      Caption = 
+        'This form demonstrates some features of the System.Threading uni' +
+        't a.k.a. Parallel Programming Library (PPL).'
+      Layout = tlCenter
+      WordWrap = True
+      ExplicitWidth = 625
+      ExplicitHeight = 13
+    end
   end
   object aclMain: TActionList
     Left = 304
@@ -130,7 +162,7 @@ object frmThreading: TfrmThreading
     Left = 72
     Top = 136
     Bitmap = {
-      494C010105000900040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C0101050009000C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

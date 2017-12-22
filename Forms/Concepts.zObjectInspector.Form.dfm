@@ -175,10 +175,10 @@ object frmzObjectInspector: TfrmzObjectInspector
         'just properties of any control shown on this form.'
       EllipsisPosition = epWordEllipsis
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clNavy
+      Font.Color = clBlue
       Font.Height = -11
       Font.Name = 'Tahoma'
-      Font.Style = []
+      Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
       WordWrap = True

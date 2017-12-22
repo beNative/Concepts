@@ -18,7 +18,7 @@ object frmCollections: TfrmCollections
   TextHeight = 13
   object lblRecordCount: TLabel
     Left = 265
-    Top = 7
+    Top = 43
     Width = 67
     Height = 13
     Anchors = [akLeft, akTop, akRight]
@@ -27,7 +27,7 @@ object frmCollections: TfrmCollections
   end
   object btnFirstNameIs: TButton
     Left = 8
-    Top = 33
+    Top = 69
     Width = 250
     Height = 25
     Action = actFirstNameIs
@@ -37,9 +37,9 @@ object frmCollections: TfrmCollections
   end
   object mmoList: TMemo
     Left = 8
-    Top = 126
+    Top = 160
     Width = 479
-    Height = 292
+    Height = 258
     Anchors = [akLeft, akTop, akRight, akBottom]
     ReadOnly = True
     ScrollBars = ssVertical
@@ -47,7 +47,7 @@ object frmCollections: TfrmCollections
   end
   object btnCreateList: TButton
     Left = 8
-    Top = 2
+    Top = 38
     Width = 250
     Height = 25
     Action = actPopulateList
@@ -57,7 +57,7 @@ object frmCollections: TfrmCollections
   end
   object btnLastNameIs: TButton
     Left = 8
-    Top = 64
+    Top = 100
     Width = 250
     Height = 25
     Action = actLastNameIs
@@ -67,7 +67,7 @@ object frmCollections: TfrmCollections
   end
   object edtFirstName: TEdit
     Left = 264
-    Top = 66
+    Top = 102
     Width = 223
     Height = 21
     Anchors = [akLeft, akTop, akRight]
@@ -76,7 +76,7 @@ object frmCollections: TfrmCollections
   end
   object edtLastName: TEdit
     Left = 264
-    Top = 97
+    Top = 133
     Width = 223
     Height = 21
     Anchors = [akLeft, akTop, akRight]
@@ -85,7 +85,7 @@ object frmCollections: TfrmCollections
   end
   object btnBoth: TButton
     Left = 8
-    Top = 95
+    Top = 131
     Width = 250
     Height = 25
     Action = actBoth
@@ -95,7 +95,7 @@ object frmCollections: TfrmCollections
   end
   object trbRecordCount: TTrackBar
     Left = 338
-    Top = 2
+    Top = 38
     Width = 149
     Height = 27
     Anchors = [akLeft, akTop, akRight]
@@ -118,7 +118,7 @@ object frmCollections: TfrmCollections
   end
   object Edit1: TEdit
     Left = 264
-    Top = 35
+    Top = 71
     Width = 223
     Height = 21
     Alignment = taCenter
@@ -133,6 +133,38 @@ object frmCollections: TfrmCollections
     ParentColor = True
     ParentFont = False
     TabOrder = 9
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Top = 0
+    Width = 495
+    Height = 29
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentBackground = False
+    ParentFont = False
+    TabOrder = 10
+    object lblHeader: TLabel
+      Left = 0
+      Top = 0
+      Width = 495
+      Height = 29
+      Align = alClient
+      Alignment = taCenter
+      Caption = 
+        'This form demonstrates some basic features of Spring collections' +
+        '.'
+      Layout = tlCenter
+      WordWrap = True
+      ExplicitWidth = 372
+      ExplicitHeight = 13
+    end
   end
   object aclMain: TActionList
     Images = dmResources.imlMain

@@ -18,18 +18,18 @@ object frmSpringLogging: TfrmSpringLogging
   TextHeight = 13
   object splVertical: TSplitter
     Left = 409
-    Top = 0
+    Top = 29
     Width = 5
-    Height = 685
+    Height = 656
     ExplicitLeft = -1
     ExplicitTop = 1
     ExplicitHeight = 683
   end
   object pnlLeft: TPanel
     Left = 0
-    Top = 0
+    Top = 29
     Width = 409
-    Height = 685
+    Height = 656
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
@@ -99,7 +99,7 @@ object frmSpringLogging: TfrmSpringLogging
       Left = 0
       Top = 287
       Width = 409
-      Height = 398
+      Height = 369
       Align = alBottom
       Anchors = [akLeft, akTop, akRight, akBottom]
       BevelOuter = bvNone
@@ -210,12 +210,42 @@ object frmSpringLogging: TfrmSpringLogging
   object pnlRight: TPanel
     AlignWithMargins = True
     Left = 417
-    Top = 3
+    Top = 32
     Width = 668
-    Height = 679
+    Height = 650
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Top = 0
+    Width = 1088
+    Height = 29
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentBackground = False
+    ParentFont = False
+    TabOrder = 2
+    object lblHeader: TLabel
+      Left = 0
+      Top = 0
+      Width = 1088
+      Height = 29
+      Align = alClient
+      Alignment = taCenter
+      Caption = 'This form demonstrates some Spring4D logging features.'
+      Layout = tlCenter
+      WordWrap = True
+      ExplicitWidth = 322
+      ExplicitHeight = 13
+    end
   end
   object aclMain: TActionList
     Images = dmResources.imlMain
@@ -244,7 +274,7 @@ object frmSpringLogging: TfrmSpringLogging
     Left = 304
     Top = 544
     Bitmap = {
-      494C010104000900040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101040009000C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -520,7 +550,7 @@ object frmSpringLogging: TfrmSpringLogging
     Left = 536
     Top = 344
     Bitmap = {
-      494C010109000D00040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010109000D000C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

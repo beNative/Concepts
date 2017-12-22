@@ -24,7 +24,7 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.Actions,
-  Vcl.ActnList, Vcl.StdCtrls;
+  Vcl.ActnList, Vcl.StdCtrls, Vcl.ExtCtrls;
 
 type
   {$M+}
@@ -55,13 +55,17 @@ type
   end;
 
   TfrmSpringInterception = class(TForm)
-    aclMain  : TActionList;
-    actStart : TAction;
-    actStop  : TAction;
-    actMove  : TAction;
-    btnStart : TButton;
-    btnStop  : TButton;
-    btnMove  : TButton;
+    {$REGION 'designer controls'}
+    aclMain   : TActionList;
+    actStart  : TAction;
+    actStop   : TAction;
+    actMove   : TAction;
+    btnStart  : TButton;
+    btnStop   : TButton;
+    btnMove   : TButton;
+    pnlHeader : TPanel;
+    lblHeader : TLabel;
+    {$ENDREGION}
 
     procedure actStartExecute(Sender: TObject);
     procedure actStopExecute(Sender: TObject);

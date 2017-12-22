@@ -93,23 +93,24 @@ implementation
 uses
   DSharp.Bindings.Notifications,
 
-  DDuce.RandomData,
+  DDuce.RandomData, //DDuce.ObjectInspector.zObjectInspector,
 
-  Concepts.Factories, Concepts.Resources, Concepts.ComponentInspector;
+  Concepts.Factories, Concepts.Resources,Concepts.ComponentInspector;
 
 {$REGION 'construction and destruction'}
 procedure TfrmcxGridViewPresenter.actInspectGridViewPresenterExecute(
   Sender: TObject);
 begin
-  InspectComponent(FGVPresenter);
-  InspectObject(FGVPresenter.ColumnDefinitions as TColumnDefinitions);
+//  InspectComponent(FGVPresenter);
+//  InspectObject(FGVPresenter.ColumnDefinitions as TColumnDefinitions);
 end;
 
 procedure TfrmcxGridViewPresenter.actInspectTreeListPresenterExecute(
   Sender: TObject);
 begin
-  InspectComponent(FTLPresenter);
-  InspectObject(FTLPresenter.ColumnDefinitions as TColumnDefinitions);
+  InspectComponent(tvwMain);
+//  InspectComponent(FTLPresenter);
+//  InspectObject(FTLPresenter.ColumnDefinitions as TColumnDefinitions);
 end;
 
 procedure TfrmcxGridViewPresenter.AfterConstruction;

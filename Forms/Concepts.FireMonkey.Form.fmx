@@ -3,7 +3,7 @@ object FireMonkeyForm: TFireMonkeyForm
   Top = 0
   BorderIcons = []
   BorderStyle = None
-  ClientHeight = 383
+  ClientHeight = 377
   ClientWidth = 694
   Quality = HighQuality
   StyleLookup = 'panelstyle'
@@ -12,36 +12,40 @@ object FireMonkeyForm: TFireMonkeyForm
   FormFactor.Devices = [Desktop, iPhone, iPad]
   DesignerMasterStyle = 0
   object grpExample: TGroupBox
-    Hint = 'TGroupBox'
     Align = Client
+    Hint = 'TGroupBox'
     Margins.Left = 8.000000000000000000
     Margins.Top = 8.000000000000000000
     Margins.Right = 8.000000000000000000
     Margins.Bottom = 8.000000000000000000
     Size.Width = 678.000000000000000000
-    Size.Height = 321.000000000000000000
+    Size.Height = 337.000000000000000000
     Size.PlatformDefault = False
     Text = 'FireMonkey'
     TabOrder = 0
     ParentShowHint = False
     ShowHint = True
     object tbcExample: TTabControl
-      Hint = 'TTabControl'
       Anchors = [akLeft, akTop, akRight]
       Position.X = 144.000000000000000000
       Position.Y = 56.000000000000000000
       Size.Width = 520.000000000000000000
-      Size.Height = 124.000000000000000000
+      Size.Height = 116.000000000000000000
       Size.PlatformDefault = False
       TabIndex = 0
       TabOrder = 8
       TabPosition = Top
+      Sizes = (
+        520s
+        90s
+        520s
+        90s)
       object tbiExample1: TTabItem
         CustomIcon = <
           item
           end>
         IsSelected = True
-        Size.Width = 67.000000000000000000
+        Size.Width = 69.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False
         StyleLookup = ''
@@ -55,7 +59,7 @@ object FireMonkeyForm: TFireMonkeyForm
           item
           end>
         IsSelected = False
-        Size.Width = 68.000000000000000000
+        Size.Width = 69.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False
         StyleLookup = ''
@@ -76,8 +80,8 @@ object FireMonkeyForm: TFireMonkeyForm
       TabOrder = 4
     end
     object trbExample: TTrackBar
-      Hint = 'TTrackBar'
       CanParentFocus = True
+      Hint = 'TTrackBar'
       Orientation = Horizontal
       Position.X = 24.000000000000000000
       Position.Y = 128.000000000000000000
@@ -85,12 +89,12 @@ object FireMonkeyForm: TFireMonkeyForm
       OnChange = trbExampleChange
     end
     object spbExample: TSpinBox
-      Hint = 'TSpinBox'
       Touch.InteractiveGestures = [LongTap, DoubleTap]
       TabOrder = 2
       Cursor = crIBeam
       Position.X = 24.000000000000000000
-      Position.Y = 281.000000000000000000
+      Position.Y = 265.000000000000000000
+      Hint = 'TSpinBox'
       Size.Width = 102.000000000000000000
       Size.Height = 22.000000000000000000
       Size.PlatformDefault = False
@@ -106,8 +110,9 @@ object FireMonkeyForm: TFireMonkeyForm
       Text = 'TCheckBox'
     end
     object lblExample: TLabel
+      Hint = 'TLabel'
       Position.X = 24.000000000000000000
-      Position.Y = 232.000000000000000000
+      Position.Y = 208.000000000000000000
       Size.Width = 105.000000000000000000
       Size.Height = 17.000000000000000000
       Size.PlatformDefault = False
@@ -116,24 +121,11 @@ object FireMonkeyForm: TFireMonkeyForm
     object pbrExample: TProgressBar
       Hint = 'TProgressBar'
       Orientation = Horizontal
-      Position.X = 27.000000000000000000
-      Position.Y = 160.000000000000000000
-    end
-    object lstExample: TListBox
-      Hint = 'TListBox'
-      Anchors = [akLeft, akTop, akRight, akBottom]
-      Position.X = 144.000000000000000000
-      Position.Y = 184.000000000000000000
-      Size.Width = 137.000000000000000000
-      Size.Height = 121.000000000000000000
+      Position.X = 24.000000000000000000
+      Position.Y = 152.000000000000000000
+      Size.Width = 103.000000000000000000
+      Size.Height = 20.000000000000000000
       Size.PlatformDefault = False
-      TabOrder = 12
-      DisableFocusEffect = True
-      DefaultItemStyles.ItemStyle = ''
-      DefaultItemStyles.GroupHeaderStyle = ''
-      DefaultItemStyles.GroupFooterStyle = ''
-      Viewport.Width = 133.000000000000000000
-      Viewport.Height = 117.000000000000000000
     end
     object cmbExample: TComboBox
       Hint = 'TComboBox'
@@ -142,11 +134,11 @@ object FireMonkeyForm: TFireMonkeyForm
       TabOrder = 6
     end
     object edtExample: TEdit
-      Hint = 'TEdit'
       Touch.InteractiveGestures = [LongTap, DoubleTap]
       TabOrder = 7
       Position.X = 24.000000000000000000
-      Position.Y = 203.000000000000000000
+      Position.Y = 179.000000000000000000
+      Hint = 'TEdit'
       Size.Width = 103.000000000000000000
       Size.Height = 22.000000000000000000
       Size.PlatformDefault = False
@@ -155,28 +147,17 @@ object FireMonkeyForm: TFireMonkeyForm
       Hint = 'TButton'
       Position.X = 16.000000000000000000
       Position.Y = 16.000000000000000000
-      Size.Width = 81.000000000000000000
+      Size.Width = 113.000000000000000000
       Size.Height = 22.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 1
       Text = 'TButton'
     end
-    object calExample: TCalendar
-      Date = 43008.000000000000000000
-      Position.X = 312.000000000000000000
-      Position.Y = 152.000000000000000000
-      RotationAngle = 30.000000000000000000
-      Size.Width = 180.000000000000000000
-      Size.Height = 145.000000000000000000
-      Size.PlatformDefault = False
-      TabOrder = 14
-      ParentShowHint = False
-      ShowHint = True
-    end
     object edtDate: TDateEdit
       Date = 43008.000000000000000000
+      Hint = 'TDateEdit'
       Position.X = 24.000000000000000000
-      Position.Y = 256.000000000000000000
+      Position.Y = 232.000000000000000000
       TabOrder = 15
     end
     object btnCornerExample: TCornerButton
@@ -184,27 +165,13 @@ object FireMonkeyForm: TFireMonkeyForm
       Position.X = 16.000000000000000000
       Position.Y = 40.000000000000000000
       Sides = [Top, Left, Bottom, Right]
-      Size.Width = 81.000000000000000000
+      Size.Width = 113.000000000000000000
       Size.Height = 25.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 16
       Text = 'TCornerButton'
       XRadius = 3.000000000000000000
       YRadius = 3.000000000000000000
-    end
-    object lbxColors: TColorListBox
-      Position.X = 472.000000000000000000
-      Position.Y = 96.000000000000000000
-      RotationAngle = -10.000000000000000000
-      Size.Width = 193.000000000000000000
-      Size.Height = 145.000000000000000000
-      Size.PlatformDefault = False
-      TabOrder = 17
-      DefaultItemStyles.ItemStyle = ''
-      DefaultItemStyles.GroupHeaderStyle = ''
-      DefaultItemStyles.GroupFooterStyle = ''
-      Viewport.Width = 173.000000000000000000
-      Viewport.Height = 141.000000000000000000
     end
     object cbxColorBox: TColorBox
       Color = claNull
@@ -225,28 +192,60 @@ object FireMonkeyForm: TFireMonkeyForm
       TabOrder = 18
     end
     object rbtRadioButton: TRadioButton
+      Hint = 'TRadioButton'
       Position.X = 424.000000000000000000
       Position.Y = 16.000000000000000000
       TabOrder = 19
       Text = 'TRadioButton'
     end
-  end
-  object sbrExample: TStatusBar
-    Hint = 'TStatusBar'
-    Position.Y = 361.000000000000000000
-    ShowSizeGrip = True
-    Size.Width = 694.000000000000000000
-    Size.Height = 22.000000000000000000
-    Size.PlatformDefault = False
-    TabOrder = 13
-    ParentShowHint = False
-    ShowHint = True
+    object lstExample: TListBox
+      Anchors = [akLeft, akTop, akRight, akBottom]
+      Position.X = 144.000000000000000000
+      Position.Y = 176.000000000000000000
+      Size.Width = 137.000000000000000000
+      Size.Height = 161.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 12
+      DisableFocusEffect = True
+      Hint = 'TListBox'
+      DefaultItemStyles.ItemStyle = ''
+      DefaultItemStyles.GroupHeaderStyle = ''
+      DefaultItemStyles.GroupFooterStyle = ''
+      Viewport.Width = 133.000000000000000000
+      Viewport.Height = 157.000000000000000000
+    end
+    object calExample: TCalendar
+      Anchors = [akTop, akRight, akBottom]
+      Date = 43008.000000000000000000
+      Position.X = 286.000000000000000000
+      Position.Y = 176.000000000000000000
+      Size.Width = 180.000000000000000000
+      Size.Height = 161.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 14
+      ParentShowHint = False
+      ShowHint = True
+    end
+    object lbxColors: TColorListBox
+      Anchors = [akTop, akRight, akBottom]
+      Position.X = 472.000000000000000000
+      Position.Y = 176.000000000000000000
+      Size.Width = 193.000000000000000000
+      Size.Height = 161.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 17
+      DefaultItemStyles.ItemStyle = ''
+      DefaultItemStyles.GroupHeaderStyle = ''
+      DefaultItemStyles.GroupFooterStyle = ''
+      Viewport.Width = 173.000000000000000000
+      Viewport.Height = 157.000000000000000000
+    end
   end
   object mnuMenuBar: TMenuBar
     Size.Width = 694.000000000000000000
     Size.Height = 24.000000000000000000
     Size.PlatformDefault = False
-    TabOrder = 15
+    TabOrder = 14
     object MenuItem1: TMenuItem
       Text = 'MenuItem1'
       object MenuItem7: TMenuItem

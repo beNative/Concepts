@@ -49,6 +49,8 @@ type
     chk7            : TCheckBox;
     chk8            : TCheckBox;
     btnUpdateLayout : TButton;
+    pnlHeader       : TPanel;
+    lblHeader       : TLabel;
     {$ENDREGION}
 
     procedure btnUpdateLayoutClick(Sender: TObject);

@@ -2,8 +2,8 @@ object frmFMXContainer: TfrmFMXContainer
   Left = 0
   Top = 0
   Caption = 'FMXContainer'
-  ClientHeight = 383
-  ClientWidth = 632
+  ClientHeight = 461
+  ClientWidth = 784
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,16 +18,18 @@ object frmFMXContainer: TfrmFMXContainer
   object pnlFMXContainer: TPanel
     Left = 0
     Top = 26
-    Width = 632
-    Height = 357
+    Width = 784
+    Height = 435
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 800
+    ExplicitHeight = 357
   end
   object pnlHeader: TPanel
     Left = 0
     Top = 0
-    Width = 632
+    Width = 784
     Height = 26
     Align = alTop
     BevelOuter = bvNone
@@ -36,12 +38,13 @@ object frmFMXContainer: TfrmFMXContainer
       ' control.'
     Color = clWhite
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clNavy
+    Font.Color = clBlue
     Font.Height = -11
     Font.Name = 'Tahoma'
-    Font.Style = []
+    Font.Style = [fsBold]
     ParentBackground = False
     ParentFont = False
     TabOrder = 1
+    ExplicitWidth = 632
   end
 end

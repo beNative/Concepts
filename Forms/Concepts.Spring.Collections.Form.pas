@@ -41,10 +41,11 @@ uses
   Spring, Spring.Collections,
 
   Concepts.Types.Contact, Data.Bind.EngExt, Vcl.Bind.DBEngExt, System.Rtti,
-  System.Bindings.Outputs, Vcl.Bind.Editors, Data.Bind.Components;
+  System.Bindings.Outputs, Vcl.Bind.Editors, Data.Bind.Components, Vcl.ExtCtrls;
 
 type
   TfrmCollections = class(TForm)
+    {$REGION 'designer controls'}
     aclMain         : TActionList;
     actBoth         : TAction;
     actEnumerate    : TAction;
@@ -60,15 +61,19 @@ type
     lblRecordCount  : TLabel;
     mmoList         : TMemo;
     trbRecordCount  : TTrackBar;
-    StatusBar1: TStatusBar;
-    lstBindings: TBindingsList;
-    Edit1: TEdit;
-    BindExpression1: TBindExpression;
+    StatusBar1      : TStatusBar;
+    lstBindings     : TBindingsList;
+    Edit1           : TEdit;
+    BindExpression1 : TBindExpression;
+    pnlHeader       : TPanel;
+    lblHeader       : TLabel;
+    {$ENDREGION}
 
     procedure actPopulateListExecute(Sender: TObject);
     procedure actFirstNameIsExecute(Sender: TObject);
     procedure actLastNameIsExecute(Sender: TObject);
     procedure actBothExecute(Sender: TObject);
+
     procedure trbRecordCountChange(Sender: TObject);
 
   private

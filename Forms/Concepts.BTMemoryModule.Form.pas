@@ -24,13 +24,15 @@ interface
 
 uses
   System.Actions, System.Classes,
-  Vcl.ActnList, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms;
+  Vcl.ActnList, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms, Vcl.ExtCtrls;
 
 type
   TfrmBTMemoryModule = class(TForm)
     aclMain           : TActionList;
     actExecuteFromDLL : TAction;
     btnExecuteFromDLL : TButton;
+    pnlHeader         : TPanel;
+    lblHeader         : TLabel;
 
     procedure actExecuteFromDLLExecute(Sender: TObject);
 

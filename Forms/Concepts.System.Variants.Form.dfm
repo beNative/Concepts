@@ -2,13 +2,9 @@ object frmVariants: TfrmVariants
   Left = 0
   Top = 0
   Caption = 'Variants'
-  ClientHeight = 100
-  ClientWidth = 255
+  ClientHeight = 127
+  ClientWidth = 261
   Color = clBtnFace
-  Constraints.MaxHeight = 139
-  Constraints.MaxWidth = 271
-  Constraints.MinHeight = 139
-  Constraints.MinWidth = 271
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -20,7 +16,7 @@ object frmVariants: TfrmVariants
   TextHeight = 13
   object chkNullStrictConvert: TCheckBox
     Left = 136
-    Top = 43
+    Top = 70
     Width = 112
     Height = 17
     Action = actToggleNullStrictConvert
@@ -28,7 +24,7 @@ object frmVariants: TfrmVariants
   end
   object btnUnassigned: TButton
     Left = 8
-    Top = 8
+    Top = 35
     Width = 113
     Height = 25
     Action = actAssignUnassigned
@@ -36,7 +32,7 @@ object frmVariants: TfrmVariants
   end
   object btnShowAsString: TButton
     Left = 127
-    Top = 8
+    Top = 35
     Width = 121
     Height = 25
     Action = actShowAsString
@@ -44,7 +40,7 @@ object frmVariants: TfrmVariants
   end
   object btnNull: TButton
     Left = 8
-    Top = 39
+    Top = 66
     Width = 113
     Height = 25
     Action = actAssignNull
@@ -52,11 +48,41 @@ object frmVariants: TfrmVariants
   end
   object btnEmptyParam: TButton
     Left = 8
-    Top = 70
+    Top = 97
     Width = 113
     Height = 25
     Action = actAssignEmptyParam
     TabOrder = 4
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Top = 0
+    Width = 261
+    Height = 29
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentBackground = False
+    ParentFont = False
+    TabOrder = 5
+    object lblHeader: TLabel
+      Left = 0
+      Top = 0
+      Width = 261
+      Height = 29
+      Align = alClient
+      Alignment = taCenter
+      Caption = 'This form demonstrates some features of the Variant type.'
+      Layout = tlCenter
+      WordWrap = True
+      ExplicitWidth = 260
+      ExplicitHeight = 26
+    end
   end
   object aclMain: TActionList
     Left = 216

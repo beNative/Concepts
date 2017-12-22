@@ -33,7 +33,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ActnList, Vcl.ComCtrls, Vcl.CheckLst,
 
-  Spring.Collections;
+  Spring.Collections, Vcl.ExtCtrls;
 
 type
   TMonitor = System.TMonitor;
@@ -57,6 +57,8 @@ type
     lbxCounters               : TListBox;
     sbrMain                   : TStatusBar;
     lbxThreads                : TCheckListBox;
+    pnlHeader                 : TPanel;
+    lblHeader                 : TLabel;
     {$ENDREGION}
 
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);

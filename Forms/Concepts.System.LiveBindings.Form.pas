@@ -36,6 +36,7 @@ uses
 
 type
   TfrmLiveBindings = class(TForm)
+    {$REGION 'designer controls'}
     absMain                   : TAdapterBindSource;
     aclMain                   : TActionList;
     actAlterContactCompany    : TAction;
@@ -59,17 +60,20 @@ type
     lblButtonCaption          : TLabel;
     lblCompanyName            : TLabel;
     lblFirstName              : TLabel;
+    lblHeader                 : TLabel;
     lblLabel                  : TLabel;
     lblLastName               : TLabel;
     lnkCaption                : TLinkControlToProperty;
     lnkgrdtdtsrcabsMain       : TLinkGridToDataSource;
     lstBindings               : TBindingsList;
     pbProgressBar             : TProgressBar;
+    pnlHeader                 : TPanel;
     pnlLeft                   : TPanel;
     pnlRight                  : TPanel;
     sbrMain                   : TStatusBar;
     splVertical               : TSplitter;
     trbTrackBar               : TTrackBar;
+    {$ENDREGION}
 
     procedure cbxControlsChange(Sender: TObject);
     procedure trbTrackBarChange(Sender: TObject);

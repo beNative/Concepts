@@ -45,6 +45,7 @@ uses
 
 type
   TfrmSpringLogging = class(TForm)
+    {$REGION 'designer controls'}
     aclMain            : TActionList;
     actLog             : TAction;
     actLogValue        : TAction;
@@ -72,6 +73,9 @@ type
     rgpLogLevel        : TRadioGroup;
     splVertical        : TSplitter;
     tsMain             : TTabSet;
+    pnlHeader          : TPanel;
+    lblHeader          : TLabel;
+    {$ENDREGION}
 
     procedure actTrackThisExecute(Sender: TObject);
     procedure actLogExecute(Sender: TObject);

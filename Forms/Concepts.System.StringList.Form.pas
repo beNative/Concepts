@@ -41,11 +41,13 @@ type
     chkCaseSensitive    : TCheckBox;
     chkSorted           : TCheckBox;
     chkStrictDelimiter  : TCheckBox;
+    lblHeader           : TLabel;
     lstValueList        : TValueListEditor;
     mmoDelimitedText    : TMemo;
     mmoText             : TMemo;
     pnlDelimitedText    : TPanel;
     pnlGrid             : TGridPanel;
+    pnlHeader           : TPanel;
     pnlNameValues       : TPanel;
     pnlText             : TPanel;
     {$ENDREGION}

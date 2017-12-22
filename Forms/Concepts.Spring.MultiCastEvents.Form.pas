@@ -38,6 +38,8 @@ type
     actExecute    : TAction;
     btnExecute    : TButton;
     trbImageIndex : TTrackBar;
+    pnlHeader: TPanel;
+    lblHeader: TLabel;
 
     procedure actExecuteExecute(Sender: TObject);
 

@@ -17,9 +17,9 @@ object frmGridPanel: TfrmGridPanel
   TextHeight = 13
   object pnlGrid: TGridPanel
     Left = 8
-    Top = 8
+    Top = 32
     Width = 273
-    Height = 137
+    Height = 113
     BevelKind = bkFlat
     BevelOuter = bvNone
     ColumnCollection = <
@@ -88,7 +88,7 @@ object frmGridPanel: TfrmGridPanel
       Left = 0
       Top = 0
       Width = 134
-      Height = 33
+      Height = 27
       Align = alClient
       BevelKind = bkFlat
       BevelOuter = bvNone
@@ -99,7 +99,7 @@ object frmGridPanel: TfrmGridPanel
       Left = 134
       Top = 0
       Width = 135
-      Height = 33
+      Height = 27
       Align = alClient
       BevelKind = bkFlat
       BevelOuter = bvNone
@@ -108,9 +108,9 @@ object frmGridPanel: TfrmGridPanel
     end
     object pnl3: TPanel
       Left = 0
-      Top = 33
+      Top = 27
       Width = 134
-      Height = 33
+      Height = 27
       Align = alClient
       BevelKind = bkFlat
       BevelOuter = bvNone
@@ -119,9 +119,9 @@ object frmGridPanel: TfrmGridPanel
     end
     object pnl4: TPanel
       Left = 134
-      Top = 33
+      Top = 27
       Width = 135
-      Height = 33
+      Height = 27
       Align = alClient
       BevelKind = bkFlat
       BevelOuter = bvNone
@@ -130,9 +130,9 @@ object frmGridPanel: TfrmGridPanel
     end
     object pnl5: TPanel
       Left = 0
-      Top = 66
+      Top = 54
       Width = 134
-      Height = 33
+      Height = 27
       Align = alClient
       BevelKind = bkFlat
       BevelOuter = bvNone
@@ -141,9 +141,9 @@ object frmGridPanel: TfrmGridPanel
     end
     object pnl6: TPanel
       Left = 134
-      Top = 66
+      Top = 54
       Width = 135
-      Height = 33
+      Height = 27
       Align = alClient
       BevelKind = bkFlat
       BevelOuter = bvNone
@@ -152,9 +152,9 @@ object frmGridPanel: TfrmGridPanel
     end
     object pnl7: TPanel
       Left = 0
-      Top = 99
+      Top = 81
       Width = 134
-      Height = 34
+      Height = 28
       Align = alClient
       BevelKind = bkFlat
       BevelOuter = bvNone
@@ -163,9 +163,9 @@ object frmGridPanel: TfrmGridPanel
     end
     object pnl8: TPanel
       Left = 134
-      Top = 99
+      Top = 81
       Width = 135
-      Height = 34
+      Height = 28
       Align = alClient
       BevelKind = bkFlat
       BevelOuter = bvNone
@@ -175,7 +175,7 @@ object frmGridPanel: TfrmGridPanel
   end
   object chk1: TCheckBox
     Left = 304
-    Top = 9
+    Top = 33
     Width = 97
     Height = 17
     Caption = '1'
@@ -185,7 +185,7 @@ object frmGridPanel: TfrmGridPanel
   end
   object chk2: TCheckBox
     Left = 424
-    Top = 9
+    Top = 33
     Width = 97
     Height = 17
     Caption = '2'
@@ -195,7 +195,7 @@ object frmGridPanel: TfrmGridPanel
   end
   object chk3: TCheckBox
     Left = 304
-    Top = 32
+    Top = 56
     Width = 97
     Height = 17
     Caption = '3'
@@ -205,7 +205,7 @@ object frmGridPanel: TfrmGridPanel
   end
   object chk4: TCheckBox
     Left = 424
-    Top = 32
+    Top = 56
     Width = 97
     Height = 17
     Caption = '4'
@@ -215,7 +215,7 @@ object frmGridPanel: TfrmGridPanel
   end
   object chk5: TCheckBox
     Left = 304
-    Top = 57
+    Top = 81
     Width = 97
     Height = 13
     Caption = '5'
@@ -225,7 +225,7 @@ object frmGridPanel: TfrmGridPanel
   end
   object chk6: TCheckBox
     Left = 424
-    Top = 55
+    Top = 79
     Width = 97
     Height = 17
     Caption = '6'
@@ -235,7 +235,7 @@ object frmGridPanel: TfrmGridPanel
   end
   object chk7: TCheckBox
     Left = 304
-    Top = 78
+    Top = 102
     Width = 97
     Height = 17
     Caption = '7'
@@ -245,7 +245,7 @@ object frmGridPanel: TfrmGridPanel
   end
   object chk8: TCheckBox
     Left = 424
-    Top = 78
+    Top = 102
     Width = 97
     Height = 17
     Caption = '8'
@@ -262,5 +262,37 @@ object frmGridPanel: TfrmGridPanel
     Default = True
     TabOrder = 9
     OnClick = btnUpdateLayoutClick
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Top = 0
+    Width = 536
+    Height = 28
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    ParentBackground = False
+    TabOrder = 10
+    object lblHeader: TLabel
+      Left = 0
+      Top = 0
+      Width = 536
+      Height = 28
+      Align = alClient
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'This form demonstrates the TGridPanel VCL control. '
+      EllipsisPosition = epWordEllipsis
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlue
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+      Layout = tlCenter
+      WordWrap = True
+      ExplicitWidth = 799
+      ExplicitHeight = 26
+    end
   end
 end

@@ -2,7 +2,7 @@ object frmInterfaceImplementationByAggregation: TfrmInterfaceImplementationByAgg
   Left = 0
   Top = 0
   Caption = 'Interface implementation by aggregation'
-  ClientHeight = 124
+  ClientHeight = 104
   ClientWidth = 379
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -14,12 +14,12 @@ object frmInterfaceImplementationByAggregation: TfrmInterfaceImplementationByAgg
   ShowHint = True
   DesignSize = (
     379
-    124)
+    104)
   PixelsPerInch = 96
   TextHeight = 13
   object btnInnerMethod: TButton
     Left = 8
-    Top = 8
+    Top = 40
     Width = 363
     Height = 25
     Action = actInnerMethod
@@ -28,12 +28,44 @@ object frmInterfaceImplementationByAggregation: TfrmInterfaceImplementationByAgg
   end
   object btnOuterMethod: TButton
     Left = 8
-    Top = 39
+    Top = 71
     Width = 363
     Height = 25
     Action = actOuterMethod
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 1
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Top = 0
+    Width = 379
+    Height = 29
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentBackground = False
+    ParentFont = False
+    TabOrder = 2
+    object lblHeader: TLabel
+      Left = 0
+      Top = 0
+      Width = 379
+      Height = 29
+      Align = alClient
+      Alignment = taCenter
+      Caption = 
+        'This form demonstrates how interface methods can be implemented ' +
+        'by delegation.'
+      Layout = tlCenter
+      WordWrap = True
+      ExplicitWidth = 312
+      ExplicitHeight = 26
+    end
   end
   object aclMain: TActionList
     Left = 16

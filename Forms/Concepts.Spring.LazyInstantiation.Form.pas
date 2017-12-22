@@ -36,6 +36,7 @@ type
 
 type
   TfrmLazyInstantiation = class(TForm)
+    {$REGION 'designer controls'}
     aclMain               : TActionList;
     actAddTextToLazyMemo  : TAction;
     actShowClassName      : TAction;
@@ -46,6 +47,9 @@ type
     lblDescription        : TLabel;
     pnlCheckBox           : TPanel;
     pnlMemo               : TPanel;
+    pnlHeader             : TPanel;
+    lblHeader             : TLabel;
+    {$ENDREGION}
 
     procedure actToggleLazyCheckboxExecute(Sender: TObject);
     procedure actAddTextToLazyMemoExecute(Sender: TObject);

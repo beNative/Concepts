@@ -52,6 +52,8 @@ type
     edtStrides                  : TLabeledEdit;
     imlMain                     : TImageList;
     pnlLog                      : TPanel;
+    pnlHeader                   : TPanel;
+    lblHeader                   : TLabel;
     {$ENDREGION}
 
     procedure actExecuteParallelExecute(Sender: TObject);

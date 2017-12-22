@@ -16,9 +16,9 @@ object frmSQLBuilder4D: TfrmSQLBuilder4D
   object mmoMain: TMemo
     AlignWithMargins = True
     Left = 3
-    Top = 41
+    Top = 72
     Width = 629
-    Height = 293
+    Height = 262
     Align = alBottom
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
@@ -27,13 +27,10 @@ object frmSQLBuilder4D: TfrmSQLBuilder4D
     Font.Style = []
     ParentFont = False
     TabOrder = 0
-    ExplicitLeft = 17
-    ExplicitTop = 48
-    ExplicitWidth = 616
   end
   object btnTest1: TButton
     Left = 8
-    Top = 10
+    Top = 41
     Width = 110
     Height = 25
     Action = actTest1
@@ -41,11 +38,43 @@ object frmSQLBuilder4D: TfrmSQLBuilder4D
   end
   object btnTest2: TButton
     Left = 122
-    Top = 10
+    Top = 41
     Width = 110
     Height = 25
     Action = actTest2
     TabOrder = 2
+  end
+  object pnlHeader: TPanel
+    Left = 0
+    Top = 0
+    Width = 635
+    Height = 29
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentBackground = False
+    ParentFont = False
+    TabOrder = 3
+    object lblHeader: TLabel
+      Left = 0
+      Top = 0
+      Width = 635
+      Height = 29
+      Align = alClient
+      Alignment = taCenter
+      Caption = 
+        'This form demonstrates how to use the SQLBuilder4D unit to build' +
+        ' SQL statements in code.'
+      Layout = tlCenter
+      WordWrap = True
+      ExplicitWidth = 509
+      ExplicitHeight = 13
+    end
   end
   object aclMain: TActionList
     Left = 312

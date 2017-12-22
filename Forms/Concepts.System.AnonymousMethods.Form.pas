@@ -30,7 +30,7 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ActnList;
+  Vcl.ActnList, Vcl.ExtCtrls;
 
 {
   Alan Bauer:
@@ -73,11 +73,15 @@ type
 
 type
   TfrmAnonymousMethods = class(TForm)
+    {$REGION 'designer controls'}
     aclMain               : TActionList;
     actAssignProcVariable : TAction;
     actExecuteProc        : TAction;
     btnExec               : TButton;
     btnExecuteProc        : TButton;
+    pnlHeader             : TPanel;
+    lblHeader             : TLabel;
+    {$ENDREGION}
 
     procedure actExecuteProcExecute(Sender: TObject);
     procedure actAssignProcVariableExecute(Sender: TObject);

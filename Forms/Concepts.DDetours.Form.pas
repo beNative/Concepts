@@ -67,6 +67,8 @@ type
     btnUnitName           : TButton;
     chkDetour1Enabled     : TCheckBox;
     chkDetour2Enabled     : TCheckBox;
+    pnlHeader             : TPanel;
+    lblHeader             : TLabel;
 
     procedure actCallDetouredMethodExecute(Sender: TObject);
 
