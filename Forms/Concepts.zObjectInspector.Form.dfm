@@ -141,6 +141,17 @@ object frmzObjectInspector: TfrmzObjectInspector
         TabOrder = 5
         Text = 'TButtonedEdit'
       end
+      object lblLink: TLinkLabel
+        Left = 254
+        Top = 65
+        Width = 185
+        Height = 17
+        Caption = 
+          '<a href="http://github.com/beNative/Concepts">http://github.com/' +
+          'beNative/Concepts</a>'
+        TabOrder = 6
+        OnLinkClick = lblLinkLinkClick
+      end
     end
     object sbrStatusBar: TStatusBar
       Left = 0
@@ -186,13 +197,19 @@ object frmzObjectInspector: TfrmzObjectInspector
     end
   end
   object aclMain: TActionList
-    Left = 520
-    Top = 96
+    Left = 448
+    Top = 88
     object actTest1: TAction
       Caption = 'Test 1 action'
     end
     object actTest2: TAction
       Caption = 'actTest2'
+    end
+    object actInternetBrowseURL: TBrowseURL
+      Category = 'Internet'
+      Caption = '&Browse URL'
+      Hint = 'Browse URL'
+      URL = 'http://github.com/beNative/Concepts'
     end
   end
 end

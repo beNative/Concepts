@@ -36,7 +36,7 @@ type
   TEditorFactories = class sealed
   public
     class function CreateSettings(
-            AOwner    : TComponent;
+      AOwner          : TComponent;
       const AFileName : string = ''
     ): IEditorSettings;
 
@@ -46,11 +46,11 @@ type
      ): IEditorManager;
 
     class function CreateView(
-            AParent       : TWinControl;
-            AManager      : IEditorManager = nil;
-      const AName         : string = '';
-      const AFileName     : string = '';
-      const AHighlighter  : string = 'TXT'
+      AParent            : TWinControl;
+      AManager           : IEditorManager = nil;
+      const AName        : string = '';
+      const AFileName    : string = '';
+      const AHighlighter : string = 'TXT'
     ): IEditorView;
 
     class function CreateMainMenu(

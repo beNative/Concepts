@@ -68,7 +68,7 @@ implementation
 uses
   System.TypInfo, System.Rtti,
 
-  DDuce.Components.Factories, DDuce.Logger,
+  DDuce.Components.Factories, DDuce.Factories.zObjInspector, DDuce.Logger,
 
   Concepts.Factories, Concepts.Utils;
 
@@ -78,16 +78,10 @@ uses
 procedure TfrmSynEdit.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FObjectInspector := TConceptFactories.CreatezObjectInspector(
-    Self,
-    pnlLeft
-  );
-
+  FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
   FObjectInspector.ObjectVisibility := mvPublic;
   FObjectInspector.Component := seMain;
-//  FObjectInspector.ExpandAll;
-
 end;
 {$ENDREGION}
 

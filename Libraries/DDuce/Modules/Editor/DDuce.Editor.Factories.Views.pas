@@ -27,8 +27,8 @@ uses
 type
   TEditorViewFactory = class(TInterfacedObject, IEditorViewFactory)
     function CreateInstance(
-             AParent      : TWinControl;
-             AManager     : IEditorManager;
+       AParent            : TWinControl;
+       AManager           : IEditorManager;
        const AName        : string = '';
        const AFileName    : string = '';
        const AHighlighter : string = 'TXT'

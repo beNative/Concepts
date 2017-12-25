@@ -52,6 +52,7 @@ type
     procedure actExecuteExecute(Sender: TObject);
     procedure actExecuteModalExecute(Sender: TObject);
     procedure actCloseExecute(Sender: TObject);
+    procedure actCenterMainFormExecute(Sender: TObject);
 
     procedure edtFilterKeyDown(
       Sender  : TObject;
@@ -64,7 +65,6 @@ type
       Shift   : TShiftState
     );
     procedure edtFilterChange(Sender: TObject);
-    procedure actCenterMainFormExecute(Sender: TObject);
 
   private
     FVKPressed : Boolean;

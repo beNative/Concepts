@@ -82,9 +82,7 @@ implementation
 uses
   System.TypInfo, System.Rtti,
 
-  Concepts.Factories,
-
-  DDuce.Components.Factories;
+  DDuce.Components.Factories, DDuce.Factories.zObjInspector;
 
 {$R *.dfm}
 
@@ -98,7 +96,7 @@ begin
   FCTTop.OnTabDragDrop          := FCTTopTabDragDrop;
   FCTTop.OnNeedDragImageControl := FCTTopNeedDragImageControl;
 
-  FObjectInspector := TConceptFactories.CreatezObjectInspector(
+  FObjectInspector := TzObjectInspectorFactory.Create(
     Self,
     pnlLeft
   );

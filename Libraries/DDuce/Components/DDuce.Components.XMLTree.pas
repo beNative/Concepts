@@ -941,7 +941,7 @@ begin
   TreeOptions.AnimationOptions := DEFAULT_VST_ANIMATIONOPTIONS;
   TreeOptions.AutoOptions      := DEFAULT_VST_AUTOOPTIONS;
 
-  FNodeAttributes := TNodeAttributes.Create(Self, TNodeAttributesItem);
+  FNodeAttributes := TNodeAttributes.Create(Self);
   InitializeNodeAttributes;
 
   FExpandedState := TExpandedState.Create;

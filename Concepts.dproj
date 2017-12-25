@@ -528,10 +528,6 @@
         <DCCReference Include="Forms\Concepts.zObjectInspector.Form.pas">
             <Form>frmzObjectInspector</Form>
         </DCCReference>
-        <DCCReference Include="Concepts.ComponentInspector.pas">
-            <Form>frmComponentInspector</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="Forms\Concepts.Spring.Persistence.Form.pas">
             <Form>frmSpringPersistence</Form>
         </DCCReference>
@@ -718,6 +714,10 @@
         </DCCReference>
         <DCCReference Include="Forms\Concepts.VirtualTreeView.Form.pas">
             <Form>frmVirtualTreeView</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.FireDAC.Form.pas">
+            <Form>frmFireDAC</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <None Include="Libraries\DDuce\DDuce.inc"/>

@@ -155,7 +155,7 @@ uses
 
   Spring.Collections,
 
-  DDuce.Components.Factories, DDuce.Factories,
+  DDuce.Components.Factories, DDuce.Factories, DDuce.Factories.VirtualTrees,
 
   DDuce.Editor.Search.Engine, DDuce.Editor.Search.Data,
   DDuce.Editor.Search.Templates;
@@ -169,7 +169,7 @@ resourcestring
 procedure TfrmSearchForm.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FVST := TFactories.CreateVirtualStringTree(Self, pnlResultList);
+  FVST := TVirtualStringTreeFactory.CreateGrid(Self, pnlResultList);
   FVST.TreeOptions.AutoOptions :=
     FVST.TreeOptions.AutoOptions + [toAutoSpanColumns] ;
   FVST.Header.MainColumn := 0;

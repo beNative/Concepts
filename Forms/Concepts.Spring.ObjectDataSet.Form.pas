@@ -156,9 +156,11 @@ implementation
 uses
   System.SysUtils, System.Bindings.Helper,
 
+  DDuce.ObjectInspector.zObjectInspector,
+
   DSharp.Windows.ColumnDefinitions,
 
-  Concepts.Factories, Concepts.Utils, Concepts.ComponentInspector;
+  Concepts.Factories, Concepts.Utils;
 
 {$REGION 'construction and destruction'}
 procedure TfrmObjectDataSet.AfterConstruction;

@@ -24,8 +24,6 @@
 
 unit DDuce.Logger.Base;
 
-//{$I DDuce.inc}
-
 {
   StopWatch support
     StartStopWatch

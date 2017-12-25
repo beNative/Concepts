@@ -21,7 +21,7 @@ interface
 
 uses
   System.Classes, System.SysUtils,
-  Vcl.Graphics;
+  Vcl.Graphics,
   DSharp.Core.Collections;
 
 type

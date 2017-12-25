@@ -40,6 +40,10 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
       TabOrder = 0
       object tsGridView: TTabSheet
         Caption = 'DevExpress TcxGrid'
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object grdMain: TcxGrid
           AlignWithMargins = True
           Left = 3
@@ -90,6 +94,10 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
       object tsTreelist: TTabSheet
         Caption = 'DevExpress TcxVirtualTreelist'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object lstMain: TcxVirtualTreeList
           AlignWithMargins = True
           Left = 3
@@ -166,6 +174,10 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
       object tsVirtualTree: TTabSheet
         Caption = 'Virtual Treeview - TVirtualStringTree'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object vstMain: TVirtualStringTree
           AlignWithMargins = True
           Left = 3

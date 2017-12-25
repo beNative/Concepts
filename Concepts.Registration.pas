@@ -35,6 +35,7 @@ type
     class procedure RegisterDevExpressConcepts; static;
     class procedure RegisterSystemConcepts; static;
     class procedure RegisterVclConcepts; static;
+    class procedure RegisterFireDACConcepts; static;
     class procedure RegisterWinApiConcepts; static;
   public
     class procedure RegisterConcepts; static;
@@ -55,6 +56,10 @@ uses
   {$IFDEF DELPHIX_SEATTLE_UP}
   Concepts.Vcl.RelativePanel.Form,
   {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF FIREDAC}
+  Concepts.FireDAC.Form,
   {$ENDIF}
 
   {$IFDEF SYSTEM}
@@ -99,9 +104,7 @@ uses
   Concepts.BTMemoryModule.Form,
   {$ENDIF}
 
-  {$IFDEF RTTEYE}
   Concepts.RTTEye.Form,
-  {$ENDIF}
 
   {$IFDEF SQLBUILDER4D}
   Concepts.SQLBuilder4D.Form,
@@ -128,13 +131,21 @@ uses
   {$ENDIF}
   {$ENDREGION}
 
+  {$IFDEF SYNAPSE}
   Concepts.Synapse.Serial.Form,
+  {$ENDIF}
 
+  {$IFDEF INDY}
   Concepts.Indy.TCP.Form,
+  {$ENDIF}
 
+  {$IFDEF SYNEDIT}
   Concepts.SynEdit.Form,
+  {$ENDIF}
 
+  {$IFDEF VIRTUALTREES}
   Concepts.VirtualTreeView.Form,
+  {$ENDIF}
 
   Concepts.FMXContainer.Form,
 
@@ -253,6 +264,19 @@ begin
     FCategoryColor
   );
   {$ENDIF}
+  {$ENDIF}
+end;
+
+class procedure TConcepts.RegisterFireDACConcepts;
+begin
+  {$IFDEF FIREDAC}
+  ConceptManager.Register(
+    TfrmFireDAC,
+    'FireDAC',
+    'FireDAC',
+    'Native cross-platform data access components',
+    FCategoryColor
+  );
   {$ENDIF}
 end;
 
@@ -440,12 +464,14 @@ begin
   );
   {$ENDIF}
 
+  {$IFDEF SYNEDIT}
   ConceptManager.Register(
     TfrmSynEdit,
     'SynEdit',
     'SynEdit',
     'Demonstrates the TSynEdit component'
   );
+  {$ENDIF}
 
   {$IFDEF BTMEMORYMODULE}
   ConceptManager.Register(
@@ -474,48 +500,55 @@ begin
   );
   {$ENDIF}
 
-  {$IFDEF RTTEYE}
   ConceptManager.Register(
     TfrmRTTEye,
     'RTTEye',
     'System',
     'Reflection-like overview using the extended RTTI.'
   );
-  {$ENDIF}
 
+  {$IFDEF SYNAPSE}
   ConceptManager.Register(
     TfrmSynapseSerial,
     'Synapse',
     'Serial',
     'Serial communication with the Synapse library.'
   );
+  {$ENDIF}
 
+  {$IFDEF INDY}
   ConceptManager.Register(
     TfrmIndyTCP,
     'Indy',
     'TCP',
     'Indy TCP client'
   );
+  {$ENDIF}
 
+  {$IFDEF FMXCONTAINER}
   ConceptManager.Register(
     TfrmFMXContainer,
     'TFireMonkeyContainer',
     'FMXContainer',
     'Demonstrates the Parnassus TFireMonkeyContainer component.'
   );
+  {$ENDIF}
 
+  {$IFDEF VIRTUALTREES}
   ConceptManager.Register(
     TfrmVirtualTreeView,
     'Virtual treeview',
     'TVirtualStringTree',
     'Demonstrates the TVirtualStringTree component.'
   );
+  {$ENDIF}
 
   RegisterSpringConcepts;
   RegisterDSharpConcepts;
   RegisterDevExpressConcepts;
   RegisterSystemConcepts;
   RegisterVclConcepts;
+  RegisterFireDACConcepts;
   RegisterWinApiConcepts;
  end;
 {$ENDREGION}

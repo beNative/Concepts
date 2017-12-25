@@ -116,6 +116,8 @@ uses
   DSharp.Windows.ColumnDefinitions.ControlTemplate,
   DSharp.Windows.ControlTemplates,
 
+  DDuce.Factories.zObjInspector,
+
   Concepts.Factories;
 
 {$REGION 'construction and destruction'}
@@ -134,7 +136,7 @@ begin
   );
   FTVP.View.ItemTemplate :=
     TColumnDefinitionsControlTemplate.Create(FTVP.ColumnDefinitions);
-  FOI := TConceptFactories.CreatezObjectInspector(Self, pnlLeftTop);
+  FOI := TzObjectInspectorFactory.Create(Self, pnlLeftTop);
   FOI.OnBeforeAddItem := FOIBeforeAddItem;
   FOI.OnItemSetValue  := FOIItemSetValue;
   FOI.Component       := FTVP;

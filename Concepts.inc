@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2018 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,39 +25,24 @@
   {$DEFINE HAS_UNIT_SYSTEM_IMAGELIST}
 {$ENDIF}
 
-{ Delphi RTL units ('System' prefix) }
-{$DEFINE SYSTEM}
-{ Delphi VCL units ('Vcl' prefix) }
-{$DEFINE VCL}
-{ Delphi WinApi units ('WinApi' prefix) }
-{$DEFINE WINAPI}
-{ Spring4D - http://bitbucket.org/sglienke/spring4d }
-{$DEFINE SPRING}
-{ DSharp - http://bitbucket.org/sglienke/dsharp }
-{$DEFINE DSHARP}
-{ Virtual Treeview - http://github.com/Virtual-TreeView/Virtual-TreeView }
-{$DEFINE VIRTUALTREES}
-{ DDuce - http://github.com/beNative/dduce }
-{$DEFINE DDUCE}
-{ DevExpress - http://www.devexpress.com/Products/VCL/ }
-{$DEFINE DEVEXPRESS}
-{ RTTEye }
-{$DEFINE RTTEYE}
-{ BTMemoryModule.pas }
-{.$DEFINE BTMEMORYMODULE}
-{ SQLBuilder4D.pas }
-{$DEFINE SQLBUILDER4D}
-{ TChromeTabs }
-{$DEFINE CHROMETABS}
-{ TBCEditor }
-{$DEFINE BCEDITOR}
-{ DelphiZMQ }
-{$DEFINE DELPHIZMQ}
-{ DDetours }
-{$DEFINE DDETOURS}
-{ TzObjectInspector }
-{$DEFINE ZOBJECTINSPECTOR}
-{ TFireMonkeyContainer }
-{$DEFINE FMXCONTAINER}
-{ FastMM }
-{.$DEFINE FASTMM}
+{$DEFINE BCEDITOR}      // TBCEditor control
+{$DEFINE CHROMETABS}    // TChromeTabs control
+{$DEFINE DDETOURS}      // DDetours unit
+{$DEFINE DDUCE}         // DDuce - http://github.com/beNative/dduce
+{$DEFINE DELPHIZMQ}     // DelphiZMQ wrapper
+{$DEFINE DEVEXPRESS}    // DevExpress - http://www.devexpress.com/Products/VCL/
+{$DEFINE DSHARP}        // DSharp - http://bitbucket.org/sglienke/dsharp
+{$DEFINE FIREDAC}       // Delphi FireDAC units ('FireDAC' prefix)
+{$DEFINE FMXCONTAINER}  // TFireMonkeyContainer
+{$DEFINE INDY}          // Indy
+{$DEFINE SPRING}        // Spring4D - http://bitbucket.org/sglienke/spring4d
+{$DEFINE SQLBUILDER4D}  // SQLBuilder4D.pas
+{$DEFINE SYNAPSE}       // Synapse library
+{$DEFINE SYNEDIT}       // SynEdit control
+{$DEFINE SYSTEM}        // Delphi RTL units ('System' prefix)
+{$DEFINE VCL}           // Delphi VCL units ('Vcl' prefix)
+{$DEFINE VIRTUALTREES}  // Virtual Treeview - http://github.com/Virtual-TreeView/Virtual-TreeView
+{$DEFINE WINAPI}        // Delphi WinApi units ('WinApi' prefix)
+{$DEFINE ZOBJINSPECTOR} // TzObjectInspector
+{.$DEFINE BTMEMORYMODULE} // BTMemoryModule.pas
+{.$DEFINE FASTMM}         // FastMM

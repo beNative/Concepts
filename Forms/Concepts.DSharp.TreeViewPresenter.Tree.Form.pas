@@ -86,7 +86,7 @@ uses
 
   Spring.Collections.Adapters, Spring.Collections.Enumerable,
 
-  DDuce.Reflect,
+  DDuce.Reflect, DDuce.Factories.zObjInspector,
 
   Concepts.RTTEye.RttiTemplates, Concepts.Factories;
 
@@ -99,7 +99,7 @@ begin
   FTVP.OnSelectionChanged := FTVPSelectionChanged;
   FTVP.UseColumnDefinitions := True;
   FTVP.TreeView := FVST;
-  FOI := TConceptFactories.CreatezObjectInspector(Self, pnlLeftTop, FTVP);
+  FOI := TzObjectInspectorFactory.Create(Self, pnlLeftTop, FTVP);
 end;
 
 procedure TfrmTreeViewPresenterTree.BeforeDestruction;

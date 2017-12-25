@@ -68,7 +68,7 @@ implementation
 uses
   DSharp.Windows.ColumnDefinitions,
 
-  DDuce.Factories, DDuce.Editor.ViewList.Data;
+  DDuce.Factories, DDuce.Factories.VirtualTrees, DDuce.Editor.ViewList.Data;
 
 resourcestring
   SFileName    = 'Filename';
@@ -80,7 +80,7 @@ resourcestring
 procedure TfrmViewList.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FVST := TFactories.CreateVirtualStringTree(Self, pnlVST);
+  FVST := TVirtualStringTreeFactory.CreateGrid(Self, pnlVST);
   FTVP := TTreeViewPresenter.Create(Self);
   //FTVP.MultiSelect := True;
   with FTVP.ColumnDefinitions.Add(SFileName, 200) do

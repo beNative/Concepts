@@ -183,7 +183,7 @@ uses
   System.AnsiStrings, System.Rtti,
   Vcl.Graphics,
 
-  DDuce.Components.Factories,
+  DDuce.Components.Factories, DDuce.Factories.zObjInspector,
 
   VirtualTrees,
 
@@ -238,7 +238,7 @@ begin
   FCommands := TCollections.CreateObjectList<TContainedAction>(False);
   CreateCommandControls;
   LoadSettings;
-  FInspector := TConceptFactories.CreatezObjectInspector(
+  FInspector := TzObjectInspectorFactory.Create(
     Self,
     pnlLeftTop,
     idTCPClient

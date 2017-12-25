@@ -102,7 +102,7 @@ implementation
 {$R *.dfm}
 
 uses
-  DDuce.Components.Factories,
+  DDuce.Components.Factories, DDuce.Factories.zObjInspector,
 
   Concepts.Factories;
 
@@ -111,10 +111,7 @@ procedure TfrmLiveBindings.AfterConstruction;
 begin
   inherited AfterConstruction;
   AddComponents;
-  FObjectInspector := TConceptFactories.CreatezObjectInspector(
-    Self,
-    pnlLeft
-  );
+  FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
   FObjectInspector.Component := lstBindings;
   FObjectInspector.ExpandAll;
   FBindScope := TBindScope.Create(Self);

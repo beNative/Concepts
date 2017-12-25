@@ -10386,7 +10386,7 @@ begin
         W := SR.Right - SR.Left;
         H := SR.Bottom - SR.Top;
         { draw picture }
-        BrushCopy(SR, SB, Bounds(0, 0, W, H), clSilver);
+        BrushCopy(SR, SB, Bounds(0, 0, W, H),  clWhite);
         { correct the rectangle of text}
         Rect.Right := SR.Left - SortLeftIndent;
       end;

@@ -53,7 +53,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Concepts.ComponentInspector,
+  DDuce.ObjectInspector.zObjectInspector,
 
   Concepts.FireMonkey.Form;
 

@@ -14,24 +14,25 @@
   limitations under the License.
 }
 
-unit DDuce.Logger;
+unit Concepts.FireDAC.Form;
 
 interface
 
-{ A global logger singleton for shared usage }
-
 uses
-  DDuce.Logger.Interfaces;
+  Winapi.Windows, Winapi.Messages,
+  System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
 
-var
-  Logger: ILogger;
+type
+  TfrmFireDAC = class(TForm)
+  private
+
+  public
+
+  end;
 
 implementation
 
-uses
-  DDuce.Logger.Base;
-
-initialization
-  Logger := TLogger.Create;
+{$R *.dfm}
 
 end.

@@ -93,9 +93,9 @@ implementation
 uses
   DSharp.Bindings.Notifications,
 
-  DDuce.RandomData, //DDuce.ObjectInspector.zObjectInspector,
+  DDuce.RandomData, DDuce.ObjectInspector.zObjectInspector,
 
-  Concepts.Factories, Concepts.Resources,Concepts.ComponentInspector;
+  Concepts.Factories, Concepts.Resources;
 
 {$REGION 'construction and destruction'}
 procedure TfrmcxGridViewPresenter.actInspectGridViewPresenterExecute(

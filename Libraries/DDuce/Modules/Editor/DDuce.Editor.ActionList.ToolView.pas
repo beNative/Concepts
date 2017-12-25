@@ -131,7 +131,7 @@ uses
   DSharp.Windows.ControlTemplates,
 
   DDuce.Editor.Utils, DDuce.Editor.ActionList.Templates,
-  DDuce.Factories;
+  DDuce.Factories, DDuce.Factories.VirtualTrees;
 
 type
   TVKSet = set of Byte;
@@ -417,7 +417,7 @@ procedure TfrmActionListView.CreateActionsView;
 var
   CD : IColumnDefinitions;
 begin
-  FVSTActions := TFactories.CreateVirtualStringTree(Self, pnlActions);
+  FVSTActions := TVirtualStringTreeFactory.CreateGrid(Self, pnlActions);
   FVSTActions.OnKeyPress := FVSTActionsKeyPress;
   FTVPActions := TTreeViewPresenter.Create(Self);
   FTVPActions.ListMode := True;
@@ -474,7 +474,7 @@ procedure TfrmActionListView.CreateCommandsView;
 var
   CD : IColumnDefinitions;
 begin
-  FVSTCommands := TFactories.CreateVirtualStringTree(Self, tsCommands);
+  FVSTCommands := TVirtualStringTreeFactory.CreateGrid(Self, tsCommands);
   FTVPCommands := TTreeViewPresenter.Create(Self);
   FTVPCommands.ListMode := True;
   CD := FTVPCommands.ColumnDefinitions;

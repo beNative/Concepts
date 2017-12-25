@@ -34,7 +34,7 @@ uses
 
   Concepts.Types.Contact,
 
-  zObjInspector, zObjInspTypes;
+  zObjInspector, zObjInspTypes, Vcl.ExtActns;
 
 type
   TfrmzObjectInspector = class(TForm)
@@ -56,9 +56,13 @@ type
     aclMain         : TActionList;
     actTest1        : TAction;
     actTest2        : TAction;
+    actInternetBrowseURL: TBrowseURL;
+    lblLink: TLinkLabel;
     {$ENDREGION}
 
     procedure cbxControlsChange(Sender: TObject);
+    procedure lblLinkLinkClick(Sender: TObject; const Link: string;
+      LinkType: TSysLinkType);
 
   private
     FObjectInspector : TzObjectInspector;
@@ -137,7 +141,14 @@ end;
 function TfrmzObjectInspector.FObjectInspectorBeforeAddItem(Sender: TControl;
   PItem: PPropItem): Boolean;
 begin
-  Result := not (PItem.Prop.PropertyType is TRttiMethodType);
+
+end;
+
+procedure TfrmzObjectInspector.lblLinkLinkClick(Sender: TObject;
+  const Link: string; LinkType: TSysLinkType);
+begin
+  actInternetBrowseURL.URL := Link;
+  actInternetBrowseURL.Execute;
 end;
 
 procedure TfrmzObjectInspector.cbxControlsChange(Sender: TObject);

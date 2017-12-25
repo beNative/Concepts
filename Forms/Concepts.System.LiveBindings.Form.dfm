@@ -370,15 +370,13 @@ object frmLiveBindings: TfrmLiveBindings
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 878
-      Height = 29
+      Width = 288
+      Height = 13
       Align = alClient
       Alignment = taCenter
       Caption = 'This form demonstrates how to setup LiveBindings.'
       Layout = tlCenter
       WordWrap = True
-      ExplicitWidth = 288
-      ExplicitHeight = 13
     end
   end
   object lstBindings: TBindingsList

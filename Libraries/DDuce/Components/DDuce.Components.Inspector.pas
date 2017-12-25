@@ -28,8 +28,6 @@
 
 unit DDuce.Components.Inspector;
 
-{$I ..\DDuce.inc}
-
 interface
 
 uses

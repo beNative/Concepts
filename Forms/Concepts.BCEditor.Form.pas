@@ -171,7 +171,7 @@ uses
   System.IOUtils, System.Types, System.Rtti, System.TypInfo,
   Vcl.GraphUtil, Vcl.Dialogs,
 
-  DDuce.Components.Factories, DDuce.Logger,
+  DDuce.Factories.GridView, DDuce.Factories.zObjInspector, DDuce.Logger,
 
   Concepts.Factories, Concepts.Utils;
 
@@ -182,7 +182,7 @@ procedure TfrmBCEditor.AfterConstruction;
 begin
   inherited AfterConstruction;
 
-  FColorGrid := TDDuceComponents.CreateGridView(Self, pnlCMRightRight);
+  FColorGrid := TGridViewFactory.CreateGridView(Self, pnlCMRightRight);
   FColorGrid.GridLines := False;
   with FColorGrid.Columns.Add do
   begin
@@ -198,7 +198,7 @@ begin
   FColorGrid.OnGetCellColors := FColorGridCellColors;
   FColorGrid.Rows.Count := WebNamedColorsCount;
 
-  FHLGrid := TDDuceComponents.CreateGridView(Self, pnlHLLeft);
+  FHLGrid := TGridViewFactory.CreateGridView(Self, pnlHLLeft);
   FHLGrid.Header.Font.Style := [fsBold];
   FHLGrid.GridLines := False;
   with FHLGrid.Columns.Add do
@@ -210,7 +210,7 @@ begin
   FHLGrid.OnChange      := FHLGridChange;
   FHLGrid.OnChanging    := FHLGridChanging;
 
-  FCMGrid := TDDuceComponents.CreateGridView(Self, pnlCMLeft);
+  FCMGrid := TGridViewFactory.CreateGridView(Self, pnlCMLeft);
   FCMGrid.Header.Font.Style := [fsBold];
   FCMGrid.GridLines := False;
   with FCMGrid.Columns.Add do
@@ -251,10 +251,7 @@ begin
     'tsColors'
   );
 
-  FObjectInspector := TConceptFactories.CreatezObjectInspector(
-    Self,
-    pnlLeft
-  );
+  FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
 
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
   FObjectInspector.ObjectVisibility := mvPublic;

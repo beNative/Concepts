@@ -231,7 +231,7 @@ uses
   System.AnsiStrings,
   Vcl.Graphics,
 
-  DDuce.Components.Factories,
+  DDuce.Components.Factories, DDuce.Factories.zObjInspector,
 
   VirtualTrees,
 
@@ -292,7 +292,7 @@ begin
   FComPort                   := CreateComPort;
   cbxCOMPort.Items.CommaText := GetSerialPortNames;
   LoadSettings;
-  FInspector                 := TConceptFactories.CreatezObjectInspector(
+  FInspector                 := TzObjectInspectorFactory.Create(
     Self,
     pnlLeftTop,
     FComPort

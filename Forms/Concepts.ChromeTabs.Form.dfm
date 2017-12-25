@@ -89,15 +89,13 @@ object frmChromeTabs: TfrmChromeTabs
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 947
-      Height = 29
+      Width = 285
+      Height = 13
       Align = alClient
       Alignment = taCenter
       Caption = 'This form demonstrates the TChromeTabs control.'
       Layout = tlCenter
       WordWrap = True
-      ExplicitWidth = 285
-      ExplicitHeight = 13
     end
   end
 end

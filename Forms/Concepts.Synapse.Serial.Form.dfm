@@ -419,6 +419,10 @@ object frmSynapseSerial: TfrmSynapseSerial
         TabOrder = 0
         object tsMemo: TTabSheet
           Caption = 'Memo'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object mmoSend: TMemo
             Left = 0
             Top = 0
@@ -621,6 +625,10 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
         end
         object tsSentText: TTabSheet
           Caption = 'Text'
@@ -732,6 +740,10 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
         end
         object tsReceivedText: TTabSheet
           Caption = 'Text'
@@ -781,7 +793,7 @@ object frmSynapseSerial: TfrmSynapseSerial
     Left = 72
     Top = 136
     Bitmap = {
-      494C010105000900040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010105000900080010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

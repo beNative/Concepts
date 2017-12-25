@@ -16,8 +16,6 @@
 
 unit DDuce.Logger.Interfaces;
 
-//{$I DDuce.inc}
-
 interface
 
 uses

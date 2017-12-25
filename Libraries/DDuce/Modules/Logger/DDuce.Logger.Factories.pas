@@ -35,6 +35,7 @@ implementation
 
 uses
   DDuce.Logger.Base, DDuce.Logger.Channels.WinIPC,
+
   DDuce.Logger.Channels.ZeroMQ;
 
 class function TLoggerFactories.CreateLogger: ILogger;

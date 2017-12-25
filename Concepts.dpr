@@ -312,7 +312,6 @@ uses
   InstDecode in 'Libraries\DDetours\InstDecode.pas',
   Concepts.DDetours.Form in 'Forms\Concepts.DDetours.Form.pas' {frmDDetours},
   Concepts.zObjectInspector.Form in 'Forms\Concepts.zObjectInspector.Form.pas' {frmzObjectInspector},
-  Concepts.ComponentInspector in 'Concepts.ComponentInspector.pas' {frmComponentInspector},
   Concepts.Spring.Persistence.Form in 'Forms\Concepts.Spring.Persistence.Form.pas' {frmSpringPersistence},
   Concepts.Synapse.Serial.Form in 'Forms\Concepts.Synapse.Serial.Form.pas' {frmSynapseSerial},
   synaser in 'Libraries\synapse\synaser.pas',
@@ -464,7 +463,8 @@ uses
   DSharp.DevExpress.TreeListPresenter in 'Libraries\DSharp\DSharp.DevExpress.TreeListPresenter.pas',
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
   Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter},
-  Concepts.VirtualTreeView.Form in 'Forms\Concepts.VirtualTreeView.Form.pas' {frmVirtualTreeView};
+  Concepts.VirtualTreeView.Form in 'Forms\Concepts.VirtualTreeView.Form.pas' {frmVirtualTreeView},
+  Concepts.FireDAC.Form in 'Forms\Concepts.FireDAC.Form.pas' {frmFireDAC};
 
 {$R *.res}
 

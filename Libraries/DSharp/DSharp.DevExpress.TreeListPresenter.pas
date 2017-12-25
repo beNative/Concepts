@@ -79,7 +79,7 @@ implementation
 uses
   DSharp.Core.DataTemplates,
   DSharp.Windows.ControlTemplates,
-  SysUtils;
+  SysUtils, cxCustomData;
 
 { TTreeListPresenter }
 

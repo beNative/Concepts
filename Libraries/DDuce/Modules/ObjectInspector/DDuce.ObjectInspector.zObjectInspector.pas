@@ -79,9 +79,9 @@ procedure InspectComponents(AComponents : TComponentList); overload;
 implementation
 
 uses
-  System.Rtti,
+  System.Rtti, System.TypInfo,
 
-  DDuce.Factories;
+  DDuce.Factories.zObjInspector;
 
 {$R *.dfm}
 
@@ -219,11 +219,12 @@ end;
 {$REGION 'private methods'}
 procedure TfrmComponentInspectorzObjectInspector.CreatePropertyInspector;
 begin
-  FObjectInspector := TFactories.CreatezObjectInspector(Self, pnlMain);
+  FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlMain);
   FObjectHost      := TzObjectHost.Create;
   FObjectInspector.Component       := FObjectHost;
   FObjectInspector.SplitterPos     := FObjectInspector.Width div 2;
   FObjectInspector.SortByCategory  := False;
+  FObjectInspector.ObjectVisibility := mvPublic;
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
 end;
 {$ENDREGION}

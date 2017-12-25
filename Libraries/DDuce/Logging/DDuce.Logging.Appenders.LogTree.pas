@@ -44,8 +44,6 @@ implementation
 uses
   Spring;
 
-{ TLogTreeAppender }
-
 {$REGION 'construction and destruction'}
 constructor TLogTreeAppender.Create(ALogTree: TLogTree);
 begin

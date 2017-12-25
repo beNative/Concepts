@@ -16,8 +16,6 @@
 
 unit DDuce.Logger.Channels.ZeroMQ;
 
-//{$I DDuce.inc}
-
 interface
 
 { Channel holding a ZeroMQ publisher socket where one or more Logviewers can

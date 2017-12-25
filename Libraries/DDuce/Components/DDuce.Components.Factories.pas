@@ -16,8 +16,6 @@
 
 unit DDuce.Components.Factories;
 
-{$I ..\DDuce.inc}
-
 interface
 
 uses
@@ -25,31 +23,10 @@ uses
   Vcl.Controls,
   Data.DB,
 
-  DDuce.Components.GridView, DDuce.Components.DBGridView,
-  DDuce.Components.Inspector, DDuce.Components.PropertyInspector,
-  DDuce.Components.LogTree;
+  DDuce.Components.PropertyInspector, DDuce.Components.LogTree;
 
 type
   TDDuceComponents = class sealed
-    class function CreateGridView(
-      AOwner      : TComponent;
-      AParent     : TWinControl;
-      const AName : string = ''
-    ): TGridView; static;
-
-    class function CreateDBGridView(
-      AOwner      : TComponent;
-      AParent     : TWinControl;
-      ADataSource : TDataSource = nil;
-      const AName : string = ''
-    ): TDBGridView; static;
-
-    class function CreateInspector(
-      AOwner      : TComponent;
-      AParent     : TWinControl;
-      const AName : string = ''
-    ): TInspector; static;
-
     class function CreatePropertyInspector(
       AOwner  : TComponent;
       AParent : TWinControl;
@@ -70,73 +47,6 @@ uses
   Vcl.Graphics, Vcl.Forms,
 
   VirtualTrees;
-
-class function TDDuceComponents.CreateGridView(AOwner: TComponent;
-  AParent: TWinControl; const AName: string): TGridView;
-var
-  GV: TGridView;
-begin
-  GV := TGridView.Create(AOwner);
-  if AName <> '' then
-    GV.Name := AName;
-  GV.Parent                   := AParent;
-  GV.Align                    := alClient;
-  GV.Header.Flat              := True;
-  GV.Header.Font.Style        := [fsBold];
-  GV.Header.GridColor         := True;
-  GV.Header.FullSynchronizing := True;
-  GV.AlignWithMargins         := True;
-  GV.Parent                   := AParent;
-  GV.Align                    := alClient;
-  GV.CursorKeys               := GV.CursorKeys + [gkReturn];
-  GV.GridStyle                := GV.GridStyle - [gsHorzLine];
-  GV.ColumnsFullDrag          := True;
-  GV.DoubleBuffered           := True;
-  GV.CheckBoxes               := True;
-  GV.ShowFocusRect            := False;
-  GV.CheckStyle               := csFlat;
-  GV.ColumnClick              := True;
-  Result := GV;
-end;
-
-class function TDDuceComponents.CreateDBGridView(AOwner: TComponent;
-  AParent: TWinControl; ADataSource: TDataSource;
-  const AName: string): TDBGridView;
-var
-  GV: TDBGridView;
-begin
-  GV                  := TDBGridView.Create(AOwner);
-  GV.Header.Flat      := False;
-  GV.AlignWithMargins := True;
-  GV.Parent           := AParent;
-  GV.Align            := alClient;
-  GV.CursorKeys       := GV.CursorKeys + [gkReturn];
-  GV.GridStyle        := GV.GridStyle + [gsDotLines];
-  GV.ColumnsFullDrag  := True;
-  GV.DoubleBuffered   := True;
-  GV.CheckBoxes       := True;
-  GV.ShowFocusRect    := False;
-  GV.CheckStyle       := csFlat;
-  GV.ColumnClick      := True;
-  GV.ShowIndicator    := True;
-  GV.DataSource       := ADataSource;
-  GV.AutoSizeCols;
-  Result := GV;
-end;
-
-class function TDDuceComponents.CreateInspector(AOwner: TComponent;
-  AParent: TWinControl; const AName: string): TInspector;
-var
-  I: TInspector;
-begin
-  I := TInspector.Create(AOwner);
-  if AName <> '' then
-    I.Name := AName;
-  I.Color  := clWhite;
-  I.Parent := AParent;
-  I.Align  := alClient;
-  Result := I;
-end;
 
 class function TDDuceComponents.CreateLogTree(AOwner: TComponent;
   AParent: TWinControl; const AName: string): TLogTree;

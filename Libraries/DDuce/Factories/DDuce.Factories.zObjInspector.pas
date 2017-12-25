@@ -14,13 +14,12 @@
   limitations under the License.
 }
 
-
 unit DDuce.Factories.zObjInspector;
 
 interface
 
 uses
-  System.Classes,
+  System.Classes, System.TypInfo,
   Vcl.Controls,
 
   zObjInspector, zValueManager;
@@ -42,7 +41,18 @@ implementation
 class function TzObjectInspectorFactory.Create(AOwner: TComponent;
   AParent: TWinControl; AObject: TObject; AValueManager: TzCustomValueManager;
   const AName: string): TzObjectInspector;
+var
+  OI: TzObjectInspector;
 begin
+  OI                  := TzObjectInspector.Create(AOwner, AValueManager);
+  OI.Parent           := AParent;
+  OI.Align            := alClient;
+  OI.AlignWithMargins := True;
+  OI.Name             := AName;
+  OI.Component        := AObject;
+  OI.ObjectVisibility := mvPublic;
+  OI.SplitterPos      := OI.ClientWidth div 2;
+  Result := OI;
 end;
 
 end.
