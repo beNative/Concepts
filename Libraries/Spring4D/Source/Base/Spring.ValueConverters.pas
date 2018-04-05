@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -711,6 +711,51 @@ type
   {$ENDREGION}
 
 
+  {$REGION 'TVariantToGUIDConverter}
+
+  /// <summary>
+  ///   Provides conversion routine between Variant and TGUID
+  /// </summary>
+  TVariantToGUIDConverter = class(TValueConverter)
+  protected
+    function DoConvertTo(const value: TValue;
+      const targetTypeInfo: PTypeInfo;
+      const parameter: TValue): TValue; override;
+  end;
+
+  {$ENDREGION}
+
+
+  {$REGION 'TByteArrayToGUIDConverter}
+
+  /// <summary>
+  ///   Provides conversion routine between TArray<Byte> and TGUID
+  /// </summary>
+  TByteArrayToGUIDConverter = class(TValueConverter)
+  protected
+    function DoConvertTo(const value: TValue;
+      const targetTypeInfo: PTypeInfo;
+      const parameter: TValue): TValue; override;
+  end;
+
+  {$ENDREGION}
+
+
+  {$REGION 'TGUIDToByteArrayConverter}
+
+  /// <summary>
+  ///   Provides conversion routine between TGUID and TArray<Byte>
+  /// </summary>
+  TGUIDToByteArrayConverter = class(TValueConverter)
+  protected
+    function DoConvertTo(const value: TValue;
+      const targetTypeInfo: PTypeInfo;
+      const parameter: TValue): TValue; override;
+  end;
+
+  {$ENDREGION}
+
+
   {$REGION 'TValueConverterFactory'}
 
   /// <summary>
@@ -794,6 +839,8 @@ uses
   Math,
   StrUtils,
   SysUtils,
+  Types,
+  Variants,
   Spring,
   Spring.ResourceStrings,
   Spring.SystemUtils;
@@ -811,6 +858,23 @@ procedure RaiseConvertError(sourceType, targetType: PTypeInfo);
 begin
   raise EConvertError.CreateFmt('Trying to convert %s to %s',
     [sourceType.TypeName, targetType.TypeName]);
+end;
+
+function BytesToGuidBigEndian(const bytes: TBytes): TGUID;
+begin
+  Result.D1 := (Swap(Word(PGUID(bytes).D1)) shl 16) or Swap(Word(PGUID(bytes).D1 shr 16));
+  Result.D2 := Swap(PGUID(bytes).D2);
+  Result.D3 := Swap(PGUID(bytes).D3);
+  Result.D4 := PGUID(bytes).D4;
+end;
+
+function GuidToBytesBigEndian(const guid: TGUID): TBytes;
+begin
+  SetLength(Result, 16);
+  PGUID(Result).D1 := (Swap(Word(guid.D1)) shl 16) or Swap(Word(guid.D1 shr 16));
+  PGUID(Result).D2 := Swap(guid.D2);
+  PGUID(Result).D3 := Swap(guid.D3);
+  PGUID(Result).D4 := guid.D4;
 end;
 
 
@@ -1244,8 +1308,7 @@ function TFloatToStringConverter.DoConvertTo(const value: TValue;
 var
   format: string;
 begin
-  if not parameter.IsEmpty and
-    parameter.TryAsType<string>(format) then
+  if not parameter.IsEmpty and parameter.TryAsType<string>(format) then
   begin
     case targetTypeInfo.Kind of
       tkString, tkUString:
@@ -1377,8 +1440,7 @@ function TCurrencyToStringConverter.DoConvertTo(const value: TValue;
 var
   format: string;
 begin
-  if not parameter.IsEmpty and
-    parameter.TryAsType<string>(format) then
+  if not parameter.IsEmpty and parameter.TryAsType<string>(format) then
   begin
     case targetTypeInfo.Kind of
       tkString, tkUString:
@@ -1425,8 +1487,7 @@ function TDateTimeToStringConverter.DoConvertTo(const value: TValue;
 var
   format: string;
 begin
-  if not parameter.IsEmpty and
-    parameter.TryAsType<string>(format) then
+  if not parameter.IsEmpty and parameter.TryAsType<string>(format) then
   begin
     case targetTypeInfo.Kind of
       tkString, tkUString:
@@ -1463,7 +1524,7 @@ var
   format: string;
 begin
   if not parameter.IsEmpty and parameter.TryAsType<string>(format) then
-    Result := TValue.From<TDateTime>(ConvertStrToDateTime(value.AsString, format))
+    Result := TValue.From<TDateTime>(StrToDateTimeFmt(value.AsString, format))
   else
     Result := TValue.From<TDateTime>(StrToDateTime(value.AsString));
 end;
@@ -1489,8 +1550,7 @@ function TDateToStringConverter.DoConvertTo(const value: TValue;
 var
   format: TFormatSettings;
 begin
-  if not parameter.IsEmpty and
-    parameter.TryAsType<TFormatSettings>(format) then
+  if not parameter.IsEmpty and parameter.TryAsType<TFormatSettings>(format) then
   begin
     case targetTypeInfo.Kind of
       tkString, tkUString:
@@ -1526,11 +1586,8 @@ function TStringToDateConverter.DoConvertTo(const value: TValue;
 var
   format: TFormatSettings;
 begin
-  if not parameter.IsEmpty and
-    parameter.TryAsType<TFormatSettings>(format) then
-  begin
-    Result := TValue.From<TDate>(StrToDate(value.AsString, format));
-  end
+  if not parameter.IsEmpty and parameter.TryAsType<TFormatSettings>(format) then
+    Result := TValue.From<TDate>(StrToDate(value.AsString, format))
   else
     Result := TValue.From<TDate>(StrToDate(value.AsString));
 end;
@@ -1545,8 +1602,7 @@ function TTimeToStringConverter.DoConvertTo(const value: TValue;
 var
   format: TFormatSettings;
 begin
-  if not parameter.IsEmpty and
-    parameter.TryAsType<TFormatSettings>(format) then
+  if not parameter.IsEmpty and parameter.TryAsType<TFormatSettings>(format) then
   begin
     case targetTypeInfo.Kind of
       tkString, tkUString:
@@ -1582,11 +1638,8 @@ function TStringToTimeConverter.DoConvertTo(const value: TValue;
 var
   format: TFormatSettings;
 begin
-  if not parameter.IsEmpty and
-    parameter.TryAsType<TFormatSettings>(format) then
-  begin
-    Result := TValue.From<TTime>(StrToTime(value.AsString, format));
-  end
+  if not parameter.IsEmpty and parameter.TryAsType<TFormatSettings>(format) then
+    Result := TValue.From<TTime>(StrToTime(value.AsString, format))
   else
     Result := TValue.From<TTime>(StrToTime(value.AsString));
 end;
@@ -1731,6 +1784,47 @@ function TGUIDToStringConverter.DoConvertTo(const value: TValue;
   const targetTypeInfo: PTypeInfo; const parameter: TValue): TValue;
 begin
   Result := value.AsType<TGUID>.ToString;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TVariantToGUIDConverter'}
+
+function TVariantToGUIDConverter.DoConvertTo(const value: TValue;
+  const targetTypeInfo: PTypeInfo; const parameter: TValue): TValue;
+var
+  v: Variant;
+begin
+  v := value.AsVariant;
+  case VarType(v) of
+    varString, varUString:
+      Result := TValue.From<TGUID>(TGUID.Create(string(v)));
+  else
+    raise EInvalidOperationException.Create('unsupported vartype');
+  end;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TByteArrayToGUIDConverter'}
+
+function TByteArrayToGUIDConverter.DoConvertTo(const value: TValue;
+  const targetTypeInfo: PTypeInfo; const parameter: TValue): TValue;
+begin
+  Result := TValue.From<TGUID>(BytesToGuidBigEndian(value.AsType<TBytes>));
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TGUIDToByteArrayConverter'}
+
+function TGUIDToByteArrayConverter.DoConvertTo(const value: TValue;
+  const targetTypeInfo: PTypeInfo; const parameter: TValue): TValue;
+begin
+  Result := TValue.From<TBytes>(GuidToBytesBigEndian(value.AsType<TGUID>));
 end;
 
 {$ENDREGION}
@@ -1921,6 +2015,11 @@ begin
 
   RegisterConverter(TypeInfo(TGUID), [tkString, tkUString, tkLString, tkWString], TGUIDToStringConverter);
   RegisterConverter(TypeInfo(Nullable<TGUID>), [tkString, tkUString, tkLString, tkWString], TNullableToTypeConverter);
+
+  RegisterConverter(TypeInfo(Variant), TypeInfo(TGUID), TVariantToGUIDConverter);
+
+  RegisterConverter(TypeInfo(TBytes), TypeInfo(TGUID), TByteArrayToGUIDConverter);
+  RegisterConverter(TypeInfo(TGUID), TypeInfo(TBytes), TGUIDToByteArrayConverter);
 end;
 
 class destructor TValueConverterFactory.Destroy;

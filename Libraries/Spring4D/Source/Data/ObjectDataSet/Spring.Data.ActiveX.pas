@@ -201,8 +201,8 @@ type
       VT_I1:                   (cVal: {$IFNDEF NEXTGEN}AnsiChar{$ELSE}Byte{$ENDIF});
       VT_UI2:                  (uiVal: Word);
       VT_UI4:                  (ulVal: LongWord);
-      VT_I8:                   (llVal : Int64);
-      VT_UI8:                  (ullVal : UInt64);
+      VT_I8:                   (llVal: Int64);
+      VT_UI8:                  (ullVal: UInt64);
       VT_INT:                  (intVal: Integer);
       VT_UINT:                 (uintVal: LongWord);
       VT_BYREF or VT_DECIMAL:  (pdecVal: PDecimal);
@@ -213,10 +213,10 @@ type
       VT_BYREF or VT_UI4:      (pulVal: PInteger);
       VT_BYREF or VT_INT:      (pintVal: PInteger);
       VT_BYREF or VT_UINT:     (puintVal: PLongWord);
-      VT_BYREF or VT_I8:       (pllVal : ^Int64);
-      VT_BYREF or VT_UI8:      (pullVal : ^UInt64);
-      VT_RECORD:               (pvRecord : Pointer;
-                                pRecInfo : Pointer);
+      VT_BYREF or VT_I8:       (pllVal: ^Int64);
+      VT_BYREF or VT_UI8:      (pullVal: ^UInt64);
+      VT_RECORD:               (pvRecord: Pointer;
+                                pRecInfo: Pointer);
   end;
 
   TVariantArg = tagVARIANT;

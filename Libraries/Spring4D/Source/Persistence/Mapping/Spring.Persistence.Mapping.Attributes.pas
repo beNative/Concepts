@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -167,15 +167,20 @@ type
   SequenceAttribute = class(TORMAttribute)
   private
     fSequenceName: string;
+    fSchema: string;
     fInitialValue: NativeInt;
     fIncrement: Integer;
     fSequenceSQL: string;
+    function GetSequenceName: string;
   public
     constructor Create(const sequenceName: string; initialValue: NativeInt;
       increment: Integer); overload;
+    constructor Create(const sequenceName, schema: string;
+      initialValue: NativeInt; increment: Integer); overload;
     constructor Create(const sequenceSQL: string); overload;
 
-    property SequenceName: string read fSequenceName;
+    property SequenceName: string read GetSequenceName;
+    property Schema: string read fSchema;
     property InitialValue: NativeInt read fInitialValue;
     property Increment: Integer read fIncrement;
     property SequenceSQL: string read fSequenceSQL;
@@ -427,10 +432,28 @@ begin
   fSequenceSQL := '';
 end;
 
+constructor SequenceAttribute.Create(const sequenceName, schema: string;
+  initialValue: NativeInt; increment: Integer);
+begin
+  inherited Create;
+  fSequenceName := sequenceName;
+  fSchema := schema;
+  fInitialValue := initialValue;
+  fIncrement := increment;
+  fSequenceSQL := '';
+end;
+
 constructor SequenceAttribute.Create(const sequenceSQL: string);
 begin
   inherited Create;
   fSequenceSQL := sequenceSQL;
+end;
+
+function SequenceAttribute.GetSequenceName: string;
+begin
+  Result := fSequenceName;
+  if fSchema <> '' then
+    Result := Result + '.' + fSchema;
 end;
 
 {$ENDREGION}

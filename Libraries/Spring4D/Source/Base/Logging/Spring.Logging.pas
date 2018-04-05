@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -185,8 +185,8 @@ type
       const msg: string; const classType: TClass); overload;
     constructor Create(level: TLogLevel; eventType: TLogEventType;
       const msg: string; const classType: TClass; const data: TValue); overload;
-    {constructor Create(level : TLogLevel; const msg : string;
-      color : TColor = clDefault; fontStyle : TFontStyles = []; )}
+    {constructor Create(level: TLogLevel; const msg: string;
+      color: TColor = clDefault; fontStyle: TFontStyles = []; )}
 
     function SetException(const e: Exception): TLogEvent;
     function SetColor(color: TColor): TLogEvent;
@@ -214,7 +214,7 @@ type
 
   {$REGION 'ILoggerBase'}
 
-  ILoggerBase = interface
+  ILoggerBase = interface(IInvokable)
     ['{2CACEE4B-631D-4B31-970C-7B82F49311B4}']
     function GetEnabled: Boolean;
     function GetEventTypes: TLogEventTypes;

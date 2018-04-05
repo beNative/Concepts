@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -182,7 +182,7 @@ procedure TEntityWrapper.SetValue(const member: TRttiMember; const value: TValue
 
 begin
   try
-    member.SetValue(fEntity, value.ConvertTo(member.MemberType.Handle));
+    member.SetValue(fEntity, value.Convert(member.MemberType.Handle));
   except
     on E: EInvalidCast do
       RaiseInvalidConversion;

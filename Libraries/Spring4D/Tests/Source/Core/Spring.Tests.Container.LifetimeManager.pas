@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -54,7 +54,7 @@ type
   TMockComponent = class(TComponent, IInterface)
 {$IFNDEF AUTOREFCOUNT}
   private class var
-    fFreed : Boolean;
+    fFreed: Boolean;
 {$ENDIF}
   private
     fRefCount: Integer;

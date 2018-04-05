@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -121,7 +121,7 @@ begin
 {$ENDIF}
   fInterceptors := TCollections.CreateInterfaceList<IInterceptor>(interceptors);
   fInterceptorSelector := options.Selector;
-  fTarget := TValue.From(target);
+  TValue.Make(@target, proxyType, fTarget);
   fTypeInfo := proxyType;
   // Do not own the object, let ARC deal with its lifetime. Calling DisposeOf
   // causes an AV since we need to release the refcount above to ever let it

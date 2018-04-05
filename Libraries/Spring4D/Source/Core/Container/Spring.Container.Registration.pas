@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -245,7 +245,6 @@ uses
   SysUtils,
   TypInfo,
   Spring.Collections.Events,
-  Spring.Collections.Extensions,
   Spring.Collections.Lists,
   Spring.Container.Resolvers,
   Spring.Container.ResourceStrings,
@@ -562,7 +561,7 @@ begin
   if fServiceTypeMappings.TryGetValues(serviceType, models) then
   begin
     if fUnnamedRegistrations.TryGetValues(serviceType, unnamedModels) then
-      Result := TExceptIterator<TComponentModel>.Create(models, unnamedModels)
+      Result := TEnumerable.&Except<TComponentModel>(models, unnamedModels)
     else
       Result := models;
   end

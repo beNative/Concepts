@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -62,21 +62,11 @@ type
     procedure TearDown; override;
   end;
 
-procedure ProcessTestResult(const ATestResult: TTestResult);
-
 implementation
 
 uses
   Math,
   StrUtils;
-
-
-procedure ProcessTestResult(const ATestResult: TTestResult);
-begin
-{$IFNDEF AUTOREFCOUNT}
-  ATestResult.Free;
-{$ENDIF}
-end;
 
 {$IFNDEF DELPHIXE2_UP}
 function ReturnAddress: Pointer; inline;
@@ -105,7 +95,7 @@ procedure TAbstractTestHelper.CheckEqualsString(const expected, actual: string; 
   begin
     if (msg <> '') and not EndsText(sLineBreak, msg) then
       msg := msg + sLineBreak;
-    msg :=
+    msg := msg +
       'Strings differ at position ' + IntToStr(index) + sLineBreak +
       'Expected: ' + ReplaceStr(Copy(expected, Max(1, index - ContextCharCount), ContextCharCount * 2), sLineBreak, '  ') + sLineBreak +
       'But was:  ' + ReplaceStr(Copy(actual, Max(1, index - ContextCharCount), ContextCharCount * 2), sLineBreak, '  ') + sLineBreak +

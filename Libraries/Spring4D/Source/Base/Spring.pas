@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -140,10 +140,40 @@ type
     class function Kind<T>: TTypeKind; inline; static;
 
     class function GetType<T>: TRttiType; overload; static; inline;
-    class function GetType(typeInfo: Pointer): TRttiType; overload; static; inline;
-    class function GetType(classType: TClass): TRttiInstanceType; overload; static; inline;
+    class function GetType(typeInfo: PTypeInfo): TRttiType; overload; static;
+    class function GetType(classType: TClass): TRttiInstanceType; overload; static;
 
     class property Context: TRttiContext read fContext;
+  end;
+
+  {$ENDREGION}
+
+
+  {$REGION 'TEnum'}
+
+  /// <summary>
+  ///   Provides static methods to manipulate an enumeration type.
+  /// </summary>
+  /// <remarks>
+  ///   This does only work for enum types that have type info. Discontiguous
+  ///   enumerations and enumerations which don't start at zero have no type
+  ///   info. See: <see href="http://stackoverflow.com/questions/1420562/why-do-i-get-type-has-no-typeinfo-error-with-an-enum-type" />
+  /// </remarks>
+  TEnum = class
+  public
+    class function ToInteger<T>(const value: T): Integer; static; inline;
+    class function IsValid<T>(const value: Integer): Boolean; overload; static;
+    class function IsValid<T>(const value: T): Boolean; overload; static;
+    class function GetName<T>(const value: Integer): string; overload; static;
+    class function GetName<T>(const value: T): string; overload; static;
+    class function GetNames<T>: TStringDynArray; static;
+    class function GetValue<T>(const value: string): Integer; overload; static;
+    class function GetValue<T>(const value: T): Integer; overload; static;
+    class function GetValues<T>: TIntegerDynArray; static;
+    class function TryParse<T>(const value: Integer; out enum: T): Boolean; overload; static;
+    class function TryParse<T>(const value: string; out enum: T): Boolean; overload; static;
+    class function Parse<T>(const value: Integer): T; overload; static;
+    class function Parse<T>(const value: string): T; overload; static;
   end;
 
   {$ENDREGION}
@@ -496,14 +526,26 @@ type
     function CompareTo(const value: TValue): Integer;
 
     /// <summary>
-    ///   Comverts the stored value to another type.
+    ///   Converts the stored value to another type.
     /// </summary>
-    function ConvertTo<T>: T; overload;
+    function Convert<T>: TValue; overload;
 
     /// <summary>
-    ///   Comverts the stored value to another type.
+    ///   Converts the stored value to another type using the specified format
+    ///   settings.
     /// </summary>
-    function ConvertTo(targetType: PTypeInfo): TValue; overload;
+    function Convert<T>(const formatSettings: TFormatSettings): TValue; overload;
+
+    /// <summary>
+    ///   Converts the stored value to another type.
+    /// </summary>
+    function Convert(targetType: PTypeInfo): TValue; overload;
+
+    /// <summary>
+    ///   Converts the stored value to another type using the specified format
+    ///   settings.
+    /// </summary>
+    function Convert(targetType: PTypeInfo; const formatSettings: TFormatSettings): TValue; overload;
 
     /// <summary>
     ///   Checks for equality with another TValue.
@@ -568,13 +610,14 @@ type
     ///   Tries to convert the stored value. Returns false when the conversion
     ///   is not possible.
     /// </summary>
-    function TryConvert(targetTypeInfo: PTypeInfo; out targetValue: TValue): Boolean; overload;
+    function TryConvert(targetType: PTypeInfo; out targetValue: TValue): Boolean; overload;
 
     /// <summary>
-    ///   Tries to convert the stored value. Returns false when the conversion
-    ///   is not possible.
+    ///   Tries to convert the stored value using the specified format
+    ///   settings. Returns false when the conversion is not possible.
     /// </summary>
-    function TryConvert<T>(out targetValue: T): Boolean; overload;
+    function TryConvert(targetType: PTypeInfo; out targetValue: TValue;
+      const formatSettings: TFormatSettings): Boolean; overload;
 
     /// <summary>
     ///   Tries to get the stored value of a nullable. Returns false when the
@@ -595,6 +638,13 @@ type
     function TryToType<T>(out targetValue: T): Boolean; overload;
 
     /// <summary>
+    ///   Tries to convert the stored value using the specified format
+    ///   settings. Returns false when the conversion is not possible.
+    /// </summary>
+    function TryToType<T>(out targetValue: T;
+      const formatSettings: TFormatSettings): Boolean; overload;
+
+    /// <summary>
     ///   Returns the stored value as TObject.
     /// </summary>
     function ToObject: TObject;
@@ -607,7 +657,13 @@ type
     /// <summary>
     ///   Converts stored value to the specified type.
     /// </summary>
-    function ToType<T>: T;
+    function ToType<T>: T; overload;
+
+    /// <summary>
+    ///   Converts stored value to the specified type using the specified
+    ///   format settings.
+    /// </summary>
+    function ToType<T>(const formatSettings: TFormatSettings): T; overload;
 
     /// <summary>
     ///   Returns the stored value as Variant.
@@ -814,8 +870,10 @@ type
     function GetInvoke: TMethodPointer;
     function GetEnabled: Boolean;
     function GetOnChanged: TNotifyEvent;
+    function GetUseFreeNotification: Boolean;
     procedure SetEnabled(const value: Boolean);
     procedure SetOnChanged(const value: TNotifyEvent);
+    procedure SetUseFreeNotification(const value: Boolean);
   {$ENDREGION}
 
     procedure Add(const handler: TMethodPointer);
@@ -846,6 +904,13 @@ type
 
     property Invoke: TMethodPointer read GetInvoke;
     property OnChanged: TNotifyEvent read GetOnChanged write SetOnChanged;
+
+    /// <summary>
+    ///   Specifies if the event internally tracks if the event handlers are
+    ///   implemented by a TComponent descendant and automatically unsubscribes
+    ///   those when the implementing component is being destroyed.
+    /// </summary>
+    property UseFreeNotification: Boolean read GetUseFreeNotification write SetUseFreeNotification;
   end;
 
   /// <summary>
@@ -883,8 +948,10 @@ type
     function GetEnabled: Boolean;
     function GetInvoke: T;
     function GetOnChanged: TNotifyEvent;
+    function GetUseFreeNotification: Boolean;
     procedure SetEnabled(const value: Boolean);
     procedure SetOnChanged(value: TNotifyEvent);
+    procedure SetUseFreeNotification(const value: Boolean);
     procedure EnsureInitialized;
   public
     procedure Add(const handler: T);
@@ -896,6 +963,13 @@ type
     property Enabled: Boolean read GetEnabled write SetEnabled;
     property Invoke: T read GetInvoke;
     property OnChanged: TNotifyEvent read GetOnChanged write SetOnChanged;
+
+    /// <summary>
+    ///   Specifies if the event internally tracks if the event handlers are
+    ///   implemented by a TComponent descendant and automatically unsubscribes
+    ///   those when the implementing component is being destroyed.
+    /// </summary>
+    property UseFreeNotification: Boolean read GetUseFreeNotification write SetUseFreeNotification;
 
     class operator Implicit(const value: IEvent<T>): Event<T>;
     class operator Implicit(var value: Event<T>): IEvent<T>;
@@ -1423,7 +1497,7 @@ type
   /// <summary>
   ///   Provides support for lazy initialization.
   /// </summary>
-  ILazy = interface
+  ILazy = interface(IInvokable)
     ['{40223BA9-0C66-49E7-AA33-BDAEF9F506D6}']
   {$REGION 'Property Accessors'}
     function GetIsValueCreated: Boolean;
@@ -1574,7 +1648,7 @@ type
   /// </typeparam>
   Lazy<T> = record
   private
-    fLazy: ILazy<T>;
+    fLazy: ILazy<T>; // DO NOT ADD ANY OTHER FIELDS !!!
     function GetIsAssigned: Boolean;
     function GetIsValueCreated: Boolean;
     function GetValue: T; inline;
@@ -2081,8 +2155,50 @@ type
 
   {$REGION 'TArray'}
 
-  TArray = class(Generics.Collections.TArray)
+  TArray = class
+  private
+    const IntrosortSizeThreshold = 16;
+    class function GetDepthLimit(count: Integer): Integer; static;
+
+    class procedure Swap<T>(var left, right: T); static; inline;
+
+    class procedure SortTwoItems<T>(const comparer: IComparer<T>; var left, right: T); static;
+    class procedure SortThreeItems<T>(const comparer: IComparer<T>; var left, mid, right: T); static;
+
+    class procedure InsertionSort<T>(var values: array of T; const comparer: IComparer<T>; left, right: Integer); static;
+
+    class procedure DownHeap<T>(var values: array of T; const comparer: IComparer<T>; left, count, i: Integer); static;
+    class procedure HeapSort<T>(var values: array of T; const comparer: IComparer<T>; left, right: Integer); static;
+
+    class function QuickSortPartition<T>(var values: array of T; const comparer: IComparer<T>; left, right: Integer): Integer; static;
+
+    class procedure IntroSort<T>(var values: array of T; const comparer: IComparer<T>; left, right, depthLimit: Integer); static;
   public
+
+    /// <summary>
+    ///   Searches a range of elements in a sorted array for the given value,
+    ///   using a binary search algorithm returning the index for the first
+    ///   found value using the specified comparer.
+    /// </summary>
+    class function BinarySearch<T>(const values: array of T; const item: T;
+      out foundIndex: Integer; const comparer: IComparer<T>;
+      index, count: Integer): Boolean; overload; static;
+
+    /// <summary>
+    ///   Searches a sorted array for the given value, using a binary search
+    ///   algorithm returning the index for the first found value using the
+    ///   specified comparer.
+    /// </summary>
+    class function BinarySearch<T>(const values: array of T; const item: T;
+      out foundIndex: Integer; const comparer: IComparer<T>): Boolean; overload; static;
+
+    /// <summary>
+    ///   Searches a sorted array for the given value, using a binary search
+    ///   algorithm returning the index for the first found value using the
+    ///   default comparer.
+    /// </summary>
+    class function BinarySearch<T>(const values: array of T; const item: T;
+      out foundIndex: Integer): Boolean; overload; static; static;
 
     /// <summary>
     ///   Searches a range of elements in a sorted array for the given value,
@@ -2159,7 +2275,21 @@ type
     /// <summary>
     ///   Copies an open array to a dynamic array.
     /// </summary>
-    class function Copy<T>(const values: array of T): TArray<T>; static;
+    class function Copy<T>(const values: array of T): TArray<T>; overload; static;
+
+    /// <summary>
+    ///   Copies the specified count of elements from the source array to the
+    ///   target array.
+    /// </summary>
+    class procedure Copy<T>(const source: array of T;
+      var target: array of T; count: NativeInt); overload; static;
+
+    /// <summary>
+    ///   Copies the specified count of elements from the specified position in
+    ///   the source array to the specified position in the target array.
+    /// </summary>
+    class procedure Copy<T>(const source: array of T; var target: array of T;
+      sourceIndex, targetIndex, count: NativeInt); overload; static;
 
     /// <summary>
     ///   Executes the specified action for each item in the specified array.
@@ -2264,6 +2394,23 @@ type
       index, count: Integer); overload; static;
 
     /// <summary>
+    ///   Sorts the elements in an array using the default comparer.
+    /// </summary>
+    class procedure Sort<T>(var values: array of T); overload; static;
+
+    /// <summary>
+    ///   Sorts the elements in an array using the specified comparer.
+    /// </summary>
+    class procedure Sort<T>(var values: array of T; const comparer: IComparer<T>); overload; static;
+
+    /// <summary>
+    ///   Sorts the specified range of elements in an array using the specified
+    ///   comparer.
+    /// </summary>
+    class procedure Sort<T>(var values: array of T;
+      const comparer: IComparer<T>; index, count: Integer); overload; static;
+
+    /// <summary>
     ///   Sorts the elements in an array using the specified comparison.
     /// </summary>
     class procedure Sort<T>(var values: array of T; const comparison: TComparison<T>); overload; static;
@@ -2296,9 +2443,18 @@ type
     property Current: T read GetCurrent;
   end;
 
+  VectorHelper = record
+  private
+    class function InternalIndexOfInt8(const data: Pointer; const item: ShortInt): Integer; static;
+    class function InternalIndexOfInt16(const data: Pointer; const item: SmallInt): Integer; static;
+    class function InternalIndexOfInt32(const data: Pointer; const item: Integer): Integer; static;
+    class function InternalIndexOfInt64(const data: Pointer; const item: Int64): Integer; static;
+    class function InternalIndexOfStr(const data: Pointer; const item: string): Integer; static;
+  end;
+
   Vector<T> = record
   private
-    fData: TArray<T>; // DO NOT ADD ANY OTHER MEMBERS !!!
+    fData: TArray<T>; // DO NOT ADD ANY OTHER FIELDS !!!
     function GetCount: Integer; inline;
     function GetFirst: T; inline;
     function GetItem(index: Integer): T; inline;
@@ -2308,8 +2464,6 @@ type
     procedure InternalInsert(index: Integer; const items: array of T);
     function InternalEquals(const items: array of T): Boolean;
     function InternalIndexOf(const item: T): Integer;
-    function InternalIndexOfInt(const item: Integer): Integer;
-    function InternalIndexOfStr(const item: string): Integer;
   public
     class operator Implicit(const value: TArray<T>): Vector<T>; inline;
     class operator Implicit(const value: Vector<T>): TArray<T>; inline;
@@ -2344,6 +2498,8 @@ type
     procedure Remove(const items: TArray<T>); overload; inline;
 
     function Contains(const item: T): Boolean; overload; inline;
+    function Contains(const item: T; const comparer: IEqualityComparer<T>): Boolean; overload;
+    function Contains(const item: T; const comparer: TEqualityComparison<T>): Boolean; overload;
     function Contains(const items: array of T): Boolean; overload;
     function Contains(const items: TArray<T>): Boolean; overload;
     function IndexOf(const item: T): Integer; inline;
@@ -2445,6 +2601,11 @@ function GetUnderlyingType(typeInfo: PTypeInfo): PTypeInfo;
 function GetLazyKind(typeInfo: PTypeInfo): TLazyKind;
 
 /// <summary>
+///   Returns the underlying type of the lazy type.
+/// </summary>
+function GetLazyType(typeInfo: PTypeInfo): PTypeInfo;
+
+/// <summary>
 ///   Returns the underlying type name of the lazy type.
 /// </summary>
 function GetLazyTypeName(typeInfo: PTypeInfo): string;
@@ -2527,6 +2688,8 @@ function AtomicCmpExchange(var target: Pointer; newValue, comparand: Pointer): T
 {$ENDIF}
 
 procedure IncUnchecked(var i: Integer; const n: Integer = 1); inline;
+
+procedure SwapPtr(var left, right); inline;
 
   {$ENDREGION}
 
@@ -2740,6 +2903,55 @@ begin
   end
   else
     Result := '';
+end;
+
+function GetLazyType(typeInfo: PTypeInfo): PTypeInfo;
+
+  function GetLazyTypeUnsafe(typeInfo: PTypeInfo): PTypeInfo;
+  var
+    typeName: string;
+    rttiType: TrttiType;
+  begin
+    typeName := GetGenericTypeParameters(typeInfo.TypeName)[0];
+    rttiType := TType.Context.FindType(typeName);
+    if Assigned(rttiType) then
+      Result := rttiType.Handle
+    else
+    begin
+      for rttiType in TType.Context.GetTypes do
+        if rttiType.IsPublicType and (rttiType.QualifiedName = typeName) then
+          Exit(rttiType.Handle);
+      raise EInvalidOperationException.CreateResFmt(@STypeInfoNotFound, [typeName]);
+    end;
+  end;
+
+var
+  lazyKind: TLazyKind;
+  method: TRttiMethod;
+begin
+  lazyKind := GetLazyKind(typeInfo);
+  case lazyKind of
+    lkFunc:
+    begin
+      method := TType.GetType(typeInfo).GetMethod('Invoke');
+      if Assigned(method) then
+        Result := method.ReturnType.Handle
+      else
+        Result := GetLazyTypeUnsafe(typeInfo);
+    end;
+    lkRecord, lkInterface:
+    begin
+      if lazyKind = lkRecord then
+        typeInfo := PManagedField(PByte(@typeInfo.TypeData.ManagedFldCount) + SizeOf(Integer)).TypeRef^;
+      method := TType.GetType(typeInfo).GetMethod('GetValue');
+      if Assigned(method) then
+        Result := method.ReturnType.Handle
+      else
+        Result := nil; // must not happen - ILazy<T> has methodinfo
+    end;
+  else
+    Result := nil;
+  end;
 end;
 
 function IsLazyType(typeInfo: PTypeInfo): Boolean;
@@ -3048,7 +3260,7 @@ end;
 
 function GetVirtualMethod(const classType: TClass; const index: Integer): Pointer;
 begin
-  Result := PPointer(UIntPtr(classType) + UIntPtr(index * SizeOf(Pointer)))^;
+  Result := PPointer(IntPtr(classType) + IntPtr(index * SizeOf(Pointer)))^;
 end;
 
 type
@@ -3234,7 +3446,7 @@ begin
   fContext.Free;
 end;
 
-class function TType.GetType(typeInfo: Pointer): TRttiType;
+class function TType.GetType(typeInfo: PTypeInfo): TRttiType;
 begin
   Result := fContext.GetType(typeInfo);
 end;
@@ -3284,6 +3496,135 @@ begin
     Exit(tkUnknown);
   Result := typeInfo.Kind;
 {$ENDIF}
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TEnum'}
+
+class function TEnum.ToInteger<T>(const value: T): Integer;
+begin
+  case SizeOf(T) of
+    1: Result := PByte(@value)^;
+    2: Result := PWord(@value)^;
+    4: Result := PInteger(@value)^;
+  end;
+end;
+
+class function TEnum.IsValid<T>(const value: Integer): Boolean;
+var
+  data: PTypeData;
+begin
+  Guard.CheckTypeKind<T>(tkEnumeration, 'T');
+  data := GetTypeData(TypeInfo(T));
+  Result := (value >= data.MinValue) and (value <= data.MaxValue);
+end;
+
+class function TEnum.IsValid<T>(const value: T): Boolean;
+var
+  intValue: Integer;
+begin
+  intValue := ToInteger<T>(value);
+  Result := IsValid<T>(intValue);
+end;
+
+class function TEnum.GetName<T>(const value: Integer): string;
+begin
+  Guard.CheckEnum<T>(value, 'value');
+  Result := GetEnumName(TypeInfo(T), value);
+end;
+
+class function TEnum.GetName<T>(const value: T): string;
+var
+  intValue: Integer;
+begin
+  intValue := ToInteger<T>(value);
+  Result := GetName<T>(intValue);
+end;
+
+class function TEnum.GetNames<T>: TStringDynArray;
+var
+  typeData: PTypeData;
+{$IFDEF NEXTGEN}
+  p: TTypeInfoFieldAccessor;
+{$ELSE}
+  p: PShortString;
+{$ENDIF}
+  i: Integer;
+begin
+  Guard.CheckTypeKind<T>(tkEnumeration, 'T');
+  typeData := GetTypeData(TypeInfo(T));
+  SetLength(Result, typeData.MaxValue - typeData.MinValue + 1);
+{$IFDEF NEXTGEN}
+  p := typedata^.NameListFld;
+{$ELSE}
+  p := @typedata.NameList;
+{$ENDIF}
+  for i := Low(Result) to High(Result) do
+  begin
+{$IFDEF NEXTGEN}
+    Result[i] := p.ToString;
+    p.SetData(p.Tail);
+{$ELSE}
+    Result[i] := UTF8ToString(p^);
+    Inc(PByte(p), Length(p^) + 1);
+{$ENDIF}
+  end;
+end;
+
+class function TEnum.GetValue<T>(const value: string): Integer;
+var
+  temp: T;
+begin
+  temp := Parse<T>(value);
+  Result := ToInteger<T>(temp);
+end;
+
+class function TEnum.GetValue<T>(const value: T): Integer;
+begin
+  Guard.CheckEnum<T>(value, 'value');
+  Result := ToInteger<T>(value);
+end;
+
+class function TEnum.GetValues<T>: TIntegerDynArray;
+var
+  typeData: PTypeData;
+  i: Integer;
+begin
+  Guard.CheckTypeKind<T>(tkEnumeration, 'T');
+  typeData := GetTypeData(TypeInfo(T));
+  SetLength(Result, typeData.MaxValue - typeData.MinValue + 1);
+  for i := Low(Result) to High(Result) do
+    Result[i] := i;
+end;
+
+class function TEnum.TryParse<T>(const value: Integer; out enum: T): Boolean;
+begin
+  Result := IsValid<T>(value);
+  if Result then
+    Move(value, enum, SizeOf(T));
+end;
+
+class function TEnum.TryParse<T>(const value: string; out enum: T): Boolean;
+var
+  intValue: Integer;
+begin
+  Guard.CheckTypeKind<T>(tkEnumeration, 'T');
+  intValue := GetEnumValue(TypeInfo(T), value);
+  Result := TryParse<T>(intValue, enum);
+end;
+
+class function TEnum.Parse<T>(const value: Integer): T;
+begin
+  if not TryParse<T>(value, Result) then
+    raise EFormatException.CreateResFmt(@SIncorrectFormat, [IntToStr(value)]);
+end;
+
+class function TEnum.Parse<T>(const value: string): T;
+begin
+  if not TryParse<T>(value, Result) then
+    raise EFormatException.CreateResFmt(@SIncorrectFormat, [value]);
 end;
 
 {$ENDREGION}
@@ -4005,17 +4346,33 @@ begin
   Result := CompareValue(Self, value);
 end;
 
-function TValueHelper.ConvertTo(targetType: PTypeInfo): TValue;
+function TValueHelper.Convert(targetType: PTypeInfo): TValue;
 begin
   if not TryConvert(targetType, Result) then
     RaiseConversionError(TypeInfo, targetType);
 end;
 
-function TValueHelper.ConvertTo<T>: T;
+function TValueHelper.Convert(targetType: PTypeInfo;
+  const formatSettings: TFormatSettings): TValue;
 begin
-  if not TryConvert<T>(Result) then
+  if not TryConvert(targetType, Result, formatSettings) then
+    RaiseConversionError(TypeInfo, targetType);
+end;
+
+function TValueHelper.Convert<T>: TValue;
+begin
+  if not TryConvert(System.TypeInfo(T), Result) then
     RaiseConversionError(TypeInfo, System.TypeInfo(T));
 end;
+
+function TValueHelper.Convert<T>(const formatSettings: TFormatSettings): TValue;
+begin
+  if not TryConvert(System.TypeInfo(T), Result, formatSettings) then
+    RaiseConversionError(TypeInfo, System.TypeInfo(T));
+end;
+
+
+{$REGION 'Equals functions'}
 
 function EqualsFail(const left, right: TValue): Boolean; //FI:O804
 begin
@@ -4252,7 +4609,6 @@ begin
   end;
 end;
 
-{$REGION 'Equals functions'}
 type
   TEqualsFunc = function(const left, right: TValue): Boolean;
 const
@@ -4545,6 +4901,7 @@ const
     )
   );
 {$ENDREGION}
+
 
 function TValueHelper.Equals(const value: TValue): Boolean;
 begin
@@ -4946,7 +5303,13 @@ end;
 function TValueHelper.ToType<T>: T;
 begin
   if not TryToType<T>(Result) then
-    Guard.RaiseInvalidTypeCast(TypeInfo, System.TypeInfo(T));
+    RaiseConversionError(TypeInfo, System.TypeInfo(T));
+end;
+
+function TValueHelper.ToType<T>(const formatSettings: TFormatSettings): T;
+begin
+  if not TryToType<T>(Result, formatSettings) then
+    RaiseConversionError(TypeInfo, System.TypeInfo(T));
 end;
 
 function TValueHelper.ToVariant: Variant;
@@ -4980,6 +5343,8 @@ begin
         or (TypeInfo = System.TypeInfo(TDate))
         or (TypeInfo = System.TypeInfo(TTime)) then
         Exit(AsType<TDateTime>)
+      else if TypeInfo = System.TypeInfo(Currency) then
+        Exit(AsCurrency)
       else
         Exit(AsExtended);
     tkRecord:
@@ -5073,53 +5438,61 @@ end;
 
 {$REGION 'Conversion functions'}
 type
-  TConvertFunc = function(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+  TConvertFunc = function(const source: TValue; target: PTypeInfo;
+    out value: TValue; const formatSettings: TFormatSettings): Boolean;
 
-function ConvFail(const source: TValue; target: PTypeInfo; out value: TValue): Boolean; //FI:O804
+function ConvFail(const source: TValue; target: PTypeInfo; out value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 begin
   Result := False;
 end;
 
-function ConvClass2Class(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvClass2Class(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
 begin
   Result := source.TryCast(target, value);
 end;
 
-function ConvClass2Enum(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvClass2Enum(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
 begin
   Result := target = TypeInfo(Boolean);
   if Result then
     value := source.AsObject <> nil;
 end;
 
-function ConvFloat2Ord(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvFloat2Ord(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
 begin
   Result := Frac(source.AsExtended) = 0;
   if Result then
     value := TValue.FromOrdinal(target, Trunc(source.AsExtended));
 end;
 
-function ConvFloat2Str(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvFloat2Str(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
 var
   temp: TValue;
 begin
   if source.TypeInfo = TypeInfo(TDate) then
-    temp := DateToStr(source.AsExtended)
+    temp := DateToStr(source.AsExtended, formatSettings)
   else if source.TypeInfo = TypeInfo(TDateTime) then
-    temp := DateTimeToStr(source.AsExtended)
+    temp := DateTimeToStr(source.AsExtended, formatSettings)
   else if source.TypeInfo = TypeInfo(TTime) then
-    temp := TimeToStr(source.AsExtended)
+    temp := TimeToStr(source.AsExtended, formatSettings)
   else
-    temp := FloatToStr(source.AsExtended);
+    temp := FloatToStr(source.AsExtended, formatSettings);
   Result := temp.TryCast(target, value);
 end;
 
-function ConvIntf2Class(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvIntf2Class(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
 begin
-  Result := ConvClass2Class(source.AsInterface as TObject, target, value);
+  Result := ConvClass2Class(source.AsInterface as TObject, target, value, formatSettings);
 end;
 
-function ConvIntf2Intf(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvIntf2Intf(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
 var
   intf: IInterface;
 begin
@@ -5130,13 +5503,15 @@ begin
     value := TValue.Empty;
 end;
 
-function ConvOrd2Float(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvOrd2Float(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
 begin
   value := TValue.FromFloat(target, source.AsOrdinal);
   Result := True;
 end;
 
-function ConvOrd2Ord(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvOrd2Ord(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
 var
   i: Int64;
 begin
@@ -5148,7 +5523,8 @@ begin
   Result := True;
 end;
 
-function ConvOrd2Str(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvOrd2Str(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
 var
   temp: TValue;
 begin
@@ -5156,7 +5532,8 @@ begin
   Result := temp.TryCast(target, value);
 end;
 
-function ConvRec2Meth(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvRec2Meth(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
 begin
   Result := source.TypeInfo = TypeInfo(TMethod);
   if Result then
@@ -5166,13 +5543,19 @@ begin
   end
 end;
 
-function ConvStr2Enum(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvStr2Enum(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+var
+  temp: Integer;
 begin
-  value := TValue.FromOrdinal(target, GetEnumValue(target, source.AsString));
-  Result := True;
+  temp := GetEnumValue(target, source.AsString);
+  Result := (temp >= 0) or (target.TypeData.MinValue < 0);
+  if Result then
+    value := TValue.FromOrdinal(target, temp);
 end;
 
-function ConvStr2Float(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvStr2Float(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
 var
   s: string;
   d: TDateTime;
@@ -5181,36 +5564,100 @@ begin
   s := source.AsString;
   if target = TypeInfo(TDateTime) then
   begin
-    Result := TryStrToDateTime(s, d);
+    Result := TryStrToDateTime(s, d, formatSettings);
     if Result then
       value := TValue.From<TDateTime>(d);
   end else
   if target = TypeInfo(TDate) then
   begin
-    Result := TryStrToDate(s, d);
+    Result := TryStrToDate(s, d, formatSettings);
     if Result then
       value := TValue.From<TDate>(d);
   end else
   if target = TypeInfo(TTime) then
   begin
-    Result := TryStrToTime(s, d);
+    Result := TryStrToTime(s, d, formatSettings);
     if Result then
       value := TValue.From<TTime>(d);
   end else
   begin
-    Result := TryStrToFloat(s, f);
+    Result := TryStrToFloat(s, f, formatSettings);
     if Result then
       value := TValue.FromFloat(target, f);
   end;
 end;
 
-function ConvStr2Ord(const source: TValue; target: PTypeInfo; out value: TValue): Boolean;
+function ConvStr2Ord(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
 var
   i: Int64;
 begin
   Result := TryStrToInt64(source.AsString, i);
   if Result then
     value := TValue.FromOrdinal(target, i);
+end;
+
+function ConvStr2DynArray(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+var
+  s: string;
+  values: TStringDynArray;
+  i: Integer;
+  p: Pointer;
+  res, v1, v2: TValue;
+  elType: PTypeInfo;
+begin
+  s := source.AsString;
+  if StartsStr('[', s) and EndsStr(']', s) then
+    s := Copy(s, 2, Length(s) - 2);
+  values := SplitString(s, ',');
+  i := Length(values);
+  p := nil;
+  DynArraySetLength(p, target, 1, @i);
+  TValue.MakeWithoutCopy(@p, target, res);
+  elType := target.TypeData.DynArrElType^;
+  for i := 0 to High(values) do
+  begin
+    v1 := TValue.From(values[i]);
+    if not v1.TryConvert(elType, v2) then
+      Exit(False);
+    res.SetArrayElement(i, v2);
+  end;
+  value := res;
+  Result := True;
+end;
+
+function ConvStr2Array(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+var
+  s: string;
+  values: TStringDynArray;
+  arrData: TArrayTypeData;
+  elType: PTypeInfo;
+  i: Integer;
+  res, v1, v2: TValue;
+begin
+  s := source.AsString;
+  if StartsStr('[', s) and EndsStr(']', s) then
+    s := Copy(s, 2, Length(s) - 2);
+  values := SplitString(s, ',');
+
+  // todo: support multi dim arrays - assume one dim for now
+  arrData := GetTypeData(target).ArrayData;
+  elType := arrData.ElType^;
+  if Length(values) <> arrData.ElCount then
+    Exit(False);
+
+  TValue.Make(nil, target, res);
+  for i := 0 to arrData.ElCount - 1 do
+  begin
+    v1 := TValue.From(values[i]);
+    if not v1.TryConvert(elType, v2) then
+      Exit(False);
+    res.SetArrayElement(i, v2);
+  end;
+  value := res;
+  Result := True;
 end;
 
 {$ENDREGION}
@@ -5424,7 +5871,7 @@ const
       // tkSet, tkClass, tkMethod, tkWChar, tkLString, tkWString
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
-      ConvFail, ConvFail, ConvFail, ConvFail, ConvStr2Ord, ConvFail,
+      ConvFail, ConvStr2Array, ConvFail, ConvFail, ConvStr2Ord, ConvStr2DynArray,
       // tkUString, tkClassRef, tkPointer, tkProcedure
       ConvFail, ConvFail, ConvFail, ConvFail
     ),
@@ -5465,44 +5912,53 @@ const
 {$ENDREGION}
 
 
-function TValueHelper.TryConvert(targetTypeInfo: PTypeInfo;
+function TValueHelper.TryConvert(targetType: PTypeInfo;
   out targetValue: TValue): Boolean;
+var
+  formatSettings: TFormatSettings;
+begin
+  formatSettings := TFormatSettings.Create;
+  Result := TryConvert(targetType, targetValue, formatSettings);
+end;
+
+function TValueHelper.TryConvert(targetType: PTypeInfo;
+  out targetValue: TValue; const formatSettings: TFormatSettings): Boolean;
 var
   value: TValue;
 begin
   {$IFDEF DELPHI2010}
   // Fix for TValue.Cast not converting TValue.Empty to any type
-  if (TypeInfo = nil) and (targetTypeInfo <> nil) then
+  if (TypeInfo = nil) and (targetType <> nil) then
   begin
-    TValue.Make(nil, targetTypeInfo, targetValue);
+    TValue.Make(nil, targetType, targetValue);
     Exit(True);
   end;
   {$ENDIF}
 
-  if (TypeInfo = nil) or (targetTypeInfo = nil) then
+  if (TypeInfo = nil) or (targetType = nil) then
   begin
     targetValue := EmptyValue;
     Exit(True);
   end;
 
-  if TypeInfo = targetTypeInfo then
+  if TypeInfo = targetType then
   begin
     targetValue := Self;
     Exit(True);
   end;
 
-  Result := Conversions[Kind, targetTypeInfo.Kind](Self, targetTypeInfo, targetValue);
+  Result := Conversions[Kind, targetType.Kind](Self, targetType, targetValue, formatSettings);
   if not Result then
   begin
-    if TryGetNullableValue(value) and value.TryCast(targetTypeInfo, targetValue) then
+    if TryGetNullableValue(value) and value.TryCast(targetType, targetValue) then
       Exit(True);
 
-    if TryGetLazyValue(value) and value.TryCast(targetTypeInfo, targetValue) then
+    if TryGetLazyValue(value) and value.TryCast(targetType, targetValue) then
       Exit(True);
 
-    if IsNullable(targetTypeInfo) and TryConvert(GetUnderlyingType(targetTypeInfo), value) then
+    if IsNullable(targetType) and TryConvert(GetUnderlyingType(targetType), value) then
     begin
-      TValue.Make(nil, targetTypeInfo, targetValue);
+      TValue.Make(nil, targetType, targetValue);
       targetValue.SetNullableValue(value);
       Exit(True);
     end;
@@ -5510,15 +5966,15 @@ begin
     case Kind of
       tkRecord:
         if TypeInfo = System.TypeInfo(TValue) then
-          Exit(AsType<TValue>.TryConvert(targetTypeInfo, targetValue));
+          Exit(AsType<TValue>.TryConvert(targetType, targetValue));
       {$IFDEF DELPHI2010}
       // workaround for bug in RTTI.pas (fixed in XE)
       tkUnknown:
       begin
-        case targetTypeInfo.Kind of
+        case targetType.Kind of
           tkInteger, tkEnumeration, tkChar, tkWChar, tkInt64:
           begin
-            targetValue := TValue.FromOrdinal(targetTypeInfo, 0);
+            targetValue := TValue.FromOrdinal(targetType, 0);
             Exit(True);
           end;
           tkFloat:
@@ -5537,20 +5993,11 @@ begin
     end;
 
     {$IFNDEF DELPHI2010}
-    Result := TValueConverter.Default.TryConvertTo(Self, targetTypeInfo, targetValue);
+    Result := TValueConverter.Default.TryConvertTo(Self, targetType, targetValue, TValue.From(formatSettings));
     {$ELSE}
     Result := False;
     {$ENDIf}
   end;
-end;
-
-function TValueHelper.TryConvert<T>(out targetValue: T): Boolean;
-var
-  value: TValue;
-begin
-  Result := TryConvert(System.TypeInfo(T), value);
-  if Result then
-    targetValue := value.AsType<T>;
 end;
 
 function TValueHelper.TryGetLazyValue(out value: TValue): Boolean;
@@ -5599,6 +6046,26 @@ var
   value: TValue;
 begin
   Result := TryConvert(System.TypeInfo(T), value);
+  if Result then
+  begin
+    // avoid extra overhead of value.AsType<T>
+    // since we know value contains the exact type of T
+    // use the same code as the private TValue.Get<T> method
+    if TValueData(value).FTypeInfo = nil then
+    begin
+      FillChar(Pointer(@targetValue)^, SizeOf(T), 0);
+      Exit;
+    end;
+    value.ExtractRawData(@targetValue);
+  end;
+end;
+
+function TValueHelper.TryToType<T>(out targetValue: T;
+  const formatSettings: TFormatSettings): Boolean;
+var
+  value: TValue;
+begin
+  Result := TryConvert(System.TypeInfo(T), value, formatSettings);
   if Result then
   begin
     // avoid extra overhead of value.AsType<T>
@@ -7157,7 +7624,10 @@ end;
 function Weak<T>.TryGetTarget(out target: T): Boolean;
 begin
   Result := Assigned(fReference) and Assigned(fTarget^);
-  target := PT(fTarget)^;
+  if Result then
+    target := PT(fTarget)^
+  else
+    target := Default(T);
 end;
 
 class operator Weak<T>.Implicit(const value: Shared<T>): Weak<T>;
@@ -7238,6 +7708,11 @@ begin
   Result := fInstance.OnChanged;
 end;
 
+function Event<T>.GetUseFreeNotification: Boolean;
+begin
+  Result := not Assigned(fInstance) or fInstance.UseFreeNotification;
+end;
+
 procedure Event<T>.Remove(const handler: T);
 begin
   if Assigned(fInstance) then
@@ -7260,6 +7735,12 @@ procedure Event<T>.SetOnChanged(value: TNotifyEvent);
 begin
   EnsureInitialized;
   fInstance.OnChanged := value;
+end;
+
+procedure Event<T>.SetUseFreeNotification(const value: Boolean);
+begin
+  EnsureInitialized;
+  fInstance.UseFreeNotification := value;
 end;
 
 class operator Event<T>.Implicit(const value: IEvent<T>): Event<T>;
@@ -7914,6 +8395,57 @@ end;
 {$REGION 'TArray'}
 
 class function TArray.BinarySearch<T>(const values: array of T; const item: T;
+  out foundIndex: Integer; const comparer: IComparer<T>; index,
+  count: Integer): Boolean;
+var
+  left, right, i, c: Integer;
+begin
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckNotNull(Assigned(comparer), 'comparer');
+  Guard.CheckRange((index >= 0) and (index <= Length(values)), 'index');
+  Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
+{$ENDIF}
+
+  if count = 0 then
+  begin
+    foundIndex := index;
+    Exit(False);
+  end;
+
+  Result := False;
+  left := index;
+  right := index + count - 1;
+  while left <= right do
+  begin
+    i := left + (right - left) shr 1;
+    c := comparer.Compare(values[i], Item);
+    if c < 0 then
+      left := i + 1
+    else
+    begin
+      right := i - 1;
+      if c = 0 then
+        Result := True;
+    end;
+  end;
+  foundIndex := left;
+end;
+
+class function TArray.BinarySearch<T>(const values: array of T; const item: T;
+  out foundIndex: Integer; const comparer: IComparer<T>): Boolean;
+begin
+  Result := BinarySearch<T>(values, item, foundIndex, comparer,
+    Low(values), Length(values));
+end;
+
+class function TArray.BinarySearch<T>(const values: array of T; const item: T;
+  out foundIndex: Integer): Boolean;
+begin
+  Result := BinarySearch<T>(values, item, foundIndex, TComparer<T>.Default(),
+    Low(values), Length(values));
+end;
+
+class function TArray.BinarySearch<T>(const values: array of T; const item: T;
   out foundIndex: Integer; const comparison: TComparison<T>; index,
   count: Integer): Boolean;
 begin
@@ -7932,7 +8464,7 @@ class function TArray.BinarySearchUpperBound<T>(const values: array of T;
   const item: T; out foundIndex: Integer; const comparer: IComparer<T>;
   index, count: Integer): Boolean;
 var
-  lo, hi, i, c: Integer;
+  left, right, i, c: Integer;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckNotNull(Assigned(comparer), 'comparer');
@@ -7947,22 +8479,22 @@ begin
   end;
 
   Result := False;
-  lo := index;
-  hi := index + count - 1;
-  while lo <= hi do
+  left := index;
+  right := index + count - 1;
+  while left <= right do
   begin
-    i := lo + (hi - lo) shr 1;
+    i := left + (right - left) shr 1;
     c := comparer.Compare(values[i], item);
     if c > 0 then
-      hi := i - 1
+      right := i - 1
     else
     begin
-      lo := i + 1;
+      left := i + 1;
       if c = 0 then
         Result := True;
     end;
   end;
-  foundIndex := hi;
+  foundIndex := right;
 end;
 
 class function TArray.BinarySearchUpperBound<T>(const values: array of T;
@@ -8033,6 +8565,34 @@ begin
   SetLength(Result, Length(values));
   for i := Low(values) to High(values) do
     Result[i] := values[i];
+end;
+
+class procedure TArray.Copy<T>(const source: array of T;
+  var target: array of T; count: NativeInt);
+begin
+  Copy<T>(source, target, 0, 0, count);
+end;
+
+class procedure TArray.Copy<T>(const source: array of T;
+  var target: array of T; sourceIndex, targetIndex, count: NativeInt);
+var
+  sourceLength, targetLength: NativeInt;
+begin
+{$IFDEF SPRING_ENABLE_GUARD}
+  sourceLength := Length(source);
+  targetLength := Length(target);
+  Guard.CheckRange((sourceIndex >= 0) and (sourceIndex <= sourceLength), 'sourceIndex');
+  Guard.CheckRange((targetIndex >= 0) and (targetIndex <= targetLength), 'targetIndex');
+  Guard.CheckRange((count >= 0)
+    and (count <= sourceLength - sourceIndex)
+    and (count <= targetLength - targetIndex), 'count');
+  if Pointer(@source[0]) = Pointer(@target[0]) then
+    raise EArgumentException.CreateRes(@SArraysIdentical);
+{$ENDIF}
+  if TType.IsManaged<T> then
+    System.CopyArray(Pointer(@target[targetIndex]), Pointer(@source[sourceIndex]), TypeInfo(T), count)
+  else
+    System.Move(Pointer(@source[sourceIndex])^, Pointer(@target[targetIndex])^, count * SizeOf(T));
 end;
 
 class procedure TArray.ForEach<T>(const values: array of T;
@@ -8179,22 +8739,296 @@ begin
   end;
 end;
 
+procedure SwapPtr(var left, right);
+var
+  temp: Pointer;
+begin
+  temp := Pointer(left);
+  Pointer(left) := Pointer(right);
+  Pointer(right) := temp;
+end;
+
+class function TArray.GetDepthLimit(count: Integer): Integer;
+begin
+  Result := 0;
+  while count > 0 do
+  begin
+    Inc(Result);
+    count := count div 2;
+  end;
+  Result := Result * 2;
+end;
+
+class procedure TArray.Swap<T>(var left, right: T);
+var
+  temp: T;
+begin
+{$IFDEF DELPHIXE7_UP} // XE7 and higher
+  case GetTypeKind(T) of
+{$IFDEF AUTOREFCOUNT}
+    tkClass,
+{$ENDIF AUTOREFCOUNT}
+    tkInterface,
+    tkDynArray,
+    tkUString:
+      SwapPtr(left, right);
+  else
+    temp := left;
+    left := right;
+    right := temp;
+  end;
+{$ELSE}
+  temp := left;
+  left := right;
+  right := temp;
+{$ENDIF}
+end;
+
+class procedure TArray.SortTwoItems<T>(const comparer: IComparer<T>;
+  var left, right: T);
+begin
+  if comparer.Compare(left, right) > 0 then
+    Swap<T>(left, right);
+end;
+
+class procedure TArray.SortThreeItems<T>(const comparer: IComparer<T>;
+  var left, mid, right: T);
+begin
+  if comparer.Compare(left, mid) > 0 then
+    Swap<T>(left, mid);
+  if comparer.Compare(left, right) > 0 then
+    Swap<T>(left, right);
+  if comparer.Compare(mid, right) > 0 then
+    Swap<T>(mid, right);
+end;
+
+class procedure TArray.DownHeap<T>(var values: array of T;
+  const comparer: IComparer<T>; left, count, i: Integer);
+var
+  temp: T;
+  child, n, x: Integer;
+begin
+  temp := values[left + i - 1];
+  n := count div 2;
+  while i <= n do
+  begin
+    child := i * 2;
+    if (child < count) and (comparer.Compare(values[left + child - 1], values[left + child]) < 0) then
+      Inc(child);
+    if not comparer.Compare(temp, values[left + child - 1]) < 0 then
+      Break;
+    values[left + i - 1] := values[left + child - 1];
+    i := child;
+  end;
+  values[left + i - 1] := temp;
+end;
+
+class procedure TArray.HeapSort<T>(var values: array of T;
+  const comparer: IComparer<T>; left, right: Integer);
+var
+  count, i: Integer;
+begin
+  count := right - left + 1;
+  for i := count div 2 downto 1 do
+    DownHeap<T>(values, comparer, left, count, i);
+  for i := count downto 2 do
+  begin
+    Swap<T>(values[left], values[left + i - 1]);
+    DownHeap<T>(values, comparer, left, i - 1, 1);
+  end;
+end;
+
+class procedure TArray.InsertionSort<T>(var values: array of T;
+  const comparer: IComparer<T>; left, right: Integer);
+var
+  i, j: Integer;
+  temp: T;
+begin
+  for i := left + 1 to right do
+  begin
+    j := i;
+    temp := values[i];
+    while (j > left) and (comparer.Compare(temp, values[j - 1]) < 0) do
+    begin
+      values[j] := values[j - 1];
+      Dec(j);
+    end;
+    values[j] := temp;
+  end;
+end;
+
+class function TArray.QuickSortPartition<T>(var values: array of T;
+  const comparer: IComparer<T>; left, right: Integer): Integer;
+var
+  mid, pivotIndex: Integer;
+  pivot: T;
+begin
+  mid := left + (right - left) div 2;
+
+  SortThreeItems<T>(comparer, values[left], values[mid], values[right]);
+
+  Dec(right);
+  pivotIndex := right;
+
+  pivot := values[mid];
+  Swap<T>(values[mid], values[right]);
+
+  while left < right do
+  begin
+    repeat
+      Inc(left);
+    until comparer.Compare(values[left], pivot) >= 0;
+    repeat
+      Dec(right);
+    until comparer.Compare(pivot, values[right]) >= 0;
+
+    if left >= right then
+      Break;
+
+    Swap<T>(values[left], values[right]);
+  end;
+
+  Swap<T>(values[left], values[pivotIndex]);
+  Result := left;
+end;
+
+class procedure TArray.IntroSort<T>(var values: array of T;
+  const comparer: IComparer<T>; left, right, depthLimit: Integer);
+var
+  count, pivot: Integer;
+begin
+  while right > left do
+  begin
+    count := right - left + 1;
+    if count = 1 then
+      Exit;
+    if count = 2 then
+    begin
+      SortTwoItems<T>(comparer, values[left], values[right]);
+      Exit;
+    end;
+    if count = 3 then
+    begin
+      SortThreeItems<T>(comparer, values[left], values[right - 1], values[right]);
+      Exit;
+    end;
+    if count <= IntrosortSizeThreshold then
+    begin
+      InsertionSort<T>(values, comparer, left, right);
+      Exit;
+    end;
+
+    if depthLimit = 0 then
+    begin
+      HeapSort<T>(values, comparer, left, right);
+      Exit;
+    end;
+
+    Dec(depthLimit);
+    pivot := QuickSortPartition<T>(values, comparer, left, right);
+    IntroSort<T>(values, comparer, pivot + 1, right, depthLimit);
+    right := pivot - 1;
+  end;
+end;
+
+class procedure TArray.Sort<T>(var values: array of T);
+begin
+  IntroSort<T>(values, TComparer<T>.Default,
+    Low(values), High(values), GetDepthLimit(Length(values)));
+end;
+
+class procedure TArray.Sort<T>(var values: array of T;
+  const comparer: IComparer<T>);
+begin
+  IntroSort<T>(values, comparer,
+    Low(values), High(values), GetDepthLimit(Length(values)));
+end;
+
+class procedure TArray.Sort<T>(var values: array of T;
+  const comparer: IComparer<T>; index, count: Integer);
+begin
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckNotNull(Assigned(comparer), 'comparer');
+  Guard.CheckRange((index >= 0) and (index <= Length(values)), 'index');
+  Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
+{$ENDIF}
+
+  if count <= 1 then
+    Exit;
+  IntroSort<T>(values, comparer, index, index + count - 1, GetDepthLimit(count));
+end;
+
 class procedure TArray.Sort<T>(var values: array of T;
   const comparison: TComparison<T>);
 begin
-  Sort<T>(values, IComparer<T>(PPointer(@comparison)^));
+  IntroSort<T>(values, IComparer<T>(PPointer(@comparison)^),
+    Low(values), High(values), GetDepthLimit(Length(values)));
 end;
 
 class procedure TArray.Sort<T>(var values: array of T;
   const comparison: TComparison<T>; index, count: Integer);
 begin
-  Sort<T>(values, IComparer<T>(PPointer(@comparison)^), index, count);
+{$IFDEF SPRING_ENABLE_GUARD}
+  Guard.CheckNotNull(Assigned(comparison), 'comparison');
+  Guard.CheckRange((index >= 0) and (index <= Length(values)), 'index');
+  Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
+{$ENDIF}
+
+  if count <= 1 then
+    Exit;
+  IntroSort<T>(values, IComparer<T>(PPointer(@comparison)^),
+    index, index + count - 1, GetDepthLimit(count));
 end;
 
 {$ENDREGION}
 
 
 {$REGION 'Vector<T>'}
+
+class function VectorHelper.InternalIndexOfInt8(const data: Pointer;
+  const item: ShortInt): Integer;
+begin
+  for Result := 0 to High(TArray<ShortInt>(data)) do
+    if TArray<ShortInt>(data)[Result] = item then
+      Exit;
+  Result := -1;
+end;
+
+class function VectorHelper.InternalIndexOfInt16(const data: Pointer;
+  const item: SmallInt): Integer;
+begin
+  for Result := 0 to High(TArray<SmallInt>(data)) do
+    if TArray<SmallInt>(data)[Result] = item then
+      Exit;
+  Result := -1;
+end;
+
+class function VectorHelper.InternalIndexOfInt32(const data:Pointer;
+  const item: Integer): Integer;
+begin
+  for Result := 0 to High(TArray<Integer>(data)) do
+    if TArray<Integer>(data)[Result] = item then
+      Exit;
+  Result := -1;
+end;
+
+class function VectorHelper.InternalIndexOfInt64(const data: Pointer;
+  const item: Int64): Integer;
+begin
+  for Result := 0 to High(TArray<Int64>(data)) do
+    if TArray<Int64>(data)[Result] = item then
+      Exit;
+  Result := -1;
+end;
+
+class function VectorHelper.InternalIndexOfStr(const data: Pointer;
+  const item: string): Integer;
+begin
+  for Result := 0 to High(TArray<string>(data)) do
+    if TArray<string>(data)[Result] = item then
+      Exit;
+  Result := -1;
+end;
 
 class operator Vector<T>.Add(const left, right: Vector<T>): Vector<T>;
 begin
@@ -8274,8 +9108,14 @@ end;
 function Vector<T>.IndexOf(const item: T): Integer;
 begin
   case TType.Kind<T> of
-    tkInteger: Result := InternalIndexOfInt(PInteger(@item)^);
-    tkUString: Result := InternalIndexOfStr(PUnicodeString(@item)^);
+    tkInteger:
+      case SizeOf(T) of
+        1: Result := VectorHelper.InternalIndexOfInt8(fData, PShortInt(@item)^);
+        2: Result := VectorHelper.InternalIndexOfInt16(fData, PSmallInt(@item)^);
+        4: Result := VectorHelper.InternalIndexOfInt32(fData, PInteger(@item)^);
+      end;
+    tkInt64: Result := VectorHelper.InternalIndexOfInt64(fData, PInt64(@item)^);
+    tkUString: Result := VectorHelper.InternalIndexOfStr(fData, PUnicodeString(@item)^);
   else
     Result := InternalIndexOf(item);
   end;
@@ -8284,6 +9124,28 @@ end;
 function Vector<T>.Contains(const item: T): Boolean;
 begin
   Result := IndexOf(item) > -1;
+end;
+
+function Vector<T>.Contains(const item: T;
+  const comparer: IEqualityComparer<T>): Boolean;
+var
+  i: Integer;
+begin
+  for i := 0 to High(fData) do
+    if comparer.Equals(fData[i], item) then
+      Exit(True);
+  Result := False;
+end;
+
+function Vector<T>.Contains(const item: T;
+  const comparer: TEqualityComparison<T>): Boolean;
+var
+  i: Integer;
+begin
+  for i := 0 to High(fData) do
+    if comparer(fData[i], item) then
+      Exit(True);
+  Result := False;
 end;
 
 function Vector<T>.Contains(const items: array of T): Boolean;
@@ -8547,22 +9409,6 @@ begin
   comparer := TEqualityComparer<T>.Default;
   for Result := 0 to High(fData) do
     if comparer.Equals(fData[Result], item) then
-      Exit;
-  Result := -1;
-end;
-
-function Vector<T>.InternalIndexOfInt(const item: Integer): Integer;
-begin
-  for Result := 0 to High(fData) do
-    if PInteger(@fData[Result])^ = item then
-      Exit;
-  Result := -1;
-end;
-
-function Vector<T>.InternalIndexOfStr(const item: string): Integer;
-begin
-  for Result := 0 to High(fData) do
-    if PUnicodeString(@fData[Result])^ = item then
       Exit;
   Result := -1;
 end;

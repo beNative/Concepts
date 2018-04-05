@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -37,6 +37,9 @@ uses
   Spring,
   Spring.Collections,
   Spring.Collections.LinkedLists,
+{$IFNDEF DELPHI2010}
+  Spring.Collections.Trees,
+{$ENDIF}
   Spring.Collections.Lists;
 
 type
@@ -534,9 +537,91 @@ type
     procedure ExtractDoesNotDestroysItemButReturnsIt;
   end;
 
+  TTestOrderedDictionary = class(TTestCase)
+  private
+    SUT: IOrderedDictionary<Integer,string>;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+
+    procedure CheckCount(expected: Integer);
+  published
+    procedure TestAddKeyValue;
+    procedure TestKeysGetEnumerator;
+    procedure TestKeysToArray;
+    procedure TestValuesGetEnumerator;
+    procedure TestValuesToArray;
+    procedure TestGetEnumerator;
+    procedure TestGetItemByIndex;
+    procedure TestAddOrSetValue;
+    procedure TestRemove;
+    procedure TestExtractPair;
+    procedure TestToArray;
+  end;
+
+{$IFNDEF DELPHI2010}
+  TTestEmptyIntegerStringMap = class(TTestCase)
+  private
+    SUT: IMap<Integer, string>;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestMapIsInitializedEmpty;
+    procedure TestMapKeysAreEmpty;
+    procedure TestMapValuesAreEmpty;
+    procedure TestMapContainsReturnsFalse;
+    procedure TestMapValuesReferenceCounting;
+  end;
+
+  TTestIntegerStringMap = class(TTestCase)
+  private
+    SUT: IDictionary<Integer, string>;
+    const NumItems = 100;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestCount;
+    procedure TestMapSimpleValues;
+    procedure TestKeys;
+    procedure TestValues;
+    procedure TestContainsValue;
+    procedure TestContainsKey;
+    procedure TestEnumeration;
+    procedure TestToArray;
+    procedure TestOrdered;
+    procedure TestAddValue;
+    procedure TestAddOrSetValue;
+    procedure TestExtract;
+    procedure TestExtractPair;
+    procedure TestRemoveKey;
+    procedure TestGetValueOrDefault;
+    procedure TestTryGetValue;
+    procedure TestIndexedGet;
+    procedure TestIndexedSet;
+  end;
+
+  TTestRedBlackTree = class(TTestCase)
+  private
+    SUT: IBinaryTree<Integer>;
+  protected
+    procedure SetUp; override;
+    procedure TearDown; override;
+  published
+    procedure TestDuplicates;
+    procedure TestDelete;
+
+    procedure FuzzyTesting;
+
+    procedure TestInsert;
+  end;
+{$ENDIF}
+
 implementation
 
 uses
+  Spring.Collections.Dictionaries,
   Spring.Collections.Queues,
   Spring.Collections.Stacks,
   StrUtils,
@@ -2410,7 +2495,7 @@ end;
 procedure TTestInterfaceList.TestInterfaceListCreate;
 begin
   SUT := TCollections.CreateList<IInvokable>;
-  CheckNotNull(SUT.Comparer);      
+  CheckNotNull(SUT.Comparer);
 end;
 
 {$ENDREGION}
@@ -3038,6 +3123,759 @@ begin
   SUT := nil;
   inherited;
 end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestOrderedDictionary'}
+
+procedure TTestOrderedDictionary.CheckCount(expected: Integer);
+begin
+  CheckEquals(expected, SUT.Count, 'Count');
+  CheckEquals(expected, SUT.Keys.Count, 'Keys.Count');
+  CheckEquals(expected, SUT.Values.Count, 'Values.Count');
+end;
+
+procedure TTestOrderedDictionary.SetUp;
+begin
+  SUT := TOrderedDictionary<Integer,string>.Create;
+end;
+
+procedure TTestOrderedDictionary.TearDown;
+begin
+  SUT := nil;
+end;
+
+procedure TTestOrderedDictionary.TestAddKeyValue;
+begin
+  SUT.Add(1, 'a');
+  SUT.Add(2, 'b');
+  SUT.Add(3, 'c');
+  SUT.Add(4, 'd');
+
+  CheckCount(4);
+end;
+
+procedure TTestOrderedDictionary.TestAddOrSetValue;
+var
+  values: TArray<string>;
+begin
+  SUT.Add(1, 'a');
+  SUT.Add(2, 'b');
+  SUT.Add(3, 'c');
+  SUT.Add(4, 'd');
+  SUT.AddOrSetValue(2, 'e');
+
+  CheckCount(4);
+
+  values := SUT.Values.ToArray;
+  CheckEquals(values[0], 'a');
+  CheckEquals(values[1], 'e');
+  CheckEquals(values[2], 'c');
+  CheckEquals(values[3], 'd');
+end;
+
+procedure TTestOrderedDictionary.TestExtractPair;
+var
+  pair: TPair<Integer,string>;
+begin
+  SUT.Add(1, 'a');
+  SUT.Add(2, 'b');
+  SUT.Add(3, 'c');
+  SUT.Add(4, 'd');
+
+  pair := SUT.ExtractPair(5);
+  CheckEquals(5, pair.Key);
+  CheckEquals('', pair.Value);
+  CheckCount(4);
+  pair := SUT.ExtractPair(4);
+  CheckEquals(4, pair.Key);
+  CheckEquals('d', pair.Value);
+  CheckCount(3);
+  pair := SUT.Extract(3, 'c');
+  CheckEquals(3, pair.Key);
+  CheckEquals('c', pair.Value);
+  CheckCount(2);
+end;
+
+procedure TTestOrderedDictionary.TestGetEnumerator;
+var
+  pair: TPair<Integer,string>;
+  i: Integer;
+begin
+  SUT.Add(1, 'a');
+  SUT.Add(2, 'b');
+  SUT.Add(3, 'c');
+  SUT.Add(4, 'd');
+
+  i := 0;
+  for pair in SUT do
+  begin
+    Inc(i);
+    CheckEquals(i, pair.Key);
+  end;
+  CheckEquals(4, i);
+end;
+
+procedure TTestOrderedDictionary.TestGetItemByIndex;
+var
+  i: Integer;
+begin
+  SUT.Add(1, 'a');
+  SUT.Add(2, 'b');
+  SUT.Add(3, 'c');
+  SUT.Add(4, 'd');
+
+  for i := 0 to SUT.Count - 1 do
+    CheckEquals(i + 1, SUT.Items[i].Key);
+end;
+
+procedure TTestOrderedDictionary.TestKeysGetEnumerator;
+var
+  i, key: Integer;
+begin
+  SUT.Add(1, 'a');
+  SUT.Add(2, 'b');
+  SUT.Add(3, 'c');
+  SUT.Add(4, 'd');
+
+  i := 0;
+  for key in SUT.Keys do
+  begin
+    Inc(i);
+    CheckEquals(i, key);
+  end;
+  CheckEquals(4, i);
+end;
+
+procedure TTestOrderedDictionary.TestKeysToArray;
+var
+  keys: TArray<Integer>;
+begin
+  SUT.Add(1, 'a');
+  SUT.Add(2, 'b');
+  SUT.Add(3, 'c');
+  SUT.Add(4, 'd');
+  keys := SUT.Keys.ToArray;
+  CheckEquals(4, Length(keys));
+  CheckEquals(1, keys[0]);
+  CheckEquals(2, keys[1]);
+  CheckEquals(3, keys[2]);
+  CheckEquals(4, keys[3]);
+end;
+
+procedure TTestOrderedDictionary.TestRemove;
+begin
+  SUT.Add(1, 'a');
+  SUT.Add(2, 'b');
+  SUT.Add(3, 'c');
+  SUT.Add(4, 'd');
+  CheckTrue(SUT.Remove(3));
+  CheckCount(3);
+  CheckFalse(SUT.Remove(4, 'e'));
+  CheckCount(3);
+  CheckTrue(SUT.Remove(4, 'd'));
+  CheckCount(2);
+end;
+
+procedure TTestOrderedDictionary.TestToArray;
+var
+  items: TArray<TPair<Integer, string>>;
+begin
+  SUT.Add(1, 'a');
+  SUT.Add(2, 'b');
+  SUT.Add(3, 'c');
+  SUT.Add(4, 'd');
+  items := SUT.ToArray;
+  CheckEquals(4, Length(items));
+  CheckEquals(1, items[0].Key);
+  CheckEquals(2, items[1].Key);
+  CheckEquals(3, items[2].Key);
+  CheckEquals(4, items[3].Key);
+  CheckEquals('a', items[0].Value);
+  CheckEquals('b', items[1].Value);
+  CheckEquals('c', items[2].Value);
+  CheckEquals('d', items[3].Value);
+end;
+
+procedure TTestOrderedDictionary.TestValuesGetEnumerator;
+const
+  Values: array[1..4] of string = ('a', 'b', 'c', 'd');
+var
+  i: Integer;
+  value: string;
+begin
+  SUT.Add(1, 'a');
+  SUT.Add(2, 'b');
+  SUT.Add(3, 'c');
+  SUT.Add(4, 'd');
+  i := 0;
+  for value in SUT.Values do
+  begin
+    Inc(i);
+    CheckEquals(Values[i], value);
+  end;
+  CheckEquals(4, i);
+end;
+
+procedure TTestOrderedDictionary.TestValuesToArray;
+var
+  values: TArray<string>;
+begin
+  SUT.Add(1, 'a');
+  SUT.Add(2, 'b');
+  SUT.Add(3, 'c');
+  SUT.Add(4, 'd');
+  values := SUT.Values.ToArray;
+  CheckEquals(4, Length(values));
+  CheckEquals('a', values[0]);
+  CheckEquals('b', values[1]);
+  CheckEquals('c', values[2]);
+  CheckEquals('d', values[3]);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestEmptyIntegerStringMap'}
+
+{$IFNDEF DELPHI2010}
+procedure TTestEmptyIntegerStringMap.SetUp;
+begin
+  SUT := TCollections.CreateSortedDictionary<Integer, string>;
+end;
+
+procedure TTestEmptyIntegerStringMap.TearDown;
+begin
+  SUT := nil;
+end;
+
+procedure TTestEmptyIntegerStringMap.TestMapIsInitializedEmpty;
+begin
+  Check(SUT.Count = 0);
+end;
+
+procedure TTestEmptyIntegerStringMap.TestMapKeysAreEmpty;
+var
+  keys: IReadOnlyCollection<Integer>;
+begin
+  keys := SUT.Keys;
+  CheckEquals(0, keys.Count);
+end;
+
+procedure TTestEmptyIntegerStringMap.TestMapValuesAreEmpty;
+var
+  values: IReadOnlyCollection<string>;
+begin
+  values := SUT.Values;
+  CheckEquals(0, values.Count);
+end;
+
+procedure TTestEmptyIntegerStringMap.TestMapContainsReturnsFalse;
+begin
+  CheckFalse(SUT.ContainsKey(42));
+  CheckFalse(SUT.ContainsValue('42'));
+end;
+
+procedure TTestEmptyIntegerStringMap.TestMapValuesReferenceCounting;
+var
+  query: IEnumerable<string>;
+begin
+  query := SUT.Values.Skip(1);
+  CheckNotNull(query);
+end;
+{$ENDIF}
+
+{$ENDREGION}
+
+
+{$REGION 'TTestIntegerStringMap'}
+
+{$IFNDEF DELPHI2010}
+procedure TTestIntegerStringMap.SetUp;
+var
+  i, n: Integer;
+begin
+  SUT := TCollections.CreateSortedDictionary<Integer, string>;
+  // Add a reasonable number of items to the map, adding in an order that might
+  // cause a mismatched tree if the backing red-black tree had balancing errors.
+  n := Round(NumItems * 0.667);
+  for i := n to Pred(NumItems) do
+    SUT.Add(i, IntToStr(i));
+  for i := 0 to Pred(n) do
+    SUT.Add(i, IntToStr(i));
+end;
+
+procedure TTestIntegerStringMap.TearDown;
+begin
+  SUT := nil;
+end;
+
+procedure TTestIntegerStringMap.TestCount;
+begin
+  Check(SUT.Count = NumItems);
+end;
+
+procedure TTestIntegerStringMap.TestMapSimpleValues;
+var
+  i: Integer;
+begin
+  // Check all items are in the map
+  Check(SUT.Count = NumItems);
+  for i := 0 to Pred(NumItems) do
+    Check(SUT[i] = IntToStr(i));
+  // Check a couple of others are not there
+  Check(not SUT.ContainsKey(-1));
+  Check(not SUT.ContainsKey(NumItems));
+end;
+
+procedure TTestIntegerStringMap.TestKeys;
+var
+  keys: IReadOnlyCollection<Integer>;
+  i: Integer;
+begin
+  keys := SUT.Keys;
+  Check(keys.Count = NumItems);
+  for i := 0 to Pred(NumItems) do
+    Check(Keys.Contains(i));
+end;
+
+procedure TTestIntegerStringMap.TestValues;
+var
+  values: IReadOnlyCollection<string>;
+  i: Integer;
+begin
+  Values := SUT.Values;
+  Check(Values.Count = NumItems);
+  for i := 0 to Pred(NumItems) do
+    Check(Values.Contains(IntToStr(i)));
+end;
+
+procedure TTestIntegerStringMap.TestContainsValue;
+var
+  i: Integer;
+begin
+  // Check it contains each value it should
+  for i := 0 to Pred(NumItems) do
+    Check(SUT.ContainsValue(IntToStr(i)));
+
+  // And check it does not contain other values
+  Check(not SUT.ContainsValue('-1'));
+  Check(not SUT.ContainsValue('test'));
+  Check(not SUT.ContainsValue(''));
+end;
+
+procedure TTestIntegerStringMap.TestContainsKey;
+var
+  i: Integer;
+begin
+  // Check it contains each value it should
+  for i := 0 to Pred(NumItems) do
+    Check(SUT.ContainsKey(i));
+
+  // And check it does not contain other keys
+  Check(not SUT.ContainsKey(-1));
+  Check(not SUT.ContainsKey(NumItems));
+  Check(not SUT.ContainsKey(MaxInt));
+end;
+
+procedure TTestIntegerStringMap.TestEnumeration;
+var
+  i: Integer;
+  item: TPair<Integer, string>;
+begin
+  // Check it enumerates each item, and in the expected order
+  i := 0;
+  for item in SUT do
+  begin
+    Check(item.Key = i);
+    Check(item.Value = IntToStr(i));
+    Inc(i);
+  end;
+  Check(i = NumItems);
+end;
+
+procedure TTestIntegerStringMap.TestToArray;
+var
+  i: Integer;
+  items: TArray<TPair<Integer, string>>;
+begin
+  items := SUT.ToArray;
+  Check(Assigned(items));
+  Check(Length(items) = NumItems);
+
+  for i := Low(items) to High(items) do
+  begin
+    Check(items[i].Key = i);
+    Check(items[i].Value = IntToStr(i));
+  end;
+end;
+
+procedure TTestIntegerStringMap.TestOrdered;
+var
+  items: IEnumerable<TPair<Integer, string>>;
+  i: Integer;
+  item: TPair<Integer, string>;
+begin
+  items := SUT.Ordered;
+  Check(Assigned(items));
+
+  // Check it enumerates each item, and in the expected order
+  i := 0;
+  for item in SUT do
+  begin
+    Check(item.Key = i);
+    Check(item.Value = IntToStr(i));
+    Inc(i);
+  end;
+  Check(i = NumItems);
+end;
+
+procedure TTestIntegerStringMap.TestAddValue;
+begin
+  SUT.Add(NumItems, IntToStr(NumItems));
+  Check(SUT.Items[NumItems] = IntToStr(NumItems));
+  Check(SUT.Count = NumItems+1);
+
+  // Add should raise an exception when the item already exists
+  CheckException(EListError,
+    procedure
+    begin
+      SUT.Add(NumItems, IntToStr(NumItems));
+    end);
+  CheckException(EListError,
+    procedure
+    begin
+      SUT.Add(0, IntToStr(0));
+    end);
+  CheckException(EListError,
+    procedure
+    begin
+      SUT.Add(NumItems div 2, IntToStr(NumItems div 2));
+    end);
+
+  // Check it didn't actually add anything in the failure items above
+  Check(SUT.Count = NumItems + 1);
+end;
+
+procedure TTestIntegerStringMap.TestAddOrSetValue;
+begin
+  // AddOrSet should never raise an exception when there's a duplicate already,
+  // but should simply overwrite it.
+
+  SUT.AddOrSetValue(NumItems, IntToStr(NumItems));
+  Check(SUT.Items[NumItems] = IntToStr(NumItems));
+  Check(SUT.Count = NumItems+1);
+
+  // Add again
+  SUT.AddOrSetValue(NumItems, 'test');
+  Check(SUT.Items[NumItems] = 'test');
+end;
+
+procedure TTestIntegerStringMap.TestExtract;
+begin
+  Check(SUT.Count = NumItems);
+
+  Check(SUT.Extract(0) = '0');
+  Check(SUT.Count = NumItems-1); // Extract removes an item
+
+  Check(SUT.Extract(NumItems-1) = IntToStr(NumItems-1));
+  Check(SUT.Count = NumItems-2);
+
+  Check(SUT.Extract(NumItems div 2) = IntToStr(NumItems div 2));
+  Check(SUT.Count = NumItems-3);
+end;
+
+procedure TTestIntegerStringMap.TestExtractPair;
+var
+  item: TPair<Integer, string>;
+begin
+  Check(SUT.Count = NumItems);
+
+  item := SUT.ExtractPair(0);
+  Check(item.Key = 0);
+  Check(item.Value = '0');
+  Check(SUT.Count = NumItems-1); // Extract removes an item
+
+  item := SUT.ExtractPair(NumItems-1);
+  Check(item.Key = NumItems-1);
+  Check(item.Value = IntToStr(NumItems-1));
+  Check(SUT.Count = NumItems-2);
+
+  item := SUT.ExtractPair(NumItems div 2);
+  Check(item.Key = NumItems div 2);
+  Check(item.Value = IntToStr(NumItems div 2));
+  Check(SUT.Count = NumItems-3);
+end;
+
+procedure TTestIntegerStringMap.TestRemoveKey;
+begin
+  Check(SUT.Count = NumItems);
+
+  Check(SUT.Remove(0));
+  Check(SUT.Count = NumItems-1);
+
+  Check(SUT.Remove(NumItems-1));
+  Check(SUT.Count = NumItems-2);
+
+  Check(SUT.Remove(NumItems div 2));
+  Check(SUT.Count = NumItems-3);
+
+  // But Remove should fail for items that are not present
+  Check(not SUT.Remove(NumItems div 2)); // Already removed
+  Check(SUT.Count = NumItems-3); // Count unchanged
+
+  Check(not SUT.Remove(NumItems * 2)); // Never added
+  Check(SUT.Count = NumItems-3); // Count unchanged
+end;
+
+procedure TTestIntegerStringMap.TestGetValueOrDefault;
+begin
+  // An item that exists
+  Check((SUT as IReadOnlyDictionary<Integer, string>).GetValueOrDefault(0, 'test') = '0');
+  // An item that does not exist
+  Check((SUT as IReadOnlyDictionary<Integer, string>).GetValueOrDefault(NumItems*2, 'test') = 'test');
+end;
+
+procedure TTestIntegerStringMap.TestTryGetValue;
+var
+  value: string;
+begin
+  // An item that exists
+  Check(SUT.TryGetValue(0, value));
+  Check(value = '0');
+
+  // An item that does not exist
+  value := 'blah';
+  Check(not SUT.TryGetValue(NumItems * 2, value));
+end;
+
+procedure TTestIntegerStringMap.TestIndexedGet;
+begin
+  Check(SUT[0] = '0');
+  Check(SUT[NumItems div 2] = IntToStr(NumItems div 2));
+
+  // Get returns the default value when the item doesn't exist
+  Check(SUT[NumItems * 10] = '');
+  Check(SUT[MaxInt] = '');
+  Check(SUT[-500] = '');
+end;
+
+procedure TTestIntegerStringMap.TestIndexedSet;
+var
+  item: TPair<Integer, string>;
+  i: Integer;
+begin
+  // Set overwrites existing items without an error
+  Check(SUT[0] = '0');
+  SUT[0] := 'hello';
+  Check(SUT[0] = 'hello');
+
+  // Use .Items explicitly (it should be the default property)
+  Check(SUT.Items[NumItems div 2] = IntToStr(NumItems div 2));
+  SUT.Items[NumItems div 2] := 'hello again';
+  Check(SUT.Items[NumItems div 2] = 'hello again');
+
+  // And adds new items
+  Check(not SUT.ContainsKey(10000));
+  SUT[10000] := 'large number';
+  Check(SUT.Count = NumItems + 1);
+  Check(SUT.ContainsKey(10000));
+  Check(SUT.Items[10000] = 'large number');
+
+  // And check that all the other items are untouched
+  i := 0;
+  for item in SUT do
+  begin
+    // The items changed or added above
+    if i = 0 then
+    begin
+      Check(item.Key = 0);
+      Check(item.Value = 'hello');
+    end else if i = NumItems div 2 then
+    begin
+      Check(item.Key = NumItems div 2);
+      Check(item.Value = 'hello again');
+    end else if i = NumItems then
+    begin
+      // The last item should be the large number added above
+      Check(i = NumItems);
+      Check(item.Key = 10000);
+      Check(item.Value = 'large number');
+    end else
+    begin
+      // All other items in the map should not have been affected by the above
+      Check(item.Key = i);
+      Check(item.Value = IntToStr(i));
+    end;
+    Inc(i);
+  end;
+  Check(i = NumItems+1);
+end;
+{$ENDIF}
+
+{$ENDREGION}
+
+
+{$REGION 'TTestRedBlackTree'}
+
+{$IFNDEF DELPHI2010}
+procedure TTestRedBlackTree.FuzzyTesting;
+
+  function ArrayToString(const values: TArray<Integer>): string;
+  var
+    i: Integer;
+  begin
+    Result := '[';
+    for i := 0 to Length(values) - 1 do
+    begin
+      if i > 0 then
+        Result := Result + ', ';
+      Result := Result + IntToStr(values[i]);
+    end;
+    Result := Result + ']';
+  end;
+
+  procedure Test(const input: TArray<Integer>);
+  var
+    i, n: Integer;
+    output, inputSorted: TArray<Integer>;
+    inputString: string;
+  begin
+    for i in input do
+      SUT.Add(i);
+    output := SUT.ToArray;
+
+    inputString := ArrayToString(input);
+
+    CheckEquals(Length(input), Length(output), inputString);
+
+    inputSorted := Copy(input);
+    TArray.Sort<Integer>(inputSorted);
+
+    for n := 0 to High(output) do
+      CheckEquals(inputSorted[n], output[n], inputString);
+
+    for i := 0 to Length(input) - 1 do
+    begin
+      CheckTrue(SUT.Delete(input[i]));
+      output := SUT.ToArray;
+
+      inputSorted := Copy(input, i + 1);
+      TArray.Sort<Integer>(inputSorted);
+      for n := 0 to High(output) do
+        CheckEquals(inputSorted[n], output[n], inputString);
+    end;
+  end;
+
+const
+  COUNT = 1000;
+  MAX_INPUT_LENGHT = 100;
+  MAX_VALUE = 1000;
+var
+  i, n: Integer;
+  input: TArray<Integer>;
+  inputLen: Integer;
+begin
+  Randomize;
+
+  for n := 1 to COUNT do
+  begin
+    SUT := TRedBlackTree<Integer>.Create;
+    inputLen := Random(MAX_INPUT_LENGHT) + 1;
+    SetLength(input, inputLen);
+    for i := 0 to inputLen - 1 do
+      input[i] := Random(MAX_VALUE) + 1;
+    input := TEnumerable.Distinct<Integer>(TEnumerable.From<Integer>(input)).ToArray;
+    Test(input);
+  end;
+end;
+
+procedure TTestRedBlackTree.SetUp;
+begin
+  SUT := TRedBlackTree<Integer>.Create;
+end;
+
+procedure TTestRedBlackTree.TearDown;
+begin
+  SUT := nil;
+end;
+
+procedure TTestRedBlackTree.TestDelete;
+var
+  arr: TArray<Integer>;
+begin
+  SUT.Add(4);
+  SUT.Add(2);
+  SUT.Add(6);
+  SUT.Add(1);
+  SUT.Add(3);
+  SUT.Add(5);
+  SUT.Add(7);
+
+  SUT.Delete(4);
+  arr := SUT.ToArray;
+  CheckEquals(6, Length(arr));
+  CheckEquals(1, arr[0]);
+  CheckEquals(2, arr[1]);
+  CheckEquals(3, arr[2]);
+  CheckEquals(5, arr[3]);
+  CheckEquals(6, arr[4]);
+  CheckEquals(7, arr[5]);
+end;
+
+procedure TTestRedBlackTree.TestDuplicates;
+begin
+  CheckTrue(SUT.Add(1));
+  CheckFalse(SUT.Add(1));
+  CheckTrue(SUT.Add(2));
+  CheckTrue(SUT.Add(3));
+  CheckFalse(SUT.Add(1));
+  CheckEquals(3, SUT.Count);
+end;
+
+procedure TTestRedBlackTree.TestInsert;
+var
+  arr: TArray<Integer>;
+begin
+  SUT.Add(2);
+  SUT.Add(1);
+  SUT.Add(3);
+  SUT.Add(4);
+  SUT.Add(5);
+  arr := SUT.ToArray;
+  CheckEquals(5, Length(arr));
+  CheckEquals(1, arr[0]);
+  CheckEquals(2, arr[1]);
+  CheckEquals(3, arr[2]);
+  CheckEquals(4, arr[3]);
+  CheckEquals(5, arr[4]);
+
+  SUT.Clear;
+  SUT.Add(26);
+  SUT.Add(56);
+  SUT.Add(34);
+  SUT.Add(98);
+  SUT.Add(21);
+  SUT.Add(14);
+  SUT.Add(28);
+  SUT.Add(92);
+  SUT.Add(12);
+  SUT.Add(45);
+  arr := SUT.ToArray;
+  CheckEquals(10, Length(arr));
+  CheckEquals(12, arr[0]);
+  CheckEquals(14, arr[1]);
+  CheckEquals(21, arr[2]);
+  CheckEquals(26, arr[3]);
+  CheckEquals(28, arr[4]);
+  CheckEquals(34, arr[5]);
+  CheckEquals(45, arr[6]);
+  CheckEquals(56, arr[7]);
+  CheckEquals(92, arr[8]);
+  CheckEquals(98, arr[9]);
+end;
+{$ENDIF}
 
 {$ENDREGION}
 

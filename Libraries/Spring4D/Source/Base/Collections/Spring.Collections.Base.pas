@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -381,8 +381,8 @@ type
     function GetValueType: PTypeInfo; virtual;
   {$ENDREGION}
     procedure AddInternal(const item: TGenericPair); override; final;
-    procedure KeyChanged(const Item: TKey; Action: TCollectionChangedAction); virtual;
-    procedure ValueChanged(const Item: T; Action: TCollectionChangedAction); virtual;
+    procedure KeyChanged(const item: TKey; action: TCollectionChangedAction); virtual;
+    procedure ValueChanged(const item: T; action: TCollectionChangedAction); virtual;
   public
     constructor Create; override;
 
@@ -1392,8 +1392,6 @@ end;
 
 procedure TIteratorBase<T>.Dispose;
 begin
-  fCurrent := Default(T);
-  fState := STATE_FINISHED;
 end;
 
 function TIteratorBase<T>.MoveNext: Boolean;
@@ -1403,12 +1401,17 @@ begin
     STATE_RUNNING:
     begin
       if fState = STATE_ENUMERATOR then
+      begin
         Start;
+        fState := STATE_RUNNING;
+      end;
 
       if TryMoveNext(fCurrent) then
         Exit(True);
 
       Dispose;
+      fCurrent := Default(T);
+      fState := STATE_FINISHED;
     end;
   end;
   Result := False;
@@ -1416,7 +1419,6 @@ end;
 
 procedure TIteratorBase<T>.Start;
 begin
-  fState := STATE_RUNNING;
 end;
 
 {$ENDREGION}
@@ -1800,11 +1802,11 @@ begin
   Result := TypeInfo(T);
 end;
 
-procedure TMapBase<TKey, T>.KeyChanged(const Item: TKey;
-  Action: TCollectionChangedAction);
+procedure TMapBase<TKey, T>.KeyChanged(const item: TKey;
+  action: TCollectionChangedAction);
 begin
   if Assigned(fOnKeyChanged) and fOnKeyChanged.CanInvoke then
-    fOnKeyChanged.Invoke(Self, Item, Action)
+    fOnKeyChanged.Invoke(Self, item, action)
 end;
 
 function TMapBase<TKey, T>.Remove(const item: TGenericPair): Boolean;
@@ -1812,11 +1814,11 @@ begin
   Result := Remove(item.Key, item.Value);
 end;
 
-procedure TMapBase<TKey, T>.ValueChanged(const Item: T;
-  Action: TCollectionChangedAction);
+procedure TMapBase<TKey, T>.ValueChanged(const item: T;
+  action: TCollectionChangedAction);
 begin
   if Assigned(fOnValueChanged) and fOnValueChanged.CanInvoke then
-    fOnValueChanged.Invoke(Self, Item, Action)
+    fOnValueChanged.Invoke(Self, item, action)
 end;
 
 {$ENDREGION}

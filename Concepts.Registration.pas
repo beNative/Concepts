@@ -196,7 +196,7 @@ begin
     TfrmObjectDataSet,
     'Persistence',
     'Spring',
-    'TObjectDataSet demo.',
+    'TObjectDataSet demo',
     FCategoryColor
   );
   ConceptManager.Register(

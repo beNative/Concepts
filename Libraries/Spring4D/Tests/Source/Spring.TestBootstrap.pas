@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -36,9 +36,10 @@ uses
   LeakCheck,
   LeakCheck.Utils,
  {$ENDIF LEAKCHECK}
+ {$IFDEF DELPHIXE4_UP}
   System.StartUpCopy,
-  FMX.Forms,
-  FMXTestRunner;
+  {$ENDIF}
+  FMX.Forms;
 {$ELSE FMX}
  {$IFDEF LEAKCHECK}
 uses

@@ -52,6 +52,7 @@ contains
   Spring.Collections.Queues in '..\..\Source\Base\Collections\Spring.Collections.Queues.pas',
   Spring.Collections.Sets in '..\..\Source\Base\Collections\Spring.Collections.Sets.pas',
   Spring.Collections.Stacks in '..\..\Source\Base\Collections\Spring.Collections.Stacks.pas',
+  Spring.Collections.Trees in '..\..\Source\Base\Collections\Spring.Collections.Trees.pas',
   Spring.DesignPatterns in '..\..\Source\Base\Spring.DesignPatterns.pas',
   Spring.Events in '..\..\Source\Base\Spring.Events.pas',
   Spring.Events.Base in '..\..\Source\Base\Spring.Events.Base.pas',

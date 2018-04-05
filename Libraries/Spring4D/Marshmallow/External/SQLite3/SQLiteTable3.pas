@@ -547,6 +547,8 @@ type
     procedure SetParamDateTime(const name: string; const Value: TDateTime); overload;
     procedure SetParamDate(const I: Integer; const Value: TDate); overload;
     procedure SetParamDate(const name: string; const Value: TDate); overload;
+    procedure SetParamTime(const I: Integer; const Value: TTime); overload;
+    procedure SetParamTime(const name: string; const Value: TTime); overload;
     procedure SetParamVariant(const I: Integer; const Value: Variant); overload;
     procedure SetParamVariant(const name: string; const Value: Variant); overload;
     procedure SetParamBlob(const I: Integer; const Value: TStream); overload;
@@ -629,6 +631,8 @@ type
     procedure SetParamDateTime(const name: string; const Value: TDateTime); overload;
     procedure SetParamDate(const I: Integer; const Value: TDate); overload;
     procedure SetParamDate(const name: string; const Value: TDate); overload;
+    procedure SetParamTime(const I: Integer; const Value: TTime); overload;
+    procedure SetParamTime(const name: string; const Value: TTime); overload;
     procedure SetParamVariant(const I: Integer; const Value: Variant); overload;
     procedure SetParamVariant(const name: string; const Value: Variant); overload;
     procedure SetParamBlob(const I: Integer; const Value: TStream); overload;
@@ -2953,6 +2957,11 @@ begin
   SetParamText(I, DateToStr(Value, FDB.FFormatSett));
 end;
 
+procedure TSQLitePreparedStatement.SetParamTime(const I: Integer; const Value: TTime);
+begin
+  SetParamText(I, TimeToStr(Value, FDB.FFormatSett));
+end;
+
 procedure TSQLitePreparedStatement.SetParamBlob(const I: Integer; const Value: TStream);
 begin
   SetParamBlobInternal(Value, I);
@@ -2993,6 +3002,11 @@ end;
 procedure TSQLitePreparedStatement.SetParamDateTime(const name: string; const Value: TDateTime);
 begin
   SetParamText(name, DateTimeToStr(Value, FDB.FFormatSett));
+end;
+
+procedure TSQLitePreparedStatement.SetParamTime(const name: string; const Value: TTime);
+begin
+  SetParamText(name, TimeToStr(Value, FDB.FFormatSett));
 end;
 
 procedure TSQLitePreparedStatement.SetParamFloat(const I: Integer; value: double);

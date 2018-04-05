@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -100,6 +100,7 @@ implementation
 uses
   DB,
   StrUtils,
+  Spring,
   Spring.Persistence.Core.ConnectionFactory,
   Spring.Persistence.Core.ResourceStrings;
 
@@ -155,7 +156,11 @@ begin
   paramName := param.Name;
   if StartsStr(':', param.Name) then
     paramName := Copy(param.Name, 2, Length(param.Name));
-  Statement.Params.ParamValues[paramName] := param.ToVariant;
+
+  if param.Value.IsType<TGUID> then
+    Statement.Params.ParamByName(paramName).AsBytes := param.Value.ToType<TArray<Byte>>
+  else
+    Statement.Params.ParamValues[paramName] := param.ToVariant;
 end;
 
 procedure TZeosStatementAdapter.SetParams(const params: IEnumerable<TDBParam>);

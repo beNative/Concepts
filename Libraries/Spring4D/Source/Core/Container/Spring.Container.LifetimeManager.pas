@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -182,12 +182,12 @@ var
 begin
   MonitorEnter(Self);
   try
-  if not Assigned(fInstance) then
-  begin
-    newInstance := model.ComponentActivator.CreateInstance(context);
-    fInstance := TValueHolder.Create(newInstance, model.RefCounting);
-    DoAfterConstruction(fInstance);
-  end;
+    if not Assigned(fInstance) then
+    begin
+      newInstance := model.ComponentActivator.CreateInstance(context);
+      fInstance := TValueHolder.Create(newInstance, model.RefCounting);
+      DoAfterConstruction(fInstance);
+    end;
   finally
     MonitorExit(Self);
   end;

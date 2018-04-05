@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -32,9 +32,9 @@ uses
   Classes,
   SyncObjs,
   SysUtils,
-{$IFDEF FMX}
+{$IFDEF FMX}{$IFDEF DELPHIXE4_UP}
   FMX.Platform,
-{$ENDIF}
+{$ENDIF}{$ENDIF}
   Spring.Logging,
   Spring.Logging.Appenders.Base;
 
@@ -100,8 +100,9 @@ type
     constructor CreateInternal(ownsStream: Boolean;
       const encoding: TEncoding);
     procedure SetStream(const stream: TStream);
-  protected
     procedure DoSend(const event: TLogEvent); override;
+    function FormatBuffer(const event: TLogEvent): TBytes; virtual;
+    property Encoding: TEncoding read fEncoding;
   public
     constructor Create(const stream: TStream; ownsStream: Boolean = True;
       const encoding: TEncoding = nil);
@@ -138,7 +139,7 @@ type
 
   {$REGION 'TFMXLogAppender'}
 
-{$IFDEF FMX}
+{$IFDEF FMX}{$IFDEF DELPHIXE4_UP}
   TFMXLogAppender = class(TLogAppenderWithTimeStampFormat)
   private
     fService: IFMXLoggingService;
@@ -147,7 +148,7 @@ type
   public
     constructor Create;
   end;
-{$ENDIF}
+{$ENDIF}{$ENDIF}
 
   {$ENDREGION}
 
@@ -186,7 +187,11 @@ type
   {$IFDEF ANDROID}
     TDefaultLogAppender = TAndroidLogAppender;
   {$ELSE !ANDROID}
-    TDefaultLogAppender = TFMXLogAppender;
+    {$IFDEF DELPHIXE4_UP}
+      TDefaultLogAppender = TFMXLogAppender;
+	{$ELSE}
+      TDefaultLogAppender = TTextLogAppender;
+	{$ENDIF}
   {$ENDIF ANDROID}
  {$ELSE !FMX}
     TDefaultLogAppender = TTextLogAppender;
@@ -299,14 +304,19 @@ procedure TStreamLogAppender.DoSend(const event: TLogEvent);
 var
   buffer: TBytes;
 begin
-  buffer := fEncoding.GetBytes(FormatTimeStamp(event.TimeStamp) + ': ' +
-    LEVEL_FIXED[event.Level] + ' ' + FormatMsg(event) + sLineBreak);
+  buffer := FormatBuffer(event);
   fLock.Enter;
   try
     fStream.WriteBuffer(buffer[0], Length(buffer));
   finally
     fLock.Leave;
   end;
+end;
+
+function TStreamLogAppender.FormatBuffer(const event: TLogEvent): TBytes;
+begin
+  Result := fEncoding.GetBytes(FormatTimeStamp(event.TimeStamp) + ': ' +
+    LEVEL_FIXED[event.Level] + ' ' + FormatMsg(event) + sLineBreak);
 end;
 
 procedure TStreamLogAppender.SetStream(const stream: TStream);
@@ -360,7 +370,7 @@ end;
 
 {$REGION 'TFMXLogAppender'}
 
-{$IFDEF FMX}
+{$IFDEF FMX}{$IFDEF DELPHIXE4_UP}
 constructor TFMXLogAppender.Create;
 begin
   fService := TPlatformServices.Current.GetPlatformService(
@@ -372,7 +382,7 @@ begin
   fService.Log(FormatTimeStamp(event.TimeStamp) + ': ' + LEVEL[event.Level] + ' ' +
     FormatMsg(event), []);
 end;
-{$ENDIF}
+{$ENDIF}{$ENDIF}
 
 {$ENDREGION}
 

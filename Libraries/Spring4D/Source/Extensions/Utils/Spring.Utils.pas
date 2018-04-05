@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -47,11 +47,10 @@ uses
   Spring.Utils.WinAPI,
 {$ENDIF MSWINDOWS}
   Spring,
-  Spring.SystemUtils,
   Spring.Collections;
 
 type
-  TEnum = Spring.SystemUtils.TEnum;
+  TEnum = Spring.TEnum deprecated 'Use Spring.TEnum instead';
 
 
   {$REGION 'TVersion'}
@@ -63,34 +62,34 @@ type
   /// </summary>
   TVersion = record
   private
-    const fCUndefined: Integer = -1;
+    const Unknown: Integer = -1;
   strict private
     fMajor: Integer;
     fMinor: Integer;
-    fBuild: Integer;      // -1 if undefined.
-    fReversion: Integer;  // -1 if undefined.
-    function GetMajorReversion: Int16;
-    function GetMinorReversion: Int16;
+    fBuild: Integer;
+    fRevision: Integer;
+    function GetMajorRevision: Int16;
+    function GetMinorRevision: Int16;
   private
-    constructor InternalCreate(defined, major, minor, build, reversion: Integer);
+    constructor InternalCreate(defined, major, minor, build, revision: Integer);
     function CompareComponent(a, b: Integer): Integer;
     function IsDefined(const component: Integer): Boolean; inline;
   public
     constructor Create(major, minor: Integer); overload;
     constructor Create(major, minor, build: Integer); overload;
-    constructor Create(major, minor, build, reversion: Integer); overload;
+    constructor Create(major, minor, build, revision: Integer); overload;
     constructor Create(const versionString: string); overload;
     function CompareTo(const version: TVersion): Integer;
     function Equals(const version: TVersion): Boolean;
     function ToString: string; overload;
     function ToString(fieldCount: Integer): string; overload;
     property Major: Integer read fMajor;
-    property MajorReversion: Int16 read GetMajorReversion;
     property Minor: Integer read fMinor;
-    property MinorReversion: Int16 read GetMinorReversion;
     property Build: Integer read fBuild;
-    property Reversion: Integer read fReversion;
-    { Operator Overloads }
+    property Revision: Integer read fRevision;
+    property MajorReversion: Int16 read GetMajorRevision;
+    property MinorReversion: Int16 read GetMinorRevision;
+
     class operator Equal(const left, right: TVersion): Boolean;
     class operator NotEqual(const left, right: TVersion): Boolean;
     class operator GreaterThan(const left, right: TVersion): Boolean;
@@ -1052,7 +1051,8 @@ uses
   System.IOUtils,
 {$ENDIF POSIX}
   Math,
-  Spring.ResourceStrings;
+  Spring.ResourceStrings,
+  Spring.SystemUtils;
 
 {$IFDEF MSWINDOWS}
 const
@@ -1176,16 +1176,6 @@ begin
   Result := propInfo <> nil;
 end;
 
-function TryParseDateTime(const s, format: string; out value: TDateTime): Boolean;
-begin
-  Result := TryConvertStrToDateTime(s, format, value);
-end;
-
-function ParseDateTime(const s, format: string): TDateTime;
-begin
-  Result := ConvertStrToDateTime(s, format);
-end;
-
 procedure Lock(obj: TObject; const proc: TProc);
 begin
   Guard.CheckNotNull(obj, 'obj');
@@ -1269,7 +1259,7 @@ var
   major: Integer;
   minor: Integer;
   build: Integer;
-  reversion: Integer;
+  revision: Integer;
 begin
   components := SplitString(versionString, ['.']);
   if not (Length(components) in [2..4]) then
@@ -1280,39 +1270,39 @@ begin
     if Length(components) >= 3 then
       build := StrToInt(components[2])
     else
-      build := -1;
+      build := Unknown;
     if Length(components) = 4 then
-      reversion := StrToInt(components[3])
+      revision := StrToInt(components[3])
     else
-      reversion := -1;
+      revision := Unknown;
   except
     on e: Exception do
       raise EFormatException.Create(e.Message);
   end;
-  InternalCreate(Length(components), major, minor, build, reversion);
+  InternalCreate(Length(components), major, minor, build, revision);
 end;
 
 constructor TVersion.Create(major, minor: Integer);
 begin
-  InternalCreate(2, major, minor, -1, -1);
+  InternalCreate(2, major, minor, Unknown, Unknown);
 end;
 
 constructor TVersion.Create(major, minor, build: Integer);
 begin
-  InternalCreate(3, major, minor, build, -1);
+  InternalCreate(3, major, minor, build, Unknown);
 end;
 
-constructor TVersion.Create(major, minor, build, reversion: Integer);
+constructor TVersion.Create(major, minor, build, revision: Integer);
 begin
-  InternalCreate(4, major, minor, build, reversion);
+  InternalCreate(4, major, minor, build, revision);
 end;
 
 function TVersion.IsDefined(const component: Integer): Boolean;
 begin
-  Result := component <> fCUndefined;
+  Result := component <> Unknown;
 end;
 
-constructor TVersion.InternalCreate(defined, major, minor, build, reversion: Integer);
+constructor TVersion.InternalCreate(defined, major, minor, build, revision: Integer);
 begin
   Guard.CheckTrue(defined in [2, 3, 4], '"defined" should be in [2, 3, 4]');
   Guard.CheckRange(IsDefined(major), 'major');
@@ -1322,21 +1312,21 @@ begin
   case defined of
     2:
     begin
-      fBuild := fCUndefined;
-      fReversion := fCUndefined;
+      fBuild := Unknown;
+      fRevision := Unknown;
     end;
     3:
     begin
       Guard.CheckRange(IsDefined(build), 'build');
       fBuild := build;
-      fReversion := fCUndefined;
+      fRevision := Unknown;
     end;
     4:
     begin
       Guard.CheckRange(IsDefined(build), 'build');
-      Guard.CheckRange(IsDefined(reversion), 'reversion');
+      Guard.CheckRange(IsDefined(revision), 'revision');
       fBuild := build;
-      fReversion := reversion;
+      fRevision := revision;
     end;
   end;
 end;
@@ -1368,7 +1358,7 @@ begin
     begin
       Result := CompareComponent(Build, version.Build);
       if Result = 0 then
-        Result := CompareComponent(Reversion, version.Reversion);
+        Result := CompareComponent(Revision, version.Revision);
     end;
   end;
 end;
@@ -1377,7 +1367,7 @@ function TVersion.ToString: string;
 begin
   if not IsDefined(fBuild) then
     Result := ToString(2)
-  else if not IsDefined(fReversion) then
+  else if not IsDefined(fRevision) then
     Result := ToString(3)
   else
     Result := ToString(4);
@@ -1397,20 +1387,20 @@ begin
     end;
     4:
     begin
-      Guard.CheckTrue(IsDefined(build) and IsDefined(reversion), SIllegalFieldCount);
-      Result := Format('%d.%d.%d.%d', [major, minor, build, reversion]);
+      Guard.CheckTrue(IsDefined(build) and IsDefined(Revision), SIllegalFieldCount);
+      Result := Format('%d.%d.%d.%d', [major, minor, build, Revision]);
     end;
   end;
 end;
 
-function TVersion.GetMajorReversion: Int16;
+function TVersion.GetMajorRevision: Int16;
 begin
-  Result := Reversion shr 16;
+  Result := Revision shr 16;
 end;
 
-function TVersion.GetMinorReversion: Int16;
+function TVersion.GetMinorRevision: Int16;
 begin
-  Result := Reversion and $0000FFFF;
+  Result := Revision and $0000FFFF;
 end;
 
 class operator TVersion.Equal(const left, right: TVersion): Boolean;
@@ -1866,10 +1856,10 @@ end;
 {$IFDEF MSWINDOWS}
 class function TEnvironment.GetFolderPath(const folder: TSpecialFolder): string;
 var
-  pidl : PItemIDList;
+  pidl: PItemIDList;
   buffer: array[0..MAX_PATH-1] of Char;
 //  returnCode: HRESULT;
-  hToken : THandle;
+  hToken: THandle;
 begin
   if TryGetAccessToken(hToken) then
   try

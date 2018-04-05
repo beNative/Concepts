@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,7 +29,6 @@ unit Spring.Collections.Events;
 interface
 
 uses
-  Generics.Collections,
   Spring,
   Spring.Collections,
   Spring.Events.Base;

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -52,6 +52,7 @@ type
       const dbColumns: IList<string>): TArray<string>; virtual;
     function DoGenerateCreateTable(const tableName: string;
       const columns: IList<TSQLCreateField>): string; virtual;
+    function GetColumnDefinition(const column: TSQLCreateField): string; virtual;
 
     function GetTableNameWithAlias(const table: TSQLTable): string; virtual;
     function GetQualifiedFieldName(const field: TSQLField): string; virtual;
@@ -83,10 +84,6 @@ type
     function GenerateDelete(const command: TDeleteCommand): string; override;
     function GenerateCreateTable(const command: TCreateTableCommand): IList<string>; override;
     function GenerateCreateForeignKey(const command: TCreateForeignKeyCommand): IList<string>; override;
-
-    /// <summary>
-    ///   First drop sequence and then create it
-    /// </summary>
     function GenerateCreateSequence(const command: TCreateSequenceCommand): string; override;
     function GenerateGetNextSequenceValue(const sequence: SequenceAttribute): string; override;
     function GenerateGetLastInsertId(const identityColumn: ColumnAttribute): string; override;
@@ -146,7 +143,7 @@ function TAnsiSQLGenerator.DoGenerateCreateTable(const tableName: string;
 var
   sqlBuilder: TStringBuilder;
   i: Integer;
-  field: TSQLCreateField;
+  column: TSQLCreateField;
 begin
   sqlBuilder := TStringBuilder.Create;
   try
@@ -155,15 +152,11 @@ begin
       .AppendLine;
     for i := 0 to columns.Count - 1 do
     begin
-      field := columns[i];
+      column := columns[i];
       if i > 0 then
         sqlBuilder.Append(', ').AppendLine;
 
-      sqlBuilder.AppendFormat('%0:s %1:s %2:s %3:s', [
-        GetEscapedFieldName(field),
-        GetSQLDataTypeName(field),
-        IfThen(cpNotNull in field.Properties, 'NOT NULL', 'NULL'),
-        IfThen(cpPrimaryKey in field.Properties, GetPrimaryKeyDefinition(field))]);
+      sqlBuilder.Append(GetColumnDefinition(column));
     end;
 
     sqlBuilder.AppendLine.Append(')');
@@ -492,6 +485,16 @@ end;
 function TAnsiSQLGenerator.GetQualifiedFieldName(const field: TSQLField): string;
 begin
   Result := field.Table.Alias + '.' + GetEscapedFieldName(field);
+end;
+
+function TAnsiSQLGenerator.GetColumnDefinition(
+  const column: TSQLCreateField): string;
+begin
+  Result := Format('%0:s %1:s %2:s %3:s', [
+    GetEscapedFieldName(column),
+    GetSQLDataTypeName(column),
+    IfThen(cpNotNull in column.Properties, 'NOT NULL', 'NULL'),
+    IfThen(cpPrimaryKey in column.Properties, GetPrimaryKeyDefinition(column))]);
 end;
 
 function TAnsiSQLGenerator.GetCopyFieldsAsString(

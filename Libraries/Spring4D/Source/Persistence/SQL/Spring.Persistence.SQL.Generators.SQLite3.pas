@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -48,7 +48,7 @@ type
     function DoGenerateBackupTable(const tableName: string): TArray<string>; override;
     function DoGenerateRestoreTable(const tableName: string;
       const createColumns: IList<TSQLCreateField>; const dbColumns: IList<string>): TArray<string>; override;
-    function DoGenerateCreateTable(const tableName: string; const columns: IList<TSQLCreateField>): string; override;
+    function GetColumnDefinition(const column: TSQLCreateField): string; override;
   public
     function GetQueryLanguage: TQueryLanguage; override;
     function GenerateCreateForeignKey(const command: TCreateForeignKeyCommand): IList<string>; override;
@@ -77,40 +77,6 @@ begin
     [TBL_TEMP, tableName]);
   //drop table
   Result[2] := Format(' DROP TABLE IF EXISTS %0:s ', [tableName]);
-end;
-
-function TSQLiteSQLGenerator.DoGenerateCreateTable(const tableName: string;
-  const columns: IList<TSQLCreateField>): string;
-var
-  sqlBuilder: TStringBuilder;
-  i: Integer;
-  field: TSQLCreateField;
-begin
-  sqlBuilder := TStringBuilder.Create;
-  try
-    sqlBuilder.AppendFormat(' CREATE TABLE %0:s ', [tableName])
-      .Append('(')
-      .AppendLine;
-    for i := 0 to columns.Count - 1 do
-    begin
-      field := columns[i];
-      if i > 0 then
-        sqlBuilder.Append(',').AppendLine;
-
-      sqlBuilder.AppendFormat(' %0:s %1:s %2:s %3:s %4:s %5:s', [
-        field.Name,
-        GetSQLDataTypeName(field),
-        IfThen(cpPrimaryKey in field.Properties, 'PRIMARY KEY'),
-        IfThen(field.IsIdentity, 'AUTOINCREMENT'),
-        IfThen(cpUnique in field.Properties, 'UNIQUE'),
-        IfThen(cpNotNull in field.Properties, 'NOT NULL', 'NULL')]);
-    end;
-    sqlBuilder.Append(')');
-
-    Result := sqlBuilder.ToString;
-  finally
-    sqlBuilder.Free;
-  end;
 end;
 
 function TSQLiteSQLGenerator.DoGenerateRestoreTable(const tableName: string;
@@ -176,6 +142,18 @@ function TSQLiteSQLGenerator.GenerateGetLastInsertId(
   const identityColumn: ColumnAttribute): string;
 begin
   Result := 'SELECT last_insert_rowid();';
+end;
+
+function TSQLiteSQLGenerator.GetColumnDefinition(
+  const column: TSQLCreateField): string;
+begin
+  Result := Format(' %0:s %1:s %2:s %3:s %4:s %5:s', [
+    column.Name,
+    GetSQLDataTypeName(column),
+    IfThen(cpPrimaryKey in column.Properties, 'PRIMARY KEY'),
+    IfThen(column.IsIdentity, 'AUTOINCREMENT'),
+    IfThen(cpUnique in column.Properties, 'UNIQUE'),
+    IfThen(cpNotNull in column.Properties, 'NOT NULL', 'NULL')])
 end;
 
 function TSQLiteSQLGenerator.GetQueryLanguage: TQueryLanguage;

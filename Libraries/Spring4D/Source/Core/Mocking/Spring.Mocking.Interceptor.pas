@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -113,7 +113,8 @@ uses
 resourcestring
   SCallCountExceeded = 'call count exceeded: %s';
   SSequenceNotSupported = 'using sequence requires mock behavior to be strict';
-  SUnexpectedMethodCall = 'unexpected call of %s with arguments: %s';
+  SUnexpectedMethodCall = 'unexpected call of %s';
+  SUnexpectedMethodCallArgs = 'unexpected call of %s with arguments: %s';
   SUnexpectedCallCount = 'unexpected call count: %s';
 
 function ArgsToString(const values: TArray<TValue>): string;
@@ -272,8 +273,13 @@ begin
       invocation.Proceed
     else
       if fBehavior = TMockBehavior.Strict then
-        raise EMockException.CreateResFmt(@SUnexpectedMethodCall, [
-          invocation.Method.ToString, ArgsToString(invocation.Arguments)])
+      begin
+        if Length(invocation.Arguments) = 0 then
+          raise EMockException.CreateResFmt(@SUnexpectedMethodCall, [invocation.Method.ToString])
+        else
+          raise EMockException.CreateResFmt(@SUnexpectedMethodCallArgs, [invocation.Method.ToString,
+            ArgsToString(invocation.Arguments)]);
+      end
       else
         // create results for params
         if invocation.Method.HasExtendedInfo
@@ -392,15 +398,18 @@ end;
 function TMethodCall.Invoke(const invocation: IInvocation): TValue;
 begin
   Inc(fCallCount);
-  if Assigned(fAction) then
-    Result := fAction(TCallInfo.Create(invocation, fCallCount))
-  else if invocation.Method.HasExtendedInfo
-    and (invocation.Method.MethodKind = mkFunction) then
-    Result := Result.Cast(invocation.Method.ReturnType.Handle)
-  else
-    Result := TValue.Empty;
-  if Assigned(fSequence) then
-    fSequence.MoveNext;
+  try
+    if Assigned(fAction) then
+      Result := fAction(TCallInfo.Create(invocation, fCallCount))
+    else if invocation.Method.HasExtendedInfo
+      and (invocation.Method.MethodKind = mkFunction) then
+      Result := Result.Cast(invocation.Method.ReturnType.Handle)
+    else
+      Result := TValue.Empty;
+  finally
+    if Assigned(fSequence) then
+      fSequence.MoveNext;
+  end;
 end;
 
 function TMethodCall.Match(const args: TArray<TValue>): Boolean;

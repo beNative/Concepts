@@ -638,7 +638,7 @@ begin
       (UInt64(l_dos_header._lfanew)
           + l_old_header.OptionalHeader.SizeOfHeaders));
     lp_result^.headers := PImageNtHeaders
-      (UInt64(l_headers) + l_dos_header._lfanew);
+      (UInt64(l_headers) + UInt64(l_dos_header._lfanew));
     // update position
     lp_result^.headers^.OptionalHeader.ImageBase := UInt64(l_code);
     // copy sections from DLL file block to new memory location

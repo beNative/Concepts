@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -260,6 +260,9 @@ var
   serviceType: PTypeInfo;
   componentModel: TComponentModel;
 begin
+  if dependency.TypeInfo = nil then
+    Exit(True);
+
   if CanResolveFromContext(context, dependency, argument) then
     Exit(True);
 
@@ -296,6 +299,9 @@ var
   componentModel: TComponentModel;
   instance: TValue;
 begin
+  if dependency.TypeInfo = nil then
+    Exit(TValue.Empty);
+
   if CanResolveFromContext(context, dependency, argument) then
     Exit(context.Resolve(context, dependency, argument));
 
@@ -405,7 +411,7 @@ begin
     and IsLazyType(dependency.TypeInfo);
   if Result then
   begin
-    targetType := dependency.TargetType.GetGenericArguments[0];
+    targetType := GetLazyType(dependency.TargetType.Handle).RttiType;
     dependencyModel := TDependencyModel.Create(targetType, dependency.Target);
     Result := Kernel.Resolver.CanResolve(context, dependencyModel, argument);
   end;
@@ -470,7 +476,7 @@ begin
     raise EResolveException.CreateResFmt(@SCannotResolveType, [dependency.Name]);
 
   lazyKind := GetLazyKind(dependency.TypeInfo);
-  targetType := dependency.TargetType.GetGenericArguments[0];
+  targetType := GetLazyType(dependency.TargetType.Handle).RttiType;
   dependencyModel := TDependencyModel.Create(targetType, dependency.Target);
   if Kernel.Registry.HasService(targetType.Handle) then
   begin
@@ -539,7 +545,7 @@ begin
 
   // TODO: remove dependency on lazy type
   if IsLazyType(targetType.Handle) then
-    serviceType := targetType.GetGenericArguments[0].Handle
+    serviceType := GetLazyType(targetType.Handle)
   else
     serviceType := targetType.Handle;
   models := Kernel.Registry.FindAll(serviceType).ToArray;

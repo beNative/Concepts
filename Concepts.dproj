@@ -128,9 +128,9 @@
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
         <DCC_DebugInformation>2</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
-        <VerInfo_Build>17</VerInfo_Build>
+        <VerInfo_Build>18</VerInfo_Build>
         <DCC_ExeOutput>.\Library\$(Platform)\$(Config)\</DCC_ExeOutput>
-        <VerInfo_Keys>CompanyName=(c) Tim Sinaeve;FileDescription=Concepts;FileVersion=1.0.0.17;InternalName=Concepts;LegalCopyright=(c) 2017 Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=A collection of modules demonstrating some Delphi programming concepts and libraries;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=(c) Tim Sinaeve;FileDescription=Concepts;FileVersion=1.0.0.18;InternalName=Concepts;LegalCopyright=(c) 2017 Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0.0.0;Comments=A collection of modules demonstrating some Delphi programming concepts and libraries;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <BT_BuildType>Debug</BT_BuildType>
@@ -720,6 +720,8 @@
             <Form>frmFireDAC</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Trees.pas"/>
+        <DCCReference Include="Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ValueConverters.pas"/>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
         <BuildConfiguration Include="Debug">

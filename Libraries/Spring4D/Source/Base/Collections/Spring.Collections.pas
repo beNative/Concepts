@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -1903,6 +1903,20 @@ type
     property Items[const key: TKey]: TValue read GetItem write SetItem; default;
   end;
 
+  /// <summary>
+  ///   Represents a generic dictionary that preserves insertion order.
+  /// </summary>
+  IOrderedDictionary<TKey, TValue> = interface(IDictionary<TKey, TValue>)
+    ['{299B7DFB-5104-488E-B299-0622D0B4D605}']
+  {$REGION 'Property Accessors'}
+    function GetItem(index: Integer): TPair<TKey, TValue>;
+  {$ENDREGION}
+
+    function IndexOf(const key: TKey): Integer;
+
+    property Items[index: Integer]: TPair<TKey, TValue> read GetItem;
+  end;
+
   IBidiDictionary<TKey, TValue> = interface(IDictionary<TKey, TValue>)//IMap<TKey, TValue>)
     ['{DA8F1C48-B4F4-4487-ADAD-AF15596DD53C}']
   {$REGION 'Property Accessors'}
@@ -2374,6 +2388,17 @@ type
     function Overlaps(const other: IEnumerable<T>): Boolean;
   end;
 
+  IOrderedSet<T> = interface(ISet<T>)
+    ['{3547BF38-902F-49BA-8BB1-215E6754891D}']
+  {$REGION 'Property Accessors'}
+    function GetItem(index: Integer): T;
+  {$ENDREGION}
+
+    function IndexOf(const key: T): Integer;
+
+    property Items[index: Integer]: T read GetItem;
+  end;
+
   /// <summary>
   ///   Represents a collection of elements that have a common key.
   /// </summary>
@@ -2543,6 +2568,14 @@ type
     class function CreateDictionary<TKey, TValue>(ownerships: TDictionaryOwnerships; capacity: Integer; const comparer: IEqualityComparer<TKey>): IDictionary<TKey, TValue>; overload; static;
     class function CreateDictionary<TKey, TValue>(dictionary: Generics.Collections.TDictionary<TKey, TValue>; ownership: TOwnershipType): IDictionary<TKey, TValue>; overload; static;
 
+    class function CreateOrderedDictionary<TKey, TValue>: IOrderedDictionary<TKey, TValue>; overload; static;
+    class function CreateOrderedDictionary<TKey, TValue>(const comparer: IEqualityComparer<TKey>): IOrderedDictionary<TKey, TValue>; overload; static;
+
+    class function CreateOrderedSet<T>: IOrderedSet<T>; overload; static;
+    class function CreateOrderedSet<T>(const comparer: IEqualityComparer<T>): IOrderedSet<T>; overload; static;
+    class function CreateOrderedSet<T>(const values: array of T): ISet<T>; overload; static;
+    class function CreateOrderedSet<T>(const values: IEnumerable<T>): ISet<T>; overload; static;
+
     class function CreateMultiMap<TKey, TValue>: IMultiMap<TKey, TValue>; overload; static;
     class function CreateMultiMap<TKey, TValue>(const comparer: IEqualityComparer<TKey>): IMultiMap<TKey, TValue>; overload; static;
     class function CreateMultiMap<TKey, TValue>(ownerships: TDictionaryOwnerships): IMultiMap<TKey, TValue>; overload; static;
@@ -2567,6 +2600,18 @@ type
     class function CreateSet<T>(const comparer: IEqualityComparer<T>): ISet<T>; overload; static;
     class function CreateSet<T>(const values: array of T): ISet<T>; overload; static;
     class function CreateSet<T>(const values: IEnumerable<T>): ISet<T>; overload; static;
+
+  {$IFNDEF DELPHI2010}
+    class function CreateSortedSet<T>: ISet<T>; overload; static;
+    class function CreateSortedSet<T>(const comparer: IComparer<T>): ISet<T>; overload; static;
+    class function CreateSortedSet<T>(const values: array of T): ISet<T>; overload; static;
+    class function CreateSortedSet<T>(const values: IEnumerable<T>): ISet<T>; overload; static;
+
+    class function CreateSortedDictionary<TKey, TValue>: IDictionary<TKey, TValue>; overload; static;
+    class function CreateSortedDictionary<TKey, TValue>(const keyComparer: IComparer<TKey>): IDictionary<TKey, TValue>; overload; static;
+    class function CreateSortedDictionary<TKey, TValue>(const valueComparer: IComparer<TValue>): IDictionary<TKey, TValue>; overload; static;
+    class function CreateSortedDictionary<TKey, TValue>(const keyComparer: IComparer<TKey>; const ValueComparer: IComparer<TValue>): IDictionary<TKey, TValue>; overload; static;
+  {$ENDIF}
   end;
 
   TEnumerable = class
@@ -2598,10 +2643,10 @@ type
     ///   An empty <see cref="IEnumerable&lt;T&gt;" /> whose type argument is <i>
     ///   T</i>.
     /// </returns>
-    class function Empty<T>: IEnumerable<T>; static;
+    class function Empty<T>: IReadOnlyList<T>; static;
 
-    class function From<T>(const source: array of T): IEnumerable<T>; overload; static;
-    class function From<T>(const source: TArray<T>): IEnumerable<T>; overload; static;
+    class function From<T>(const source: array of T): IReadOnlyList<T>; overload; static;
+    class function From<T>(const source: TArray<T>): IReadOnlyList<T>; overload; static;
     class function From<T>(const source: TEnumerable<T>): IEnumerable<T>; overload; static;
 
     class function Min<T>(const source: IEnumerable<T>;
@@ -2646,6 +2691,10 @@ type
       const keySelector: TFunc<T, TKey>;
       const comparer: IEqualityComparer<TKey>): IEnumerable<T>; overload; static;
 
+    class function &Except<T>(const first, second: IEnumerable<T>): IEnumerable<T>; overload; static;
+    class function &Except<T>(const first, second: IEnumerable<T>;
+      const comparer: IEqualityComparer<T>): IEnumerable<T>; overload; static;
+
     class function GroupBy<T, TKey>(const source: IEnumerable<T>;
       const keySelector: TFunc<T, TKey>): IEnumerable<IGrouping<TKey,T>>; overload; static;
     class function GroupBy<T, TKey, TElement>(const source: IEnumerable<T>;
@@ -2655,7 +2704,13 @@ type
       const keySelector: TFunc<T, TKey>; const elementSelector: TFunc<T, TElement>;
       const resultSelector: TFunc<TKey, IEnumerable<TElement>, TResult>): IEnumerable<TResult>; overload; static;
 
-    class function Union<T>(const first, second: IEnumerable<T>): IEnumerable<T>; static;
+    class function Intersect<T>(const first, second: IEnumerable<T>): IEnumerable<T>; overload; static;
+    class function Intersect<T>(const first, second: IEnumerable<T>;
+      const comparer: IEqualityComparer<T>): IEnumerable<T>; overload; static;
+
+    class function Union<T>(const first, second: IEnumerable<T>): IEnumerable<T>; overload; static;
+    class function Union<T>(const first, second: IEnumerable<T>;
+      const comparer: IEqualityComparer<T>): IEnumerable<T>; overload; static;
   end;
 
   TStringComparer = class(TCustomComparer<string>)
@@ -3061,6 +3116,40 @@ begin
   Result := TDictionary<TKey, TValue>.Create(dictionary, otOwned);
 end;
 
+class function TCollections.CreateOrderedDictionary<TKey, TValue>: IOrderedDictionary<TKey, TValue>;
+begin
+  Result := TOrderedDictionary<TKey, TValue>.Create;
+end;
+
+class function TCollections.CreateOrderedDictionary<TKey, TValue>(
+  const comparer: IEqualityComparer<TKey>): IOrderedDictionary<TKey, TValue>;
+begin
+  Result := TOrderedDictionary<TKey, TValue>.Create(comparer);
+end;
+
+class function TCollections.CreateOrderedSet<T>: IOrderedSet<T>;
+begin
+  Result := TOrderedSet<T>.Create;
+end;
+
+class function TCollections.CreateOrderedSet<T>(
+  const comparer: IEqualityComparer<T>): IOrderedSet<T>;
+begin
+  Result := TOrderedSet<T>.Create(comparer);
+end;
+
+class function TCollections.CreateOrderedSet<T>(
+  const values: array of T): ISet<T>;
+begin
+  Result := TOrderedSet<T>.Create(values);
+end;
+
+class function TCollections.CreateOrderedSet<T>(
+  const values: IEnumerable<T>): ISet<T>;
+begin
+  Result := TOrderedSet<T>.Create(values);
+end;
+
 class function TCollections.CreateMultiMap<TKey, TValue>: IMultiMap<TKey, TValue>;
 begin
   Result := TMultiMap<TKey, TValue>.Create;
@@ -3361,6 +3450,53 @@ begin
   Result.AddRange(values);
 end;
 
+{$IFNDEF DELPHI2010}
+class function TCollections.CreateSortedSet<T>: ISet<T>;
+begin
+  Result := TSortedSet<T>.Create;
+end;
+
+class function TCollections.CreateSortedSet<T>(
+  const comparer: IComparer<T>): ISet<T>;
+begin
+  Result := TSortedSet<T>.Create(comparer);
+end;
+
+class function TCollections.CreateSortedSet<T>(const values: array of T): ISet<T>;
+begin
+  Result := TSortedSet<T>.Create(values);
+end;
+
+class function TCollections.CreateSortedSet<T>(const values: IEnumerable<T>): ISet<T>;
+begin
+  Result := TSortedSet<T>.Create(values);
+end;
+
+class function TCollections.CreateSortedDictionary<TKey, TValue>: IDictionary<TKey, TValue>;
+begin
+  Result := TSortedDictionary<TKey, TValue>.Create;
+end;
+
+class function TCollections.CreateSortedDictionary<TKey, TValue>(
+  const keyComparer: IComparer<TKey>): IDictionary<TKey, TValue>;
+begin
+  Result := TSortedDictionary<TKey, TValue>.Create(keyComparer, nil);
+end;
+
+class function TCollections.CreateSortedDictionary<TKey, TValue>(
+  const valueComparer: IComparer<TValue>): IDictionary<TKey, TValue>;
+begin
+  Result := TSortedDictionary<TKey, TValue>.Create(nil, valueComparer);
+end;
+
+class function TCollections.CreateSortedDictionary<TKey, TValue>(
+  const keyComparer: IComparer<TKey>;
+  const valueComparer: IComparer<TValue>): IDictionary<TKey, TValue>;
+begin
+  Result := TSortedDictionary<TKey, TValue>.Create(keyComparer, valueComparer);
+end;
+{$ENDIF}
+
 {$ENDREGION}
 
 
@@ -3413,17 +3549,29 @@ begin
   Result := TDistinctByIterator<T, TKey>.Create(source, keySelector, comparer);
 end;
 
-class function TEnumerable.Empty<T>: IEnumerable<T>;
+class function TEnumerable.Empty<T>: IReadOnlyList<T>;
 begin
   Result := TEmptyEnumerable<T>.Instance;
 end;
 
-class function TEnumerable.From<T>(const source: array of T): IEnumerable<T>;
+class function TEnumerable.&Except<T>(const first,
+  second: IEnumerable<T>): IEnumerable<T>;
+begin
+  Result := TExceptIterator<T>.Create(first, second);
+end;
+
+class function TEnumerable.&Except<T>(const first, second: IEnumerable<T>;
+  const comparer: IEqualityComparer<T>): IEnumerable<T>;
+begin
+  Result := TExceptIterator<T>.Create(first, second, comparer);
+end;
+
+class function TEnumerable.From<T>(const source: array of T): IReadOnlyList<T>;
 begin
   Result := TArrayIterator<T>.Create(source);
 end;
 
-class function TEnumerable.From<T>(const source: TArray<T>): IEnumerable<T>;
+class function TEnumerable.From<T>(const source: TArray<T>): IReadOnlyList<T>;
 begin
   Result := TArrayIterator<T>.Create(source);
 end;
@@ -3456,6 +3604,18 @@ class function TEnumerable.GroupBy<T, TKey, TElement, TResult>(
 begin
   Result := TGroupedEnumerable<T, TKey, TElement, TResult>.Create(
     source, keySelector, elementSelector, resultSelector);
+end;
+
+class function TEnumerable.Intersect<T>(const first,
+  second: IEnumerable<T>): IEnumerable<T>;
+begin
+  Result := TIntersectIterator<T>.Create(first, second);
+end;
+
+class function TEnumerable.Intersect<T>(const first, second: IEnumerable<T>;
+  const comparer: IEqualityComparer<T>): IEnumerable<T>;
+begin
+  Result := TIntersectIterator<T>.Create(first, second, comparer);
 end;
 
 class function TEnumerable.Max<T>(const source: IEnumerable<T>;
@@ -3534,6 +3694,11 @@ begin
     begin
       Result := x
     end);
+end;
+
+class function TEnumerable.Union<T>(const first, second: IEnumerable<T>; const comparer: IEqualityComparer<T>): IEnumerable<T>;
+begin
+  Result := TUnionIterator<T>.Create(first, second, comparer);
 end;
 
 class function TEnumerable.Union<T>(const first, second: IEnumerable<T>): IEnumerable<T>;

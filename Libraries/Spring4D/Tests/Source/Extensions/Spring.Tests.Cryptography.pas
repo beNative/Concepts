@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -48,8 +48,7 @@ type
   protected
     const
       fCData: UnicodeString = 'Delphi Spring Framework';  // fCDefaultDataString
-      fBytesAbc : array[0..2] of Byte = (Byte('a'), Byte('b'), Byte('c'));
-
+      fBytesAbc: array[0..2] of Byte = (Byte('a'), Byte('b'), Byte('c'));
   protected
     fActual: TBuffer;
     fExpected: TBuffer;

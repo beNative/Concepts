@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -40,6 +40,9 @@ const
   CPP_ABI_ADJUST = 0;
 {$IFEND}
 
+const
+  MinVirtualIndex = -11 - (CPP_ABI_ADJUST div SizeOf(Pointer)){$IFDEF AUTOREFCOUNT} - 2{$ENDIF};
+
 type
 {$POINTERMATH ON}
   PVirtualMethodTable = ^Pointer;
@@ -70,7 +73,7 @@ type
   PClassData = ^TClassData;
   TClassData = record
   strict private
-    function GetVirtualMethodCount: Word;
+    function GetVirtualMethodCount: Integer;
   public
     SelfPtr: TClass;
     IntfTable: PInterfaceTable;
@@ -110,7 +113,7 @@ type
 
     VirtualMethods: array[0..999] of Pointer;
 
-    property VirtualMethodCount: Word read GetVirtualMethodCount;
+    property VirtualMethodCount: Integer read GetVirtualMethodCount;
   end;
 
   TVirtualClass = class
@@ -149,9 +152,9 @@ procedure DestroyVirtualClass(classType: TClass);
 
 function GetClassData(classType: TClass): PClassData; inline;
 
-function GetVirtualMethodAddress(classType: TClass; virtualIndex: Word): Pointer;
+function GetVirtualMethodAddress(classType: TClass; virtualIndex: Integer): Pointer;
 function GetVirtualMethodCount(classType: TClass): Integer;
-function GetVirtualMethodIndex(classType: TClass; method: Pointer): SmallInt;
+function GetVirtualMethodIndex(classType: TClass; method: Pointer): Integer;
 function IsVirtualMethodOverride(baseClass, classType: TClass; method: Pointer): Boolean;
 
 implementation
@@ -184,20 +187,20 @@ begin
   FreeMem(PByte(classType) + vmtSelfPtr);
 end;
 
-function GetVirtualMethodIndex(classType: TClass; method: Pointer): SmallInt;
+function GetVirtualMethodIndex(classType: TClass; method: Pointer): Integer;
 var
   classData: PClassData;
-  i: Word;
+  i: Integer;
 begin
   while classType <> nil do
   begin
     classData := GetClassData(classType);
-    for i := 0 to classData.VirtualMethodCount - 1 do
+    for i := MinVirtualIndex to classData.VirtualMethodCount - 1 do
       if classData.VirtualMethods[i] = method then
         Exit(i);
     classType := classType.ClassParent;
   end;
-  Result := -1;
+  Result := Low(Integer);
 end;
 
 function GetVirtualMethodCount(classType: TClass): Integer;
@@ -205,10 +208,12 @@ begin
   Result := GetClassData(classType).VirtualMethodCount;
 end;
 
-function GetVirtualMethodAddress(classType: TClass; virtualIndex: Word): Pointer;
+function GetVirtualMethodAddress(classType: TClass; virtualIndex: Integer): Pointer;
 var
   classData: PClassData;
 begin
+  if virtualIndex < MinVirtualIndex then
+    Exit(nil);
   classData := GetClassData(classType);
   if virtualIndex < classData.VirtualMethodCount then
     Result := classData.VirtualMethods[virtualIndex]
@@ -218,10 +223,13 @@ end;
 
 function IsVirtualMethodOverride(baseClass, classType: TClass; method: Pointer): Boolean;
 var
-  virtualMethodIndex: SmallInt;
+  virtualMethodIndex: Integer;
 begin
   virtualMethodIndex := GetVirtualMethodIndex(baseClass, method);
-  Result := method <> GetVirtualMethodAddress(classType, virtualMethodIndex);
+  if virtualMethodIndex >= MinVirtualIndex then
+    Result := method <> GetVirtualMethodAddress(classType, virtualMethodIndex)
+  else
+    Result := False;
 end;
 
 {$ENDREGION}
@@ -229,8 +237,11 @@ end;
 
 {$REGION 'TClassData'}
 
-function TClassData.GetVirtualMethodCount: Word;
+function TClassData.GetVirtualMethodCount: Integer;
 begin
+  if Assigned(Parent) and (TypeInfo = Parent^.ClassInfo) then
+    Exit(GetClassData(Parent^).VirtualMethodCount);
+
   if InitTable <> nil then
     Result := (PByte(InitTable) - PByte(@VirtualMethods[0])) div SizeOf(Pointer)
   else if FieldTable <> nil then

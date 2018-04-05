@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -46,7 +46,7 @@ type
     procedure TestRemoveEmptyEntries;
   end;
 
-  TTestTryConvertStrToDateTime = class(TTestCase)
+  TTestTryStrToDateTimeFmt = class(TTestCase)
   published
     procedure TestParseDate;
     procedure TestParseTime;
@@ -66,20 +66,6 @@ type
     procedure TestOneEntry;
     procedure TestThreeEntries;
     procedure TestVariousStrings;
-  end;
-
-  TTestEnum = class(TTestCase)
-  published
-    procedure TestGetNameByEnum;
-    procedure TestGetNames;
-    procedure TestGetNameByInteger;
-    procedure TestGetValueByEnum;
-    procedure TestGetValueByName;
-    procedure TestIsValid;
-    procedure TestTryParse;
-    procedure TestParse;
-    procedure TestParseIntegerException;
-    procedure TestParseStringException;
   end;
 
 implementation
@@ -236,201 +222,64 @@ end;
 {$ENDREGION}
 
 
-{$REGION 'TTestEnum'}
+{$REGION 'TTestTryStrToDateTimeFmt'}
 
-procedure TTestEnum.TestGetNameByEnum;
-var
-  expectedName: string;
-  actualName: string;
-  item: TSeekOrigin;
-  pInfo: PTypeInfo;
-begin
-  pInfo := TypeInfo(TSeekOrigin);
-  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
-  begin
-    expectedName := GetEnumName(pInfo, Integer(item));
-    actualName := TEnum.GetName<TSeekOrigin>(item);
-    CheckEquals(expectedName, actualName);
-  end;
-end;
-
-procedure TTestEnum.TestGetNameByInteger;
-var
-  expectedName: string;
-  actualName: string;
-  item: TSeekOrigin;
-  pInfo: PTypeInfo;
-begin
-  pInfo := TypeInfo(TSeekOrigin);
-  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
-  begin
-    expectedName := GetEnumName(pInfo, Integer(item));
-    actualName := TEnum.GetName<TSeekOrigin>(Integer(item));
-    CheckEquals(expectedName, actualName);
-  end;
-end;
-
-procedure TTestEnum.TestGetNames;
-var
-  expectedName: string;
-  actualName: string;
-  item: TSeekOrigin;
-  pInfo: PTypeInfo;
-  names: TStringDynArray;
-begin
-  pInfo := TypeInfo(TSeekOrigin);
-  names := TEnum.GetNames<TSeekOrigin>;
-  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
-  begin
-    expectedName := GetEnumName(pInfo, Ord(item));
-    actualName := names[Ord(item)];
-    CheckEquals(expectedName, actualName);
-  end;
-end;
-
-procedure TTestEnum.TestGetValueByEnum;
-var
-  expectedValue: Integer;
-  actualValue: Integer;
-  item: TSeekOrigin;
-begin
-  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
-  begin
-    expectedValue := Integer(item);
-    actualValue := TEnum.GetValue<TSeekOrigin>(item);
-    CheckEquals(expectedValue, actualValue);
-  end;
-end;
-
-procedure TTestEnum.TestGetValueByName;
-var
-  expectedValue: Integer;
-  actualValue: Integer;
-  item: TSeekOrigin;
-  name: string;
-begin
-  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
-  begin
-    expectedValue := Integer(item);
-    name := GetEnumName(TypeInfo(TSeekOrigin), expectedValue);
-    actualValue := TEnum.GetValue<TSeekOrigin>(name);
-    CheckEquals(expectedValue, actualValue);
-  end;
-end;
-
-procedure TTestEnum.TestIsValid;
-var
-  item: TSeekOrigin;
-begin
-  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
-  begin
-    Check(TEnum.IsValid<TSeekOrigin>(item));
-    Check(TEnum.IsValid<TSeekOrigin>(Integer(item)));
-  end;
-  CheckFalse(TEnum.IsValid<TSeekOrigin>(Integer(Low(TSeekOrigin)) - 1));
-  CheckFalse(TEnum.IsValid<TSeekOrigin>(Integer(High(TSeekOrigin)) + 1));
-end;
-
-procedure TTestEnum.TestParse;
-var
-  item: TSeekOrigin;
-  actual: TSeekOrigin;
-begin
-  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
-  begin
-    actual := TEnum.Parse<TSeekOrigin>(Integer(item));
-    CheckEquals(Integer(item), Integer(actual));
-    actual := TEnum.Parse<TSeekOrigin>(GetEnumName(TypeInfo(TSeekOrigin), Integer(item)));
-    CheckEquals(Integer(item), Integer(actual));
-  end;
-end;
-
-procedure TTestEnum.TestTryParse;
-var
-  item: TSeekOrigin;
-begin
-  Check(TEnum.TryParse<TSeekOrigin>(Integer(soBeginning), item));
-  CheckEquals(Integer(soBeginning), Integer(item));
-  Check(TEnum.TryParse<TSeekOrigin>('soBeginning', item));
-  CheckEquals(Integer(soBeginning), Integer(item));
-
-  CheckFalse(TEnum.TryParse<TSeekOrigin>(Integer(Low(TSeekOrigin)) - 1, item));
-  CheckFalse(TEnum.TryParse<TSeekOrigin>('dummy', item));
-end;
-
-procedure TTestEnum.TestParseIntegerException;
-begin
-  ExpectedException := EFormatException;
-  TEnum.Parse<TSeekOrigin>(Integer(Low(TSeekOrigin))-1);
-end;
-
-procedure TTestEnum.TestParseStringException;
-begin
-  ExpectedException := EFormatException;
-  TEnum.Parse<TSeekOrigin>('dummy');
-end;
-
-{$ENDREGION}
-
-
-{$REGION 'TTestTryConvertStrToDateTime'}
-
-procedure TTestTryConvertStrToDateTime.TestParseDate;
+procedure TTestTryStrToDateTimeFmt.TestParseDate;
 var
   actual, expected: TDateTime;
 begin
   expected := EncodeDate(2009, 10, 18);
 
-  CheckTrue(TryConvertStrToDateTime('20091018', 'YYYYMMDD', actual));
+  CheckTrue(TryStrToDateTimeFmt('20091018', 'YYYYMMDD', actual));
   CheckTrue(SameDateTime(actual, expected));
 
-  CheckTrue(TryConvertStrToDateTime('091018', 'YYMMDD', actual));
+  CheckTrue(TryStrToDateTimeFmt('091018', 'YYMMDD', actual));
   CheckTrue(SameDateTime(actual, expected));
 
-  CheckTrue(TryConvertStrToDateTime('10-18-2009', 'MM-DD-YYYY', actual));
+  CheckTrue(TryStrToDateTimeFmt('10-18-2009', 'MM-DD-YYYY', actual));
   CheckTrue(SameDateTime(actual, expected));
 
-  CheckTrue(TryConvertStrToDateTime(' 2009-10-18 ', 'YYYY-MM-DD', actual));
+  CheckTrue(TryStrToDateTimeFmt(' 2009-10-18 ', 'YYYY-MM-DD', actual));
   CheckTrue(SameDateTime(actual, expected));
 end;
 
-procedure TTestTryConvertStrToDateTime.TestParseTime;
+procedure TTestTryStrToDateTimeFmt.TestParseTime;
 var
   actual, expected: TDateTime;
 begin
   expected := EncodeTime(12, 10, 18, 35);
-  CheckTrue(TryConvertStrToDateTime('12:10:18.035', 'hh:nn:ss.zzz', actual));
+  CheckTrue(TryStrToDateTimeFmt('12:10:18.035', 'hh:nn:ss.zzz', actual));
   CheckTrue(SameDateTime(actual, expected));
 
   expected := EncodeTime(12, 10, 0, 0);
-  CheckTrue(TryConvertStrToDateTime('12:10 ', 'hh:nn', actual));
+  CheckTrue(TryStrToDateTimeFmt('12:10 ', 'hh:nn', actual));
   CheckTrue(SameDateTime(actual, expected));
 end;
 
-procedure TTestTryConvertStrToDateTime.TestParseDateTime;
+procedure TTestTryStrToDateTimeFmt.TestParseDateTime;
 var
   actual, expected: TDateTime;
 begin
   expected := EncodeDateTime(2009, 10, 18, 12, 30, 59, 200);
-  CheckTrue(TryConvertStrToDateTime('2009-10-18 12:30:59.200', 'YYYY-MM-DD HH:NN:SS.ZZZ', actual));
+  CheckTrue(TryStrToDateTimeFmt('2009-10-18 12:30:59.200', 'YYYY-MM-DD HH:NN:SS.ZZZ', actual));
   CheckTrue(SameDateTime(actual, expected));
 
   expected := EncodeDateTime(2009, 10, 18, 12, 30, 59, 200);
-  CheckTrue(TryConvertStrToDateTime('20091018123059200', 'YYYYMMDDHHNNSSZZZ', actual));
+  CheckTrue(TryStrToDateTimeFmt('20091018123059200', 'YYYYMMDDHHNNSSZZZ', actual));
   CheckTrue(SameDateTime(actual, expected));
 end;
 
-procedure TTestTryConvertStrToDateTime.TestFailedCases;
+procedure TTestTryStrToDateTimeFmt.TestFailedCases;
 var
   value: TDateTime;
 begin
-  CheckFalse(TryConvertStrToDateTime('', 'YYYYMMDD', value));
-  CheckFalse(TryConvertStrToDateTime(' ', 'YYYYMMDD', value));
-  CheckFalse(TryConvertStrToDateTime('2009', 'YYYYMMDD', value));
-  CheckFalse(TryConvertStrToDateTime('2009080', 'YYYYMMDD', value));
-  CheckFalse(TryConvertStrToDateTime('2009080A', 'YYYYMMDD', value));
-  CheckFalse(TryConvertStrToDateTime('200908011230', 'YYYYMMDDHHNNSS', value));
-  CheckFalse(TryConvertStrToDateTime('20090801123007', 'YYYYMMDDHHNNSSZZZ', value));
+  CheckFalse(TryStrToDateTimeFmt('', 'YYYYMMDD', value));
+  CheckFalse(TryStrToDateTimeFmt(' ', 'YYYYMMDD', value));
+  CheckFalse(TryStrToDateTimeFmt('2009', 'YYYYMMDD', value));
+  CheckFalse(TryStrToDateTimeFmt('2009080', 'YYYYMMDD', value));
+  CheckFalse(TryStrToDateTimeFmt('2009080A', 'YYYYMMDD', value));
+  CheckFalse(TryStrToDateTimeFmt('200908011230', 'YYYYMMDDHHNNSS', value));
+  CheckFalse(TryStrToDateTimeFmt('20090801123007', 'YYYYMMDDHHNNSSZZZ', value));
 end;
 
 {$ENDREGION}

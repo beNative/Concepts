@@ -644,7 +644,7 @@ begin
   I    := 0;
   while PPtr^[I] <> nil do
   begin
-    AStrings.Add(inet_ntoa(PPtr^[I]^));
+    AStrings.Add(string(inet_ntoa(PPtr^[I]^)));
     Inc(I);
   end;
   WSACleanup;

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -449,6 +449,14 @@ type
     function Chicken: IChicken;
   public
     constructor Create(const chicken: IChicken);
+  end;
+
+  TEggLazyChicken = class(TInterfacedObject, IEgg)
+  private
+    fChicken: Lazy<IChicken>;
+    function Chicken: IChicken;
+  public
+    constructor Create(const chicken: Lazy<IChicken>);
   end;
 
   TCircularDependencyChicken = class(TInterfacedObject, IChicken)
@@ -1142,6 +1150,20 @@ end;
 function TAgeService.GetAgeService: IAgeService;
 begin
   Result := fAgeService;
+end;
+
+{ TEggLazyChicken }
+
+constructor TEggLazyChicken.Create(const chicken: Lazy<IChicken>);
+begin
+  inherited Create;
+  fChicken := chicken;
+//  fChicken.Value;
+end;
+
+function TEggLazyChicken.Chicken: IChicken;
+begin
+  Result := fChicken;
 end;
 
 end.

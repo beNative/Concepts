@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -170,6 +170,8 @@ type
 
     procedure TestClassProcedureHandler;
     procedure TestInstanceProcedureHandler;
+
+    procedure TestSetUseFreeNotification;
   end;
 
   TEventHandler = class
@@ -390,6 +392,8 @@ type
     procedure ClassOperatorIn_ItemNotInArray_False;
     procedure ClassOperatorIn_ArrayInArray_True;
     procedure ClassOperatorIn_ArrayNotInArray_False;
+    procedure ClassOperatorIn_Int8;
+    procedure ClassOperatorIn_Int64;
 
     procedure IndexOf_ItemInArray;
     procedure Delete_Start;
@@ -462,6 +466,7 @@ type
     procedure TryToType_ConvertStrToInt;
     procedure TryToType_ConvertStringToNullableString;
     procedure TryToType_ConvertIntegerToNullableEnum;
+    procedure TryToType_ConvertInvalidStringToBoolean;
 
     procedure GetNullableValue_ValueIsEmpty_ReturnsEmpty;
 
@@ -549,11 +554,26 @@ type
   TWeakTest = class(TTestCase)
   published
     procedure TestIsAlive;
+    procedure TestTryGetTarget;
   end;
 
   TTestVirtualClass = class(TTestCase)
   published
     procedure TestIntegrity;
+  end;
+
+  TTestEnum = class(TTestCase)
+  published
+    procedure TestGetNameByEnum;
+    procedure TestGetNames;
+    procedure TestGetNameByInteger;
+    procedure TestGetValueByEnum;
+    procedure TestGetValueByName;
+    procedure TestIsValid;
+    procedure TestTryParse;
+    procedure TestParse;
+    procedure TestParseIntegerException;
+    procedure TestParseStringException;
   end;
 
 implementation
@@ -1064,6 +1084,22 @@ begin
   fEvent.Remove(HandlerB);
   fEvent.Invoke(nil);
   Check(fAInvoked);
+end;
+
+procedure TTestMulticastEvent.TestSetUseFreeNotification;
+begin
+  CheckTrue(fEvent.UseFreeNotification);
+  fEvent.UseFreeNotification := False;
+  CheckFalse(fEvent.UseFreeNotification);
+  fEvent.UseFreeNotification := False;
+  CheckFalse(fEvent.UseFreeNotification);
+
+  fEvent.Add(HandlerA);
+
+  fEvent.UseFreeNotification := True;
+  CheckTrue(fEvent.UseFreeNotification);
+  fEvent.UseFreeNotification := True;
+  CheckTrue(fEvent.UseFreeNotification);
 end;
 
 procedure TEventHandler.HandleInt64(const value: Int64);
@@ -2493,6 +2529,22 @@ begin
   CheckFalse(arr2 in arr);
 end;
 
+procedure TTestVector.ClassOperatorIn_Int64;
+var
+  arr: Vector<Int64>;
+begin
+  arr.Add([1, 2, 3, 4, 5]);
+  CheckTrue(3 in arr);
+end;
+
+procedure TTestVector.ClassOperatorIn_Int8;
+var
+  arr: Vector<Byte>;
+begin
+  arr.Add([251, 252, 253, 254, 255]);
+  CheckTrue(253 in arr);
+end;
+
 procedure TTestVector.ClassOperatorIn_ItemInArray_True;
 var
   arr: Vector<Integer>;
@@ -2684,7 +2736,7 @@ var
   f: Double;
 begin
   fSUT := 'foo';
-  CheckFalse(fSUT.TryConvert<Double>(f));
+  CheckFalse(fSUT.TryToType<Double>(f));
 end;
 
 procedure TTestValueHelper.ConvertStringToIntegerFailsForInvalidString;
@@ -2692,7 +2744,7 @@ var
   i: Integer;
 begin
   fSUT := 'foo';
-  CheckFalse(fSUT.TryConvert<Integer>(i));
+  CheckFalse(fSUT.TryToType<Integer>(i));
 end;
 
 procedure TTestValueHelper.DoCheckCompare(expected: Integer);
@@ -3093,6 +3145,14 @@ begin
   CheckEquals('42', value);
 end;
 
+procedure TTestValueHelper.TryToType_ConvertInvalidStringToBoolean;
+var
+  value: Boolean;
+begin
+  fSUT := 'bad';
+  CheckFalse(fSUT.TryToType<Boolean>(value));
+end;
+
 procedure TTestValueHelper.TryToType_ConvertStringToNullableString;
 var
   value: Nullable<string>;
@@ -3311,6 +3371,15 @@ begin
   CheckFalse(weak.IsAlive);
 end;
 
+procedure TWeakTest.TestTryGetTarget;
+var
+  weak: Weak<IInterface>;
+  intf: IInterface;
+begin
+  CheckFalse(weak.TryGetTarget(intf));
+  CheckNull(intf);
+end;
+
 {$ENDREGION}
 
 
@@ -3360,6 +3429,143 @@ begin
   Check(@data.Destroy = @TObject.Destroy);
   Check(data.VirtualMethods[0] = @TIntegrityCheckObject.VirtualMethod0);
   Check(data.VirtualMethods[1] = @TIntegrityCheckObject.VirtualMethod1);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestEnum'}
+
+procedure TTestEnum.TestGetNameByEnum;
+var
+  expectedName: string;
+  actualName: string;
+  item: TSeekOrigin;
+  pInfo: PTypeInfo;
+begin
+  pInfo := TypeInfo(TSeekOrigin);
+  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
+  begin
+    expectedName := GetEnumName(pInfo, Integer(item));
+    actualName := TEnum.GetName<TSeekOrigin>(item);
+    CheckEquals(expectedName, actualName);
+  end;
+end;
+
+procedure TTestEnum.TestGetNameByInteger;
+var
+  expectedName: string;
+  actualName: string;
+  item: TSeekOrigin;
+  pInfo: PTypeInfo;
+begin
+  pInfo := TypeInfo(TSeekOrigin);
+  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
+  begin
+    expectedName := GetEnumName(pInfo, Integer(item));
+    actualName := TEnum.GetName<TSeekOrigin>(Integer(item));
+    CheckEquals(expectedName, actualName);
+  end;
+end;
+
+procedure TTestEnum.TestGetNames;
+var
+  expectedName: string;
+  actualName: string;
+  item: TSeekOrigin;
+  pInfo: PTypeInfo;
+  names: TStringDynArray;
+begin
+  pInfo := TypeInfo(TSeekOrigin);
+  names := TEnum.GetNames<TSeekOrigin>;
+  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
+  begin
+    expectedName := GetEnumName(pInfo, Ord(item));
+    actualName := names[Ord(item)];
+    CheckEquals(expectedName, actualName);
+  end;
+end;
+
+procedure TTestEnum.TestGetValueByEnum;
+var
+  expectedValue: Integer;
+  actualValue: Integer;
+  item: TSeekOrigin;
+begin
+  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
+  begin
+    expectedValue := Integer(item);
+    actualValue := TEnum.GetValue<TSeekOrigin>(item);
+    CheckEquals(expectedValue, actualValue);
+  end;
+end;
+
+procedure TTestEnum.TestGetValueByName;
+var
+  expectedValue: Integer;
+  actualValue: Integer;
+  item: TSeekOrigin;
+  name: string;
+begin
+  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
+  begin
+    expectedValue := Integer(item);
+    name := GetEnumName(TypeInfo(TSeekOrigin), expectedValue);
+    actualValue := TEnum.GetValue<TSeekOrigin>(name);
+    CheckEquals(expectedValue, actualValue);
+  end;
+end;
+
+procedure TTestEnum.TestIsValid;
+var
+  item: TSeekOrigin;
+begin
+  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
+  begin
+    Check(TEnum.IsValid<TSeekOrigin>(item));
+    Check(TEnum.IsValid<TSeekOrigin>(Integer(item)));
+  end;
+  CheckFalse(TEnum.IsValid<TSeekOrigin>(Integer(Low(TSeekOrigin)) - 1));
+  CheckFalse(TEnum.IsValid<TSeekOrigin>(Integer(High(TSeekOrigin)) + 1));
+end;
+
+procedure TTestEnum.TestParse;
+var
+  item: TSeekOrigin;
+  actual: TSeekOrigin;
+begin
+  for item := Low(TSeekOrigin) to High(TSeekOrigin) do
+  begin
+    actual := TEnum.Parse<TSeekOrigin>(Integer(item));
+    CheckEquals(Integer(item), Integer(actual));
+    actual := TEnum.Parse<TSeekOrigin>(GetEnumName(TypeInfo(TSeekOrigin), Integer(item)));
+    CheckEquals(Integer(item), Integer(actual));
+  end;
+end;
+
+procedure TTestEnum.TestTryParse;
+var
+  item: TSeekOrigin;
+begin
+  Check(TEnum.TryParse<TSeekOrigin>(Integer(soBeginning), item));
+  CheckEquals(Integer(soBeginning), Integer(item));
+  Check(TEnum.TryParse<TSeekOrigin>('soBeginning', item));
+  CheckEquals(Integer(soBeginning), Integer(item));
+
+  CheckFalse(TEnum.TryParse<TSeekOrigin>(Integer(Low(TSeekOrigin)) - 1, item));
+  CheckFalse(TEnum.TryParse<TSeekOrigin>('dummy', item));
+end;
+
+procedure TTestEnum.TestParseIntegerException;
+begin
+  ExpectedException := EFormatException;
+  TEnum.Parse<TSeekOrigin>(Integer(Low(TSeekOrigin))-1);
+end;
+
+procedure TTestEnum.TestParseStringException;
+begin
+  ExpectedException := EFormatException;
+  TEnum.Parse<TSeekOrigin>('dummy');
 end;
 
 {$ENDREGION}

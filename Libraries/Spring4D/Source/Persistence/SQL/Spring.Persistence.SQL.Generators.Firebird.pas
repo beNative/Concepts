@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -45,11 +45,11 @@ type
     function DoGenerateBackupTable(const tableName: string): TArray<string>; override;
     function DoGenerateRestoreTable(const tableName: string;
       const createColumns: IList<TSQLCreateField>; const dbColumns: IList<string>): TArray<string>; override;
-    function DoGenerateCreateTable(const tableName: string;
-      const columns: IList<TSQLCreateField>): string; override;
+    function GetColumnDefinition(const column: TSQLCreateField): string; override;
   public
     function GetQueryLanguage: TQueryLanguage; override;
     function GenerateCreateSequence(const command: TCreateSequenceCommand): string; override;
+    function GenerateCreateTable(const command: TCreateTableCommand): IList<string>; override;
     function GenerateGetLastInsertId(const identityColumn: ColumnAttribute): string; override;
     function GenerateGetNextSequenceValue(const sequence: SequenceAttribute): string; override;
     function GeneratePagedQuery(const sql: string; limit, offset: Integer): string; override;
@@ -75,39 +75,6 @@ begin
   raise EORMUnsupportedOperation.CreateFmt('Firebird does not support copying table %s.', [tableName]);
 end;
 
-function TFirebirdSQLGenerator.DoGenerateCreateTable(const tableName: string;
-  const columns: IList<TSQLCreateField>): string;
-var
-  sqlBuilder: TStringBuilder;
-  i: Integer;
-  field: TSQLCreateField;
-begin
-  sqlBuilder := TStringBuilder.Create;
-  try
-    sqlBuilder.AppendFormat('CREATE TABLE %0:s ', [tableName])
-      .Append('(')
-      .AppendLine;
-    for i := 0 to columns.Count - 1 do
-    begin
-      field := columns[i];
-      if i > 0 then
-        sqlBuilder.Append(', ').AppendLine;
-
-      sqlBuilder.AppendFormat('%0:s %1:s %2:s %3:s', [
-        GetEscapedFieldName(field),
-        GetSQLDataTypeName(field),
-        IfThen(cpNotNull in field.Properties, 'NOT NULL', ''),
-        IfThen(cpPrimaryKey in field.Properties, GetPrimaryKeyDefinition(field))]);
-    end;
-
-    sqlBuilder.AppendLine.Append(')');
-
-    Result := sqlBuilder.ToString;
-  finally
-    sqlBuilder.Free;
-  end;
-end;
-
 function TFirebirdSQLGenerator.DoGenerateRestoreTable(const tableName: string;
   const createColumns: IList<TSQLCreateField>;
   const dbColumns: IList<string>): TArray<string>;
@@ -121,9 +88,27 @@ var
   sequence: SequenceAttribute;
 begin
   sequence := command.Sequence;
-  Result := Format('CREATE SEQUENCE %0:s;', [sequence.SequenceName]);
   if command.SequenceExists then
-    Result := Format('DROP SEQUENCE %0:s;', [sequence.SequenceName]) + sLineBreak + Result;
+    Result := Format('ALTER SEQUENCE %0:s RESTART WITH 0;', [sequence.SequenceName])
+  else
+    Result := Format('CREATE SEQUENCE %0:s;', [sequence.SequenceName]);
+end;
+
+function TFirebirdSQLGenerator.GenerateCreateTable(
+  const command: TCreateTableCommand): IList<string>;
+begin
+  Result := TCollections.CreateList<string>;
+
+  // Firebird currently does not support create table as select or similar
+  // to enable keeping existing data this would require some more effort like
+  // loading the DDL from the database and create a backup table and then
+  // transfer data back into the new table
+
+  // currently the table will just be dropped without preserving any existing data!
+  if command.TableExists then
+    Result.Add(Format('DROP TABLE %0:s;', [command.Table.Name]));
+
+  Result.Add(DoGenerateCreateTable(command.Table.Name, command.Columns));
 end;
 
 function TFirebirdSQLGenerator.GenerateGetLastInsertId(
@@ -150,6 +135,16 @@ begin
   // Row numbers are 1-based
   // see http://www.firebirdsql.org/refdocs/langrefupd20-select.html#langrefupd20-select-rows
   Result := s + Format(' ROWS %0:d TO %1:d;', [offset + 1, offset + limit]);
+end;
+
+function TFirebirdSQLGenerator.GetColumnDefinition(
+  const column: TSQLCreateField): string;
+begin
+  Result := Format('%0:s %1:s %2:s %3:s', [
+    GetEscapedFieldName(column),
+    GetSQLDataTypeName(column),
+    IfThen(cpNotNull in column.Properties, 'NOT NULL', ''),
+    IfThen(cpPrimaryKey in column.Properties, GetPrimaryKeyDefinition(column))]);
 end;
 
 function TFirebirdSQLGenerator.GetQueryLanguage: TQueryLanguage;

@@ -464,20 +464,21 @@ uses
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
   Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter},
   Concepts.VirtualTreeView.Form in 'Forms\Concepts.VirtualTreeView.Form.pas' {frmVirtualTreeView},
-  Concepts.FireDAC.Form in 'Forms\Concepts.FireDAC.Form.pas' {frmFireDAC};
+  Concepts.FireDAC.Form in 'Forms\Concepts.FireDAC.Form.pas' {frmFireDAC},
+  Spring.Collections.Trees in 'Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Trees.pas',
+  Spring.Data.ValueConverters in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ValueConverters.pas';
 
 {$R *.res}
 
 { Used to directly start a concept by name. If empty a list will be shown with
   all registered concepts. }
 const
-//  EXECUTE_BY_NAME = '';
-  EXECUTE_BY_NAME = 'FireDAC';
+  EXECUTE_BY_NAME = '';
+//  EXECUTE_BY_NAME = 'FireDAC';
   //EXECUTE_BY_NAME = 'ORM';
   //EXECUTE_BY_NAME = 'TStringList';
   //EXECUTE_BY_NAME = 'Indy';
   //EXECUTE_BY_NAME = 'Parallel Library';
-
 
 begin
   {$WARNINGS OFF}

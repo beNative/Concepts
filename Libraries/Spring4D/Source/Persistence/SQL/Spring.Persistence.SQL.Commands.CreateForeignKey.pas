@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -85,8 +85,6 @@ begin
   fTable.SetFromAttribute(EntityData.EntityTable);
   fCommand.SetCommandFieldsFromColumns(EntityData.Columns);
   fCommand.TableExists := TableExists(fTable.Name);
-  if fCommand.TableExists then
-    FillDbTableColumns(fTable.Name, fCommand.ColumnNames);
   fSQLs := Generator.GenerateCreateForeignKey(fCommand);
 end;
 

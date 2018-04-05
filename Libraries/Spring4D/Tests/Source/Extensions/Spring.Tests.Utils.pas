@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -115,19 +115,19 @@ begin
   CheckEquals(1, ver.Major);
   CheckEquals(0, ver.Minor);
   CheckEquals(-1, ver.Build);
-  CheckEquals(-1, ver.Reversion);
+  CheckEquals(-1, ver.Revision);
 
   ver := TVersion.Create('1.1.0');
   CheckEquals(1, ver.Major);
   CheckEquals(1, ver.Minor);
   CheckEquals(0, ver.Build);
-  CheckEquals(-1, ver.Reversion);
+  CheckEquals(-1, ver.Revision);
 
   ver := TVersion.Create('1.1.1.0');
   CheckEquals(1, ver.Major);
   CheckEquals(1, ver.Minor);
   CheckEquals(1, ver.Build);
-  CheckEquals(0, ver.Reversion);
+  CheckEquals(0, ver.Revision);
 end;
 
 procedure TTestVersion.TestToString;

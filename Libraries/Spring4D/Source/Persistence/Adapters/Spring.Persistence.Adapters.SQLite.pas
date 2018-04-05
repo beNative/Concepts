@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -105,6 +105,9 @@ type
 implementation
 
 uses
+  DB,
+  Variants,
+  Spring,
   Spring.Persistence.Core.ConnectionFactory,
   Spring.Persistence.Core.ResourceStrings,
   Spring.Persistence.SQL.Generators.SQLite3,
@@ -201,8 +204,20 @@ begin
 end;
 
 procedure TSQLiteStatementAdapter.SetParam(const param: TDBParam);
+var
+  value: Variant;
 begin
-  Statement.SetParamVariant(param.Name, param.ToVariant);
+  value := param.ToVariant;
+  if VarIsNull(value) then
+    Statement.SetParamNull(param.Name)
+  else
+    case param.ParamType of
+      ftDate: Statement.SetParamDate(param.Name, param.Value.ToType<TDate>);
+      ftTime: Statement.SetParamTime(param.Name, param.Value.ToType<TTime>);
+      ftDateTime: Statement.SetParamDateTime(param.Name, param.Value.ToType<TDateTime>);
+    else
+      Statement.SetParamVariant(param.Name, value);
+    end;
 end;
 
 procedure TSQLiteStatementAdapter.SetParams(const params: IEnumerable<TDBParam>);

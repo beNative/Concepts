@@ -23,19 +23,26 @@ type
   public
     procedure SetUp; override;
     procedure TearDown; override;
-  published
-    procedure AddRecord;
-    procedure Append;
+  protected // temporarily disabled
     procedure Append_Filtered;
     procedure Bookmark_Filtered;
     procedure Bookmark_Filtered_2;
     procedure Bookmark_Filtered_Fail;
+    procedure Delete_Filtered;
+    procedure Filter;
+    procedure Filter_Custom_Functions;
+    procedure Filter_DateTime;
+    procedure Filter_Null;
+    procedure Filter_Without_Brackets;
+    procedure Sort;
+  published
+    procedure AddRecord;
+    procedure Append;
     procedure Bookmark_Simple;
     procedure Bookmark_Sorted;
     procedure ClearField_Nullable;
     procedure ClearField_SimpleType;
     procedure Delete;
-    procedure Delete_Filtered;
     procedure Delete_Sorted;
     procedure Delete_Last;
     procedure Delete_Notification;
@@ -44,15 +51,10 @@ type
     procedure Edit_SpringNullable;
     procedure Eof_AfterLast;
     procedure Eof_AfterNext;
-    procedure Filter;
-    procedure Filter_Custom_Functions;
-    procedure Filter_DateTime;
-    procedure Filter_Null;
     {$IFDEF PERFORMANCE_TESTS}
     procedure Filter_Performance_Test;
     procedure InsertionSort_Speed;
     {$ENDIF}
-    procedure Filter_Without_Brackets;
     procedure GetCurrentModel_Filtered;
     procedure GetCurrentModel_Simple;
     procedure GetCurrentModel_Sorted;
@@ -66,7 +68,6 @@ type
     procedure Open_Orders;
     procedure QuickSortTest;
     procedure SimpleSort;
-    procedure Sort;
     procedure Sort_Regression;
     procedure StreamRead;
 

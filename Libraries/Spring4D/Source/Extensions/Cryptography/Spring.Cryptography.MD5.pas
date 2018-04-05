@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -40,14 +40,14 @@ type
   TMD5Count = array[0..1] of UInt32;
   TMD5State = array[0..3] of UInt32;
   TMD5Block = array[0..15] of UInt32;
-  TMD5CBits = array[0..7] of byte;
-  TMD5Digest = array[0..15] of byte;
-  TMD5Buffer = array[0..63] of byte;
+  TMD5CBits = array[0..7] of Byte;
+  TMD5Digest = array[0..15] of Byte;
+  TMD5Buffer = array[0..63] of Byte;
 
   TMD5Context = record
-    State   : TMD5State;
-    Count   : TMD5Count;
-    Buffer  : TMD5Buffer;
+    State: TMD5State;
+    Count: TMD5Count;
+    Buffer: TMD5Buffer;
   end;
 
   /// <summary>
@@ -184,7 +184,7 @@ begin
 end;
 {$ENDIF}
 
-procedure rot(var x: UInt32; n: BYTE);
+procedure rot(var x: UInt32; n: Byte);
 {$IFDEF CPUX86}
 asm
   //x := (x shl n) or (x shr (32 - n));
@@ -206,28 +206,28 @@ begin
 end;
 {$ENDIF}
 
-procedure FF(var a: UInt32; b, c, d, x: UInt32; s: BYTE; ac: UInt32);
+procedure FF(var a: UInt32; b, c, d, x: UInt32; s: Byte; ac: UInt32);
 begin
   inc(a, F(b, c, d) + x + ac);
   rot(a, s);
   inc(a, b);
 end;
 
-procedure GG(var a: UInt32; b, c, d, x: UInt32; s: BYTE; ac: UInt32);
+procedure GG(var a: UInt32; b, c, d, x: UInt32; s: Byte; ac: UInt32);
 begin
   inc(a, G(b, c, d) + x + ac);
   rot(a, s);
   inc(a, b);
 end;
 
-procedure HH(var a: UInt32; b, c, d, x: UInt32; s: BYTE; ac: UInt32);
+procedure HH(var a: UInt32; b, c, d, x: UInt32; s: Byte; ac: UInt32);
 begin
   inc(a, H(b, c, d) + x + ac);
   rot(a, s);
   inc(a, b);
 end;
 
-procedure II(var a: UInt32; b, c, d, x: UInt32; s: BYTE; ac: UInt32);
+procedure II(var a: UInt32; b, c, d, x: UInt32; s: Byte; ac: UInt32);
 begin
   inc(a, I(b, c, d) + x + ac);
   rot(a, s);

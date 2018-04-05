@@ -77,7 +77,7 @@ end;
 
 procedure TfrmSpringUtils.actEnvironmentExecute(Sender: TObject);
 var
-  R : TRecord;
+  R : DynamicRecord;
 begin
   R.Data.ApplicationPath          := TEnvironment.ApplicationPath;
   R.Data.ApplicationVersionString := TEnvironment.ApplicationVersionString;
@@ -111,7 +111,7 @@ end;
 procedure TfrmSpringUtils.actGetEnvironmentVariablesExecute(Sender: TObject);
 var
   SL : Scoped<TStringList>;
-  R  : TRecord;
+  R  : DynamicRecord;
 begin
   TEnvironment.GetEnvironmentVariables(SL);
   R.FromStrings(SL);

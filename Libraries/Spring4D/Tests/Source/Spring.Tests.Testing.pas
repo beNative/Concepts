@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -33,8 +33,7 @@ uses
   Spring.Testing;
 
 type
-  TTestEnum = (zero, one, two, three);
-
+  TTestNumber = (zero, one, two, three);
 
   TestCaseAttribute = class(Spring.Testing.TestCaseAttribute)
   public
@@ -45,13 +44,13 @@ type
   TSelfTest = class(TTestCase)
     [Sequential]
     procedure TestEnum(
-      [Values]value: TTestEnum;
-      [Range(Ord(Low(TTestEnum)), Ord(High(TTestEnum)))]ordValue: Integer);
+      [Values]value: TTestNumber;
+      [Range(Ord(Low(TTestNumber)), Ord(High(TTestNumber)))]ordValue: Integer);
 
     [TestCase('foo')]
     procedure TestParams(const s1, s2: string);
 
-    [TestCase('foo;bar;foobar')]
+    [TestCase('foo,bar,foobar')]
     function TestResult(const s1, s2: string): string;
 
     [TestCase(1, 2, 3)]
@@ -62,6 +61,15 @@ type
 
     [TestCase(TSelfTest)]
     procedure TestClass(c: TClass);
+
+    [TestCase('2017-07-31')]
+    procedure TestDate(d: TDate);
+
+    [TestCase('13:34:50.444')]
+    procedure TestTime(t: TTime);
+
+    [TestCase('2017-07-31T13:34:50')]
+    procedure TestDateTime(dt: TDateTime);
   end;
 
   TestData = class
@@ -104,6 +112,7 @@ type
 implementation
 
 uses
+  DateUtils,
   Rtti,
   SysUtils,
   TypInfo;
@@ -121,7 +130,17 @@ begin
   Result := x + y;
 end;
 
-procedure TSelfTest.TestEnum(value: TTestEnum; ordValue: Integer);
+procedure TSelfTest.TestDate(d: TDate);
+begin
+  Check(SameDate(d, EncodeDate(2017, 7, 31)));
+end;
+
+procedure TSelfTest.TestDateTime(dt: TDateTime);
+begin
+  Check(SameDateTime(dt, EncodeDateTime(2017, 7, 31, 13, 34, 50, 0)));
+end;
+
+procedure TSelfTest.TestEnum(value: TTestNumber; ordValue: Integer);
 begin
   CheckEquals(ordValue, Ord(value));
 end;
@@ -135,6 +154,11 @@ end;
 function TSelfTest.TestResult(const s1, s2: string): string;
 begin
   Result := s1 + s2;
+end;
+
+procedure TSelfTest.TestTime(t: TTime);
+begin
+  Check(SameTime(t, EncodeTime(13, 34, 50, 444)));
 end;
 
 {$ENDREGION}
@@ -255,12 +279,5 @@ end;
 
 {$ENDREGION}
 
-
-initialization
-  TSelfTest.Register('Spring.Testing');
-{$IFNDEF DELPHI2010}
-  TDataDrivenTest.Register('Spring.Testing');
-{$ENDIF}
-  TSuiteSetUpTearDownTest.Register('Spring.Testing');
 
 end.

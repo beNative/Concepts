@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -33,16 +33,7 @@ procedure RunRegisteredTests;
 implementation
 
 uses
-{$IFDEF CONSOLE_TESTRUNNER}
-  SysUtils,
-  Spring.TestUtils,
-  {$IFDEF XMLOUTPUT}
-  VSoft.DUnit.XMLTestRunner,
-  TestFramework,
-  {$ENDIF}
-  TextTestRunner;
-{$ELSE}
-  {$IFDEF LEAKCHECK}
+{$IFDEF LEAKCHECK}
   LeakCheck,
   SysUtils,
   StrUtils,
@@ -71,17 +62,22 @@ uses
       DBXCommon,
       {$ENDIF}
     {$ENDIF}
-  {$ENDIF}
-  {$IFDEF TESTINSIGHT}
+{$ENDIF}
+
+{$IFDEF TESTINSIGHT}
   TestInsight.DUnit;
+{$ELSE}
+  {$IFDEF MSWINDOWS}
+  VSoft.DUnit.XMLTestRunner;
   {$ELSE}
-  Forms,
-  GUITestRunner;
+  TextTestRunner;
   {$ENDIF}
-{$ENDIF CONSOLE_TESTRUNNER}
+
+{$APPTYPE CONSOLE}
 
 var
   OutputFile: string = 'Spring.Tests.Reports.xml';
+{$ENDIF}
 
 {$IFDEF LEAKCHECK}
 function IgnoreValueConverters(const Instance: TObject; ClassType: TClass): Boolean;
@@ -188,39 +184,21 @@ end;
 
 procedure RunRegisteredTests;
 begin
-{$IFDEF CONSOLE_TESTRUNNER}
-  {$IFDEF XMLOUTPUT}
+{$IFDEF LEAKCHECK}
+  InitializeLeakCheck;
+{$ENDIF}
+
+{$IFDEF TESTINSIGHT}
+  TestInsight.DUnit.RunRegisteredTests;
+  ReportMemoryLeaksOnShutdown := True;
+{$ELSE}
+  {$IFDEF MSWINDOWS}
   if ParamCount > 0 then
     OutputFile := ParamStr(1);
-  WriteLn('Writing output to ' + OutputFile);
-  WriteLn(Format('Running %d of %d test cases', [RegisteredTests.CountEnabledTestCases, RegisteredTests.CountTestCases]));
-  ProcessTestResult(VSoft.DUnit.XMLTestRunner.RunRegisteredTests(OutputFile));
+  VSoft.DUnit.XMLTestRunner.RunRegisteredTests(OutputFile){$IFNDEF AUTOREFCOUNT}.Free{$ENDIF};
   {$ELSE}
   TextTestRunner.RunRegisteredTests{$IFNDEF AUTOREFCOUNT}.Free{$ENDIF};
   {$ENDIF}
-
-  {$IFDEF DEBUG}
-  if DebugHook <> 0 then
-  begin
-    Write('Press <Enter>');
-    Readln;
-  end;
-  {$ENDIF}
-{$ELSE}
-  {$IFDEF LEAKCHECK}
-  InitializeLeakCheck;
-  {$ENDIF}
-  {$IFDEF TESTINSIGHT}
-  TestInsight.DUnit.RunRegisteredTests;
-  {$ELSE}
-  {$IFNDEF FMX}
-  Application.Initialize;
-  TGUITestRunner.RunRegisteredTests;
-  {$ELSE}
-  TFMXTestRunner.RunRegisteredTests;
-  {$ENDIF}
-  {$ENDIF}
-  ReportMemoryLeaksOnShutdown := True;
 {$ENDIF}
 end;
 

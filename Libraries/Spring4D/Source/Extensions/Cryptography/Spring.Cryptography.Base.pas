@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -34,7 +34,6 @@ uses
   Classes,
   SysUtils,
   Spring,
-  Spring.SystemUtils,
   Spring.Cryptography;
 
 type
@@ -163,9 +162,6 @@ implementation
 
 uses
   Math,
-{$IFNDEF NEXTGEN}
-  Spring.Utils,
-{$ENDIF}
   Spring.ResourceStrings;
 
 
@@ -336,9 +332,7 @@ var
 begin
   Guard.CheckRange(count >= 0, 'count');
   if count = 0 then
-  begin
     Exit(TBuffer.Empty);
-  end;
   p := buffer;
   plainText.Size := BlockSizeInBytes;
   SetLength(cipherText, BlockSizeInBytes);
@@ -346,9 +340,7 @@ begin
   while count >= 0 do
   begin
     if count >= BlockSizeInBytes then
-    begin
-      Move(p^, plainText.Memory^, BlockSizeInBytes);
-    end
+      Move(p^, plainText.Memory^, BlockSizeInBytes)
     else if PaddingMode <> TPaddingMode.None then
     begin
       Move(p^, plainText.Memory^, count);
@@ -357,13 +349,9 @@ begin
       AddPadding(plainText, startIndex, paddingSize);
     end
     else if count > 0 then
-    begin
-      raise ECryptographicException.CreateRes(@SPaddingModeMissing);
-    end
+      raise ECryptographicException.CreateRes(@SPaddingModeMissing)
     else
-    begin
       Exit;
-    end;
     if CipherMode = TCipherMode.CBC then
     begin
       if firstBlock then
@@ -408,27 +396,19 @@ begin
         firstBlock := False;
       end
       else
-      begin
         plainText := outputBuffer xor lastCipherText;
-      end;
       lastCipherText := inputBuffer.Clone;
     end
     else
-    begin
       plainText := outputBuffer;
-    end;
     if count = BlockSizeInBytes then // FinalBlock
-    begin
       RemovePadding(plainText);
-    end;
     Result := Result + plainText;
     Dec(count, BlockSizeInBytes);
     Inc(p, BlockSizeInBytes);
   end;
   if count > 0 then
-  begin
     raise ECryptographicException.CreateRes(@SInvalidCipherText);
-  end;
 end;
 
 procedure TSymmetricAlgorithmBase.AddPadding(var buffer: TBuffer; startIndex,
@@ -440,36 +420,24 @@ begin
   case PaddingMode of
     TPaddingMode.None: ;
     TPaddingMode.PKCS7:
-      begin
-        for i := 0 to count - 1 do
-        begin
-          buffer[startIndex + i] := Byte(count);
-        end;
-      end;
+      for i := 0 to count - 1 do
+        buffer[startIndex + i] := Byte(count);
     TPaddingMode.Zeros:
-      begin
-        for i := 0 to count - 1 do
-        begin
-          buffer[startIndex + i] := 0;
-        end;
-      end;
+      for i := 0 to count - 1 do
+        buffer[startIndex + i] := 0;
     TPaddingMode.ANSIX923:
-      begin
-        for i := 0 to count - 2 do
-        begin
-          buffer[startIndex + i] := 0;
-        end;
-        buffer[startIndex + count - 1] := Byte(count);
-      end;
+    begin
+      for i := 0 to count - 2 do
+        buffer[startIndex + i] := 0;
+      buffer[startIndex + count - 1] := Byte(count);
+    end;
     TPaddingMode.ISO10126:
-      begin
-        Randomize;
-        for i := 0 to count - 2 do
-        begin
-          buffer[startIndex + i] := Math.RandomRange(0, 256);
-        end;
-        buffer[startIndex + count - 1] := Byte(count);
-      end;
+    begin
+      Randomize;
+      for i := 0 to count - 2 do
+        buffer[startIndex + i] := Math.RandomRange(0, 256);
+      buffer[startIndex + count - 1] := Byte(count);
+    end;
   end;
 end;
 
@@ -486,30 +454,20 @@ begin
       begin
         paddingSize := Integer(buffer.Last);
         if paddingSize = BlockSizeInBytes then
-        begin
           // Validate
-          buffer := TBuffer.Empty;
-        end
+          buffer := TBuffer.Empty
         else if paddingSize < BlockSizeInBytes then
         begin
           count := BlockSizeInBytes - paddingSize;
           buffer := buffer.Left(count);
         end
         else
-        begin
           raise ECryptographicException.CreateRes(@SInvalidCipherText);
-        end;
       end;
     TPaddingMode.Zeros:
-      begin
-        for i := buffer.Size - 1 downto 0 do
-        begin
-          if buffer[i] = 0 then
-          begin
-            buffer.Size := buffer.Size - 1;
-          end;
-        end;
-      end;
+      for i := buffer.Size - 1 downto 0 do
+        if buffer[i] = 0 then
+          buffer.Size := buffer.Size - 1;
   end;
 end;
 
@@ -572,9 +530,7 @@ begin
     count := inputStream.Read(buffer[0], Length(buffer));
   end;
   if count > 0 then
-  begin
     raise ECryptographicException.CreateRes(@SInvalidCipherText);
-  end;
 end;
 
 function TSymmetricAlgorithmBase.GetCipherMode: TCipherMode;
@@ -590,18 +546,14 @@ end;
 function TSymmetricAlgorithmBase.GetIV: TBuffer;
 begin
   if fIV.IsEmpty then
-  begin
     fIV := GenerateIV;
-  end;
   Result := fIV;
 end;
 
 function TSymmetricAlgorithmBase.GetKey: TBuffer;
 begin
   if fKey.IsEmpty then
-  begin
     fKey := GenerateKey;
-  end;
   Result := fKey;
 end;
 
@@ -669,18 +621,14 @@ end;
 procedure TSymmetricAlgorithmBase.SetKeySize(const value: Integer);
 begin
   if not fLegalKeySizes.Contains(value) then
-  begin
     raise ECryptographicException.CreateResFmt(@SIllegalKeySize, [value]);
-  end;
   fKeySize := value;
 end;
 
 procedure TSymmetricAlgorithmBase.SetCipherMode(const value: TCipherMode);
 begin
   if not (value in [TCipherMode.CBC, TCipherMode.ECB]) then
-  begin
     raise ENotSupportedException.CreateResFmt(@SNotSupportedCipherMode, [TEnum.GetName<TCipherMode>(value)]);
-  end;
   fCipherMode := value;
 end;
 
@@ -692,9 +640,7 @@ end;
 procedure TSymmetricAlgorithmBase.SetIV(const value: TBuffer);
 begin
   if value.Size <> BlockSizeInBytes then
-  begin
     raise ECryptographicException.CreateResFmt(@SIllegalIVSize, [value.Size]);
-  end;
   fIV := value;
 end;
 
@@ -731,5 +677,6 @@ begin
 end;
 
 {$ENDREGION}
+
 
 end.

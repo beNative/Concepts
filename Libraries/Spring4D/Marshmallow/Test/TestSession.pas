@@ -210,7 +210,7 @@ begin
     '"Customer_ID" INTEGER NOT NULL CONSTRAINT "FK_Customer_Orders" REFERENCES "Customers"("CUSTID") ON DELETE CASCADE ON UPDATE CASCADE,'+
     '"Customer_Payment_Method_Id" INTEGER,'+
     '"Order_Status_Code" INTEGER,'+
-    '"Date_Order_Placed" DATETIME DEFAULT CURRENT_TIMESTAMP,'+
+    '"Date_Order_Placed" DATETIME,'+// DEFAULT CURRENT_TIMESTAMP,'+
     '"Total_Order_Price" FLOAT) '+
     ';');
 
@@ -1402,6 +1402,7 @@ var
   id: Integer;
   customers: IList<TCustomer>;
   order: TCustomer_Orders;
+  date: Nullable<TDateTime>;
 begin
   id := InsertCustomer(18, 'Foo');
   InsertCustomerOrder(id, 1, 5, 0);
@@ -1409,6 +1410,8 @@ begin
 
   customers := FSession.FindAll<TCustomer>;
   CheckEquals(2, customers.First.Orders.Count);
+  date := customers.First.Orders.First.Date_Order_Placed;
+  CheckFalse(date.HasValue);
 
   order := TCustomer_Orders.Create;
   order.Customer_ID := id;
@@ -1420,6 +1423,8 @@ begin
 
   customers := FSession.FindAll<TCustomer>;
   CheckEquals(3, customers.First.Orders.Count);
+  date := customers.First.Orders.Last.Date_Order_Placed;
+  CheckFalse(date.HasValue);
 end;
 
 procedure TSessionTest.When_SaveAll_DoNotSaveTransient;

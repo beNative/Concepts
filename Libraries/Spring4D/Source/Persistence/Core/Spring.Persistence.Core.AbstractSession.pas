@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -683,7 +683,7 @@ begin
         raise EORMColumnNotFound.CreateResFmt(@SColumnNotFound, [columnData.ColumnName]);
       end;
       value := TValue.FromVariant(fieldValue);
-      value := value.ConvertTo(columnData.Member.MemberType.Handle);
+      value := value.Convert(columnData.Member.MemberType.Handle);
       entity.SetValue(columnData.Member, value);
     end;
   end;

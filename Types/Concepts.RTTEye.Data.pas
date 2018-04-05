@@ -107,9 +107,9 @@ type
 
   TReflectionData = class(TObject)
   private
-    FTypes : IList<TTypeData>;
-    FReflection : IReflection;
-    FFilter: string;
+    FTypes      : IList<TTypeData>;
+    FReflection : TType;
+    FFilter     : string;
 
     function GetName: string;
     procedure SetFilter(const Value: string);
@@ -139,7 +139,6 @@ uses
 procedure TReflectionData.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FReflection := TReflection.Create;
   FTypes := TCollections.CreateObjectList<TTypeData>;
 end;
 

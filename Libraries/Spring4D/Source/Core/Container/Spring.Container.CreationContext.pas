@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -30,6 +30,7 @@ interface
 
 uses
   Rtti,
+  SysUtils,
   Spring,
   Spring.Collections,
   Spring.Container.Core;
@@ -43,6 +44,7 @@ type
     fPerResolveInstances: IDictionary<TComponentModel, TValue>;
     fNamedArguments: IList<TNamedValue>;
     fTypedArguments: IList<TTypedValue>;
+    fLock: IReadWriteSync;
   public
     constructor Create(const model: TComponentModel;
       const arguments: array of TValue);
@@ -69,8 +71,8 @@ type
 implementation
 
 uses
-  SysUtils,
   TypInfo,
+  Spring.Container.Common,
   Spring.Container.Injection,
   Spring.Container.ResourceStrings,
   Spring.Reflection;
@@ -88,6 +90,7 @@ var
   i: Integer;
 begin
   inherited Create;
+  fLock := TMREWSync.Create;
   fResolutionStack := TCollections.CreateStack<TComponentModel>;
   fModel := model;
   fArguments := TCollections.CreateList<TValue>;
@@ -113,12 +116,17 @@ end;
 
 function TCreationContext.AddArgument(const argument: TValue): Integer;
 begin
-  if argument.IsType<TTypedValue> then
-    Result := fTypedArguments.Add(argument)
-  else if argument.IsType<TNamedValue> then
-    Result := fNamedArguments.Add(argument)
-  else
-    Result := fArguments.Add(argument);
+  fLock.BeginWrite;
+  try
+    if argument.IsType<TTypedValue> then
+      Result := fTypedArguments.Add(argument)
+    else if argument.IsType<TNamedValue> then
+      Result := fNamedArguments.Add(argument)
+    else
+      Result := fArguments.Add(argument);
+  finally
+    fLock.EndWrite
+  end;
 end;
 
 procedure TCreationContext.AddPerResolve(const model: TComponentModel;
@@ -128,11 +136,16 @@ var
   interfacedObject: TInterfacedObject;
 {$ENDIF}
 begin
-  fPerResolveInstances.Add(model, instance);
+  fLock.BeginWrite;
+  try
+    fPerResolveInstances.Add(model, instance);
 {$IFNDEF AUTOREFCOUNT}
-  if instance.TryAsType<TInterfacedObject>(interfacedObject) and Assigned(interfacedObject) then
-    AtomicIncrement(TInterfacedObjectAccess(interfacedObject).fRefCount);
+    if instance.TryAsType<TInterfacedObject>(interfacedObject) and Assigned(interfacedObject) then
+      AtomicIncrement(TInterfacedObjectAccess(interfacedObject).fRefCount);
 {$ENDIF}
+  finally
+    fLock.EndWrite;
+  end;
 end;
 
 function TCreationContext.CanResolve(const context: ICreationContext;
@@ -140,10 +153,15 @@ function TCreationContext.CanResolve(const context: ICreationContext;
 var
   i: Integer;
 begin
-  for i := fTypedArguments.Count - 1 downto 0 do // check most recently added first
-    if fTypedArguments[i].TypeInfo = dependency.TypeInfo then
-      Exit(True);
-  Result := False;
+  fLock.BeginRead;
+  try
+    for i := fTypedArguments.Count - 1 downto 0 do // check most recently added first
+      if fTypedArguments[i].TypeInfo = dependency.TypeInfo then
+        Exit(True);
+    Result := False;
+  finally
+    fLock.EndRead;
+  end;
 end;
 
 function TCreationContext.TryHandle(const injection: IInjection;
@@ -154,44 +172,49 @@ var
   parameters: TArray<TRttiParameter>;
   value: TNamedValue;
 begin
-  arguments := Copy(injection.Arguments);
-  if not fModel.ConstructorInjections.Contains(injection) then
-  begin
-    handled := injection;
-    Exit(True);
-  end;
-
-  parameters := injection.Target.AsMethod.GetParameters;
-  // RTTI cannot handle open array parameters
-  for i := Low(parameters) to High(parameters) do
-    if pfArray in parameters[i].Flags then
-      Exit(False);
-  if Length(parameters) = fArguments.Count then
-  begin
-    // arguments for ctor are provided and count is correct
-    for i := Low(parameters) to High(parameters) do // check all parameters
-      if fArguments[i].IsType(parameters[i].ParamType.Handle) then
-        arguments[i] := fArguments[i]
-      else
-        Exit(False); // argument and parameter types did not match
-  end
-  else if fArguments.Any then
-    Exit(False);
-  for value in fNamedArguments do // check all named arguments
-  begin
-    Result := False;
-    for i := Low(parameters) to High(parameters) do
-    begin // look for parameter that matches the name and type
-      if SameText(parameters[i].Name, value.Name)
-        and value.Value.IsType(parameters[i].ParamType.Handle) then
-      begin
-        arguments[i] := value.Value;
-        Result := True;
-        Break;
-      end;
+  fLock.BeginRead;
+  try
+    arguments := Copy(injection.Arguments);
+    if not fModel.ConstructorInjections.Contains(injection) then
+    begin
+      handled := injection;
+      Exit(True);
     end;
-    if not Result then // named argument was not found
-      Exit;
+
+    parameters := injection.Target.AsMethod.GetParameters;
+    // RTTI cannot handle open array parameters
+    for i := Low(parameters) to High(parameters) do
+      if pfArray in parameters[i].Flags then
+        Exit(False);
+    if Length(parameters) = fArguments.Count then
+    begin
+      // arguments for ctor are provided and count is correct
+      for i := Low(parameters) to High(parameters) do // check all parameters
+        if fArguments[i].IsType(parameters[i].ParamType.Handle) then
+          arguments[i] := fArguments[i]
+        else
+          Exit(False); // argument and parameter types did not match
+    end
+    else if fArguments.Any then
+      Exit(False);
+    for value in fNamedArguments do // check all named arguments
+    begin
+      Result := False;
+      for i := Low(parameters) to High(parameters) do
+      begin // look for parameter that matches the name and type
+        if SameText(parameters[i].Name, value.Name)
+          and value.Value.IsType(parameters[i].ParamType.Handle) then
+        begin
+          arguments[i] := value.Value;
+          Result := True;
+          Break;
+        end;
+      end;
+      if not Result then // named argument was not found
+        Exit;
+    end;
+  finally
+    fLock.EndRead;
   end;
 
   Result := True; // all parameters are handled - create new injection
@@ -205,26 +228,46 @@ end;
 function TCreationContext.EnterResolution(const model: TComponentModel;
   out instance: TValue): Boolean;
 begin
-  if not Assigned(fModel) then // set the model if we don't know it yet
-    fModel := model;
-  if fPerResolveInstances.TryGetValue(model, instance) then
-    Exit(False);
-  if fResolutionStack.Contains(model) then
-    raise ECircularDependencyException.CreateResFmt(
-      @SCircularDependencyDetected, [model.ComponentTypeName]);
-  fResolutionStack.Push(model);
-  Result := True;
+  Result := False;
+  fLock.BeginWrite;
+  try
+    if not Assigned(fModel) then // set the model if we don't know it yet
+      fModel := model;
+    if fPerResolveInstances.TryGetValue(model, instance) then
+      Exit;
+    if fResolutionStack.Contains(model) then
+      if model.LifetimeType in [TLifetimeType.Singleton,
+        TLifetimeType.PerResolve, TLifetimeType.SingletonPerThread] then
+        Exit
+      else
+        raise ECircularDependencyException.CreateResFmt(
+          @SCircularDependencyDetected, [model.ComponentTypeName]);
+    fResolutionStack.Push(model);
+    Result := True;
+  finally
+    if not Result then
+      fLock.EndWrite;
+  end;
 end;
 
 procedure TCreationContext.LeaveResolution(const model: TComponentModel);
 begin
-  if fResolutionStack.Pop <> model then
+  try
+    if fResolutionStack.Pop <> model then
     raise EResolveException.CreateRes(@SResolutionStackUnbalanced);
+  finally
+    fLock.EndWrite;
+  end;
 end;
 
 procedure TCreationContext.RemoveTypedArgument(index: Integer);
 begin
-  fTypedArguments.Delete(index);
+  fLock.BeginWrite;
+  try
+    fTypedArguments.Delete(index);
+  finally
+    fLock.EndWrite;
+  end;
 end;
 
 function TCreationContext.Resolve(const context: ICreationContext;
@@ -232,9 +275,14 @@ function TCreationContext.Resolve(const context: ICreationContext;
 var
   i: Integer;
 begin
-  for i := fTypedArguments.Count - 1 downto 0 do
-    if fTypedArguments[i].TypeInfo = dependency.TypeInfo then
-      Exit(fTypedArguments[i].Value);
+  fLock.BeginRead;
+  try
+    for i := fTypedArguments.Count - 1 downto 0 do
+      if fTypedArguments[i].TypeInfo = dependency.TypeInfo then
+        Exit(fTypedArguments[i].Value);
+  finally
+    fLock.EndRead;
+  end;
   raise EResolveException.CreateResFmt(@SCannotResolveType, [dependency.Name]);
 end;
 

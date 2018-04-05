@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -76,7 +76,6 @@ type
     fCurrent: Integer;
     fInternalOpen: Boolean;
     fModifiedFields: IList<TField>;
-    fFieldsCache: IDictionary<string,TField>;
     fFilterCache: IDictionary<string, Variant>;
     fIndexList: TIndexList;
 
@@ -123,7 +122,7 @@ type
 
     // Basic overrides
     function GetCanModify: Boolean; override;
-    function GetRecNo: {$IFDEF DELPHIX_TOKYO_UP}Integer{$ELSE}LongInt{$ENDIF}; override;
+    function GetRecNo: Integer; override;
     function GetRecordCount: Integer; override;
     procedure SetFiltered(Value: Boolean); override;
 
@@ -132,7 +131,6 @@ type
     procedure SetRecNo(Value: Integer); override;
     procedure SetCurrent(value: Integer); virtual;
     procedure SetRecBufSize;
-    procedure RebuildFieldCache;
 
     // Abstract overrides
     function AllocRecordBuffer: TRecordBuffer; {$IFNDEF NEXTGEN}override;{$ENDIF}
@@ -163,7 +161,6 @@ type
     function GetRecord(Buffer: TRecordBuffer; GetMode: TGetMode;
       DoCheck: Boolean): TGetResult; override;
     function GetRecordSize: Word; override;
-    procedure BindFields(Binding: Boolean); override;
 
     procedure InternalAddRecord(Buffer: {$IFDEF DELPHIXE3_UP}TRecordBuffer{$ELSE}Pointer{$ENDIF}; Append: Boolean); override;
     procedure InternalClose; override;
@@ -194,8 +191,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-
-    function FindField(const FieldName: string): TField; reintroduce;
 
     function BookmarkValid(Bookmark: TBookmark): Boolean; override;
     function CompareBookmarks(Bookmark1, Bookmark2: TBookmark): Integer; override;
@@ -455,14 +450,13 @@ begin
   fIndexList := TIndexList.Create;
 
   comparer := TStringComparer.OrdinalIgnoreCase;
-  fFieldsCache := TCollections.CreateDictionary<string,TField>(50, comparer);
   fFilterCache := TCollections.CreateDictionary<string,Variant>(50, comparer);
 end;
 
 destructor TCustomVirtualDataSet.Destroy;
 begin
-  fIndexList.Free;
   inherited Destroy;
+  fIndexList.Free;
 end;
 
 function TCustomVirtualDataSet.AllocRecordBuffer: TRecordBuffer;
@@ -482,12 +476,6 @@ begin
   Result := AllocRecordBuffer;
 end;
 {$ENDIF}
-
-procedure TCustomVirtualDataSet.BindFields(Binding: Boolean);
-begin
-  inherited BindFields(Binding);
-  RebuildFieldCache;
-end;
 
 function TCustomVirtualDataSet.BookmarkValid(Bookmark: TBookmark): Boolean;
 begin
@@ -568,12 +556,6 @@ begin
       if Assigned(fOnInsertRecord) then
         fOnInsertRecord(Self, Index);
   end
-end;
-
-function TCustomVirtualDataSet.FindField(const FieldName: string): TField;
-begin
-  if not fFieldsCache.TryGetValue(FieldName, Result) then
-    Result := nil;
 end;
 
 procedure TCustomVirtualDataSet.FreeRecordBuffer(var Buffer: TRecordBuffer);
@@ -716,7 +698,10 @@ var
       end;
       ftFixedWideChar, ftWideString:
       begin
-        TempBuff := TEncoding.Unicode.GetBytes(tagVariant(Data).bstrVal);
+        if tagVariant(Data).vt = VT_BSTR then
+          TempBuff := TEncoding.Unicode.GetBytes(tagVariant(Data).bstrVal)
+        else
+          TempBuff := TEncoding.Unicode.GetBytes(string(Data));
         SetLength(TempBuff, Length(TempBuff) + SizeOf(Char));
         TempBuff[Length(TempBuff) - 2] := 0;
         TempBuff[Length(TempBuff) - 1] := 0;
@@ -819,7 +804,10 @@ var
       end;
       ftFixedWideChar, ftWideString:
       begin
-        TempBuff := TEncoding.Unicode.GetBytes(tagVariant(Data).bstrVal);
+        if tagVariant(Data).vt = VT_BSTR then
+          TempBuff := TEncoding.Unicode.GetBytes(tagVariant(Data).bstrVal)
+        else
+          TempBuff := TEncoding.Unicode.GetBytes(string(Data));
         SetLength(TempBuff, Length(TempBuff) + SizeOf(Char));
         TempBuff[Length(TempBuff) - 2] := 0;
         TempBuff[Length(TempBuff) - 1] := 0;
@@ -956,7 +944,7 @@ begin
     Result := PArrayRecInfo(recBuf).Index;
 end;
 
-function TCustomVirtualDataSet.GetRecNo: {$IFDEF DELPHIX_TOKYO_UP}Integer{$ELSE}LongInt{$ENDIF};
+function TCustomVirtualDataSet.GetRecNo: Integer;
 var
   recBuf: TRecordBuffer;
 begin
@@ -1241,18 +1229,6 @@ begin
   Result := Null;
   if DataSetLocateThrough(Self, KeyFields, KeyValues, []) then
     Result := FieldValues[ResultFields];
-end;
-
-procedure TCustomVirtualDataSet.RebuildFieldCache;
-var
-  i: Integer;
-begin
-  fFieldsCache.Clear;
-  for i := 0 to Fields.Count - 1 do
-  begin
-    Fields[i].DisplayLabel := FieldDefs[i].DisplayName;
-    fFieldsCache.Add(Fields[i].FieldName, Fields[i]);
-  end;
 end;
 
 procedure TCustomVirtualDataSet.SetBookmarkFlag(Buffer: TRecordBuffer; Value: TBookmarkFlag);

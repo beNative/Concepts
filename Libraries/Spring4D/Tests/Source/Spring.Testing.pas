@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -35,7 +35,7 @@ uses
   Spring;
 
 const
-  DefaultDelimiters = ';';
+  DefaultDelimiter = ',';
 
 type
   TValue = Rtti.TValue;
@@ -45,7 +45,7 @@ type
     function GetValue(index: Integer): TValue;
   protected
     fValues: TArray<TValue>;
-    constructor Create(const values: string; const delimiters: string = DefaultDelimiters);
+    constructor Create(const values: string; const delimiter: string = DefaultDelimiter);
     property Values[index: Integer]: TValue read GetValue;
   end;
 
@@ -62,7 +62,7 @@ type
   /// </summary>
   TestCaseAttribute = class(TTestingAttribute)
   public
-    constructor Create(const values: string; const delimiters: string = DefaultDelimiters);
+    constructor Create(const values: string; const delimiter: string = DefaultDelimiter);
   end;
 
   TestCaseSourceAttribute = class(TBaseAttribute)
@@ -83,7 +83,7 @@ type
   ValuesAttribute = class(TTestingAttribute)
   public
     constructor Create; overload;
-    constructor Create(const values: string; const delimiters: string = DefaultDelimiters); overload;
+    constructor Create(const values: string; const delimiter: Char = DefaultDelimiter); overload;
   end;
 
   /// <summary>
@@ -173,6 +173,9 @@ uses
   TypInfo,
   Spring.Reflection;
 
+var
+  ISO8601FormatSettings: TFormatSettings;
+
 type
   TRttiMethodHelper = class helper for TRttiMethod
     procedure ConvertValues(const values: TArray<TValue>;
@@ -196,7 +199,7 @@ begin
       value := values[i]
     else
       value := TValue.Empty;
-    value.TryConvert(parameters[i].ParamType.Handle, arguments[i]);
+    value.TryConvert(parameters[i].ParamType.Handle, arguments[i], ISO8601FormatSettings);
   end;
   retType := ReturnType;
   if retType <> nil then
@@ -206,7 +209,7 @@ begin
       value := values[i]
     else
       value := TValue.Empty;
-    value.TryConvert(retType.Handle, arguments[i]);
+    value.TryConvert(retType.Handle, arguments[i], ISO8601FormatSettings);
   end;
 end;
 
@@ -230,13 +233,13 @@ end;
 
 {$REGION 'TTestingAttribute'}
 
-constructor TTestingAttribute.Create(const values, delimiters: string);
+constructor TTestingAttribute.Create(const values: string; const delimiter: string);
 var
   tempValues: TStringDynArray;
   i: Integer;
 begin
   inherited Create;
-  tempValues := SplitString(values, delimiters);
+  tempValues := SplitString(values, delimiter);
   SetLength(fValues, Length(tempValues));
   for i := 0 to High(tempValues) do
     fValues[i] := tempValues[i];
@@ -255,9 +258,9 @@ end;
 
 {$REGION 'TestCaseAttribute'}
 
-constructor TestCaseAttribute.Create(const values, delimiters: string);
+constructor TestCaseAttribute.Create(const values: string; const delimiter: string);
 begin
-  inherited Create(values, delimiters);
+  inherited Create(values, delimiter);
 end;
 
 {$ENDREGION}
@@ -289,9 +292,9 @@ begin
   inherited Create('');
 end;
 
-constructor ValuesAttribute.Create(const values, delimiters: string);
+constructor ValuesAttribute.Create(const values: string; const delimiter: Char);
 begin
-  inherited Create(values, delimiters);
+  inherited Create(values, delimiter);
 end;
 
 {$ENDREGION}
@@ -368,6 +371,22 @@ function TTestCase.GetName: string;
       Result := Result + ']';
     end;
 
+    function FormatRecord(const value: TValue): string;
+    var
+      i: Integer;
+      fields: TArray<TRttiField>;
+    begin
+      Result := '(';
+      fields := value.TypeInfo.RttiType.GetFields;
+      for i := 0 to High(fields) do
+      begin
+        if i > 0 then
+          Result := Result + '; ';
+        Result := Result + fields[i].Name +': ' + FormatValue(fields[i].GetValue(value));
+      end;
+      Result := Result + ')';
+    end;
+
     function StripUnitName(const s: string): string;
     begin
       Result := ReplaceText(s, 'System.', '');
@@ -401,11 +420,13 @@ function TTestCase.GetName: string;
           NativeInt(LInterface), StripUnitName(value.TypeInfo.TypeName)]);
       end;
       tkArray, tkDynArray:
-        Result := FormatArray(Self);
+        Result := FormatArray(value);
       tkChar, tkString, tkWChar, tkLString, tkWString, tkUString:
         Result := QuotedStr(value.ToString);
       tkClassRef:
         Result := value.AsClass.ClassName;
+      tkRecord:
+        Result := FormatRecord(value);
     else
       Result := value.ToString;
     end;
@@ -547,7 +568,7 @@ procedure TTestSuite.AddTests(testClass: TTestCaseClass);
         for i := 0 to High(attribute.fValues) do
         begin
           attribute.Values[i].TryConvert(
-            parameters[paramIndex].ParamType.Handle, arguments[paramIndex]);
+            parameters[paramIndex].ParamType.Handle, arguments[paramIndex], ISO8601FormatSettings);
           if paramIndex = Length(parameters) - 1 then
             suite.AddTest(testClass.Create(method, arguments) as ITest)
           else
@@ -556,7 +577,7 @@ procedure TTestSuite.AddTests(testClass: TTestCaseClass);
       else
       begin
         attribute.Values[argIndex].TryConvert(
-          parameters[paramIndex].ParamType.Handle, arguments[paramIndex]);
+          parameters[paramIndex].ParamType.Handle, arguments[paramIndex], ISO8601FormatSettings);
         if paramIndex = Length(parameters) - 1 then
           suite.AddTest(testClass.Create(method, arguments) as ITest)
         else
@@ -606,7 +627,7 @@ procedure TTestSuite.AddTests(testClass: TTestCaseClass);
             suite.AddTest(testClass.Create(method, arguments) as ITest);
           end
           else
-            if values.TryConvert(parameters[0].ParamType.Handle, arguments[0]) then
+            if values.TryConvert(parameters[0].ParamType.Handle, arguments[0], ISO8601FormatSettings) then
               suite.AddTest(testClass.Create(method, arguments) as ITest);
         end;
       end;
@@ -686,5 +707,15 @@ end;
 
 {$ENDREGION}
 
+
+initialization
+  ISO8601FormatSettings := TFormatSettings.Create;
+  ISO8601FormatSettings.DateSeparator := '-';
+  ISO8601FormatSettings.TimeSeparator := ':';
+  ISO8601FormatSettings.ShortDateFormat := 'YYYY-MM-DD';
+  ISO8601FormatSettings.ShortTimeFormat := 'hh:mm:ss';
+  ISO8601FormatSettings.DecimalSeparator := '.';
+  ISO8601FormatSettings.TimeAMString := '';
+  ISO8601FormatSettings.TimePMString := '';
 
 end.

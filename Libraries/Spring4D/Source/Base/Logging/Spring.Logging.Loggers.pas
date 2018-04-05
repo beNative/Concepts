@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -109,54 +109,54 @@ type
     procedure Log(const fmt: string;
       const args: array of const; const e: Exception); overload;
 
-    procedure Log(level: TLogLevel; const msg : string); overload;
-    procedure Log(level: TLogLevel; const msg : string;
+    procedure Log(level: TLogLevel; const msg: string); overload;
+    procedure Log(level: TLogLevel; const msg: string;
       const e: Exception); overload;
-    procedure Log(level: TLogLevel; const fmt : string;
-      const args : array of const); overload;
-    procedure Log(level: TLogLevel; const fmt : string;
-      const args : array of const; const e: Exception); overload;
+    procedure Log(level: TLogLevel; const fmt: string;
+      const args: array of const); overload;
+    procedure Log(level: TLogLevel; const fmt: string;
+      const args: array of const; const e: Exception); overload;
 
-    procedure Fatal(const msg : string); overload;
-    procedure Fatal(const msg : string; const e: Exception); overload;
-    procedure Fatal(const fmt : string; const args : array of const); overload;
-    procedure Fatal(const fmt : string; const args : array of const;
-      const e: Exception); overload;
-
-    procedure Error(const msg : string); overload;
-    procedure Error(const msg : string; const e: Exception); overload;
-    procedure Error(const fmt : string; const args : array of const); overload;
-    procedure Error(const fmt : string; const args : array of const;
+    procedure Fatal(const msg: string); overload;
+    procedure Fatal(const msg: string; const e: Exception); overload;
+    procedure Fatal(const fmt: string; const args: array of const); overload;
+    procedure Fatal(const fmt: string; const args: array of const;
       const e: Exception); overload;
 
-    procedure Warn(const msg : string); overload;
-    procedure Warn(const msg : string; const e: Exception); overload;
-    procedure Warn(const fmt : string; const args : array of const); overload;
-    procedure Warn(const fmt : string; const args : array of const;
+    procedure Error(const msg: string); overload;
+    procedure Error(const msg: string; const e: Exception); overload;
+    procedure Error(const fmt: string; const args: array of const); overload;
+    procedure Error(const fmt: string; const args: array of const;
       const e: Exception); overload;
 
-    procedure Info(const msg : string); overload;
-    procedure Info(const msg : string; const e: Exception); overload;
-    procedure Info(const fmt : string; const args : array of const); overload;
-    procedure Info(const fmt : string; const args : array of const;
+    procedure Warn(const msg: string); overload;
+    procedure Warn(const msg: string; const e: Exception); overload;
+    procedure Warn(const fmt: string; const args: array of const); overload;
+    procedure Warn(const fmt: string; const args: array of const;
       const e: Exception); overload;
 
-    procedure Text(const msg : string); overload;
-    procedure Text(const msg : string; const e: Exception); overload;
-    procedure Text(const fmt : string; const args : array of const); overload;
-    procedure Text(const fmt : string; const args : array of const;
+    procedure Info(const msg: string); overload;
+    procedure Info(const msg: string; const e: Exception); overload;
+    procedure Info(const fmt: string; const args: array of const); overload;
+    procedure Info(const fmt: string; const args: array of const;
       const e: Exception); overload;
 
-    procedure Debug(const msg : string); overload;
-    procedure Debug(const msg : string; const e: Exception); overload;
-    procedure Debug(const fmt : string; const args : array of const); overload;
-    procedure Debug(const fmt : string; const args : array of const;
+    procedure Text(const msg: string); overload;
+    procedure Text(const msg: string; const e: Exception); overload;
+    procedure Text(const fmt: string; const args: array of const); overload;
+    procedure Text(const fmt: string; const args: array of const;
       const e: Exception); overload;
 
-    procedure Trace(const msg : string); overload;
-    procedure Trace(const msg : string; const e: Exception); overload;
-    procedure Trace(const fmt : string; const args : array of const); overload;
-    procedure Trace(const fmt : string; const args : array of const;
+    procedure Debug(const msg: string); overload;
+    procedure Debug(const msg: string; const e: Exception); overload;
+    procedure Debug(const fmt: string; const args: array of const); overload;
+    procedure Debug(const fmt: string; const args: array of const;
+      const e: Exception); overload;
+
+    procedure Trace(const msg: string); overload;
+    procedure Trace(const msg: string; const e: Exception); overload;
+    procedure Trace(const fmt: string; const args: array of const); overload;
+    procedure Trace(const fmt: string; const args: array of const;
       const e: Exception); overload;
 
     procedure Enter(const methodName: string); overload;

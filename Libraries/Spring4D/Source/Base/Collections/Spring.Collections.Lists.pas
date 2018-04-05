@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -308,6 +308,14 @@ type
     constructor Create; override;
 
     property OnPropertyChanged: IEvent<TPropertyChangedEvent> read GetOnPropertyChanged;
+  end;
+
+  TKeyList<TKey> = class(TList<TKey>)
+  private
+    fComparer: IEqualityComparer<TKey>;
+  public
+    constructor Create(const comparer: IEqualityComparer<TKey>);
+    function IndexOf(const item: TKey; index, count: Integer): Integer; override;
   end;
 
 implementation
@@ -1548,6 +1556,25 @@ begin
 
   inherited Changed(value, action);
   DoPropertyChanged('Count');
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TKeyList<TKey>'}
+
+constructor TKeyList<TKey>.Create(const comparer: IEqualityComparer<TKey>);
+begin
+  inherited Create;
+  fComparer := comparer;
+  if fComparer = nil then
+    fComparer := TEqualityComparer<TKey>.Default;
+end;
+
+function TKeyList<TKey>.IndexOf(const item: TKey; index,
+  count: Integer): Integer;
+begin
+  Result := TArray.IndexOf<TKey>(fItems, item, index, count, fComparer);
 end;
 
 {$ENDREGION}

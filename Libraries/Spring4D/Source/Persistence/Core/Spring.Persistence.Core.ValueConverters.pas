@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -68,7 +68,11 @@ uses
   SysUtils,
 {$IFEND}
 {$IFDEF FMX}
-  FMX.Graphics,
+  {$IFDEF DELPHIXE5_UP}
+  Fmx.Graphics,
+  {$ELSE}
+  Fmx.Types,
+  {$ENDIF}
 {$ELSE}
   {$IFDEF MSWINDOWS}
   {$IFDEF HAS_UNITSCOPE}
@@ -143,7 +147,7 @@ var
   pic: TPicture;
   stream: TStream;
 begin
-  pic := TPicture.Create;
+  pic := TPicture.Create{$IFDEF FMX}{$IFNDEF DELPHIXE5_UP}(0, 0){$ENDIF}{$ENDIF};
   stream := TStream(value.AsObject);
   if TryLoadFromStreamSmart(stream, pic) then
     Result := pic
@@ -211,7 +215,7 @@ begin
     LGraphicClass := TBitmap;
 {$IFEND}
      // raise EInvalidGraphic.Create(SInvalidImage);
-    LGraphic := LGraphicClass.Create;
+    LGraphic := LGraphicClass.Create{$IFDEF FMX}{$IFNDEF DELPHIXE5_UP}(0, 0){$ENDIF}{$ENDIF};
     LStream.Position := 0;
     LGraphic.LoadFromStream(LStream);
     picture.Assign(LGraphic);

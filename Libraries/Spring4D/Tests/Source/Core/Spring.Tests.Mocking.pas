@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2017 Spring4D Team                           }
+{           Copyright (c) 2009-2018 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -72,12 +72,14 @@ type
     procedure AssertsWrongOrder;
     procedure SequenceWorksUsingWith;
     procedure ResetClearsSequence;
+    procedure SequenceAllowsMultipleExpectedCalls;
   end;
 
 implementation
 
 uses
-  Spring.Mocking;
+  Spring.Mocking,
+  Spring;
 
 type
   {$M+}
@@ -89,6 +91,7 @@ type
     procedure Test5(const s1: string; var x: Integer; o: ITest; const s2: string);
     procedure TestVariant(const v: Variant);
     procedure TestDynArray(const v: TArray<string>);
+    function GetNext: Integer;
   end;
 
   IVarParamTest = interface
@@ -437,9 +440,6 @@ begin
   Check(seq.Completed);
 end;
 
-{$ENDREGION}
-
-
 procedure MockSequenceTest.ResetClearsSequence;
 var
   mock: Mock<IMockTest>;
@@ -454,6 +454,32 @@ begin
   mock.Instance.Test1(2, 'b');
 
   Pass;
+end;
+
+procedure MockSequenceTest.SequenceAllowsMultipleExpectedCalls;
+var
+  mock: Mock<IMockTest>;
+  seq: MockSequence;
+begin
+  mock.Behavior := TMockBehavior.Strict;
+  with mock.Setup(seq) do
+  begin
+    Returns<Integer>([1, 2]).When.GetNext;
+    Raises<EInvalidOperationException>.When.GetNext;
+  end;
+
+  with mock.Instance do
+  begin
+    CheckEquals(1, GetNext);
+    CheckEquals(2, GetNext);
+    CheckException(EInvalidOperationException,
+      procedure
+      begin
+        GetNext;
+      end);
+  end;
+
+  Check(seq.Completed);
 end;
 
 procedure MockSequenceTest.SequenceWorksUsingWith;
@@ -476,5 +502,8 @@ begin
 
   Check(seq.Completed);
 end;
+
+{$ENDREGION}
+
 
 end.
