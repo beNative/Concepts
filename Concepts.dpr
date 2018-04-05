@@ -471,7 +471,8 @@ uses
 { Used to directly start a concept by name. If empty a list will be shown with
   all registered concepts. }
 const
-  EXECUTE_BY_NAME = '';
+//  EXECUTE_BY_NAME = '';
+  EXECUTE_BY_NAME = 'FireDAC';
   //EXECUTE_BY_NAME = 'ORM';
   //EXECUTE_BY_NAME = 'TStringList';
   //EXECUTE_BY_NAME = 'Indy';
