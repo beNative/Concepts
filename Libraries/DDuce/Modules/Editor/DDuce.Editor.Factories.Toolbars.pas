@@ -52,32 +52,32 @@ type
     ): TToolButton; overload;
 
     function CreateToolButton(
-            AParent     : TToolBar;
+      AParent           : TToolBar;
       const AActionName : string = '';
-            APopupMenu  : TPopupMenu = nil
+      APopupMenu        : TPopupMenu = nil
     ): TToolButton; overload;
 
   public
     procedure AfterConstruction; override;
 
     constructor Create(
-      AActions  : IEditorActions;
-      AMenus    : IEditorMenus
+      AActions : IEditorActions;
+      AMenus   : IEditorMenus
     );
 
     function CreateMainToolbar(
-        AOwner  : TComponent;
-        AParent : TWinControl
+      AOwner  : TComponent;
+      AParent : TWinControl
     ): TToolbar;
 
     function CreateSelectionToolbar(
-        AOwner  : TComponent;
-        AParent : TWinControl
+      AOwner  : TComponent;
+      AParent : TWinControl
     ): TToolbar;
 
     function CreateRightToolbar(
-        AOwner  : TComponent;
-        AParent : TWinControl
+      AOwner  : TComponent;
+      AParent : TWinControl
     ): TToolbar;
 
     property EdgeBorders: TEdgeBorders

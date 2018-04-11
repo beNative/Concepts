@@ -34,7 +34,7 @@ type
     FZMQ       : IZeroMQ;
     FPair      : IZMQPair;
     //FEventProc : TZMQEventProc;
-    FEvents    : ZMQEvents;
+    //FEvents    : ZMQEvents;
     //FPoll      : IZMQPoll;
     FPort      : Integer;
     FName      : string;

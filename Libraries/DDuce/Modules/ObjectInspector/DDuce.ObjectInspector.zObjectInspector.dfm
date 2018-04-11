@@ -39,4 +39,16 @@ object frmComponentInspectorzObjectInspector: TfrmComponentInspectorzObjectInspe
       OnChange = cbxInspectorChange
     end
   end
+  object aclMain: TActionList
+    Left = 192
+    Top = 328
+    object actExpandAll: TAction
+      Caption = 'Expand all'
+      OnExecute = actExpandAllExecute
+    end
+    object actCollapseAll: TAction
+      Caption = 'Collapse all'
+      OnExecute = actCollapseAllExecute
+    end
+  end
 end

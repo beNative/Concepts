@@ -16,29 +16,34 @@
 
 unit DDuce.ObjectInspector.zObjectInspector;
 
-//{$I ..\DDuce.inc}
-
 interface
 
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Contnrs,
+  System.Actions,
 
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ExtCtrls,
+  Vcl.ExtCtrls, Vcl.ActnList,
 
   zObjInspector, zObjInspTypes;
 
 type
   TfrmComponentInspectorzObjectInspector = class(TForm)
-    pnlMain      : TPanel;
-    cbxInspector : TComboBox;
+    pnlMain        : TPanel;
+    cbxInspector   : TComboBox;
+    aclMain        : TActionList;
+    actExpandAll   : TAction;
+    actCollapseAll : TAction;
 
     procedure cbxInspectorChange(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormActivate(Sender: TObject);
     procedure FormShow(Sender: TObject);
+
+    procedure actExpandAllExecute(Sender: TObject);
+    procedure actCollapseAllExecute(Sender: TObject);
 
   private
     FObjectInspector : TzObjectInspector;
@@ -56,12 +61,12 @@ type
       AOwner  : TComponent;
       AObject : TObject
     ); reintroduce;
+    procedure BeforeDestruction; override;
 
     procedure CreatePropertyInspector;
 
     procedure AddComponentToInspector(AComponent: TObject); virtual;
     procedure FocusComponentInInspector(AComponent: TObject); virtual;
-    procedure BeforeDestruction; override;
   end;
 
 procedure InspectComponent(AComponent : TComponent);
@@ -216,6 +221,68 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION 'action handlers'}
+procedure TfrmComponentInspectorzObjectInspector.actCollapseAllExecute(
+  Sender: TObject);
+begin
+  FObjectInspector.CollapseAll;
+end;
+
+procedure TfrmComponentInspectorzObjectInspector.actExpandAllExecute(
+  Sender: TObject);
+begin
+  FObjectInspector.ExpandAll;
+end;
+{$ENDREGION}
+
+{$REGION 'event handlers'}
+function TfrmComponentInspectorzObjectInspector.FObjectInspectorBeforeAddItem(Sender: TControl;
+  PItem: PPropItem): Boolean;
+begin
+  Result := not (PItem.Prop.PropertyType is TRttiMethodType);
+end;
+
+procedure TfrmComponentInspectorzObjectInspector.cbxInspectorChange(Sender: TObject);
+var
+  CBX : TComboBox;
+begin
+  CBX := Sender as TComboBox;
+  FObjectInspector.BeginUpdate;
+  try
+    if CBX.ItemIndex > -1 then
+    begin
+      // this assignment will destroy the assigned ObjectHost object!!
+      FObjectInspector.Component := CBX.Items.Objects[CBX.ItemIndex];
+      FObjectHost := nil;
+      FObjectInspector.SortByCategory := False;
+    end;
+  finally
+    FObjectInspector.EndUpdate;
+  end;
+end;
+
+procedure TfrmComponentInspectorzObjectInspector.FormActivate(Sender: TObject);
+begin
+  FObjectInspector.Refresh;
+end;
+
+procedure TfrmComponentInspectorzObjectInspector.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  Action := caFree;
+end;
+
+procedure TfrmComponentInspectorzObjectInspector.FormResize(Sender: TObject);
+begin
+  FObjectInspector.SplitterPos := FObjectInspector.ClientWidth div 2;
+end;
+
+procedure TfrmComponentInspectorzObjectInspector.FormShow(Sender: TObject);
+begin
+  Height := Screen.WorkAreaHeight;
+end;
+{$ENDREGION}
+
 {$REGION 'private methods'}
 procedure TfrmComponentInspectorzObjectInspector.CreatePropertyInspector;
 begin
@@ -262,12 +329,6 @@ begin
   end;
 end;
 
-function TfrmComponentInspectorzObjectInspector.FObjectInspectorBeforeAddItem(Sender: TControl;
-  PItem: PPropItem): Boolean;
-begin
-  Result := not (PItem.Prop.PropertyType is TRttiMethodType);
-end;
-
 procedure TfrmComponentInspectorzObjectInspector.FocusComponentInInspector(
   AComponent: TObject);
 begin
@@ -275,47 +336,4 @@ begin
   cbxInspectorChange(cbxInspector);
 end;
 {$ENDREGION}
-
-{$REGION 'event handlers'}
-procedure TfrmComponentInspectorzObjectInspector.cbxInspectorChange(Sender: TObject);
-var
-  CBX : TComboBox;
-begin
-  CBX := Sender as TComboBox;
-  FObjectInspector.BeginUpdate;
-  try
-    if CBX.ItemIndex > -1 then
-    begin
-      // this assignment will destroy the assigned ObjectHost object!!
-      FObjectInspector.Component := CBX.Items.Objects[CBX.ItemIndex];
-      FObjectHost := nil;
-      FObjectInspector.SortByCategory := False;
-    end;
-  finally
-    FObjectInspector.EndUpdate;
-  end;
-end;
-
-procedure TfrmComponentInspectorzObjectInspector.FormActivate(Sender: TObject);
-begin
-  FObjectInspector.Refresh;
-end;
-
-procedure TfrmComponentInspectorzObjectInspector.FormClose(Sender: TObject;
-  var Action: TCloseAction);
-begin
-  Action := caFree;
-end;
-
-procedure TfrmComponentInspectorzObjectInspector.FormResize(Sender: TObject);
-begin
-  FObjectInspector.SplitterPos := FObjectInspector.ClientWidth div 2;
-end;
-
-procedure TfrmComponentInspectorzObjectInspector.FormShow(Sender: TObject);
-begin
-  Height := Screen.WorkAreaHeight;
-end;
-{$ENDREGION}
-
 end.

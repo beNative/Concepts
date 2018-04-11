@@ -24,12 +24,12 @@ interface
 
 uses
   System.SysUtils, System.Types, System.UITypes, System.Rtti, System.Classes,
-  System.Variants,
+  System.Variants, System.Actions,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls, FMX.Effects,
   FMX.Colors, FMX.TabControl, FMX.Menus, FMX.Filter.Effects, FMX.Edit,
   FMX.ExtCtrls, FMX.EditBox, FMX.SpinBox, FMX.ListBox, FMX.Layouts,
   FMX.Controls.Presentation, FMX.DateTimeCtrls, FMX.Calendar, FMX.MagnifierGlass,
-  System.Actions, FMX.ActnList;
+  FMX.ActnList;
 
 type
   TFireMonkeyForm = class(TForm)

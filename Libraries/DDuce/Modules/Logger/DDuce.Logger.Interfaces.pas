@@ -95,6 +95,9 @@ type
 
   TChannelList = IList<ILogChannel>;
 
+  // TODO send TTimeSpan
+
+
   ILogger = interface(IInterface)
   ['{28E9BADE-6B42-4399-8867-1CA115576E40}']
     function GetChannels: TChannelList;
@@ -117,6 +120,7 @@ type
     procedure SendColor(const AName: string; AColor: TColor);
     procedure SendAlphaColor(const AName: string; AAlphaColor: TAlphaColor);
     procedure SendObject(const AName: string; AValue: TObject);
+    procedure SendInterface(const AName: string; AValue: IInterface);
     procedure SendRect(const AName: string; const AValue: TRect);
     procedure SendPoint(const AName: string; const APoint: TPoint);
     procedure SendStrings(const AName: string; AValue: TStrings);

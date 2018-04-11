@@ -111,6 +111,8 @@ type
     procedure SendComponent(const AName: string; AValue: TComponent);
     { Will send object data using RTTI information. }
     procedure SendObject(const AName: string; AValue: TObject);
+    { Same as above but for an interface variable. }
+    procedure SendInterface(const AName: string; AValue: IInterface);
 
     procedure SendDateTime(const AName: string; AValue: TDateTime);
     procedure SendDate(const AName: string; AValue: TDate);
@@ -354,9 +356,12 @@ procedure TLogger.SendObject(const AName: string; AValue: TObject);
 begin
   Guard.CheckNotNull(AValue, AName);
   InternalSend(
-    lmtObject,
+    lmtText,  // should be lmtObject but that is used for DFM?
     Format('%s: %s' + sLineBreak + '%s',
-    [AName, AValue.ClassName, Reflect.Fields(AValue).ToString])
+    [AName, AValue.ClassName, Reflect.Fields(AValue).ToString
+    + #13#10 + #13#10 + Reflect.Properties(AValue).ToString]
+
+    )
   );
 end;
 
@@ -468,6 +473,11 @@ procedure TLogger.SendIf(const AText: string; AExpression, AIsTrue: Boolean);
 begin
   if AExpression = AIsTrue then
     InternalSend(lmtConditional, AText);
+end;
+
+procedure TLogger.SendInterface(const AName: string; AValue: IInterface);
+begin
+  SendObject(AName, TObject(AValue));
 end;
 
 procedure TLogger.Warn(const AText: string);

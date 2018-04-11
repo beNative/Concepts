@@ -53,8 +53,6 @@ object frmIndyTCP: TfrmIndyTCP
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = -3
-      ExplicitTop = 3
       object pnlLeftTopTop: TPanel
         Left = 0
         Top = 0
@@ -152,10 +150,6 @@ object frmIndyTCP: TfrmIndyTCP
         object tsCommands: TTabSheet
           Caption = 'Commands'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnlCommands: TGridPanel
             AlignWithMargins = True
             Left = 3
@@ -342,10 +336,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tsSentText: TTabSheet
           Caption = 'Text'
@@ -356,10 +346,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object mmoSentText: TMemo
             Left = 0
             Top = 0
@@ -457,10 +443,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tsReceivedText: TTabSheet
           Caption = 'Text'
@@ -471,10 +453,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object mmoReceivedText: TMemo
             Left = 0
             Top = 0
@@ -510,7 +488,7 @@ object frmIndyTCP: TfrmIndyTCP
     Left = 72
     Top = 136
     Bitmap = {
-      494C010105000900040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C0101050009000C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -835,7 +813,7 @@ object frmIndyTCP: TfrmIndyTCP
   end
   object IdConnectionIntercept: TIdConnectionIntercept
     OnReceive = IdConnectionInterceptReceive
-    Left = 208
+    Left = 112
     Top = 48
   end
   object IdTCPClient: TIdTCPClient

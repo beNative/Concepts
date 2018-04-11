@@ -19,24 +19,34 @@ unit DDuce.Factories.VirtualTrees;
 interface
 
 uses
-  System.Classes,
+  System.Classes, System.UITypes,
   Vcl.Controls,
 
   Spring,
 
   VirtualTrees;
 
+{ TVSTOptions is a settings container which holds the most commonly adjusted
+  properties of the TVirtualStringTree component. }
+
 type
   TVSTOptions = class
   strict private
-    FHeaderOptions    : TVTHeaderOptions;
-    FPaintOptions     : TVTPaintOptions;
-    FAnimationOptions : TVTAnimationOptions;
-    FAutoOptions      : TVTAutoOptions;
-    FStringOptions    : TVTStringOptions;
-    FSelectionOptions : TVTSelectionOptions;
-    FMiscOptions      : TVTMiscOptions;
-    FColumnOptions    : TVTColumnOptions;
+    FHeaderOptions                : TVTHeaderOptions;
+    FPaintOptions                 : TVTPaintOptions;
+    FAnimationOptions             : TVTAnimationOptions;
+    FAutoOptions                  : TVTAutoOptions;
+    FStringOptions                : TVTStringOptions;
+    FSelectionOptions             : TVTSelectionOptions;
+    FMiscOptions                  : TVTMiscOptions;
+    FColumnOptions                : TVTColumnOptions;
+    FLineStyle                    : TVTLineStyle;     // style of the tree lines
+    FLineMode                     : TVTLineMode;      // tree lines or bands etc.
+    FDrawSelectionMode            : TVTDrawSelectionMode;
+    FHintMode                     : TVTHintMode;
+    FSelectionTextColor           : TColor;
+    FSelectionRectangleBlendColor : TColor;
+    FGridLineColor                : TColor;
 
   public
     property HeaderOptions: TVTHeaderOptions
@@ -63,6 +73,28 @@ type
     property ColumnOptions: TVTColumnOptions
       read FColumnOptions write FColumnOptions;
 
+    property LineStyle: TVTLineStyle
+      read FLineStyle write FLineStyle;
+
+    property LineMode: TVTLineMode
+      read FLineMode write FLineMode;
+
+    property DrawSelectionMode: TVTDrawSelectionMode
+      read FDrawSelectionMode write FDrawSelectionMode;
+
+    property HintMode: TVTHintMode
+      read FHintMode write FHintMode;
+
+    { background color for selection. }
+    property SelectionRectangleBlendColor: TColor
+      read FSelectionRectangleBlendColor write FSelectionRectangleBlendColor;
+
+    { font color for text in selection. }
+    property SelectionTextColor: TColor
+      read FSelectionTextColor write FSelectionTextColor;
+
+    property GridLineColor: TColor
+      read FGridLineColor write FGridLineColor;
   end;
 
 type
@@ -118,7 +150,6 @@ type
 implementation
 
 uses
-  System.UITypes,
   Vcl.Graphics;
 
 {$REGION 'TVirtualStringTree settings'}
@@ -411,6 +442,14 @@ begin
       toInitOnSave, toToggleOnDblClick, toWheelPanning, toVariableNodeHeight
     ];
     ColumnOptions := [];
+
+    LineStyle                    := lsDotted;
+    LineMode                     := lmNormal;
+    DrawSelectionMode            := smBlendedRectangle;
+    HintMode                     := hmTooltip;
+    SelectionRectangleBlendColor := clGray;
+    SelectionTextColor           := clBlack;
+    GridLineColor                := clSilver;
   end;
 
   with FDefaultGridOptions do
@@ -423,7 +462,7 @@ begin
     PaintOptions := [
       toHideFocusRect, toHideSelection, toHotTrack, toPopupMode,
       toShowBackground, toShowButtons, toShowDropmark, toShowRoot,
-      toShowVertGridLines, toThemeAware, toUseBlendedImages,
+      toShowVertGridLines, toShowHorzGridLines, toThemeAware, toUseBlendedImages,
       toUseBlendedSelection, toStaticBackground, toUseExplorerTheme
     ];
     AnimationOptions := [];
@@ -439,6 +478,14 @@ begin
       toWheelPanning, toVariableNodeHeight
     ];
     ColumnOptions := [];
+
+    LineStyle                    := lsSolid;
+    LineMode                     := lmBands;
+    DrawSelectionMode            := smBlendedRectangle;
+    HintMode                     := hmTooltip;
+    SelectionRectangleBlendColor := clGray;
+    SelectionTextColor           := clBlack;
+    GridLineColor                := clSilver;
   end;
 
   with FDefaultTreeGridOptions do
@@ -467,6 +514,14 @@ begin
       toVariableNodeHeight
     ];
     ColumnOptions := [];
+
+    LineStyle                    := lsSolid;
+    LineMode                     := lmNormal;
+    DrawSelectionMode            := smBlendedRectangle;
+    HintMode                     := hmTooltip;
+    SelectionRectangleBlendColor := clGray;
+    SelectionTextColor           := clBlack;
+    GridLineColor                := clSilver;
   end;
 end;
 
@@ -489,6 +544,14 @@ begin
   ATree.TreeOptions.SelectionOptions := AVSTOptions.SelectionOptions;
   ATree.TreeOptions.StringOptions    := AVSTOptions.StringOptions;
   ATree.Header.Options               := AVSTOptions.HeaderOptions;
+  ATree.LineStyle                    := AVSTOptions.LineStyle;
+  ATree.LineMode                     := AVSTOptions.LineMode;
+  ATree.DrawSelectionMode            := AVSTOptions.DrawSelectionMode;
+  ATree.HintMode                     := AVSTOptions.HintMode;
+  ATree.Colors.SelectionTextColor    := AVSTOptions.SelectionTextColor;
+  ATree.Colors.GridLineColor         := AVSTOptions.GridLineColor;
+  ATree.Colors.SelectionRectangleBlendColor :=
+    AVSTOptions.SelectionRectangleBlendColor;
 end;
 {$ENDREGION}
 
@@ -503,9 +566,7 @@ begin
   VST := TVirtualStringTree.Create(AOwner);
   VST.AlignWithMargins  := True;
   VST.Parent            := AParent;
-  VST.HintMode          := hmTooltip;
   VST.Align             := alClient;
-  VST.DrawSelectionMode := smBlendedRectangle;
   VST.Colors.SelectionRectangleBlendColor := clGray;
   VST.Colors.SelectionTextColor := clBlack;
   VST.Colors.GridLineColor      := clGray;
@@ -525,12 +586,11 @@ begin
   VST := TVirtualStringTree.Create(AOwner);
   VST.AlignWithMargins  := True;
   VST.Parent            := AParent;
-  VST.HintMode          := hmTooltip;
   VST.Align             := alClient;
   VST.DrawSelectionMode := smBlendedRectangle;
   VST.Colors.SelectionRectangleBlendColor := clGray;
-  VST.Colors.SelectionTextColor := clBlack;
-  VST.Colors.GridLineColor      := clGray;
+  VST.Colors.SelectionTextColor           := clBlack;
+  VST.Colors.GridLineColor                := clSilver;
   VST.Header.AutoSizeIndex := -1;
   VST.Header.Height        := 18;
   AssignOptions(DefaultGridOptions, VST);
@@ -548,12 +608,10 @@ begin
   Guard.CheckNotNull(AOwner, 'AOwner');
   Guard.CheckNotNull(AParent, 'AParent');
   VST := TVirtualStringTree.Create(AOwner);
-  VST.AlignWithMargins  := True;
-  VST.Parent            := AParent;
-  VST.HintMode          := hmTooltip;
-  VST.Align             := alClient;
-  VST.DrawSelectionMode := smBlendedRectangle;
-  VST.Header.Height := 18;
+  VST.AlignWithMargins := True;
+  VST.Parent           := AParent;
+  VST.Align            := alClient;
+  VST.Header.Height    := 18;
   AssignOptions(DefaultTreeOptions, VST);
   Result := VST;
 end;
@@ -568,9 +626,7 @@ begin
   VST := TVirtualStringTree.Create(AOwner);
   VST.AlignWithMargins  := True;
   VST.Parent            := AParent;
-  VST.HintMode          := hmTooltip;
   VST.Align             := alClient;
-  VST.DrawSelectionMode := smBlendedRectangle;
   VST.Header.Height     := 18;
   AssignOptions(DefaultTreeGridOptions, VST);
   Result := VST;

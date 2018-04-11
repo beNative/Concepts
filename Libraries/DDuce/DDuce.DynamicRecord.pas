@@ -2278,12 +2278,6 @@ begin
   AssignProperty(AInstance, APropertyName, '', AAssignNulls);
 end;
 
-//procedure DynamicRecord.AssignTo(const AInstance: TValue;
-//  const ANames: array of string);
-//begin
-//  DynamicRecord.AssignTo(AInstance, ANames);
-//end;
-
 procedure DynamicRecord.AssignTo(const AValue: TValue; const AAssignProperties,
   AAssignFields, AAssignNulls: Boolean; const ANames: array of string);
 begin
