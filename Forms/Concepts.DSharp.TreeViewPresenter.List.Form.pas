@@ -227,6 +227,7 @@ begin
     TConceptFactories.CreateTreeViewPresenter(Self, FVSTColumns, CDList);
   FTVPColumns.SelectionMode := smSingle;
   FTVPColumns.OnSelectionChanged := FTVPColumnsSelectionChanged;
+  FTVP.OnSelectionChanged := FTVPSelectionChanged;
 end;
 {$ENDREGION}
 
