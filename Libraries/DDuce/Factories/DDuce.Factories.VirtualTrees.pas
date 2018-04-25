@@ -103,6 +103,7 @@ type
     FDefaultTreeOptions     : TVSTOptions;
     FDefaultGridOptions     : TVSTOptions;
     FDefaultTreeGridOptions : TVSTOptions;
+    FDefaultListOptions     : TVSTOptions;
 
     class procedure AssignOptions(
       AVSTOptions : TVSTOptions;
@@ -125,6 +126,12 @@ type
       const AName : string = ''
     ): TVirtualStringTree;
 
+    class function CreateList(
+      AOwner      : TComponent;
+      AParent     : TWinControl;
+      const AName : string = ''
+    ): TVirtualStringTree;
+
     class function CreateGrid(
       AOwner      : TComponent;
       AParent     : TWinControl;
@@ -142,6 +149,9 @@ type
 
     class property DefaultGridOptions: TVSTOptions
       read FDefaultGridOptions;
+
+    class property DefaultListOptions: TVSTOptions
+      read FDefaultListOptions;
 
     class property DefaultTreeGridOptions: TVSTOptions
       read FDefaultTreeGridOptions;
@@ -234,6 +244,7 @@ uses
       (CS_HREDRAW/CS_VREDRAW). }
 //    toFullRepaintOnResize,
     { Use some special enhancements to simulate and support grid behavior. }
+    { This also changes how the selection is drawn. }
 //    toGridExtensions,
     { Initialize nodes when saving a tree to a stream. }
 //  toInitOnSave,
@@ -419,6 +430,7 @@ begin
   FDefaultTreeOptions     := TVSTOptions.Create;
   FDefaultGridOptions     := TVSTOptions.Create;
   FDefaultTreeGridOptions := TVSTOptions.Create;
+  FDefaultListOptions     := TVSTOptions.Create;
 
   with FDefaultTreeOptions do
   begin
@@ -488,11 +500,46 @@ begin
     GridLineColor                := clSilver;
   end;
 
+  with FDefaultListOptions do
+  begin
+    HeaderOptions := [
+      hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoRestrictDrag,
+      hoShowHint, hoShowImages, hoShowSortGlyphs, hoAutoSpring,
+      hoDisableAnimatedResize, hoVisible
+    ];
+    PaintOptions := [
+      toHideFocusRect, toHotTrack, toPopupMode, toShowBackground,
+      toShowDropmark, toThemeAware, toUseBlendedImages, toUseBlendedSelection,
+      toUseExplorerTheme
+    ];
+    AnimationOptions := [];
+    AutoOptions := [
+      toAutoDropExpand, toAutoScroll, toAutoScrollOnExpand, toAutoSort,
+      toAutoTristateTracking, toAutoDeleteMovedNodes, toAutoChangeScale,
+      toDisableAutoscrollOnEdit, toAutoBidiColumnOrdering
+    ];
+    StringOptions := [toAutoAcceptEditChange];
+    SelectionOptions := [toExtendedFocus, toFullRowSelect];
+    MiscOptions := [
+      toCheckSupport, toInitOnSave, toToggleOnDblClick, toWheelPanning,
+      toVariableNodeHeight
+    ];
+    ColumnOptions := [];
+
+    LineStyle                    := lsSolid;
+    LineMode                     := lmNormal;
+    DrawSelectionMode            := smBlendedRectangle;
+    HintMode                     := hmTooltip;
+    SelectionRectangleBlendColor := clGray;
+    SelectionTextColor           := clBlack;
+    GridLineColor                := clSilver;
+  end;
+
   with FDefaultTreeGridOptions do
   begin
     HeaderOptions := [
       hoAutoResize, hoColumnResize, hoDblClickResize, hoRestrictDrag,
-      hoShowHint, hoShowImages, hoShowSortGlyphs,hoAutoSpring,
+      hoShowHint, hoShowImages, hoShowSortGlyphs, hoAutoSpring,
       hoDisableAnimatedResize, hoVisible
     ];
     PaintOptions := [
@@ -529,6 +576,7 @@ class destructor TVirtualStringTreeFactory.Destroy;
 begin
   FDefaultTreeOptions.Free;
   FDefaultGridOptions.Free;
+  FDefaultListOptions.Free;
   FDefaultTreeGridOptions.Free;
 end;
 {$ENDREGION}
@@ -564,13 +612,10 @@ begin
   Guard.CheckNotNull(AOwner, 'AOwner');
   Guard.CheckNotNull(AParent, 'AParent');
   VST := TVirtualStringTree.Create(AOwner);
-  VST.AlignWithMargins  := True;
-  VST.Parent            := AParent;
-  VST.Align             := alClient;
-  VST.Colors.SelectionRectangleBlendColor := clGray;
-  VST.Colors.SelectionTextColor := clBlack;
-  VST.Colors.GridLineColor      := clGray;
-  VST.Header.Height := 18;
+  VST.AlignWithMargins := True;
+  VST.Parent           := AParent;
+  VST.Align            := alClient;
+  VST.Header.Height    := 18;
   Result := VST;
 end;
 
@@ -587,13 +632,29 @@ begin
   VST.AlignWithMargins  := True;
   VST.Parent            := AParent;
   VST.Align             := alClient;
-  VST.DrawSelectionMode := smBlendedRectangle;
-  VST.Colors.SelectionRectangleBlendColor := clGray;
-  VST.Colors.SelectionTextColor           := clBlack;
-  VST.Colors.GridLineColor                := clSilver;
   VST.Header.AutoSizeIndex := -1;
   VST.Header.Height        := 18;
   AssignOptions(DefaultGridOptions, VST);
+  VST.Indent := 2; // show first column as a normal grid column
+  Result := VST;
+end;
+
+{ Creates a TVirtualStringTree that mimics a list viewe. }
+
+class function TVirtualStringTreeFactory.CreateList(AOwner: TComponent;
+  AParent: TWinControl; const AName: string): TVirtualStringTree;
+var
+  VST : TVirtualStringTree;
+begin
+  Guard.CheckNotNull(AOwner, 'AOwner');
+  Guard.CheckNotNull(AParent, 'AParent');
+  VST := TVirtualStringTree.Create(AOwner);
+  VST.AlignWithMargins := True;
+  VST.Parent           := AParent;
+  VST.Align            := alClient;
+  VST.Header.AutoSizeIndex := -1;
+  VST.Header.Height        := 18;
+  AssignOptions(DefaultListOptions, VST);
   VST.Indent := 2; // show first column as a normal grid column
   Result := VST;
 end;
@@ -624,10 +685,10 @@ begin
   Guard.CheckNotNull(AOwner, 'AOwner');
   Guard.CheckNotNull(AParent, 'AParent');
   VST := TVirtualStringTree.Create(AOwner);
-  VST.AlignWithMargins  := True;
-  VST.Parent            := AParent;
-  VST.Align             := alClient;
-  VST.Header.Height     := 18;
+  VST.AlignWithMargins := True;
+  VST.Parent           := AParent;
+  VST.Align            := alClient;
+  VST.Header.Height    := 18;
   AssignOptions(DefaultTreeGridOptions, VST);
   Result := VST;
 end;
