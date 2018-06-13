@@ -200,7 +200,7 @@ object frmMain: TfrmMain
     LookAndFeel.Tabs.DefaultFont.Color = clBlack
     LookAndFeel.Tabs.DefaultFont.Size = 9
     LookAndFeel.Tabs.DefaultFont.Alpha = 255
-    LookAndFeel.Tabs.DefaultFont.TextRendoringMode = TextRenderingHintClearTypeGridFit
+    LookAndFeel.Tabs.DefaultFont.TextRenderingMode = TextRenderingHintClearTypeGridFit
     LookAndFeel.Tabs.MouseGlow.CentreColor = clWhite
     LookAndFeel.Tabs.MouseGlow.OutsideColor = clWhite
     LookAndFeel.Tabs.MouseGlow.CentreAlpha = 120
@@ -215,7 +215,7 @@ object frmMain: TfrmMain
     LookAndFeel.Tabs.Active.Font.Color = clOlive
     LookAndFeel.Tabs.Active.Font.Size = 9
     LookAndFeel.Tabs.Active.Font.Alpha = 100
-    LookAndFeel.Tabs.Active.Font.TextRendoringMode = TextRenderingHintClearTypeGridFit
+    LookAndFeel.Tabs.Active.Font.TextRenderingMode = TextRenderingHintClearTypeGridFit
     LookAndFeel.Tabs.Active.Font.UseDefaultFont = True
     LookAndFeel.Tabs.Active.Style.StartColor = clWhite
     LookAndFeel.Tabs.Active.Style.StopColor = 16316920
@@ -228,7 +228,7 @@ object frmMain: TfrmMain
     LookAndFeel.Tabs.NotActive.Font.Color = 4603477
     LookAndFeel.Tabs.NotActive.Font.Size = 9
     LookAndFeel.Tabs.NotActive.Font.Alpha = 215
-    LookAndFeel.Tabs.NotActive.Font.TextRendoringMode = TextRenderingHintClearTypeGridFit
+    LookAndFeel.Tabs.NotActive.Font.TextRenderingMode = TextRenderingHintClearTypeGridFit
     LookAndFeel.Tabs.NotActive.Font.UseDefaultFont = False
     LookAndFeel.Tabs.NotActive.Style.StartColor = 15194573
     LookAndFeel.Tabs.NotActive.Style.StopColor = 15194573
@@ -241,7 +241,7 @@ object frmMain: TfrmMain
     LookAndFeel.Tabs.Hot.Font.Color = 4210752
     LookAndFeel.Tabs.Hot.Font.Size = 9
     LookAndFeel.Tabs.Hot.Font.Alpha = 215
-    LookAndFeel.Tabs.Hot.Font.TextRendoringMode = TextRenderingHintClearTypeGridFit
+    LookAndFeel.Tabs.Hot.Font.TextRenderingMode = TextRenderingHintClearTypeGridFit
     LookAndFeel.Tabs.Hot.Font.UseDefaultFont = False
     LookAndFeel.Tabs.Hot.Style.StartColor = 15721176
     LookAndFeel.Tabs.Hot.Style.StopColor = 15589847
@@ -541,7 +541,7 @@ object frmMain: TfrmMain
     LookAndFeel.Tabs.DefaultFont.Color = clBlack
     LookAndFeel.Tabs.DefaultFont.Size = 9
     LookAndFeel.Tabs.DefaultFont.Alpha = 255
-    LookAndFeel.Tabs.DefaultFont.TextRendoringMode = TextRenderingHintClearTypeGridFit
+    LookAndFeel.Tabs.DefaultFont.TextRenderingMode = TextRenderingHintClearTypeGridFit
     LookAndFeel.Tabs.MouseGlow.CentreColor = clWhite
     LookAndFeel.Tabs.MouseGlow.OutsideColor = clWhite
     LookAndFeel.Tabs.MouseGlow.CentreAlpha = 120
@@ -556,7 +556,7 @@ object frmMain: TfrmMain
     LookAndFeel.Tabs.Active.Font.Color = clOlive
     LookAndFeel.Tabs.Active.Font.Size = 9
     LookAndFeel.Tabs.Active.Font.Alpha = 100
-    LookAndFeel.Tabs.Active.Font.TextRendoringMode = TextRenderingHintClearTypeGridFit
+    LookAndFeel.Tabs.Active.Font.TextRenderingMode = TextRenderingHintClearTypeGridFit
     LookAndFeel.Tabs.Active.Font.UseDefaultFont = True
     LookAndFeel.Tabs.Active.Style.StartColor = clWhite
     LookAndFeel.Tabs.Active.Style.StopColor = 16316664
@@ -569,7 +569,7 @@ object frmMain: TfrmMain
     LookAndFeel.Tabs.NotActive.Font.Color = clBlack
     LookAndFeel.Tabs.NotActive.Font.Size = 9
     LookAndFeel.Tabs.NotActive.Font.Alpha = 255
-    LookAndFeel.Tabs.NotActive.Font.TextRendoringMode = TextRenderingHintClearTypeGridFit
+    LookAndFeel.Tabs.NotActive.Font.TextRenderingMode = TextRenderingHintClearTypeGridFit
     LookAndFeel.Tabs.NotActive.Font.UseDefaultFont = True
     LookAndFeel.Tabs.NotActive.Style.StartColor = 16107683
     LookAndFeel.Tabs.NotActive.Style.StopColor = 15778203
@@ -582,7 +582,7 @@ object frmMain: TfrmMain
     LookAndFeel.Tabs.Hot.Font.Color = 4210752
     LookAndFeel.Tabs.Hot.Font.Size = 9
     LookAndFeel.Tabs.Hot.Font.Alpha = 255
-    LookAndFeel.Tabs.Hot.Font.TextRendoringMode = TextRenderingHintClearTypeGridFit
+    LookAndFeel.Tabs.Hot.Font.TextRenderingMode = TextRenderingHintClearTypeGridFit
     LookAndFeel.Tabs.Hot.Font.UseDefaultFont = True
     LookAndFeel.Tabs.Hot.Style.StartColor = 16308929
     LookAndFeel.Tabs.Hot.Style.StopColor = 15979450
@@ -722,7 +722,7 @@ object frmMain: TfrmMain
     Align = alBottom
     TabOrder = 2
   end
-  object Panel1: TPanel
+  object Panel: TPanel
     Left = 0
     Top = 27
     Width = 1017
@@ -784,10 +784,10 @@ object frmMain: TfrmMain
       Top = 29
       Width = 1017
       Height = 519
-      ActivePage = TabSheet1
+      ActivePage = TabSheetOptions
       Align = alClient
       TabOrder = 1
-      object TabSheet1: TTabSheet
+      object TabSheetOptions: TTabSheet
         Caption = 'Options'
         object GroupBox1: TGroupBox
           Left = 0
@@ -1487,10 +1487,6 @@ object frmMain: TfrmMain
               object Spinners: TTabSheet
                 Caption = 'Spinners'
                 ImageIndex = 2
-                ExplicitLeft = 0
-                ExplicitTop = 0
-                ExplicitWidth = 0
-                ExplicitHeight = 0
                 object Label82: TLabel
                   Left = 3
                   Top = 2
@@ -1532,10 +1528,6 @@ object frmMain: TfrmMain
                   object TabSheet19: TTabSheet
                     Caption = 'Upload'
                     ImageIndex = 1
-                    ExplicitLeft = 0
-                    ExplicitTop = 0
-                    ExplicitWidth = 0
-                    ExplicitHeight = 0
                     object Label86: TLabel
                       Left = 3
                       Top = 5
@@ -1664,10 +1656,6 @@ object frmMain: TfrmMain
                   end
                   object TabSheet18: TTabSheet
                     Caption = 'Download'
-                    ExplicitLeft = 0
-                    ExplicitTop = 0
-                    ExplicitWidth = 0
-                    ExplicitHeight = 0
                     object Label83: TLabel
                       Left = 3
                       Top = 5
@@ -1812,9 +1800,9 @@ object frmMain: TfrmMain
               object Label14: TLabel
                 Left = 8
                 Top = 20
-                Width = 157
+                Width = 156
                 Height = 15
-                Caption = 'Default Text Rendoring Mode:'
+                Caption = 'Default Text Rendering Mode:'
                 FocusControl = cbFontHintMode
               end
               object Label63: TLabel
@@ -2564,10 +2552,6 @@ object frmMain: TfrmMain
           object Scrolling: TTabSheet
             Caption = 'Scrolling'
             ImageIndex = 4
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
             object chkScrolling: TCheckBox
               Left = 3
               Top = 3
@@ -2744,10 +2728,6 @@ object frmMain: TfrmMain
           object TabSheet2: TTabSheet
             Caption = 'Behaviour'
             ImageIndex = 2
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
             object Label53: TLabel
               Left = 24
               Top = 166
@@ -3454,7 +3434,7 @@ object frmMain: TfrmMain
           end
         end
       end
-      object TabSheet14: TTabSheet
+      object TabSheetLookAndFeel: TTabSheet
         Caption = 'Look and Feel'
         ImageIndex = 3
         object tvLookAndFeelItems: TTreeView
@@ -3546,13 +3526,9 @@ object frmMain: TfrmMain
           end
         end
       end
-      object TabSheet15: TTabSheet
+      object TabSheetGeneral: TTabSheet
         Caption = 'General'
         ImageIndex = 4
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Label7: TLabel
           Left = 16
           Top = 8
@@ -3624,7 +3600,7 @@ object frmMain: TfrmMain
           OnChange = OnCommonControlPropertyChange
         end
       end
-      object TabSheet3: TTabSheet
+      object TabSheetEvents: TTabSheet
         Caption = 'Events'
         ImageIndex = 2
         object Panel2: TPanel
@@ -3760,10 +3736,6 @@ object frmMain: TfrmMain
       object tabDebug: TTabSheet
         Caption = 'Debug'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Panel10: TPanel
           Left = 0
           Top = 0
@@ -3790,7 +3762,7 @@ object frmMain: TfrmMain
     Left = 48
     Top = 472
     Bitmap = {
-      494C010106000900100010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010106000900040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000002F3E46FF2F3E46FF2F3E46FF2F3E46FF2F3E46FF2F3E46FF2F3E
@@ -4066,7 +4038,7 @@ object frmMain: TfrmMain
     Left = 88
     Top = 472
     Bitmap = {
-      494C010102000500100010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010102000500040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000A3D0CA324802EDB001500610000
@@ -4220,7 +4192,7 @@ object frmMain: TfrmMain
     Left = 48
     Top = 376
   end
-  object ActionList1: TActionList
+  object ActionList: TActionList
     Left = 48
     Top = 328
     object actLoadLookAndFeel: TAction
@@ -4263,9 +4235,9 @@ object frmMain: TfrmMain
     Left = 128
     Top = 424
   end
-  object ApplicationEvents1: TApplicationEvents
-    OnDeactivate = ApplicationEvents1Deactivate
-    OnMessage = ApplicationEvents1Message
+  object ApplicationEvents: TApplicationEvents
+    OnDeactivate = ApplicationEventsDeactivate
+    OnMessage = ApplicationEventsMessage
     Left = 128
     Top = 328
   end
@@ -4274,7 +4246,7 @@ object frmMain: TfrmMain
     Left = 128
     Top = 472
     Bitmap = {
-      494C01010B000D00100010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C01010B000D00040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000B0B0B0C000000000000000000000000000000000000
@@ -4682,7 +4654,7 @@ object frmMain: TfrmMain
     Left = 168
     Top = 472
     Bitmap = {
-      494C01010A000D00100010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C01010A000D00040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       00001F1F1F24505050895F5F5FCB656565EB656565EB5F5F5FCB505050891F1F

@@ -355,7 +355,6 @@ begin
     end;
     SRG.FileName := ExtractFileName(AView.FileName);
     SRG.ViewName := AView.Name;
-    Logger.Send(SRG.Text);
     ItemGroups.Add(SRG);
   end;
 end;

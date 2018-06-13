@@ -152,7 +152,6 @@ begin
     FForm := FFormClass.Create(
       (FManager as IInterfaceComponentReference).GetComponent
     ) as TForm;
-    Logger.Send('Created ' + FForm.Name);
   end;
   Result := FForm;
 end;

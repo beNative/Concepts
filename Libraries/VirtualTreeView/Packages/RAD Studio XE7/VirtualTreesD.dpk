@@ -1,4 +1,4 @@
-package VirtualTreesDD;
+package VirtualTreesD;
 
 {$R *.res}
 {$R '..\..\Design\VirtualTrees.dcr'}
@@ -26,14 +26,14 @@ package VirtualTreesDD;
 {$IMAGEBASE $400000}
 {$DEFINE RELEASE}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'TurboPack VirtualTree Delphi designtime package'}
-{$LIBSUFFIX '230'}
+{$DESCRIPTION 'VirtualTreeView Controls'}
+{$LIBSUFFIX '21'}
 {$DESIGNONLY}
 {$IMPLICITBUILD OFF}
 
 requires
   DesignIDE,
-  VirtualTreesDR;
+  VirtualTreesR;
 
 contains
   VirtualTreesReg in '..\..\Design\VirtualTreesReg.pas';

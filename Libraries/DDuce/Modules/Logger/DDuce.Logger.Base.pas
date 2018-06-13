@@ -15,7 +15,10 @@
 }
 
 {
-  The Original Code is part of the LuiPack library for Freepascal/Lazarus.
+  Although this unit has been almost completely rewritten, the original idea
+  was created by Luiz Américo Pereira Câmara in his open source multilog
+  project.
+
   The Initial Developer of the Original Code (multilog.pas) is Luiz Américo
   Pereira Câmara (pascalive@bol.com.br). Portions created by the Initial
   Developer are Copyright (C) 2006. All Rights Reserved. You may obtain a copy
@@ -40,7 +43,7 @@ uses
 
   Vcl.Graphics,
 
-  Spring.Collections,
+  Spring, Spring.Collections,
 
   DDuce.Logger.Interfaces;
 
@@ -49,7 +52,7 @@ const
 
 type
   TLogger = class(TInterfacedObject, ILogger)
-  strict private
+  private
   type
     TTrack = class(TInterfacedObject)
     private
@@ -76,7 +79,9 @@ type
     procedure SetMaxStackCount(const AValue: Integer);
     function GetChannels: TChannelList;
 
-  strict protected
+  protected
+    function StringValueOf(const AValue: TValue): string;
+
     procedure InternalSend(
       AMsgType    : TLogMessageType;
       const AText : string = ''
@@ -100,7 +105,21 @@ type
 
     // Send functions
     procedure Send(const AName: string; const AArgs: array of const); overload;
+
     procedure Send(const AName: string; const AValue: string = ''); overload;
+    procedure Send(const AName: string; const AValue: AnsiString); overload;
+    procedure Send(const AName: string; const AValue: WideString); overload;
+    procedure Send(const AName: string; const AValue: ShortString); overload;
+
+    // Overloads for builtin integer types
+    procedure Send(const AName: string; const AValue: Cardinal); overload;
+    procedure Send(const AName: string; const AValue: Word); overload;
+    procedure Send(const AName: string; const AValue: SmallInt); overload;
+    procedure Send(const AName: string; const AValue: Byte); overload;
+    procedure Send(const AName: string; const AValue: ShortInt); overload;
+    procedure Send(const AName: string; const AValue: UInt64); overload;
+    procedure Send(const AName: string; const AValue: FixedInt); overload;
+
     // no need to define overloads which have an implicit cast to TValue
     procedure Send(const AName: string; const AValue: TValue); overload;
 
@@ -113,6 +132,9 @@ type
     procedure SendObject(const AName: string; AValue: TObject);
     { Same as above but for an interface variable. }
     procedure SendInterface(const AName: string; AValue: IInterface);
+    { Sends values of published properties. }
+    procedure SendPersistent(const AName: string; AValue: TPersistent);
+    procedure SendVariant(const AName: string; const AValue: Variant);
 
     procedure SendDateTime(const AName: string; AValue: TDateTime);
     procedure SendDate(const AName: string; AValue: TDate);
@@ -126,9 +148,10 @@ type
     procedure SendMemory(
       const AName: string;
       AAddress   : Pointer;
-      ASize      : LongWord
+      ASize      : UInt32
     );
     procedure SendShortCut(const AName: string; AShortCut: TShortCut);
+    procedure SendBitmap(const AName: string; ABitmap: TBitmap);
 
     { Send methods for text that can be displayed with a dedicated
       highlighter. }
@@ -136,7 +159,8 @@ type
       const AName        : string;
       const AText        : string;
       const AHighlighter : string = ''
-    );
+    ); overload;
+    procedure SendText(const AText: string); overload;
 
     procedure SendIf(
       const AText : string;
@@ -198,6 +222,9 @@ type
     { Watches support }
     procedure Watch(const AName: string; const AValue: TValue); overload;
     procedure Watch(const AName: string; const AValue: string = ''); overload;
+    procedure Watch(const AName: string; const AValue: AnsiString); overload;
+    procedure Watch(const AName: string; const AValue: WideString); overload;
+    procedure Watch(const AName: string; const AValue: ShortString); overload;
 
     { List of channels where logmessages will be posted to }
     property Channels: TChannelList
@@ -227,13 +254,42 @@ uses
   System.TypInfo, System.UIConsts,
   Vcl.Forms, Vcl.Menus,
 
-  Spring,
+  Spring.Reflection, Spring.Helpers,
 
   DDuce.Reflect;
 
 const
   STACKCOUNTLIMIT        = 256;
   DEFAULT_CHECKPOINTNAME = 'CheckPoint';
+
+
+function GetInterfaceTypeName(AIntf: IInterface): Tuple<string,string>;
+var
+  O        : TObject;
+  LType    : TRttiInterfaceType;
+  LContext : TRttiContext;
+  LIntf    : IInterface;
+begin
+  // get the implementing object...
+  O := AIntf as TObject;
+
+  // enumerate the object's interfaces, looking for the
+  // one that matches the input parameter...
+  for LType in (LContext.GetType(O.ClassType) as TRttiInstanceType).GetImplementedInterfaces do
+  begin
+    if O.GetInterface(LType.GUID, LIntf) then
+    begin
+      if AIntf = LIntf then
+      begin
+        Result := [LType.Name, LType.GUID.ToString];
+        Exit;
+      end;
+      LIntf := nil;
+    end;
+  end;
+end;
+
+
 
 {$REGION 'TLogger'}
 {$REGION 'construction and destruction'}
@@ -261,6 +317,11 @@ end;
 {$ENDREGION}
 
 {$REGION 'property access methods'}
+function TLogger.GetChannels: TChannelList;
+begin
+  Result := FChannels;
+end;
+
 procedure TLogger.SetMaxStackCount(const AValue: Integer);
 begin
   if AValue < STACKCOUNTLIMIT then
@@ -271,6 +332,29 @@ end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
+function TLogger.StringValueOf(const AValue: TValue): string;
+var
+  V : TValue;
+  S : string;
+begin
+  case AValue.Kind of
+    tkArray, tkDynArray:
+    begin
+      for V in  AValue.GetArray do
+        S := S + StringValueOf(V) + #13#10;
+    end;
+    tkInterface:
+      S := sLineBreak + Reflect.Fields(AValue).ToString;
+    tkRecord:
+      S := sLineBreak + Reflect.Fields(AValue).ToString;
+    else
+    begin
+      S := AValue.ToString;
+    end;
+  end;
+  Result := S;
+end;
+
 procedure TLogger.InternalSendStream(AMsgType: TLogMessageType; const AText: string;
   AStream: TStream);
 var
@@ -333,7 +417,22 @@ end;
 
 procedure TLogger.Send(const AName: string; const AValue: string);
 begin
-  InternalSend(lmtValue, AName + ' = ' + AValue);
+  Send(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.Send(const AName: string; const AValue: ShortString);
+begin
+  Send(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.Send(const AName: string; const AValue: WideString);
+begin
+  Send(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.Send(const AName: string; const AValue: AnsiString);
+begin
+  Send(AName, TValue.From(AValue));
 end;
 
 procedure TLogger.SendRect(const AName: string; const AValue: TRect);
@@ -349,18 +448,20 @@ end;
 procedure TLogger.SendStrings(const AName: string; AValue: TStrings);
 begin
   Guard.CheckNotNull(AValue, AName);
-  Send(AName, AValue.Text);
+  InternalSend(
+    lmtStrings,
+    Format('%s (%s) = ' + sLineBreak + '%s', [AName, AValue.ClassName, AValue.Text])
+  );
 end;
 
 procedure TLogger.SendObject(const AName: string; AValue: TObject);
 begin
   Guard.CheckNotNull(AValue, AName);
   InternalSend(
-    lmtText,  // should be lmtObject but that is used for DFM?
-    Format('%s: %s' + sLineBreak + '%s',
+    lmtObject,
+    Format('%s (%s) = ' + sLineBreak + '%s',
     [AName, AValue.ClassName, Reflect.Fields(AValue).ToString
     + #13#10 + #13#10 + Reflect.Properties(AValue).ToString]
-
     )
   );
 end;
@@ -375,73 +476,127 @@ begin
   Send(AName, TValue.From(AValue));
 end;
 
-procedure TLogger.SendText(const AName, AText, AHighlighter: string);
-begin
-//  InternalSend(lmtText, AName + ' = ' + S);
-end;
-
 procedure TLogger.SendTime(const AName: string; AValue: TTime);
 begin
   Send(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.SendText(const AName, AText, AHighlighter: string);
+var
+  S : string;
+begin
+  if AHighlighter.IsEmpty then
+    S := Format('%s'#13#10'%s', [AName, AText])
+  else
+    S := Format('%s (%s)'#13#10'%s', [AName, AHighlighter, AText]);
+  InternalSend(lmtText, S);
+end;
+
+procedure TLogger.SendText(const AText: string);
+begin
+  InternalSend(lmtText, AText);
+end;
+
+procedure TLogger.SendVariant(const AName: string; const AValue: Variant);
+begin
+  Send(AName, TValue.FromVariant(AValue));
 end;
 
 procedure TLogger.Send(const AName: string; const AValue: TValue);
 var
   S : string;
 begin
-  case AValue.Kind of
-    tkClass:
-      SendObject(AName, AValue.AsObject);
-    tkEnumeration:
-    begin
-      if AValue.TypeInfo = TypeInfo(Boolean) then
-      begin
-        S := BoolToStr(AValue.AsBoolean, True);
-      end;
-    end;
-    tkFloat:
-    begin
-      if AValue.TypeInfo = TypeInfo(TDate) then
-      begin
-        S := DateToStr(AValue.AsType<TDate>);
-      end
-      else
-      if AValue.TypeInfo = TypeInfo(TDateTime) then
-      begin
-        S := DateTimeToStr(AValue.AsType<TDateTime>);
-      end
-      else
-      if AValue.TypeInfo = TypeInfo(TTime) then
-      begin
-        S := TimeToStr(AValue.AsType<TTime>);
-      end
-      else
-      begin
-        S := FloatToStr(AValue.AsExtended);
-      end;
-    end;
-    tkInteger:
-      S := AValue.AsInteger.ToString;
-    tkInt64:
-      S := AValue.AsInt64.ToString;
-    tkInterface:
-      S := sLineBreak + Reflect.Fields(AValue).ToString;
-    tkRecord:
-      S := sLineBreak + Reflect.Fields(AValue).ToString;
+  if AValue.TypeInfo <> nil then
+  begin
+    S := Format('%s (%s) = %s', [
+      AName,
+      AValue.TypeInfo.TypeName,
+      StringValueOf(AValue)
+    ]);
+  end
   else
-    S := AValue.ToString
+  begin
+    S := Format('%s = %s', [
+      AName,
+      StringValueOf(AValue)
+    ]);
   end;
-  InternalSend(lmtValue, AName + ' = ' + S);
+  InternalSend(lmtValue, S);
 end;
 
-procedure TLogger.SendAlphaColor(const AName: string; AAlphaColor: TAlphaColor);
+procedure TLogger.Send(const AName: string; const AValue: FixedInt);
 begin
-  Send(AName, AlphaColorToString(AAlphaColor));
+  Send(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.Send(const AName: string; const AValue: UInt64);
+begin
+  Send(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.Send(const AName: string; const AValue: Byte);
+begin
+  Send(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.Send(const AName: string; const AValue: Word);
+begin
+  Send(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.Send(const AName: string; const AValue: ShortInt);
+begin
+  Send(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.Send(const AName: string; const AValue: Cardinal);
+begin
+  Send(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.Send(const AName: string; const AValue: SmallInt);
+begin
+  Send(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.SendBitmap(const AName: string; ABitmap: TBitmap);
+var
+  LStream : TMemoryStream;
+begin
+  LStream := TMemoryStream.Create;
+  try
+    ABitmap.SaveToStream(LStream);
+    InternalSendStream(lmtBitmap, AName, LStream);
+  finally
+    LStream.Free;
+  end;
 end;
 
 procedure TLogger.Send(const AName: string; const AArgs: array of const);
+//type
+//  TVarArray = array of TVarRec;
+//var
+//  VA : array of TValue;
+//  VR : TVarRec;
+//  I  : Integer;
 begin
-  Send(Format(AName, AArgs));
+//  SetLength(VA, Length(AArgs));
+//  for I := 0 to High(AArgs) do
+//  begin
+//    VA[I] := TValue.FromVarRec(AArgs[I]);
+//  end;
+//  Send(AName, TValue.FromArray(TypeInfo(TVarRec), VA));
+end;
+
+procedure TLogger.SendPersistent(const AName: string; AValue: TPersistent);
+begin
+  Guard.CheckNotNull(AValue, AName);
+  InternalSend(
+    lmtPersistent,
+    Format('%s (%s) = ' + sLineBreak + '%s',
+      [AName, AValue.ClassName, Reflect.PublishedProperties(AValue).ToString]
+    )
+  );
 end;
 
 procedure TLogger.SendPoint(const AName: string; const APoint: TPoint);
@@ -451,12 +606,12 @@ end;
 
 procedure TLogger.SendPointer(const AName: string; APointer: Pointer);
 begin
-  InternalSend(lmtValue, AName + ' = ' + IntToHex(NativeInt(APointer), 8));
+  InternalSend(lmtValue, AName + ' = $' + IntToHex(NativeInt(APointer), 8));
 end;
 
 procedure TLogger.SendException(const AName: string; AException: Exception);
 var
-  S: string;
+  S : string;
 begin
   if AException <> nil then
     S := AException.ClassName + ' - ' + AException.Message + sLineBreak;
@@ -464,10 +619,15 @@ begin
 end;
 
 procedure TLogger.SendMemory(const AName: string; AAddress: Pointer;
-  ASize: LongWord);
+  ASize: Uint32);
 begin
   InternalSendBuffer(lmtMemory, AName, AAddress^, ASize);
 end;
+
+{ SendIf sends a message if it meets a given condition. AText is intended to be
+  a textual representation of the given boolean expression. The message is only
+  sent if the boolean expression evaluates to the given AIsTrue value (defaults
+  to True) }
 
 procedure TLogger.SendIf(const AText: string; AExpression, AIsTrue: Boolean);
 begin
@@ -476,8 +636,21 @@ begin
 end;
 
 procedure TLogger.SendInterface(const AName: string; AValue: IInterface);
+var
+  O  : TObject;
+  S1 : string;
+  S2 : string;
 begin
-  SendObject(AName, TObject(AValue));
+  Guard.CheckNotNull(AValue, AName);
+  GetInterfaceTypeName(AValue).Unpack(S1, S2);
+  O := AValue as TObject;
+  InternalSend(
+    lmtInterface,
+    Format('%s (%s, %s) = ' + sLineBreak + '%s',
+    [AName, S1, S2, Reflect.Fields(O).ToString
+    + #13#10 + #13#10 + Reflect.Properties(O).ToString]
+    )
+  );
 end;
 
 procedure TLogger.Warn(const AText: string);
@@ -519,28 +692,51 @@ begin
     InternalSendBuffer(lmtCustomData, AName, S[1], Length(S));
 end;
 
-{ {TODO -oTS -cGeneral : Use dedicated message type }
+procedure TLogger.SendAlphaColor(const AName: string; AAlphaColor: TAlphaColor);
+var
+  LHex   : string;
+  LColor : string;
+  S      : string;
+begin
+  LHex   := '$' + Integer(AAlphaColor).ToHexString;
+  LColor := 'cla' + AlphaColorToString(AAlphaColor);
+  if LHex = LColor then
+    S := Format('%s (TAlphaColor) = %s', [AName, LHex])
+  else
+    S := Format('%s (TAlphaColor) = %s (%s)', [AName, LHex, LColor]);
+  InternalSend(lmtAlphaColor, S);
+end;
 
 procedure TLogger.SendColor(const AName: string; AColor: TColor);
+var
+  LHex   : string;
+  LColor : string;
+  S      : string;
 begin
-  Send(AName, ColorToString(AColor));
+  LHex   := '$' + Integer(AColor).ToHexString;
+  LColor := ColorToString(AColor);
+  if LHex = LColor then
+    S := Format('%s (TColor) = %s', [AName, LHex])
+  else
+    S := Format('%s (TColor) = %s (%s)', [AName, LHex, LColor]);
+  InternalSend(lmtColor, S);
 end;
 
 procedure TLogger.SendComponent(const AName: string; AValue: TComponent);
 var
-  S       : string;
   LStream : TStream;
+  S       : string;
 begin
   Guard.CheckNotNull(AValue, AName);
-  S := AName + ' (';
-  S := S + ('"' + TComponent(AValue).Name + '"/');
+  S := Format('%s (%s) = %s', [
+    AName,
+    AValue.ClassName,
+    AValue.Name
+  ]);
   LStream := TMemoryStream.Create;
   try
     LStream.WriteComponent(TComponent(AValue));
-    S := S + (AValue.ClassName + '/');
-    S := S + ('$' + IntToHex(Integer(AValue),
-    SizeOf(Integer) * 2) + ')');
-    InternalSendStream(lmtObject, S, LStream);
+    InternalSendStream(lmtComponent, S, LStream);
   finally
     LStream.Free;
   end;
@@ -630,11 +826,6 @@ begin
   end;
 end;
 
-function TLogger.GetChannels: TChannelList;
-begin
-  Result := FChannels;
-end;
-
 function TLogger.GetCounter(const AName: string): Integer;
 var
   I: Integer;
@@ -722,56 +913,87 @@ end;
 
 procedure TLogger.Watch(const AName, AValue: string);
 begin
- InternalSend(lmtWatch, AName + ' = ' + AValue);
+  Watch(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.Watch(const AName: string; const AValue: AnsiString);
+begin
+  Watch(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.Watch(const AName: string; const AValue: WideString);
+begin
+  Watch(AName, TValue.From(AValue));
+end;
+
+procedure TLogger.Watch(const AName: string; const AValue: ShortString);
+begin
+  Watch(AName, TValue.From(AValue));
 end;
 
 procedure TLogger.Watch(const AName: string; const AValue: TValue);
 var
   S : string;
 begin
-  case AValue.Kind of
-    tkEnumeration:
-    begin
-      if AValue.TypeInfo = TypeInfo(Boolean) then
-      begin
-        S := BoolToStr(AValue.AsBoolean, True);
-      end
-      else
-      begin
-        S := AValue.ToString;
-      end;
-    end;
-    tkString, tkLString, tkWString, tkUString:
-      S := AValue.AsString;
-    tkFloat:
-    begin
-      if AValue.TypeInfo = TypeInfo(TDate) then
-      begin
-        S := DateToStr(AValue.AsType<TDate>);
-      end
-      else
-      if AValue.TypeInfo = TypeInfo(TDateTime) then
-      begin
-        S := DateTimeToStr(AValue.AsType<TDateTime>);
-      end
-      else
-      if AValue.TypeInfo = TypeInfo(TTime) then
-      begin
-        S := TimeToStr(AValue.AsType<TTime>);
-      end
-      else
-      begin
-        S := FloatToStr(AValue.AsExtended);
-      end;
-    end;
-    tkInteger:
-      S := AValue.AsInteger.ToString;
-    tkInt64:
-      S := AValue.AsInt64.ToString
-    else
-      S := AValue.ToString;
+//  case AValue.Kind of
+//    tkEnumeration:
+//    begin
+//      if AValue.TypeInfo = TypeInfo(Boolean) then
+//      begin
+//        S := BoolToStr(AValue.AsBoolean, True);
+//      end
+//      else
+//      begin
+//        S := AValue.ToString;
+//      end;
+//    end;
+//    tkString, tkLString, tkWString, tkUString:
+//      S := AValue.AsString;
+//    tkFloat:
+//    begin
+//      if AValue.TypeInfo = TypeInfo(TDate) then
+//      begin
+//        S := DateToStr(AValue.AsType<TDate>);
+//      end
+//      else
+//      if AValue.TypeInfo = TypeInfo(TDateTime) then
+//      begin
+//        S := DateTimeToStr(AValue.AsType<TDateTime>);
+//      end
+//      else
+//      if AValue.TypeInfo = TypeInfo(TTime) then
+//      begin
+//        S := TimeToStr(AValue.AsType<TTime>);
+//      end
+//      else
+//      begin
+//        S := FloatToStr(AValue.AsExtended);
+//      end;
+//    end;
+//    tkInteger:
+//      S := AValue.AsInteger.ToString;
+//    tkInt64:
+//      S := AValue.AsInt64.ToString
+//    else
+//      S := AValue.ToString;
+//  end;
+//  InternalSend(lmtWatch, AName + ' = ' + S);
+  if AValue.TypeInfo <> nil then
+  begin
+    S := Format('%s (%s) = %s', [
+      AName,
+      AValue.TypeInfo.TypeName,
+      StringValueOf(AValue)
+    ]);
+  end
+  else
+  begin
+    S := Format('%s = %s', [
+      AName,
+      StringValueOf(AValue)
+    ]);
   end;
-  InternalSend(lmtWatch, AName + ' = ' + S);
+  InternalSend(lmtWatch, S);
 end;
 {$ENDREGION}
 {$ENDREGION}
@@ -781,9 +1003,9 @@ constructor TLogger.TTrack.Create(const ALogger: ILogger;
   ASender: TObject; const AName: string);
 begin
   inherited Create;
-  FLogger     := ALogger;
-  FSender     := ASender;
-  FName := AName;
+  FLogger := ALogger;
+  FSender := ASender;
+  FName   := AName;
   if not Assigned(FSender) then
     FLogger.Enter(FName)
   else

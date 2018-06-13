@@ -28,7 +28,7 @@ unit DDuce.Reflect;
 interface
 
 uses
-  System.Rtti, System.TypInfo,
+  System.Rtti, System.TypInfo, System.Classes,
 
   DDuce.DynamicRecord;
 
@@ -54,6 +54,8 @@ type
     class function Properties(const AArg: TValue): IDynamicRecord; overload; static;
     class function Properties<T{: class, constructor}>(const AArg: T)
       : IDynamicRecord; overload; static;
+
+    class function PublishedProperties(const AArg: TPersistent): IDynamicRecord; static;
   end;
 
 implementation
@@ -152,7 +154,10 @@ end;
 
 class function Reflect.EnumName<T>(const AArg: T): string;
 begin
-  Result := GetEnumName(TypeInfo(T), OrdValue(AArg));
+  if Assigned(TypeInfo(T)) then
+    Result := GetEnumName(TypeInfo(T), OrdValue(AArg))
+  else
+    Result := '';
 end;
 
 { Returns a copy of the fields of the given instance (record or object). }
@@ -198,6 +203,13 @@ begin
   Result.From(TValue.From(AArg), True, False, True, []);
 end;
 
+class function Reflect.PublishedProperties(
+  const AArg: TPersistent): IDynamicRecord;
+begin
+  Result := DynamicRecord.CreateDynamicRecord;
+  Result.FromPersistent(AArg);
+end;
+
 { Returns the type kind of the given value.
   (tkUnknown, tkInteger, tkChar, tkEnumeration, tkFloat, tkString, tkSet,
    tkClass, tkMethod, tkWChar, tkLString, tkWString, tkVariant, tkArray,
@@ -209,17 +221,26 @@ var
   TI : PTypeInfo;
 begin
   TI := TypeInfo(T);
-  Result := TI.Kind;
+  if Assigned(TI) then
+    Result := TI.Kind
+  else
+    Result := tkUnknown;
 end;
 
-{ Returns the type name of the given value. }
+{ Returns the type name of the given value.
+
+  REMARK: no RTTI is generated for static arrays without a type declaration
+}
 
 class function Reflect.TypeName<T>(const AArg: T): string;
 var
   TI : PTypeInfo;
 begin
   TI := TypeInfo(T);
-  Result := string(TI.Name);
+  if Assigned(TI) then
+    Result := string(TI.Name)
+  else
+    Result := ''; // no type info available
 end;
 
 class function Reflect.EnumNamesFromSet<T>(const AArg: T): string;

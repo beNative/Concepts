@@ -32,7 +32,7 @@ uses
 
   BCEditor.Editor, BCEditor.Types, BCEditor.Editor.KeyCommands,
 
-  DDuce.FormSettings,
+  DDuce.Settings.Form,
 
   DDuce.Editor.Search.Data,
 

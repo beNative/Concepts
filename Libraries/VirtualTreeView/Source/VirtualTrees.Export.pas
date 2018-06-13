@@ -37,7 +37,8 @@ const
   WideLF = Char(#10);
 
 
-function ContentToHTML(Tree: TCustomVirtualStringTree; Source: TVSTTextSourceType; const Caption: string): String;
+
+function ContentToHTML(Tree: TCustomVirtualStringTree; Source: TVSTTextSourceType; const Caption: string): String;
 
 // Renders the current tree content (depending on Source) as HTML text encoded in UTF-8.
 // If Caption is not empty then it is used to create and fill the header for the table built here.
@@ -89,7 +90,7 @@ var
 
   begin
     if Length(Name) = 0 then
-      Buffer.Add(' style="{')
+      Buffer.Add(' style="')
     else
     begin
       Buffer.Add('.');
@@ -109,9 +110,11 @@ var
 
     Buffer.Add('color: ');
     WriteColorAsHex(Font.Color);
-    Buffer.Add(';}');
+    Buffer.Add(';');
     if Length(Name) = 0 then
-      Buffer.Add('"');
+      Buffer.Add('"')
+    else
+      Buffer.Add('}');
   end;
 
   //--------------- end local functions ---------------------------------------
@@ -305,12 +308,13 @@ begin
     Run := Save;
     while Assigned(Run) and not CrackTree.OperationCanceled do
     begin
-      if ((not CrackTree.CanExportNode(Run)) or Assigned(CrackTree.OnBeforeNodeExport)) then
+      if (not CrackTree.CanExportNode(Run)) then
       begin
         Run := GetNextNode(Run);
         Continue;
       end;
-      CrackTree.OnBeforeNodeExport(CrackTree, etHTML, Run);
+      if Assigned(CrackTree.OnBeforeNodeExport) then
+        CrackTree.OnBeforeNodeExport(CrackTree, etHTML, Run);
       Level := CrackTree.GetNodeLevel(Run);
       Buffer.Add(' <tr class="default">');
       Buffer.AddNewLine;
@@ -679,12 +683,13 @@ begin
     Run := Save;
     while Assigned(Run) and not CrackTree.OperationCanceled do
     begin
-      if ((not CrackTree.CanExportNode(Run)) or Assigned(CrackTree.OnBeforeNodeExport)) then
+      if (not CrackTree.CanExportNode(Run)) then
       begin
         Run := GetNextNode(Run);
         Continue;
       end;
-      CrackTree.OnBeforeNodeExport(CrackTree, etRTF, Run);
+      if Assigned(CrackTree.OnBeforeNodeExport) then
+        CrackTree.OnBeforeNodeExport(CrackTree, etRTF, Run);
       I := 0;
       while not RenderColumns or (I < Length(Columns)) do
       begin
@@ -800,7 +805,8 @@ begin
   end;
 end;
 
-function ContentToUnicodeString(Tree: TCustomVirtualStringTree; Source: TVSTTextSourceType; const Separator: string): string;
+
+function ContentToUnicodeString(Tree: TCustomVirtualStringTree; Source: TVSTTextSourceType; const Separator: string): string;
 
 // Renders the current tree content (depending on Source) as Unicode text.
 // If an entry contains the separator char then it is wrapped with double quotation marks.

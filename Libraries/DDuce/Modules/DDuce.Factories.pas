@@ -103,6 +103,9 @@ begin
         begin
           ValuePropertyName := P.Name;
           HintPropertyName  := P.Name;
+          // required to automatically add hoAutoResize to the tree's header
+          // options.
+          AutoSize          := True;
         end;
       end;
       ATVP.EndUpdate;

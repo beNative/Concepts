@@ -64,3 +64,8 @@ __history/
 /__recovery
 /Forms/__recovery
 Thumbs.db
+/Library/Win32/Release
+/Library/Win64/Debug
+/Library/Win64/Release
+/Win32/Debug
+/Win64/Debug

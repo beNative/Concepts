@@ -44,22 +44,23 @@ uses
 
 type
   TCustomEditorToolView = class(TForm, IEditorToolView)
-  strict private
+  private
     // this flag is set when there are pending updates.
-    FUpdate: Boolean;
+    FChange: Boolean;
 
+  protected
+    {$REGION 'property access methods'}
     function GetManager: IEditorManager;
     function GetSettings: IEditorSettings;
-    function GetUpdate: Boolean;
+    function GetChange: Boolean;
     function GetView: IEditorView;
     function GetViews: IEditorViews;
-    procedure SetUpdate(AValue: Boolean);
-
-  strict protected
+    procedure SetChange(AValue: Boolean);
     function GetForm: TForm;
     function GetName: string;
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean); virtual;
+    {$ENDREGION}
 
     // virtual event handlers
     procedure EditorCaretPositionChange(
@@ -75,8 +76,8 @@ type
     procedure UpdateView; virtual;
     procedure SettingsChanged; virtual;
 
-    property Update: Boolean
-      read GetUpdate write SetUpdate;
+    property Change: Boolean
+      read GetChange write SetChange;
 
     property Manager: IEditorManager
       read GetManager;
@@ -111,16 +112,16 @@ end;
 {$ENDREGION}
 
 {$REGION 'property access mehods'}
-function TCustomEditorToolView.GetUpdate: Boolean;
+function TCustomEditorToolView.GetChange: Boolean;
 begin
-  Result := FUpdate;
+  Result := FChange;
 end;
 
-procedure TCustomEditorToolView.SetUpdate(AValue: Boolean);
+procedure TCustomEditorToolView.SetChange(AValue: Boolean);
 begin
-  if AValue <> Update then
+  if AValue <> Change then
   begin
-    FUpdate := AValue;
+    FChange := AValue;
   end;
 end;
 
@@ -201,7 +202,7 @@ end;
 
 procedure TCustomEditorToolView.Modified;
 begin
-  FUpdate := True;
+  FChange := True;
 end;
 
 { Responds to changes in the global settings. }

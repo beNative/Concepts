@@ -268,6 +268,7 @@ type
             ADataSet     : TDataSet;
       const AAssignNulls : Boolean = False
     );
+    procedure FromPersistent(APersistent: TPersistent);
     procedure FromStrings(AStrings: TStrings);
 
     procedure ToStrings(AStrings: TStrings);
@@ -583,6 +584,7 @@ type
       const AAssignNulls : Boolean = False
     );
     procedure FromStrings(AStrings: TStrings);
+    procedure FromPersistent(APersistent: TPersistent);
 
     procedure ToStrings(AStrings: TStrings);
 
@@ -766,6 +768,7 @@ type
       ADataSet           : TDataSet;
       const AAssignNulls : Boolean = False
     );
+    procedure FromPersistent(APersistent: TPersistent);
     procedure FromStrings(AStrings: TStrings);
     procedure ToStrings(AStrings: TStrings);
 
@@ -1800,6 +1803,25 @@ begin
   end;
 end;
 
+procedure TDynamicRecord.FromPersistent(APersistent: TPersistent);
+var
+  PropList  : PPropList;
+  PropCount : Integer;
+  I         : Integer;
+  S         : string;
+begin
+  PropCount := GetPropList(APersistent, PropList);
+  try
+    for I := 0 to PropCount-1 do
+    begin
+      S := string(PropList[I].Name);
+      Values[S] :=  TValue.FromVariant(GetPropValue(APersistent, S));
+    end;
+  finally
+    FreeMem(PropList);
+  end;
+end;
+
 { Assigns from a TStrings instance holding name/value pairs. }
 
 procedure TDynamicRecord.FromStrings(AStrings: TStrings);
@@ -2368,6 +2390,11 @@ end;
 procedure DynamicRecord.FromDataSet(ADataSet: TDataSet; const AAssignNulls: Boolean);
 begin
   DynamicRecord.FromDataSet(ADataSet, AAssignNulls);
+end;
+
+procedure DynamicRecord.FromPersistent(APersistent: TPersistent);
+begin
+  DynamicRecord.FromPersistent(APersistent);
 end;
 
 procedure DynamicRecord.FromStrings(AStrings: TStrings);
