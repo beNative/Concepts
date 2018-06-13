@@ -91,6 +91,7 @@ type
 
 type
   TfrmInterfaceImplementationByAggregation = class(TForm)
+    {$REGION 'designer controls'}
     aclMain        : TActionList;
     actInnerMethod : TAction;
     actOuterMethod : TAction;
@@ -98,6 +99,7 @@ type
     btnOuterMethod : TButton;
     pnlHeader      : TPanel;
     lblHeader      : TLabel;
+    {$ENDREGION}
 
     procedure actInnerMethodExecute(Sender: TObject);
     procedure actOuterMethodExecute(Sender: TObject);

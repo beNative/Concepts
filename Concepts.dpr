@@ -465,8 +465,11 @@ uses
   Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter},
   Concepts.VirtualTreeView.Form in 'Forms\Concepts.VirtualTreeView.Form.pas' {frmVirtualTreeView},
   Concepts.FireDAC.Form in 'Forms\Concepts.FireDAC.Form.pas' {frmFireDAC},
+  Concepts.System.PublishedFields.Form in 'Forms\Concepts.System.PublishedFields.Form.pas' {frmPublishedFields},
   Spring.Collections.Trees in 'Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Trees.pas',
-  Spring.Data.ValueConverters in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ValueConverters.pas';
+  Spring.Data.ValueConverters in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ValueConverters.pas',
+  DDuce.ObjectInspector.zObjectInspector in 'Libraries\DDuce\Modules\ObjectInspector\DDuce.ObjectInspector.zObjectInspector.pas' {frmComponentInspectorzObjectInspector},
+  DDuce.Factories.GridView in 'Libraries\DDuce\Factories\DDuce.Factories.GridView.pas';
 
 {$R *.res}
 

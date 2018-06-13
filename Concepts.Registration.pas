@@ -14,8 +14,6 @@
   limitations under the License.
 }
 
-{$I Concepts.inc}
-
 unit Concepts.Registration;
 
 { Handles registration of all supported concept forms. }
@@ -24,6 +22,8 @@ interface
 
 uses
   Vcl.Graphics;
+
+{$I Concepts.inc}
 
 type
   TConcepts = record
@@ -75,6 +75,7 @@ uses
   Concepts.System.StringList.Form,
   Concepts.System.VirtualMethodInterceptor.Form,
   Concepts.System.VirtualInterface.Form,
+  Concepts.System.PublishedFields.Form,
   {$ENDIF}
 
   {$IFDEF DEVEXPRESS}
@@ -382,6 +383,13 @@ begin
     'TStringList',
     'System',
     'Demonstrates some TStringList features.',
+    FCategoryColor
+  );
+  ConceptManager.Register(
+    TfrmPublishedFields,
+    'Published fields',
+    'System',
+    'Demonstrates a form with components without published fields.',
     FCategoryColor
   );
   {$ENDIF}
