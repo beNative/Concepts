@@ -3,7 +3,7 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   Top = 0
   Caption = 'Lazy instantiation'
   ClientHeight = 366
-  ClientWidth = 418
+  ClientWidth = 419
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,7 +13,7 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   OldCreateOrder = False
   ShowHint = True
   DesignSize = (
-    418
+    419
     366)
   PixelsPerInch = 96
   TextHeight = 13
@@ -21,7 +21,7 @@ object frmLazyInstantiation: TfrmLazyInstantiation
     AlignWithMargins = True
     Left = 3
     Top = 32
-    Width = 412
+    Width = 413
     Height = 41
     Align = alTop
     AutoSize = False
@@ -49,20 +49,22 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   object pnlMemo: TPanel
     Left = 8
     Top = 112
-    Width = 402
+    Width = 403
     Height = 193
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 402
   end
   object pnlCheckBox: TPanel
     Left = 8
     Top = 311
-    Width = 402
+    Width = 403
     Height = 47
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitWidth = 402
   end
   object btnToggleLazyCheckbox: TButton
     Left = 144
@@ -83,7 +85,7 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   object pnlHeader: TPanel
     Left = 0
     Top = 0
-    Width = 418
+    Width = 419
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -96,10 +98,11 @@ object frmLazyInstantiation: TfrmLazyInstantiation
     ParentBackground = False
     ParentFont = False
     TabOrder = 5
+    ExplicitWidth = 418
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 418
+      Width = 419
       Height = 29
       Align = alClient
       Alignment = taCenter

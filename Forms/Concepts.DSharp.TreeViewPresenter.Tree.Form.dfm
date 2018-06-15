@@ -88,9 +88,9 @@ object frmTreeViewPresenterTree: TfrmTreeViewPresenterTree
       BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'TTreeviewPresenter'
-      Color = clSilver
+      Color = clWhite
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
+      Font.Color = clBlue
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
@@ -141,7 +141,7 @@ object frmTreeViewPresenterTree: TfrmTreeViewPresenterTree
         Align = alTop
         BevelKind = bkFlat
         BevelOuter = bvNone
-        Color = clSilver
+        Color = clWhite
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11

@@ -246,9 +246,9 @@ object frmIndyTCP: TfrmIndyTCP
         BevelKind = bkFlat
         BevelOuter = bvNone
         Caption = 'Sent'
-        Color = clSilver
+        Color = clWhite
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
+        Font.Color = clBlue
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
@@ -392,9 +392,9 @@ object frmIndyTCP: TfrmIndyTCP
         BevelKind = bkFlat
         BevelOuter = bvNone
         Caption = 'Received'
-        Color = clSilver
+        Color = clWhite
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
+        Font.Color = clBlue
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
@@ -488,7 +488,7 @@ object frmIndyTCP: TfrmIndyTCP
     Left = 72
     Top = 136
     Bitmap = {
-      494C0101050009000C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010105000900100010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

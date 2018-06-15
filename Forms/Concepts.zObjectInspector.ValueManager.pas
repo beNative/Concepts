@@ -70,9 +70,6 @@ type
     /// <summary> Get the value when the user click the ExtraRect .
     /// </summary>
     //class function GetExtraRectResultValue(const PItem: PPropItem): TValue; override;
-
-
-
   end;
 
 implementation
@@ -81,8 +78,6 @@ uses
   Concepts.zObjectInspector.StringsDialog.Form,
 
   DDuce.Logger;
-
-{ TValueManager }
 
 function TValueManager.GetDialog(const PItem: PPropItem): TComponentClass;
 begin

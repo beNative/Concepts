@@ -29,7 +29,6 @@ object frmStringsDialog: TfrmStringsDialog
     Anchors = [akRight, akBottom]
     Default = True
     TabOrder = 0
-    ExplicitLeft = 584
   end
   object btnCancel: TButton
     Left = 442
@@ -39,7 +38,6 @@ object frmStringsDialog: TfrmStringsDialog
     Action = actCancel
     Anchors = [akRight, akBottom]
     TabOrder = 1
-    ExplicitLeft = 708
   end
   object mmoMain: TMemo
     Left = 8
@@ -56,7 +54,6 @@ object frmStringsDialog: TfrmStringsDialog
     ParentFont = False
     ScrollBars = ssBoth
     TabOrder = 2
-    ExplicitWidth = 820
   end
   object aclMain: TActionList
     Left = 416

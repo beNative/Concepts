@@ -40,9 +40,9 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
       BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'TVirtualStringTree'
-      Color = clSilver
+      Color = clWhite
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
+      Font.Color = clBlue
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
@@ -105,9 +105,9 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
       BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'TTreeviewPresenter'
-      Color = clSilver
+      Color = clWhite
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
+      Font.Color = clBlue
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]

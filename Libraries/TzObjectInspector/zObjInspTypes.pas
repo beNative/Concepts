@@ -310,7 +310,13 @@ begin
     Exit();
   LInstance := Instance;
   if Assigned(LInstance) then
-    Result := Prop.GetValue(LInstance);
+  begin
+    try
+      Result := Prop.GetValue(LInstance);
+    except
+      Result := TValue.Empty;
+    end;
+  end;
 end;
 
 function TPropItem.GetValueName: String;
