@@ -711,7 +711,6 @@
             <Form>frmComponentInspectorzObjectInspector</Form>
         </DCCReference>
         <DCCReference Include="Libraries\DDuce\Factories\DDuce.Factories.GridView.pas"/>
-        <DCCReference Include="VirtualGHFStringTree.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

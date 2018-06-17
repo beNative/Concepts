@@ -36,11 +36,6 @@ type
     FObjectInspector   : TzObjectInspector;
     FVirtualStringTree : TVirtualStringTree;
 
-    function FObjectInspectorBeforeAddItem(
-      Sender : TControl;
-      PItem  : PPropItem
-    ): Boolean;
-
     procedure FVirtualStringTreeAfterCellPaint(
       Sender       : TBaseVirtualTree;
       TargetCanvas : TCanvas;
@@ -159,19 +154,12 @@ begin
   FVirtualStringTree := TVirtualStringTreeFactory.CreateList(Self, pnlMain);
   InitializeTree;
   FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
-  FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
   FObjectInspector.ObjectVisibility := mvPublic;
   FObjectInspector.Component := FVirtualStringTree;
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
-function TfrmVirtualTreeView.FObjectInspectorBeforeAddItem(Sender: TControl;
-  PItem: PPropItem): Boolean;
-begin
-  Result := not PItem.Name.Contains('ComObject');
-end;
-
 {$REGION 'FVirtualStringTree'}
 procedure TfrmVirtualTreeView.FVirtualStringTreeInitNode(Sender: TBaseVirtualTree;
   ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
@@ -221,57 +209,57 @@ end;
 procedure TfrmVirtualTreeView.FVirtualStringTreeChange(Sender: TBaseVirtualTree;
   Node: PVirtualNode);
 begin
-  Logger.Track(Sender, 'OnChange');
+  Logger.IncCounter('OnChange');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeDblClick(Sender: TObject);
 begin
-  Logger.Track(Sender, 'OnDblClick');
+  Logger.IncCounter('OnDblClick');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeExpanded(Sender: TBaseVirtualTree;
   Node: PVirtualNode);
 begin
-  Logger.Track(Sender, 'OnExpanded');
+  Logger.IncCounter('OnExpanded');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeExpanding(Sender: TBaseVirtualTree;
   Node: PVirtualNode; var Allowed: Boolean);
 begin
-  Logger.Track(Sender, 'OnExpanding');
+  Logger.IncCounter('OnExpanding');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeFocusChanged(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex);
 begin
-  Logger.Track(Sender, 'OnFocusChanged');
+  Logger.IncCounter('OnFocusChanged');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeFocusChanging(Sender: TBaseVirtualTree;
   OldNode, NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex;
   var Allowed: Boolean);
 begin
-  Logger.Track(Sender, 'OnFocusChanging');
+  Logger.IncCounter('OnFocusChanging');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeGetHint(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex;
   var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
 begin
-  Logger.Track(Sender, 'OnGetHint');
+  Logger.IncCounter('OnGetHint');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeGetImageIndex(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
   var Ghosted: Boolean; var ImageIndex: TImageIndex);
 begin
-  Logger.Track(Sender, 'OnGetImageIndex');
+  //Logger.IncCounter('OnGetImageIndex');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeGetNodeDataSize(Sender: TBaseVirtualTree;
   var NodeDataSize: Integer);
 begin
-  Logger.Track(Sender, 'OnGetNodeDataSize');
+  Logger.IncCounter('OnGetNodeDataSize');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeHeaderDraw(Sender: TVTHeader;
