@@ -469,8 +469,7 @@ uses
   Spring.Collections.Trees in 'Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Trees.pas',
   Spring.Data.ValueConverters in 'Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ValueConverters.pas',
   DDuce.ObjectInspector.zObjectInspector in 'Libraries\DDuce\Modules\ObjectInspector\DDuce.ObjectInspector.zObjectInspector.pas' {frmComponentInspectorzObjectInspector},
-  DDuce.Factories.GridView in 'Libraries\DDuce\Factories\DDuce.Factories.GridView.pas',
-  VirtualGHFStringTree in 'VirtualGHFStringTree.pas';
+  DDuce.Factories.GridView in 'Libraries\DDuce\Factories\DDuce.Factories.GridView.pas';
 
 {$R *.res}
 
