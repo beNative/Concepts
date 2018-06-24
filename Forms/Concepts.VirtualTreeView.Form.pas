@@ -29,10 +29,6 @@ type
     pnlHeader   : TPanel;
     lblHeader   : TLabel;
     {$ENDREGION}
-
-  protected
-
-
   private
     FObjectInspector   : TzObjectInspector;
     FVirtualStringTree : TVirtualStringTree;
@@ -157,7 +153,7 @@ uses
 procedure TfrmVirtualTreeView.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FVirtualStringTree := TVirtualStringTreeFactory.CreateGrid(Self, pnlMain);
+  FVirtualStringTree := TVirtualStringTreeFactory.CreateList(Self, pnlMain);
   InitializeTree;
   FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;

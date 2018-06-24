@@ -75,6 +75,7 @@ uses
   Concepts.System.StringList.Form,
   Concepts.System.VirtualMethodInterceptor.Form,
   Concepts.System.VirtualInterface.Form,
+  Concepts.System.PublishedFields.Form,
   {$ENDIF}
 
   {$IFDEF DEVEXPRESS}
@@ -382,6 +383,13 @@ begin
     'TStringList',
     'System',
     'Demonstrates some TStringList features.',
+    FCategoryColor
+  );
+  ConceptManager.Register(
+    TfrmPublishedFields,
+    'Published fields',
+    'System',
+    'Demonstrates a form with components without published fields.',
     FCategoryColor
   );
   {$ENDIF}

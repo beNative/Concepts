@@ -4,7 +4,7 @@
         <MainSource>Concepts.dpr</MainSource>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-        <ProjectVersion>18.2</ProjectVersion>
+        <ProjectVersion>18.4</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -128,9 +128,9 @@
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
         <DCC_DebugInformation>2</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
-        <VerInfo_Build>19</VerInfo_Build>
+        <VerInfo_Build>21</VerInfo_Build>
         <DCC_ExeOutput>.\Library\$(Platform)\$(Config)\</DCC_ExeOutput>
-        <VerInfo_Keys>CompanyName=(c) Tim Sinaeve;FileDescription=Concepts;FileVersion=1.0.0.19;InternalName=Concepts;LegalCopyright=(c) 2018 Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0;Comments=A collection of modules demonstrating some Delphi programming concepts and libraries;ProgramID=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=(c) Tim Sinaeve;FileDescription=Concepts;FileVersion=1.0.0.21;InternalName=Concepts;LegalCopyright=(c) 2018 Tim Sinaeve;LegalTrademarks=;OriginalFilename=Concepts.exe;ProductName=Concepts;ProductVersion=1.0;Comments=A collection of modules demonstrating some Delphi programming concepts and libraries;ProgramID=</VerInfo_Keys>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <BT_BuildType>Debug</BT_BuildType>
@@ -710,7 +710,6 @@
         </DCCReference>
         <DCCReference Include="Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas">
             <Form>frmcxGridViewPresenter</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.VirtualTreeView.Form.pas">
             <Form>frmVirtualTreeView</Form>
@@ -720,8 +719,15 @@
             <Form>frmFireDAC</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="Forms\Concepts.System.PublishedFields.Form.pas">
+            <Form>frmPublishedFields</Form>
+        </DCCReference>
         <DCCReference Include="Libraries\Spring4D\Source\Base\Collections\Spring.Collections.Trees.pas"/>
         <DCCReference Include="Libraries\Spring4D\Source\Data\ObjectDataSet\Spring.Data.ValueConverters.pas"/>
+        <DCCReference Include="Libraries\DDuce\Modules\ObjectInspector\DDuce.ObjectInspector.zObjectInspector.pas">
+            <Form>frmComponentInspectorzObjectInspector</Form>
+        </DCCReference>
+        <DCCReference Include="Libraries\DDuce\Factories\DDuce.Factories.GridView.pas"/>
         <None Include="Libraries\DDuce\DDuce.inc"/>
         <None Include="Libraries\DDuce\jedi.inc"/>
         <BuildConfiguration Include="Debug">

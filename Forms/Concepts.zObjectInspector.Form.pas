@@ -141,7 +141,7 @@ end;
 function TfrmzObjectInspector.FObjectInspectorBeforeAddItem(Sender: TControl;
   PItem: PPropItem): Boolean;
 begin
-
+  Result := True;
 end;
 
 procedure TfrmzObjectInspector.lblLinkLinkClick(Sender: TObject;
