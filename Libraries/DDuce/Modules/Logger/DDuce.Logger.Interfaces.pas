@@ -20,12 +20,14 @@ interface
 
 uses
   System.Classes, System.Rtti, System.SysUtils, System.Types, System.UITypes,
+  Vcl.Menus, Vcl.Graphics,
 
-  Vcl.Menus,
-
-  Spring.Collections;
+  Spring, Spring.Collections;
 
 type
+  { Remark: Enumerated types with explicitly assigned ordinality don't have RTTI
+    generated for them. Enumerated constants without a specific value however
+    do have RTTI.}
   TLogMessageType = (
     lmtInfo        = 0,
     lmtError       = 1,
@@ -37,12 +39,15 @@ type
     lmtCheckpoint  = 7,
     lmtStrings     = 8,   // TStrings and descendants
     lmtCallStack   = 9,   // not supported yet
-    lmtObject      = 10,
+    lmtComponent   = 10,
     lmtException   = 11,
     lmtBitmap      = 12,
     lmtHeapInfo    = 13,  // not supported yet
     lmtMemory      = 14,
     lmtCustomData  = 15,  // not supported yet
+    lmtObject      = 16,
+    lmtInterface   = 17,
+    lmtPersistent  = 18,
     lmtWatch       = 20,
     lmtCounter     = 21,
     lmtColor       = 22,
@@ -55,11 +60,19 @@ type
   ILogger = interface;
 
   TLogMessage = packed record
-    MsgType     : Integer;
-    TimeStamp   : TDateTime;
-    Text        : UTF8String;
-    Data        : TStream;
+    MsgType   : Integer;     // TLogMessageType
+    TimeStamp : TDateTime;
+    Text      : UTF8String;
+    Data      : TStream;
   end;
+
+  (*
+    ProcessId                  source process Id (WinIPC, WinODS)
+    ThreadId
+    IpAddress                  source IP address (ZeroMQ)
+
+  *)
+
 
   TCustomDataCallbackMethod = function(
     ASender     : ILogger;
@@ -75,10 +88,12 @@ type
 
   ILogChannel = interface
   ['{FDE37401-BB4F-4362-863A-CCCCF9228BD9}']
+    {$REGION 'property access methods'}
     function GetActive: Boolean;
     procedure SetActive(const Value: Boolean);
     function GetConnected: Boolean;
     procedure SetConnected(const Value: Boolean);
+    {$ENDREGION}
 
     function Write(const AMsg: TLogMessage): Boolean;
     function Connect: Boolean;
@@ -96,18 +111,54 @@ type
   TChannelList = IList<ILogChannel>;
 
   // TODO send TTimeSpan
-
+  //      send stream?
+  //      send file
 
   ILogger = interface(IInterface)
   ['{28E9BADE-6B42-4399-8867-1CA115576E40}']
     function GetChannels: TChannelList;
 
     procedure Send(const AName: string; const AArgs: array of const); overload;
-    { This overload is used for Variant arguments. }
+
     procedure Send(const AName: string; const AValue: string = ''); overload;
 
-    { All primary types that can implicitely be casted to TValue will be
-      handled through this call. }
+    { These three overloads are here because TValue would cast them implicitely
+      to string (and we would lose type information of AValue) }
+    procedure Send(const AName: string; const AValue: AnsiString); overload;
+    procedure Send(const AName: string; const AValue: WideString); overload;
+    procedure Send(const AName: string; const AValue: ShortString); overload;
+
+    { UInt8 = Byte }
+    procedure Send(const AName: string; const AValue: Byte); overload;
+    { UInt16 = Word }
+    procedure Send(const AName: string; const AValue: Word); overload;
+    { UInt32 = Cardinal = FixedUInt }
+    procedure Send(const AName: string; const AValue: Cardinal); overload;
+    { UInt64 }
+    procedure Send(const AName: string; const AValue: UInt64); overload;
+    { Int8 = ShortInt }
+    procedure Send(const AName: string; const AValue: ShortInt); overload;
+    { Int16 = SmallInt }
+    procedure Send(const AName: string; const AValue: SmallInt); overload;
+    { Int32 = Integer = FixedInt }
+    procedure Send(const AName: string; const AValue: FixedInt); overload;
+
+    { All types that can implicitely be casted to TValue will be handled
+      through this call. }
+
+    { These are (tested):
+       Integer
+       Single
+       Double
+       Extended
+       Currency
+       Int64
+       UInt64
+       Boolean
+
+       TObject ?
+       TClass ?
+    }
     procedure Send(const AName: string; const AValue: TValue); overload;
 
     { Send methods for types that do not have an implicit cast to TValue
@@ -121,6 +172,7 @@ type
     procedure SendAlphaColor(const AName: string; AAlphaColor: TAlphaColor);
     procedure SendObject(const AName: string; AValue: TObject);
     procedure SendInterface(const AName: string; AValue: IInterface);
+    procedure SendPersistent(const AName: string; AValue: TPersistent);
     procedure SendRect(const AName: string; const AValue: TRect);
     procedure SendPoint(const AName: string; const APoint: TPoint);
     procedure SendStrings(const AName: string; AValue: TStrings);
@@ -128,6 +180,7 @@ type
     procedure SendComponent(const AName: string; AValue: TComponent);
     procedure SendPointer(const AName: string; APointer: Pointer);
     procedure SendException(const AName: string; AException: Exception);
+    procedure SendBitmap(const AName: string; ABitmap: TBitmap);
     procedure SendMemory(
       const AName: string;
       AAddress   : Pointer;
@@ -135,15 +188,18 @@ type
     );
     procedure SendShortCut(const AName: string; AShortCut: TShortCut);
 
+    procedure SendVariant(const AName: string; const AValue: Variant);
+
     // SendBitmap
 
-    { Send methods for text that can be displayed with a dedicated
-      highlighter. }
+    { Send methods for (optionally named) text that optionally can be displayed
+      with a dedicated highlighter. }
     procedure SendText(
       const AName        : string;
       const AText        : string;
       const AHighlighter : string = ''
-    );
+    ); overload;
+    procedure SendText(const AText: string); overload;
 
     procedure IncCounter(const AName: string);
     procedure DecCounter(const AName: string);
@@ -168,6 +224,9 @@ type
     { Monitors a named value in the LogViewer application }
     procedure Watch(const AName: string; const AValue: TValue); overload;
     procedure Watch(const AName: string; const AValue: string = ''); overload;
+    procedure Watch(const AName: string; const AValue: ShortString); overload;
+    procedure Watch(const AName: string; const AValue: AnsiString); overload;
+    procedure Watch(const AName: string; const AValue: WideString); overload;
 
     procedure Warn(const AText: string); overload;
     procedure Warn(
@@ -223,6 +282,47 @@ const
     'COUNTER'
   );
 
+function LogMessageTypeNameOf(ALogMessageType: TLogMessageType): string;
+
 implementation
+
+{$REGION 'interfaced routines'}
+function LogMessageTypeNameOf(ALogMessageType: TLogMessageType): string;
+var
+  S : string;
+begin
+  case ALogMessageType of
+    lmtInfo        : S := 'lmtInfo';
+    lmtError       : S := 'lmtError' ;
+    lmtWarning     : S := 'lmtWaring';
+    lmtValue       : S := 'lmtValue';
+    lmtEnterMethod : S := 'lmtEnterMethod';
+    lmtLeaveMethod : S := 'lmtLeaveMethod';
+    lmtConditional : S := 'lmtConditional';
+    lmtCheckpoint  : S := 'lmtCheckpoint';
+    lmtStrings     : S := 'lmtStrings';
+    lmtCallStack   : S := 'lmtCallStack';
+    lmtComponent   : S := 'lmtComponent';
+    lmtException   : S := 'lmtException';
+    lmtBitmap      : S := 'lmtBitmap';
+    lmtHeapInfo    : S := 'lmtHeapInfo';
+    lmtMemory      : S := 'lmtMemory';
+    lmtCustomData  : S := 'lmtCustomData';
+    lmtObject      : S := 'lmtObject';
+    lmtInterface   : S := 'lmtInterface';
+    lmtPersistent  : S := 'lmtPersistent';
+    lmtWatch       : S := 'lmtWatch';
+    lmtCounter     : S := 'lmtCounter';
+    lmtColor       : S := 'lmtColor';
+    lmtAlphaColor  : S := 'lmtAlphaColor';
+    lmtScreenShot  : S := 'lmtScreenShot';
+    lmtText        : S := 'lmtText';
+    lmtClear       : S := 'lmtClear';
+  else
+    S := '';
+  end;
+  Result := S;
+end;
+{$ENDREGION}
 
 end.

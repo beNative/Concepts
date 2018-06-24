@@ -60,7 +60,7 @@ uses
 
   Spring,
 
-  DDuce.FormSettings,
+  DDuce.Settings.Form,
 
   DDuce.Editor.Interfaces, DDuce.Editor.Highlighters,
   DDuce.Editor.Tools.Settings, DDuce.Editor.Colors.Settings,

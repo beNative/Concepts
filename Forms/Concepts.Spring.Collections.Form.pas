@@ -61,9 +61,9 @@ type
     lblRecordCount  : TLabel;
     mmoList         : TMemo;
     trbRecordCount  : TTrackBar;
-    StatusBar1      : TStatusBar;
+    sbrMain         : TStatusBar;
     lstBindings     : TBindingsList;
-    Edit1           : TEdit;
+    edtRecordCount  : TEdit;
     BindExpression1 : TBindExpression;
     pnlHeader       : TPanel;
     lblHeader       : TLabel;

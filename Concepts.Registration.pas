@@ -14,8 +14,6 @@
   limitations under the License.
 }
 
-{$I Concepts.inc}
-
 unit Concepts.Registration;
 
 { Handles registration of all supported concept forms. }
@@ -24,6 +22,8 @@ interface
 
 uses
   Vcl.Graphics;
+
+{$I Concepts.inc}
 
 type
   TConcepts = record

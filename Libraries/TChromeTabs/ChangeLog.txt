@@ -1,6 +1,35 @@
+TChromeTabs 2.5 Beta
+
+04-05-2017
+Update: DX10.2 Tokyo Support
+
+
+TChromeTabs 2.4
+
+15-06-2016
+Fixed: CanvasSmoothingMode exception in 10.1 Berlin. Property moved to public.
+
+31-05-2016
+Fixed: 64-bit pointer issue
+
+25-04-2016
+Update: DX10.1 Berlin Support
+
+17-11-2015
+Update: Added OnTabPopupMenu event
+Fixed: HideCloseButton property value lost when tab is dragged between controls #38
+Fixed: Delete Tab logic faulty when tab is flanked by invisible tabs. #37
+Fixed: Changeing HideCloseButton property didn't immediately update the tab
+Fixed: Tab widths set by content not working correctly with images #36
+Fixed: Mouse enter and leave events not working #35
+Fixed: Border missing when Orientation is set to toBottom #22
+Fixed: Tab animation when removed from a container via drag and drop
+Fixed: Active tab drawn incorrectly if created at runtime
+
+
 TChromeTabs 2.3
 
-06-06-2014
+06-06-2015
 Update: Removed Versions.inc
 
 06-03-2015
@@ -30,7 +59,7 @@ Fixed: ChromeTab control dropped from the component palette always parented to t
 03-10-2014
 Update: XE7 Compatibility.
 Fixed: Access violation error when sizing tabs by content.
-Fixed: 	TChromeTabsGlassForm Access Violation when built with C++ Builder
+Fixed: TChromeTabsGlassForm Access Violation when built with C++ Builder
 Added: Each chrome tab now has a new "HideCloseButton" property.
 
 

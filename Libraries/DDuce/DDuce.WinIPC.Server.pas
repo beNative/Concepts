@@ -22,19 +22,29 @@ uses
   Winapi.Windows,
   System.Classes;
 
+  { A TWinIPCServer instance is used to handle received WM_COPYDATA messages
+    from one or more TWinIPCClient instances. }
+
+type
+  TWinIPCMessageEvent = procedure(
+    ASender   : TObject;
+    ASourceId : Integer; // unique source id for the sending process
+    AData     : TStream
+  ) of object;
+
 type
   TWinIPCServer = class
   private
-    FMsgWindowClass : TWndClass;
-    FOnMessage      : TNotifyEvent;
-    FMsgData        : TStream;
-    FActive         : Boolean;
-    FServerHandle   : THandle;
+    FMsgWindowClass  : TWndClass;
+    FOnMessage       : TWinIPCMessageEvent;
+    FMsgData         : TStream;
+    FActive          : Boolean;
+    FServerHandle    : THandle;
 
     procedure SetActive(const AValue : Boolean);
 
   protected
-    procedure DoMessage;
+    procedure DoMessage(ASourceId: Integer; AData: TStream);
     function AllocateHWnd: THandle;
     procedure ReadMsgData(var Msg : TMsg);
     procedure StartServer;
@@ -50,7 +60,7 @@ type
     property MsgData : TStream
       read FMsgData;
 
-    property OnMessage : TNotifyEvent
+    property OnMessage : TWinIPCMessageEvent
       read FOnMessage write FOnMessage;
   end;
 
@@ -59,7 +69,9 @@ implementation
 uses
   Winapi.Messages,
   System.SysUtils,
-  Vcl.Forms;
+  Vcl.Forms,
+
+  DDuce.Utils, DDuce.Utils.Winapi;
 
 const
 // old name maintained for backwards compatibility
@@ -87,7 +99,6 @@ begin
       Msg.WParam  := WParam;
       Msg.LParam  := LParam;
       WIS.ReadMsgData(Msg);
-      WIS.DoMessage;
       Result := 1;
     end
   end
@@ -124,10 +135,10 @@ end;
 {$ENDREGION}
 
 {$REGION 'event dispatch methods'}
-procedure TWinIPCServer.DoMessage;
+procedure TWinIPCServer.DoMessage(ASourceId: Integer; AData: TStream);
 begin
   if Assigned(FOnMessage) then
-    FOnMessage(Self);
+    FOnMessage(Self, ASourceId, AData);
 end;
 {$ENDREGION}
 
@@ -137,11 +148,13 @@ var
   WC : TWndClass;
 begin
   Pointer(FMsgWindowClass.lpfnWndProc) := @MsgWndProc;
-  FMsgWindowClass.hInstance            := HInstance;
+  FMsgWindowClass.hInstance            := HInstance; // Handle of this instance
   FMsgWindowClass.lpszClassName        := MSG_WND_CLASSNAME;
-  if not GetClassInfo(hInstance, MSG_WND_CLASSNAME, WC)
+
+  if not GetClassInfo(HInstance, MSG_WND_CLASSNAME, WC)
     and (Winapi.Windows.RegisterClass(FMsgWindowClass) = 0) then
       raise Exception.Create(SFailedToRegisterWindowClass);
+
   Result := CreateWindowEx(
     WS_EX_TOOLWINDOW,
     MSG_WND_CLASSNAME,
@@ -175,14 +188,23 @@ begin
   FActive := False;
 end;
 
+{ This method gets called for each received message. }
+
 procedure TWinIPCServer.ReadMsgData(var Msg: TMsg);
 var
-  CDS : PCopyDataStruct;
+  CDS  : PCopyDataStruct;
+  LClientProcessId : Integer;
 begin
   CDS := PCopyDataStruct(Msg.LParam);
   FMsgData.Size := 0;
   FMsgData.Seek(0, soFrombeginning);
   FMsgData.WriteBuffer(CDS^.lpData^, CDS^.cbData);
+  LClientProcessId := CDS.dwData;
+
+  DoMessage(LClientProcessId, FMsgData);
+
+  //OutputDebugString(GetExePathForProcess(FClientProcessId));
+
 end;
 {$ENDREGION}
 

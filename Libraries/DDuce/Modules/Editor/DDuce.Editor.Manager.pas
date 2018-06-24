@@ -410,15 +410,15 @@ type
     {$ENDREGION}
 
   private
-    FChanged          : Boolean;
-    FPersistSettings  : Boolean;
-    FToolViews        : IEditorToolViews;
-    FEvents           : IEditorEvents;
-    FCommands         : IEditorCommands;
-    FSettings         : IEditorSettings;
-    FActiveView       : IEditorView;
-    FViewList         : IList<IEditorView>;
-    FSearchEngine     : IEditorSearchEngine;
+    FChanged         : Boolean;
+    FPersistSettings : Boolean;
+    FToolViews       : IEditorToolViews;
+    FEvents          : IEditorEvents;
+    FCommands        : IEditorCommands;
+    FSettings        : IEditorSettings;
+    FActiveView      : IEditorView;
+    FViewList        : IList<IEditorView>;
+    FSearchEngine    : IEditorSearchEngine;
 
     {$REGION 'property access methods'}
     function GetActionList: TActionList;
@@ -529,9 +529,9 @@ type
     {$ENDREGION}
 
     procedure ShowToolView(
-       const AName      : string;
-             AShowModal : Boolean;
-             ASetFocus  : Boolean
+       const AName : string;
+       AShowModal  : Boolean;
+       ASetFocus   : Boolean
     );
 
     // TComponent overrides

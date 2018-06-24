@@ -22,21 +22,35 @@ uses
   Winapi.Windows,
   System.Classes, System.SysUtils;
 
-  { IPC using WM_COPYDATA messages. }
+  { IPC using WM_COPYDATA messages. A TWinIPCClient is used to send WM_COPYDATA
+    messages to the corresponding TWinIPCServer. }
+
 type
   TWinIPCClient = class
-  strict protected
+  private
+    FServerProcessId : Integer;
+    FServerThreadId  : Integer;
+
+  protected
+    function GetServerProcessId: Integer;
+    function GetServerThreadId: Integer;
     function GetConnected: Boolean;
     procedure SetConnected(const Value: Boolean);
     function GetServerHandle: THandle;
-
-    property ServerHandle: THandle
-      read GetServerHandle;
 
   public
     function Connect: Boolean;
 
     procedure SendStream(AStream: TStream);
+
+    property ServerHandle: THandle
+      read GetServerHandle;
+
+    property ServerProcessId: Integer
+      read GetServerProcessId;
+
+    property ServerThreadId: Integer
+      read GetServerThreadId;
 
     property Connected: Boolean
       read GetConnected write SetConnected;
@@ -72,13 +86,43 @@ function TWinIPCClient.GetServerHandle: THandle;
 begin
   Result := FindWindow(MSG_WND_CLASSNAME, SERVER_WINDOWNAME);
 end;
+
+function TWinIPCClient.GetServerProcessId: Integer;
+begin
+  Result := FServerProcessId;
+end;
+
+function TWinIPCClient.GetServerThreadId: Integer;
+begin
+  Result := FServerThreadId;
+end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
 function TWinIPCClient.Connect: Boolean;
 begin
   Result := ServerHandle <> 0;
+  if Result then
+  begin
+    FServerThreadId := GetWindowThreadProcessId(
+      HWND(ServerHandle),
+      Cardinal(FServerProcessId)
+    );
+  end
+  else
+  begin
+    FServerThreadId  := 0;
+    FServerProcessId := 0;
+  end;
 end;
+
+{ Sends a stream of data as a WM_COPY message through a TCopyDataStruct
+  instance by assigning the data as follows:
+
+    dwData: gets the current process ID.
+    cbData: length in bytes of the datbuffer.
+    lpData: pointer to buffer to send (cbData bytes in size).
+}
 
 procedure TWinIPCClient.SendStream(AStream: TStream);
 var
@@ -104,6 +148,7 @@ begin
         FreeAndNil(MS);
       end;
     end;
+    CDS.dwData := GetCurrentProcessId;
     CDS.lpData := Data.Memory;
     CDS.cbData := Data.Size;
     Winapi.Windows.SendMessage(

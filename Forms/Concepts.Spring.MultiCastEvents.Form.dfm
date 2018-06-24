@@ -82,8 +82,6 @@ object frmMulticastEvents: TfrmMulticastEvents
     ParentBackground = False
     ParentFont = False
     TabOrder = 4
-    ExplicitLeft = -207
-    ExplicitWidth = 495
     object lblHeader: TLabel
       Left = 0
       Top = 0

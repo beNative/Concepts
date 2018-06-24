@@ -489,6 +489,7 @@ begin
   {$WARNINGS ON}
   Application.Initialize;
   TConcepts.RegisterConcepts;
+  Logger.Channels.Add(TWinIPCChannel.Create);
   Application.CreateForm(TdmResources, dmResources);
   if not ConceptManager.Execute(EXECUTE_BY_NAME) then
   begin

@@ -29,7 +29,7 @@ uses
 
   SynEdit, SynEditMiscClasses, SynEditSearch, SynHighlighterPas,
   SynHighlighterURI, SynEditHighlighter, SynHighlighterIni, SynEditOptionsDialog,
-  SynURIOpener, SynCompletionProposal;
+  SynURIOpener, SynCompletionProposal, SynEditCodeFolding;
 
 type
   TfrmSynEdit = class(TForm)

@@ -65,7 +65,9 @@ type
     imlLogLevels       : TImageList;
     imlMain            : TImageList;
     lblData            : TLabel;
+    lblHeader          : TLabel;
     lblMessage         : TLabel;
+    pnlHeader          : TPanel;
     pnlLeft            : TPanel;
     pnlLoggerInspector : TPanel;
     pnlRight           : TPanel;
@@ -73,8 +75,6 @@ type
     rgpLogLevel        : TRadioGroup;
     splVertical        : TSplitter;
     tsMain             : TTabSet;
-    pnlHeader          : TPanel;
-    lblHeader          : TLabel;
     {$ENDREGION}
 
     procedure actTrackThisExecute(Sender: TObject);
@@ -148,7 +148,6 @@ begin
   LP.EventTypes := LOG_ALL_EVENT_TYPES;
 
   // All appenders
-
   LP := FFileLogAppender as ILoggerProperties;
   LP.EventTypes := LOG_ALL_EVENT_TYPES;
   LP.Levels     := LOG_ALL_LEVELS;

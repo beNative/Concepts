@@ -419,10 +419,6 @@ object frmSynapseSerial: TfrmSynapseSerial
         TabOrder = 0
         object tsMemo: TTabSheet
           Caption = 'Memo'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object mmoSend: TMemo
             Left = 0
             Top = 0
@@ -435,10 +431,6 @@ object frmSynapseSerial: TfrmSynapseSerial
         object tsCommands: TTabSheet
           Caption = 'Commands'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnlCommands: TGridPanel
             AlignWithMargins = True
             Left = 3
@@ -449,13 +441,13 @@ object frmSynapseSerial: TfrmSynapseSerial
             BevelOuter = bvNone
             ColumnCollection = <
               item
-                Value = 33.333333333333330000
+                Value = 33.333333333333340000
               end
               item
-                Value = 33.333333333333330000
+                Value = 33.333333333333340000
               end
               item
-                Value = 33.333333333333330000
+                Value = 33.333333333333340000
               end>
             ControlCollection = <>
             ParentBackground = False
@@ -535,9 +527,9 @@ object frmSynapseSerial: TfrmSynapseSerial
         BevelKind = bkFlat
         BevelOuter = bvNone
         Caption = 'Sent'
-        Color = clSilver
+        Color = clWhite
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
+        Font.Color = clBlue
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
@@ -625,10 +617,6 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tsSentText: TTabSheet
           Caption = 'Text'
@@ -639,10 +627,6 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object mmoSentText: TMemo
             Left = 0
             Top = 0
@@ -689,9 +673,9 @@ object frmSynapseSerial: TfrmSynapseSerial
         BevelKind = bkFlat
         BevelOuter = bvNone
         Caption = 'Received'
-        Color = clSilver
+        Color = clWhite
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
+        Font.Color = clBlue
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
@@ -740,10 +724,6 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tsReceivedText: TTabSheet
           Caption = 'Text'
@@ -754,10 +734,6 @@ object frmSynapseSerial: TfrmSynapseSerial
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object mmoReceivedText: TMemo
             Left = 0
             Top = 0
@@ -793,7 +769,7 @@ object frmSynapseSerial: TfrmSynapseSerial
     Left = 72
     Top = 136
     Bitmap = {
-      494C010105000900080010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C0101050009000C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

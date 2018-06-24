@@ -31,15 +31,15 @@ uses
 
 type
   TfrmMulticastEvents = class(TForm)
-    lblImageIndex : TLabel;
-    pnlImageIndex : TPanel;
-    pbrPosition   : TProgressBar;
     aclMain       : TActionList;
     actExecute    : TAction;
     btnExecute    : TButton;
+    lblHeader     : TLabel;
+    lblImageIndex : TLabel;
+    pbrPosition   : TProgressBar;
+    pnlHeader     : TPanel;
+    pnlImageIndex : TPanel;
     trbImageIndex : TTrackBar;
-    pnlHeader: TPanel;
-    lblHeader: TLabel;
 
     procedure actExecuteExecute(Sender: TObject);
 

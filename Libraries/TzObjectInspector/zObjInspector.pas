@@ -231,6 +231,7 @@ type
     FValueManager: TzCustomValueManager;
     FIsDefaultValueManager: Boolean; // created/destroyed by ObjInspector
     FCanvasStack: TzCanvasStack;
+    FShowEventProperties: Boolean;
     procedure SetComponent(Value: TObject);
     function GetItemOrder(PItem: PPropItem): Integer;
     procedure SetSortByCategory(const Value: Boolean);
@@ -272,6 +273,7 @@ type
     property ObjectVisibility: TMemberVisibility read FObjectVisibility write SetObjectVisibility default mvPublic;
     property FloatPreference: TzFloatPreference read GetFloatPreference write SetFloatPreference;
     property OnAutoExpandItemOnInit: TPropItemEvent read FOnAutoExpandItemOnInit write FOnAutoExpandItemOnInit;
+    property ShowEventProperties: Boolean read FShowEventProperties write FShowEventProperties;
   end;
 
   TzObjInspectorList = class(TzObjInspectorBase)
@@ -557,6 +559,7 @@ type
     property HeaderValueText;
     property ObjectVisibility;
     property FloatPreference;
+    property ShowEventProperties;
     property OnClick;
     property OnContextPopup;
     property OnDragDrop;
@@ -1025,6 +1028,10 @@ var
           PItem^.Visible := False
         else
           PItem^.Visible := AParent = nil;
+
+        if (LProp.PropertyType is TRttiMethodType) and not FShowEventProperties then
+          Allow := False;
+
         if Assigned(FOnBeforeAddItem) then
           Allow := FOnBeforeAddItem(Self, PItem);
         if not Allow then

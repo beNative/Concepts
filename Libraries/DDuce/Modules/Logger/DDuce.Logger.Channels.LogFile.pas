@@ -184,7 +184,7 @@ begin
     case TLogMessageType(AMsg.MsgType) of
       lmtStrings, lmtCallStack, lmtHeapInfo, lmtException:
          WriteStrings(AMsg.Data);
-      lmtObject:
+      lmtComponent:
         WriteComponent(AMsg.Data);
     end;
   end;

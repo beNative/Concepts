@@ -109,14 +109,14 @@ object frmCollections: TfrmCollections
     TabOrder = 7
     OnChange = trbRecordCountChange
   end
-  object StatusBar1: TStatusBar
+  object sbrMain: TStatusBar
     Left = 0
     Top = 424
     Width = 495
     Height = 19
     Panels = <>
   end
-  object Edit1: TEdit
+  object edtRecordCount: TEdit
     Left = 264
     Top = 71
     Width = 223
@@ -202,7 +202,7 @@ object frmCollections: TfrmCollections
     Top = 224
     object BindExpression1: TBindExpression
       Category = 'Binding Expressions'
-      ControlComponent = Edit1
+      ControlComponent = edtRecordCount
       SourceComponent = trbRecordCount
       SourceMemberName = 'Position'
       SourceExpression = 'Position'

@@ -21,10 +21,6 @@
 
 {$I '.\jedi.inc'}
 
-{$IFDEF DELPHIXE8_UP}
-  {$DEFINE HAS_UNIT_SYSTEM_IMAGELIST}
-{$ENDIF}
-
 {$DEFINE BCEDITOR}      // TBCEditor control
 {$DEFINE CHROMETABS}    // TChromeTabs control
 {$DEFINE DDETOURS}      // DDetours unit
@@ -43,6 +39,6 @@
 {$DEFINE VCL}           // Delphi VCL units ('Vcl' prefix)
 {$DEFINE VIRTUALTREES}  // Virtual Treeview - http://github.com/Virtual-TreeView/Virtual-TreeView
 {$DEFINE WINAPI}        // Delphi WinApi units ('WinApi' prefix)
-{$DEFINE ZOBJINSPECTOR} // TzObjectInspector
+{$DEFINE ZOBJECTINSPECTOR} // TzObjectInspector
 {.$DEFINE BTMEMORYMODULE} // BTMemoryModule.pas
 {.$DEFINE FASTMM}         // FastMM

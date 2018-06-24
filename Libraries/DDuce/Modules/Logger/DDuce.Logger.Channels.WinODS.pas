@@ -1,3 +1,19 @@
+{
+  Copyright (C) 2013-2018 Tim Sinaeve tim.sinaeve@gmail.com
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+}
+
 unit DDuce.Logger.Channels.WinODS;
 
 interface
@@ -10,7 +26,7 @@ const
   WM_ODS = WM_USER + 1; // OutputDebugString
 
 type
-  // the thread that catch outputDebugString
+  // the thread that catches OutputDebugString
   TODSThread = class(TThread)
   protected
     hCloseEvent : THandle;
@@ -20,187 +36,86 @@ type
   PODSRec = ^TODSRec;
 
   TODSRec = record
-    OriginalOrder : cardinal;
-    // Original order when inserted. Used to Unsort nodes
-    Time : string; // time of send
-    ProcessName : string; // optional : the name of the process that send traces
-    LeftMsg : string; // Left col
+    OriginalOrder : UInt32; // Original order when inserted. Used to Unsort nodes
+    Time          : string; // time of send
+    ProcessName   : string; // optional : the name of the process that send traces
+    LeftMsg       : string; // Left col
   end;
 
   TODSTemp = class
-    OriginalOrder : cardinal;
+    OriginalOrder : UInt32;
     // Original order when inserted. Used to Unsort nodes
-    Time : string; // time of send
-    ProcessName : string; // optional : the name of the process that send traces
-    LeftMsg : string; // Left col
+    Time          : string; // time of send
+    ProcessName   : string; // optional : the name of the process that send traces
+    LeftMsg       : string; // Left col
   end;
-
-  // some helper functions to retreive Process name from its ID
-function GetExenameForProcessUsingToolhelp32(pid: DWORD): string;
-function GetExenameForProcessUsingPSAPI(pid: DWORD): string;
-function GetExenameForProcess(pid: DWORD): string;
-function GetExenameForWindow(wnd: HWND): string;
 
 implementation
 
 uses
-  PSAPI, Tlhelp32,
-  System.SyncObjs,
-  System.DateUtils;
+  System.SyncObjs, System.DateUtils,
+
+  DDuce.Utils.Winapi;
 
 var
-  LastChildOrder : cardinal;
+  LastChildOrder  : UInt32;
   // Order of the last child, used to insert sub nodes and unsort them
   OdsMessageStack : TObjectList;
 
-  // some helper functions to retreive Process name from its ID
-
-function GetExenameForProcessUsingPSAPI(pid: DWORD): string;
-var
-  i, cbNeeded: DWORD;
-  modules    : array [1 .. 1024] of HINST;
-  ProcHandle : THandle;
-  filename   : array [0 .. 512] of Char;
-begin
-  SetLastError(0);
-  Result     := '';
-  ProcHandle := OpenProcess(
-    PROCESS_QUERY_INFORMATION or PROCESS_VM_READ,
-    False, pid);
-  if ProcHandle <> 0 then
-    try
-      if EnumProcessModules(ProcHandle, @modules[1],
-        sizeof(modules), cbNeeded)
-      then
-        for i := 1 to cbNeeded div sizeof(HINST) do
-        begin
-          if GetModuleFilenameEx(ProcHandle, modules[i], filename,
-            sizeof(filename)
-            ) > 0
-          then
-            if CompareText(ExtractFileExt(filename), '.EXE') = 0
-            then
-            begin
-              Result := filename;
-              Break;
-            end;
-        end; { For }
-    finally
-      CloseHandle(ProcHandle);
-    end;
-end;
-
-function GetExenameForProcessUsingToolhelp32(pid: DWORD): string;
-var
-  snapshot : THandle;
-  procentry: TProcessEntry32;
-  ret      : BOOL;
-begin
-  SetLastError(0);
-  Result   := '';
-  snapshot := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-  if snapshot <> INVALID_HANDLE_VALUE then
-    try
-      procentry.dwSize := sizeof(procentry);
-      ret              := Process32FIRST(snapshot, procentry);
-      while ret do
-      begin
-        if procentry.th32ProcessID = pid then
-        begin
-          Result := procentry.szExeFile;
-          Break;
-        end
-        else
-          ret := Process32Next(snapshot, procentry);
-      end;
-    finally
-      CloseHandle(snapshot);
-    end;
-end;
-
-function GetExenameForProcess(pid: DWORD): string;
-begin
-  if (Win32Platform = VER_PLATFORM_WIN32_NT) and
-    (Win32MajorVersion <= 4)
-  then
-    Result := GetExenameForProcessUsingPSAPI(pid)
-  else
-    Result := GetExenameForProcessUsingToolhelp32(pid);
-
-  Result := ExtractFileName(Result)
-end;
-
-function GetExenameForWindow(wnd: HWND): string;
-var
-  pid: DWORD;
-begin
-  Result := '';
-  if IsWindow(wnd) then
-  begin
-    GetWindowThreadProcessID(wnd, pid);
-    if pid <> 0 then
-      Result := GetExenameForProcess(pid);
-  end;
-end;
-
-// OutputDebugString support
 { TODSThread }
 
 procedure TODSThread.Execute;
 var
-  AckEvent   : THandle;
-  ReadyEvent : THandle;
-  SharedFile : THandle;
-  SharedMem  : pointer;
-  ret        : DWORD;
-  sa         : SECURITY_ATTRIBUTES;
-  sd         : SECURITY_DESCRIPTOR;
-  ODSTemp    : TODSTemp;
-
-  // Buffer: Pointer;
-  // dwSizeofDataToWrite : Word ;
-  HandlesToWaitFor : array [0 .. 1] of THandle;
+  LAckEvent         : THandle;
+  LReadyEvent       : THandle;
+  LSharedFile       : THandle;
+  LSharedMem        : Pointer;
+  LRet              : DWORD;
+  SA                : SECURITY_ATTRIBUTES;
+  SD                : SECURITY_DESCRIPTOR;
+  LODSTemp          : TODSTemp;
+  LHandlesToWaitFor : array [0 .. 1] of THandle;
 begin
-  sa.nLength              := sizeof(SECURITY_ATTRIBUTES);
-  sa.bInheritHandle       := TRUE;
-  sa.lpSecurityDescriptor := @sd;
+  SA.nLength              := sizeof(SECURITY_ATTRIBUTES);
+  SA.bInheritHandle       := TRUE;
+  SA.lpSecurityDescriptor := @SD;
 
-  if not InitializeSecurityDescriptor(@sd, SECURITY_DESCRIPTOR_REVISION) then
+  if not InitializeSecurityDescriptor(@SD, SECURITY_DESCRIPTOR_REVISION) then
     Exit;
 
-  if not SetSecurityDescriptorDacl(@sd, TRUE, nil { (PACL)NULL } , False) then
+  if not SetSecurityDescriptorDacl(@SD, TRUE, nil { (PACL)NULL } , False) then
     Exit;
 
-  AckEvent := CreateEvent(@sa, False, TRUE, 'DBWIN_BUFFER_READY');
+  LAckEvent := CreateEvent(@SA, False, TRUE, 'DBWIN_BUFFER_READY');
   // initial state = CLEARED !!!
-  if AckEvent = 0 then
+  if LAckEvent = 0 then
     Exit;
 
-  ReadyEvent := CreateEvent(@sa, False, False, 'DBWIN_DATA_READY');
+  LReadyEvent := CreateEvent(@SA, False, False, 'DBWIN_DATA_READY');
   // initial state = CLEARED
-  if ReadyEvent = 0 then
+  if LReadyEvent = 0 then
     Exit;
 
-  SharedFile := CreateFileMapping(THandle(-1), @sa, PAGE_READWRITE, 0, 4096,
+  LSharedFile := CreateFileMapping(THandle(-1), @SA, PAGE_READWRITE, 0, 4096,
     'DBWIN_BUFFER');
-  if SharedFile = 0 then
+  if LSharedFile = 0 then
     Exit;
 
-  SharedMem := MapViewOfFile(SharedFile, FILE_MAP_READ, 0, 0, 512);
-  if SharedMem = nil then
+  LSharedMem := MapViewOfFile(LSharedFile, FILE_MAP_READ, 0, 0, 512);
+  if LSharedMem = nil then
     Exit;
 
   while not Terminated do
   begin
-    HandlesToWaitFor[0] := hCloseEvent;
-    HandlesToWaitFor[1] := ReadyEvent;
+    LHandlesToWaitFor[0] := hCloseEvent;
+    LHandlesToWaitFor[1] := LReadyEvent;
 
-    SetEvent(AckEvent); // set ACK event to allow buffer to be used
-    ret := WaitForMultipleObjects(2, @HandlesToWaitFor, False { bWaitAll } ,
+    SetEvent(LAckEvent); // set ACK event to allow buffer to be used
+    LRet := WaitForMultipleObjects(2, @LHandlesToWaitFor, False { bWaitAll } ,
       3000 { INFINITE } );
 
-    // ret := WaitForSingleObject(ReadyEvent, 10000 {INFINITE} );
-    case ret of
+    // LRet := WaitForSingleObject(LReadyEvent, 10000 {INFINITE} );
+    case LRet of
       WAIT_TIMEOUT :
         Continue;
 
@@ -215,16 +130,16 @@ begin
           // Criticalsection.Enter ;
           TMonitor.Enter(Self);
           try
-            ODSTemp             := TODSTemp.Create;
-            ODSTemp.Time        := FormatDateTime('hh:mm:ss:zzz', now);
-            ODSTemp.ProcessName := GetExenameForProcess(LPDWORD(SharedMem)^);
+            LODSTemp             := TODSTemp.Create;
+            LODSTemp.Time        := FormatDateTime('hh:mm:ss:zzz', now);
+            LODSTemp.ProcessName := GetExenameForProcess(LPDWORD(LSharedMem)^);
             // '$' + inttohex (pThisPid^,2)
-            ODSTemp.LeftMsg := string(PAnsiChar(SharedMem) + sizeof(DWORD));
+            LODSTemp.LeftMsg := string(PAnsiChar(LSharedMem) + sizeof(DWORD));
             // the native version of OutputDebugString is ASCII. result is always AnsiString
-            ODSTemp.OriginalOrder := LastChildOrder;
+            LODSTemp.OriginalOrder := LastChildOrder;
             inc(LastChildOrder);
 
-            OdsMessageStack.Add(ODSTemp);
+            OdsMessageStack.Add(LODSTemp);
           finally
             TMonitor.Exit(Self);
             // Criticalsection.Release ;
@@ -236,8 +151,8 @@ begin
         Continue;
     end;
   end;
-  UnmapViewOfFile(SharedMem);
-  CloseHandle(SharedFile);
+  UnmapViewOfFile(LSharedMem);
+  CloseHandle(LSharedFile);
 end;
 
 initialization

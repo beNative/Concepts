@@ -42,10 +42,10 @@ type
     dscMain: TDataSource;
 
   private
-    FConnection: IDBConnection;
-    FDatabase: TSQLiteDatabase;
-    //FProducts: IList<TProduct>;
-    FSession: TSession;
+    FConnection    : IDBConnection;
+    FDatabase      : TSQLiteDatabase;
+    //FProducts    : IList<TProduct>;
+    FSession       : TSession;
     FObjectDataSet : TObjectDataSet;
     FDBGrid        : TDBGrid;
 

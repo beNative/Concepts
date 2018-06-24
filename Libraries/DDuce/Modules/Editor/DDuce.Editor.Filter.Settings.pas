@@ -22,7 +22,7 @@ uses
   System.Classes, System.SysUtils,
   Vcl.ActnList,
 
-  DDuce.FormSettings;
+  DDuce.Settings.Form;
 
 const
   DEFAULT_WIDTH = 400;

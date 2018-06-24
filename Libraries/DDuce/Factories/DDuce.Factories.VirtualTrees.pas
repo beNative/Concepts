@@ -70,7 +70,7 @@ type
     property MiscOptions: TVTMiscOptions
       read FMiscOptions write FMiscOptions;
 
-    property ColumnOptions: TVTColumnOptions
+    property ColumnOptions: TVTColumnOptions // TS: todo default column options
       read FColumnOptions write FColumnOptions;
 
     property LineStyle: TVTLineStyle
@@ -100,18 +100,24 @@ type
 type
   TVirtualStringTreeFactory = class sealed
   private class var
-    FDefaultTreeOptions     : TVSTOptions;
-    FDefaultGridOptions     : TVSTOptions;
-    FDefaultTreeGridOptions : TVSTOptions;
+    FDefaultTreeOptions     : Lazy<TVSTOptions>;
+    FDefaultGridOptions     : Lazy<TVSTOptions>;
+    FDefaultListOptions     : Lazy<TVSTOptions>;
+    FDefaultTreeGridOptions : Lazy<TVSTOptions>;
+    FDefaultTreeListOptions : Lazy<TVSTOptions>;
 
     class procedure AssignOptions(
       AVSTOptions : TVSTOptions;
       ATree       : TVirtualStringTree
     );
+    class function GetDefaultGridOptions: TVSTOptions; static;
+    class function GetDefaultListOptions: TVSTOptions; static;
+    class function GetDefaultTreeGridOptions: TVSTOptions; static;
+    class function GetDefaultTreeListOptions: TVSTOptions; static;
+    class function GetDefaultTreeOptions: TVSTOptions; static;
 
   public
     class constructor Create;
-    class destructor Destroy;
 
     class function Create(
       AOwner      : TComponent;
@@ -120,6 +126,12 @@ type
     ): TVirtualStringTree;
 
     class function CreateTree(
+      AOwner      : TComponent;
+      AParent     : TWinControl;
+      const AName : string = ''
+    ): TVirtualStringTree;
+
+    class function CreateList(
       AOwner      : TComponent;
       AParent     : TWinControl;
       const AName : string = ''
@@ -137,19 +149,32 @@ type
       const AName : string = ''
     ): TVirtualStringTree;
 
+    class function CreateTreeList(
+      AOwner      : TComponent;
+      AParent     : TWinControl;
+      const AName : string = ''
+    ): TVirtualStringTree;
+
     class property DefaultTreeOptions: TVSTOptions
-      read FDefaultTreeOptions;
+      read GetDefaultTreeOptions;
 
     class property DefaultGridOptions: TVSTOptions
-      read FDefaultGridOptions;
+      read GetDefaultGridOptions;
+
+    class property DefaultListOptions: TVSTOptions
+      read GetDefaultListOptions;
 
     class property DefaultTreeGridOptions: TVSTOptions
-      read FDefaultTreeGridOptions;
+      read GetDefaultTreeGridOptions;
+
+    class property DefaultTreeListOptions: TVSTOptions
+      read GetDefaultTreeListOptions;
   end;
 
 implementation
 
 uses
+  System.SysUtils,
   Vcl.Graphics;
 
 {$REGION 'TVirtualStringTree settings'}
@@ -234,6 +259,7 @@ uses
       (CS_HREDRAW/CS_VREDRAW). }
 //    toFullRepaintOnResize,
     { Use some special enhancements to simulate and support grid behavior. }
+    { This also changes how the selection is drawn. }
 //    toGridExtensions,
     { Initialize nodes when saving a tree to a stream. }
 //  toInitOnSave,
@@ -416,120 +442,241 @@ uses
 {$REGION 'construction and destruction'}
 class constructor TVirtualStringTreeFactory.Create;
 begin
-  FDefaultTreeOptions     := TVSTOptions.Create;
-  FDefaultGridOptions     := TVSTOptions.Create;
-  FDefaultTreeGridOptions := TVSTOptions.Create;
+  FDefaultTreeOptions.Create(
+    function: TVSTOptions
+    begin
+      Result := TVSTOptions.Create;
+      with Result do
+      begin
+        HeaderOptions := [
+          hoAutoResize, hoRestrictDrag, hoShowHint, hoShowImages, hoShowSortGlyphs,
+          hoHeightResize, hoHeightDblClickResize, hoVisible
+        ];
+        PaintOptions := [
+          toHideFocusRect, toHideSelection, toHotTrack, toPopupMode,
+          toShowBackground, toShowButtons, toShowDropmark, toShowRoot, toThemeAware,
+          toUseBlendedImages, toUseBlendedSelection, toStaticBackground
+        ];
+        AnimationOptions := [];
+        AutoOptions := [
+          toAutoScroll, toAutoSort, toAutoDeleteMovedNodes, toAutoChangeScale,
+          toDisableAutoscrollOnEdit, toAutoBidiColumnOrdering
+        ];
+        StringOptions := [toAutoAcceptEditChange];
+        SelectionOptions := [toExtendedFocus];
+        MiscOptions := [
+          toInitOnSave, toToggleOnDblClick, toWheelPanning, toVariableNodeHeight
+        ];
+        ColumnOptions := [];
 
-  with FDefaultTreeOptions do
-  begin
-    HeaderOptions := [
-      hoAutoResize, hoRestrictDrag, hoShowHint, hoShowImages, hoShowSortGlyphs,
-      hoHeightResize, hoHeightDblClickResize, hoVisible
-    ];
-    PaintOptions := [
-      toHideFocusRect, toHideSelection, toHotTrack, toPopupMode,
-      toShowBackground, toShowButtons, toShowDropmark, toShowRoot, toThemeAware,
-      toUseBlendedImages, toUseBlendedSelection, toStaticBackground
-    ];
-    AnimationOptions := [];
-    AutoOptions := [
-      toAutoScroll, toAutoSort, toAutoDeleteMovedNodes, toAutoChangeScale,
-      toDisableAutoscrollOnEdit, toAutoBidiColumnOrdering
-    ];
-    StringOptions := [toAutoAcceptEditChange];
-    SelectionOptions := [toExtendedFocus];
-    MiscOptions := [
-      toInitOnSave, toToggleOnDblClick, toWheelPanning, toVariableNodeHeight
-    ];
-    ColumnOptions := [];
+        LineStyle                    := lsDotted;
+        LineMode                     := lmNormal;
+        DrawSelectionMode            := smBlendedRectangle;
+        HintMode                     := hmTooltip;
+        SelectionRectangleBlendColor := clGray;
+        SelectionTextColor           := clBlack;
+        GridLineColor                := clSilver;
+      end;
+    end,
+    True
+  );
 
-    LineStyle                    := lsDotted;
-    LineMode                     := lmNormal;
-    DrawSelectionMode            := smBlendedRectangle;
-    HintMode                     := hmTooltip;
-    SelectionRectangleBlendColor := clGray;
-    SelectionTextColor           := clBlack;
-    GridLineColor                := clSilver;
-  end;
+  FDefaultGridOptions.Create(
+    function: TVSTOptions
+    begin
+      Result := TVSTOptions.Create;
+      with Result do
+      begin
+        HeaderOptions := [
+          hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoRestrictDrag,
+          hoShowHint, hoShowImages, hoShowSortGlyphs, hoAutoSpring,
+          hoDisableAnimatedResize, hoVisible
+        ];
+        PaintOptions := [
+          toHideFocusRect, toHideSelection, toHotTrack, toPopupMode,
+          toShowBackground, toShowButtons, toShowDropmark, toShowRoot,
+          toShowVertGridLines, toShowHorzGridLines, toThemeAware, toUseBlendedImages,
+          toUseBlendedSelection, toStaticBackground, toUseExplorerTheme
+        ];
+        AnimationOptions := [];
+        AutoOptions := [
+          toAutoDropExpand, toAutoScroll, toAutoScrollOnExpand, toAutoSort,
+          toAutoTristateTracking, toAutoDeleteMovedNodes, toAutoChangeScale,
+          toDisableAutoscrollOnEdit, toAutoBidiColumnOrdering
+        ];
+        StringOptions := [toAutoAcceptEditChange];
+        SelectionOptions := [toExtendedFocus, toFullRowSelect];
+        MiscOptions := [
+          toCheckSupport, toGridExtensions, toInitOnSave, toToggleOnDblClick,
+          toWheelPanning, toVariableNodeHeight
+        ];
+        ColumnOptions := [];
 
-  with FDefaultGridOptions do
-  begin
-    HeaderOptions := [
-      hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoRestrictDrag,
-      hoShowHint, hoShowImages, hoShowSortGlyphs, hoAutoSpring,
-      hoDisableAnimatedResize, hoVisible
-    ];
-    PaintOptions := [
-      toHideFocusRect, toHideSelection, toHotTrack, toPopupMode,
-      toShowBackground, toShowButtons, toShowDropmark, toShowRoot,
-      toShowVertGridLines, toShowHorzGridLines, toThemeAware, toUseBlendedImages,
-      toUseBlendedSelection, toStaticBackground, toUseExplorerTheme
-    ];
-    AnimationOptions := [];
-    AutoOptions := [
-      toAutoDropExpand, toAutoScroll, toAutoScrollOnExpand, toAutoSort,
-      toAutoTristateTracking, toAutoDeleteMovedNodes, toAutoChangeScale,
-      toDisableAutoscrollOnEdit, toAutoBidiColumnOrdering
-    ];
-    StringOptions := [toAutoAcceptEditChange];
-    SelectionOptions := [toExtendedFocus, toFullRowSelect];
-    MiscOptions := [
-      toCheckSupport, toGridExtensions, toInitOnSave, toToggleOnDblClick,
-      toWheelPanning, toVariableNodeHeight
-    ];
-    ColumnOptions := [];
+        LineStyle                    := lsSolid;
+        LineMode                     := lmBands;
+        DrawSelectionMode            := smBlendedRectangle;
+        HintMode                     := hmTooltip;
+        SelectionRectangleBlendColor := clGray;
+        SelectionTextColor           := clBlack;
+        GridLineColor                := clSilver;
+      end;
+    end,
+    True
+  );
 
-    LineStyle                    := lsSolid;
-    LineMode                     := lmBands;
-    DrawSelectionMode            := smBlendedRectangle;
-    HintMode                     := hmTooltip;
-    SelectionRectangleBlendColor := clGray;
-    SelectionTextColor           := clBlack;
-    GridLineColor                := clSilver;
-  end;
+  FDefaultListOptions.Create(
+    function: TVSTOptions
+    begin
+      Result := TVSTOptions.Create;
+      with Result do
+      begin
+        HeaderOptions := [
+          hoAutoResize, hoColumnResize, hoDblClickResize, hoDrag, hoRestrictDrag,
+          hoShowHint, hoShowImages, hoShowSortGlyphs, hoAutoSpring,
+          hoDisableAnimatedResize, hoVisible
+        ];
+        PaintOptions := [
+          toHideFocusRect, toHotTrack, toPopupMode, toShowBackground,
+          toShowDropmark, toThemeAware, toUseBlendedImages, toUseBlendedSelection,
+          toUseExplorerTheme
+        ];
+        AnimationOptions := [];
+        AutoOptions := [
+          toAutoDropExpand, toAutoScroll, toAutoScrollOnExpand, toAutoSort,
+          toAutoTristateTracking, toAutoDeleteMovedNodes, toAutoChangeScale,
+          toDisableAutoscrollOnEdit, toAutoBidiColumnOrdering
+        ];
+        StringOptions := [toAutoAcceptEditChange];
+        SelectionOptions := [toExtendedFocus, toFullRowSelect];
+        MiscOptions := [
+          toCheckSupport, toInitOnSave, toToggleOnDblClick, toWheelPanning,
+          toVariableNodeHeight
+        ];
+        ColumnOptions := [];
 
-  with FDefaultTreeGridOptions do
-  begin
-    HeaderOptions := [
-      hoAutoResize, hoColumnResize, hoDblClickResize, hoRestrictDrag,
-      hoShowHint, hoShowImages, hoShowSortGlyphs,hoAutoSpring,
-      hoDisableAnimatedResize, hoVisible
-    ];
-    PaintOptions := [
-      toHideFocusRect, toHideSelection, toHotTrack, toPopupMode,
-      toShowBackground, toShowButtons, toShowDropmark, toStaticBackground,
-      toShowRoot, toShowVertGridLines, toThemeAware, toUseBlendedImages,
-      toUseBlendedSelection, toStaticBackground, toUseExplorerTheme
-    ];
-    AnimationOptions := [];
-    AutoOptions := [
-      toAutoDropExpand, toAutoScroll, toAutoScrollOnExpand, toAutoSort,
-      toAutoTristateTracking, toAutoDeleteMovedNodes, toAutoChangeScale,
-      toDisableAutoscrollOnEdit, toAutoBidiColumnOrdering
-    ];
-    StringOptions := [toAutoAcceptEditChange];
-    SelectionOptions := [toExtendedFocus, toFullRowSelect];
-    MiscOptions := [
-      toGridExtensions, toInitOnSave, toToggleOnDblClick, toWheelPanning,
-      toVariableNodeHeight
-    ];
-    ColumnOptions := [];
+        LineStyle                    := lsSolid;
+        LineMode                     := lmNormal;
+        DrawSelectionMode            := smBlendedRectangle;
+        HintMode                     := hmTooltip;
+        SelectionRectangleBlendColor := clGray;
+        SelectionTextColor           := clBlack;
+        GridLineColor                := clSilver;
+      end;
+    end,
+    True
+  );
 
-    LineStyle                    := lsSolid;
-    LineMode                     := lmNormal;
-    DrawSelectionMode            := smBlendedRectangle;
-    HintMode                     := hmTooltip;
-    SelectionRectangleBlendColor := clGray;
-    SelectionTextColor           := clBlack;
-    GridLineColor                := clSilver;
-  end;
+  FDefaultTreeGridOptions.Create(
+    function: TVSTOptions
+    begin
+      Result := TVSTOptions.Create;
+      with Result do
+      begin
+        HeaderOptions := [
+          hoAutoResize, hoColumnResize, hoDblClickResize, hoRestrictDrag,
+          hoShowHint, hoShowImages, hoShowSortGlyphs, hoAutoSpring,
+          hoDisableAnimatedResize, hoVisible
+        ];
+        PaintOptions := [
+          toHideFocusRect, toHideSelection, toHotTrack, toPopupMode,
+          toShowBackground, toShowButtons, toShowDropmark, toStaticBackground,
+          toShowRoot, toShowVertGridLines, toThemeAware, toUseBlendedImages,
+          toUseBlendedSelection, toStaticBackground, toUseExplorerTheme
+        ];
+        AnimationOptions := [];
+        AutoOptions := [
+          toAutoDropExpand, toAutoScroll, toAutoScrollOnExpand, toAutoSort,
+          toAutoTristateTracking, toAutoDeleteMovedNodes, toAutoChangeScale,
+          toDisableAutoscrollOnEdit, toAutoBidiColumnOrdering
+        ];
+        StringOptions := [toAutoAcceptEditChange];
+        SelectionOptions := [toExtendedFocus, toFullRowSelect];
+        MiscOptions := [
+          toGridExtensions, toInitOnSave, toToggleOnDblClick, toWheelPanning,
+          toVariableNodeHeight
+        ];
+        ColumnOptions := [];
+
+        LineStyle                    := lsSolid;
+        LineMode                     := lmNormal;
+        DrawSelectionMode            := smBlendedRectangle;
+        HintMode                     := hmTooltip;
+        SelectionRectangleBlendColor := clGray;
+        SelectionTextColor           := clBlack;
+        GridLineColor                := clSilver;
+      end;
+    end,
+    True
+  );
+
+  FDefaultTreeListOptions.Create(
+    function: TVSTOptions
+    begin
+      Result := TVSTOptions.Create;
+      with Result do
+      begin
+        HeaderOptions := [
+          hoAutoResize, hoColumnResize, hoDblClickResize, hoRestrictDrag,
+          hoShowHint, hoShowImages, hoShowSortGlyphs, hoAutoSpring,
+          hoDisableAnimatedResize, hoVisible
+        ];
+        PaintOptions := [
+          toHideFocusRect, toHideSelection, toHotTrack, toPopupMode,
+          toShowBackground, toShowButtons, toShowDropmark, toStaticBackground,
+          toShowRoot, toShowVertGridLines, toThemeAware, toUseBlendedImages,
+          toUseBlendedSelection, toStaticBackground, toUseExplorerTheme
+        ];
+        AnimationOptions := [];
+        AutoOptions := [
+          toAutoDropExpand, toAutoScroll, toAutoScrollOnExpand, toAutoSort,
+          toAutoTristateTracking, toAutoDeleteMovedNodes, toAutoChangeScale,
+          toDisableAutoscrollOnEdit, toAutoBidiColumnOrdering
+        ];
+        StringOptions := [toAutoAcceptEditChange];
+        SelectionOptions := [toExtendedFocus, toFullRowSelect];
+        MiscOptions := [
+          toInitOnSave, toToggleOnDblClick, toWheelPanning, toVariableNodeHeight
+        ];
+        ColumnOptions := [];
+
+        LineStyle                    := lsSolid;
+        LineMode                     := lmNormal;
+        DrawSelectionMode            := smBlendedRectangle;
+        HintMode                     := hmTooltip;
+        SelectionRectangleBlendColor := clGray;
+        SelectionTextColor           := clBlack;
+        GridLineColor                := clSilver;
+      end;
+    end,
+    True
+  );
+end;
+{$ENDREGION}
+
+{$REGION 'property access methods'}
+class function TVirtualStringTreeFactory.GetDefaultGridOptions: TVSTOptions;
+begin
+  Result := FDefaultGridOptions;
 end;
 
-class destructor TVirtualStringTreeFactory.Destroy;
+class function TVirtualStringTreeFactory.GetDefaultListOptions: TVSTOptions;
 begin
-  FDefaultTreeOptions.Free;
-  FDefaultGridOptions.Free;
-  FDefaultTreeGridOptions.Free;
+  Result := FDefaultListOptions;
+end;
+
+class function TVirtualStringTreeFactory.GetDefaultTreeGridOptions: TVSTOptions;
+begin
+  Result := FDefaultTreeGridOptions;
+end;
+
+class function TVirtualStringTreeFactory.GetDefaultTreeListOptions: TVSTOptions;
+begin
+  Result := FDefaultTreeListOptions;
+end;
+
+class function TVirtualStringTreeFactory.GetDefaultTreeOptions: TVSTOptions;
+begin
+  Result := FDefaultTreeOptions;
 end;
 {$ENDREGION}
 
@@ -564,13 +711,10 @@ begin
   Guard.CheckNotNull(AOwner, 'AOwner');
   Guard.CheckNotNull(AParent, 'AParent');
   VST := TVirtualStringTree.Create(AOwner);
-  VST.AlignWithMargins  := True;
-  VST.Parent            := AParent;
-  VST.Align             := alClient;
-  VST.Colors.SelectionRectangleBlendColor := clGray;
-  VST.Colors.SelectionTextColor := clBlack;
-  VST.Colors.GridLineColor      := clGray;
-  VST.Header.Height := 18;
+  VST.AlignWithMargins := True;
+  VST.Parent           := AParent;
+  VST.Align            := alClient;
+  VST.Header.Height    := 18;
   Result := VST;
 end;
 
@@ -584,16 +728,30 @@ begin
   Guard.CheckNotNull(AOwner, 'AOwner');
   Guard.CheckNotNull(AParent, 'AParent');
   VST := TVirtualStringTree.Create(AOwner);
-  VST.AlignWithMargins  := True;
-  VST.Parent            := AParent;
-  VST.Align             := alClient;
-  VST.DrawSelectionMode := smBlendedRectangle;
-  VST.Colors.SelectionRectangleBlendColor := clGray;
-  VST.Colors.SelectionTextColor           := clBlack;
-  VST.Colors.GridLineColor                := clSilver;
-  VST.Header.AutoSizeIndex := -1;
-  VST.Header.Height        := 18;
+  VST.AlignWithMargins := True;
+  VST.Parent           := AParent;
+  VST.Align            := alClient;
+  VST.Header.Height    := 18;
   AssignOptions(DefaultGridOptions, VST);
+  VST.Indent := 2; // show first column as a normal grid column
+  Result := VST;
+end;
+
+{ Creates a TVirtualStringTree that mimics a list view. }
+
+class function TVirtualStringTreeFactory.CreateList(AOwner: TComponent;
+  AParent: TWinControl; const AName: string): TVirtualStringTree;
+var
+  VST : TVirtualStringTree;
+begin
+  Guard.CheckNotNull(AOwner, 'AOwner');
+  Guard.CheckNotNull(AParent, 'AParent');
+  VST := TVirtualStringTree.Create(AOwner);
+  VST.AlignWithMargins := True;
+  VST.Parent           := AParent;
+  VST.Align            := alClient;
+  VST.Header.Height    := 18;
+  AssignOptions(DefaultListOptions, VST);
   VST.Indent := 2; // show first column as a normal grid column
   Result := VST;
 end;
@@ -624,11 +782,27 @@ begin
   Guard.CheckNotNull(AOwner, 'AOwner');
   Guard.CheckNotNull(AParent, 'AParent');
   VST := TVirtualStringTree.Create(AOwner);
-  VST.AlignWithMargins  := True;
-  VST.Parent            := AParent;
-  VST.Align             := alClient;
-  VST.Header.Height     := 18;
+  VST.AlignWithMargins := True;
+  VST.Parent           := AParent;
+  VST.Align            := alClient;
+  VST.Header.Height    := 18;
   AssignOptions(DefaultTreeGridOptions, VST);
+  Result := VST;
+end;
+
+class function TVirtualStringTreeFactory.CreateTreeList(AOwner: TComponent;
+  AParent: TWinControl; const AName: string): TVirtualStringTree;
+var
+  VST : TVirtualStringTree;
+begin
+  Guard.CheckNotNull(AOwner, 'AOwner');
+  Guard.CheckNotNull(AParent, 'AParent');
+  VST := TVirtualStringTree.Create(AOwner);
+  VST.AlignWithMargins := True;
+  VST.Parent           := AParent;
+  VST.Align            := alClient;
+  VST.Header.Height    := 18;
+  AssignOptions(DefaultTreeListOptions, VST);
   Result := VST;
 end;
 {$ENDREGION}
