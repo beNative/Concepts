@@ -14,11 +14,6 @@
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Android' and '$(Base)'=='true') or '$(Base_Android)'!=''">
-        <Base_Android>true</Base_Android>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='OSX32' and '$(Base)'=='true') or '$(Base_OSX32)'!=''">
         <Base_OSX32>true</Base_OSX32>
         <CfgParent>Base</CfgParent>
@@ -39,23 +34,15 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='OSX32' and '$(Cfg_1)'=='true') or '$(Cfg_1_OSX32)'!=''">
-        <Cfg_1_OSX32>true</Cfg_1_OSX32>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <SanitizedProjectName>Spring_Data</SanitizedProjectName>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_Locale>1031</VerInfo_Locale>
+        <VerInfo_Locale>1033</VerInfo_Locale>
         <RuntimeOnlyPackage>true</RuntimeOnlyPackage>
         <GenPackage>true</GenPackage>
         <DllSuffix>.Delphi10Seattle</DllSuffix>
@@ -66,30 +53,19 @@
         <DCC_DcuOutput>..\..\Library\Delphi10Seattle\$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_ImageBase>00400000</DCC_ImageBase>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Android)'!=''">
-        <EnabledSysJars>android-support-v4.dex.jar;apk-expansion.dex.jar;cloud-messaging.dex.jar;fmx.dex.jar;google-analytics-v2.dex.jar;google-play-billing.dex.jar;google-play-licensing.dex.jar;google-play-services.dex.jar</EnabledSysJars>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Base_OSX32)'!=''">
-        <VerInfo_IncludeVerInfo>false</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user</VerInfo_Keys>
+        <Debugger_Launcher>/usr/X11/bin/xterm -e &quot;%debuggee%&quot;</Debugger_Launcher>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <DCC_Optimize>false</DCC_Optimize>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_OSX32)'!=''">
-        <BT_BuildType>Debug</BT_BuildType>
-        <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
@@ -108,6 +84,7 @@
         <DCCReference Include="..\..\Source\Data\ObjectDataSet\Spring.Data.ExpressionParser.Functions.pas"/>
         <DCCReference Include="..\..\Source\Data\ObjectDataSet\Spring.Data.IndexList.pas"/>
         <DCCReference Include="..\..\Source\Data\ObjectDataSet\Spring.Data.ObjectDataSet.pas"/>
+        <DCCReference Include="..\..\Source\Data\ObjectDataSet\Spring.Data.ValueConverters.pas"/>
         <DCCReference Include="..\..\Source\Data\ObjectDataSet\Spring.Data.VirtualDataSet.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
@@ -129,7 +106,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <VersionInfo>
-                    <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+                    <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
                     <VersionInfo Name="AutoIncBuild">False</VersionInfo>
                     <VersionInfo Name="MajorVer">1</VersionInfo>
                     <VersionInfo Name="MinorVer">0</VersionInfo>
@@ -140,7 +117,7 @@
                     <VersionInfo Name="Special">False</VersionInfo>
                     <VersionInfo Name="Private">False</VersionInfo>
                     <VersionInfo Name="DLL">False</VersionInfo>
-                    <VersionInfo Name="Locale">1031</VersionInfo>
+                    <VersionInfo Name="Locale">1033</VersionInfo>
                     <VersionInfo Name="CodePage">1252</VersionInfo>
                 </VersionInfo>
                 <VersionInfoKeys>
@@ -155,16 +132,11 @@
                     <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
                     <VersionInfoKeys Name="Comments"/>
                 </VersionInfoKeys>
-                <Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\8.0\Bpl\SearchPathFinder.bpl">(untitled)</Excluded_Packages>
-                </Excluded_Packages>
                 <Source>
                     <Source Name="MainSource">Spring.Data.dpk</Source>
                 </Source>
             </Delphi.Personality>
             <Platforms>
-                <Platform value="Android">False</Platform>
-                <Platform value="iOSSimulator">False</Platform>
                 <Platform value="OSX32">True</Platform>
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>

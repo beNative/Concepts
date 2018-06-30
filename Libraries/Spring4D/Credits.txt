@@ -27,6 +27,10 @@ Acknowledgements:
 * Allen Bauer (Event<T> and Nullable<T> are based on prototypes shown in his blog)
 * Linas Naginionis is the original author of the Marshmallow ORM which Spring Persistence is based on
 * Alexander Benikowski (his idea for wrapping the parameter index into any supported type used by mock parameter matching)
+* Vincent Parrett (DelphiMocks) and Daniel Cazzulino (MOQ) - their idea of parameter matching
+* Boian Mitov (the idea for the TManagedObject)
+* A-dato (for contributing their TVirtualDataSet/TObjectDataSet implementation)
+* David Millington (for the initial red black tree code)
 
 Donations
 * Documentation Insight

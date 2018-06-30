@@ -81,7 +81,7 @@ end;
 
 procedure TBCEditorExportHTML.CreateInternalCSS;
 var
-  i: Integer;
+  LIndex: Integer;
   LStyles: TList;
   LElement: PBCEditorHighlighterElement;
 begin
@@ -93,9 +93,9 @@ begin
   FStringList.Add('    }');
 
   LStyles := FHighlighter.Colors.Styles;
-  for i := 0 to LStyles.Count - 1 do
+  for LIndex := 0 to LStyles.Count - 1 do
   begin
-    LElement := LStyles.Items[i];
+    LElement := LStyles.Items[LIndex];
 
     FStringList.Add('    .' + LElement^.Name + ' { ');
     FStringList.Add('      color: #' + ColorToHex(LElement^.Foreground) + ';');
@@ -121,19 +121,19 @@ end;
 
 procedure TBCEditorExportHTML.CreateLines;
 var
-  i: Integer;
+  LIndex: Integer;
   LTextLine, LToken: string;
   LHighlighterAttribute: TBCEditorHighlighterAttribute;
   LPreviousElement: string;
 begin
   LPreviousElement := '';
-  for i := 0 to FLines.Count - 1 do
+  for LIndex := 0 to FLines.Count - 1 do
   begin
-    if i = 0 then
+    if LIndex = 0 then
       FHighlighter.ResetCurrentRange
     else
-      FHighlighter.SetCurrentRange(FLines.Ranges[i - 1]);
-    FHighlighter.SetCurrentLine(FLines.ExpandedStrings[i]);
+      FHighlighter.SetCurrentRange(FLines.Ranges[LIndex - 1]);
+    FHighlighter.SetCurrentLine(FLines.ExpandedStrings[LIndex]);
     LTextLine := '';
     while not FHighlighter.GetEndOfLine do
     begin

@@ -433,6 +433,9 @@ begin
   else
     newItem := IndexList.Items[Index];
 
+  if not fProperties.Any then
+    InitRttiPropertiesFromItemType(newItem.ClassInfo);
+
   sortNeeded := False;
 
   for i := 0 to ModifiedFields.Count - 1 do

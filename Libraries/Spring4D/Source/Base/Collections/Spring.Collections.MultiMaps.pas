@@ -86,11 +86,10 @@ type
   private
     fDictionary: TDictionary<TKey, IList<TValue>>;
     fCount: Integer;
-    fEmpty: IList<TValue>;
     fValues: TValueCollection;
+    fValueComparer: IComparer<TValue>;
     function AsReadOnlyMultiMap: IReadOnlyMultiMap<TKey,TValue>;
   protected
-    fValueComparer: IComparer<TValue>;
   {$REGION 'Property Accessors'}
     function GetCount: Integer; override;
     function GetItems(const key: TKey): IReadOnlyList<TValue>;
@@ -170,10 +169,12 @@ implementation
 uses
   Classes,
   RTLConsts,
-  SysUtils,
   TypInfo,
   Spring,
+{$IFDEF DELPHI2010}
+  Spring.Collections.Extensions,
   Spring.Collections.Lists,
+{$ENDIF}
   Spring.ResourceStrings;
 
 
@@ -194,15 +195,10 @@ constructor TMultiMapBase<TKey, TValue>.Create(
   const keyComparer: IEqualityComparer<TKey>;
   const valueComparer: IComparer<TValue>);
 begin
-  fValueComparer := valueComparer;
   inherited Create;
   fDictionary := CreateDictionary(keyComparer);
-{$IFNDEF DELPHI2010}
-  fEmpty := TCollections.CreateList<TValue>;
-{$ELSE}
-  fEmpty := TList<TValue>.Create;
-{$ENDIF}
   fValues := TValueCollection.Create(Self);
+  fValueComparer := valueComparer;
 end;
 
 destructor TMultiMapBase<TKey, TValue>.Destroy;
@@ -330,9 +326,14 @@ function TMultiMapBase<TKey, TValue>.GetItems(
 var
   list: IList<TValue>;
 begin
-  if not fDictionary.TryGetValue(key, list) then
-    list := fEmpty;
-  Result := list as IReadOnlyList<TValue>;
+  if fDictionary.TryGetValue(key, list) then
+    Result := list.AsReadOnlyList
+  else
+{$IFNDEF DELPHI2010}
+    Result := TEnumerable.Empty<TValue>;
+{$ELSE}
+    Result := TEmptyEnumerable<TValue>.Instance;
+{$ENDIF}
 end;
 
 function TMultiMapBase<TKey, TValue>.GetKeys: IReadOnlyCollection<TKey>;

@@ -24,9 +24,9 @@ type
     function GetFontStylesStored: Boolean;
     function GetForegroundColorStored: Boolean;
     procedure Changed; virtual;
-    procedure SetBackground(AValue: TColor);
-    procedure SetForeground(AValue: TColor);
-    procedure SetFontStyles(AValue: TFontStyles);
+    procedure SetBackground(const AValue: TColor);
+    procedure SetForeground(const AValue: TColor);
+    procedure SetFontStyles(const AValue: TFontStyles);
   public
     constructor Create(const AttributeName: string);
     procedure Assign(ASource: TPersistent); override;
@@ -126,7 +126,7 @@ begin
   FFontStylesDefault := FFontStyles;
 end;
 
-procedure TBCEditorHighlighterAttribute.SetBackground(AValue: TColor);
+procedure TBCEditorHighlighterAttribute.SetBackground(const AValue: TColor);
 begin
   if FBackground <> AValue then
   begin
@@ -135,7 +135,7 @@ begin
   end;
 end;
 
-procedure TBCEditorHighlighterAttribute.SetForeground(AValue: TColor);
+procedure TBCEditorHighlighterAttribute.SetForeground(const AValue: TColor);
 begin
   if FForeground <> AValue then
   begin
@@ -144,7 +144,7 @@ begin
   end;
 end;
 
-procedure TBCEditorHighlighterAttribute.SetFontStyles(AValue: TFontStyles);
+procedure TBCEditorHighlighterAttribute.SetFontStyles(const AValue: TFontStyles);
 begin
   if FFontStyles <> AValue then
   begin

@@ -232,6 +232,7 @@ type
     FIsDefaultValueManager: Boolean; // created/destroyed by ObjInspector
     FCanvasStack: TzCanvasStack;
     FShowEventProperties: Boolean;
+    FShowReadOnlyProperties: Boolean;
     procedure SetComponent(Value: TObject);
     function GetItemOrder(PItem: PPropItem): Integer;
     procedure SetSortByCategory(const Value: Boolean);
@@ -274,6 +275,7 @@ type
     property FloatPreference: TzFloatPreference read GetFloatPreference write SetFloatPreference;
     property OnAutoExpandItemOnInit: TPropItemEvent read FOnAutoExpandItemOnInit write FOnAutoExpandItemOnInit;
     property ShowEventProperties: Boolean read FShowEventProperties write FShowEventProperties;
+    property ShowReadOnlyProperties: Boolean read FShowReadOnlyProperties write FShowReadOnlyProperties;
   end;
 
   TzObjInspectorList = class(TzObjInspectorBase)
@@ -646,6 +648,8 @@ begin
   FOnBeforeAddItem := nil;
   FComponent := nil;
   FObjectVisibility := mvPublic;
+  FShowReadOnlyProperties := False;
+  FShowEventProperties := False;
   if not Assigned(FValueManager) then
   begin
     FIsDefaultValueManager := True;
@@ -949,22 +953,25 @@ var
       i: Integer;
       PSet: PPropItem;
     begin
-      P := PTypeInfo(PItem.Prop.PropertyType.AsSet.ElementType.Handle);
-      LType := FContext.GetType(P);
-      for i := LType.AsOrdinal.MinValue to LType.AsOrdinal.MaxValue do
+      if Assigned(PItem.Prop.PropertyType.AsSet.ElementType) then // is there RTTI for the set?
       begin
-        PSet := FItems.Add;
-        PSet^.Component := LComponent;
-        PSet^.CategoryIndex := -1;
-        PSet^.FIsCategory := False;
-        PSet^.SetItems(FItems);
-        PSet^.Prop := LProp;
-        PSet^.Instance := AInstance;
-        PSet^.Visible := False;
-        PSet^.Insp := Self;
-        PSet^.Parent := PItem;
-        PSet^.SetElementValue := i;
-        PSet^.QualifiedName := LQName + '.' + IntToStr(i);
+        P := PTypeInfo(PItem.Prop.PropertyType.AsSet.ElementType.Handle);
+        LType := FContext.GetType(P);
+        for i := LType.AsOrdinal.MinValue to LType.AsOrdinal.MaxValue do
+        begin
+          PSet := FItems.Add;
+          PSet^.Component := LComponent;
+          PSet^.CategoryIndex := -1;
+          PSet^.FIsCategory := False;
+          PSet^.SetItems(FItems);
+          PSet^.Prop := LProp;
+          PSet^.Instance := AInstance;
+          PSet^.Visible := False;
+          PSet^.Insp := Self;
+          PSet^.Parent := PItem;
+          PSet^.SetElementValue := i;
+          PSet^.QualifiedName := LQName + '.' + IntToStr(i);
+        end;
       end;
     end;
 
@@ -1032,6 +1039,9 @@ var
         if (LProp.PropertyType is TRttiMethodType) and not FShowEventProperties then
           Allow := False;
 
+        if (not LProp.IsWritable) and (not FShowReadOnlyProperties) then
+          Allow := False;
+
         if Assigned(FOnBeforeAddItem) then
           Allow := FOnBeforeAddItem(Self, PItem);
         if not Allow then
@@ -1050,7 +1060,7 @@ var
                 FCircularLinkProps.Add(LQName);
             FPropInstance.Add(LQName, LInstance);
           end
-          else if (LProp.Visibility = mvPublished) and (PItem.IsSet) then // TS
+          else if {(LProp.Visibility = mvPublished) and} (PItem.IsSet) then // TS
           begin
             EnumSet;
           end;
@@ -1792,8 +1802,9 @@ procedure TzCustomObjInspector.CreateWnd;
 begin
   inherited;
   FSelectedIndex := -1;
-  if not(csDesigning in ComponentState) then
-    RegisterHotKey(Handle, 0, 0, VK_TAB);
+  // by TS: will cause to capture VK_TAB system-wide
+  //if not(csDesigning in ComponentState) then
+//    RegisterHotKey(Handle, 0, 0, VK_TAB);
 end;
 
 function TzCustomObjInspector.DoCollapseItem(PItem: PPropItem): Boolean;
@@ -2840,6 +2851,9 @@ begin
   end;
 end;
 
+{ TS: does not get called because we disabled registration of TAB hotkey, which
+  has sideeffects. }
+
 procedure TzCustomObjInspector.WMHotKey(var Msg: TWMHotKey);
 var
   LForm: TCustomForm;
@@ -2849,16 +2863,21 @@ begin
   if Assigned(LForm) then
   begin
     if FAllowSearch and (Msg.HotKey = 0) then
+    begin
       if Assigned(LForm.ActiveControl) then
-        if (WinInWin(LForm.ActiveControl.Handle, Handle)) then
+      begin
+        if WinInWin(LForm.ActiveControl.Handle, Handle) then
         begin { ActiveControl must be Self or childs of Self ! }
           if GetCaretWin = Handle then // searching
           begin
             FSearchText := '';
             UpdateEditControl; // move back to Edit
-          end else if DoSelectCaret(FSelectedIndex) then // start search
+          end
+          else if DoSelectCaret(FSelectedIndex) then // start search
             Exit;
         end;
+      end;
+    end;
     { Translate the Tab to the parent to
       select controls that have TabStop !
     }
@@ -3595,10 +3614,11 @@ end;
 
 procedure TzObjInspectorBase.SetObjectVisibility(const Value: TMemberVisibility);
 begin
-  if Value >= mvPublic then
-    FObjectVisibility := Value
-  else
-    raise InspException.Create('Object Visibility must be mvPublic or mvPublished.');
+//  if Value >= mvPublic then
+    FObjectVisibility := Value;
+    UpdateProperties(True);
+//  else
+//    raise InspException.Create('Object Visibility must be mvPublic or mvPublished.');
 end;
 
 end.

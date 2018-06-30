@@ -15,6 +15,7 @@ type
     FIndicator: TBCEditorCodeFoldingHintIndicator;
     FRowCount: Integer;
     FVisible: Boolean;
+    procedure SetFont(const AValue: TFont);
   public
     constructor Create;
     destructor Destroy; override;
@@ -22,7 +23,7 @@ type
   published
     property Colors: TBCEditorCodeFoldingHintColors read FColors write FColors;
     property Cursor: TCursor read FCursor write FCursor default crHelp;
-    property Font: TFont read FFont write FFont;
+    property Font: TFont read FFont write SetFont;
     property Indicator: TBCEditorCodeFoldingHintIndicator read FIndicator write FIndicator;
     property RowCount: Integer read FRowCount write FRowCount default 40;
     property Visible: Boolean read FVisible write FVisible default True;
@@ -65,6 +66,11 @@ begin
   end
   else
     inherited Assign(ASource);
+end;
+
+procedure TBCEditorCodeFoldingHint.SetFont(const AValue: TFont);
+begin
+  FFont.Assign(AValue);
 end;
 
 end.

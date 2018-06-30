@@ -400,7 +400,12 @@ begin
   Inc(fCallCount);
   try
     if Assigned(fAction) then
-      Result := fAction(TCallInfo.Create(invocation, fCallCount))
+    begin
+      Result := fAction(TCallInfo.Create(invocation, fCallCount));
+      if invocation.Method.HasExtendedInfo
+        and (invocation.Method.MethodKind = mkFunction) then
+        Result := Result.Convert(invocation.Method.ReturnType.Handle);
+    end
     else if invocation.Method.HasExtendedInfo
       and (invocation.Method.MethodKind = mkFunction) then
       Result := Result.Cast(invocation.Method.ReturnType.Handle)

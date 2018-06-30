@@ -92,10 +92,11 @@ end;
 
 function IsPropVisible(const Prop: TRttiProperty; const PropOwner: TObject; ObjectVisibility: TMemberVisibility): Boolean;
 begin
-  if PropOwner is TPersistent then
-    Result := Prop.Visibility = mvPublished
-  else // if PropOwner is TObject then
+//  if PropOwner is TPersistent then
+//    Result := Prop.Visibility = mvPublished
+//  else // if PropOwner is TObject then
     Result := Prop.Visibility >= ObjectVisibility;
+
 end;
 
 function ObjHasAtLeastOneChild(Obj: TObject; ObjVisibility: TMemberVisibility): Boolean;

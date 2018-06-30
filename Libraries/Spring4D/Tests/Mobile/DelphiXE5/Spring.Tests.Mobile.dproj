@@ -307,8 +307,8 @@
                     <VersionInfo Name="Special">False</VersionInfo>
                     <VersionInfo Name="Private">False</VersionInfo>
                     <VersionInfo Name="DLL">False</VersionInfo>
-                    <VersionInfo Name="Locale">1029</VersionInfo>
-                    <VersionInfo Name="CodePage">1250</VersionInfo>
+                    <VersionInfo Name="Locale">1033</VersionInfo>
+                    <VersionInfo Name="CodePage">1252</VersionInfo>
                 </VersionInfo>
                 <VersionInfoKeys>
                     <VersionInfoKeys Name="CompanyName"/>
@@ -339,10 +339,6 @@
                 <Source>
                     <Source Name="MainSource">Spring.Tests.Mobile.dpr</Source>
                 </Source>
-                <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k190.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp190.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment>
                 <DeployFile LocalName="$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_120x120.png" Configuration="Debug" Class="iPhone_AppIcon120">

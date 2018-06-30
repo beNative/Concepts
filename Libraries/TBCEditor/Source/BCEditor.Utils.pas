@@ -5,13 +5,17 @@ interface
 uses
   Winapi.Windows, System.Math, System.Classes, Vcl.Graphics, System.UITypes, BCEditor.Consts, BCEditor.Types;
 
+function ActivateDropShadow(const AHandle: THandle): Boolean;
+function CaseNone(const AChar: Char): Char;
+function CaseStringNone(const AString: string): string;
+function CaseUpper(const AChar: Char): Char;
 function ColorToHex(const AColor: TColor): string;
 function ConvertTabs(const ALine: string; ATabWidth: Integer; var AHasTabs: Boolean; const AColumns: Boolean): string;
 function IsCombiningDiacriticalMark(const AChar: Char): Boolean;
 function DeleteWhitespace(const AText: string): string;
 function MessageDialog(const AMessage: string; ADlgType: TMsgDlgType; AButtons: TMsgDlgButtons): Integer;
 function MiddleColor(AColor1, AColor2: TColor): TColor;
-function MinMax(AValue, AMinValue, AMaxValue: Integer): Integer;
+function MinMax(const AValue, AMinValue, AMaxValue: Integer): Integer;
 function TextWidth(ACanvas: TCanvas; const AText: string): Integer;
 function TextHeight(ACanvas: TCanvas; const AText: string): Integer;
 procedure ClearList(var AList: TList);
@@ -20,7 +24,55 @@ procedure FreeList(var AList: TList);
 implementation
 
 uses
-  Vcl.Forms, Vcl.Dialogs, System.SysUtils, System.Character;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.SysUtils, System.Character;
+
+function ActivateDropShadow(const AHandle: THandle): Boolean;
+
+  function IsXP: Boolean;
+  begin
+    Result := (Win32Platform = VER_PLATFORM_WIN32_NT) and
+      CheckWin32Version(5, 1);
+  end;
+
+const
+  SPI_SETDROPSHADOW = $1025;
+  CS_DROPSHADOW = $00020000;
+
+var
+  NewLong: Cardinal;
+  B: Boolean;
+begin
+  B := True;
+  if IsXP and SystemParametersInfo(SPI_SETDROPSHADOW, 0, @B, 0) then
+  begin
+    NewLong := GetClassLong(AHandle, GCL_STYLE);
+    NewLong := NewLong or CS_DROPSHADOW;
+
+    Result := SetClassLong(AHandle, GCL_STYLE, NewLong) <> 0;
+    if Result then
+      SendMessage(AHandle, CM_RECREATEWND, 0, 0);
+  end else
+    Result := False;
+end;
+
+function CaseNone(const AChar: Char): Char;
+begin
+  Result := AChar;
+end;
+
+function CaseStringNone(const AString: string): string;
+begin
+  Result := AString;
+end;
+
+function CaseUpper(const AChar: Char): Char;
+begin
+  Result := AChar;
+  case AChar of
+    'a'..'z':
+      Result := Char(Word(AChar) and $FFDF);
+  end;
+end;
 
 function ColorToHex(const AColor: TColor): string;
 begin
@@ -97,32 +149,32 @@ end;
 
 procedure ClearList(var AList: TList);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   if not Assigned(AList) then
     Exit;
-  for i := 0 to AList.Count - 1 do
-    if Assigned(AList[i]) then
+  for LIndex := 0 to AList.Count - 1 do
+    if Assigned(AList[LIndex]) then
     begin
-      TObject(AList[i]).Free;
-      AList[i] := nil;
+      TObject(AList[LIndex]).Free;
+      AList[LIndex] := nil;
     end;
   AList.Clear;
 end;
 
 function DeleteWhitespace(const AText: string): string;
 var
-  i, j: Integer;
+  LIndex, LIndex2: Integer;
 begin
   SetLength(Result, Length(AText));
-  j := 0;
-  for i := 1 to Length(AText) do
-    if not AText[i].IsWhiteSpace then
+  LIndex2 := 0;
+  for LIndex := 1 to Length(AText) do
+    if not AText[LIndex].IsWhiteSpace then
     begin
-      Inc(j);
-      Result[j] := AText[i];
+      Inc(LIndex2);
+      Result[LIndex2] := AText[LIndex];
     end;
-  SetLength(Result, j);
+  SetLength(Result, LIndex2);
 end;
 
 function MessageDialog(const AMessage: string; ADlgType: TMsgDlgType; AButtons: TMsgDlgButtons): Integer;
@@ -138,10 +190,12 @@ begin
   end;
 end;
 
-function MinMax(AValue, AMinValue, AMaxValue: Integer): Integer;
+function MinMax(const AValue, AMinValue, AMaxValue: Integer): Integer;
+var
+  LValue: Integer;
 begin
-  AValue := Min(AValue, AMaxValue);
-  Result := Max(AValue, AMinValue);
+  LValue := Min(AValue, AMaxValue);
+  Result := Max(LValue, AMinValue);
 end;
 
 function GetHasTabs(ALine: PChar; var ACharsBefore: Integer): Boolean;

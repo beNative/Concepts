@@ -133,7 +133,7 @@ type
 implementation
 
 uses
-  BCEditor.Utils, BCEditor.Consts, BCEditor.Language, System.Character;
+  BCEditor.Language, System.Character;
 
 var
   GFontsInfoManager: TBCEditorFontsInfoManager;
@@ -204,13 +204,13 @@ end;
 
 procedure TBCEditorFontsInfoManager.DestroyFontHandles(ASharedFontsInfo: PBCEditorSharedFontsInfo);
 var
-  i: Integer;
+  LIndex: Integer;
   LFontData: TBCEditorFontData;
 begin
   with ASharedFontsInfo^ do
-  for i := Low(TBCEditorStockFontPatterns) to High(TBCEditorStockFontPatterns) do
+  for LIndex := Low(TBCEditorStockFontPatterns) to High(TBCEditorStockFontPatterns) do
   begin
-    LFontData := FontsData[i];
+    LFontData := FontsData[LIndex];
     if LFontData.Handle <> 0 then
     begin
       DeleteObject(LFontData.Handle);
@@ -221,11 +221,11 @@ end;
 
 function TBCEditorFontsInfoManager.FindFontsInfo(const ALogFont: TLogFont): PBCEditorSharedFontsInfo;
 var
-  i: Integer;
+  LIndex: Integer;
 begin
-  for i := 0 to FFontsInfo.Count - 1 do
+  for LIndex := 0 to FFontsInfo.Count - 1 do
   begin
-    Result := PBCEditorSharedFontsInfo(FFontsInfo[i]);
+    Result := PBCEditorSharedFontsInfo(FFontsInfo[LIndex]);
     if CompareMem(@(Result^.BaseLogFont), @ALogFont, SizeOf(TLogFont)) then
       Exit;
   end;

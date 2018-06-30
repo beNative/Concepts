@@ -3,8 +3,8 @@ unit SQLBuilder4D.Parser.GaSQLParser;
 interface
 
 uses
-  System.SysUtils,
-  System.StrUtils,
+  SysUtils,
+  StrUtils,
   SQLBuilder4D.Parser;
 
 type
@@ -95,7 +95,7 @@ type
 constructor TGaSQLParser.Create(const pSQLCommand: string);
 begin
   FParser := TgaAdvancedSQLParser.Create(nil);
-  if not pSQLCommand.IsEmpty then
+  if (pSQLCommand <> '') then
     Parse(pSQLCommand);
 end;
 
@@ -181,7 +181,7 @@ function TGaSQLParserSelect.GetExpression(const pDefaultExpression, pCurrentTerm
   const pConnector: TSQLParserConnector): string;
 begin
   Result := pDefaultExpression;
-  if not Result.IsEmpty then
+  if (Result <> '') then
   begin
     case pConnector of
       pcNone:

@@ -133,6 +133,8 @@ type
 
     procedure TestExtractAt;
     procedure TestExtractRange;
+
+    procedure TestTryMethodsReturnDefaultWhenFalse;
   end;
 
   TTestStringList = class(TTestCase)
@@ -428,6 +430,8 @@ type
   published
     procedure TestAggregate;
     procedure TestToArray;
+
+    procedure TestTryMethodsReturnDefaultWhenFalse;
   end;
 
   TTestListAdapter = class(TTestCase)
@@ -1153,6 +1157,23 @@ begin
       Result := not Odd(x);
     end);
   Check(SUT.EqualsTo([1, 3, 5, 7, 9]));
+end;
+
+procedure TTestIntegerList.TestTryMethodsReturnDefaultWhenFalse;
+var
+  i: Integer;
+begin
+  i := -1;
+  CheckFalse(SUT.TryGetFirst(i));
+  CheckEquals(0, i);
+
+  i := -1;
+  CheckFalse(SUT.TryGetLast(i));
+  CheckEquals(0, i);
+
+  i := -1;
+  CheckFalse(SUT.TryGetSingle(i));
+  CheckEquals(0, i);
 end;
 
 procedure TTestIntegerList.TestListIndexOf;
@@ -2668,6 +2689,40 @@ begin
   CheckEquals(MaxItems, Length(values));
   for i in sut do
     CheckEquals(i, values[i]);
+end;
+
+procedure TTestEnumerable.TestTryMethodsReturnDefaultWhenFalse;
+var
+  i: Integer;
+  SUT: IEnumerable<Integer>;
+begin
+  SUT := TEnumerable.Empty<Integer>;
+
+  i := -1;
+  CheckFalse(SUT.TryGetFirst(i));
+  CheckEquals(0, i);
+
+  i := -1;
+  CheckFalse(SUT.TryGetLast(i));
+  CheckEquals(0, i);
+
+  i := -1;
+  CheckFalse(SUT.TryGetSingle(i));
+  CheckEquals(0, i);
+
+  SUT := TEnumerable.From<Integer>([1, 2, 3]);
+
+  i := -1;
+  CheckFalse(SUT.TryGetFirst(i, function(const n: Integer): Boolean begin Result := n > 3 end));
+  CheckEquals(0, i);
+
+  i := -1;
+  CheckFalse(SUT.TryGetLast(i, function(const n: Integer): Boolean begin Result := n > 3 end));
+  CheckEquals(0, i);
+
+  i := -1;
+  CheckFalse(SUT.TryGetSingle(i, function(const n: Integer): Boolean begin Result := n > 0 end));
+  CheckEquals(0, i);
 end;
 
 {$ENDREGION}

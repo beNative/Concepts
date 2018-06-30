@@ -27,7 +27,7 @@ uses
 {$REGION 'Documentation'}
 {
   DynamicRecord is a custom record type holding dynamically typed fields.
-  It consosts of a set of key-value pairs which can be assigned from/to any
+  It consists of a set of key-value pairs which can be assigned from/to any
   object or record instance. In that respect it behaves more or less than a
   dynamic associative array commonly found in dynamically typed languages (e.g.
   tables in Lua and lists in Python).
@@ -35,23 +35,23 @@ uses
   values of the record.
 
   TERMINOLOGY
-    The name DynamicRecord was chosen because it behaves as native pascal records when
-    assigned to eachother. Rather than copying the reference (like classes and
-    class interfaces) the data is copied.
-    When assigning two DynamicRecord variables to eachother the data is always copied
-    as witch native record variables.
+    The name DynamicRecord was chosen because it behaves as native pascal
+    records when assigned to eachother. Rather than copying the reference (like
+    instances of classes and interfaces) the data is copied.
+    When assigning two DynamicRecord variables to eachother the data is always
+    copied as witch native record variables.
     A DynamicRecord instance manages its own data (creation and destruction).
 
     If you rather have a reference to a set of values, you can use the
     IDynamicRecord interface, which is assignment compatible with DynamicRecord
-    variables. Mixed DynamicRecord and IDynamicRecord assignments always result in
-    a copy of the contained data.
+    variables. Mixed DynamicRecord and IDynamicRecord assignments always result
+    in a copy of the contained data.
 
   MAIN FEATURES:
     - No instrumentation code. Direct field access is possible.
     - No field initialisation required.
-    - No boilerplate code. No Create/Try/Finally/Free blocks needed as
-      memory management is done behind the scenes.
+    - No boilerplate code. No Create/Try/Finally/Free blocks needed as memory
+      management is taken care of behind the scenes.
     - Easy assignment from and to object/record properties as well as other
       DynamicRecord instances using dedicated 'From' methods.
     - Enumeration support (so we can use it in "for..in" statements) in D2006+
@@ -88,11 +88,11 @@ uses
     - A debug visualizer is available that shows the content of the record while
       debugging in the IDE.
 
-  DynamicRecord<T> allows typed access to contained data. In that respect it behaves
-  as a managed object wrapper while remaining compatible with the basic
+  DynamicRecord<T> allows typed access to contained data. In that respect it
+  behaves as a managed object wrapper while remaining compatible with the basic
   instance type.
-    - DynamicRecord<T> can be assigned to T, but only if T was created. It will copy
-      the values rather than exposing and assigning the reference.
+    - DynamicRecord<T> can be assigned to T, but only if T was created. It will
+      copy the values rather than exposing and assigning the reference.
     - The Data property is of type T.
     - The generic version does automatic instantiation of objects of type T.
     - A DynamicRecord<T> instance is assignment compatible with DynamicRecord,
@@ -116,12 +116,12 @@ uses
 
   References:
     To make DynamicRecord really behave as a proper value type, there had to be a
-    way to implement this copy on write behaviour (COW) on the managed
-    interface variable (IDynamicRecord). Barry Kelly came to the rescue in his
-    article where he explains how to implement user-defined copy-on-write
-    data structures in Delphi. The magic happens in the MutableClone method,
-    which makes a new copy if the reference count of the managed interface
-    variable exceeds 1.
+    way to implement copy on write behaviour (COW) on a managed interface
+    variable (IDynamicRecord). Barry Kelly came to the rescue in his article
+    where he explains how to implement user-defined copy-on-write data
+    structures in Delphi. The magic happens in the MutableClone method, which
+    makes a new copy if the reference count of the managed interface variable
+    exceeds 1.
     A full explanation of this mechanism can be found on Barry's blog:
 
     http://blog.barrkel.com/2009/01/implementing-user-defined-copy-on-write.html
@@ -144,6 +144,7 @@ type
   IDynamicRecord<T: class, constructor> = interface;
   {$M-}
 
+  {$REGION 'DynamicRecordEnumerator'}
   DynamicRecordEnumerator = record
   strict private
     FIndex  : Integer;
@@ -156,12 +157,15 @@ type
     property Current: IDynamicField
       read GetCurrent;
   end;
+  {$ENDREGION}
 
+  {$REGION 'DynamicRecord'}
   DynamicRecord = record
   private
     FDynamicRecord : IDynamicRecord;
     FRecRefCount   : Integer;
 
+    {$REGION 'property access methods'}
     function GetItemValue(const AName: string): TValue;
     procedure SetItemValue(const AName: string; const AValue: TValue);
     function GetItem(Index: Integer): IDynamicField;
@@ -169,6 +173,7 @@ type
     function GetDynamicRecord: IDynamicRecord;
     function GetCount: Integer;
     function GetField(const AName: string): IDynamicField;
+    {$ENDREGION}
 
     function MutableClone: IDynamicRecord;
     function GetInternalRefCount: Integer;
@@ -198,15 +203,15 @@ type
     function ToCommaText(const AFieldNames : string) : string; overload;
     function ToCommaText : string; overload;
     function ToDelimitedText(
-      const AFieldNames  : string;
-      const ADelimiter   : string;
-            AQuoteValues : Boolean = False;
-            AQuoteChar   : Char = '"'
+      const AFieldNames : string;
+      const ADelimiter  : string;
+      AQuoteValues      : Boolean = False;
+      AQuoteChar        : Char = '"'
     ): string; overload;
     function ToDelimitedText(
-      const ADelimiter   : string;
-            AQuoteValues : Boolean = False;
-            AQuoteChar   : Char = '"'
+      const ADelimiter : string;
+      AQuoteValues     : Boolean = False;
+      AQuoteChar       : Char = '"'
     ): string; overload;
 
     procedure Assign(ADynamicRecord: IDynamicRecord); overload;
@@ -263,13 +268,23 @@ type
       const AAssignNulls      : Boolean;
       const ANames            : array of string
     ); overload;
-
+    procedure FromArray<T>(
+      const AArray               : TArray<T>;
+      const ABracketedIndexNames : Boolean = False
+    );
     procedure FromDataSet(
-            ADataSet     : TDataSet;
+      ADataSet           : TDataSet;
       const AAssignNulls : Boolean = False
     );
     procedure FromPersistent(APersistent: TPersistent);
-    procedure FromStrings(AStrings: TStrings);
+    procedure FromStrings(
+      AStrings    : TStrings;
+      ATrimSpaces : Boolean = True
+    );
+    procedure FromString(
+      const AString : string;
+      ATrimSpaces   : Boolean = True
+    );
 
     procedure ToStrings(AStrings: TStrings);
 
@@ -336,9 +351,9 @@ type
     class operator Implicit(const ASource: IDynamicRecord): DynamicRecord;
     //class operator Implicit(const ASource: TValue): DynamicRecord;
   end;
+  {$ENDREGION}
 
-  TRecord = DynamicRecord deprecated; // for backwards compatibility
-
+  {$REGION 'DynamicRecord<T>'}
   { DynamicRecord<T> manages a IDynamicRecord<T> instance. The data is stored in the
     provided class type. }
 
@@ -429,11 +444,19 @@ type
 
     procedure From(const Value: T);
     procedure FromDataSet(
-            ADataSet     : TDataSet;
+      ADataSet           : TDataSet;
       const AAssignNulls : Boolean = False
     );
-
-    procedure FromStrings(AStrings: TStrings);
+    // TODO !
+    procedure FromString(
+      const AString : string;
+      ATrimSpaces   : Boolean = True
+    );
+    // TODO !
+    procedure FromStrings(
+      AStrings    : TStrings;
+      ATrimSpaces : Boolean = True
+    );
     procedure ToStrings(AStrings: TStrings);
 
     function ContainsField(const AName: string): Boolean;
@@ -487,7 +510,9 @@ type
     class operator Implicit(const ASource: DynamicRecord<T>): IDynamicRecord;
     class operator Implicit(const ASource: DynamicRecord<T>): IDynamicRecord<T>;
   end;
+  {$ENDREGION}
 
+  {$REGION 'IDynamicField'}
   IDynamicField = interface(IInvokable)
   ['{74D23797-BE4C-464A-BEF5-011BE159C8A9}']
     function GetName: string;
@@ -503,7 +528,9 @@ type
     property Value : TValue
       read GetValue write SetValue;
   end;
+  {$ENDREGION}
 
+  {$REGION 'IDynamicRecord'}
   IDynamicRecord = interface(IInvokable)
   ['{E3B57B88-1DB5-4663-8621-EE235233A114}']
     function GetItem(Index: Integer): IDynamicField;
@@ -537,6 +564,7 @@ type
       const ANames    : array of string
     ); overload;
 
+// not declarable:
 //    procedure From<T>(
 //      const AInstance         : T;
 //      const AAssignProperties : Boolean;
@@ -580,11 +608,18 @@ type
     function ToVarArray(const AFieldNames : string = '') : Variant;
 
     procedure FromDataSet(
-            ADataSet     : TDataSet;
+      ADataSet           : TDataSet;
       const AAssignNulls : Boolean = False
     );
-    procedure FromStrings(AStrings: TStrings);
     procedure FromPersistent(APersistent: TPersistent);
+    procedure FromStrings(
+      AStrings    : TStrings;
+      ATrimSpaces : Boolean = False
+    );
+    procedure FromString(
+      const AString : string;
+      ATrimSpaces   : Boolean = False
+    );
 
     procedure ToStrings(AStrings: TStrings);
 
@@ -627,7 +662,9 @@ type
     property RefCount: Integer
       read GetRefCount;
   end;
+  {$ENDREGION}
 
+  {$REGION 'IDynamicRecord<T>'}
   IDynamicRecord<T: class, constructor> = interface(IDynamicRecord)
   ['{98AD898F-552C-4B08-B5E9-B9C481153407}']
     function GetData: T;
@@ -644,7 +681,9 @@ type
     property DataFactory: TFunc<T>
       read GetDataFactory write SetDataFactory;
   end;
+  {$ENDREGION}
 
+  {$REGION 'TDynamicField'}
   { TDynamicField holds the Name/Value pair representation of a Field. }
   { non reference counted as it is by default managed by the owning collection.}
 
@@ -675,7 +714,9 @@ type
     property Value : TValue
       read GetValue write SetValue;
   end;
+  {$ENDREGION}
 
+  {$REGION 'TDynamicField<T>'}
   TDynamicField<T: class, constructor> = class(
     TDynamicField, IDynamicField
   )
@@ -704,7 +745,9 @@ type
     property Value : TValue
       read GetValue write SetValue;
   end;
+  {$ENDREGION}
 
+  {$REGION 'TDynamicRecord'}
   { TDynamicRecord is a collection used as the storage of the contained data.}
 
   TDynamicRecord = class(TCollection, IDynamicRecord)
@@ -769,7 +812,15 @@ type
       const AAssignNulls : Boolean = False
     );
     procedure FromPersistent(APersistent: TPersistent);
-    procedure FromStrings(AStrings: TStrings);
+    procedure FromStrings(
+      AStrings    : TStrings;
+      ATrimSpaces : Boolean = False
+    );
+    procedure FromString(
+      const AString : string;
+      ATrimSpaces   : Boolean = False
+    );
+
     procedure ToStrings(AStrings: TStrings);
 
     procedure AssignProperty(
@@ -864,7 +915,9 @@ type
     function ToString(AAlignValues: Boolean): string; reintroduce; overload; virtual;
     function ToString: string; overload; override;
   end;
+  {$ENDREGION}
 
+  {$REGION 'TDynamicRecord<T>'}
   TDynamicRecord<T: class, constructor> = class(
     TDynamicRecord, IDynamicRecord, IDynamicRecord<T>)
   strict private
@@ -901,6 +954,7 @@ type
     property DataFactory: TFunc<T>
       read GetDataFactory write SetDataFactory;
   end;
+  {$ENDREGION}
 
 implementation
 
@@ -922,57 +976,6 @@ resourcestring
 
 var
   FContext: TRttiContext;
-
-{ A custom variant type that implements the mapping from the property names to
-  the record instance. }
-type
-  TVarDataRecordType = class(TInvokeableVariantType)
-  private
-  type
-    { Our customized layout of the variant's record data. We only need a
-      reference to the TDynamicRecord instance. }
-    TVarDataRecordData = packed record
-      VType         : TVarType;
-      Reserved1     : Word;
-      Reserved2     : Word;
-      Reserved3     : Word;
-      DynamicRecord : TDynamicRecord;
-      Reserved4     : NativeInt;
-    end;
-
-  class var
-    { The instance of the custom variant type. The data of the custom variant is
-      stored in a TVarData record (which is common to all variants),
-      but the methods and properties are implemented in this class instance. }
-    FVarDataRecordType : TVarDataRecordType;
-
-  protected
-    function FixupIdent(const AText: string): string; override;
-
-  public
-    procedure Clear(var V: TVarData); override;
-    procedure Copy(
-      var   Dest     : TVarData;
-      const Source   : TVarData;
-      const Indirect : Boolean
-    ); override;
-    function GetProperty(
-      var   Dest : TVarData;
-      const V    : TVarData;
-      const Name : string
-    ): Boolean; override;
-    function SetProperty(
-      const V      : TVarData;
-      const Name   : string;
-      const AValue : TVarData
-    ): Boolean; override;
-
-    class constructor Create;
-    class destructor Destroy;
-
-    class property VarDataRecordType : TVarDataRecordType
-      read FVarDataRecordType;
-  end;
 
 {$REGION 'non-interfaced routines'}
 function WordCount(const AString: string; const AWordDelims: TSysCharSet)
@@ -1173,6 +1176,57 @@ end;
 {$ENDREGION}
 
 {$REGION 'TVarDataRecordType'}
+{ A custom variant type that implements the mapping from the property names to
+  the record instance. }
+type
+  TVarDataRecordType = class(TInvokeableVariantType)
+  private
+  type
+    { Our customized layout of the variant's record data. We only need a
+      reference to the TDynamicRecord instance. }
+    TVarDataRecordData = packed record
+      VType         : TVarType;
+      Reserved1     : Word;
+      Reserved2     : Word;
+      Reserved3     : Word;
+      DynamicRecord : TDynamicRecord;
+      Reserved4     : NativeInt;
+    end;
+
+  class var
+    { The instance of the custom variant type. The data of the custom variant is
+      stored in a TVarData record (which is common to all variants),
+      but the methods and properties are implemented in this class instance. }
+    FVarDataRecordType : TVarDataRecordType;
+
+  protected
+    function FixupIdent(const AText: string): string; override;
+
+  public
+    procedure Clear(var V: TVarData); override;
+    procedure Copy(
+      var   Dest     : TVarData;
+      const Source   : TVarData;
+      const Indirect : Boolean
+    ); override;
+    function GetProperty(
+      var   Dest : TVarData;
+      const V    : TVarData;
+      const Name : string
+    ): Boolean; override;
+    function SetProperty(
+      const V      : TVarData;
+      const Name   : string;
+      const AValue : TVarData
+    ): Boolean; override;
+
+    class constructor Create;
+    class destructor Destroy;
+
+    class property VarDataRecordType : TVarDataRecordType
+      read FVarDataRecordType;
+  end;
+
 {$REGION 'construction and destruction'}
 class constructor TVarDataRecordType.Create;
 begin
@@ -1822,15 +1876,39 @@ begin
   end;
 end;
 
+procedure TDynamicRecord.FromString(const AString: string;
+  ATrimSpaces: Boolean);
+var
+  SL : TStringList;
+begin
+  SL := TStringList.Create;
+  try
+    SL.Text := AString;
+    FromStrings(SL, ATrimSpaces);
+  finally
+    SL.Free;
+  end;
+end;
+
 { Assigns from a TStrings instance holding name/value pairs. }
 
-procedure TDynamicRecord.FromStrings(AStrings: TStrings);
+procedure TDynamicRecord.FromStrings(AStrings: TStrings; ATrimSpaces: Boolean);
 var
-  I: Integer;
+  I : Integer;
 begin
-  for I := 0 to AStrings.Count - 1 do
+  if ATrimSpaces then
   begin
-    Values[AStrings.Names[I]] := AStrings.ValueFromIndex[I];
+    for I := 0 to AStrings.Count - 1 do
+    begin
+      Values[AStrings.Names[I].Trim] := AStrings.ValueFromIndex[I].Trim;
+    end;
+  end
+  else
+  begin
+    for I := 0 to AStrings.Count - 1 do
+    begin
+      Values[AStrings.Names[I]] := AStrings.ValueFromIndex[I];
+    end;
   end;
 end;
 
@@ -1840,8 +1918,8 @@ end;
 
 procedure TDynamicRecord.ToStrings(AStrings: TStrings);
 var
-  I: Integer;
-  S: string;
+  I : Integer;
+  S : string;
 begin
   AStrings.Clear;
   for I := 0 to Count - 1 do
@@ -2267,7 +2345,8 @@ begin
   Result := DynamicRecord.ToDelimitedText(ADelimiter, AQuoteValues, AQuoteChar);
 end;
 
-procedure DynamicRecord.Assign(const ARecord: DynamicRecord; const ANames: array of string);
+procedure DynamicRecord.Assign(const ARecord: DynamicRecord;
+  const ANames: array of string);
 var
   F : IDynamicField;
   S : string;
@@ -2357,7 +2436,9 @@ end;
 procedure DynamicRecord.From(const AInstance: TValue; const AAssignProperties,
   AAssignFields, AAssignNulls: Boolean; const ANames: array of string);
 begin
-  DynamicRecord.From(AInstance, AAssignProperties, AAssignFields, AAssignNulls, ANames);
+  DynamicRecord.From(
+    AInstance, AAssignProperties, AAssignFields, AAssignNulls, ANames
+  );
 end;
 
 procedure DynamicRecord.From<T>(const AValue: T; const AAssignProperties,
@@ -2384,6 +2465,41 @@ begin
   );
 end;
 
+{ Assignes a typed array as a list of IDynamicField instances with the Name
+  property used as the index converted to string. If the optional parameter
+   the index value is stored between square []
+  brackets in the Name property.
+  Example: An array with values [4, 3, 2, 5] will be represented by default as
+              ('0', 4), ('1', 3), ('2', 2), ('3', 5)
+  or if ABracketedIndexNames = True as
+              ('[0]', 4), ('[1]', 3), ('[2]', 2), ('[3]', 5)
+  }
+
+procedure DynamicRecord.FromArray<T>(const AArray: TArray<T>;
+  const ABracketedIndexNames : Boolean = False);
+var
+  N : T;
+  I : Integer;
+  S : string;
+begin
+  DynamicRecord.Clear;
+  if ABracketedIndexNames then
+  begin
+    for I := Low(AArray) to High(AArray) do
+    begin
+      S := Format('[%d]', [I]);
+      DynamicRecord.Values[S] := TValue.From<T>(AArray[I]);
+    end;
+  end
+  else
+  begin
+    for I := Low(AArray) to High(AArray) do
+    begin
+      DynamicRecord.Values[I.ToString] := TValue.From<T>(AArray[I]);
+    end;
+  end;
+end;
+
 { Makes a copy of the current record of a given dataset by assigning each field
   value of the dataset to a dynamic record field. }
 
@@ -2397,9 +2513,14 @@ begin
   DynamicRecord.FromPersistent(APersistent);
 end;
 
-procedure DynamicRecord.FromStrings(AStrings: TStrings);
+procedure DynamicRecord.FromString(const AString: string; ATrimSpaces: Boolean);
 begin
-  DynamicRecord.FromStrings(AStrings);
+  DynamicRecord.FromString(AString, ATrimSpaces);
+end;
+
+procedure DynamicRecord.FromStrings(AStrings: TStrings; ATrimSpaces: Boolean);
+begin
+  DynamicRecord.FromStrings(AStrings, ATrimSpaces);
 end;
 
 function DynamicRecord.IsBlank(const AName: string): Boolean;
@@ -2980,9 +3101,15 @@ begin
   FDynamicRecord.FromDataSet(ADataSet, AAssignNulls);
 end;
 
-procedure DynamicRecord<T>.FromStrings(AStrings: TStrings);
+procedure DynamicRecord<T>.FromString(const AString: string;
+  ATrimSpaces: Boolean);
 begin
-  FDynamicRecord.FromStrings(AStrings);
+  //
+end;
+
+procedure DynamicRecord<T>.FromStrings(AStrings: TStrings; ATrimSpaces: Boolean);
+begin
+  FDynamicRecord.FromStrings(AStrings, ATrimSpaces);
 end;
 
 function DynamicRecord<T>.IsBlank(const AName: string): Boolean;

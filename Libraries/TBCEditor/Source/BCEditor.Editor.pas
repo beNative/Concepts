@@ -44,7 +44,6 @@ type
     property Height;
     property ImeMode;
     property ImeName;
-    property InsertMode;
     property KeyCommands;
     property LeftMargin;
     property Lines;
@@ -58,15 +57,18 @@ type
     property OnAfterMarkPlaced;
     property OnAfterDeleteMark;
     property OnAfterLinePaint;
+    property OnBeforeCompletionProposalExecute;
+    property OnBeforeDeleteMark;
     property OnBeforeMarkPanelPaint;
     property OnBeforeMarkPlaced;
-    property OnBeforeDeleteMark;
-    property OnBeforeCompletionProposalExecute;
+    property OnBeforeTokenInfoExecute;
     property OnMarkPanelLinePaint;
     property OnCaretChanged;
     property OnChange;
     property OnClick;
     property OnCommandProcessed;
+    property OnCompletionProposalCanceled;
+    property OnCompletionProposalSelected;
     property OnContextHelp;
     property OnCreateFileStream;
     property OnCustomLineColors;
@@ -83,6 +85,7 @@ type
     property OnKeyPress;
     property OnKeyUp;
     property OnLeftMarginClick;
+    property OnModified;
     property OnMouseDown;
     property OnMouseMove;
     property OnMouseUp;
@@ -120,6 +123,8 @@ type
     property Tabs;
     property TabStop;
     property Tag;
+    property TextEntryMode;
+    property TokenInfo;
     property Undo;
     property UnknownChars;
     property WantReturns;

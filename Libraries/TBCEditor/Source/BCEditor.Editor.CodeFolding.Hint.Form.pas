@@ -175,20 +175,18 @@ procedure TBCEditorCodeFoldingHintForm.Paint;
     end;
   end;
 
-const
-  TitleMargin = 2;
 var
-  TmpRect: TRect;
-  i: Integer;
+  LRect: TRect;
+  LIndex: Integer;
 begin
   ResetCanvas;
-  TmpRect := ClientRect;
-  Winapi.Windows.ExtTextOut(FBufferBitmap.Canvas.Handle, 0, 0, ETO_OPAQUE, TmpRect, '', 0, nil);
+  LRect := ClientRect;
+  Winapi.Windows.ExtTextOut(FBufferBitmap.Canvas.Handle, 0, 0, ETO_OPAQUE, LRect, '', 0, nil);
   FBufferBitmap.Canvas.Pen.Color := FBorderColor;
-  FBufferBitmap.Canvas.Rectangle(TmpRect);
+  FBufferBitmap.Canvas.Rectangle(LRect);
 
-  for i := 0 to FItemList.Count - 1 do
-    FBufferBitmap.Canvas.TextOut(FMargin + 1, FEffectiveItemHeight * i + FMargin, FItemList[i]);
+  for LIndex := 0 to FItemList.Count - 1 do
+    FBufferBitmap.Canvas.TextOut(FMargin + 1, FEffectiveItemHeight * LIndex + FMargin, FItemList[LIndex]);
 
   Canvas.Draw(0, 0, FBufferBitmap);
 end;
@@ -255,12 +253,10 @@ procedure TBCEditorCodeFoldingHintForm.Execute(const ACurrentString: string; X, 
 
   procedure RecalculateFormPlacement;
   var
-    i: Integer;
+    LIndex: Integer;
     LWidth: Integer;
     LHeight: Integer;
-    LX: Integer;
-    LY: Integer;
-    LStr: string;
+    LX, LY: Integer;
     LBorderWidth: Integer;
     LNewWidth: Integer;
   begin
@@ -272,10 +268,9 @@ procedure TBCEditorCodeFoldingHintForm.Execute(const ACurrentString: string; X, 
     LHeight := FEffectiveItemHeight * ItemList.Count + LBorderWidth + 2 * Margin;
 
     Canvas.Font.Assign(Font);
-    for i := 0 to ItemList.Count - 1 do
+    for LIndex := 0 to ItemList.Count - 1 do
     begin
-      LStr := ItemList[i];
-      LNewWidth := Canvas.TextWidth(LStr);
+      LNewWidth := Canvas.TextWidth(ItemList[LIndex]);
       if LNewWidth > LWidth then
         LWidth := LNewWidth;
     end;
@@ -305,6 +300,7 @@ procedure TBCEditorCodeFoldingHintForm.Execute(const ACurrentString: string; X, 
 begin
   RecalculateFormPlacement;
   AdjustMetrics;
+
   Visible := True;
 end;
 

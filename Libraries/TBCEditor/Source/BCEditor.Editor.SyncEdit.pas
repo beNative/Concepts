@@ -86,10 +86,10 @@ end;
 
 procedure TBCEditorSyncEdit.ClearSyncItems;
 var
-  i: Integer;
+  LIndex: Integer;
 begin
-  for i := FSyncItems.Count - 1 downto 0 do
-    Dispose(PBCEditorTextPosition(FSyncItems.Items[i]));
+  for LIndex := FSyncItems.Count - 1 downto 0 do
+    Dispose(PBCEditorTextPosition(FSyncItems.Items[LIndex]));
   FSyncItems.Clear;
 end;
 

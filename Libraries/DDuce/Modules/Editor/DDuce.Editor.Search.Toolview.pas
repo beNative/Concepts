@@ -155,7 +155,8 @@ uses
 
   Spring.Collections,
 
-  DDuce.Components.Factories, DDuce.Factories, DDuce.Factories.VirtualTrees,
+  DDuce.Components.Factories, DDuce.Factories.TreeViewPresenter,
+  DDuce.Factories.VirtualTrees,
 
   DDuce.Editor.Search.Engine, DDuce.Editor.Search.Data,
   DDuce.Editor.Search.Templates;

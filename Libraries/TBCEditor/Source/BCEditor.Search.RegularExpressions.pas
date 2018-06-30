@@ -3,7 +3,7 @@ unit BCEditor.Search.RegularExpressions;
 interface
 
 uses
-  System.Classes, System.RegularExpressions, BCEditor.Search;
+  System.Classes, System.RegularExpressions, BCEditor.Search, BCEditor.Lines;
 
 type
   TBCEditorRegexSearch = class(TBCEditorSearchBase)
@@ -13,16 +13,16 @@ type
     FPattern: string;
     FPositions: TList;
   protected
-    function GetLength(AIndex: Integer): Integer; override;
+    function GetLength(const AIndex: Integer): Integer; override;
     function GetPattern: string; override;
-    function GetResult(AIndex: Integer): Integer; override;
+    function GetResult(const AIndex: Integer): Integer; override;
     function GetResultCount: Integer; override;
     procedure CaseSensitiveChanged; override;
     procedure SetPattern(const AValue: string); override;
   public
     constructor Create;
     destructor Destroy; override;
-    function SearchAll(const AInput: string): Integer; override;
+    function SearchAll(const ALines: TBCEditorLines): Integer; override;
     procedure Clear; override;
   end;
 
@@ -58,7 +58,7 @@ begin
     Include(FOptions, roIgnoreCase);
 end;
 
-function TBCEditorRegexSearch.SearchAll(const AInput: string): Integer;
+function TBCEditorRegexSearch.SearchAll(const ALines: TBCEditorLines): Integer;
 
   procedure AddResult(const APos, ALength: Integer);
   begin
@@ -75,7 +75,7 @@ begin
   Status := '';
   try
     LRegex := TRegEx.Create(FPattern, FOptions);
-    LMatch := LRegex.Match(AInput);
+    LMatch := LRegex.Match(ALines.Text);
     while LMatch.Success do
     begin
       AddResult(LMatch.Index, LMatch.Length);
@@ -94,7 +94,7 @@ begin
   FLengths.Clear;
 end;
 
-function TBCEditorRegexSearch.GetLength(AIndex: Integer): Integer;
+function TBCEditorRegexSearch.GetLength(const AIndex: Integer): Integer;
 begin
   Result := Integer(FLengths[AIndex]);
 end;
@@ -104,7 +104,7 @@ begin
   Result := FPattern;
 end;
 
-function TBCEditorRegexSearch.GetResult(AIndex: Integer): Integer;
+function TBCEditorRegexSearch.GetResult(const AIndex: Integer): Integer;
 begin
   Result := Integer(FPositions[AIndex]);
 end;

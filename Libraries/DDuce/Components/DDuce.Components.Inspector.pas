@@ -221,7 +221,9 @@ procedure TInspectorEdit.Invalidate;
 begin
   inherited Invalidate;
   if Assigned(Grid) then
+  begin
     Grid.InvalidateFocus;
+  end;
 end;
 {$ENDREGION}
 
@@ -457,6 +459,8 @@ begin
 end;
 
 procedure TCustomInspector.PaintCell(ACell: TGridCell; ARect: TRect);
+//var
+//  R : TRect;
 begin
   if IsCategoryRow(ACell.Row) then
   begin
@@ -497,15 +501,15 @@ begin
 
 //  if ACell.Row = CellFocused.Row then
 //  begin
-//    //DrawEdge(Canvas.Handle, ARect, BDR_SUNKENOUTER, BF_BOTTOM)
+//    DrawEdge(Canvas.Handle, ARect, BDR_SUNKENOUTER, BF_BOTTOM)
 //  end
 //  else if ACell.Row = CellFocused.Row - 1 then
 //  begin
 //    R := ARect;
 //    R.Top := R.Bottom - 2;
-////    DrawEdge(Canvas.Handle, R, BDR_SUNKENOUTER, BF_TOP);
-////    InflateRect(R, 0, -1);
-////    DrawEdge(Canvas.Handle, R, BDR_SUNKENINNER, BF_TOP);
+//    DrawEdge(Canvas.Handle, R, BDR_SUNKENOUTER, BF_TOP);
+//    InflateRect(R, 0, -1);
+//    DrawEdge(Canvas.Handle, R, BDR_SUNKENINNER, BF_TOP);
 //  end;
 end;
 

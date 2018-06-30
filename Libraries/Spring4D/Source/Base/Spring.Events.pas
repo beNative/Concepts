@@ -276,6 +276,7 @@ const
   paEDX = Word(1);
   paECX = Word(2);
 type
+  PParameters = ^TParameters;
   TParameters = packed record
   public
 {$IFNDEF CPUX64}
@@ -330,30 +331,26 @@ asm
   .params 60
   mov [rbp+$200],Method
   mov [rbp+$208],Parameters
-  test r8,r8
-  jz @@no_stack
 
   // put params on stack as first parameter
-  lea rcx,[Parameters].TParameters.Stack
+  mov rcx,Parameters
 
   // put stack address as second parameter
-  mov rdx,rsp
+  mov rdx,rbp
 
   call Move
 
-  mov rdx,[rbp+$208]
+  mov rax,[rbp+$208]
 
-@@no_stack:
-  mov rcx,[rdx].TParameters.Stack.qword[0]
-  mov r8,[rdx].TParameters.Stack.qword[16]
-  mov r9,[rdx].TParameters.Stack.qword[24]
+  mov rcx,[rax].TParameters.Stack.qword[0]
+  mov rdx,[rax].TParameters.Stack.qword[8]
+  mov r8,[rax].TParameters.Stack.qword[16]
+  mov r9,[rax].TParameters.Stack.qword[24]
 
-  movsd xmm0,[rdx].TParameters.Stack.qword[0]
-  movsd xmm1,[rdx].TParameters.Stack.qword[8]
-  movsd xmm2,[rdx].TParameters.Stack.qword[16]
-  movsd xmm3,[rdx].TParameters.Stack.qword[24]
-
-  mov rdx,[rdx].TParameters.Stack.qword[8]
+  movsd xmm0,[rax].TParameters.Stack.qword[0]
+  movsd xmm1,[rax].TParameters.Stack.qword[8]
+  movsd xmm2,[rax].TParameters.Stack.qword[16]
+  movsd xmm3,[rax].TParameters.Stack.qword[24]
 
   mov rax,[rbp+$200]
   lea rax,[rax]
@@ -499,48 +496,46 @@ asm
 end;
 {$ELSE}
 asm
+        .PARAMS 2
         MOV     AX, WORD PTR [RCX].TMethodInvocations.fMethodInfo.RegisterFlag
 @@FIRST:
         TEST    AX, $01
         JZ      @@SAVE_RCX
 @@SAVE_XMM0:
-        MOVSD   QWORD PTR [RSP+$08], XMM0
+        MOVSD   QWORD PTR [RSP+$30], XMM0
         JMP     @@SECOND
 @@SAVE_RCX:
-        MOV     QWORD PTR [RSP+$08], RCX
+        MOV     QWORD PTR [RSP+$30], RCX
 
 @@SECOND:
         TEST    AX, $02
         JZ      @@SAVE_RDX
 @@SAVE_XMM1:
-        MOVSD   QWORD PTR [RSP+$10], XMM1
+        MOVSD   QWORD PTR [RSP+$38], XMM1
         JMP     @@THIRD
 @@SAVE_RDX:
-        MOV     QWORD PTR [RSP+$10], RDX
+        MOV     QWORD PTR [RSP+$38], RDX
 
 @@THIRD:
         TEST    AX, $04
         JZ      @@SAVE_R8
 @@SAVE_XMM2:
-        MOVSD   QWORD PTR [RSP+$18], XMM2
+        MOVSD   QWORD PTR [RSP+$40], XMM2
         JMP     @@FORTH
 @@SAVE_R8:
-        MOV     QWORD PTR [RSP+$18], R8
+        MOV     QWORD PTR [RSP+$40], R8
 
 @@FORTH:
         TEST    AX, $08
         JZ      @@SAVE_R9
 @@SAVE_XMM3:
-        MOVSD   QWORD PTR [RSP+$20], XMM3
+        MOVSD   QWORD PTR [RSP+$48], XMM3
         JMP     @@1
 @@SAVE_R9:
-        MOV     QWORD PTR [RSP+$20], R9
+        MOV     QWORD PTR [RSP+$48], R9
 
-@@1:    LEA     RDX, QWORD PTR [RSP+$08]
-        MOV     RAX, RCX
-        SUB     RSP, $28
+@@1:    LEA     RDX, QWORD PTR [RSP+$30]
         CALL    InternalInvokeHandlers
-        ADD     RSP, $28
 end;
 {$ENDIF}
 {$ENDIF}
@@ -672,8 +667,9 @@ end;
 procedure TEvent.Invoke;
 asm
 {$IFDEF CPUX64}
-  push [rcx].fInvoke.TMethod.Code
+  mov rax,[rcx].fInvoke.TMethod.Code
   mov rcx,[rcx].fInvoke.TMethod.Data
+  jmp rax
 {$ELSE}
   push [eax].fInvoke.TMethod.Code
   mov eax,[eax].fInvoke.TMethod.Data

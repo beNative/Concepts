@@ -51,11 +51,6 @@ type
 
     procedure CMDialogKey(var Msg: TCMDialogKey); message CM_DIALOGKEY;
 
-    function FObjectInspectorBeforeAddItem(
-      Sender : TControl;
-      PItem  : PPropItem
-    ): Boolean;
-
   public
     constructor Create(
       AOwner  : TComponent;
@@ -63,7 +58,7 @@ type
     ); reintroduce;
     procedure BeforeDestruction; override;
 
-    procedure CreatePropertyInspector;
+    procedure CreateObjectInspector;
 
     procedure AddComponentToInspector(AComponent: TObject); virtual;
     procedure FocusComponentInInspector(AComponent: TObject); virtual;
@@ -83,12 +78,12 @@ procedure InspectComponents(AComponents : TComponentList); overload;
 
 implementation
 
+{$R *.dfm}
+
 uses
   System.Rtti, System.TypInfo,
 
   DDuce.Factories.zObjInspector;
-
-{$R *.dfm}
 
 {$REGION 'interfaced routines'}
 procedure InspectComponent(AComponent : TComponent);
@@ -97,7 +92,10 @@ var
 begin
   if Assigned(AComponent) then
   begin
-    InspectorForm := TfrmComponentInspectorzObjectInspector.Create(Application, AComponent);
+    InspectorForm := TfrmComponentInspectorzObjectInspector.Create(
+      Application,
+      AComponent
+    );
     InspectorForm.Show;
   end
   else
@@ -195,7 +193,7 @@ end;
 constructor TfrmComponentInspectorzObjectInspector.Create(AOwner: TComponent; AObject: TObject);
 begin
   inherited Create(AOwner);
-  CreatePropertyInspector;
+  CreateObjectInspector;
   AddComponentToInspector(AObject);
   FocusComponentInInspector(AObject);
 end;
@@ -236,12 +234,6 @@ end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
-function TfrmComponentInspectorzObjectInspector.FObjectInspectorBeforeAddItem(Sender: TControl;
-  PItem: PPropItem): Boolean;
-begin
-  Result := not (PItem.Prop.PropertyType is TRttiMethodType);
-end;
-
 procedure TfrmComponentInspectorzObjectInspector.cbxInspectorChange(Sender: TObject);
 var
   CBX : TComboBox;
@@ -280,19 +272,21 @@ end;
 procedure TfrmComponentInspectorzObjectInspector.FormShow(Sender: TObject);
 begin
   Height := Screen.WorkAreaHeight;
+  Width  := 400;
+  Left   := Screen.WorkAreaLeft;
+  Top    := Screen.WorkAreaTop;
 end;
 {$ENDREGION}
 
 {$REGION 'private methods'}
-procedure TfrmComponentInspectorzObjectInspector.CreatePropertyInspector;
+procedure TfrmComponentInspectorzObjectInspector.CreateObjectInspector;
 begin
   FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlMain);
   FObjectHost      := TzObjectHost.Create;
-  FObjectInspector.Component       := FObjectHost;
-  FObjectInspector.SplitterPos     := FObjectInspector.Width div 2;
-  FObjectInspector.SortByCategory  := False;
+  FObjectInspector.Component        := FObjectHost;
+  FObjectInspector.SplitterPos      := FObjectInspector.Width div 2;
+  FObjectInspector.SortByCategory   := False;
   FObjectInspector.ObjectVisibility := mvPublic;
-  FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
 end;
 {$ENDREGION}
 

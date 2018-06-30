@@ -43,6 +43,7 @@ uses
 constructor TBCEditorHighlighterColors.Create(AOwner: TObject);
 begin
   inherited Create;
+
   FOwner := AOwner;
   FElements := TList.Create;
   FInfo := TBCEditorHighlighterInfo.Create;
@@ -59,24 +60,25 @@ end;
 
 procedure TBCEditorHighlighterColors.Clear;
 var
-  i: Integer;
+  LIndex: Integer;
 begin
-  for i := FElements.Count - 1 downto 0 do
-    Dispose(PBCEditorHighlighterElement(FElements.Items[i]));
+  for LIndex := FElements.Count - 1 downto 0 do
+    Dispose(PBCEditorHighlighterElement(FElements.Items[LIndex]));
   FElements.Clear;
 end;
 
 function TBCEditorHighlighterColors.GetElement(const Name: string): PBCEditorHighlighterElement;
 var
-  i: Integer;
+  LIndex: Integer;
+  LElement: PBCEditorHighlighterElement;
 begin
   Result := nil;
-  for i := 0 to FElements.Count - 1 do
-    if PBCEditorHighlighterElement(FElements.Items[i])^.Name = Name then
-    begin
-      Result := FElements.Items[i];
-      Break;
-    end;
+  for LIndex := 0 to FElements.Count - 1 do
+  begin
+    LElement := PBCEditorHighlighterElement(FElements.Items[LIndex]);
+    if LElement^.Name = Name then
+      Exit(LElement);
+  end;
 end;
 
 procedure TBCEditorHighlighterColors.LoadFromFile(const AFileName: string);

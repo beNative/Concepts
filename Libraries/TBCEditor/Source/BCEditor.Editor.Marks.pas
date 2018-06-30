@@ -3,7 +3,7 @@ unit BCEditor.Editor.Marks;
 interface
 
 uses
-  Vcl.Controls, System.Classes, System.Contnrs, Vcl.Graphics, BCEditor.Consts;
+  Vcl.Controls, System.Classes, System.Contnrs, Vcl.Graphics;
 
 type
   TBCEditorMark = class
@@ -100,13 +100,13 @@ end;
 
 function TBCEditorMarkList.Find(const AIndex: Integer): TBCEditorMark;
 var
-  i: Integer;
+  LIndex: Integer;
   LMark: TBCEditorMark;
 begin
   Result := nil;
-  for i := Count - 1 downto 0 do
+  for LIndex := Count - 1 downto 0 do
   begin
-    LMark := Items[i];
+    LMark := Items[LIndex];
     if LMark.Index = AIndex then
       Exit(LMark);
   end;
@@ -129,34 +129,30 @@ end;
 
 procedure TBCEditorMarkList.ClearLine(ALine: Integer);
 var
-  i: Integer;
-  LMark: TBCEditorMark;
+  LIndex: Integer;
 begin
-  for i := Count - 1 downto 0 do
-  begin
-    LMark := Items[i];
-    if LMark.Line = ALine then
-      Delete(i);
-  end;
+  for LIndex := Count - 1 downto 0 do
+  if Items[LIndex].Line = ALine then
+    Delete(LIndex);
 end;
 
 procedure TBCEditorMarkList.GetMarksForLine(ALine: Integer; var AMarks: TBCEditorMarks);
 var
-  i, j: Integer;
+  LIndex, LIndex2: Integer;
   LMark: TBCEditorMark;
 begin
   SetLength(AMarks, Count);
-  j := 0;
-  for i := 0 to Count - 1 do
+  LIndex2 := 0;
+  for LIndex := 0 to Count - 1 do
   begin
-    LMark := Items[i];
+    LMark := Items[LIndex];
     if LMark.Line = ALine then
     begin
-      AMarks[j] := LMark;
-      Inc(j);
+      AMarks[LIndex2] := LMark;
+      Inc(LIndex2);
     end;
   end;
-  SetLength(AMarks, j);
+  SetLength(AMarks, LIndex2);
 end;
 
 procedure TBCEditorMarkList.Place(AMark: TBCEditorMark);

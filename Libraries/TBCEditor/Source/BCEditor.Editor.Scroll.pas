@@ -42,7 +42,7 @@ type
 implementation
 
 uses
-  BCEditor.Utils, BCEditor.Consts, Vcl.Graphics;
+  BCEditor.Consts, Vcl.Graphics;
 
 constructor TBCEditorScroll.Create;
 begin

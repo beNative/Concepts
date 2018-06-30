@@ -70,3 +70,4 @@ Thumbs.db
 /Win32/Debug
 /Win64/Debug
 /*.skincfg
+/Bin/Win32/*.log

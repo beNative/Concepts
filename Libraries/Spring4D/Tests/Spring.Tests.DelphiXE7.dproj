@@ -181,6 +181,8 @@
         <DCCReference Include="Source\Core\Spring.Tests.Container.pas"/>
         <DCCReference Include="Source\Core\Spring.Tests.Container.Logging.pas"/>
         <DCCReference Include="Source\Core\Spring.Tests.Interception.pas"/>
+        <DCCReference Include="Source\Core\Spring.Tests.Interception.Types.pas"/>
+        <DCCReference Include="Source\Core\Spring.Tests.Mocking.pas"/>
         <DCCReference Include="Source\Core\Spring.Tests.Pool.pas"/>
         <DCCReference Include="Source\Extensions\Spring.Tests.Cryptography.pas"/>
         <DCCReference Include="Source\Spring.Tests.Testing.pas"/>
@@ -256,10 +258,6 @@
                 <Source>
                     <Source Name="MainSource">Spring.Tests.dpr</Source>
                 </Source>
-                <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k200.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp200.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment>
                 <DeployFile LocalName="Bin\DelphiXE7\OSX32\Spring.Tests.rsm" Configuration="Debug" Class="DebugSymbols">
@@ -415,6 +413,12 @@
                     </Platform>
                     <Platform Name="Win32">
                         <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_SplashImage426">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-small</RemoteDir>
+                        <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="ProjectiOSEntitlements"/>

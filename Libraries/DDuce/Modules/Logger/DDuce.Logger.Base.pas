@@ -262,7 +262,6 @@ const
   STACKCOUNTLIMIT        = 256;
   DEFAULT_CHECKPOINTNAME = 'CheckPoint';
 
-
 function GetInterfaceTypeName(AIntf: IInterface): Tuple<string,string>;
 var
   O        : TObject;
@@ -288,9 +287,6 @@ begin
     end;
   end;
 end;
-
-
-
 {$REGION 'TLogger'}
 {$REGION 'construction and destruction'}
 procedure TLogger.AfterConstruction;

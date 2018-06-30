@@ -100,18 +100,21 @@ end;
 
 procedure TBCEditorMethodList.Remove(AHandler: TMethod);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
-  i := FData.Count - 2;
-  while i >= 0 do
+  if Assigned(FData) then
   begin
-    if (FData.List[i] = AHandler.Data) and (FData.List[i + 1] = AHandler.Code) then
+    LIndex := FData.Count - 2;
+    while LIndex >= 0 do
     begin
-      FData.Delete(i);
-      FData.Delete(i);
-      Exit;
+      if (FData.List[LIndex] = AHandler.Data) and (FData.List[LIndex + 1] = AHandler.Code) then
+      begin
+        FData.Delete(LIndex);
+        FData.Delete(LIndex);
+        Exit;
+      end;
+      Dec(LIndex, 2);
     end;
-    Dec(i, 2);
   end;
 end;
 
@@ -173,7 +176,7 @@ end;
 
 procedure TBCEditorKeyboardHandler.ExecuteKeyDown(ASender: TObject; var Key: Word; Shift: TShiftState);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   if FInKeyDown then
     Exit;
@@ -181,9 +184,9 @@ begin
   try
     with FKeyDownChain do
     begin
-      for i := Count - 1 downto 0 do
+      for LIndex := Count - 1 downto 0 do
       begin
-        TKeyEvent(Items[i])(ASender, Key, Shift);
+        TKeyEvent(Items[LIndex])(ASender, Key, Shift);
         if Key = 0 then
         begin
           FInKeyDown := False;
@@ -198,7 +201,7 @@ end;
 
 procedure TBCEditorKeyboardHandler.ExecuteKeyUp(ASender: TObject; var Key: Word; Shift: TShiftState);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   if FInKeyUp then
     Exit;
@@ -206,9 +209,9 @@ begin
   try
     with FKeyUpChain do
     begin
-      for i := Count - 1 downto 0 do
+      for LIndex := Count - 1 downto 0 do
       begin
-        TKeyEvent(Items[i])(ASender, Key, Shift);
+        TKeyEvent(Items[LIndex])(ASender, Key, Shift);
         if Key = 0 then
         begin
           FInKeyUp := False;
@@ -223,7 +226,7 @@ end;
 
 procedure TBCEditorKeyboardHandler.ExecuteKeyPress(ASender: TObject; var Key: Char);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   if FInKeyPress then
     Exit;
@@ -231,9 +234,9 @@ begin
   try
     with FKeyPressChain do
     begin
-      for i := Count - 1 downto 0 do
+      for LIndex := Count - 1 downto 0 do
       begin
-        TBCEditorKeyPressWEvent(Items[i])(ASender, Key);
+        TBCEditorKeyPressWEvent(Items[LIndex])(ASender, Key);
         if Key = BCEDITOR_NONE_CHAR then
         begin
           FInKeyPress := False;
@@ -249,14 +252,14 @@ end;
 procedure TBCEditorKeyboardHandler.ExecuteMouseDown(ASender: TObject; Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   if FInMouseDown then
     Exit;
   FInMouseDown := True;
   try
-    for i := FMouseDownChain.Count - 1 downto 0 do
-      TMouseEvent(FMouseDownChain[i])(ASender, Button, Shift, X, Y);
+    for LIndex := FMouseDownChain.Count - 1 downto 0 do
+      TMouseEvent(FMouseDownChain[LIndex])(ASender, Button, Shift, X, Y);
   finally
     FInMouseDown := False;
   end;
@@ -265,14 +268,14 @@ end;
 procedure TBCEditorKeyboardHandler.ExecuteMouseUp(ASender: TObject; Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   if FInMouseUp then
     Exit;
   FInMouseUp := True;
   try
-    for i := FMouseUpChain.Count - 1 downto 0 do
-      TMouseEvent(FMouseUpChain[i])(ASender, Button, Shift, X, Y);
+    for LIndex := FMouseUpChain.Count - 1 downto 0 do
+      TMouseEvent(FMouseUpChain[LIndex])(ASender, Button, Shift, X, Y);
   finally
     FInMouseUp := False;
   end;
@@ -281,14 +284,14 @@ end;
 procedure TBCEditorKeyboardHandler.ExecuteMouseCursor(ASender: TObject; const ALineCharPos: TBCEditorTextPosition;
   var ACursor: TCursor);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   if FInMouseCursor then
     Exit;
   FInMouseCursor := True;
   try
-    for i := FMouseCursorChain.Count - 1 downto 0 do
-      TBCEditorMouseCursorEvent(FMouseCursorChain[i])(ASender, ALineCharPos, ACursor);
+    for LIndex := FMouseCursorChain.Count - 1 downto 0 do
+      TBCEditorMouseCursorEvent(FMouseCursorChain[LIndex])(ASender, ALineCharPos, ACursor);
   finally
     FInMouseCursor := False;
   end;

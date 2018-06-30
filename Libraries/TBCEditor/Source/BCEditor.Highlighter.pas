@@ -10,6 +10,7 @@ uses
 type
   TBCEditorHighlighter = class(TObject)
   strict private
+    FAllDelimiters: TBCEditorCharSet;
     FAttributes: TStringList;
     FBeginningOfLine: Boolean;
     FCodeFoldingRangeCount: Integer;
@@ -142,6 +143,8 @@ begin
 
   FTemporaryCurrentTokens := TList.Create;
 
+  FAllDelimiters := BCEDITOR_DEFAULT_DELIMITERS + BCEDITOR_ABSOLUTE_DELIMITERS;
+
   FLoading := False;
 end;
 
@@ -170,15 +173,15 @@ end;
 
 procedure TBCEditorHighlighter.AddAllAttributes(ARange: TBCEditorRange);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   AddAttribute(ARange.Attribute);
-  for i := 0 to ARange.KeyListCount - 1 do
-    AddAttribute(ARange.KeyList[i].Attribute);
-  for i := 0 to ARange.SetCount - 1 do
-    AddAttribute(ARange.Sets[i].Attribute);
-  for i := 0 to ARange.RangeCount - 1 do
-    AddAllAttributes(ARange.Ranges[i]);
+  for LIndex := 0 to ARange.KeyListCount - 1 do
+    AddAttribute(ARange.KeyList[LIndex].Attribute);
+  for LIndex := 0 to ARange.SetCount - 1 do
+    AddAttribute(ARange.Sets[LIndex].Attribute);
+  for LIndex := 0 to ARange.RangeCount - 1 do
+    AddAllAttributes(ARange.Ranges[LIndex]);
 end;
 
 procedure TBCEditorHighlighter.SetCurrentLine(const ANewValue: string);
@@ -199,10 +202,11 @@ end;
 
 procedure TBCEditorHighlighter.Next;
 var
-  i, j: Integer;
+  LIndex, LPosition: Integer;
   LParser: TBCEditorAbstractParser;
   LKeyword: PChar;
   LCloseParent: Boolean;
+  LDelimiters: TBCEditorCharSet;
 begin
   while FTemporaryCurrentTokens.Count > 0 do
   begin
@@ -223,14 +227,14 @@ begin
 
   if Assigned(FCurrentRange) then
     if FCurrentRange.AlternativeCloseArrayCount > 0 then
-      for i := 0 to FCurrentRange.AlternativeCloseArrayCount - 1 do
+      for LIndex := 0 to FCurrentRange.AlternativeCloseArrayCount - 1 do
       begin
-        LKeyword := PChar(FCurrentRange.AlternativeCloseArray[i]);
-        j := FRunPosition;
-        while (FCurrentLine[j] <> BCEDITOR_NONE_CHAR) and (FCurrentLine[j] = LKeyword^) do
+        LKeyword := PChar(FCurrentRange.AlternativeCloseArray[LIndex]);
+        LPosition := FRunPosition;
+        while (FCurrentLine[LPosition] <> BCEDITOR_NONE_CHAR) and (FCurrentLine[LPosition] = LKeyword^) do
         begin
           Inc(LKeyword);
-          Inc(j);
+          Inc(LPosition);
         end;
         if LKeyword^ = BCEDITOR_NONE_CHAR then
         begin
@@ -265,11 +269,16 @@ begin
     begin
       FCurrentToken := FCurrentRange.DefaultToken;
 
+      if FCurrentRange.UseDelimitersForText then
+        LDelimiters := FCurrentRange.Delimiters
+      else
+        LDelimiters := FAllDelimiters;
+
       if Ord(FCurrentLine[FRunPosition - 1]) < 256 then
-      while (Ord(FCurrentLine[FRunPosition]) < 256) and not CharInSet(FCurrentLine[FRunPosition], FCurrentRange.Delimiters) do
+      while (Ord(FCurrentLine[FRunPosition]) < 256) and not CharInSet(FCurrentLine[FRunPosition], LDelimiters) do
         Inc(FRunPosition)
       else
-      while (Ord(FCurrentLine[FRunPosition]) > 255) and not CharInSet(FCurrentLine[FRunPosition], FCurrentRange.Delimiters) do
+      while (Ord(FCurrentLine[FRunPosition]) > 255) and not CharInSet(FCurrentLine[FRunPosition], LDelimiters) do
         Inc(FRunPosition)
     end
     else
@@ -352,13 +361,13 @@ end;
 
 procedure TBCEditorHighlighter.AddKeywords(var AStringList: TStringList);
 var
-  i, j: Integer;
+  LIndex, LIndex2: Integer;
 begin
   if not Assigned(AStringList) then
     Exit;
-  for i := 0 to FMainRules.KeyListCount - 1 do
-    for j := 0 to FMainRules.KeyList[i].KeyList.Count - 1 do
-      AStringList.Add(FMainRules.KeyList[i].KeyList[j]);
+  for LIndex := 0 to FMainRules.KeyListCount - 1 do
+    for LIndex2 := 0 to FMainRules.KeyList[LIndex].KeyList.Count - 1 do
+      AStringList.Add(FMainRules.KeyList[LIndex].KeyList[LIndex2]);
 end;
 
 procedure TBCEditorHighlighter.GetToken(var AResult: string);
@@ -376,7 +385,7 @@ end;
 
 function TBCEditorHighlighter.GetTokenKind: TBCEditorRangeType;
 var
-  i: Integer;
+  LIndex: Integer;
   LToken: string;
   LTokenType: TBCEditorRangeType;
   LCurrentRangeKeyList: TBCEditorKeyList;
@@ -388,14 +397,11 @@ begin
   { keyword token type }
   begin
     GetToken(LToken);
-    for i := 0 to FCurrentRange.KeyListCount - 1 do
+    for LIndex := 0 to FCurrentRange.KeyListCount - 1 do
     begin
-      LCurrentRangeKeyList := FCurrentRange.KeyList[i];
+      LCurrentRangeKeyList := FCurrentRange.KeyList[LIndex];
       if LCurrentRangeKeyList.KeyList.IndexOf(LToken) <> -1 then
-      begin
-        Result := LCurrentRangeKeyList.TokenType;
-        Exit;
-      end;
+        Exit(LCurrentRangeKeyList.TokenType);
     end;
     Result := ttUnspecified
   end;
@@ -403,7 +409,7 @@ end;
 
 procedure TBCEditorHighlighter.Clear;
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   FFoldOpenKeyChars := [];
   FFoldCloseKeyChars := [];
@@ -414,13 +420,13 @@ begin
   FInfo.Clear;
   FComments.Clear;
   FCompletionProposalSkipRegions.Clear;
-  for i := FMatchingPairs.Count - 1 downto 0 do
-    Dispose(PBCEditorMatchingPairToken(FMatchingPairs.Items[i]));
+  for LIndex := FMatchingPairs.Count - 1 downto 0 do
+    Dispose(PBCEditorMatchingPairToken(FMatchingPairs.Items[LIndex]));
   FMatchingPairs.Clear;
-  for i := 0 to FCodeFoldingRangeCount - 1 do
+  for LIndex := 0 to FCodeFoldingRangeCount - 1 do
   begin
-    FCodeFoldingRegions[i].Free;
-    FCodeFoldingRegions[i] := nil;
+    FCodeFoldingRegions[LIndex].Free;
+    FCodeFoldingRegions[LIndex] := nil;
   end;
   CodeFoldingRangeCount := 0;
   (Editor as TBCBaseEditor).ClearMatchingPair;
@@ -435,7 +441,7 @@ end;
 
 procedure TBCEditorHighlighter.UpdateAttributes(ARange: TBCEditorRange; AParentRange: TBCEditorRange);
 var
-  i: Integer;
+  LIndex: Integer;
 
   procedure SetAttributes(AAttribute: TBCEditorHighlighterAttribute; AParentRange: TBCEditorRange);
   var
@@ -460,14 +466,14 @@ var
 begin
   SetAttributes(ARange.Attribute, AParentRange);
 
-  for i := 0 to ARange.KeyListCount - 1 do
-    SetAttributes(ARange.KeyList[i].Attribute, ARange);
-  for i := 0 to ARange.SetCount - 1 do
-    SetAttributes(ARange.Sets[i].Attribute, ARange);
+  for LIndex := 0 to ARange.KeyListCount - 1 do
+    SetAttributes(ARange.KeyList[LIndex].Attribute, ARange);
+  for LIndex := 0 to ARange.SetCount - 1 do
+    SetAttributes(ARange.Sets[LIndex].Attribute, ARange);
 
   if ARange.RangeCount > 0 then
-  for i := 0 to ARange.RangeCount - 1 do
-    UpdateAttributes(ARange.Ranges[i], ARange);
+  for LIndex := 0 to ARange.RangeCount - 1 do
+    UpdateAttributes(ARange.Ranges[LIndex], ARange);
 end;
 
 procedure TBCEditorHighlighter.UpdateColors;
@@ -516,6 +522,7 @@ var
   LTopLine: Integer;
   LCaretPosition: TBCEditorTextPosition;
 begin
+  Clear;
   LEditor := FEditor as TBCBaseEditor;
   if Assigned(LEditor) then
   begin
@@ -570,12 +577,12 @@ end;
 
 procedure TBCEditorHighlighter.SetAttributesOnChange(AEvent: TNotifyEvent);
 var
-  i: Integer;
+  LIndex: Integer;
   LHighlighterAttribute: TBCEditorHighlighterAttribute;
 begin
-  for i := FAttributes.Count - 1 downto 0 do
+  for LIndex := FAttributes.Count - 1 downto 0 do
   begin
-    LHighlighterAttribute := TBCEditorHighlighterAttribute(FAttributes.Objects[i]);
+    LHighlighterAttribute := TBCEditorHighlighterAttribute(FAttributes.Objects[LIndex]);
     if Assigned(LHighlighterAttribute) then
     begin
       LHighlighterAttribute.OnChange := AEvent;

@@ -51,12 +51,16 @@ end;
 
 function TBCEditorSkipRegions.Contains(const AOpenToken, ACloseToken: string): Boolean;
 var
-  i: Integer;
+  LIndex: Integer;
+  LSkipRegion: TBCEditorSkipRegionItem;
 begin
   Result := False;
-  for i := 0 to Count - 1 do
-    if (SkipRegionItems[i].OpenToken = AOpenToken) and (SkipRegionItems[i].CloseToken = ACloseToken) then
+  for LIndex := 0 to Count - 1 do
+  begin
+    LSkipRegion := SkipRegionItems[LIndex];
+    if (LSkipRegion.OpenToken = AOpenToken) and (LSkipRegion.CloseToken = ACloseToken) then
       Exit(True);
+  end;
 end;
 
 function TBCEditorSkipRegions.GetSkipRegionItem(AIndex: Integer): TBCEditorSkipRegionItem;

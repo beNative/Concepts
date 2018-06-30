@@ -30,8 +30,6 @@ function GetExenameForProcessUsingPsAPI(AProcessId: DWORD): string;
 
 function GetExenameForProcessUsingToolhelp32(AProcessId: DWORD): string;
 
-function GetExePathForProcess(AProcessId: DWORD): string;
-
 implementation
 
 uses
@@ -130,24 +128,6 @@ begin
     if LProcessID <> 0 then
       Result := GetExenameForProcess(LProcessID);
   end;
-end;
-
-function GetExePathForProcess(AProcessId: DWORD): string;
-var
-  LHProcess: THandle;
-  LPath: array[0..MAX_PATH - 1] of char;
-begin
-  LHProcess := OpenProcess(PROCESS_QUERY_INFORMATION or PROCESS_VM_READ, false, AProcessId);
-  if LHProcess <> 0 then
-    try
-      if GetModuleFileNameEx(LHProcess, 0, LPath, MAX_PATH) = 0 then
-        RaiseLastOSError;
-      result := LPath;
-    finally
-      CloseHandle(LHProcess)
-    end
-  else
-    RaiseLastOSError;
 end;
 {$ENDREGION}
 

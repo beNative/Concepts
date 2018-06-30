@@ -1747,7 +1747,7 @@ type
     ///   <b>True</b> if the IMap&lt;TKey, TValue&gt; contains a pair with the
     ///   specified key and value; otherwise <b>False</b>.
     /// </returns>
-    function Contains(const key: TKey; const value: TValue): Boolean;
+    function Contains(const key: TKey; const value: TValue): Boolean; overload;
 
     /// <summary>
     ///   Determines whether the IMap&lt;TKey, TValue&gt; contains an element
@@ -3514,8 +3514,12 @@ end;
 
 class function TEnumerable.DefaultIfEmpty<T>(
   const source: IEnumerable<T>): IEnumerable<T>;
+var
+  defaultItem: T;
 begin
-  Result := TDefaultIfEmptyIterator<T>.Create(source, Default(T));
+  // workaround for RSP-20683
+  defaultItem := Default(T);
+  Result := TDefaultIfEmptyIterator<T>.Create(source, defaultItem);
 end;
 
 class function TEnumerable.DefaultIfEmpty<T>(const source: IEnumerable<T>;

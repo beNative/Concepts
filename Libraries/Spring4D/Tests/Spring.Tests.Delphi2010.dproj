@@ -52,6 +52,7 @@
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="Source\Spring.TestBootstrap.pas"/>
+			<DCCReference Include="Source\Spring.Testing.pas"/>
 			<DCCReference Include="Source\Spring.TestRegistration.pas"/>
 			<DCCReference Include="Source\Spring.TestRunner.pas"/>
 			<DCCReference Include="Source\Spring.TestUtils.pas"/>
@@ -71,8 +72,12 @@
 			<DCCReference Include="Source\Core\Spring.Tests.Container.LifetimeManager.pas"/>
 			<DCCReference Include="Source\Core\Spring.Tests.Container.pas"/>
 			<DCCReference Include="Source\Core\Spring.Tests.Container.Logging.pas"/>
+			<DCCReference Include="Source\Core\Spring.Tests.Interception.pas"/>
+			<DCCReference Include="Source\Core\Spring.Tests.Interception.Types.pas"/>
+			<DCCReference Include="Source\Core\Spring.Tests.Mocking.pas"/>
 			<DCCReference Include="Source\Core\Spring.Tests.Pool.pas"/>
 			<DCCReference Include="Source\Extensions\Spring.Tests.Cryptography.pas"/>
+			<DCCReference Include="Source\Spring.Tests.Testing.pas"/>
 			<DCCReference Include="Source\Extensions\Spring.Tests.Utils.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
@@ -112,8 +117,8 @@
 						<VersionInfo Name="Special">False</VersionInfo>
 						<VersionInfo Name="Private">False</VersionInfo>
 						<VersionInfo Name="DLL">False</VersionInfo>
-						<VersionInfo Name="Locale">2052</VersionInfo>
-						<VersionInfo Name="CodePage">936</VersionInfo>
+						<VersionInfo Name="Locale">1033</VersionInfo>
+						<VersionInfo Name="CodePage">1252</VersionInfo>
 					</VersionInfo>
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName"/>

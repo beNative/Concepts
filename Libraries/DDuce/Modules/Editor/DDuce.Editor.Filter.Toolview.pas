@@ -147,7 +147,7 @@ uses
 
   DSharp.Windows.ColumnDefinitions.ControlTemplate,
 
-  DDuce.Logger, DDuce.Factories, DDuce.Factories.VirtualTrees,
+  DDuce.Logger, DDuce.Factories.TreeViewPresenter, DDuce.Factories.VirtualTrees,
   DDuce.Editor.Utils;
 
 resourcestring

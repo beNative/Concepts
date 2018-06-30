@@ -484,6 +484,7 @@ type
     class function &&op_Implicit(value: TDateTime): TValue; overload; static; inline;
     class function &&op_Implicit(value: TDate): TValue; overload; static; inline;
     class function &&op_Implicit(value: TTime): TValue; overload; static; inline;
+    class function &&op_Implicit(const value: TGUID): TValue; overload; static;
 
     class function From(buffer: Pointer; typeInfo: PTypeInfo): TValue; overload; static;
     class function From(instance: TObject; classType: TClass): TValue; overload; static;
@@ -1809,8 +1810,19 @@ type
       constructor Create(const value: Pointer; typeInfo: PTypeInfo); overload;
       destructor Destroy; override;
     end;
+
+    THandleFinalizer<T> = class(TInterfacedObject, IShared<T>)
+    private
+      fValue: T;
+      fFinalizer: TAction<T>;
+      function Invoke: T;
+    public
+      constructor Create(const value: T; finalizer: TAction<T>);
+      destructor Destroy; override;
+    end;
   public
     class function New<T>(const value: T): IShared<T>; overload; static;
+    class function New<T>(const value: T; const finalizer: TAction<T>): IShared<T>; overload; static;
   end;
 
   {$ENDREGION}
@@ -2198,7 +2210,7 @@ type
     ///   default comparer.
     /// </summary>
     class function BinarySearch<T>(const values: array of T; const item: T;
-      out foundIndex: Integer): Boolean; overload; static; static;
+      out foundIndex: Integer): Boolean; overload; static;
 
     /// <summary>
     ///   Searches a range of elements in a sorted array for the given value,
@@ -2258,7 +2270,7 @@ type
     ///   algorithm returning the index for the last found value.
     /// </summary>
     class function BinarySearchUpperBound<T>(const values: array of T;
-      const item: T; out foundIndex: Integer): Boolean; overload; static; static;
+      const item: T; out foundIndex: Integer): Boolean; overload; static;
 
     /// <summary>
     ///   Concatenates an array of arrays to one array
@@ -2577,6 +2589,8 @@ procedure CheckArgumentNotNull(value: Pointer; const argumentName: string); over
 function GetQualifiedClassName(AInstance: TObject): string; overload; inline;
 function GetQualifiedClassName(AClass: TClass): string; overload; {$IFDEF DELPHIXE2_UP}inline;{$ENDIF}
 
+function FormatValue(const value: TValue): string;
+
 /// <summary>
 ///   Determines whether an instance of <c>leftType</c> can be assigned from an
 ///   instance of <c>rightType</c>.
@@ -2779,6 +2793,100 @@ procedure CheckArgumentNotNull(value: Pointer; const argumentName: string);
 begin
   if not Assigned(value) then
     Guard.RaiseArgumentNullException(argumentName);
+end;
+
+function FormatValue(const value: TValue): string;
+
+  function FormatArray(const value: TValue): string;
+  var
+    i: Integer;
+  begin
+    Result := '[';
+    for i := 0 to value.GetArrayLength - 1 do
+    begin
+      if i > 0 then
+        Result := Result + ', ';
+      Result := Result + FormatValue(value.GetArrayElement(i));
+    end;
+    Result := Result + ']';
+  end;
+
+  function FormatRecord(const value: TValue): string;
+  var
+    method: TRttiMethod;
+    i: Integer;
+    fields: TArray<TRttiField>;
+  begin
+    // handle TGUID explicitly
+    if value.TypeInfo = TypeInfo(TGUID) then
+      Exit(value.AsType<TGUID>.ToString);
+
+    // use function ToString: string when available
+    for method in value.TypeInfo.RttiType.GetMethods do
+      if SameText(method.Name, 'ToString')
+        and (method.MethodKind = mkFunction)
+        and (Length(method.GetParameters) = 0)
+        and (method.ReturnType.TypeKind = tkUString) then
+        Exit(method.Invoke(value, []).AsString);
+
+    // write fields otherwise
+    Result := '(';
+    fields := value.TypeInfo.RttiType.GetFields;
+    for i := 0 to High(fields) do
+    begin
+      if i > 0 then
+        Result := Result + '; ';
+      Result := Result + fields[i].Name +': ';
+      if Assigned(fields[i].FieldType) then
+        Result := Result + FormatValue(fields[i].GetValue(value.GetReferenceToRawData))
+      else
+        Result := Result + '(unknown)';
+    end;
+    Result := Result + ')';
+  end;
+
+  function StripUnitName(const s: string): string;
+  begin
+    Result := ReplaceText(s, 'System.', '');
+  end;
+
+var
+  intf: IInterface;
+  obj: TObject;
+begin
+  case value.Kind of
+    tkFloat:
+      if value.TypeInfo = TypeInfo(TDateTime) then
+        Result := DateTimeToStr(value.AsType<TDateTime>)
+      else if value.TypeInfo = TypeInfo(TDate) then
+        Result := DateToStr(value.AsType<TDate>)
+      else if value.TypeInfo = TypeInfo(TTime) then
+        Result := TimeToStr(value.AsType<TTime>)
+      else
+        Result := value.ToString;
+    tkClass:
+    begin
+      obj := value.AsObject;
+      Result := Format('%s($%x)', [StripUnitName(obj.ClassName), NativeInt(obj)]);
+    end;
+    tkInterface:
+    begin
+      intf := value.AsInterface;
+      obj := intf as TObject;
+      Result := Format('%s($%x) as %s', [StripUnitName(obj.ClassName),
+        NativeInt(intf), StripUnitName(value.TypeInfo.TypeName)]);
+    end;
+    tkArray, tkDynArray:
+      Result := FormatArray(value);
+    tkChar, tkString, tkWChar, tkLString, tkWString, tkUString:
+      Result := QuotedStr(value.ToString);
+    tkClassRef:
+      Result := value.AsClass.ClassName;
+    tkRecord:
+      Result := FormatRecord(value);
+  else
+    Result := value.ToString;
+  end;
 end;
 
 function GetQualifiedClassName(AInstance: TObject): string;
@@ -5244,6 +5352,11 @@ begin
   TValueData(Result).FAsDouble := value;
 end;
 
+class function TValueHelper.&&op_Implicit(const value: TGUID): TValue;
+begin
+  Result := TValue.From(value);
+end;
+
 class function TValueHelper.&&op_Inequality(const left, right: TValue): Boolean;
 begin
   Result := not left.Equals(right);
@@ -5660,6 +5773,45 @@ begin
   Result := True;
 end;
 
+function ConvVariant2Enum(const source: TValue; target: PTypeInfo;
+  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+var
+  v: Variant;
+{$IFNDEF DELPHI2010}
+  temp: TValue;
+{$ENDIF}
+begin
+  // workaround for RSP-20160
+  v := source.AsVariant;
+  if TVarData(v).VType <> varBoolean then
+    Exit(False);
+
+{$IFDEF DELPHI2010}
+  if target = TypeInfo(Boolean) then
+  begin
+    value := TValue.From<Boolean>(TVarData(v).VBoolean);
+    Result := True;
+  end else if target = TypeInfo(LongBool) then
+  begin
+    value := TValue.From<LongBool>(TVarData(v).VBoolean);
+    Result := True;
+  end else if target = TypeInfo(WordBool) then
+  begin
+    value := TValue.From<WordBool>(TVarData(v).VBoolean);
+    Result := True;
+  end else if target = TypeInfo(ByteBool) then
+  begin
+    value := TValue.From<ByteBool>(TVarData(v).VBoolean);
+    Result := True;
+  end
+  else
+    Result := False;
+{$ELSE}
+  temp := TValue.From<Boolean>(TVarData(v).VBoolean);
+  Result := temp.TryCast(target, value);
+{$ENDIF}
+end;
+
 {$ENDREGION}
 
 
@@ -5801,7 +5953,7 @@ const
     // tkVariant
     (
       // tkUnknown, tkInteger, tkChar, tkEnumeration, tkFloat, tkString,
-      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
+      ConvFail, ConvFail, ConvFail, ConvVariant2Enum, ConvFail, ConvFail,
       // tkSet, tkClass, tkMethod, tkWChar, tkLString, tkWString
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
@@ -7342,6 +7494,12 @@ begin
   end;
 end;
 
+class function Shared.New<T>(const value: T;
+  const finalizer: TAction<T>): IShared<T>;
+begin
+  Result := THandleFinalizer<T>.Create(value, finalizer);
+end;
+
 {$ENDREGION}
 
 
@@ -7400,6 +7558,30 @@ begin
 end;
 
 function Shared.TRecordFinalizer.Invoke: Pointer;
+begin
+  Result := fValue;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'Shared.THandleFinalizer<T>'}
+
+constructor Shared.THandleFinalizer<T>.Create(const value: T;
+  finalizer: TAction<T>);
+begin
+  inherited Create;
+  fValue := value;
+  fFinalizer := finalizer;
+end;
+
+destructor Shared.THandleFinalizer<T>.Destroy;
+begin
+  fFinalizer(fValue);
+  inherited;
+end;
+
+function Shared.THandleFinalizer<T>.Invoke: T;
 begin
   Result := fValue;
 end;
@@ -8418,7 +8600,7 @@ begin
   while left <= right do
   begin
     i := left + (right - left) shr 1;
-    c := comparer.Compare(values[i], Item);
+    c := comparer.Compare(values[i], item);
     if c < 0 then
       left := i + 1
     else
@@ -8815,7 +8997,7 @@ begin
     child := i * 2;
     if (child < count) and (comparer.Compare(values[left + child - 1], values[left + child]) < 0) then
       Inc(child);
-    if not comparer.Compare(temp, values[left + child - 1]) < 0 then
+    if comparer.Compare(temp, values[left + child - 1]) >= 0 then
       Break;
     values[left + i - 1] := values[left + child - 1];
     i := child;
@@ -8848,7 +9030,7 @@ begin
   begin
     j := i;
     temp := values[i];
-    while (j > left) and (comparer.Compare(temp, values[j - 1]) < 0) do
+    while (j > left) and (comparer.Compare(values[j - 1], temp) > 0) do
     begin
       values[j] := values[j - 1];
       Dec(j);

@@ -434,8 +434,8 @@
                     <VersionInfo Name="Special">False</VersionInfo>
                     <VersionInfo Name="Private">False</VersionInfo>
                     <VersionInfo Name="DLL">False</VersionInfo>
-                    <VersionInfo Name="Locale">1029</VersionInfo>
-                    <VersionInfo Name="CodePage">1250</VersionInfo>
+                    <VersionInfo Name="Locale">1033</VersionInfo>
+                    <VersionInfo Name="CodePage">1252</VersionInfo>
                 </VersionInfo>
                 <VersionInfoKeys>
                     <VersionInfoKeys Name="CompanyName"/>
@@ -466,12 +466,6 @@
                 <Source>
                     <Source Name="MainSource">SpringTestsMobile.dpr</Source>
                 </Source>
-                <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k240.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp240.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k240.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp240.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="2">
                 <DeployFile LocalName="..\..\Bin\Delphi10Berlin\Android\styles.xml" Configuration="Debug" Class="AndroidSplashStyles">

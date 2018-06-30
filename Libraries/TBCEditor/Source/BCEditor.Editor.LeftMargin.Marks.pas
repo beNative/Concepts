@@ -3,13 +3,13 @@ unit BCEditor.Editor.LeftMargin.Marks;
 interface
 
 uses
-  Vcl.Controls, System.Classes, Vcl.Graphics;
+  Vcl.Controls, System.Classes, Vcl.Graphics, Vcl.ImgList;
 
 type
   TBCEditorLeftMarginMarks = class(TPersistent)
   strict private
     FDefaultImageIndex: Integer;
-    FImages: TImageList;
+    FImages: TCustomImageList;
     FLeftMargin: Integer;
     FOnChange: TNotifyEvent;
     FOverlappingOffset: Integer;
@@ -17,14 +17,14 @@ type
     FShortCuts: Boolean;
     FVisible: Boolean;
     procedure DoChange;
-    procedure SetImages(const AValue: TImageList);
+    procedure SetImages(const AValue: TCustomImageList);
     procedure SetVisible(AValue: Boolean);
   public
     constructor Create(AOwner: TComponent);
     procedure Assign(ASource: TPersistent); override;
   published
     property DefaultImageIndex: Integer read FDefaultImageIndex write FDefaultImageIndex default -1;
-    property Images: TImageList read FImages write SetImages;
+    property Images: TCustomImageList read FImages write SetImages;
     property LeftMargin: Integer read FLeftMargin write FLeftMargin default 2;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OverlappingOffset: Integer read FOverlappingOffset write FOverlappingOffset default 4;
@@ -69,7 +69,7 @@ begin
     FOnChange(Self);
 end;
 
-procedure TBCEditorLeftMarginMarks.SetImages(const AValue: TImageList);
+procedure TBCEditorLeftMarginMarks.SetImages(const AValue: TCustomImageList);
 begin
   if FImages <> AValue then
   begin

@@ -1,7 +1,7 @@
 // **************************************************************************************************
 // Delphi Instruction Decode Library
 // Unit InstDecode
-// http://code.google.com/p/delphi-detours-library/
+// https://github.com/MahdiSafsafi/delphi-detours-library
 
 // The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License");
 // you may not use this file except in compliance with the License. You may obtain a copy of the
@@ -14,7 +14,7 @@
 // The Original Code is InstDecode.pas.
 //
 // The Initial Developer of the Original Code is Mahdi Safsafi [SMP3].
-// Portions created by Mahdi Safsafi . are Copyright (C) 2013-2015 Mahdi Safsafi .
+// Portions created by Mahdi Safsafi . are Copyright (C) 2013-2017 Mahdi Safsafi .
 // All Rights Reserved.
 //
 // **************************************************************************************************
@@ -47,6 +47,10 @@
   ====================================================================================================== }
 
 unit InstDecode;
+
+{$IFDEF FPC}
+{$MODE DELPHI}
+{$ENDIF FPC}
 
 interface
 
@@ -353,21 +357,14 @@ type
 function DecodeInst(PInst: PInstruction): ShortInt;
 
 { Useful ModRm Routines }
-function GetModRm_Mod(const Value: Byte): Byte; {$IFDEF MustInline}inline;
-{$ENDIF}
-function GetModRm_Reg(const Value: Byte): Byte; {$IFDEF MustInline}inline;
-{$ENDIF}
-function GetModRm_Rm(const Value: Byte): Byte; {$IFDEF MustInline}inline;
-{$ENDIF}
+function GetModRm_Mod(const Value: Byte): Byte; {$IFDEF MustInline}inline; {$ENDIF}
+function GetModRm_Reg(const Value: Byte): Byte; {$IFDEF MustInline}inline; {$ENDIF}
+function GetModRm_Rm(const Value: Byte): Byte; {$IFDEF MustInline}inline; {$ENDIF}
 { Useful Sib Routines }
-function GetSib_Base(const Value: Byte): Byte; {$IFDEF MustInline}inline;
-{$ENDIF}
-function GetSib_Index(const Value: Byte): Byte; {$IFDEF MustInline}inline;
-{$ENDIF}
-function GetSib_Scale(const Value: Byte): Byte; {$IFDEF MustInline}inline;
-{$ENDIF}
-function IsSibBaseRegValid(PInst: PInstruction): Boolean;
-{$IFDEF MustInline}inline; {$ENDIF}
+function GetSib_Base(const Value: Byte): Byte; {$IFDEF MustInline}inline; {$ENDIF}
+function GetSib_Index(const Value: Byte): Byte; {$IFDEF MustInline}inline; {$ENDIF}
+function GetSib_Scale(const Value: Byte): Byte; {$IFDEF MustInline}inline; {$ENDIF}
+function IsSibBaseRegValid(PInst: PInstruction): Boolean; {$IFDEF MustInline}inline; {$ENDIF}
 
 implementation
 
@@ -760,10 +757,8 @@ begin
   DispOnly := (PInst^.ModRm.iMod = $00) and (PInst^.ModRm.Rm = $05);
 
   case Size of
-    ops8bits:
-      Disp := (PUInt8(PInst^.NextInst)^); // and $FF;
-    ops16bits:
-      Disp := (PUInt16(PInst^.NextInst)^); // and $FFFF;
+    ops8bits: Disp := (PUInt8(PInst^.NextInst)^); // and $FF;
+    ops16bits: Disp := (PUInt16(PInst^.NextInst)^); // and $FFFF;
     ops32bits:
       begin
         Disp := (PUInt32(PInst^.NextInst)^); // and $FFFFFFFF;
@@ -771,8 +766,7 @@ begin
           { RIP disp ! }
           PInst^.Disp.Flags := PInst^.Disp.Flags or dfRip;
       end;
-  else
-    SetInstError(PInst, ERROR_DISP_SIZE);
+  else SetInstError(PInst, ERROR_DISP_SIZE);
   end;
 
   if DispOnly then
@@ -829,16 +823,11 @@ var
 begin
   Imm := $00;
   case immSize of
-    ops8bits:
-      Imm := (PInt8(PInst^.NextInst)^);
-    ops16bits:
-      Imm := (PInt16(PInst^.NextInst)^);
-    ops32bits:
-      Imm := (PInt32(PInst^.NextInst)^);
-    ops64bits:
-      Imm := (PInt64(PInst^.NextInst)^);
-  else
-    SetInstError(PInst, ERROR_IMM_SIZE);
+    ops8bits: Imm := (PInt8(PInst^.NextInst)^);
+    ops16bits: Imm := (PInt16(PInst^.NextInst)^);
+    ops32bits: Imm := (PInt32(PInst^.NextInst)^);
+    ops64bits: Imm := (PInt64(PInst^.NextInst)^);
+  else SetInstError(PInst, ERROR_IMM_SIZE);
   end;
 
   {
@@ -862,14 +851,10 @@ var
 begin
   Value := $00;
   case Size of
-    ops8bits:
-      Value := (PInt8(PInst^.NextInst)^);
-    ops16bits:
-      Value := (PInt16(PInst^.NextInst)^);
-    ops32bits:
-      Value := (PInt32(PInst^.NextInst)^);
-    ops64bits:
-      Value := (PInt64(PInst^.NextInst)^);
+    ops8bits: Value := (PInt8(PInst^.NextInst)^);
+    ops16bits: Value := (PInt16(PInst^.NextInst)^);
+    ops32bits: Value := (PInt32(PInst^.NextInst)^);
+    ops64bits: Value := (PInt64(PInst^.NextInst)^);
   end;
   Inc(PInst^.NextInst, Size);
   if PInst^.OpType = otNone then

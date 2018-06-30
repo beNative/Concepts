@@ -41,18 +41,18 @@ end;
 
 function TBCEditorWildcardSearch.WildCardToRegExpr(const AWildCard: string): string;
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   Result := '';
 
-  for i := 1 to Length(AWildCard) do
-    case AWildCard[i] of
+  for LIndex := 1 to Length(AWildCard) do
+    case AWildCard[LIndex] of
       '*':
         Result := Result + '.*';
       '?':
         Result := Result + '.?';
     else
-      Result := Result + AWildCard[i];
+      Result := Result + AWildCard[LIndex];
     end;
 end;
 

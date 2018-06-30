@@ -68,7 +68,7 @@ implementation
 uses
   DSharp.Windows.ColumnDefinitions,
 
-  DDuce.Factories, DDuce.Factories.VirtualTrees, DDuce.Editor.ViewList.Data;
+  DDuce.Factories.TreeViewPresenter, DDuce.Factories.VirtualTrees, DDuce.Editor.ViewList.Data;
 
 resourcestring
   SFileName    = 'Filename';

@@ -355,83 +355,6 @@ end;
 
 function TTestCase.GetName: string;
 
-  function FormatValue(const value: TValue): string;
-
-    function FormatArray(const value: TValue): string;
-    var
-      i: Integer;
-    begin
-      Result := '[';
-      for i := 0 to value.GetArrayLength - 1 do
-      begin
-        if i > 0 then
-          Result := Result + ', ';
-        Result := Result + FormatValue(value.GetArrayElement(i));
-      end;
-      Result := Result + ']';
-    end;
-
-    function FormatRecord(const value: TValue): string;
-    var
-      i: Integer;
-      fields: TArray<TRttiField>;
-    begin
-      Result := '(';
-      fields := value.TypeInfo.RttiType.GetFields;
-      for i := 0 to High(fields) do
-      begin
-        if i > 0 then
-          Result := Result + '; ';
-        Result := Result + fields[i].Name +': ' + FormatValue(fields[i].GetValue(value));
-      end;
-      Result := Result + ')';
-    end;
-
-    function StripUnitName(const s: string): string;
-    begin
-      Result := ReplaceText(s, 'System.', '');
-    end;
-
-  var
-    LInterface: IInterface;
-    LObject: TObject;
-  begin
-    case value.Kind of
-      tkFloat:
-        if value.TypeInfo = TypeInfo(TDateTime) then
-          Result := DateTimeToStr(value.AsType<TDateTime>)
-        else if value.TypeInfo = TypeInfo(TDate) then
-          Result := DateToStr(value.AsType<TDate>)
-        else if value.TypeInfo = TypeInfo(TTime) then
-          Result := TimeToStr(value.AsType<TTime>)
-        else
-          Result := value.ToString;
-      tkClass:
-      begin
-        LObject := value.AsObject;
-        Result := Format('%s($%x)', [StripUnitName(LObject.ClassName),
-          NativeInt(LObject)]);
-      end;
-      tkInterface:
-      begin
-        LInterface := value.AsInterface;
-        LObject := LInterface as TObject;
-        Result := Format('%s($%x) as %s', [StripUnitName(LObject.ClassName),
-          NativeInt(LInterface), StripUnitName(value.TypeInfo.TypeName)]);
-      end;
-      tkArray, tkDynArray:
-        Result := FormatArray(value);
-      tkChar, tkString, tkWChar, tkLString, tkWString, tkUString:
-        Result := QuotedStr(value.ToString);
-      tkClassRef:
-        Result := value.AsClass.ClassName;
-      tkRecord:
-        Result := FormatRecord(value);
-    else
-      Result := value.ToString;
-    end;
-  end;
-
   function FormatArgs(const values: TArray<TValue>): string;
   var
     i: Integer;
@@ -484,7 +407,7 @@ begin
       actual := fMethod.Invoke(Self, Copy(fArgs, 0, High(fArgs)));
       FCheckCalled := True;
       if not expected.Equals(actual) then
-        FailNotEquals(expected.ToString, actual.ToString, '', ReturnAddress);
+        FailNotEquals(FormatValue(expected), FormatValue(actual), '', ReturnAddress);
     end;
   end
   else

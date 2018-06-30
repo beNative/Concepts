@@ -14,6 +14,7 @@ type
   TBCEditorCodeFolding = class(TPersistent)
   strict private
     FColors: TBCEditorCodeFoldingColors;
+    FDelayInterval: Cardinal;
     FHint: TBCEditorCodeFoldingHint;
     FMarkStyle: TBCEditorCodeFoldingMarkStyle;
     FMouseOverHint: Boolean;
@@ -40,6 +41,7 @@ type
     property MouseOverHint: Boolean read FMouseOverHint write FMouseOverHint;
   published
     property Colors: TBCEditorCodeFoldingColors read FColors write SetColors;
+    property DelayInterval: Cardinal read FDelayInterval write FDelayInterval default 300;
     property Hint: TBCEditorCodeFoldingHint read FHint write SetHint;
     property MarkStyle: TBCEditorCodeFoldingMarkStyle read FMarkStyle write SetMarkStyle default msSquare;
     property OnChange: TBCEditorCodeFoldingChangeEvent read FOnChange write SetOnChange;
@@ -65,6 +67,7 @@ begin
   FHint := TBCEditorCodeFoldingHint.Create;
   FPadding := 2;
   FWidth := 14;
+  FDelayInterval := 300;
 
   FMouseOverHint := False;
 end;

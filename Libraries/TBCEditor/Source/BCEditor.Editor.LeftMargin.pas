@@ -111,7 +111,7 @@ begin
   begin
     Self.FAutosize := FAutosize;
     Self.FBookmarks.Assign(FBookmarks);
-    Self.FMarks.Assign(FBookmarks);
+    Self.FMarks.Assign(FMarks);
     Self.FColors.Assign(FColors);
     Self.FBorder.Assign(FBorder);
     Self.FCursor := FCursor;
@@ -226,8 +226,8 @@ begin
     if FLineNumbers.StartFrom = 0 then
       Dec(ALinesCount)
     else
-      if FLineNumbers.StartFrom > 1 then
-        Inc(ALinesCount, FLineNumbers.StartFrom - 1);
+    if FLineNumbers.StartFrom > 1 then
+      Inc(ALinesCount, FLineNumbers.StartFrom - 1);
 
     NumberOfDigits := Max(Length(ALinesCount.ToString), FLineNumbers.DigitCount);
     if FLineNumbers.AutosizeDigitCount <> NumberOfDigits then
@@ -243,21 +243,23 @@ end;
 
 function TBCEditorLeftMargin.FormatLineNumber(ALine: Integer): string;
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   if FLineNumbers.StartFrom = 0 then
     Dec(ALine)
   else
   if FLineNumbers.StartFrom > 1 then
     Inc(ALine, FLineNumbers.StartFrom - 1);
+
   Result := Format('%*d', [FLineNumbers.AutosizeDigitCount, ALine]);
+
   if lnoLeadingZeros in FLineNumbers.Options then
-    for i := 1 to FLineNumbers.AutosizeDigitCount - 1 do
-    begin
-      if Result[i] <> ' ' then
-        Break;
-      Result[i] := '0';
-    end;
+  for LIndex := 1 to FLineNumbers.AutosizeDigitCount - 1 do
+  begin
+    if Result[LIndex] <> ' ' then
+      Break;
+    Result[LIndex] := '0';
+  end;
 end;
 
 end.

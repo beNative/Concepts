@@ -131,7 +131,7 @@ uses
   DSharp.Windows.ControlTemplates,
 
   DDuce.Editor.Utils, DDuce.Editor.ActionList.Templates,
-  DDuce.Factories, DDuce.Factories.VirtualTrees;
+  DDuce.Factories.TreeViewPresenter, DDuce.Factories.VirtualTrees;
 
 type
   TVKSet = set of Byte;

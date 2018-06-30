@@ -241,15 +241,15 @@ end;
 
 procedure TBCBaseEditorMacroRecorder.Clear;
 var
-  I: Integer;
+  LIndex: Integer;
   LObject: TObject;
 begin
   if Assigned(FEvents) then
   begin
-    for I := FEvents.Count - 1 downto 0 do
+    for LIndex := FEvents.Count - 1 downto 0 do
     begin
-      LObject := FEvents[I];
-      FEvents.Delete(I);
+      LObject := FEvents[LIndex];
+      FEvents.Delete(LIndex);
       LObject.Free;
     end;
     FEvents.Free;
@@ -445,23 +445,23 @@ procedure TBCBaseEditorMacroRecorder.LoadFromStream(ASource: TStream; AClear: Bo
 var
   LCommand: TBCEditorCommand;
   LEvent: TBCEditorMacroEvent;
-  LCount, i: Integer;
+  LCount, LIndex: Integer;
 begin
   Stop;
   if AClear then
     Clear;
   FEvents := TList.Create;
   ASource.Read(LCount, SizeOf(LCount));
-  i := 0;
+  LIndex := 0;
   FEvents.Capacity := ASource.Size div SizeOf(TBCEditorCommand);
-  while (ASource.Position < ASource.Size) and (i < LCount) do
+  while (ASource.Position < ASource.Size) and (LIndex < LCount) do
   begin
     ASource.Read(LCommand, SizeOf(TBCEditorCommand));
     LEvent := CreateMacroEvent(LCommand);
     LEvent.Initialize(LCommand, BCEDITOR_NONE_CHAR, nil);
     LEvent.LoadFromStream(ASource);
     FEvents.Add(LEvent);
-    Inc(i);
+    Inc(LIndex);
   end;
 end;
 
@@ -531,16 +531,16 @@ end;
 
 procedure TBCBaseEditorMacroRecorder.PlaybackMacro(AEditor: TBCBaseEditor);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   if State <> msStopped then
     Error(SBCEditorCannotPlay);
   FState := msPlaying;
   try
     StateChanged;
-    for i := 0 to EventCount - 1 do
+    for LIndex := 0 to EventCount - 1 do
     begin
-      Events[i].Playback(AEditor);
+      Events[LIndex].Playback(AEditor);
       if State <> msPlaying then
         break;
     end;
@@ -602,34 +602,34 @@ end;
 
 procedure TBCBaseEditorMacroRecorder.SetRecordShortCut(const AValue: TShortCut);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   if FRecordShortCut <> AValue then
   begin
     if Assigned(FEditors) then
       if AValue <> 0 then
-      for i := 0 to FEditors.Count - 1 do
-        HookEditor(Editors[i], FRecordCommandID, FRecordShortCut, AValue)
+      for LIndex := 0 to FEditors.Count - 1 do
+        HookEditor(Editors[LIndex], FRecordCommandID, FRecordShortCut, AValue)
       else
-      for i := 0 to FEditors.Count - 1 do
-        UnHookEditor(Editors[i], FRecordCommandID, FRecordShortCut);
+      for LIndex := 0 to FEditors.Count - 1 do
+        UnHookEditor(Editors[LIndex], FRecordCommandID, FRecordShortCut);
     FRecordShortCut := AValue;
   end;
 end;
 
 procedure TBCBaseEditorMacroRecorder.SetPlaybackShortCut(const AValue: TShortCut);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   if FPlaybackShortCut <> AValue then
   begin
     if Assigned(FEditors) then
       if AValue <> 0 then
-      for i := 0 to FEditors.Count - 1 do
-        HookEditor(Editors[i], FPlaybackCommandID, FPlaybackShortCut, AValue)
+      for LIndex := 0 to FEditors.Count - 1 do
+        HookEditor(Editors[LIndex], FPlaybackCommandID, FPlaybackShortCut, AValue)
       else
-      for i := 0 to FEditors.Count - 1 do
-        UnHookEditor(Editors[i], FPlaybackCommandID, FPlaybackShortCut);
+      for LIndex := 0 to FEditors.Count - 1 do
+        UnHookEditor(Editors[LIndex], FPlaybackCommandID, FPlaybackShortCut);
     FPlaybackShortCut := AValue;
   end;
 end;
@@ -656,17 +656,17 @@ end;
 
 function TBCBaseEditorMacroRecorder.GetAsString: string;
 var
-  i: Integer;
-  s: string;
+  LIndex: Integer;
+  LEvent: string;
 begin
   Result := 'macro ' + MacroName + SLineBreak + 'begin' + SLineBreak;
   if Assigned(FEvents) then
   begin
-    for i := 0 to FEvents.Count - 1 do
+    for LIndex := 0 to FEvents.Count - 1 do
     begin
-      s := Events[i].AsString;
-      if s <> '' then
-        Result := Result + '  ' + s + SLineBreak;
+      LEvent := Events[LIndex].AsString;
+      if LEvent <> '' then
+        Result := Result + '  ' + LEvent + SLineBreak;
     end;
   end;
   Result := Result + 'end';
@@ -813,9 +813,9 @@ end;
 
 procedure TBCEditorBasicEvent.Playback(AEditor: TBCBaseEditor);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
-  for i := 1 to RepeatCount do
+  for LIndex := 1 to RepeatCount do
     AEditor.CommandProcessor(Command, BCEDITOR_NONE_CHAR, nil);
 end;
 
@@ -861,9 +861,9 @@ end;
 
 procedure TBCEditorCharEvent.Playback(AEditor: TBCBaseEditor);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
-  for i := 1 to RepeatCount do
+  for LIndex := 1 to RepeatCount do
     AEditor.CommandProcessor(ecChar, Key, nil);
 end;
 
@@ -1007,11 +1007,11 @@ end;
 
 procedure TBCEditorStringEvent.Playback(AEditor: TBCBaseEditor);
 var
-  i, j: Integer;
+  LIndex, LIndex2: Integer;
 begin
-  for i := 1 to RepeatCount do
-    for j := 1 to Length(Value) do
-      AEditor.CommandProcessor(ecChar, Value[j], nil);
+  for LIndex := 1 to RepeatCount do
+    for LIndex2 := 1 to Length(Value) do
+      AEditor.CommandProcessor(ecChar, Value[LIndex2], nil);
 end;
 
 procedure TBCEditorStringEvent.SaveToStream(AStream: TStream);

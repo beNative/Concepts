@@ -3,25 +3,25 @@ unit BCEditor.Editor.LeftMargin.Bookmarks;
 interface
 
 uses
-  Vcl.Controls, System.Classes, Vcl.Graphics;
+  Vcl.Controls, System.Classes, Vcl.Graphics, Vcl.ImgList;
 
 type
   TBCEditorLeftMarginBookMarks = class(TPersistent)
   strict private
-    FImages: TImageList;
+    FImages: TCustomImageList;
     FLeftMargin: Integer;
     FOnChange: TNotifyEvent;
     FOwner: TComponent;
     FShortCuts: Boolean;
     FVisible: Boolean;
     procedure DoChange;
-    procedure SetImages(const AValue: TImageList);
+    procedure SetImages(const AValue: TCustomImageList);
     procedure SetVisible(AValue: Boolean);
   public
     constructor Create(AOwner: TComponent);
     procedure Assign(ASource: TPersistent); override;
   published
-    property Images: TImageList read FImages write SetImages;
+    property Images: TCustomImageList read FImages write SetImages;
     property LeftMargin: Integer read FLeftMargin write FLeftMargin default 2;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property ShortCuts: Boolean read FShortCuts write FShortCuts default True;
@@ -62,7 +62,7 @@ begin
     FOnChange(Self);
 end;
 
-procedure TBCEditorLeftMarginBookMarks.SetImages(const AValue: TImageList);
+procedure TBCEditorLeftMarginBookMarks.SetImages(const AValue: TCustomImageList);
 begin
   if FImages <> AValue then
   begin

@@ -30,7 +30,7 @@ uses
   properties of the TVirtualStringTree component. }
 
 type
-  TVSTOptions = class
+  TVSTOptions = class(TPersistent)
   strict private
     FHeaderOptions                : TVTHeaderOptions;
     FPaintOptions                 : TVTPaintOptions;
@@ -49,6 +49,9 @@ type
     FGridLineColor                : TColor;
 
   public
+    procedure AssignTo(Dest: TPersistent); override;
+    procedure Assign(Source: TPersistent); override;
+
     property HeaderOptions: TVTHeaderOptions
       read FHeaderOptions write FHeaderOptions;
 
@@ -106,10 +109,6 @@ type
     FDefaultTreeGridOptions : Lazy<TVSTOptions>;
     FDefaultTreeListOptions : Lazy<TVSTOptions>;
 
-    class procedure AssignOptions(
-      AVSTOptions : TVSTOptions;
-      ATree       : TVirtualStringTree
-    );
     class function GetDefaultGridOptions: TVSTOptions; static;
     class function GetDefaultListOptions: TVSTOptions; static;
     class function GetDefaultTreeGridOptions: TVSTOptions; static;
@@ -176,6 +175,82 @@ implementation
 uses
   System.SysUtils,
   Vcl.Graphics;
+
+type
+  TCustomVirtualStringTreeAccess = class(TCustomVirtualStringTree) end;
+
+{$REGION 'TVSTOptions'}
+procedure TVSTOptions.Assign(Source: TPersistent);
+var
+  LOptions : TVSTOptions;
+begin
+  if Source is TVSTOptions then
+  begin
+    LOptions := TVSTOptions(Source);
+    AnimationOptions             := LOptions.AnimationOptions;
+    AutoOptions                  := LOptions.AutoOptions;
+    MiscOptions                  := LOptions.MiscOptions;
+    PaintOptions                 := LOptions.PaintOptions;
+    SelectionOptions             := LOptions.SelectionOptions;
+    HeaderOptions                := LOptions.HeaderOptions;
+    LineStyle                    := LOptions.LineStyle;
+    LineMode                     := LOptions.LineMode;
+    DrawSelectionMode            := LOptions.DrawSelectionMode;
+    HintMode                     := LOptions.HintMode;
+    SelectionTextColor           := LOptions.SelectionTextColor;
+    GridLineColor                := LOptions.GridLineColor;
+    SelectionRectangleBlendColor := LOptions.SelectionRectangleBlendColor;
+    StringOptions                := LOptions.StringOptions;
+  end
+  else
+    inherited Assign(Source);
+end;
+
+procedure TVSTOptions.AssignTo(Dest: TPersistent);
+var
+  LTree    : TCustomVirtualStringTreeAccess;
+  LOptions : TVSTOptions;
+begin
+  if Dest is TCustomVirtualStringTree then
+  begin
+    LTree := TCustomVirtualStringTreeAccess(Dest);
+    LTree.TreeOptions.AnimationOptions        := AnimationOptions;
+    LTree.TreeOptions.AutoOptions             := AutoOptions;
+    LTree.TreeOptions.MiscOptions             := MiscOptions;
+    LTree.TreeOptions.PaintOptions            := PaintOptions;
+    LTree.TreeOptions.SelectionOptions        := SelectionOptions;
+    LTree.Header.Options                      := HeaderOptions;
+    LTree.LineStyle                           := LineStyle;
+    LTree.LineMode                            := LineMode;
+    LTree.DrawSelectionMode                   := DrawSelectionMode;
+    LTree.HintMode                            := HintMode;
+    LTree.Colors.SelectionTextColor           := SelectionTextColor;
+    LTree.Colors.GridLineColor                := GridLineColor;
+    LTree.Colors.SelectionRectangleBlendColor := SelectionRectangleBlendColor;
+    TStringTreeOptions(LTree.TreeOptions).StringOptions := StringOptions;
+  end
+  else if Dest is TVSTOptions then
+  begin
+    LOptions                              := TVSTOptions(Dest);
+    LOptions.AnimationOptions             := AnimationOptions;
+    LOptions.AutoOptions                  := AutoOptions;
+    LOptions.MiscOptions                  := MiscOptions;
+    LOptions.PaintOptions                 := PaintOptions;
+    LOptions.SelectionOptions             := SelectionOptions;
+    LOptions.HeaderOptions                := HeaderOptions;
+    LOptions.LineStyle                    := LineStyle;
+    LOptions.LineMode                     := LineMode;
+    LOptions.DrawSelectionMode            := DrawSelectionMode;
+    LOptions.HintMode                     := HintMode;
+    LOptions.SelectionTextColor           := SelectionTextColor;
+    LOptions.GridLineColor                := GridLineColor;
+    LOptions.SelectionRectangleBlendColor := SelectionRectangleBlendColor;
+    LOptions.StringOptions                := StringOptions;
+  end
+  else
+    inherited AssignTo(Dest);
+end;
+{$ENDREGION}
 
 {$REGION 'TVirtualStringTree settings'}
 {
@@ -453,8 +528,8 @@ begin
           hoHeightResize, hoHeightDblClickResize, hoVisible
         ];
         PaintOptions := [
-          toHideFocusRect, toHideSelection, toHotTrack, toPopupMode,
-          toShowBackground, toShowButtons, toShowDropmark, toShowRoot, toThemeAware,
+          toHideFocusRect, toHideSelection, toPopupMode, toShowBackground,
+          toShowButtons, toShowDropmark, toShowRoot, toThemeAware,
           toUseBlendedImages, toUseBlendedSelection, toStaticBackground
         ];
         AnimationOptions := [];
@@ -465,7 +540,8 @@ begin
         StringOptions := [toAutoAcceptEditChange];
         SelectionOptions := [toExtendedFocus];
         MiscOptions := [
-          toInitOnSave, toToggleOnDblClick, toWheelPanning, toVariableNodeHeight
+          toInitOnSave, toToggleOnDblClick, toWheelPanning, toVariableNodeHeight,
+          toCheckSupport
         ];
         ColumnOptions := [];
 
@@ -507,8 +583,8 @@ begin
         StringOptions := [toAutoAcceptEditChange];
         SelectionOptions := [toExtendedFocus, toFullRowSelect];
         MiscOptions := [
-          toCheckSupport, toGridExtensions, toInitOnSave, toToggleOnDblClick,
-          toWheelPanning, toVariableNodeHeight
+          toCheckSupport, toInitOnSave, toToggleOnDblClick, toWheelPanning,
+          toVariableNodeHeight{, toGridExtensions}
         ];
         ColumnOptions := [];
 
@@ -553,7 +629,6 @@ begin
           toVariableNodeHeight
         ];
         ColumnOptions := [];
-
         LineStyle                    := lsSolid;
         LineMode                     := lmNormal;
         DrawSelectionMode            := smBlendedRectangle;
@@ -592,8 +667,8 @@ begin
         StringOptions := [toAutoAcceptEditChange];
         SelectionOptions := [toExtendedFocus, toFullRowSelect];
         MiscOptions := [
-          toGridExtensions, toInitOnSave, toToggleOnDblClick, toWheelPanning,
-          toVariableNodeHeight
+          toCheckSupport, toInitOnSave, toToggleOnDblClick, toWheelPanning,
+          toVariableNodeHeight{, toGridExtensions}
         ];
         ColumnOptions := [];
 
@@ -635,7 +710,8 @@ begin
         StringOptions := [toAutoAcceptEditChange];
         SelectionOptions := [toExtendedFocus, toFullRowSelect];
         MiscOptions := [
-          toInitOnSave, toToggleOnDblClick, toWheelPanning, toVariableNodeHeight
+          toCheckSupport, toInitOnSave, toToggleOnDblClick, toWheelPanning,
+          toVariableNodeHeight
         ];
         ColumnOptions := [];
 
@@ -680,28 +756,6 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION 'private methods'}
-class procedure TVirtualStringTreeFactory.AssignOptions(
-  AVSTOptions: TVSTOptions; ATree: TVirtualStringTree);
-begin
-  ATree.TreeOptions.AnimationOptions := AVSTOptions.AnimationOptions;
-  ATree.TreeOptions.AutoOptions      := AVSTOptions.AutoOptions;
-  ATree.TreeOptions.MiscOptions      := AVSTOptions.MiscOptions;
-  ATree.TreeOptions.PaintOptions     := AVSTOptions.PaintOptions;
-  ATree.TreeOptions.SelectionOptions := AVSTOptions.SelectionOptions;
-  ATree.TreeOptions.StringOptions    := AVSTOptions.StringOptions;
-  ATree.Header.Options               := AVSTOptions.HeaderOptions;
-  ATree.LineStyle                    := AVSTOptions.LineStyle;
-  ATree.LineMode                     := AVSTOptions.LineMode;
-  ATree.DrawSelectionMode            := AVSTOptions.DrawSelectionMode;
-  ATree.HintMode                     := AVSTOptions.HintMode;
-  ATree.Colors.SelectionTextColor    := AVSTOptions.SelectionTextColor;
-  ATree.Colors.GridLineColor         := AVSTOptions.GridLineColor;
-  ATree.Colors.SelectionRectangleBlendColor :=
-    AVSTOptions.SelectionRectangleBlendColor;
-end;
-{$ENDREGION}
-
 {$REGION 'public methods'}
 class function TVirtualStringTreeFactory.Create(AOwner: TComponent;
   AParent: TWinControl; const AName: string): TVirtualStringTree;
@@ -732,7 +786,7 @@ begin
   VST.Parent           := AParent;
   VST.Align            := alClient;
   VST.Header.Height    := 18;
-  AssignOptions(DefaultGridOptions, VST);
+  DefaultGridOptions.AssignTo(VST);
   VST.Indent := 2; // show first column as a normal grid column
   Result := VST;
 end;
@@ -751,7 +805,7 @@ begin
   VST.Parent           := AParent;
   VST.Align            := alClient;
   VST.Header.Height    := 18;
-  AssignOptions(DefaultListOptions, VST);
+  DefaultListOptions.AssignTo(VST);
   VST.Indent := 2; // show first column as a normal grid column
   Result := VST;
 end;
@@ -770,7 +824,7 @@ begin
   VST.Parent           := AParent;
   VST.Align            := alClient;
   VST.Header.Height    := 18;
-  AssignOptions(DefaultTreeOptions, VST);
+  DefaultTreeOptions.AssignTo(VST);
   Result := VST;
 end;
 
@@ -786,7 +840,7 @@ begin
   VST.Parent           := AParent;
   VST.Align            := alClient;
   VST.Header.Height    := 18;
-  AssignOptions(DefaultTreeGridOptions, VST);
+  DefaultTreeGridOptions.AssignTo(VST);
   Result := VST;
 end;
 
@@ -802,9 +856,8 @@ begin
   VST.Parent           := AParent;
   VST.Align            := alClient;
   VST.Header.Height    := 18;
-  AssignOptions(DefaultTreeListOptions, VST);
+  DefaultTreeListOptions.AssignTo(VST);
   Result := VST;
 end;
 {$ENDREGION}
-
 end.

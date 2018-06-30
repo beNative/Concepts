@@ -170,13 +170,17 @@ type
     { Send methods for types that need a custom representation. }
     procedure SendColor(const AName: string; AColor: TColor);
     procedure SendAlphaColor(const AName: string; AAlphaColor: TAlphaColor);
-    procedure SendObject(const AName: string; AValue: TObject);
+    procedure SendObject(
+      const AName : string;
+      AValue      : TObject
+    );
+    { Logs interface properties. }
     procedure SendInterface(const AName: string; AValue: IInterface);
+    { Logs published properties. }
     procedure SendPersistent(const AName: string; AValue: TPersistent);
     procedure SendRect(const AName: string; const AValue: TRect);
     procedure SendPoint(const AName: string; const APoint: TPoint);
     procedure SendStrings(const AName: string; AValue: TStrings);
-    //TODO procedure SendPersistent(const AName: string; AValue: TPersistent); -> log published properties
     procedure SendComponent(const AName: string; AValue: TComponent);
     procedure SendPointer(const AName: string; APointer: Pointer);
     procedure SendException(const AName: string; AException: Exception);

@@ -1,3 +1,127 @@
+Release 1.2.2
+
+New feature:
+
+- added Shared.New overload to specify custom finalizer
+
+
+Breaking changes:
+
+- return TEnumerable.Empty for non existing keys in multimap
+
+
+Fixed bugs:
+
+- destruction of TOrderedSet slow (#285)
+- TryGetFirst, TryGetLast and TryGetSingle don't set out value to Default(T) when returning False (#286)
+- Using TGUID in test case causes exception (#287)
+- TObjectDataset does not use manually created fields (#289)
+- TValue holding Variant with a Boolean cannot be converted to Boolean (#290)
+- Exception during Event<T>.Invoke are causing app crash on Win64 (#292)
+- missing overload on Contains method in IMap is causing inherited Contains method to be hidden
+- TEnumerableBase<T>.SingleOrDefault was returning Default(T) rather than defaultValue in the case there were no items
+- Exception when using IList<T> where T is a method pointer (#294)
+
+
+Improvements:
+
+- added item of TSortedList<T>.Add is passed as right to comparer like TArray.BinarySearch does it
+
+
+Release 1.2.1 - 02.02.2018
+
+New features:
+
+- red-black tree implementation
+- TSortedDictionary<TKey,TValue> and TSortedSet<T> (backed by the red-black tree)
+- TOrderedDictionary<TKey,TValue> and TOrderedSet<T> that keep items in key insertion order
+
+
+Breaking changes:
+
+- renamed Managed<T> to Shared<T> and made it assignment compatible to a Weak<T>
+- marked TListBase<T>.AddInternal as final and call it instead of the non virtual Add in TCollectionBase<T>
+- Clear on a list fires one additional caReseted before all the caRemoved when being cleared
+- removed IEnumerator.Reset method
+- removed Nullable.Null (can directly assign nil now)
+- removed IEqualityComparer<T> class variable from TEnumerableBase<T> and use the IComparer<T> in Contains, IndexOf and similar methods
+- changed TIteratorBase<T> to use TryMoveNext instead of MoveNext and GetCurrent (see improvements)
+- removed IReflection (use TType and rtti type helpers)
+- renamed TValueHelper.ConvertTo to Convert which now both return TValue
+- renamed TValueHelper.TryConvert to TryToType
+- renamed ConvertStrToDateTime and TryConvertStrToDateTime to StrToDateTimeFmt and TryStrToDateTimeFmt
+- moved TEnum from Spring.SystemUtils to Spring
+- fixed typo in TVersion (Revision instead of Reversion)
+
+
+Fixed bugs:
+
+- registering a record type with constructor to the container raises EArgumentException during Build (#242)
+- added CodeGenerator for ORM ( #75)
+- TEventBase.Clear does not set Count to 0 (#243, #259, #273, #277)
+- adding nil to multicast event causes access violation when invoking (#244)
+- TADOStatementAdapter.ExecuteQuery does not pass CommandTimeout to created TADOQuery (#246)
+- use ftOraClob instead of ftOraBlob (#248)
+- TZeosConnectionAdapter might lose connection during query (#231)
+- Result of IList<T>.GetRange reports wrong ElementType (#249)
+- TObjectDataset problem with calculated field name (#254)
+- TObjectDataSet.Refresh does not properly work (#255)
+- fixed possible AV in Weak<T>.TryGetTarget
+- fixed wrong type of interface proxy target
+- fixed missing MoveNext in mock sequence when exception occured
+- fixed date and time issue with SQLite (#266)
+- fixed IsVirtualMethodOverride
+- removed unnecessary field cache (#267)
+- fixed wrong conversion of string to enum
+- set field to ReadOnly if property is not writable (#276)
+- fixed AV when destroying TObjectDataSet while not in browse state (#278)
+- use ToType instead of AsType to use custom type conversion (fixes #279)
+- fixed setting date/time/datetime parameters in sqlite when they are null
+- fixed problems with multithreading and DI container resolve
+- fixed transaction problem in UIB adapters when creating database (#280)
+- fixed wrong circular dependency exception when injecting lazy dependency on a singleton that was not yet finished to be constructed
+- fixed CheckEqualsString to not ignore passed msg
+- fixed TAbstractMethodInspector to properly warn on registered classes with abstract methods
+
+
+Improvements: 
+
+- introduced TAbstractLogger class for easier simple logger implementation
+- optimized TArray.Shuffle
+- removed Event<T>.Create - this type auto initializes itself
+- refactored ManagedAttribute to support custom factory functions
+- added AutoInit attribute to automatically create instances for IList<T> (where T is class or interface)
+- optimized initialization TManagedObject instances
+- ExtractAll returns extracted items as IReadOnlyList
+- moved TRttiInvokableTypeHelper to Spring.pas and made it public
+- optimized method implementations for IEnumerator<T> and IEnumerable<T>GetEnumerator on x86
+- implemented TArray.Reverse (#250)
+- optimized generic list folding
+- implemented support to implicitly convert nil to Nullable<T>
+- added TEnumerable.DefaultIfEmpty
+- optimized MoveNext of iterator extensions (implement TryMoveNext for iterating and Start/Dispose for setup before and cleanup after iteration)
+- TEmptyEnumerable<T> now also implements IReadOnlyList<T>
+- added schema parameter for SequenceAttribute (#154)
+- added description to create table statement for MySQL (#230)
+- made ILogger mockable
+- added inspector that logs warning when component contains abstract method (#193)
+- added overload to TValueHelper.TryConvert to provide TFormatSettings
+- changed default delimiter in TestCaseAttribute to comma and use simple ISO8601 format for dates and times (#245)
+- support empty parameter injection
+- made conversion methods of TValueHelper consistent with the built-in Cast and AsType methods and added missing overloads for passing TFormatSettings
+- implemented conversion from string to dynamic array and array (most useful in unit test attributes)
+- changed implementation for Spring.TArray.Sort to IntroSort compared to the previously QuickSort from the RTL
+- added Vector<T>.Contains overloads for passing comparer
+- added TArray.Copy overloads (depending on the type is uses System.Move or System.CopyArray)
+- added TEnumerable.Union overload with IEqualityComparer (#275)
+- added GetLazyType function to not rely on type name string parsing
+- added UseFreeNotification property on events to optionally disable TComponent tracking and automatic unsubscription when the component is being destroyed (#274)
+- added support for TBcd fields in objects when displaying in TObjectDataSet (#272)
+- added support for TBytes to TGUID conversion
+- added record to string for displaying in test signature
+- added Except and Intersect to TEnumerable
+
+
 Release 1.1 - 12.09.2014
 
 Fixed bugs:

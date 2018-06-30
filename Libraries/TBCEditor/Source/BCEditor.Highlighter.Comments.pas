@@ -34,21 +34,23 @@ end;
 
 procedure TBCEditorHighlighterComments.AddChars(const AToken: string);
 var
-  i: Integer;
+  LIndex: Integer;
 begin
-  for i := 1 to Length(AToken) do
-    FChars := FChars + [AToken[i]];
+  for LIndex := 1 to Length(AToken) do
+    FChars := FChars + [AToken[LIndex]];
 end;
 
 procedure TBCEditorHighlighterComments.AddBlockComment(const AOpenToken: string; const ACloseToken: string);
 var
-  i, LLength: Integer;
+  LIndex, LLength: Integer;
 begin
   LLength := Length(FBlockComments);
 
-  for i := 0 to LLength - 1 do
-    if (FBlockComments[i] = AOpenToken) and (FBlockComments[i + 1] = ACloseToken) then
+  for LIndex := 0 to LLength - 1 do
+  begin
+    if (FBlockComments[LIndex] = AOpenToken) and (FBlockComments[LIndex + 1] = ACloseToken) then
       Exit;
+  end;
 
   SetLength(FBlockComments, LLength + 2);
   FBlockComments[LLength] := AOpenToken;
@@ -60,12 +62,12 @@ end;
 
 procedure TBCEditorHighlighterComments.AddLineComment(const AToken: string);
 var
-  i, LLength: Integer;
+  LIndex, LLength: Integer;
 begin
   LLength := Length(FLineComments);
 
-  for i := 0 to LLength - 1 do
-    if FLineComments[i] = AToken then
+  for LIndex := 0 to LLength - 1 do
+    if FLineComments[LIndex] = AToken then
       Exit;
 
   SetLength(FLineComments, LLength + 1);

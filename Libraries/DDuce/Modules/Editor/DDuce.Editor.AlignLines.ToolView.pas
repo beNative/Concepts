@@ -121,7 +121,7 @@ implementation
 {$R *.dfm}
 
 uses
-  DDuce.Factories,
+  DDuce.Factories.TreeViewPresenter,
   DDuce.Editor.Utils;
 
 resourcestring

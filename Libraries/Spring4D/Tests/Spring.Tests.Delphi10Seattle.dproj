@@ -205,11 +205,12 @@
         <DCCReference Include="Source\Core\Spring.Tests.Container.pas"/>
         <DCCReference Include="Source\Core\Spring.Tests.Container.Logging.pas"/>
         <DCCReference Include="Source\Core\Spring.Tests.Interception.pas"/>
+        <DCCReference Include="Source\Core\Spring.Tests.Interception.Types.pas"/>
+        <DCCReference Include="Source\Core\Spring.Tests.Mocking.pas"/>
         <DCCReference Include="Source\Core\Spring.Tests.Pool.pas"/>
         <DCCReference Include="Source\Extensions\Spring.Tests.Cryptography.pas"/>
         <DCCReference Include="Source\Spring.Tests.Testing.pas"/>
         <DCCReference Include="Source\Extensions\Spring.Tests.Utils.pas"/>
-        <DCCReference Include="Source\Core\Spring.Tests.Mocking.pas"/>
         <None Include="Spring.Tests.inc"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>

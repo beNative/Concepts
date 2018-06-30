@@ -67,6 +67,10 @@ uses
 {$IFDEF TESTINSIGHT}
   TestInsight.DUnit;
 {$ELSE}
+  {$IFDEF DELPHI2010}
+  GUITestRunner;
+  {$ENDIF}
+  {$ELSE}
   {$IFDEF MSWINDOWS}
   VSoft.DUnit.XMLTestRunner;
   {$ELSE}
@@ -193,9 +197,13 @@ begin
   ReportMemoryLeaksOnShutdown := True;
 {$ELSE}
   {$IFDEF MSWINDOWS}
+  {$IFDEF DELPHI2010}
+  GUITestRunner.RunRegisteredTests;
+  {$ELSE}
   if ParamCount > 0 then
     OutputFile := ParamStr(1);
   VSoft.DUnit.XMLTestRunner.RunRegisteredTests(OutputFile){$IFNDEF AUTOREFCOUNT}.Free{$ENDIF};
+  {$ENDIF}
   {$ELSE}
   TextTestRunner.RunRegisteredTests{$IFNDEF AUTOREFCOUNT}.Free{$ENDIF};
   {$ENDIF}

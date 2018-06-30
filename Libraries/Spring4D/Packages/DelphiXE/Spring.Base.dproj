@@ -65,6 +65,7 @@
 			<DCCReference Include="..\..\Source\Base\Collections\Spring.Collections.Queues.pas"/>
 			<DCCReference Include="..\..\Source\Base\Collections\Spring.Collections.Sets.pas"/>
 			<DCCReference Include="..\..\Source\Base\Collections\Spring.Collections.Stacks.pas"/>
+			<DCCReference Include="..\..\Source\Base\Collections\Spring.Collections.Trees.pas"/>
 			<DCCReference Include="..\..\Source\Base\Spring.DesignPatterns.pas"/>
 			<DCCReference Include="..\..\Source\Base\Spring.Events.pas"/>
 			<DCCReference Include="..\..\Source\Base\Spring.Events.Base.pas"/>
@@ -121,8 +122,8 @@
 						<VersionInfo Name="Special">False</VersionInfo>
 						<VersionInfo Name="Private">False</VersionInfo>
 						<VersionInfo Name="DLL">False</VersionInfo>
-						<VersionInfo Name="Locale">2052</VersionInfo>
-						<VersionInfo Name="CodePage">936</VersionInfo>
+						<VersionInfo Name="Locale">1033</VersionInfo>
+						<VersionInfo Name="CodePage">1252</VersionInfo>
 					</VersionInfo>
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName"/>

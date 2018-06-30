@@ -337,29 +337,41 @@ const
 
 function IdentToEditorCommand(const AIdent: string; var ACommand: LongInt): Boolean;
 var
-  i: Integer;
+  LIndex: Integer;
+  LCommandString: TBCEditorCommandString;
 begin
   Result := True;
-  for i := Low(EditorCommandStrings) to High(EditorCommandStrings) do
-    if CompareText(EditorCommandStrings[i].Name, AIdent) = 0 then
+
+  for LIndex := Low(EditorCommandStrings) to High(EditorCommandStrings) do
+  begin
+    LCommandString := EditorCommandStrings[LIndex];
+    if CompareText(LCommandString.Name, AIdent) = 0 then
     begin
-      ACommand := EditorCommandStrings[i].Value;
+      ACommand := LCommandString.Value;
       Exit;
     end;
+  end;
+
   Result := False;
 end;
 
 function EditorCommandToIdent(ACommand: LongInt; var AIdent: string): Boolean;
 var
-  i: Integer;
+  LIndex: Integer;
+  LCommandString: TBCEditorCommandString;
 begin
   Result := True;
-  for i := Low(EditorCommandStrings) to High(EditorCommandStrings) do
-    if EditorCommandStrings[i].Value = ACommand then
+
+  for LIndex := Low(EditorCommandStrings) to High(EditorCommandStrings) do
+  begin
+    LCommandString := EditorCommandStrings[LIndex];
+    if LCommandString.Value = ACommand then
     begin
-      AIdent := EditorCommandStrings[i].Name;
+      AIdent := LCommandString.Name;
       Exit;
     end;
+  end;
+
   Result := False;
 end;
 
@@ -374,13 +386,18 @@ end;
 constructor TBCEditorHookedCommandHandler.Create(AEvent: TBCEditorHookedCommandEvent; AData: pointer);
 begin
   inherited Create;
+
   FEvent := AEvent;
   FData := AData;
 end;
 
 function TBCEditorHookedCommandHandler.Equals(AEvent: TBCEditorHookedCommandEvent): Boolean;
+var
+  LClassMethod, LParamMethod: TMethod;
 begin
-  Result := (TMethod(FEvent).Code = TMethod(AEvent).Code) and (TMethod(FEvent).Data = TMethod(AEvent).Data);
+  LClassMethod := TMethod(FEvent);
+  LParamMethod := TMethod(AEvent);
+  Result := (LClassMethod.Code = LParamMethod.Code) and (LClassMethod.Data = LParamMethod.Data);
 end;
 
 { TBCEditorKeyCommand }
@@ -511,15 +528,15 @@ end;
 
 procedure TBCEditorKeyCommands.Assign(ASource: TPersistent);
 var
-  i: Integer;
+  LIndex: Integer;
   LKeyCommands: TBCEditorKeyCommands;
 begin
   if Assigned(ASource) and (ASource is TBCEditorKeyCommands) then
   begin
     LKeyCommands := ASource as TBCEditorKeyCommands;
     Self.Clear;
-    for i := 0 to LKeyCommands.Count - 1 do
-      NewItem.Assign(LKeyCommands[i]);
+    for LIndex := 0 to LKeyCommands.Count - 1 do
+      NewItem.Assign(LKeyCommands[LIndex]);
   end
   else
     inherited Assign(ASource);
@@ -534,68 +551,65 @@ end;
 
 function TBCEditorKeyCommands.FindCommand(ACommand: TBCEditorCommand): Integer;
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   Result := -1;
-  for i := 0 to Count - 1 do
-    if Items[i].Command = ACommand then
-    begin
-      Result := i;
-      Break;
-    end;
+  for LIndex := 0 to Count - 1 do
+  if Items[LIndex].Command = ACommand then
+    Exit(LIndex);
 end;
 
 function TBCEditorKeyCommands.FindKeyCode(AKeycode: Word; AShift: TShiftState): Integer;
 var
-  i: Integer;
+  LIndex: Integer;
+  LKeyCommand: TBCEditorKeyCommand;
 begin
   Result := -1;
-  for i := 0 to Count - 1 do
-    if (Items[i].Key = AKeyCode) and (Items[i].ShiftState = AShift) and (Items[i].SecondaryKey = 0) then
-    begin
-      Result := i;
-      Break;
-    end;
+  for LIndex := 0 to Count - 1 do
+  begin
+    LKeyCommand := Items[LIndex];
+    if (LKeyCommand.Key = AKeyCode) and (LKeyCommand.ShiftState = AShift) and (LKeyCommand.SecondaryKey = 0) then
+      Exit(LIndex);
+  end;
 end;
 
 function TBCEditorKeyCommands.FindKeyCodes(AKeyCode: Word; AShift: TShiftState; ASecondaryKeyCode: Word; ASecondaryShift: TShiftState): Integer;
 var
-  i: Integer;
+  LIndex: Integer;
+  LKeyCommand: TBCEditorKeyCommand;
 begin
   Result := -1;
-  for i := 0 to Count - 1 do
-    if (Items[i].Key = AKeyCode) and (Items[i].ShiftState = AShift) and (Items[i].SecondaryKey = ASecondaryKeyCode) and
-      (Items[i].SecondaryShiftState = ASecondaryShift) then
-    begin
-      Result := i;
-      Break;
-    end;
+  for LIndex := 0 to Count - 1 do
+  begin
+    LKeyCommand := Items[LIndex];
+    if (LKeyCommand.Key = AKeyCode) and (LKeyCommand.ShiftState = AShift) and (LKeyCommand.SecondaryKey = ASecondaryKeyCode) and
+      (LKeyCommand.SecondaryShiftState = ASecondaryShift) then
+      Exit(LIndex);
+  end;
 end;
 
 function TBCEditorKeyCommands.FindShortcut(AShortCut: TShortCut): Integer;
 var
-  i: Integer;
+  LIndex: Integer;
 begin
   Result := -1;
-  for i := 0 to Count - 1 do
-    if Items[i].ShortCut = AShortCut then
-    begin
-      Result := i;
-      Break;
-    end;
+  for LIndex := 0 to Count - 1 do
+  if Items[LIndex].ShortCut = AShortCut then
+    Exit(LIndex);
 end;
 
 function TBCEditorKeyCommands.FindShortcuts(AShortCut, ASecondaryShortCut: TShortCut): Integer;
 var
-  i: Integer;
+  LIndex: Integer;
+  LKeyCommand: TBCEditorKeyCommand;
 begin
   Result := -1;
-  for i := 0 to Count - 1 do
-    if (Items[i].ShortCut = AShortCut) and (Items[i].SecondaryShortCut = ASecondaryShortCut) then
-    begin
-      Result := i;
-      break;
-    end;
+  for LIndex := 0 to Count - 1 do
+  begin
+    LKeyCommand := Items[LIndex];
+    if (LKeyCommand.ShortCut = AShortCut) and (LKeyCommand.SecondaryShortCut = ASecondaryShortCut) then
+      Exit(LIndex);
+  end;
 end;
 
 function TBCEditorKeyCommands.GetItem(AIndex: Integer): TBCEditorKeyCommand;

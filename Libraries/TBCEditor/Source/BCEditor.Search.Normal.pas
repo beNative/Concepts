@@ -3,7 +3,7 @@ unit BCEditor.Search.Normal;
 interface
 
 uses
-  System.Classes, System.SysUtils, BCEditor.Search;
+  System.Classes, System.SysUtils, BCEditor.Search, BCEditor.Lines;
 
 type
   TBCEditorNormalSearch = class(TBCEditorSearchBase)
@@ -23,9 +23,9 @@ type
     function GetFinished: Boolean;
     procedure InitShiftTable;
   protected
-    function GetLength(AIndex: Integer): Integer; override;
+    function GetLength(const AIndex: Integer): Integer; override;
     function GetPattern: string; override;
-    function GetResult(AIndex: Integer): Integer; override;
+    function GetResult(const AIndex: Integer): Integer; override;
     function GetResultCount: Integer; override;
     function TestWholeWord: Boolean;
     procedure CaseSensitiveChanged; override;
@@ -34,11 +34,10 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    function SearchAll(const AText: string): Integer; override;
+    function SearchAll(const ALines: TBCEditorLines): Integer; override;
     function FindFirst(const AText: string): Integer;
     function Next: Integer;
     procedure Clear; override;
-    procedure FixResults(AFirst, ADelta: Integer);
     property Count: Integer read FCount write FCount;
     property Finished: Boolean read GetFinished;
     property Pattern read FCasedPattern;
@@ -47,7 +46,7 @@ type
 implementation
 
 uses
-  System.Character, BCEditor.Consts, BCEditor.Language;
+  System.Character, BCEditor.Consts, BCEditor.Language, Winapi.Windows;
 
 constructor TBCEditorNormalSearch.Create;
 begin
@@ -60,7 +59,7 @@ begin
   Result := (FRun >= FTheEnd) or (FPatternLength >= FTextLength);
 end;
 
-function TBCEditorNormalSearch.GetResult(AIndex: Integer): Integer;
+function TBCEditorNormalSearch.GetResult(const AIndex: Integer): Integer;
 begin
   Result := 0;
   if (AIndex >= 0) and (AIndex < FResults.Count) then
@@ -72,27 +71,10 @@ begin
   Result := FResults.Count;
 end;
 
-procedure TBCEditorNormalSearch.FixResults(AFirst, ADelta: Integer);
-var
-  i: Integer;
-begin
-  if (ADelta <> 0) and (FResults.Count > 0) then
-  begin
-    i := FResults.Count - 1;
-    while i >= 0 do
-    begin
-      if Integer(FResults[i]) <= AFirst then
-        Break;
-      FResults[i] := pointer(Integer(FResults[i]) - ADelta);
-      Dec(i);
-    end;
-  end;
-end;
-
 procedure TBCEditorNormalSearch.InitShiftTable;
 var
   LAnsiChar: AnsiChar;
-  i: Integer;
+  LIndex: Integer;
 begin
   FPatternLength := Length(FPattern);
   if FPatternLength = 0 then
@@ -101,12 +83,12 @@ begin
   FLookAt := 1;
   for LAnsiChar := Low(AnsiChar) to High(AnsiChar) do
     FShift[LAnsiChar] := FPatternLengthSuccessor;
-  for i := 1 to FPatternLength do
-    FShift[AnsiChar(FPattern[i])] := FPatternLengthSuccessor - i;
+  for LIndex := 1 to FPatternLength do
+    FShift[AnsiChar(FPattern[LIndex])] := FPatternLengthSuccessor - LIndex;
   while FLookAt < FPatternLength do
   begin
     if FPattern[FPatternLength] = FPattern[FPatternLength - FLookAt] then
-      break;
+      Break;
     Inc(FLookAt);
   end;
   FShiftInitialized := True;
@@ -135,7 +117,7 @@ end;
 
 function TBCEditorNormalSearch.Next: Integer;
 var
-  i: Integer;
+  LIndex: Integer;
   LPValue: PChar;
 begin
   Result := 0;
@@ -147,10 +129,10 @@ begin
     else
     begin
       LPValue := FRun - FPatternLength + 1;
-      i := 1;
-      while FPattern[i] = LPValue^ do
+      LIndex := 1;
+      while FPattern[LIndex] = LPValue^ do
       begin
-        if i = FPatternLength then
+        if LIndex = FPatternLength then
         begin
           if WholeWordsOnly then
             if not TestWholeWord then
@@ -159,7 +141,7 @@ begin
           Result := FRun - FOrigin - FPatternLength + 2;
           Exit;
         end;
-        Inc(i);
+        Inc(LIndex);
         Inc(LPValue);
       end;
       Inc(FRun, FLookAt);
@@ -177,10 +159,16 @@ begin
 end;
 
 procedure TBCEditorNormalSearch.SetPattern(const AValue: string);
+var
+  LValue: string;
 begin
-  if FPattern <> AValue then
+  LValue := AValue;
+
+  LValue := StringReplace(LValue, '\n', sLineBreak, [rfReplaceAll]);
+
+  if FPattern <> LValue then
   begin
-    FCasedPattern := AValue;
+    FCasedPattern := LValue;
     if CaseSensitive then
       FPattern := FCasedPattern
     else
@@ -204,19 +192,20 @@ begin
   FResults.Count := 0;
 end;
 
-function TBCEditorNormalSearch.SearchAll(const AText: string): Integer;
+function TBCEditorNormalSearch.SearchAll(const ALines: TBCEditorLines): Integer;
 var
   Found: Integer;
 begin
   Status := '';
   Clear;
-  Found := FindFirst(AText);
+  Found := FindFirst(ALines.Text);
   while Found > 0 do
   begin
     FResults.Add(Pointer(Found));
     Found := Next;
   end;
   Result := FResults.Count;
+  SetLength(FTextToSearch, 0);
 end;
 
 function TBCEditorNormalSearch.FindFirst(const AText: string): Integer;
@@ -227,10 +216,9 @@ begin
   FTextLength := Length(AText);
   if FTextLength >= FPatternLength then
   begin
-    if CaseSensitive then
-      FTextToSearch := AText
-    else
-      FTextToSearch := AnsiLowerCase(AText);
+    FTextToSearch := AText;
+    if not CaseSensitive then
+      CharLowerBuff(PChar(FTextToSearch), FTextLength);
     FOrigin := PChar(FTextToSearch);
     FTheEnd := FOrigin + FTextLength;
     FRun := FOrigin - 1;
@@ -238,7 +226,7 @@ begin
   end;
 end;
 
-function TBCEditorNormalSearch.GetLength(AIndex: Integer): Integer;
+function TBCEditorNormalSearch.GetLength(const AIndex: Integer): Integer;
 begin
   Result := FPatternLength;
 end;

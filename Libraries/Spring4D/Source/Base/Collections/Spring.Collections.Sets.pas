@@ -286,6 +286,7 @@ end;
 
 destructor THashSet<T>.Destroy;
 begin
+  Clear;
   fDictionary.Free;
   inherited Destroy;
 end;

@@ -161,10 +161,10 @@ end;
 
 procedure TBCEditorSearch.ClearLines;
 var
-  i: Integer;
+  LIndex: Integer;
 begin
-  for i := FLines.Count - 1 downto 0 do
-    Dispose(PBCEditorSearchItem(FLines.Items[i]));
+  for LIndex := FLines.Count - 1 downto 0 do
+    Dispose(PBCEditorSearchItem(FLines.Items[LIndex]));
   FLines.Clear;
 end;
 

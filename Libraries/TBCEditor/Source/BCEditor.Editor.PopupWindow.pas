@@ -13,6 +13,8 @@ type
     FCommonData: TsScrollWndData;
     FScrollWnd: TacScrollWnd;
 {$endif}
+    FOriginalHeight: Integer;
+    FOriginalWidth: Integer;
     procedure WMEraseBkgnd(var AMessage: TMessage); message WM_ERASEBKGND;
     procedure WMMouseActivate(var AMessage: TWMMouseActivate); message WM_MOUSEACTIVATE;
 {$if defined(USE_VCL_STYLES)}
@@ -27,6 +29,8 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure CreateWnd; override;
+    procedure IncSize(const AWidth: Integer; const AHeight: Integer);
+    procedure SetOriginalSize;
     procedure WndProc(var AMessage: TMessage); override;
     property ActiveControl: TWinControl read FActiveControl;
 {$if defined(USE_ALPHASKINS)}
@@ -87,6 +91,33 @@ begin
 {$endif}
 end;
 
+procedure TBCEditorPopupWindow.SetOriginalSize;
+begin
+  FOriginalHeight := Height;
+  FOriginalWidth := Width;
+end;
+
+procedure TBCEditorPopupWindow.IncSize(const AWidth: Integer; const AHeight: Integer);
+var
+  LHeight: Integer;
+  LWidth: Integer;
+begin
+  LHeight := FOriginalHeight + AHeight;
+  LWidth := FOriginalWidth + AWidth;
+
+  if LHeight < Constraints.MinHeight then
+    LHeight := Constraints.MinHeight;
+  if (Constraints.MaxHeight > 0) and (LHeight > Constraints.MaxHeight) then
+    LHeight := Constraints.MaxHeight;
+
+  if LWidth < Constraints.MinWidth then
+    LWidth := Constraints.MinWidth;
+  if (Constraints.MaxWidth > 0) and (LWidth > Constraints.MaxWidth) then
+    LWidth := Constraints.MaxWidth;
+
+  SetBounds(Left, Top, LWidth, LHeight);
+end;
+
 procedure TBCEditorPopupWindow.Hide;
 begin
   SetWindowPos(Handle, 0, 0, 0, 0, 0, SWP_NOZORDER or SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE or SWP_HIDEWINDOW);
@@ -117,7 +148,7 @@ end;
 
 procedure TBCEditorPopupWindow.WMEraseBkgnd(var AMessage: TMessage);
 begin
-  AMessage.Result := -1;
+  AMessage.Result := 1;
 end;
 
 {$if defined(USE_VCL_STYLES)}

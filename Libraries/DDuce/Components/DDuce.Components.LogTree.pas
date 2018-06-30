@@ -94,23 +94,37 @@ type
     FMaximumLines            : Cardinal;
     FDateTimeFormat          : string;
 
-    function DrawHTML(const ARect: TRect; const ACanvas: TCanvas;
-      const Text: string; Selected: Boolean): Integer;
-    function GetCellText(const Node: PVirtualNode; const Column:
-      TColumnIndex): string;
-    procedure SetLogLevels(const Value: TLogLevels);
+    function DrawHTML(
+      const ARect   : TRect;
+      const ACanvas : TCanvas;
+      const Text    : string;
+      Selected      : Boolean
+    ) : Integer;
+    function GetCellText(
+      const Node   : PVirtualNode;
+      const Column : TColumnIndex
+    ) : string;
+    procedure SetLogLevels(const Value : TLogLevels);
     procedure UpdateVisibleItems;
-    procedure OnPopupMenuItemClick(Sender: TObject; AMenuItem: TMenuItem);
-    procedure SetShowDateColumn(const Value: Boolean);
-    procedure SetShowImages(const Value: Boolean);
-    procedure AddDefaultColumns(const ColumnNames: array of string;
-      const ColumnWidths: array of Integer);
-    function IfThen(Condition: Boolean; TrueResult,
-      FalseResult: Variant): Variant;
-    function StripHTMLTags(const Value: string): string;
-    function RemoveCtrlChars(const Value: string): string;
-    function GetDateTimeFormat: string;
-    procedure SetDateTimeFormat(const Value: string);
+    procedure OnPopupMenuItemClick(
+      Sender    : TObject;
+      AMenuItem : TMenuItem
+    );
+    procedure SetShowDateColumn(const Value : Boolean);
+    procedure SetShowImages(const Value : Boolean);
+    procedure AddDefaultColumns(
+      const ColumnNames  : array of string;
+      const ColumnWidths : array of Integer
+    );
+    function IfThen(
+      Condition : Boolean;
+      TrueResult,
+      FalseResult : Variant
+    ) : Variant;
+    function StripHTMLTags(const Value : string) : string;
+    function RemoveCtrlChars(const Value : string) : string;
+    function GetDateTimeFormat : string;
+    procedure SetDateTimeFormat(const Value : string);
 
   protected
     procedure DoOnBeforeLog(

@@ -23,12 +23,24 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
         <Cfg_1>true</Cfg_1>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+        <Cfg_1_Win32>true</Cfg_1_Win32>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
+        <Cfg_1_Win64>true</Cfg_1_Win64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
@@ -74,36 +86,56 @@
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <DCC_Optimize>false</DCC_Optimize>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
         <DCC_DebugInformation>false</DCC_DebugInformation>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2)'!=''">
-        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
-        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
-        <DCC_Optimize>false</DCC_Optimize>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="Source\Spring.TestBootstrap.pas"/>
+        <DCCReference Include="Source\Spring.Testing.pas"/>
+        <DCCReference Include="Source\Spring.TestRegistration.pas"/>
+        <DCCReference Include="Source\Spring.TestRunner.pas"/>
         <DCCReference Include="Source\Spring.TestUtils.pas"/>
         <DCCReference Include="Source\Base\Spring.Tests.Base.pas"/>
         <DCCReference Include="Source\Base\Spring.Tests.Collections.pas"/>
+        <DCCReference Include="Source\Base\Spring.Tests.Collections.Extensions.pas"/>
         <DCCReference Include="Source\Base\Spring.Tests.DesignPatterns.pas"/>
         <DCCReference Include="Source\Base\Spring.Tests.Helpers.pas"/>
+        <DCCReference Include="Source\Base\Spring.Tests.Reflection.pas"/>
         <DCCReference Include="Source\Base\Spring.Tests.ValueConverters.pas"/>
-        <DCCReference Include="Source\Base\Spring.Tests.SysUtils.pas"/>
+        <DCCReference Include="Source\Base\Spring.Tests.SystemUtils.pas"/>
+        <DCCReference Include="Source\Base\Spring.Tests.Logging.pas"/>
+        <DCCReference Include="Source\Base\Spring.Tests.Logging.Serializers.pas"/>
+        <DCCReference Include="Source\Base\Spring.Tests.Logging.Types.pas"/>
         <DCCReference Include="Source\Core\Spring.Tests.Container.Components.pas"/>
         <DCCReference Include="Source\Core\Spring.Tests.Container.Interfaces.pas"/>
         <DCCReference Include="Source\Core\Spring.Tests.Container.LifetimeManager.pas"/>
@@ -111,17 +143,19 @@
         <DCCReference Include="Source\Core\Spring.Tests.Container.Logging.pas"/>
         <DCCReference Include="Source\Core\Spring.Tests.Interception.pas"/>
         <DCCReference Include="Source\Core\Spring.Tests.Interception.Types.pas"/>
+        <DCCReference Include="Source\Core\Spring.Tests.Mocking.pas"/>
         <DCCReference Include="Source\Core\Spring.Tests.Pool.pas"/>
         <DCCReference Include="Source\Extensions\Spring.Tests.Cryptography.pas"/>
+        <DCCReference Include="Source\Spring.Tests.Testing.pas"/>
         <DCCReference Include="Source\Extensions\Spring.Tests.Utils.pas"/>
-        <BuildConfiguration Include="Debug">
+        <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
         </BuildConfiguration>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
-        <BuildConfiguration Include="Release">
+        <BuildConfiguration Include="Debug">
             <Key>Cfg_1</Key>
             <CfgParent>Base</CfgParent>
         </BuildConfiguration>
@@ -146,8 +180,8 @@
                     <VersionInfo Name="Special">False</VersionInfo>
                     <VersionInfo Name="Private">False</VersionInfo>
                     <VersionInfo Name="DLL">False</VersionInfo>
-                    <VersionInfo Name="Locale">2052</VersionInfo>
-                    <VersionInfo Name="CodePage">936</VersionInfo>
+                    <VersionInfo Name="Locale">1033</VersionInfo>
+                    <VersionInfo Name="CodePage">1252</VersionInfo>
                 </VersionInfo>
                 <VersionInfoKeys>
                     <VersionInfoKeys Name="CompanyName"/>
@@ -161,10 +195,6 @@
                     <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
                     <VersionInfoKeys Name="Comments"/>
                 </VersionInfoKeys>
-                <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k180.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp180.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-                </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>
                 <Platform value="Win32">True</Platform>
