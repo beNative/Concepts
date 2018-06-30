@@ -79,7 +79,7 @@ type
       (2) It would be wrong to make TInnerObject a TInterfacedObject, because
           then the reference count of the inner object would be incorrectly
           updated because the interface is referenced through the outer object.
-      (3) As an alternative to this setup, the so calles COM aggregation
+      (3) As an alternative to this setup, the so called COM aggregation
           pattern can be used. In this case the inner object descends from
           TAggregatedObject, which provides a special implementation of the 3
           IInterface methods in which the reference count of the outer object

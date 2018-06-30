@@ -13,11 +13,9 @@ uses
   VirtualTrees;
 
   {
-     This form demonstrates how to set up a simple TVirtualStringTree.
-
      Required for a simple setup:
        - OnInitNode : attach data to each node
-       - OnGetText  : obtain cell content for each column based on the node data
+       - OnGetText : obtain cell content for each column based on the node data
        - OnFreeNode : cleanup attached data for each node (if this is required)
   }
 
@@ -31,10 +29,14 @@ type
     pnlHeader   : TPanel;
     lblHeader   : TLabel;
     {$ENDREGION}
-
   private
     FObjectInspector   : TzObjectInspector;
     FVirtualStringTree : TVirtualStringTree;
+
+    function FObjectInspectorBeforeAddItem(
+      Sender : TControl;
+      PItem  : PPropItem
+    ): Boolean;
 
     procedure FVirtualStringTreeAfterCellPaint(
       Sender       : TBaseVirtualTree;
@@ -154,17 +156,88 @@ begin
   FVirtualStringTree := TVirtualStringTreeFactory.CreateList(Self, pnlMain);
   InitializeTree;
   FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
+  FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
   FObjectInspector.ObjectVisibility := mvPublic;
   FObjectInspector.Component := FVirtualStringTree;
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
-{$REGION 'FVirtualStringTree'}
-procedure TfrmVirtualTreeView.FVirtualStringTreeInitNode(Sender: TBaseVirtualTree;
-  ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+function TfrmVirtualTreeView.FObjectInspectorBeforeAddItem(Sender: TControl;
+  PItem: PPropItem): Boolean;
 begin
-  Node.SetData(TConceptFactories.CreateRandomContact);
+  Result := not PItem.Name.Contains('ComObject');
+  Result := Result and (not (PItem.Prop.PropertyType is TRttiMethodType));
+end;
+
+{$REGION 'FVirtualStringTree'}
+procedure TfrmVirtualTreeView.FVirtualStringTreeAfterCellPaint(Sender: TBaseVirtualTree;
+  TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+  CellRect: TRect);
+begin
+//
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeChange(Sender: TBaseVirtualTree;
+  Node: PVirtualNode);
+begin
+//
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeDblClick(Sender: TObject);
+begin
+//
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeExpanded(Sender: TBaseVirtualTree;
+  Node: PVirtualNode);
+begin
+//
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeExpanding(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; var Allowed: Boolean);
+begin
+//
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeFocusChanged(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex);
+begin
+//
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeFocusChanging(Sender: TBaseVirtualTree;
+  OldNode, NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex;
+  var Allowed: Boolean);
+begin
+//
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeFreeNode(Sender: TBaseVirtualTree;
+  Node: PVirtualNode);
+begin
+  Sender.GetNodeData<TContact>(Node).Free;
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeGetHint(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex;
+  var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
+begin
+//
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeGetImageIndex(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
+  var Ghosted: Boolean; var ImageIndex: TImageIndex);
+begin
+//
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeGetNodeDataSize(Sender: TBaseVirtualTree;
+  var NodeDataSize: Integer);
+begin
+//
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeGetText(Sender: TBaseVirtualTree;
@@ -174,7 +247,6 @@ var
   LContact: TContact;
 begin
   LContact := Sender.GetNodeData<TContact>(Node);
-
   if Column = 0 then
     CellText := LContact.FirstName
   else if Column = 1 then
@@ -191,75 +263,6 @@ begin
   begin
     CellText := '';
   end;
-end;
-
-procedure TfrmVirtualTreeView.FVirtualStringTreeFreeNode(Sender: TBaseVirtualTree;
-  Node: PVirtualNode);
-begin
-  Sender.GetNodeData<TContact>(Node).Free;
-end;
-
-procedure TfrmVirtualTreeView.FVirtualStringTreeAfterCellPaint(Sender: TBaseVirtualTree;
-  TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
-  CellRect: TRect);
-begin
-  //
-end;
-
-procedure TfrmVirtualTreeView.FVirtualStringTreeChange(Sender: TBaseVirtualTree;
-  Node: PVirtualNode);
-begin
-  Logger.IncCounter('OnChange');
-end;
-
-procedure TfrmVirtualTreeView.FVirtualStringTreeDblClick(Sender: TObject);
-begin
-  Logger.IncCounter('OnDblClick');
-end;
-
-procedure TfrmVirtualTreeView.FVirtualStringTreeExpanded(Sender: TBaseVirtualTree;
-  Node: PVirtualNode);
-begin
-  Logger.IncCounter('OnExpanded');
-end;
-
-procedure TfrmVirtualTreeView.FVirtualStringTreeExpanding(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; var Allowed: Boolean);
-begin
-  Logger.IncCounter('OnExpanding');
-end;
-
-procedure TfrmVirtualTreeView.FVirtualStringTreeFocusChanged(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex);
-begin
-  Logger.IncCounter('OnFocusChanged');
-end;
-
-procedure TfrmVirtualTreeView.FVirtualStringTreeFocusChanging(Sender: TBaseVirtualTree;
-  OldNode, NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex;
-  var Allowed: Boolean);
-begin
-  Logger.IncCounter('OnFocusChanging');
-end;
-
-procedure TfrmVirtualTreeView.FVirtualStringTreeGetHint(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex;
-  var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
-begin
-  Logger.IncCounter('OnGetHint');
-end;
-
-procedure TfrmVirtualTreeView.FVirtualStringTreeGetImageIndex(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
-  var Ghosted: Boolean; var ImageIndex: TImageIndex);
-begin
-  //Logger.IncCounter('OnGetImageIndex');
-end;
-
-procedure TfrmVirtualTreeView.FVirtualStringTreeGetNodeDataSize(Sender: TBaseVirtualTree;
-  var NodeDataSize: Integer);
-begin
-  Logger.IncCounter('OnGetNodeDataSize');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeHeaderDraw(Sender: TVTHeader;
@@ -279,6 +282,12 @@ procedure TfrmVirtualTreeView.FVirtualStringTreeInitChildren(Sender: TBaseVirtua
   Node: PVirtualNode; var ChildCount: Cardinal);
 begin
 //
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeInitNode(Sender: TBaseVirtualTree;
+  ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+begin
+  Node.SetData(TConceptFactories.CreateRandomContact);
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeMouseUp(Sender: TObject;
@@ -322,7 +331,7 @@ begin
         coEditable];
       Position := 0;
       Width    := 200;
-      Text     := 'FirstName';
+      Text := 'FirstName';
     end;
     with Header.Columns.Add do
     begin
@@ -333,7 +342,7 @@ begin
         coSmartResize, coAllowFocus, coEditable];
       Position := 1;
       Width    := 100;
-      Text     := 'LastName';
+      Text := 'LastName';
     end;
     with Header.Columns.Add do
     begin
@@ -344,7 +353,7 @@ begin
         coSmartResize, coAllowFocus, coEditable];
       Position := 2;
       Width    := 100;
-      Text     := 'Email';
+      Text := 'Email';
     end;
     with Header.Columns.Add do
     begin
@@ -355,7 +364,7 @@ begin
         coSmartResize, coAllowFocus, coEditable];
       Position := 3;
       Width    := 100;
-      Text     := 'CompanyName';
+      Text := 'CompanyName';
     end;
     with Header.Columns.Add do
     begin
@@ -366,7 +375,7 @@ begin
         coSmartResize, coAllowFocus, coEditable];
       Position := 4;
       Width    := 100;
-      Text     := 'Address';
+      Text := 'Address';
     end;
     with Header.Columns.Add do
     begin
@@ -377,7 +386,7 @@ begin
         coSmartResize, coAllowFocus, coEditable];
       Position := 5;
       Width    := 70;
-      Text     := 'Number';
+      Text := 'Number';
     end;
     with Header.Columns.Add do
     begin
@@ -388,9 +397,9 @@ begin
         coSmartResize, coAllowFocus, coEditable];
       Position := 6;
       Width    := 200;
-      Text     := 'Active';
+      Text := 'Active';
     end;
-    RootNodeCount := 1000;
+    RootNodeCount := 100000;
     Header.AutoFitColumns;
     Header.Options := Header.Options + [hoOwnerDraw];
   end;
