@@ -3,7 +3,7 @@
         <ProjectGuid>{3EBFDA94-DC39-4974-A022-0EFEEC3ABF85}</ProjectGuid>
         <MainSource>Concepts.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -74,10 +74,11 @@
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;Spring.Persistence.SQL.Generators;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
-        <DCC_DcpOutput>.\$(Platform)\$(Config)</DCC_DcpOutput>
-        <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
-        <DCC_BplOutput>.\$(Platform)\$(Config)</DCC_BplOutput>
-        <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_DcpOutput>.\Lib\$(Platform)\$(Config)</DCC_DcpOutput>
+        <DCC_ExeOutput>.\Bin\$(Platform)</DCC_ExeOutput>
+        <DCC_BplOutput>.\Bin\$(Platform)</DCC_BplOutput>
+        <DCC_DcuOutput>.\Lib\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_UnitSearchPath>.\Libraries\Spring4D\Source;.\Libraries\Spring4D\Source\Base\Collections;.\Libraries\Spring4D\Source\Base\Logging;.\Libraries\Spring4D\Source\Base\Patches;.\Libraries\Spring4D\Source\Core\Container;.\Libraries\Spring4D\Source\Core\Interception;.\Libraries\Spring4D\Source\Core\Logging;.\Libraries\Spring4D\Source\Core\Mocking;.\Libraries\Spring4D\Source\Core\Services;.\Libraries\Spring4D\Source\Data\ObjectDataSet;.\Libraries\Spring4D\Source\Extensions\Cryptography;.\Libraries\Spring4D\Source\Extensions\Utils;.\Libraries\Spring4D\Source\Persistence\Adapters;.\Libraries\Spring4D\Source\Persistence\Core;.\Libraries\Spring4D\Source\Persistence\Criteria;.\Libraries\Spring4D\Source\Persistence\Mapping;.\Libraries\Spring4D\Source\Persistence\SQL;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
@@ -109,6 +110,7 @@
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
@@ -747,6 +749,12 @@
             <Deployment Version="3">
                 <DeployFile LocalName="Win32\Debug\Concepts.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
+                        <RemoteName>Concepts.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Bin\Win64\Concepts.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win64">
                         <RemoteName>Concepts.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>

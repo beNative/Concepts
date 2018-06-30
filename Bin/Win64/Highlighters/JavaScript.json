@@ -1,0 +1,544 @@
+{
+   "Highlighter": {
+      "Info": {
+         "General": {
+            "Version": "1.5.2",
+            "Date": "21.03.2016",
+            "Sample": [
+               "// Hello World in JavaScript\r\n",
+               "\r\n",
+               "document.write('Hello, world!');"
+            ]
+         },
+         "Author": {
+            "Name": "Lasse Rautiainen",
+            "Mail": "lasse@bonecode.com"
+         }
+      },
+      "MainRules": {
+         "Name": "JavaScript",
+         "Attributes": {
+            "Element": "Editor"
+         },
+         "SubRules": {
+            "Range": [
+               {
+                  "Type": "BlockComment",
+                  "Attributes": {
+                     "Element": "Comment"
+                  },
+                  "TokenRange": {
+                     "Open": "/*",
+                     "Close": "*/"
+                  }
+               },
+               {
+                  "Type": "LineComment",
+                  "Attributes": {
+                     "Element": "Comment"
+                  },
+                  "Properties": {
+                     "CloseOnEndOfLine": true
+                  },
+                  "TokenRange": {
+                     "Open": "//"
+                  }
+               },
+               {
+                  "Type": "String",
+                  "Attributes": {
+                     "Element": "Editor"
+                  },
+                  "Properties": {
+                     "CloseOnEndOfLine": true
+                  },
+                  "TokenRange": {
+                     "Open": "/\"/",
+                     "Close": ","
+                  }
+               },
+               {
+                  "Type": "String",
+                  "Attributes": {
+                     "Element": "Editor"
+                  },
+                  "Properties": {
+                     "CloseOnEndOfLine": true
+                  },
+                  "TokenRange": {
+                     "Open": "/'/",
+                     "Close": ","
+                  }
+               },
+               {
+                  "Type": "String",
+                  "Attributes": {
+                     "Element": "String"
+                  },
+                  "Properties": {
+                     "CloseOnEndOfLine": true
+                  },
+                  "TokenRange": {
+                     "Open": "\"",
+                     "Close": "\""
+                  },
+                  "SubRules": {
+                     "Range": [
+                        {
+                           "Type": "String",
+                           "Attributes": {
+                              "Element": "String"
+                           },
+                           "Properties": {
+                              "CloseOnEndOfLine": true,
+                              "CloseOnTerm": true
+                           },
+                           "TokenRange": {
+                              "Open": "\\\"",
+                              "Close": ""
+                           }
+                        },
+                        {
+                           "Type": "String",
+                           "Attributes": {
+                              "Element": "String"
+                           },
+                           "Properties": {
+                              "CloseOnEndOfLine": true,
+                              "CloseOnTerm": true
+                           },
+                           "TokenRange": {
+                              "Open": "\\\\",
+                              "Close": ""
+                           }
+                        },
+                        {
+                           "Type": "String",
+                           "Attributes": {
+                              "Element": "String"
+                           },
+                           "Properties": {
+                              "CloseOnEndOfLine": true,
+                              "CloseOnTerm": true
+                           },
+                           "TokenRange": {
+                              "Open": "^\"",
+                              "Close": ""
+                           }
+                        }
+                     ]
+                  }
+               },
+               {
+                  "Type": "String",
+                  "Attributes": {
+                     "Element": "String"
+                  },
+                  "Properties": {
+                     "CloseOnEndOfLine": true
+                  },
+                  "TokenRange": {
+                     "Open": "'",
+                     "Close": "'"
+                  },
+                  "SubRules": {
+                     "Range": [
+                        {
+                           "Type": "String",
+                           "Attributes": {
+                              "Element": "String"
+                           },
+                           "Properties": {
+                              "CloseOnEndOfLine": true,
+                              "CloseOnTerm": true
+                           },
+                           "TokenRange": {
+                              "Open": "\\'",
+                              "Close": ""
+                           }
+                        },
+                        {
+                           "Type": "String",
+                           "Attributes": {
+                              "Element": "String"
+                           },
+                           "Properties": {
+                              "CloseOnEndOfLine": true,
+                              "CloseOnTerm": true
+                           },
+                           "TokenRange": {
+                              "Open": "\\\\",
+                              "Close": ""
+                           }
+                        },
+                        {
+                           "Type": "String",
+                           "Attributes": {
+                              "Element": "String"
+                           },
+                           "Properties": {
+                              "CloseOnEndOfLine": true,
+                              "CloseOnTerm": true
+                           },
+                           "TokenRange": {
+                              "Open": "^'",
+                              "Close": ""
+                           }
+                        }
+                     ]
+                  }
+               },
+               {
+                  "Type": "HexNumber",
+                  "Attributes": {
+                     "Element": "HexNumber"
+                  },
+                  "Properties": {
+                     "CloseOnTerm": true,
+                     "CloseOnEndOfLine": true
+                  },
+                  "TokenRange": {
+                     "Open": "$",
+                     "Close": " "
+                  }
+               },
+               {
+                  "Type": "Hex",
+                  "Attributes": {
+                     "Element": "Number"
+                  },
+                  "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+                  "Properties": {
+                     "CloseOnTerm": true,
+                     "CloseOnEndOfLine": true
+                  },
+                  "TokenRange": {
+                     "Open": "0",
+                     "OpenBreakType": "Any"
+                  }
+               },
+               {
+                  "File": "PHP.json",
+                  "IncludeRange": "PHP"
+               }
+            ],
+            "KeyList": [
+               {
+                  "Name": "JavaScript Keywords",
+                  "Type": "ReservedWord",
+                  "Words": [
+                     "/script",
+                     "abstract",
+                     "arguments",
+                     "boolean",
+                     "break",
+                     "byte",
+                     "case",
+                     "catch",
+                     "char",
+                     "class",
+                     "const",
+                     "continue",
+                     "debugger",
+                     "default",
+                     "delete",
+                     "do",
+                     "double",
+                     "else",
+                     "enum",
+                     "eval",
+                     "export",
+                     "extends",
+                     "false",
+                     "final",
+                     "finally",
+                     "float",
+                     "for",
+                     "function",
+                     "goto",
+                     "if",
+                     "implements",
+                     "import",
+                     "in",
+                     "instanceof",
+                     "int",
+                     "interface",
+                     "let",
+                     "long",
+                     "native",
+                     "new",
+                     "null",
+                     "package",
+                     "private",
+                     "protected",
+                     "public",
+                     "return",
+                     "short",
+                     "static",
+                     "super",
+                     "switch",
+                     "synchronized",
+                     "this",
+                     "throw",
+                     "throws",
+                     "transient",
+                     "true",
+                     "try",
+                     "typeof",
+                     "var",
+                     "void",
+                     "volatile",
+                     "while",
+                     "with",
+                     "yield"
+                  ],
+                  "Attributes": {
+                     "Element": "ReservedWord"
+                  }
+               },
+               {
+                  "Name": "JavaScript Attributes",
+                  "Type": "Attribute",
+                  "Words": [
+                     "src",
+                     "type"
+                  ],
+                  "Attributes": {
+                     "Element": "Attribute"
+                  }
+               },
+               {
+                  "Name": "Windows Reserved Words",
+                  "Type": "ReservedWord",
+                  "Words": [
+                     "alert",
+                     "all",
+                     "anchor",
+                     "anchors",
+                     "area",
+                     "assign",
+                     "blur",
+                     "button",
+                     "checkbox",
+                     "clearInterval",
+                     "clearTimeout",
+                     "clientInformation",
+                     "close",
+                     "closed",
+                     "confirm",
+                     "constructor",
+                     "crypto",
+                     "decodeURI",
+                     "decodeURIComponent",
+                     "defaultStatus",
+                     "document",
+                     "element",
+                     "elements",
+                     "embed",
+                     "embeds",
+                     "encodeURI",
+                     "encodeURIComponent",
+                     "escape",
+                     "event",
+                     "fileUpload",
+                     "focus",
+                     "form",
+                     "forms",
+                     "frame",
+                     "innerHeight",
+                     "innerWidth",
+                     "layer",
+                     "layers",
+                     "link",
+                     "location",
+                     "mimeTypes",
+                     "navigate",
+                     "navigator",
+                     "frames",
+                     "frameRate",
+                     "hidden",
+                     "history",
+                     "image",
+                     "images",
+                     "offscreenBuffering",
+                     "open",
+                     "opener",
+                     "option",
+                     "outerHeight",
+                     "outerWidth",
+                     "packages",
+                     "pageXOffset",
+                     "pageYOffset",
+                     "parent",
+                     "parseFloat",
+                     "parseInt",
+                     "password",
+                     "pkcs11",
+                     "plugin",
+                     "prompt",
+                     "propertyIsEnum",
+                     "radio",
+                     "reset",
+                     "screenX",
+                     "screenY",
+                     "scroll",
+                     "secure",
+                     "select",
+                     "self",
+                     "setInterval",
+                     "setTimeout",
+                     "status",
+                     "submit",
+                     "taint",
+                     "text",
+                     "textarea",
+                     "top",
+                     "unescape",
+                     "untaint",
+                     "window"
+                  ],
+                  "Attributes": {
+                     "Element": "ReservedWord"
+                  }
+               },
+               {
+                  "Type": "Symbol",
+                  "Words": [
+                     ":",
+                     ";",
+                     "<",
+                     ">",
+                     "=",
+                     "/",
+                     "*",
+                     ".",
+                     ",",
+                     "-",
+                     "+",
+                     "(",
+                     ")",
+                     "[",
+                     "]",
+                     "{",
+                     "}"
+                  ],
+                  "Attributes": {
+                     "Element": "Symbol"
+                  }
+               }
+            ],
+            "Set": [
+               {
+                  "Type": "Number",
+                  "Symbols": "0123456789",
+                  "Attributes": {
+                     "Element": "Number"
+                  }
+               },
+               {
+                  "Type": "Float",
+                  "Symbols": ".0123456789",
+                  "Attributes": {
+                     "Element": "Number"
+                  }
+               }
+            ]
+         }
+      }
+   },
+   "CodeFolding": {
+      "Ranges": [
+         {
+            "Options": {
+               "StringEscapeChar": "\\"
+            },
+            "SkipRegion": [
+               {
+                  "OpenToken": "'",
+                  "CloseToken": "'",
+                  "RegionType": "String"
+               },
+               {
+                  "OpenToken": "\"",
+                  "CloseToken": "\"",
+                  "RegionType": "String"
+               },
+               {
+                  "OpenToken": "/'/",
+                  "CloseToken": ",",
+                  "RegionType": "String"
+               },
+               {
+                  "OpenToken": "/\"/",
+                  "CloseToken": ",",
+                  "RegionType": "String"
+               },
+               {
+                  "OpenToken": "=/",
+                  "CloseToken": "/;",
+                  "RegionType": "String",
+                  "SkipEmptyChars": true
+               },
+               {
+                  "OpenToken": "//",
+                  "RegionType": "SingleLine"
+               },
+               {
+                  "OpenToken": "=/",
+                  "RegionType": "SingleLine"
+               },
+               {
+                  "OpenToken": "/*",
+                  "CloseToken": "*/",
+                  "RegionType": "MultiLine"
+               }
+            ],
+            "FoldRegion": [
+               {
+                  "OpenToken": "{",
+                  "CloseToken": "}"
+               }
+            ]
+         }
+      ]
+   },
+   "MatchingPair": {
+      "Pairs": [
+         {
+            "OpenToken": "(",
+            "CloseToken": ")"
+         },
+         {
+            "OpenToken": "[",
+            "CloseToken": "]"
+         },
+         {
+            "OpenToken": "{",
+            "CloseToken": "}"
+         }
+      ]
+   },
+   "CompletionProposal": {
+      "SkipRegion": [
+         {
+            "OpenToken": "'",
+            "CloseToken": "'",
+            "RegionType": "String"
+         },
+         {
+            "OpenToken": "\"",
+            "CloseToken": "\"",
+            "RegionType": "String"
+         },
+         {
+            "OpenToken": "//",
+            "RegionType": "SingleLine"
+         },
+         {
+            "OpenToken": "/*",
+            "CloseToken": "*/",
+            "RegionType": "MultiLine"
+         }
+      ]
+   }
+}

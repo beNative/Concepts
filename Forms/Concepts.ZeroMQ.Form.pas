@@ -167,14 +167,12 @@ type
 
 implementation
 
+{$R *.dfm}
+
 uses
   DDuce.Reflect,
 
-  BCEditor.JsonDataObjects,
-
   Concepts.Utils, Concepts.ZeroMQ.Data;
-
-{$R *.dfm}
 
 {$REGION 'construction and destruction'}
 procedure TfrmZMQConcept.AfterConstruction;
@@ -224,7 +222,6 @@ procedure TfrmZMQConcept.edtCounterExit(Sender: TObject);
 begin
   FCounter := StrToInt(edtCounter.Text);
 end;
-
 {$ENDREGION}
 
 {$REGION 'property access methods'}

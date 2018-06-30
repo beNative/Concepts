@@ -19,7 +19,7 @@
   dependencies.
 }
 
-{$I '.\jedi.inc'}
+//{$I '.\jedi.inc'}
 
 {$DEFINE BCEDITOR}      // TBCEditor control
 {$DEFINE CHROMETABS}    // TChromeTabs control
