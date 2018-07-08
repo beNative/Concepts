@@ -289,6 +289,22 @@ object frmZMQConcept: TfrmZMQConcept
       ReadOnly = True
       TabOrder = 18
     end
+    object btnSend1000Messages: TButton
+      Left = 127
+      Top = 204
+      Width = 131
+      Height = 25
+      Action = actSendMessages
+      TabOrder = 19
+    end
+    object edtQuantity: TEdit
+      Left = 264
+      Top = 204
+      Width = 156
+      Height = 21
+      TabOrder = 20
+      Text = '10000'
+    end
   end
   object mmoLog: TMemo
     Left = 434
@@ -343,6 +359,10 @@ object frmZMQConcept: TfrmZMQConcept
     object actResetCounter: TAction
       Caption = 'Reset counter'
       OnExecute = actResetCounterExecute
+    end
+    object actSendMessages: TAction
+      Caption = 'Send messages'
+      OnExecute = actSendMessagesExecute
     end
   end
 end

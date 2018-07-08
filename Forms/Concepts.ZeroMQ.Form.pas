@@ -91,8 +91,12 @@ type
     edtCounter          : TLabeledEdit;
     btnSendCounterValue : TButton;
     mmoIPs              : TMemo;
+    actSendMessages: TAction;
+    btnSend1000Messages: TButton;
+    edtQuantity: TEdit;
     {$ENDREGION}
 
+    {$REGION 'action handlers'}
     procedure actBindExecute(Sender: TObject);
     procedure actCloseExecute(Sender: TObject);
     procedure actConnectExecute(Sender: TObject);
@@ -102,10 +106,12 @@ type
     procedure actSubscribeExecute(Sender: TObject);
     procedure actSendCounterValueExecute(Sender: TObject);
     procedure actResetCounterExecute(Sender: TObject);
+    {$ENDREGION}
 
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure lbxEventsClickCheck(Sender: TObject);
     procedure edtCounterExit(Sender: TObject);
+    procedure actSendMessagesExecute(Sender: TObject);
 
   private
     FZMQ       : IZeroMQ;
@@ -116,6 +122,7 @@ type
     FCounter   : Integer;
 
   protected
+    {$REGION 'property access methods'}
     function GetEvents: ZMQEvents;
     procedure SetEvents(const Value: ZMQEvents);
     function GetSocket: ZMQSocket;
@@ -125,6 +132,7 @@ type
     procedure SetPort(const Value: Integer);
     function GetTransport: string;
     procedure SetTransport(const Value: string);
+    {$ENDREGION}
 
     procedure UpdateActions; override;
     procedure UpdateEvents;
@@ -170,7 +178,7 @@ implementation
 {$R *.dfm}
 
 uses
-  DDuce.Reflect,
+  DDuce.Reflect, DDuce.Logger,
 
   Concepts.Utils, Concepts.ZeroMQ.Data;
 
@@ -196,7 +204,7 @@ begin
       end;
       mmoLog.Lines.Add(Format(LOG_MESSAGE, [S, Value, Address]));
     end;
-
+  Logger.Info('Started');
   GetIPAddresses(mmoIPs.Lines);
   if GetExternalIP(S) then
     mmoIPs.Lines.Add(S);
@@ -388,6 +396,22 @@ end;
 procedure TfrmZMQConcept.actResetCounterExecute(Sender: TObject);
 begin
 //
+end;
+
+procedure TfrmZMQConcept.actSendMessagesExecute(Sender: TObject);
+var
+  I : Integer;
+  S : string;
+  N : Integer;
+begin
+  N := StrToInt(edtQuantity.Text);
+  for I := 1 to N do
+  begin
+    Inc(FCounter);
+    S := S + Format('Message %d', [FCounter]);
+  end;
+  Pair.SendString(S, True);
+  edtCounter.Text := FCounter.ToString;
 end;
 
 procedure TfrmZMQConcept.actSendCounterValueExecute(Sender: TObject);

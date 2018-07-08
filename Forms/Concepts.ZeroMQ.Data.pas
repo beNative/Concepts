@@ -39,6 +39,7 @@ type
     FPort      : Integer;
     FName      : string;
 
+    {$REGION 'property access methods'}
     function GetConnectionString: string;
     function GetEvents: ZMQEvents;
     function GetPort: Integer;
@@ -50,6 +51,7 @@ type
     procedure SetTransport(const Value: string);
     function GetName: string;
     procedure SetName(const Value: string);
+    {$ENDREGION}
 
   public
     procedure AfterConstruction; override;
