@@ -19,16 +19,12 @@
   dependencies.
 }
 
-//{$I '.\jedi.inc'}
-
 {$DEFINE BCEDITOR}      // TBCEditor control
 {$DEFINE CHROMETABS}    // TChromeTabs control
 {$DEFINE DDETOURS}      // DDetours unit
 {$DEFINE DDUCE}         // DDuce - http://github.com/beNative/dduce
 {$DEFINE DELPHIZMQ}     // DelphiZMQ wrapper
-{$DEFINE DEVEXPRESS}    // DevExpress - http://www.devexpress.com/Products/VCL/
 {$DEFINE DSHARP}        // DSharp - http://bitbucket.org/sglienke/dsharp
-{$DEFINE FIREDAC}       // Delphi FireDAC units ('FireDAC' prefix)
 {$DEFINE FMXCONTAINER}  // TFireMonkeyContainer
 {$DEFINE INDY}          // Indy
 {$DEFINE SPRING}        // Spring4D - http://bitbucket.org/sglienke/spring4d
@@ -40,5 +36,7 @@
 {$DEFINE VIRTUALTREES}  // Virtual Treeview - http://github.com/Virtual-TreeView/Virtual-TreeView
 {$DEFINE WINAPI}        // Delphi WinApi units ('WinApi' prefix)
 {$DEFINE ZOBJECTINSPECTOR} // TzObjectInspector
+{.$DEFINE DEVEXPRESS}    // DevExpress - http://www.devexpress.com/Products/VCL/
+{.$DEFINE FIREDAC}       // Delphi FireDAC units ('FireDAC' prefix)
 {.$DEFINE BTMEMORYMODULE} // BTMemoryModule.pas
 {.$DEFINE FASTMM}         // FastMM
