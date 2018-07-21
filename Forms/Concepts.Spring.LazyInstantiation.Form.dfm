@@ -54,7 +54,6 @@ object frmLazyInstantiation: TfrmLazyInstantiation
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 402
   end
   object pnlCheckBox: TPanel
     Left = 8
@@ -64,7 +63,6 @@ object frmLazyInstantiation: TfrmLazyInstantiation
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitWidth = 402
   end
   object btnToggleLazyCheckbox: TButton
     Left = 144
@@ -98,7 +96,6 @@ object frmLazyInstantiation: TfrmLazyInstantiation
     ParentBackground = False
     ParentFont = False
     TabOrder = 5
-    ExplicitWidth = 418
     object lblHeader: TLabel
       Left = 0
       Top = 0

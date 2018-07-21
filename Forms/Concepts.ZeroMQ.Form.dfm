@@ -3,8 +3,8 @@ object frmZMQConcept: TfrmZMQConcept
   Top = 0
   ActiveControl = edtAddress
   Caption = 'TP'
-  ClientHeight = 733
-  ClientWidth = 917
+  ClientHeight = 481
+  ClientWidth = 770
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,8 +15,8 @@ object frmZMQConcept: TfrmZMQConcept
   ShowHint = True
   OnClose = FormClose
   DesignSize = (
-    917
-    733)
+    770
+    481)
   PixelsPerInch = 96
   TextHeight = 13
   object pnlClient: TPanel
@@ -46,7 +46,7 @@ object frmZMQConcept: TfrmZMQConcept
       Left = 127
       Top = 276
       Width = 293
-      Height = 124
+      Height = 69
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -94,7 +94,7 @@ object frmZMQConcept: TfrmZMQConcept
     end
     object btnReceive: TButton
       Left = 127
-      Top = 406
+      Top = 351
       Width = 75
       Height = 25
       Action = actReceive
@@ -128,9 +128,9 @@ object frmZMQConcept: TfrmZMQConcept
     end
     object mmoReceive: TMemo
       Left = 127
-      Top = 437
+      Top = 382
       Width = 285
-      Height = 122
+      Height = 83
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -276,10 +276,10 @@ object frmZMQConcept: TfrmZMQConcept
       TabOrder = 17
     end
     object mmoIPs: TMemo
-      Left = 127
-      Top = 565
-      Width = 285
-      Height = 132
+      Left = 3
+      Top = 406
+      Width = 118
+      Height = 59
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -309,8 +309,8 @@ object frmZMQConcept: TfrmZMQConcept
   object mmoLog: TMemo
     Left = 434
     Top = 8
-    Width = 475
-    Height = 717
+    Width = 328
+    Height = 465
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText

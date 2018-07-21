@@ -188,7 +188,8 @@ var
   S : string;
 begin
   inherited AfterConstruction;
-  FZMQ   := TZeroMQ.Create;
+  if not Assigned(FZMQ) then
+    FZMQ := TZeroMQ.Create;
   Events := ZMQAllEvents;
   FEventProc := procedure(Event: ZMQEvents; Value: Integer; const Address: string)
     const
@@ -206,8 +207,6 @@ begin
     end;
   Logger.Info('Started');
   GetIPAddresses(mmoIPs.Lines);
-  if GetExternalIP(S) then
-    mmoIPs.Lines.Add(S);
 end;
 
 procedure TfrmZMQConcept.BeforeDestruction;
@@ -225,10 +224,6 @@ begin
   inherited Create(AOwner);
   if Assigned(AZMQ) then
     FZMQ := AZMQ;
-end;
-procedure TfrmZMQConcept.edtCounterExit(Sender: TObject);
-begin
-  FCounter := StrToInt(edtCounter.Text);
 end;
 {$ENDREGION}
 
@@ -318,6 +313,11 @@ end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
+procedure TfrmZMQConcept.edtCounterExit(Sender: TObject);
+begin
+  FCounter := StrToInt(edtCounter.Text);
+end;
+
 procedure TfrmZMQConcept.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   Action := caFree;
@@ -336,7 +336,7 @@ begin
     Pair.Close;
   Pair := nil;
   Pair := FZMQ.Start(Socket);
-  FZMQ.Monitor(
+  FZMQ.Monitor(  // only one monitor per context
     Pair,
     edtAddress.Text,
     Events,
@@ -439,10 +439,10 @@ var
 begin
   inherited UpdateActions;
   B := Assigned(Pair);
-  actReceive.Enabled   := B;
-  actSendMemoText.Enabled      := B;
+  actReceive.Enabled          := B;
+  actSendMemoText.Enabled     := B;
   actSendCounterValue.Enabled := B;
-  actSubscribe.Enabled := B;
+  actSubscribe.Enabled        := B;
   pnlConnectionString.Caption := ConnectionString;
   if Assigned(FPoll) then
   begin

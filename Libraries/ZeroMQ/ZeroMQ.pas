@@ -1,6 +1,10 @@
 (*
     Unit owner :
        Pierre Yager <pierre.y@gmail.com>
+
+    Added by Tim Sinaeve
+      - IZMQPair.UnSubscribe method
+      - IZMQPair.LastEndPoint method
 *)
 
 unit ZeroMQ;
@@ -47,6 +51,8 @@ type
     function SocketType: ZMQSocket;
     { Required for ZMQ.Subscriber pair }
     function Subscribe(const Filter: string): Integer;
+    function UnSubscribe(const Filter: string): Integer;
+
     function HaveMore: Boolean;
     { Raw messages }
     function SendMessage(var Msg: TZmqMsg; Flags: MessageFlags): Integer;
@@ -58,14 +64,15 @@ type
     { Multipart string message }
     function SendStrings(const Data: array of string; DontWait: Boolean = False): Integer;
     function ReceiveStrings(const DontWait: Boolean = False): TArray<string>;
-    { High Level Algorithgms - Forward message to another pair }
+    { High Level Algorithms - Forward message to another pair }
     procedure ForwardMessage(Pair: IZMQPair);
+    function LastEndPoint: string;
   end;
 
   PollEvent = (PollIn, PollOut, PollErr);
   PollEvents = set of PollEvent;
 
-  TZMQPollEvent = reference to procedure (Events: PollEvents);
+  TZMQPollEvent = reference to procedure(Events: PollEvents);
 
   IZMQPoll = interface
     procedure RegisterPair(const Pair: IZMQPair; Events: PollEvents = []; const Proc: TZMQPollEvent = nil);
@@ -105,11 +112,15 @@ const
 
 implementation
 
+uses
+  System.SysUtils;
+
 type
   TZMQPair = class(TInterfacedObject, IZMQPair)
   private
     FSocket: Pointer;
     FContext: TZeroMQ;
+
   public
     constructor Create(Context: TZeroMQ; Socket: Pointer);
     destructor Destroy; override;
@@ -121,6 +132,7 @@ type
     function Connect(const Address: string): Integer;
     { Required for ZMQ.Subscriber pair }
     function Subscribe(const Filter: string): Integer;
+    function UnSubscribe(const Filter: string): Integer;
     function HaveMore: Boolean;
     { Socket Options }
     function SocketType: ZMQSocket;
@@ -134,8 +146,11 @@ type
     { Multipart string message }
     function SendStrings(const Data: array of string; DontWait: Boolean = False): Integer;
     function ReceiveStrings(const DontWait: Boolean = False): TArray<string>;
-    { High Level Algorithgms - Forward message to another pair }
+    { High Level Algorithms - Forward message to another pair }
     procedure ForwardMessage(Pair: IZMQPair);
+
+    function LastEndPoint: string;
+
   end;
 
   TZMQPoll = class(TInterfacedObject, IZMQPoll)
@@ -308,6 +323,14 @@ begin
   Result := zmq_setsockopt(FSocket, ZMQ_SUBSCRIBE, PAnsiChar(str), Length(str));
 end;
 
+function TZMQPair.UnSubscribe(const Filter: string): Integer;
+var
+  str: UTF8String;
+begin
+  str := UTF8String(Filter);
+  Result := zmq_setsockopt(FSocket, ZMQ_UNSUBSCRIBE, PAnsiChar(str), Length(str));
+end;
+
 function TZMQPair.HaveMore: Boolean;
 var
   more: Integer;
@@ -431,6 +454,17 @@ begin
     zmq_sendmsg((Pair as TZMQPair).FSocket, @msg, flag);
     zmq_msg_close(@msg);
   until flag = 0;
+end;
+
+function TZMQPair.LastEndPoint: string;
+var
+  S       : ShortString;
+  LLength : Cardinal;
+begin
+  LLength := 255;
+  zmq_getsockopt(FSocket, ZMQ_LAST_ENDPOINT, @S[1], @LLength);
+  SetLength(S, LLength - 1);
+  Result := S;
 end;
 
 { TZMQPoll }

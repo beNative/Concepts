@@ -14,10 +14,8 @@
   limitations under the License.
 }
 
-{
-  By (un)commenting the following defines you can customize the project's
-  dependencies.
-}
+{ By (un)commenting the following defines you can customize the project's
+  dependencies. }
 
 {$DEFINE BCEDITOR}      // TBCEditor control
 {$DEFINE CHROMETABS}    // TChromeTabs control
@@ -36,7 +34,7 @@
 {$DEFINE VIRTUALTREES}  // Virtual Treeview - http://github.com/Virtual-TreeView/Virtual-TreeView
 {$DEFINE WINAPI}        // Delphi WinApi units ('WinApi' prefix)
 {$DEFINE ZOBJECTINSPECTOR} // TzObjectInspector
-{.$DEFINE DEVEXPRESS}    // DevExpress - http://www.devexpress.com/Products/VCL/
-{.$DEFINE FIREDAC}       // Delphi FireDAC units ('FireDAC' prefix)
+{$DEFINE DEVEXPRESS}    // DevExpress - http://www.devexpress.com/Products/VCL/
 {.$DEFINE BTMEMORYMODULE} // BTMemoryModule.pas
+{.$DEFINE FIREDAC}       // Delphi FireDAC units ('FireDAC' prefix)
 {.$DEFINE FASTMM}         // FastMM

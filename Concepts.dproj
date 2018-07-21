@@ -3,7 +3,7 @@
         <ProjectGuid>{3EBFDA94-DC39-4974-A022-0EFEEC3ABF85}</ProjectGuid>
         <MainSource>Concepts.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>

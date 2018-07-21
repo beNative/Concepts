@@ -78,7 +78,7 @@ begin
     function: TCheckBox
     begin
       pnlCheckBox.ShowCaption := False;
-      Result := TCheckBox.Create(Self);
+      Result         := TCheckBox.Create(Self);
       Result.Parent  := pnlCheckBox;
       Result.Align   := alClient;
       Result.Caption := 'Lazy checkbox';
@@ -88,7 +88,7 @@ begin
     function: TMemo
     begin
       pnlMemo.ShowCaption := False;
-      Result := TMemo.Create(Self);
+      Result        := TMemo.Create(Self);
       Result.Parent := pnlMemo;
       Result.Align  := alClient;
       Result.Text   := 'Lazy memo';

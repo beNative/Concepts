@@ -41,6 +41,7 @@ const
 
 {.$DEFINE EXPERIMENTAL}
 
+{$WARN SYMBOL_PLATFORM OFF}
 (******************************************************************************)
 (*  0MQ versioning support.                                                   *)
 (******************************************************************************)
@@ -48,15 +49,14 @@ const
 const
 (*  Version macros for compile-time API version detection                     *)
   ZMQ_VERSION_MAJOR = 4;
-  ZMQ_VERSION_MINOR = 0;
-  ZMQ_VERSION_PATCH = 1;
+  ZMQ_VERSION_MINOR = 1;
+  ZMQ_VERSION_PATCH = 6;
 
   ZMQ_VERSION_ =
     ZMQ_VERSION_MAJOR * 10000 +
     ZMQ_VERSION_MINOR * 100 +
     ZMQ_VERSION_PATCH;
 
-{$WARN SYMBOL_PLATFORM OFF}
 (*  Run-time API version detection                                            *)
 procedure zmq_version(major, minor, patch: PInteger); cdecl; external LIBZEROMQ delayed;
 
@@ -133,7 +133,8 @@ function zmq_ctx_destroy(context: Pointer): Integer; cdecl; external LIBZEROMQ d
 (******************************************************************************)
 
 const
-  ZMQ_MAX_VSM_SIZE = 30;
+  //ZMQ_MAX_VSM_SIZE = 30;
+  ZMQ_MAX_VSM_SIZE = 57;
 
 type
   PZmqMsg = ^TZmqMsg;
@@ -389,7 +390,6 @@ function zmq_threadstart(func: TZmqThreadFn; arg: Pointer): Pointer; cdecl; exte
 
 (* Wait for thread to complete then free up resources.                        *)
 procedure zmq_threadclose(thread: Pointer); cdecl; external LIBZEROMQ delayed;
-{$WARN SYMBOL_PLATFORM ON}
 
 implementation
 

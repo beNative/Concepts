@@ -157,7 +157,7 @@ begin
   InitializeTree;
   FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
-  FObjectInspector.ObjectVisibility := mvPublic;
+  FObjectInspector.ObjectVisibility := mvPublished;
   FObjectInspector.Component := FVirtualStringTree;
 end;
 {$ENDREGION}
@@ -175,13 +175,13 @@ procedure TfrmVirtualTreeView.FVirtualStringTreeAfterCellPaint(Sender: TBaseVirt
   TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
   CellRect: TRect);
 begin
-//
+//  Logger.IncCounter('OnAfterCellPaint');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeChange(Sender: TBaseVirtualTree;
   Node: PVirtualNode);
 begin
-//
+  Logger.IncCounter('OnChange');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeDblClick(Sender: TObject);
@@ -192,26 +192,26 @@ end;
 procedure TfrmVirtualTreeView.FVirtualStringTreeExpanded(Sender: TBaseVirtualTree;
   Node: PVirtualNode);
 begin
-//
+  Logger.IncCounter('OnExpanded');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeExpanding(Sender: TBaseVirtualTree;
   Node: PVirtualNode; var Allowed: Boolean);
 begin
-//
+  Logger.IncCounter('OnExpanding');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeFocusChanged(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex);
 begin
-//
+  Logger.IncCounter('OnFocusChanged');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeFocusChanging(Sender: TBaseVirtualTree;
   OldNode, NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex;
   var Allowed: Boolean);
 begin
-//
+  Logger.IncCounter('OnFocusChanging');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeFreeNode(Sender: TBaseVirtualTree;
@@ -269,7 +269,7 @@ procedure TfrmVirtualTreeView.FVirtualStringTreeHeaderDraw(Sender: TVTHeader;
   HeaderCanvas: TCanvas; Column: TVirtualTreeColumn; R: TRect; Hover,
   Pressed: Boolean; DropMark: TVTDropMarkMode);
 begin
-    //
+  Logger.IncCounter('OnHeaderDraw');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeHeaderDrawQueryElements(Sender: TVTHeader;
@@ -281,21 +281,21 @@ end;
 procedure TfrmVirtualTreeView.FVirtualStringTreeInitChildren(Sender: TBaseVirtualTree;
   Node: PVirtualNode; var ChildCount: Cardinal);
 begin
-//
+  Logger.IncCounter('OnInitChildren');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeInitNode(Sender: TBaseVirtualTree;
   ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
 begin
+  Logger.IncCounter('OnInitNode');
   Node.SetData(TConceptFactories.CreateRandomContact);
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-//
+  Logger.IncCounter('OnMouseUp');
 end;
-
 {$ENDREGION}
 {$ENDREGION}
 
@@ -399,12 +399,11 @@ begin
       Width    := 200;
       Text := 'Active';
     end;
-    RootNodeCount := 100000;
+    RootNodeCount := 10;
     Header.AutoFitColumns;
     Header.Options := Header.Options + [hoOwnerDraw];
   end;
 end;
-
 {$ENDREGION}
 
 end.
