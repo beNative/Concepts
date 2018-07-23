@@ -14,9 +14,9 @@
   limitations under the License.
 }
 
-unit DDuce.RTTEye;
+{$I DDuce.inc}
 
-//{$I ..\DDuce.inc}
+unit DDuce.RTTEye;
 
 interface
 

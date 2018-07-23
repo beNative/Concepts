@@ -14,9 +14,9 @@
   limitations under the License.
 }
 
-unit DDuce.Logger.Factories;
+{$I DDuce.inc}
 
-//{$I DDuce.inc}
+unit DDuce.Logger.Factories;
 
 interface
 
@@ -26,31 +26,37 @@ uses
 type
   TLoggerFactories = class sealed
     class function CreateLogger: ILogger;
-    class function CreateWinIPCChannel: ILogChannel;
-    class function CreateZeroMQChannel: ILogChannel;
+    class function CreateWinIPCChannel: IWinIPCChannel;
+    class function CreateZeroMQChannel: IZeroMQChannel;
+    class function CreateLogFileChannel(AFileName: string = ''): ILogFileChannel;
 
   end;
 
 implementation
 
 uses
-  DDuce.Logger.Base, DDuce.Logger.Channels.WinIPC,
-
-  DDuce.Logger.Channels.ZeroMQ;
+  DDuce.Logger.Base, DDuce.Logger.Channels.WinIPC, DDuce.Logger.Channels.ZeroMQ,
+  DDuce.Logger.Channels.LogFile;
 
 class function TLoggerFactories.CreateLogger: ILogger;
 begin
   Result := TLogger.Create;
 end;
 
-class function TLoggerFactories.CreateWinIPCChannel: ILogChannel;
+class function TLoggerFactories.CreateWinIPCChannel: IWinIPCChannel;
 begin
   Result := TWinIPCChannel.Create;
 end;
 
-class function TLoggerFactories.CreateZeroMQChannel: ILogChannel;
+class function TLoggerFactories.CreateZeroMQChannel: IZeroMQChannel;
 begin
   Result := TZeroMQChannel.Create;
+end;
+
+class function TLoggerFactories.CreateLogFileChannel(AFileName: string)
+  : ILogFileChannel;
+begin
+  Result := TLogFileChannel.Create(AFileName);
 end;
 
 end.

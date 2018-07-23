@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I DDuce.inc}
+
 unit DDuce.Logger.Interfaces;
 
 interface
@@ -106,6 +108,60 @@ type
       instance. }
     property Connected: Boolean
       read GetConnected write SetConnected;
+  end;
+
+  ILogFileChannel = interface(ILogChannel)
+  ['{AD38F81B-DC15-4295-B74D-B646CDF9831D}']
+    {$REGION 'property access methods'}
+    function GetFileName: string;
+    procedure SetFileName(const Value: string);
+    procedure SetShowTime(const AValue: Boolean);
+    procedure SetShowDate(const Value: Boolean);
+    function GetShowDate: Boolean;
+    function GetShowHeader: Boolean;
+    function GetShowPrefix: Boolean;
+    function GetShowTime: Boolean;
+    procedure SetShowHeader(const Value: Boolean);
+    procedure SetShowPrefix(const Value: Boolean);
+    {$ENDREGION}
+
+    property FileName: string
+      read GetFileName write SetFileName;
+
+    property ShowHeader: Boolean
+      read GetShowHeader write SetShowHeader;
+
+    property ShowPrefix: Boolean
+      read GetShowPrefix write SetShowPrefix;
+
+    property ShowTime: Boolean
+      read GetShowTime write SetShowTime;
+
+    property ShowDate: Boolean
+      read GetShowDate write SetShowDate;
+  end;
+
+  IZeroMQChannel = interface(ILogChannel)
+  ['{7DC63C0E-1038-4416-84C3-9D8E76C9B929}']
+    {$REGION 'property access methods'}
+    function GetPort: Integer;
+    function GetEndPoint: string;
+    procedure SetEndPoint(const Value: string);
+    function GetZMQVersion: string;
+    {$ENDREGION}
+
+    property EndPoint : string
+      read GetEndPoint write SetEndPoint;
+
+    property ZMQVersion: string
+      read GetZMQVersion;
+
+    property Port: Integer
+      read GetPort;
+  end;
+
+  IWinIPCChannel = interface(ILogChannel)
+  ['{E23B78DA-F62D-4D2B-A0FB-33C3CE106FFA}']
   end;
 
   TChannelList = IList<ILogChannel>;

@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I DDuce.inc}
+
 unit DDuce.Components.ValueList.Node;
 
 interface
@@ -25,7 +27,7 @@ uses
 
   Spring.Collections,
 
-  DDuce.DynamicRecord, DDuce.Logger;
+  DDuce.DynamicRecord;
 
 type
   TValueListNode = class

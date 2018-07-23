@@ -14,9 +14,9 @@
   limitations under the License.
 }
 
-unit DDuce.Components.XMLTree.Editors;
+{$I DDuce.inc}
 
-{$I ..\DDuce.inc}
+unit DDuce.Components.XMLTree.Editors;
 
 interface
 

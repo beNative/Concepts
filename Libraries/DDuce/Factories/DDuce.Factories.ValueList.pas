@@ -14,12 +14,14 @@
   limitations under the License.
 }
 
+{$I DDuce.inc}
+
 unit DDuce.Factories.ValueList;
 
 interface
 
 uses
-  DDuce.ValueList;
+  DDuce.Components.ValueList;
 
 type
   TValueListFactory = class sealed

@@ -14,9 +14,9 @@
   limitations under the License.
 }
 
-unit DDuce.DynamicRecord;
-
 {$I DDuce.inc}
+
+unit DDuce.DynamicRecord;
 
 interface
 
@@ -770,6 +770,8 @@ type
     function GetItem(Index: Integer): IDynamicField; virtual;
     function GetItemValue(const AName: string): TValue; virtual;
     procedure SetItemValue(const AName: string; const AValue: TValue); virtual;
+
+
 
     procedure Update(AItem: TCollectionItem); override;
     procedure SetItemName(Item: TCollectionItem); override;

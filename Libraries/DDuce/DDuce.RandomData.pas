@@ -14,11 +14,11 @@
   limitations under the License.
 }
 
+{$I DDuce.inc}
+
 unit DDuce.RandomData;
 
 { Utility type for generating random test data. }
-
-{$I DDuce.inc}
 
 interface
 
@@ -2678,15 +2678,15 @@ type
     class function Name: string; static;
     class function CompanyName: string; static;
     class function AlliteratedCompanyName: string; static;
-    class function Email(const PersonName, DomainName: string): string; static;
+    class function Email(const APersonName, ADomainName: string): string; static;
     class function FirstName: string; overload; static;
-    class function FirstName(Gender: TGender): string; overload; static;
-    class function FullName(Gender: TGender): string; static;
+    class function FirstName(AGender: TGender): string; overload; static;
+    class function FullName(AGender: TGender): string; overload; static;
     class function LastName: string; static;
-    class function PersonName: string; static;
+    class function FullName: string; overload; static;
     class function Fruit: string; static;
     class function Vegetable: string; static;
-    class function NumberString(Len: Integer): string; static;
+    class function NumberString(ALen: Integer): string; static;
     class function Number(ARange: Integer): Integer; overload; static;
     class function Number(AMin: Integer; AMax: Integer): Integer; overload; static;
     class function Street: string; static;
@@ -2809,21 +2809,21 @@ begin
   Result := Result + ' ' + Str(CompanySuffixes) + ' ' + Str(CompanyTypes);
 end;
 
-class function RandomData.Email(const PersonName, DomainName: string): string;
+class function RandomData.Email(const APersonName, ADomainName: string): string;
 var
   Name, FirstName, LastName, Suffix: string;
   I: Integer;
 begin
-  I := Pos(' ', PersonName);
+  I := Pos(' ', APersonName);
   if I > 0 then
   begin
-    FirstName := Copy(PersonName, 1, Pred(I));
-    LastName := PersonName;
+    FirstName := Copy(APersonName, 1, Pred(I));
+    LastName := APersonName;
     Delete(LastName, 1, I);
   end
   else
   begin
-    FirstName := PersonName;
+    FirstName := APersonName;
     LastName := EmptyStr;
   end;
   case Random(3) of
@@ -2835,12 +2835,12 @@ begin
     Suffix := DomainSuffixes[0]
   else
     Suffix := Str(DomainSuffixes);
-  Result := LowerCase(Name + '@' + DomainName + '.' + Suffix);
+  Result := LowerCase(Name + '@' + ADomainName + '.' + Suffix);
 end;
 
-class function RandomData.FirstName(Gender: TGender): string;
+class function RandomData.FirstName(AGender: TGender): string;
 begin
-  Result := FirstNames[Gender, Random(Length(FirstNames[Gender]))];
+  Result := FirstNames[AGender, Random(Length(FirstNames[AGender]))];
 end;
 
 class function RandomData.FirstName: string;
@@ -2848,12 +2848,12 @@ begin
   Result := RandomData.FirstName(TGender(Random(2)));
 end;
 
-class function RandomData.FullName(Gender: TGender): string;
+class function RandomData.FullName(AGender: TGender): string;
 begin
-  Result := FirstName(Gender) + ' ' + LastName;
+  Result := FirstName(AGender) + ' ' + LastName;
 end;
 
-class function RandomData.PersonName: string;
+class function RandomData.FullName: string;
 begin
   case Random(2) of
     0: Result := FullName(gnMale);
@@ -2876,13 +2876,13 @@ begin
   Result := Random(AMax) + AMin;
 end;
 
-class function RandomData.NumberString(Len: Integer): string;
+class function RandomData.NumberString(ALen: Integer): string;
 begin
   Result := EmptyStr;
-  while Len > 0 do
+  while ALen > 0 do
   begin
     Result := Result + Chr(Ord('0') + Random(10));
-    Dec(Len);
+    Dec(ALen);
   end;
 end;
 

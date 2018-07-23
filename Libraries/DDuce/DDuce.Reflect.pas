@@ -14,9 +14,9 @@
   limitations under the License.
 }
 
-unit DDuce.Reflect;
-
 {$I DDuce.inc}
+
+unit DDuce.Reflect;
 
 {
   Reflect provides some static routines to expose the contents and type

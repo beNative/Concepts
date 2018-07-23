@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I DDuce.inc}
+
 unit DDuce.WinIPC.Client;
 
 interface

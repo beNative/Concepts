@@ -26,6 +26,8 @@
    - OnGetCellColors was not triggered anymore
 }
 
+{$I DDuce.inc}
+
 unit DDuce.Components.Inspector;
 
 interface

@@ -74,9 +74,9 @@
     - CTRL-A during MultiSelect selects all records
 }
 
-unit DDuce.Components.DBGridView;
+{$I DDuce.inc}
 
-{$I ..\DDuce.inc}
+unit DDuce.Components.DBGridView;
 
 interface
 

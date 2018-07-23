@@ -14,20 +14,20 @@
   limitations under the License.
 }
 
-unit DDuce.Components.PropertyInspector.CollectionEditor;
+{$I DDuce.inc}
 
-{$I ..\DDuce.inc}
+unit DDuce.Components.PropertyInspector.CollectionEditor;
 
 interface
 
 uses
-  System.SysUtils, System.Classes, System.TypInfo,
+  System.SysUtils, System.Classes, System.TypInfo, System.ImageList,
   System.Actions,
   Winapi.Windows,
-  Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.ActnList,
+  Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.ActnList, Vcl.ImgList, Vcl.ToolWin,
   Vcl.Controls, Vcl.Forms, Vcl.Menus,
 
-  DDuce.Components.PropertyInspector, System.ImageList, Vcl.ImgList, Vcl.ToolWin;
+  DDuce.Components.PropertyInspector;
 
 type
   TfrmCollectionEditor = class(TForm)

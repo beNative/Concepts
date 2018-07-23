@@ -14,9 +14,9 @@
   limitations under the License.
 }
 
-unit DDuce.ObjectInspector;
+{$I DDuce.inc}
 
-{$I ..\DDuce.inc}
+unit DDuce.ObjectInspector;
 
 interface
 

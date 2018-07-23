@@ -89,9 +89,9 @@
 
 }
 
-unit DDuce.Components.GridView;
+{$I DDuce.inc}
 
-{$I ..\DDuce.inc}
+unit DDuce.Components.GridView;
 
 interface
 

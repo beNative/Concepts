@@ -14,9 +14,9 @@
   limitations under the License.
 }
 
-unit DDuce.Components.PropertyInspector.StringsEditor;
+{$I DDuce.inc}
 
-{$I ..\DDuce.inc}
+unit DDuce.Components.PropertyInspector.StringsEditor;
 
 interface
 

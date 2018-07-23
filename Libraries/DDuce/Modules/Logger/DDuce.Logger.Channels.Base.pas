@@ -14,9 +14,9 @@
   limitations under the License.
 }
 
-unit DDuce.Logger.Channels.Base;
+{$I DDuce.inc}
 
-//{$I DDuce.inc}
+unit DDuce.Logger.Channels.Base;
 
 interface
 
@@ -25,23 +25,18 @@ uses
 
 type
   TCustomLogChannel = class(TInterfacedObject, ILogChannel)
-  strict private
+  private
     FActive    : Boolean;
     FConnected : Boolean;
 
-  strict protected
+  protected
+    {$REGION 'property access methods'}
+    function GetPort: Integer; virtual;
     function GetActive: Boolean; virtual;
     procedure SetActive(const Value: Boolean); virtual;
     function GetConnected: Boolean; virtual;
     procedure SetConnected(const Value: Boolean); virtual;
-
-  public
-    constructor Create(AActive : Boolean = True); virtual;
-
-    function Write(const AMsg: TLogMessage): Boolean; virtual; abstract;
-
-    function Connect: Boolean; virtual;
-    function Disconnect: Boolean; virtual;
+    {$ENDREGION}
 
     { Indicates that messages from the Logger object will be sent through this
       channel. }
@@ -52,6 +47,18 @@ type
       can only connect when it is set Active first.  }
     property Connected: Boolean
       read GetConnected write SetConnected;
+
+    property Port: Integer
+      read GetPort;
+
+  public
+    constructor Create(AActive: Boolean = True); virtual;
+
+    function Write(const AMsg: TLogMessage): Boolean; virtual; abstract;
+
+    function Connect: Boolean; virtual;
+    function Disconnect: Boolean; virtual;
+
   end;
 
 implementation
@@ -78,6 +85,11 @@ end;
 function TCustomLogChannel.GetConnected: Boolean;
 begin
   Result := Active and FConnected;
+end;
+
+function TCustomLogChannel.GetPort: Integer;
+begin
+  Result := 0;
 end;
 
 procedure TCustomLogChannel.SetConnected(const Value: Boolean);

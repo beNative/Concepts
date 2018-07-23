@@ -25,6 +25,8 @@
   of the original code at http://code.google.com/p/luipack/
 }
 
+{$I DDuce.inc}
+
 unit DDuce.Logger.Base;
 
 {
@@ -287,6 +289,7 @@ begin
     end;
   end;
 end;
+
 {$REGION 'TLogger'}
 {$REGION 'construction and destruction'}
 procedure TLogger.AfterConstruction;

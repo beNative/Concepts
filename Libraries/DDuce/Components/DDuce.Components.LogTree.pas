@@ -20,9 +20,9 @@
   Copyright (C), All Rights Reserved.
 }
 
-unit DDuce.Components.LogTree;
+{$I DDuce.inc}
 
-{$I ..\DDuce.inc}
+unit DDuce.Components.LogTree;
 
 interface
 
@@ -94,12 +94,6 @@ type
     FMaximumLines            : Cardinal;
     FDateTimeFormat          : string;
 
-    function DrawHTML(
-      const ARect   : TRect;
-      const ACanvas : TCanvas;
-      const Text    : string;
-      Selected      : Boolean
-    ) : Integer;
     function GetCellText(
       const Node   : PVirtualNode;
       const Column : TColumnIndex
@@ -225,7 +219,9 @@ implementation
 
 uses
   System.UITypes,
-  Vcl.Dialogs, Vcl.Clipbrd;
+  Vcl.Dialogs, Vcl.Clipbrd,
+
+  DDuce.Utils;
 
 resourcestring
   SSaveLog         = '&Save';
@@ -260,8 +256,7 @@ begin
   if Column = 1 then
   begin
     if FHTMLSupport then
-      ColWidth := DrawHTML(CellRect, ACanvas, GetCellText(ANode,
-        Column), Selected[ANode])
+      ColWidth := DrawFormattedText(CellRect, ACanvas, GetCellText(ANode, Column))
     else
       ColWidth := ACanvas.TextWidth(GetCellText(ANode, Column));
 
@@ -291,29 +286,29 @@ function TLogTree.DoGetImageIndex(Node: PVirtualNode; Kind: TVTImageKind;
 var
   NodeData: PLogNodeData;
 begin
-  Images.Count;
-
-  if ((FShowImages) and (Kind in [ikNormal, ikSelected])) and
-    (((FShowDateColumn) and (Column <= 0)) or
-    ((not FShowDateColumn) and (Column = 1))) then
+  if Assigned(Images) then
   begin
-    NodeData := GetNodeData(Node);
+    if ((FShowImages) and (Kind in [ikNormal, ikSelected])) and
+      (((FShowDateColumn) and (Column <= 0)) or
+      ((not FShowDateColumn) and (Column = 1))) then
+    begin
+      NodeData := GetNodeData(Node);
 
-    if Assigned(NodeData) then
-      case NodeData.LogLevel of
-        llError:
-          Index := 3;
-        llInfo:
-          Index := 2;
-        llWarning:
-          Index := 1;
-        llDebug:
-          Index := 0;
-      else
-        Index := 4;
-      end;
+      if Assigned(NodeData) then
+        case NodeData.LogLevel of
+          llError:
+            Index := 3;
+          llInfo:
+            Index := 2;
+          llWarning:
+            Index := 1;
+          llDebug:
+            Index := 0;
+        else
+          Index := 4;
+        end;
+    end;
   end;
-
   Result := inherited DoGetImageIndex(Node, Kind, Column, Ghosted, Index);
 end;
 
@@ -433,7 +428,7 @@ begin
   TreeOptions.SelectionOptions := TreeOptions.SelectionOptions +
     [toFullRowSelect, toRightClickSelect];
 
-  AddDefaultColumns([SDate, SLog], [100, 100]);
+  AddDefaultColumns([SDate, SLog], [80, 100]);
   Header.AutoSizeIndex := 1;
   Header.Columns[1].MinWidth := 80;
   Header.Options := Header.Options + [hoAutoResize];
@@ -598,13 +593,13 @@ begin
       begin
         case ALogLevel of
           llError:
-            AValue := Concat('<font-color=clRed>', AValue, '</font-color>');
+            AValue := Concat('<fc=clRed>', AValue, '</fc>');
           llInfo:
-            AValue := Concat('<font-color=clBlack>', AValue, '</font-color>');
+            AValue := Concat('<fc=clBlue>', AValue, '</fc>');
           llWarning:
-            AValue := Concat('<font-color=clBlue>', AValue, '</font-color>');
+            AValue := Concat('<fc=$000067CE>', AValue, '</fc>');
           llDebug:
-            AValue := Concat('<font-color=clGreen>', AValue, '</font-color>')
+            AValue := Concat('<fc=clGreen>', AValue, '</fc>')
         end;
       end;
 
@@ -684,217 +679,6 @@ begin
   finally
     EndUpdate;
   end;
-end;
-
-function TLogTree.DrawHTML(const ARect: TRect; const ACanvas:
-  TCanvas; const Text: string; Selected: Boolean): Integer;
-{
- DrawHTML - Draws text on a canvas using tags based on a simple
- subset of HTML/CSS
-
- <b> - Bold e.g. <b>This is bold</b>
- <i> - Italic e.g. <i>This is italic</i>
- <u> - Underline e.g. <u>This is underlined</u>
- <font-color=X> - Font color
-   examples:
-   <font-color=clRed>Delphi red</font-color>
-   <font-color=#FFFFFF>Web white</font-color>
-   <font-color=$000000>Hex black</font-color>
- <font-size=X> Font size
-   example: <font-size=30>This is some big text</font-size>
- <font-family> Font family
-   example: <font-family=Arial>This is Arial</font-family>
-}
-
-  function CloseTag(const ATag: string): string;
-  begin
-    Result := Concat('/', ATag);
-  end;
-
-  function GetTagValue(const ATag: string): string;
-  var
-    P: Integer;
-  begin
-    P := Pos('=', ATag);
-
-    if P = 0 then
-      Result := ''
-    else
-      Result := Copy(ATag, P + 1, MaxInt);
-  end;
-
-  function ColorCodeToColor(const Value: string): TColor;
-  var
-    HexValue: string;
-  begin
-    Result := 0;
-
-    if Value <> '' then
-    begin
-      if (Length(Value) >= 2) and (Copy(Uppercase(Value), 1, 2) = 'CL') then
-      begin
-       // Delphi color
-        Result := StringToColor(Value);
-      end
-      else if Value[1] = '#' then
-      begin
-       // Web color
-        HexValue := Copy(Value, 2, 6);
-
-        Result := RGB(StrToInt('$' + Copy(HexValue, 1, 2)),
-          StrToInt('$' + Copy(HexValue, 3, 2)),
-          StrToInt('$' + Copy(HexValue, 5, 2)));
-      end
-      else
-       // Hex or decimal color
-        Result := StrToIntDef(Value, 0);
-    end;
-  end;
-
-const
-  TagBold       = 'B';
-  TagItalic     = 'I';
-  TagUnderline  = 'U';
-  TagBreak      = 'BR';
-  TagFontSize   = 'FONT-SIZE';
-  TagFontFamily = 'FONT-FAMILY';
-  TagFontColor  = 'FONT-COLOR';
-  TagColor      = 'COLOR';
-
-var
-  X                  : Integer;
-  Y                  : Integer;
-  Idx                : Integer;
-  CharWidth          : Integer;
-  MaxCharHeight      : Integer;
-  CurrChar           : Char;
-  Tag                : string;
-  TagValue           : string;
-  PreviousFontColor  : TColor;
-  PreviousFontFamily : string;
-  PreviousFontSize   : Integer;
-  PreviousColor      : TColor;
-
-begin
-  ACanvas.Font.Size := Canvas.Font.Size;
-  ACanvas.Font.Name := Canvas.Font.Name;
-  ACanvas.Font.Color := Canvas.Font.Color;
-  ACanvas.Font.Style := Canvas.Font.Style;
-
-  PreviousFontColor := ACanvas.Font.Color;
-  PreviousFontFamily := ACanvas.Font.Name;
-  PreviousFontSize := ACanvas.Font.Size;
-  PreviousColor := ACanvas.Brush.Color;
-
-  X := ARect.Left;
-  Y := ARect.Top + 1;
-  Idx := 1;
-
-  MaxCharHeight := ACanvas.TextHeight('Ag');
-
-  while Idx <= Length(Text) do
-  begin
-    CurrChar := Text[Idx];
-
-   // Is this a tag?
-    if CurrChar = '<' then
-    begin
-      Tag := '';
-      Inc(Idx);
-     // Find the end of then tag
-      while (Text[Idx] <> '>') and (Idx <= Length(Text)) do
-      begin
-        Tag := Concat(Tag, Uppercase(Text[Idx]));
-        Inc(Idx);
-      end;
-
-     // Simple tags
-      if Tag = TagBold then
-        ACanvas.Font.Style := ACanvas.Font.Style + [fsBold]
-      else if Tag = TagItalic then
-        ACanvas.Font.Style := ACanvas.Font.Style + [fsItalic]
-      else if Tag = TagUnderline then
-        ACanvas.Font.Style := ACanvas.Font.Style + [fsUnderline]
-      else if Tag = TagBreak then
-      begin
-        X := ARect.Left;
-        Inc(Y, MaxCharHeight);
-      end
-      // Closing tags
-      else if Tag = CloseTag(TagBold) then
-        ACanvas.Font.Style := ACanvas.Font.Style - [fsBold]
-      else if Tag = CloseTag(TagItalic) then
-        ACanvas.Font.Style := ACanvas.Font.Style - [fsItalic]
-      else if Tag = CloseTag(TagUnderline) then
-        ACanvas.Font.Style := ACanvas.Font.Style - [fsUnderline]
-      else if Tag = CloseTag(TagFontSize) then
-        ACanvas.Font.Size := PreviousFontSize
-      else if Tag = CloseTag(TagFontFamily) then
-        ACanvas.Font.Name := PreviousFontFamily
-      else if Tag = CloseTag(TagFontColor) then
-        ACanvas.Font.Color := PreviousFontColor
-      else if Tag = CloseTag(TagColor) then
-        ACanvas.Brush.Color := PreviousColor
-      else
-     // Tags with values
-      begin
-       // Get the tag value (everything after '=')
-        TagValue := GetTagValue(Tag);
-
-        if TagValue <> '' then
-        begin
-         // Remove the value from the tag
-          Tag := Copy(Tag, 1, Pos('=', Tag) - 1);
-
-          if Tag = TagFontSize then
-          begin
-            PreviousFontSize := ACanvas.Font.Size;
-            ACanvas.Font.Size := StrToIntDef(TagValue, ACanvas.Font.Size);
-          end
-          else if Tag = TagFontFamily then
-          begin
-            PreviousFontFamily := ACanvas.Font.Name;
-            ACanvas.Font.Name := TagValue;
-          end;
-
-          if Tag = TagFontColor then
-          begin
-            PreviousFontColor := ACanvas.Font.Color;
-            try
-              ACanvas.Font.Color := ColorCodeToColor(TagValue);
-            except
-             //Just in case the canvas color is invalid
-            end;
-          end
-          else if Tag = TagColor then
-          begin
-            PreviousColor := ACanvas.Brush.Color;
-            try
-              ACanvas.Brush.Color := ColorCodeToColor(TagValue);
-            except
-             //Just in case the canvas color is invalid
-            end;
-          end;
-        end;
-      end;
-    end
-    else if CurrChar >= #32 then // Draw the character if it's not a ctrl char
-    begin
-      CharWidth := ACanvas.TextWidth(CurrChar);
-
-      if Y + MaxCharHeight < ARect.Bottom then
-      begin
-        ACanvas.Brush.Style := bsClear;
-        ACanvas.TextOut(X, Y, CurrChar);
-      end;
-
-      X := X + CharWidth;
-    end;
-
-    Inc(Idx);
-  end;
-
-  Result := X - ARect.Left;
 end;
 
 { TLogPopupmenu }

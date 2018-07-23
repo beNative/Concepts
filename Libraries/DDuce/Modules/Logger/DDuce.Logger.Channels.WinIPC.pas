@@ -14,9 +14,9 @@
   limitations under the License.
 }
 
-unit DDuce.Logger.Channels.WinIPC;
+{$I DDuce.inc}
 
-//{$I DDuce.inc}
+unit DDuce.Logger.Channels.WinIPC;
 
 interface
 
@@ -27,7 +27,7 @@ uses
   DDuce.Logger.Interfaces, DDuce.Logger.Channels.Base;
 
 type
-  TWinIPCChannel = class(TCustomLogChannel)
+  TWinIPCChannel = class(TCustomLogChannel, ILogChannel, IWinIPCChannel)
   private
     FClient : TWinIPCClient; // sends to the server
     FBuffer : TMemoryStream;

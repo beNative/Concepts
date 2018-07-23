@@ -14,6 +14,8 @@
   limitations under the License.
 }
 
+{$I DDuce.inc}
+
 unit DDuce.Logger.Channels.ZeroMQ;
 
 interface
@@ -32,33 +34,61 @@ uses
   DDuce.Logger.Interfaces, DDuce.Logger.Channels.Base;
 
 const
-  DEFAULT_PORT = 5555;
+  DEFAULT_ENDPOINT = 'tcp://*:5555';
 
 type
-  TZeroMQChannel = class(TCustomLogChannel)
+  TZeroMQChannel = class(TCustomLogChannel, ILogChannel, IZeroMQChannel)
   private
     FBuffer    : TStringStream;
     FZMQ       : IZeroMQ;
     FPublisher : IZMQPair;
+    FPort      : Integer;
+    FEndPoint  : string;
+
+  protected
+    {$REGION 'property access methods'}
+    function GetZMQVersion: string;
+    function GetActive: Boolean; override;
+    function GetEndPoint: string;
+    procedure SetEndPoint(const Value: string);
+    function GetPort: Integer; override;
+    {$ENDREGION}
+
+    { The endpoint argument is a string consisting of two parts as follows:
+      transport ://address. The transport part specifies the underlying
+      transport protocol to use. The meaning of the address part is specific to
+      the underlying transport protocol selected.
+      Currently only tcp is supported as transport. }
+    property EndPoint : string
+      read GetEndPoint write SetEndPoint;
+
+    property ZMQVersion: string
+      read GetZMQVersion;
 
   public
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
-
-    function GetActive: Boolean; override;
+    constructor Create(const AEndPoint: string = ''); reintroduce; virtual;
 
     function Write(const AMsg: TLogMessage): Boolean; override;
     function Connect: Boolean; override;
+
   end;
 
 implementation
 
 uses
-  Spring, Spring.Helpers,
+  Spring, Spring.Helpers, Spring.SystemUtils,
 
   ZeroMQ.API;
 
 {$REGION 'construction and destruction'}
+constructor TZeroMQChannel.Create(const AEndPoint: string);
+begin
+  inherited Create(False);
+  FEndPoint := AEndPoint;
+end;
+
 procedure TZeroMQChannel.AfterConstruction;
 begin
   inherited AfterConstruction;
@@ -68,7 +98,13 @@ begin
   );
   FBuffer := TStringStream.Create;
   FZMQ    := TZeroMQ.Create;
-  Connect;
+  if FEndPoint = '' then
+  begin
+  //  FEndPoint := Format('tcp://%s:%s', ['*', '*']);
+    FEndPoint := DEFAULT_ENDPOINT;
+  end;
+  if Active then
+    Connect;
 end;
 
 procedure TZeroMQChannel.BeforeDestruction;
@@ -90,16 +126,52 @@ function TZeroMQChannel.GetActive: Boolean;
 begin
   Result := Assigned(FZMQ) and inherited GetActive;
 end;
+
+function TZeroMQChannel.GetEndPoint: string;
+begin
+  Result := FEndPoint;
+end;
+
+procedure TZeroMQChannel.SetEndPoint(const Value: string);
+begin
+  FEndPoint := Value;
+end;
+
+function TZeroMQChannel.GetPort: Integer;
+begin
+  Result := FPort;
+end;
+
+function TZeroMQChannel.GetZMQVersion: string;
+var
+  LMajor : Integer;
+  LMinor : Integer;
+  LPatch : Integer;
+begin
+  zmq_version(@LMajor, @LMinor, @LPatch);
+  Result := Format('%d.%d.%d', [LMajor, LMinor, LPatch]);
+end;
+
 {$ENDREGION}
 
 {$REGION 'public methods'}
 function TZeroMQChannel.Connect: Boolean;
+var
+  S : string;
+  A : TStringDynArray;
 begin
   if Active then
   begin
     FPublisher := FZMQ.Start(ZMQSocket.Publisher);
-    Connected :=
-      FPublisher.Bind(Format('tcp://%s:%d', ['*', DEFAULT_PORT])) <> -1;
+    Connected  := FPublisher.Bind(FEndPoint) <> -1;
+  end;
+  if Connected then
+  begin
+    S := FPublisher.LastEndPoint;
+
+    A := SplitString(S, [':']);
+
+    FPort := StrToIntDef(A[High(A)], 0);
   end;
   Result := Connected;
 end;
@@ -122,7 +194,10 @@ begin
       FBuffer.WriteBuffer(AMsg.MsgType);
       FBuffer.WriteBuffer(AMsg.TimeStamp);
       FBuffer.WriteBuffer(TextSize);
-      FBuffer.WriteBuffer(AMsg.Text[1], TextSize);
+      if TextSize > 0 then
+      begin
+        FBuffer.WriteBuffer(AMsg.Text[1], TextSize);
+      end;
       if AMsg.Data <> nil then
       begin
         DataSize := AMsg.Data.Size;

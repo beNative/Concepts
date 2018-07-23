@@ -32,9 +32,9 @@
     - removed dependencies to other units from the original library.
 }
 
-unit DDuce.Components.PropertyInspector;
+{$I DDuce.inc}
 
-{$I ..\DDuce.inc}
+unit DDuce.Components.PropertyInspector;
 
 interface
 

@@ -34,7 +34,6 @@ object frmComponentInspectorzObjectInspector: TfrmComponentInspectorzObjectInspe
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 392
     object cbxInspector: TComboBox
       AlignWithMargins = True
       Left = 3
@@ -45,7 +44,6 @@ object frmComponentInspectorzObjectInspector: TfrmComponentInspectorzObjectInspe
       Align = alTop
       TabOrder = 0
       OnChange = cbxInspectorChange
-      ExplicitWidth = 386
     end
   end
   object aclMain: TActionList

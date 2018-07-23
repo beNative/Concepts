@@ -14,9 +14,9 @@
   limitations under the License.
 }
 
-unit DDuce.Logger.Channels.LogFile;
+{$I DDuce.inc}
 
-//{$I DDuce.inc}
+unit DDuce.Logger.Channels.LogFile;
 
 interface
 
@@ -26,8 +26,8 @@ uses
   DDuce.Logger.Interfaces, DDuce.Logger.Channels.Base;
 
 type
-  TLogFileChannel = class(TCustomLogChannel)
-  strict private
+  TLogFileChannel = class(TCustomLogChannel, ILogChannel, ILogFileChannel)
+  private
     FRelativeIndent : Integer;
     FBaseIndent     : Integer;
     FShowHeader     : Boolean;
@@ -36,14 +36,27 @@ type
     FShowPrefix     : Boolean;
     FShowStrings    : Boolean;
     FStreamWriter   : TStreamWriter;
+    FFileName       : string;
 
-    procedure SetShowTime(const AValue: Boolean);
-    procedure SetShowDate(const Value: Boolean);
 
     function Space(ACount: Integer): string;
     procedure UpdateIndentation;
     procedure WriteStrings(AStream: TStream);
     procedure WriteComponent(AStream: TStream);
+
+  protected
+    {$REGION 'property access methods'}
+    procedure SetShowTime(const AValue: Boolean);
+    procedure SetShowDate(const Value: Boolean);
+    function GetFileName: string;
+    procedure SetFileName(const Value: string);
+    function GetShowDate: Boolean;
+    function GetShowHeader: Boolean;
+    function GetShowPrefix: Boolean;
+    function GetShowTime: Boolean;
+    procedure SetShowHeader(const Value: Boolean);
+    procedure SetShowPrefix(const Value: Boolean);
+    {$ENDREGION}
 
   public
     constructor Create(const AFileName: string = ''); reintroduce; virtual;
@@ -53,16 +66,19 @@ type
     function Write(const AMsg: TLogMessage): Boolean; override;
 
     property ShowHeader: Boolean
-      read FShowHeader write FShowHeader default False;
+      read GetShowHeader write SetShowHeader default False;
 
     property ShowPrefix: Boolean
-      read FShowPrefix write FShowPrefix default True;
+      read GetShowPrefix write SetShowPrefix default True;
 
     property ShowTime: Boolean
-      read FShowTime write SetShowTime default True;
+      read GetShowTime write SetShowTime default True;
 
     property ShowDate: Boolean
-      read FShowDate write SetShowDate default False;
+      read GetShowDate write SetShowDate default False;
+
+    property FileName: string
+      read GetFileName write SetFileName;
   end;
 
 implementation
@@ -73,25 +89,23 @@ uses
 
 {$REGION 'construction and destruction'}
 constructor TLogFileChannel.Create(const AFileName: string);
-var
-  S : string;
 begin
   inherited Create;
   if AFileName = '' then
   begin
-    S := ExtractFilePath(Application.ExeName)
+    FFileName := ExtractFilePath(Application.ExeName)
       + FormatDateTime('yyyymmdd hhnnss ', Now)
       + ExtractFileName(ChangeFileExt(Application.ExeName, '.log'));
   end
   else
-    S := AFileName;
+    FFileName := AFileName;
   FShowPrefix   := True;
   FShowDate     := False;
   FShowTime     := True;
   FShowStrings  := True;
-  FShowHeader   := True;
+  FShowHeader   := False;
   Active        := True;
-  FStreamWriter := TStreamWriter.Create(S, True); // Append
+  FStreamWriter := TStreamWriter.Create(FFileName, True); // Append
   if FShowHeader then
     FStreamWriter.WriteLine('============|Log Session Started at ' + DateTimeToStr(Now)
       + ' by ' + Application.Title + '|============');
@@ -106,10 +120,53 @@ end;
 {$ENDREGION}
 
 {$REGION 'property access methods'}
+function TLogFileChannel.GetFileName: string;
+begin
+  Result := FFileName;
+end;
+
+procedure TLogFileChannel.SetFileName(const Value: string);
+begin
+  if Value <> FileName then
+  begin
+    FFileName := Value;
+  end;
+end;
+
+function TLogFileChannel.GetShowDate: Boolean;
+begin
+  Result := FShowDate;
+end;
+
 procedure TLogFileChannel.SetShowDate(const Value: Boolean);
 begin
   FShowDate := Value;
   UpdateIndentation;
+end;
+
+function TLogFileChannel.GetShowHeader: Boolean;
+begin
+  Result := FShowHeader;
+end;
+
+procedure TLogFileChannel.SetShowHeader(const Value: Boolean);
+begin
+  FShowHeader := Value;
+end;
+
+function TLogFileChannel.GetShowPrefix: Boolean;
+begin
+  Result := FShowPrefix;
+end;
+
+procedure TLogFileChannel.SetShowPrefix(const Value: Boolean);
+begin
+  FShowPrefix := Value;
+end;
+
+function TLogFileChannel.GetShowTime: Boolean;
+begin
+  Result := FShowTime;
 end;
 
 procedure TLogFileChannel.SetShowTime(const AValue: Boolean);
