@@ -172,8 +172,9 @@ uses
   Vcl.GraphUtil, Vcl.Dialogs,
 
   DDuce.Factories.GridView, DDuce.Factories.zObjInspector, DDuce.Logger,
+  DDuce.Utils,
 
-  Concepts.Factories, Concepts.Utils;
+  Concepts.Factories;
 
 {$R *.dfm}
 

@@ -22,7 +22,8 @@ interface
 
 uses
   System.Classes, System.Rtti, System.SysUtils, System.Types, System.UITypes,
-  Vcl.Menus, Vcl.Graphics,
+  Vcl.Menus, Vcl.Graphics, Vcl.Forms,
+  Data.DB,
 
   Spring, Spring.Collections;
 
@@ -54,8 +55,9 @@ type
     lmtCounter     = 21,
     lmtColor       = 22,
     lmtAlphaColor  = 23,
-    lmtScreenShot  = 24,  // not supported yet
+    lmtScreenShot  = 24,
     lmtText        = 25,  // arbitrary text with optional highlighter info
+    lmtDataSet     = 26,
     lmtClear       = 99
   );
 
@@ -74,7 +76,6 @@ type
     IpAddress                  source IP address (ZeroMQ)
 
   *)
-
 
   TCustomDataCallbackMethod = function(
     ASender     : ILogger;
@@ -241,6 +242,8 @@ type
     procedure SendPointer(const AName: string; APointer: Pointer);
     procedure SendException(const AName: string; AException: Exception);
     procedure SendBitmap(const AName: string; ABitmap: TBitmap);
+    procedure SendScreenShot(const AName: string; AForm: TCustomForm);
+    procedure SendDataSet(const AName: string; ADataSet: TDataSet);
     procedure SendMemory(
       const AName: string;
       AAddress   : Pointer;

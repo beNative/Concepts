@@ -88,6 +88,10 @@
           TabOrder = 0
           object tsSampleCode: TTabSheet
             Caption = 'Sample code'
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object pnlExampleCodeHeader: TPanel
               AlignWithMargins = True
               Left = 3
@@ -149,6 +153,10 @@
           TabOrder = 0
           object tsHighlighter: TTabSheet
             Caption = 'Highlighter definition'
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object pnlHighlighter: TPanel
               Left = 153
               Top = 0
@@ -194,6 +202,10 @@
           object tsColors: TTabSheet
             Caption = 'Color mappings'
             ImageIndex = 1
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object splVerticalRight: TSplitter
               Left = 475
               Top = 0
@@ -294,15 +306,13 @@
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 1191
-      Height = 29
+      Width = 261
+      Height = 13
       Align = alClient
       Alignment = taCenter
       Caption = 'This form demonstrates the TBCEditor control.'
       Layout = tlCenter
       WordWrap = True
-      ExplicitWidth = 261
-      ExplicitHeight = 13
     end
   end
   object aclMain: TActionList

@@ -268,7 +268,10 @@ end;
 
 procedure TfrmComponentInspectorzObjectInspector.FormResize(Sender: TObject);
 begin
-  FObjectInspector.SplitterPos := FObjectInspector.ClientWidth div 2;
+  if Assigned(FObjectInspector) then
+  begin
+    FObjectInspector.SplitterPos := FObjectInspector.ClientWidth div 2;
+  end;
 end;
 
 procedure TfrmComponentInspectorzObjectInspector.FormShow(Sender: TObject);

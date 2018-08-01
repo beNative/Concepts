@@ -87,14 +87,14 @@ begin
   Result := Active and FConnected;
 end;
 
-function TCustomLogChannel.GetPort: Integer;
-begin
-  Result := 0;
-end;
-
 procedure TCustomLogChannel.SetConnected(const Value: Boolean);
 begin
   FConnected := Value;
+end;
+
+function TCustomLogChannel.GetPort: Integer;
+begin
+  Result := 0;
 end;
 {$ENDREGION}
 

@@ -57,6 +57,8 @@ implementation
 uses
   Winapi.Windows,
 
+  DDuce.Utils,
+
   Concepts.Utils;
 
 {$REGION 'action handlers'}

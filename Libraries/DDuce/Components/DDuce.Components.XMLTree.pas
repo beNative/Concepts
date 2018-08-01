@@ -709,8 +709,6 @@ implementation
 uses
   TypInfo,
 
-
-
   DDuce.Components.XMLTree.Editors;
 
 {$REGION 'documentation'}

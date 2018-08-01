@@ -23,6 +23,8 @@ interface
 uses
   System.Classes, System.SysUtils,
 
+  Spring,
+
   DDuce.Logger.Interfaces, DDuce.Logger.Channels.Base;
 
 type
@@ -35,9 +37,8 @@ type
     FShowTime       : Boolean;
     FShowPrefix     : Boolean;
     FShowStrings    : Boolean;
-    FStreamWriter   : TStreamWriter;
+    FStreamWriter   : Lazy<TStreamWriter>;
     FFileName       : string;
-
 
     function Space(ACount: Integer): string;
     procedure UpdateIndentation;
@@ -104,17 +105,20 @@ begin
   FShowTime     := True;
   FShowStrings  := True;
   FShowHeader   := False;
-  Active        := True;
-  FStreamWriter := TStreamWriter.Create(FFileName, True); // Append
-  if FShowHeader then
-    FStreamWriter.WriteLine('============|Log Session Started at ' + DateTimeToStr(Now)
-      + ' by ' + Application.Title + '|============');
-  UpdateIndentation;
+  Active        := False;
+  FStreamWriter.Create(function: TStreamWriter
+    begin
+      Result := TStreamWriter.Create(FFileName, True); // Append
+      if FShowHeader then
+        Result.WriteLine('============|Log Session Started at ' + DateTimeToStr(Now)
+          + ' by ' + Application.Title + '|============');
+      UpdateIndentation;
+    end
+  )
 end;
 
 procedure TLogFileChannel.BeforeDestruction;
 begin
-  FStreamWriter.Free;
   inherited BeforeDestruction;
 end;
 {$ENDREGION}
@@ -206,7 +210,7 @@ begin
       AStream.Position := 0;
       SL.LoadFromStream(AStream);
       for I := 0 to SL.Count - 1 do
-        FStreamWriter.WriteLine(
+        FStreamWriter.Value.WriteLine(
           Space(FRelativeIndent + FBaseIndent) + SL.Strings[I]
         );
     finally
@@ -218,7 +222,7 @@ end;
 procedure TLogFileChannel.WriteComponent(AStream: TStream);
 begin
   AStream.Seek(0, soFromBeginning);
-  ObjectBinaryToText(AStream, FStreamWriter.BaseStream);
+  ObjectBinaryToText(AStream, FStreamWriter.Value.BaseStream);
 end;
 {$ENDREGION}
 
@@ -229,13 +233,13 @@ begin
   if (AMsg.MsgType = Integer(lmtLeaveMethod)) and (FRelativeIndent >= 2) then
     Dec(FRelativeIndent, 2);
   if ShowDate then
-    FStreamWriter.Write(FormatDateTime('yyyy-mm-dd', AMsg.TimeStamp) + ' ');
+    FStreamWriter.Value.Write(FormatDateTime('yyyy-mm-dd', AMsg.TimeStamp) + ' ');
   if ShowTime then
-    FStreamWriter.Write(FormatDateTime('hh:nn:ss:zzz', AMsg.TimeStamp) + ' ');
-  FStreamWriter.Write(Space(FRelativeIndent));
+    FStreamWriter.Value.Write(FormatDateTime('hh:nn:ss:zzz', AMsg.TimeStamp) + ' ');
+  FStreamWriter.Value.Write(Space(FRelativeIndent));
   if ShowPrefix then
-    FStreamWriter.Write(LOG_PREFIXES[TLogMessageType(AMsg.MsgType)] + ': ');
-  FStreamWriter.WriteLine(string(AMsg.Text));
+    FStreamWriter.Value.Write(LOG_PREFIXES[TLogMessageType(AMsg.MsgType)] + ': ');
+  FStreamWriter.Value.WriteLine(string(AMsg.Text));
   if FShowStrings and (AMsg.Data <> nil) then
   begin
     case TLogMessageType(AMsg.MsgType) of

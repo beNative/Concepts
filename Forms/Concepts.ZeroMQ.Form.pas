@@ -68,38 +68,42 @@ type
     aclMain                    : TActionList;
     actAddSubscription         : TAction;
     actBind                    : TAction;
+    actClearReceived           : TAction;
     actClearSubscriptions      : TAction;
     actClose                   : TAction;
     actConnect                 : TAction;
     actCreateNew               : TAction;
+    actCreateNewWithNewContext : TAction;
     actDeleteSubscription      : TAction;
+    actPopulateMemo            : TAction;
     actReceive                 : TAction;
     actResetCounter            : TAction;
     actSendCounterValue        : TAction;
+    actSendLineByLine          : TAction;
     actSendMemoText            : TAction;
     actSendMessages            : TAction;
-    actSubscribe               : TAction;
-    btnClientConnect           : TButton;
-    btnClose                   : TButton;
+    actSubscribeToAll          : TAction;
+    btnAddSubscription         : TToolButton;
+    btnClearSubscriptions      : TToolButton;
     btnCreateNew               : TButton;
     btnCreateNew1              : TButton;
+    btnDeleteSubscription      : TToolButton;
+    btnPopulateMemo            : TButton;
     btnReceive                 : TButton;
+    btnReceive1                : TButton;
     btnSend                    : TButton;
     btnSend1000Messages        : TButton;
     btnSendCounterValue        : TButton;
-    btnServerBind              : TButton;
+    btnSendLineByLine          : TButton;
+    btnSubscribeToAll          : TButton;
     edtAddress                 : TLabeledEdit;
     edtCounter                 : TLabeledEdit;
     edtFilter                  : TLabeledEdit;
-    edtPollTimeout             : TLabeledEdit;
     edtPort                    : TLabeledEdit;
     edtQuantity                : TEdit;
     grpEndPoint                : TGroupBox;
-    grpMonitorEvents           : TGroupBox;
-    grpPollingSettings         : TGroupBox;
     grpSubscriptions           : TGroupBox;
     imlMain                    : TImageList;
-    lbxEvents                  : TCheckListBox;
     lbxSubscriptions           : TListBox;
     mmoIPs                     : TMemo;
     mmoReceive                 : TMemo;
@@ -111,26 +115,29 @@ type
     pnlNodeSettings            : TPanel;
     pnlSocketConfiguration     : TPanel;
     pnlTop                     : TPanel;
-    rgpTransport               : TRadioGroup;
-    rgpZMQSocket               : TRadioGroup;
     sbrMain                    : TStatusBar;
+    tlbSubscriptions           : TToolBar;
+    tmrPoll                    : TTimer;
     tsReceive                  : TTabSheet;
     tsSend                     : TTabSheet;
-    actCreateNewWithNewContext : TAction;
-    actSendLineByLine          : TAction;
-    btnSendLineByLine          : TButton;
-    actClearReceived           : TAction;
-    btnReceive1                : TButton;
-    tmrPoll                    : TTimer;
-    pnlConnectionString: TPanel;
-    actSubscribeToAll: TAction;
-    btnSubscribeToAll: TButton;
-    tlbSubscriptions: TToolBar;
-    btnAddSubscription: TToolButton;
-    btnDeleteSubscription: TToolButton;
-    btnClearSubscriptions: TToolButton;
-    actPopulateMemo: TAction;
-    btnPopulateMemo: TButton;
+    actShowLastEndPoint: TAction;
+    grp1: TGroupBox;
+    cbxZMQSocketType: TComboBox;
+    tsSettings: TTabSheet;
+    grpMonitorEvents: TGroupBox;
+    lbxEvents: TCheckListBox;
+    grpPollingSettings: TGroupBox;
+    edtPollTimeout: TLabeledEdit;
+    btnClientConnect: TButton;
+    btnServerBind: TButton;
+    lbxEndPoints: TListBox;
+    cbxTransport: TComboBox;
+    lblTransport: TLabel;
+    edtConnectionString: TEdit;
+    actStart: TAction;
+    btnStart: TButton;
+    btnClose: TButton;
+    actCreateNewSubscriberNode: TAction;
     {$ENDREGION}
 
     {$REGION 'action handlers'}
@@ -140,24 +147,26 @@ type
     procedure actCreateNewExecute(Sender: TObject);
     procedure actReceiveExecute(Sender: TObject);
     procedure actSendMemoTextExecute(Sender: TObject);
-    procedure actSubscribeExecute(Sender: TObject);
     procedure actSendCounterValueExecute(Sender: TObject);
     procedure actResetCounterExecute(Sender: TObject);
     procedure actSendMessagesExecute(Sender: TObject);
     procedure actAddSubscriptionExecute(Sender: TObject);
     procedure actDeleteSubscriptionExecute(Sender: TObject);
     procedure actClearSubscriptionsExecute(Sender: TObject);
+    procedure actCreateNewWithNewContextExecute(Sender: TObject);
+    procedure actSendLineByLineExecute(Sender: TObject);
+    procedure actClearReceivedExecute(Sender: TObject);
+    procedure actSubscribeToAllExecute(Sender: TObject);
+    procedure actPopulateMemoExecute(Sender: TObject);
     {$ENDREGION}
 
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure lbxEventsClickCheck(Sender: TObject);
     procedure edtCounterExit(Sender: TObject);
-    procedure actCreateNewWithNewContextExecute(Sender: TObject);
-    procedure actSendLineByLineExecute(Sender: TObject);
-    procedure actClearReceivedExecute(Sender: TObject);
     procedure tmrPollTimer(Sender: TObject);
-    procedure actSubscribeToAllExecute(Sender: TObject);
-    procedure actPopulateMemoExecute(Sender: TObject);
+    procedure actShowLastEndPointExecute(Sender: TObject);
+    procedure actStartExecute(Sender: TObject);
+    procedure actCreateNewSubscriberNodeExecute(Sender: TObject);
 
   private
     FZMQ             : IZeroMQ;
@@ -173,8 +182,8 @@ type
     {$REGION 'property access methods'}
     function GetEvents: ZMQEvents;
     procedure SetEvents(const Value: ZMQEvents);
-    function GetSocket: ZMQSocket;
-    procedure SetSocket(const Value: ZMQSocket);
+    function GetSocketKind: ZMQSocket;
+    procedure SetSocketKind(const Value: ZMQSocket);
     function GetConnectionString: string;
     function GetPort: string;
     procedure SetPort(const Value: string);
@@ -185,10 +194,13 @@ type
     procedure UpdateActions; override;
     procedure UpdateEvents;
 
-    procedure InitializeZeroMQ;
+    procedure Initialize;
+    procedure StartZMQ;
+    procedure CloseZMQ;
     procedure Bind;
     procedure Connect;
     procedure ClearSubscriptions;
+    procedure UpdateConnectionString;
 
     function GenerateRandomData(ALineCount: Integer): string;
 
@@ -201,8 +213,8 @@ type
     property Poll: IZMQPoll
       read FPoll write FPoll;
 
-    property Socket: ZMQSocket
-      read GetSocket write SetSocket;
+    property SocketKind: ZMQSocket
+      read GetSocketKind write SetSocketKind;
 
     property Port: string
       read GetPort write SetPort;
@@ -222,9 +234,12 @@ type
     procedure BeforeDestruction; override;
 
     constructor Create(
-      AOwner : TComponent;
-      AZMQ   : IZeroMQ = nil
-    ); reintroduce; virtual;
+      AOwner      : TComponent;
+      ASocketKind : ZMQSocket;
+      AZMQ        : IZeroMQ = nil
+    ); reintroduce; overload; virtual;
+
+    constructor Create(AOwner: TComponent); overload; override;
 
   end;
 
@@ -234,15 +249,14 @@ implementation
 
 uses
   DDuce.Reflect, DDuce.Logger, DDuce.Components.Factories, DDuce.RandomData,
+  DDuce.Utils,
 
-  Concepts.Utils, Concepts.ZeroMQ.Data,
+  Concepts.ZeroMQ.Data, Concepts.Utils,
 
   Spring;
 
 {$REGION 'construction and destruction'}
 procedure TfrmZMQConcept.AfterConstruction;
-var
-  S : string;
 begin
   inherited AfterConstruction;
   FLogTree := TDDuceComponents.CreateLogTree(Self, pnlLog);
@@ -250,7 +264,7 @@ begin
   FLogTree.ShowDateColumn     := False;
   FLogTree.AutoLogLevelColors := True;
   GetIPAddresses(mmoIPs.Lines);
-  InitializeZeroMQ;
+  Initialize;
   tmrPoll.Enabled := True;
 end;
 
@@ -264,11 +278,19 @@ end;
 { Used to test the 'inproc' transport protocol. For this both client and server
   need to share the same ZeroMQ context (or IZeroMQ instance). }
 
-constructor TfrmZMQConcept.Create(AOwner: TComponent; AZMQ: IZeroMQ);
+constructor TfrmZMQConcept.Create(AOwner: TComponent; ASocketKind : ZMQSocket;
+ AZMQ: IZeroMQ);
 begin
   inherited Create(AOwner);
+  SocketKind := ASocketKind;
   if Assigned(AZMQ) then
     FZMQ := AZMQ;
+end;
+
+constructor TfrmZMQConcept.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  SocketKind := ZMQSocket.Publisher;
 end;
 {$ENDREGION}
 
@@ -287,15 +309,8 @@ begin
 end;
 
 function TfrmZMQConcept.GetConnectionString: string;
-const
-  CONNECTION_STRING = '%s://%s';
-var
-  S : string;
 begin
-  S := Format(CONNECTION_STRING, [GetTransport, edtAddress.Text]);
-  if Transport = 'tcp' then
-    S := S + ':' + Port;
-  Result := S;
+  Result := edtConnectionString.Text;
 end;
 
 function TfrmZMQConcept.GetEvents: ZMQEvents;
@@ -330,22 +345,22 @@ begin
   end;
 end;
 
-function TfrmZMQConcept.GetSocket: ZMQSocket;
+function TfrmZMQConcept.GetSocketKind: ZMQSocket;
 begin
-  Result := ZMQSocket(rgpZMQSocket.ItemIndex);
+  Result := ZMQSocket(cbxZMQSocketType.ItemIndex);
 end;
 
-procedure TfrmZMQConcept.SetSocket(const Value: ZMQSocket);
+procedure TfrmZMQConcept.SetSocketKind(const Value: ZMQSocket);
 begin
-  if Value <> Socket then
+  if Value <> SocketKind then
   begin
-    rgpZMQSocket.ItemIndex := Ord(Value);
+    cbxZMQSocketType.ItemIndex := Ord(Value);
   end;
 end;
 
 function TfrmZMQConcept.GetTransport: string;
 begin
-  Result := ZMQTransports[rgpTransport.ItemIndex];
+  Result := ZMQTransports[cbxTransport.ItemIndex];
 end;
 
 procedure TfrmZMQConcept.SetTransport(const Value: string);
@@ -362,7 +377,7 @@ begin
       if ZMQTransports[I] = Value then
       begin
         B := True;
-        rgpTransport.ItemIndex := I;
+        cbxTransport.ItemIndex := I;
       end;
       Inc(I);
     end;
@@ -421,12 +436,7 @@ end;
 
 procedure TfrmZMQConcept.actCloseExecute(Sender: TObject);
 begin
-  Pair := nil;
-  lbxSubscriptions.Clear;
-  FSubscribedToAll := False;
-  edtFilter.Text := '';
-  Poll := nil;
-  FLogTree.Log('Closed', llDebug);
+  CloseZMQ;
 end;
 
 procedure TfrmZMQConcept.actConnectExecute(Sender: TObject);
@@ -438,8 +448,13 @@ procedure TfrmZMQConcept.actCreateNewExecute(Sender: TObject);
 var
   F : TfrmZMQConcept;
 begin
-  F := TfrmZMQConcept.Create(Self, FZMQ);
+  F := TfrmZMQConcept.Create(Self, ZMQSocket.Subscriber, FZMQ);
   F.Show;
+end;
+
+procedure TfrmZMQConcept.actCreateNewSubscriberNodeExecute(Sender: TObject);
+begin
+//
 end;
 
 procedure TfrmZMQConcept.actCreateNewWithNewContextExecute(Sender: TObject);
@@ -487,6 +502,20 @@ begin
   edtCounter.Text := FCounter.ToString;
 end;
 
+procedure TfrmZMQConcept.actShowLastEndPointExecute(Sender: TObject);
+begin
+  if Assigned(Pair) then
+  begin
+    ShowMessage(Pair.LastEndPoint);
+  end;
+
+end;
+
+procedure TfrmZMQConcept.actStartExecute(Sender: TObject);
+begin
+  StartZMQ;
+end;
+
 procedure TfrmZMQConcept.actSendCounterValueExecute(Sender: TObject);
 begin
   Pair.SendString(FCounter.ToString);
@@ -496,32 +525,20 @@ end;
 
 procedure TfrmZMQConcept.actSendLineByLineExecute(Sender: TObject);
 var
-  //SL : IShared<TStringList>;
-  S : string;
-  SL : TStringList;
-  I : Integer;
+  SL : IShared<TStringList>;
 begin
-  //SL := Shared<TStringList>.New;
-  SL := TStringList.Create;
-  //SL.Assign(mmoSend.Lines);
-//      for S in SL do
-//      begin
-//        Pair.SendString(S, False);
-//      end;
-
-  for I := 0 to mmoSend.Lines.Count - 1 do
-  begin
-    Pair.SendString(mmoSend.Lines[I], False);
-  end;
-
-  SL.Free;
-//  TThread.CreateAnonymousThread(procedure
-//    var
-//      S : string;
-//    begin
-//    end
-//  ).Start;
-
+  SL := Shared<TStringList>.New;
+  SL.Assign(mmoSend.Lines);
+  TThread.CreateAnonymousThread(procedure
+    var
+      S : string;
+    begin
+      for S in SL do
+      begin
+        Pair.SendString(S, False);
+      end;
+    end
+  ).Start;
 end;
 
 procedure TfrmZMQConcept.actSendMemoTextExecute(Sender: TObject);
@@ -529,10 +546,6 @@ begin
   Pair.SendString(mmoSend.Text, True);
 end;
 
-procedure TfrmZMQConcept.actSubscribeExecute(Sender: TObject);
-begin
-  Pair.Subscribe(edtFilter.Text);
-end;
 procedure TfrmZMQConcept.actSubscribeToAllExecute(Sender: TObject);
 begin
   if Assigned(Pair) then
@@ -541,14 +554,23 @@ begin
     Pair.Subscribe('');
   end;
 end;
-
 {$ENDREGION}
 
 {$REGION 'protected methods'}
-procedure TfrmZMQConcept.InitializeZeroMQ;
+procedure TfrmZMQConcept.CloseZMQ;
 begin
-  if not Assigned(FZMQ) then
-    FZMQ := TZeroMQ.Create;
+  Pair := nil;
+  FZMQ := nil;
+  Poll := nil;
+  lbxSubscriptions.Clear;
+  lbxEndPoints.CLear;
+  FSubscribedToAll := False;
+  edtFilter.Text := '';
+  FLogTree.Log('<b>Closed</b>', llDebug);
+end;
+
+procedure TfrmZMQConcept.Initialize;
+begin
   Events := ZMQAllEvents;
   FEventProc := procedure(Event: ZMQEvents; Value: Integer; const Address: string)
     const
@@ -586,6 +608,22 @@ begin
     end;
 end;
 
+procedure TfrmZMQConcept.StartZMQ;
+begin
+  if not Assigned(FZMQ) then
+    FZMQ := TZeroMQ.Create;
+  if not Assigned(Pair) then
+  begin
+    Pair := ZMQ.Start(SocketKind);
+    FZMQ.Monitor(
+      Pair,
+      'Monitor', //edtAddress.Text,
+      Events,
+      FEventProc
+    );
+  end;
+end;
+
 procedure TfrmZMQConcept.UpdateActions;
 var
   B : Boolean;
@@ -595,28 +633,45 @@ begin
   actReceive.Enabled          := B;
   actSendMemoText.Enabled     := B;
   actSendCounterValue.Enabled := B;
-  actSubscribe.Enabled        := B;
-  if Assigned(Pair) then
-    pnlConnectionString.Caption := Pair.LastEndPoint;
-  B := Assigned(Pair);
-
+  actSendLineByLine.Enabled   := B;
+  actClose.Enabled            := B;
+  edtAddress.Enabled          := B;
+  edtPort.Enabled             := B;
+  lblTransport.Enabled        := B;
+  cbxTransport.Enabled        := B;
+  edtConnectionString.Enabled := B;
+  //cbxZMQSocketType.Enabled    := not B;
   actAddSubscription.Enabled    := B and not FSubscribedToAll;
   actDeleteSubscription.Enabled := actAddSubscription.Enabled;
   edtFilter.Enabled             := actAddSubscription.Enabled;
   lbxSubscriptions.Enabled      := actAddSubscription.Enabled;
   actClearSubscriptions.Enabled := actAddSubscription.Enabled;
   actSubscribeToAll.Enabled     := actAddSubscription.Enabled;
-  actClose.Enabled   := B;
-  actBind.Enabled    := not B;
-  actConnect.Enabled := not B;
-  if B then
-    pnlConnectionString.Font.Color := clGreen
-  else
-    pnlConnectionString.Font.Color := clRed;
+  actBind.Enabled    := B;
+  actConnect.Enabled := B;
   if Assigned(FZMQ) then
   begin
     sbrMain.SimpleText := Format('Context handle: %d', [Integer(FZMQ)]);
   end;
+  UpdateConnectionString;
+end;
+
+procedure TfrmZMQConcept.UpdateConnectionString;
+var
+  A : string;
+  S : string;
+  T : string;
+  P : string;
+begin
+  T := cbxTransport.Text;
+  A := edtAddress.Text;
+  S := Format('%s://%s', [T, A]);
+  if T = 'tcp' then
+  begin
+    P := edtPort.Text;
+    S := Format('%s:%s', [S, P])
+  end;
+  edtConnectionString.Text := S;
 end;
 
 procedure TfrmZMQConcept.UpdateEvents;
@@ -643,18 +698,13 @@ end;
 procedure TfrmZMQConcept.Bind;
 begin
   FSubscribedToAll := False;
-  Pair := FZMQ.Start(Socket);
-  FZMQ.Monitor(  // only one monitor per context
-    Pair,
-    'Monitor', //edtAddress.Text,
-    Events,
-    FEventProc
-  );
   if Transport = 'tcp' then
+  begin
     edtAddress.Text := '*';
-  Pair.Bind(ConnectionString);
-
-  //Pair.Bind('tcp://*:5556'); // Test
+    UpdateConnectionString;
+  end;
+  if Pair.Bind(ConnectionString) = 0 then
+    lbxEndPoints.Items.Add(Pair.LastEndPoint);
 end;
 
 procedure TfrmZMQConcept.ClearSubscriptions;
@@ -678,13 +728,8 @@ procedure TfrmZMQConcept.Connect;
 begin
   mmoReceive.Clear;
   FSubscribedToAll := False;
-  Pair := ZMQ.Start(Socket);
-  FZMQ.Monitor(
-    Pair,
-    'Monitor', //edtAddress.Text,
-    Events,
-    FEventProc
-  );
+  StartZMQ;
+
   if Pair.Connect(ConnectionString) = 0 then
   begin
     Poll := ZMQ.Poller;
@@ -698,10 +743,10 @@ begin
         end;
       end
     );
+    lbxEndPoints.Items.Add(Pair.LastEndPoint);
   end
   else
-    FLogTree.Log('Could not connect.', llError);
-  //Pair.Connect('tcp://localhost:5556'); // Test
+    FLogTree.Log('Connect failed.', llError);
 end;
 {$ENDREGION}
 

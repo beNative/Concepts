@@ -99,7 +99,7 @@ implementation
 uses
   Vcl.Dialogs,
 
-  DDuce.ScopedReference,
+  DDuce.ScopedReference, DDuce.Utils,
 
   Concepts.Factories, Concepts.Utils;
 

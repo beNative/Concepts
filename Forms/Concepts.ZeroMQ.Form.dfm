@@ -24,7 +24,6 @@ object frmZMQConcept: TfrmZMQConcept
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitHeight = 381
     object btnSend1000Messages: TButton
       Left = 15
       Top = 132
@@ -49,32 +48,14 @@ object frmZMQConcept: TfrmZMQConcept
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 2
-      object btnClientConnect: TButton
-        Left = 6
-        Top = 2
-        Width = 80
-        Height = 25
-        Action = actConnect
-        Images = imlMain
-        TabOrder = 0
-      end
       object btnCreateNew: TButton
-        Left = 260
+        Left = 268
         Top = 2
         Width = 164
         Height = 25
         Action = actCreateNew
         Images = imlMain
-        TabOrder = 1
-      end
-      object btnClose: TButton
-        Left = 174
-        Top = 2
-        Width = 80
-        Height = 25
-        Action = actClose
-        Images = imlMain
-        TabOrder = 2
+        TabOrder = 0
       end
     end
     object pgcMessage: TPageControl
@@ -89,8 +70,10 @@ object frmZMQConcept: TfrmZMQConcept
       TabOrder = 3
       object tsSend: TTabSheet
         Caption = 'Send'
-        ExplicitLeft = 3
-        ExplicitTop = 22
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         DesignSize = (
           422
           179)
@@ -172,6 +155,10 @@ object frmZMQConcept: TfrmZMQConcept
       object tsReceive: TTabSheet
         Caption = 'Receive'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         DesignSize = (
           422
           179)
@@ -220,6 +207,74 @@ object frmZMQConcept: TfrmZMQConcept
           TabOrder = 2
         end
       end
+      object tsSettings: TTabSheet
+        Caption = 'Settings'
+        ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
+        object grpMonitorEvents: TGroupBox
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 118
+          Height = 173
+          Align = alLeft
+          Caption = 'Monitor events'
+          TabOrder = 0
+          object lbxEvents: TCheckListBox
+            AlignWithMargins = True
+            Left = 5
+            Top = 18
+            Width = 108
+            Height = 150
+            OnClickCheck = lbxEventsClickCheck
+            Align = alClient
+            AutoComplete = False
+            BevelInner = bvNone
+            BevelOuter = bvNone
+            Columns = 1
+            ItemHeight = 13
+            Items.Strings = (
+              'Connected'
+              'Delayed'
+              'Retried'
+              'Listening'
+              'BindFailed'
+              'Accepted'
+              'AcceptFailed'
+              'Closed'
+              'CloseFailed'
+              'Disconnected'
+              'MonitorStopped')
+            TabOrder = 0
+          end
+        end
+        object grpPollingSettings: TGroupBox
+          AlignWithMargins = True
+          Left = 139
+          Top = 3
+          Width = 158
+          Height = 50
+          Caption = 'Polling'
+          TabOrder = 1
+          object edtPollTimeout: TLabeledEdit
+            Left = 88
+            Top = 15
+            Width = 50
+            Height = 21
+            Alignment = taCenter
+            EditLabel.Width = 79
+            EditLabel.Height = 13
+            EditLabel.Caption = 'Poll timeout (ms)'
+            LabelPosition = lpLeft
+            NumbersOnly = True
+            TabOrder = 0
+            Text = '10'
+          end
+        end
+      end
     end
     object pnlLog: TPanel
       Left = 0
@@ -229,7 +284,6 @@ object frmZMQConcept: TfrmZMQConcept
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 4
-      ExplicitHeight = 141
     end
   end
   object sbrMain: TStatusBar
@@ -239,7 +293,6 @@ object frmZMQConcept: TfrmZMQConcept
     Height = 19
     Panels = <>
     SimplePanel = True
-    ExplicitTop = 381
   end
   object pnlLeft: TPanel
     Left = 0
@@ -249,66 +302,20 @@ object frmZMQConcept: TfrmZMQConcept
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitHeight = 381
     object pnlSocketConfiguration: TPanel
       Left = 0
-      Top = 34
+      Top = 0
       Width = 115
-      Height = 353
+      Height = 387
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitTop = 0
-      ExplicitHeight = 381
-      object rgpZMQSocket: TRadioGroup
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 109
-        Height = 222
-        Align = alTop
-        Caption = 'Socket Type'
-        ItemIndex = 1
-        Items.Strings = (
-          'Pair'
-          'Publisher'
-          'Subscriber'
-          'Requester'
-          'Responder'
-          'Dealer'
-          'Router'
-          'Pull'
-          'Push'
-          'XPublisher'
-          'XSubscriber'
-          'Stream')
-        TabOrder = 0
-      end
-      object rgpTransport: TRadioGroup
-        AlignWithMargins = True
-        Left = 3
-        Top = 231
-        Width = 109
-        Height = 74
-        Align = alTop
-        Caption = 'Transport'
-        Columns = 2
-        ItemIndex = 0
-        Items.Strings = (
-          'tcp'
-          'inproc'
-          'ipc'
-          'pgm'
-          'epgm')
-        TabOrder = 1
-        ExplicitTop = 247
-      end
       object mmoIPs: TMemo
         AlignWithMargins = True
         Left = 6
-        Top = 311
+        Top = 118
         Width = 103
-        Height = 36
+        Height = 263
         Hint = 'Local IP addresses'
         Margins.Left = 6
         Margins.Right = 6
@@ -323,33 +330,95 @@ object frmZMQConcept: TfrmZMQConcept
         Font.Style = []
         ParentFont = False
         ReadOnly = True
-        TabOrder = 2
+        TabOrder = 0
+      end
+      object grp1: TGroupBox
+        Left = 0
+        Top = 0
+        Width = 115
+        Height = 115
+        Align = alTop
+        Caption = 'Socket Type'
+        TabOrder = 1
+        object cbxZMQSocketType: TComboBox
+          Left = 10
+          Top = 24
+          Width = 94
+          Height = 21
+          AutoDropDown = True
+          Style = csDropDownList
+          DropDownCount = 30
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ItemIndex = 0
+          ParentFont = False
+          TabOrder = 0
+          Text = 'Pair'
+          Items.Strings = (
+            'Pair'
+            'Publisher'
+            'Subscriber'
+            'Requester'
+            'Responder'
+            'Dealer'
+            'Router'
+            'Pull'
+            'Push'
+            'XPublisher'
+            'XSubscriber'
+            'Stream')
+        end
+        object btnStart: TButton
+          Left = 10
+          Top = 51
+          Width = 94
+          Height = 25
+          Action = actStart
+          TabOrder = 1
+        end
+        object btnClose: TButton
+          Left = 10
+          Top = 82
+          Width = 94
+          Height = 25
+          Action = actClose
+          Images = imlMain
+          TabOrder = 2
+        end
       end
     end
     object pnlNodeSettings: TPanel
       Left = 115
-      Top = 34
+      Top = 0
       Width = 214
-      Height = 353
+      Height = 387
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitTop = 0
-      ExplicitHeight = 381
       object grpEndPoint: TGroupBox
         AlignWithMargins = True
         Left = 3
         Top = 3
         Width = 208
-        Height = 82
+        Height = 238
         Align = alTop
-        Caption = 'Endpoint'
+        Caption = 'Endpoints'
         TabOrder = 0
-        ExplicitTop = 31
+        object lblTransport: TLabel
+          Left = 5
+          Top = 51
+          Width = 51
+          Height = 13
+          Caption = 'Transport:'
+          FocusControl = cbxTransport
+        end
         object edtAddress: TLabeledEdit
-          Left = 57
+          Left = 59
           Top = 21
-          Width = 136
+          Width = 139
           Height = 21
           Alignment = taCenter
           EditLabel.Width = 43
@@ -361,14 +430,15 @@ object frmZMQConcept: TfrmZMQConcept
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           LabelPosition = lpLeft
+          LabelSpacing = 10
           ParentFont = False
           TabOrder = 0
           Text = 'localhost'
         end
         object edtPort: TLabeledEdit
-          Left = 57
+          Left = 150
           Top = 48
-          Width = 72
+          Width = 48
           Height = 21
           Alignment = taCenter
           EditLabel.Width = 24
@@ -380,21 +450,87 @@ object frmZMQConcept: TfrmZMQConcept
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           LabelPosition = lpLeft
-          LabelSpacing = 20
+          LabelSpacing = 10
           ParentFont = False
           TabOrder = 1
           Text = '5555'
         end
+        object btnClientConnect: TButton
+          Left = 3
+          Top = 102
+          Width = 80
+          Height = 25
+          Action = actConnect
+          Images = imlMain
+          TabOrder = 2
+        end
+        object btnServerBind: TButton
+          Left = 125
+          Top = 102
+          Width = 80
+          Height = 25
+          Action = actBind
+          Images = imlMain
+          TabOrder = 3
+        end
+        object lbxEndPoints: TListBox
+          Left = 3
+          Top = 133
+          Width = 202
+          Height = 98
+          ItemHeight = 13
+          TabOrder = 4
+        end
+        object cbxTransport: TComboBox
+          Left = 60
+          Top = 48
+          Width = 45
+          Height = 21
+          AutoDropDown = True
+          Style = csDropDownList
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ItemIndex = 0
+          ParentFont = False
+          TabOrder = 5
+          Text = 'tcp'
+          Items.Strings = (
+            'tcp'
+            'inproc'
+            'ipc'
+            'pgm'
+            'epgm')
+        end
+        object edtConnectionString: TEdit
+          Left = 3
+          Top = 78
+          Width = 190
+          Height = 16
+          Alignment = taCenter
+          BevelInner = bvNone
+          BevelOuter = bvNone
+          BorderStyle = bsNone
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 6
+        end
       end
       object grpSubscriptions: TGroupBox
         Left = 0
-        Top = 88
+        Top = 244
         Width = 214
         Height = 105
         Align = alTop
         Caption = 'Subscriptions'
         TabOrder = 1
-        ExplicitTop = 85
         object edtFilter: TLabeledEdit
           Left = 6
           Top = 34
@@ -448,101 +584,7 @@ object frmZMQConcept: TfrmZMQConcept
           end
         end
       end
-      object grpPollingSettings: TGroupBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 196
-        Width = 208
-        Height = 39
-        Align = alTop
-        Caption = 'Polling'
-        TabOrder = 2
-        ExplicitTop = 224
-        object edtPollTimeout: TLabeledEdit
-          Left = 144
-          Top = 15
-          Width = 50
-          Height = 21
-          Alignment = taCenter
-          EditLabel.Width = 79
-          EditLabel.Height = 13
-          EditLabel.Caption = 'Poll timeout (ms)'
-          LabelPosition = lpLeft
-          NumbersOnly = True
-          TabOrder = 0
-          Text = '10'
-        end
-      end
-      object grpMonitorEvents: TGroupBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 241
-        Width = 208
-        Height = 109
-        Align = alClient
-        Caption = 'Monitor events'
-        TabOrder = 3
-        ExplicitTop = 269
-        object lbxEvents: TCheckListBox
-          AlignWithMargins = True
-          Left = 5
-          Top = 18
-          Width = 198
-          Height = 86
-          OnClickCheck = lbxEventsClickCheck
-          Align = alClient
-          AutoComplete = False
-          BevelInner = bvNone
-          BevelOuter = bvNone
-          Columns = 2
-          ItemHeight = 13
-          Items.Strings = (
-            'Connected'
-            'Delayed'
-            'Retried'
-            'Listening'
-            'BindFailed'
-            'Accepted'
-            'AcceptFailed'
-            'Closed'
-            'CloseFailed'
-            'Disconnected'
-            'MonitorStopped')
-          TabOrder = 0
-        end
-      end
     end
-    object pnlConnectionString: TPanel
-      AlignWithMargins = True
-      Left = 3
-      Top = 3
-      Width = 323
-      Height = 28
-      Align = alTop
-      BevelKind = bkFlat
-      BevelOuter = bvNone
-      Color = clWhite
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -19
-      Font.Name = 'Segoe UI'
-      Font.Style = [fsBold]
-      ParentBackground = False
-      ParentFont = False
-      TabOrder = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 329
-    end
-  end
-  object btnServerBind: TButton
-    Left = 419
-    Top = 2
-    Width = 80
-    Height = 25
-    Action = actBind
-    Images = imlMain
-    TabOrder = 3
   end
   object btnCreateNew1: TButton
     Left = 503
@@ -551,7 +593,7 @@ object frmZMQConcept: TfrmZMQConcept
     Height = 25
     Action = actCreateNewWithNewContext
     Images = imlMain
-    TabOrder = 4
+    TabOrder = 3
   end
   object aclMain: TActionList
     Images = imlMain
@@ -574,10 +616,6 @@ object frmZMQConcept: TfrmZMQConcept
     object actReceive: TAction
       Caption = 'Receive'
       OnExecute = actReceiveExecute
-    end
-    object actSubscribe: TAction
-      Caption = 'Subscribe'
-      OnExecute = actSubscribeExecute
     end
     object actCreateNew: TAction
       Caption = 'Create new ZeroMQ node'
@@ -635,13 +673,25 @@ object frmZMQConcept: TfrmZMQConcept
       Hint = 'Populates the list with 1000 random names.'
       OnExecute = actPopulateMemoExecute
     end
+    object actShowLastEndPoint: TAction
+      Caption = 'LastEndpoint'
+      OnExecute = actShowLastEndPointExecute
+    end
+    object actStart: TAction
+      Caption = 'Start'
+      OnExecute = actStartExecute
+    end
+    object actCreateNewSubscriberNode: TAction
+      Caption = 'Create new subscriber node'
+      OnExecute = actCreateNewSubscriberNodeExecute
+    end
   end
   object imlMain: TImageList
     ColorDepth = cd32Bit
     Left = 424
     Top = 256
     Bitmap = {
-      494C010106000800300010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010106000800380010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

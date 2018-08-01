@@ -41,6 +41,8 @@ implementation
 uses
   Vcl.Dialogs,
 
+  DDuce.Utils,
+
   Concepts.Utils;
 
 type

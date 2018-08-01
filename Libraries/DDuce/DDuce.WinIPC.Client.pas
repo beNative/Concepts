@@ -30,20 +30,36 @@ uses
 type
   TWinIPCClient = class
   private
-    FServerProcessId : Integer;
-    FServerThreadId  : Integer;
+    FServerProcessId          : Integer;
+    FServerThreadId           : Integer;
+    FServerMsgWindowClassName : string;
+    FServerWindowName         : string;
 
   protected
+    {$REGION 'property access methods'}
     function GetServerProcessId: Integer;
     function GetServerThreadId: Integer;
     function GetConnected: Boolean;
     procedure SetConnected(const Value: Boolean);
     function GetServerHandle: THandle;
+    {$ENDREGION}
 
   public
+    procedure AfterConstruction; override;
+    constructor Create(
+      const AServerMsgWindowClassName : string = '';
+      const AServerWindowName         : string = ''
+    );
+
     function Connect: Boolean;
 
     procedure SendStream(AStream: TStream);
+
+    property ServerMsgWindowClassName: string
+      read FServerMsgWindowClassName write FServerMsgWindowClassName;
+
+    property ServerWindowName: string
+      read FServerWindowName write FServerWindowName;
 
     property ServerHandle: THandle
       read GetServerHandle;
@@ -72,6 +88,25 @@ const
 resourcestring
   SServerNotActive = 'Server with ID %s is not active.';
 
+{$REGION 'construction and destruction'}
+constructor TWinIPCClient.Create(const AServerMsgWindowClassName,
+  AServerWindowName: string);
+begin
+  inherited Create;
+  FServerMsgWindowClassName := AServerMsgWindowClassName;
+  FServerWindowName         := AServerWindowName;
+end;
+
+procedure TWinIPCClient.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  if FServerMsgWindowClassName.IsEmpty then
+    FServerMsgWindowClassName := MSG_WND_CLASSNAME;
+  if FServerWindowName.IsEmpty then
+    FServerWindowName := SERVER_WINDOWNAME;
+end;
+{$ENDREGION}
+
 {$REGION 'property access methods'}
 function TWinIPCClient.GetConnected: Boolean;
 begin
@@ -86,7 +121,7 @@ end;
 
 function TWinIPCClient.GetServerHandle: THandle;
 begin
-  Result := FindWindow(MSG_WND_CLASSNAME, SERVER_WINDOWNAME);
+  Result := FindWindow(PChar(ServerMsgWindowClassName), PChar(ServerWindowName));
 end;
 
 function TWinIPCClient.GetServerProcessId: Integer;

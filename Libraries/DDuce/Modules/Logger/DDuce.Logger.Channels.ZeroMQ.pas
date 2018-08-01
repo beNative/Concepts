@@ -68,7 +68,10 @@ type
   public
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
-    constructor Create(const AEndPoint: string = ''); reintroduce; virtual;
+    constructor Create(
+      const AEndPoint : string = '';
+      AActive         : Boolean = True
+    ); reintroduce; virtual;
 
     function Write(const AMsg: TLogMessage): Boolean; override;
     function Connect: Boolean; override;
@@ -83,9 +86,9 @@ uses
   ZeroMQ.API;
 
 {$REGION 'construction and destruction'}
-constructor TZeroMQChannel.Create(const AEndPoint: string);
+constructor TZeroMQChannel.Create(const AEndPoint: string; AActive: Boolean);
 begin
-  inherited Create(False);
+  inherited Create(AActive);
   FEndPoint := AEndPoint;
 end;
 
@@ -100,7 +103,6 @@ begin
   FZMQ    := TZeroMQ.Create;
   if FEndPoint = '' then
   begin
-  //  FEndPoint := Format('tcp://%s:%s', ['*', '*']);
     FEndPoint := DEFAULT_ENDPOINT;
   end;
   if Active then
@@ -134,7 +136,12 @@ end;
 
 procedure TZeroMQChannel.SetEndPoint(const Value: string);
 begin
-  FEndPoint := Value;
+  if Value <> EndPoint then
+  begin
+    FEndPoint := Value;
+    if Active then
+      Connect;
+  end;
 end;
 
 function TZeroMQChannel.GetPort: Integer;
@@ -151,7 +158,6 @@ begin
   zmq_version(@LMajor, @LMinor, @LPatch);
   Result := Format('%d.%d.%d', [LMajor, LMinor, LPatch]);
 end;
-
 {$ENDREGION}
 
 {$REGION 'public methods'}
@@ -164,13 +170,14 @@ begin
   begin
     FPublisher := FZMQ.Start(ZMQSocket.Publisher);
     Connected  := FPublisher.Bind(FEndPoint) <> -1;
+    // Physical connection is always a bit after Connected reports True.
+    // https://stackoverflow.com/questions/11634830/zeromq-always-loses-the-first-message
+    Sleep(100);
   end;
   if Connected then
   begin
     S := FPublisher.LastEndPoint;
-
     A := SplitString(S, [':']);
-
     FPort := StrToIntDef(A[High(A)], 0);
   end;
   Result := Connected;

@@ -22,7 +22,7 @@ interface
 
 uses
   Winapi.Windows,
-  System.SysUtils;
+  System.Classes, System.SysUtils;
 
 function GetExenameForProcess(AProcessId: DWORD): string;
 
@@ -32,10 +32,18 @@ function GetExenameForProcessUsingPsAPI(AProcessId: DWORD): string;
 
 function GetExenameForProcessUsingToolhelp32(AProcessId: DWORD): string;
 
+procedure GetIPAddresses(AStrings: TStrings); overload;
+
+function GetExternalIP(out AIP: string): Boolean;
+
+function GetIP(const AHostName: string): string;
+
 implementation
 
 uses
-  Winapi.PsAPI, Winapi.TlHelp32;
+  Winapi.PsAPI, Winapi.TlHelp32, Winapi.WinSock, Winapi.WinInet,
+
+  DDuce.Utils;
 
 {$REGION 'interfaced routines'}
 function GetExenameForProcessUsingPsAPI(AProcessId: DWORD): string;
@@ -129,6 +137,116 @@ begin
     GetWindowThreadProcessID(AWndHandle, LProcessID);
     if LProcessID <> 0 then
       Result := GetExenameForProcess(LProcessID);
+  end;
+end;
+
+procedure GetIPAddresses(AStrings: TStrings);
+type
+  TaPInAddr = array [0 .. 10] of PInAddr;
+  PaPInAddr = ^TaPInAddr;
+var
+  PHE       : PHostEnt;
+  PPtr      : PaPInAddr;
+  Buffer    : array [0 .. 63] of AnsiChar;
+  I         : Integer;
+  GInitData : TWSAData;
+begin
+  WSAStartup($101, GInitData);
+  AStrings.Clear;
+  GetHostName(Buffer, SizeOf(Buffer));
+  PHE := GetHostByName(Buffer);
+  if PHE = nil then
+    Exit;
+  PPtr := PaPInAddr(PHE^.h_addr_list);
+  I    := 0;
+  while PPtr^[I] <> nil do
+  begin
+    AStrings.Add(string(inet_ntoa(PPtr^[I]^)));
+    Inc(I);
+  end;
+  WSACleanup;
+end;
+
+function GetExternalIP(out AIP: string): Boolean;
+const
+  BUFFER_SIZE = 1024;
+  URL_LIST    : array[0..2] of string = (
+    'http://bot.whatismyipaddress.com',
+    'http://icanhazip.com',
+    'http://myip.dnsomatic.com'
+  );
+var
+  INETHandle : Pointer;
+  URLHandle  : Pointer;
+  BytesRead  : Cardinal;
+  Buffer     : Pointer;
+  OStream    : TStringStream;
+  I          : Integer;
+  URL        : string;
+  DataString : string;
+begin
+  Result := False;
+  for I := Low(URL_LIST) to High(URL_LIST) do
+  begin
+    URL := URL_LIST[I];
+    INETHandle := InternetOpen(PChar(URL), 0, nil, nil, 0);
+    if Assigned(INETHandle) then
+    try
+      URLHandle := InternetOpenUrl(INETHandle, PChar(URL), nil, 0, 0, 0);
+      if Assigned(URLHandle) then
+      try
+        GetMem(Buffer, BUFFER_SIZE);
+        try
+          OStream := TStringStream.Create;
+          try
+            repeat
+              if not InternetReadFile(URLHandle, Buffer, BUFFER_SIZE, BytesRead) then
+                Break;
+
+              if BytesRead > 0 then
+                OStream.WriteBuffer(Buffer^, BytesRead);
+            until BytesRead = 0;
+
+            if OStream.Size > 0 then
+            begin
+              DataString := Trim(OStream.DataString);
+              if IsValidIP(DataString) then
+              begin
+                AIP := DataString;
+                Exit(True);
+              end;
+            end;
+          finally
+            OStream.Free;
+          end;
+        finally
+          FreeMem(Buffer, BUFFER_SIZE);
+        end;
+      finally
+        InternetCloseHandle(URLHandle);
+      end;
+    finally
+      InternetCloseHandle(INETHandle);
+    end;
+  end;
+end;
+
+{ source:
+  https://stackoverflow.com/questions/18254209/how-to-get-the-ip-address-from-a-dns-for-a-host-name }
+
+function GetIP(const AHostName: string): string;
+var
+  LWSAData : TWSAData;
+  R        : PHostEnt;
+  A        : TInAddr;
+begin
+  Result := '0.0.0.0';
+  WSAStartup($101, LWSAData);
+  R := Winapi.Winsock.GetHostByName(PAnsiChar(AnsiString(AHostName)));
+  if Assigned(R) then
+  begin
+    A := PInAddr(r^.h_Addr_List^)^;
+    Result := string(Winapi.WinSock.inet_ntoa(A));
   end;
 end;
 {$ENDREGION}

@@ -37,11 +37,13 @@ type
 type
   TWinIPCServer = class
   private
-    FMsgWindowClass  : TWndClass;
-    FOnMessage       : TWinIPCMessageEvent;
-    FMsgData         : TStream;
-    FActive          : Boolean;
-    FServerHandle    : THandle;
+    FMsgWindowClass     : TWndClass;
+    FOnMessage          : TWinIPCMessageEvent;
+    FMsgData            : TStream;
+    FActive             : Boolean;
+    FServerHandle       : THandle;
+    FMsgWindowClassName : string;
+    FWindowName         : string;
 
     procedure SetActive(const AValue : Boolean);
 
@@ -55,6 +57,10 @@ type
   public
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
+    constructor Create(
+      const AMsgWindowClassName : string = '';
+      const AWindowName         : string = ''
+    );
 
     property Active : Boolean
       read FActive write SetActive;
@@ -64,6 +70,12 @@ type
 
     property OnMessage : TWinIPCMessageEvent
       read FOnMessage write FOnMessage;
+
+    property MsgWindowClassName: string
+      read FMsgWindowClassName write FMsgWindowClassName;
+
+    property WindowName: string
+      read FWindowName write FWindowName;
   end;
 
 implementation
@@ -110,9 +122,20 @@ end;
 {$ENDREGION}
 
 {$REGION 'construction and destruction'}
+constructor TWinIPCServer.Create(const AMsgWindowClassName, AWindowName: string);
+begin
+  inherited Create;
+  FMsgWindowClassName := AMsgWindowClassName;
+  FWindowName         := AWindowName
+end;
+
 procedure TWinIPCServer.AfterConstruction;
 begin
   inherited AfterConstruction;
+  if FMsgWindowClassName.IsEmpty then
+    FMsgWindowClassName := MSG_WND_CLASSNAME;
+  if FWindowName.IsEmpty then
+    FWindowName := SERVER_WINDOWNAME;
   FMsgData := TStringStream.Create;
 end;
 
@@ -151,7 +174,7 @@ var
 begin
   Pointer(FMsgWindowClass.lpfnWndProc) := @MsgWndProc;
   FMsgWindowClass.hInstance            := HInstance; // Handle of this instance
-  FMsgWindowClass.lpszClassName        := MSG_WND_CLASSNAME;
+  FMsgWindowClass.lpszClassName        := PChar(MsgWindowClassName);
 
   if not GetClassInfo(HInstance, MSG_WND_CLASSNAME, WC)
     and (Winapi.Windows.RegisterClass(FMsgWindowClass) = 0) then
@@ -159,8 +182,8 @@ begin
 
   Result := CreateWindowEx(
     WS_EX_TOOLWINDOW,
-    MSG_WND_CLASSNAME,
-    SERVER_WINDOWNAME,
+    PChar(MsgWindowClassName),
+    PChar(WindowName),
     WS_POPUP,
     0,
     0,
@@ -174,7 +197,7 @@ begin
   if Result <> 0 then
     SetWindowLongPtr(Result, GWL_USERDATA, NativeInt(Self))
   else
-    raise Exception.CreateFmt(SFailedToCreateWindow, [SERVER_WINDOWNAME])
+    raise Exception.CreateFmt(SFailedToCreateWindow, [WindowName])
 end;
 
 procedure TWinIPCServer.StartServer;
@@ -202,11 +225,7 @@ begin
   FMsgData.Seek(0, soFrombeginning);
   FMsgData.WriteBuffer(CDS^.lpData^, CDS^.cbData);
   LClientProcessId := CDS.dwData;
-
   DoMessage(LClientProcessId, FMsgData);
-
-  //OutputDebugString(GetExePathForProcess(FClientProcessId));
-
 end;
 {$ENDREGION}
 
