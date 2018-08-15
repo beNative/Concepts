@@ -60,7 +60,7 @@ type
     property RTS: Boolean
       read GetRTS write SetRTSF;
 
-    {:Use this property to set the value of the DTR signal.}
+    { Use this property to set the value of the DTR signal.}
     property DTR: Boolean
       read GetDTR write SetDTRF;
   end;
@@ -132,7 +132,7 @@ type
     tsCommands             : TTabSheet;
     pnlCommands            : TGridPanel;
     mmoSend                : TMemo;
-    sbrMain: TStatusBar;
+    sbrMain                : TStatusBar;
     {$ENDREGION}
 
     procedure actClearReceivedExecute(Sender: TObject);
@@ -274,8 +274,8 @@ const
     'RS',
     'US'
   );
-  SON  = '<font-color=clBlack><b>ON</b></font-color>';
-  SOFF = '<font-color=clRed><b>OFF</b></font-color>';
+  SON  = '<fc=clBlack><b>ON</b></fc>';
+  SOFF = '<fc=clRed><b>OFF</b></fc>';
 
   ALPHA_NUM = 'ABCDEFGHIJKLMN' + //#13#10 +
               'OPQRSTUVWXYZ  ' + //#13#10 +
@@ -297,12 +297,12 @@ begin
     pnlLeftTop,
     FComPort
   );
-  FLogIn                     := TDDuceComponents.CreateLogTree(Self, tsReceivedLog);
-  FLogIn.DateTimeFormat      := 'hh:nn:ss.zzz';
-  FLogIn.Images              := ilMain;
-  FLogOut                    := TDDuceComponents.CreateLogTree(Self, tsSentLog);
-  FLogOut.Images             := ilMain;
-  FLogOut.DateTimeFormat     := 'hh:nn:ss.zzz';
+  FLogIn                 := TDDuceComponents.CreateLogTree(Self, tsReceivedLog);
+  FLogIn.DateTimeFormat  := 'hh:nn:ss.zzz';
+  FLogIn.Images          := ilMain;
+  FLogOut                := TDDuceComponents.CreateLogTree(Self, tsSentLog);
+  FLogOut.Images         := ilMain;
+  FLogOut.DateTimeFormat := 'hh:nn:ss.zzz';
   Modified;
   mmoSend.Lines.Text := ALPHA_NUM;
 end;
@@ -334,12 +334,11 @@ end;
 function TfrmSynapseSerial.GetStopBits: Integer;
 begin
   Result := 0;
-//
 end;
 
 procedure TfrmSynapseSerial.SetStopBits(const Value: Integer);
 begin
-//
+  // not supported
 end;
 
 function TfrmSynapseSerial.GetBaudRate: Integer;
@@ -355,7 +354,6 @@ end;
 function TfrmSynapseSerial.GetDataBits: Integer;
 begin
   Result := 0;
-//
 end;
 
 procedure TfrmSynapseSerial.SetDataBits(const Value: Integer);
@@ -442,7 +440,6 @@ procedure TfrmSynapseSerial.actSendMultiLineExecute(Sender: TObject);
 begin
   SendString(RawByteString(mmoSend.Text));
 end;
-
 {$ENDREGION}
 
 {$REGION 'event handlers'}
@@ -476,7 +473,6 @@ procedure TfrmSynapseSerial.tmrPollTimer(Sender: TObject);
 begin
   while FComPort.WaitingDataEx <> 0 do
   begin
-    //DoStringReceived(FComPort.RecvTerminated(50, #13#10));
     DoStringReceived(FComPort.RecvPacket(50));
     UpdateControls;
   end;
@@ -575,11 +571,11 @@ end;
 function TfrmSynapseSerial.MakeLogString(const AString: string): string;
 const
   LOG_FORMAT =
-    '<font-color=clSilver>' +
-    '<font-family=Consolas>' +
+    '<fc=clBlack>' +
+    '<f=Consolas>' +
     '[%s]' +
-    '</font-family>' +
-    '</font-color>';
+    '</f>' +
+    '</fc>';
 var
   S  : RawByteString;
   I  : Integer;
@@ -600,19 +596,18 @@ begin
     end;
   end;
 
-  (*
-  for C := Low(CTRL_TO_TEXT) to High(CTRL_TO_TEXT) do
-  begin
-    K := C;
-    R := System.AnsiStrings.Format(LOG_FORMAT, [CTRL_TO_TEXT[C]]);
-    S := System.AnsiStrings.StringReplace(S, K, R, [rfReplaceAll]);
-  end;
+//  for C := Low(CTRL_TO_TEXT) to High(CTRL_TO_TEXT) do
+//  begin
+//    K := C;
+//    R := System.AnsiStrings.Format(LOG_FORMAT, [CTRL_TO_TEXT[C]]);
+//    S := System.AnsiStrings.StringReplace(S, K, R, [rfReplaceAll]);
+//  end;
 
   S := System.AnsiStrings.StringReplace(
     S, '#', System.AnsiStrings.Format(LOG_FORMAT, ['{BCC}']), [rfReplaceAll]
   );
-  *)
-  S := System.AnsiStrings.Format('<font-family=Terminal_Ctrl+Hex><font-size=9>%s</font-size></font-family>', [S]);
+
+  S := System.AnsiStrings.Format('<fc=clBlack><f=Terminal_Ctrl+Hex><fs=9>%s</fs></f></fc>', [S]);
   Result := string(S);
 end;
 {$ENDREGION}
@@ -711,8 +706,7 @@ begin
 end;
 {$ENDREGION}
 
-{ TSynapseSerial }
-
+{$REGION 'TSynapseSerial'}
 function TSynapseSerial.GetDTR: Boolean;
 begin
   Result := False;
@@ -732,5 +726,6 @@ procedure TSynapseSerial.SetRTSF(Value: Boolean);
 begin
   inherited SetRTSF(Value);
 end;
+{$ENDREGION}
 
 end.
