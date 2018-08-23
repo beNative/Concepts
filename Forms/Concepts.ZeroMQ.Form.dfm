@@ -79,6 +79,8 @@ object frmZMQConcept: TfrmZMQConcept
       object tsEndpoints: TTabSheet
         Caption = 'Endpoints'
         ImageIndex = 3
+        ExplicitLeft = 0
+        ExplicitTop = 0
         ExplicitWidth = 422
         ExplicitHeight = 179
         object grpEndPoint: TGroupBox
@@ -195,13 +197,14 @@ object frmZMQConcept: TfrmZMQConcept
             Anchors = [akTop, akRight, akBottom]
             ItemHeight = 13
             TabOrder = 5
-            ExplicitHeight = 114
           end
         end
       end
       object tsSubscriptions: TTabSheet
         Caption = 'Subscriptions'
         ImageIndex = 4
+        ExplicitLeft = 0
+        ExplicitTop = 0
         ExplicitWidth = 422
         ExplicitHeight = 179
         object grpSubscriptions: TGroupBox
@@ -240,8 +243,6 @@ object frmZMQConcept: TfrmZMQConcept
             Anchors = [akTop, akRight, akBottom]
             ItemHeight = 13
             TabOrder = 1
-            ExplicitLeft = 165
-            ExplicitHeight = 91
           end
           object btnSubscribeToAll: TButton
             Left = 41
@@ -387,6 +388,8 @@ object frmZMQConcept: TfrmZMQConcept
       object tsReceive: TTabSheet
         Caption = 'Receive'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
         ExplicitWidth = 422
         ExplicitHeight = 179
         DesignSize = (
@@ -446,6 +449,8 @@ object frmZMQConcept: TfrmZMQConcept
       object tsSettings: TTabSheet
         Caption = 'Settings'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
         ExplicitWidth = 422
         ExplicitHeight = 179
         DesignSize = (
@@ -801,7 +806,7 @@ object frmZMQConcept: TfrmZMQConcept
     Left = 416
     Top = 200
     Bitmap = {
-      494C0101060008003C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010106000800400010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

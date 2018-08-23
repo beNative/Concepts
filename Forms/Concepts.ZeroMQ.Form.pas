@@ -790,7 +790,7 @@ begin
   actConnect.Enabled := B;
   if Assigned(FZMQ) then
   begin
-    sbrMain.SimpleText := Format('Context handle: %d', [Integer(FZMQ)]);
+    sbrMain.SimpleText := Format('Context handle: %d', [NativeInt(FZMQ)]);
   end;
   UpdateNewNodeActions;
 //  UpdateConnectionString;
