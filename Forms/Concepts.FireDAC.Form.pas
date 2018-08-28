@@ -20,8 +20,9 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes,
+  System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.ActnList,
   Data.DB,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Stan.Param,
@@ -31,11 +32,11 @@ uses
   FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.DApt,
   FireDAC.Comp.Client, FireDAC.Comp.DataSet,
-  FireDAC.Phys.Oracle, FireDAC.Phys.MSSQL, FireDAC.Phys.ADS, FireDAC.Phys.ASA,
-  FireDAC.Phys.DB2, FireDAC.Phys.DS, FireDAC.Phys.FB, FireDAC.Phys.IB,
-  FireDAC.Phys.Infx, FireDAC.Phys.MongoDB, FireDAC.Phys.MSAcc,
-  FireDAC.Phys.MySQL, FireDAC.Phys.ODBC, FireDAC.Phys.PG, FireDAC.Phys.SQLite,
-  FireDAC.Phys.TData, System.Actions, Vcl.ActnList;
+  FireDAC.Phys.ADS, FireDAC.Phys.FB, FireDAC.Phys.IB, FireDAC.Phys.MSAcc,
+  FireDAC.Phys.MySQL, FireDAC.Phys.PG, FireDAC.Phys.SQLite;
+//  FireDAC.Phys.Oracle, FireDAC.Phys.MSSQL, FireDAC.Phys.ASA, FireDAC.Phys.DB2,
+//  FireDAC.Phys.DS, FireDAC.Phys.Infx, FireDAC.Phys.MongoDB, FireDAC.Phys.ODBC,
+//  FireDAC.Phys.TData;
 
 type
   TfrmFireDAC = class(TForm)

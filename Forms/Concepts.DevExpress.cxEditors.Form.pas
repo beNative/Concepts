@@ -22,6 +22,8 @@ unit Concepts.DevExpress.cxEditors.Form;
 
 interface
 
+{$IFDEF DEVEXPRESS}
+
 uses
   System.Classes, System.Actions,
   Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms,
@@ -132,7 +134,11 @@ type
     procedure ClearLog;
   end;
 
+{$ENDIF}
+
 implementation
+
+{$IFDEF DEVEXPRESS}
 
 {$R *.dfm}
 
@@ -335,5 +341,7 @@ begin
   AEdit.EditText := AValue;
 end;
 {$ENDREGION}
+
+{$ENDIF}
 
 end.

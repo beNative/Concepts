@@ -20,6 +20,8 @@ unit Concepts.DevExpress.cxGridViewPresenter.Form;
 
 interface
 
+{$IFDEF DEVEXPRESS}
+
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
@@ -86,7 +88,11 @@ type
 
   end;
 
+{$ENDIF}
+
 implementation
+
+{$IFDEF DEVEXPRESS}
 
 {$R *.dfm}
 
@@ -141,5 +147,7 @@ begin
   FTVPresenter.EndUpdate;
 end;
 {$ENDREGION}
+
+{$ENDIF}
 
 end.
