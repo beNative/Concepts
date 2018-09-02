@@ -49,12 +49,6 @@ uses
   show a technique for capturing the value of the SR.Name field and not the
   whole SR variable. This will eliminate the race on the SR variable because
   the anonymous method body will no longer need to access it.
-
-  Value capturing is a little more manual, but through the use of generic methods
-  and a corresponding generic class, we only need to create this code once. The
-  idea is to add an overloaded BeginInvoke() method that takes an extra parameter,
-  which will be the value we want to capture and pass along to the anonymous
-  method. Here’s the new BeginInvoke method:
 }
 
 type

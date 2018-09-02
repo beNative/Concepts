@@ -2,7 +2,7 @@ object frmAnonymousMethods: TfrmAnonymousMethods
   Left = 0
   Top = 0
   Caption = 'Anonymous Methods'
-  ClientHeight = 69
+  ClientHeight = 70
   ClientWidth = 280
   Color = clBtnFace
   Constraints.MaxHeight = 108
@@ -18,7 +18,7 @@ object frmAnonymousMethods: TfrmAnonymousMethods
   ShowHint = True
   DesignSize = (
     280
-    69)
+    70)
   PixelsPerInch = 96
   TextHeight = 13
   object btnExec: TButton
