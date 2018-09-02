@@ -232,13 +232,11 @@ object frmFireDAC: TfrmFireDAC
         object lblUserName: TLabel
           Left = 0
           Top = 0
-          Width = 65
-          Height = 23
+          Width = 52
+          Height = 13
           Align = alClient
           Caption = '&Username:'
           Layout = tlCenter
-          ExplicitWidth = 52
-          ExplicitHeight = 13
         end
       end
     end
