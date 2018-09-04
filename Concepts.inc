@@ -34,7 +34,7 @@
 {$DEFINE VIRTUALTREES}  // Virtual Treeview - http://github.com/Virtual-TreeView/Virtual-TreeView
 {$DEFINE WINAPI}        // Delphi WinApi units ('WinApi' prefix)
 {$DEFINE ZOBJECTINSPECTOR} // TzObjectInspector
-{$DEFINE DEVEXPRESS}    // DevExpress - http://www.devexpress.com/Products/VCL/
+{.$DEFINE DEVEXPRESS}    // DevExpress - http://www.devexpress.com/Products/VCL/
 {.$DEFINE BTMEMORYMODULE} // BTMemoryModule.pas
 {.$DEFINE FIREDAC}       // Delphi FireDAC units ('FireDAC' prefix)
 {.$DEFINE FASTMM}         // FastMM

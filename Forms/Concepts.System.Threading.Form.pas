@@ -120,6 +120,7 @@ begin
   FLog := TDDuceComponents.CreateLogTree(Self, pnlLog);
   FLog.DateTimeFormat := 'hh:nn:ss.zzz';
   FLog.Images := imlMain;
+  FLog.AutoLogLevelColors := False;
   FTasks := TCollections.CreateInterfaceList<ITask>;
 end;
 
