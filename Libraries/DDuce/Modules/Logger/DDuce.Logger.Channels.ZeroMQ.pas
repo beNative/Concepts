@@ -172,7 +172,10 @@ begin
     Connected  := FPublisher.Bind(FEndPoint) <> -1;
     // Physical connection is always a bit after Connected reports True.
     // https://stackoverflow.com/questions/11634830/zeromq-always-loses-the-first-message
-    Sleep(100);
+    if Connected then
+    begin
+      Sleep(100);
+    end;
   end;
   if Connected then
   begin
@@ -199,6 +202,9 @@ begin
       TextSize := Length(AMsg.Text);
       FBuffer.Seek(0, soFromBeginning);
       FBuffer.WriteBuffer(AMsg.MsgType);
+      FBuffer.WriteBuffer(AMsg.LogLevel);
+      FBuffer.WriteBuffer(AMsg.Reserved1);
+      FBuffer.WriteBuffer(AMsg.Reserved2);
       FBuffer.WriteBuffer(AMsg.TimeStamp);
       FBuffer.WriteBuffer(TextSize);
       if TextSize > 0 then

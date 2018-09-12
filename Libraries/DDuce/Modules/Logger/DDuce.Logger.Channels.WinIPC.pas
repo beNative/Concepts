@@ -78,7 +78,7 @@ end;
 function TWinIPCChannel.Connect: Boolean;
 begin
   Result := FClient.Connect;
-  Connected := True;
+  Connected := Result;
 end;
 
 function TWinIPCChannel.Disconnect: Boolean;
@@ -113,6 +113,9 @@ begin
       TextSize := Length(AMsg.Text);
       FBuffer.Seek(0, soFromBeginning);
       FBuffer.WriteBuffer(AMsg.MsgType);
+      FBuffer.WriteBuffer(AMsg.LogLevel);
+      FBuffer.WriteBuffer(AMsg.Reserved1);
+      FBuffer.WriteBuffer(AMsg.Reserved2);
       FBuffer.WriteBuffer(AMsg.TimeStamp);
       FBuffer.WriteBuffer(TextSize);
       if TextSize > 0 then

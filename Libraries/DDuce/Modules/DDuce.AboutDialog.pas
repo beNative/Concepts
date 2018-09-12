@@ -106,7 +106,6 @@ begin
   R.Data.TickCount                := TEnvironment.TickCount;
   R.Data.ProcessorArchitecture    := TEnum.GetName(TEnvironment.ProcessorArchitecture);
 
-
   FVersionInfoList.Data := R;
 end;
 {$ENDREGION}

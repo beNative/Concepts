@@ -874,8 +874,6 @@ end;
 
 procedure TfrmZMQConcept.cbxZMQSocketTypeChange(Sender: TObject);
 begin
-
-
 //  case SocketKind of
 //    Pair: ;
 //    Publisher: ;
@@ -890,7 +888,6 @@ begin
 //    XSubscriber: ;
 //    Stream: ;
 //  end;
-
 end;
 
 procedure TfrmZMQConcept.ClearSubscriptions;

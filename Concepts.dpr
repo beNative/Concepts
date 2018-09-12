@@ -79,20 +79,25 @@ uses
   Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter},
   Concepts.VirtualTreeView.Form in 'Forms\Concepts.VirtualTreeView.Form.pas' {frmVirtualTreeView},
   Concepts.FireDAC.Form in 'Forms\Concepts.FireDAC.Form.pas' {frmFireDAC},
-  Concepts.System.PublishedFields.Form in 'Forms\Concepts.System.PublishedFields.Form.pas' {frmPublishedFields};
+  Concepts.System.PublishedFields.Form in 'Forms\Concepts.System.PublishedFields.Form.pas' {frmPublishedFields},
+  Concepts.System.Interfaces.DelegatedImplementation in 'Forms\Concepts.System.Interfaces.DelegatedImplementation.pas',
+  Concepts.System.Interfaces.Form in 'Forms\Concepts.System.Interfaces.Form.pas' {frmInterfaces},
+  Concepts.System.Interfaces.InterfacedObject in 'Forms\Concepts.System.Interfaces.InterfacedObject.pas',
+  Concepts.System.Interfaces.Interfaces in 'Forms\Concepts.System.Interfaces.Interfaces.pas',
+  Concepts.System.Interfaces.WeakReferences in 'Forms\Concepts.System.Interfaces.WeakReferences.pas';
 
 {$R *.res}
 
 { Used to directly start a concept by name. If empty a list will be shown with
   all registered concepts. }
 const
-//  EXECUTE_BY_NAME = '';
+  EXECUTE_BY_NAME = '';
   //EXECUTE_BY_NAME = 'ZeroMQ';
 //  EXECUTE_BY_NAME = 'FireDAC';
   //EXECUTE_BY_NAME = 'ORM';
   //EXECUTE_BY_NAME = 'TStringList';
   //EXECUTE_BY_NAME = 'Indy';
-  EXECUTE_BY_NAME = 'Parallel Library';
+  //EXECUTE_BY_NAME = 'Parallel Library';
 
 begin
   {$WARNINGS OFF}

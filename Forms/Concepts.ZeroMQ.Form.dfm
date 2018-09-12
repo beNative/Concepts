@@ -22,9 +22,6 @@ object frmZMQConcept: TfrmZMQConcept
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitLeft = 329
-    ExplicitWidth = 430
-    ExplicitHeight = 387
     object btnSend1000Messages: TButton
       Left = 15
       Top = 132
@@ -79,10 +76,6 @@ object frmZMQConcept: TfrmZMQConcept
       object tsEndpoints: TTabSheet
         Caption = 'Endpoints'
         ImageIndex = 3
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 422
-        ExplicitHeight = 179
         object grpEndPoint: TGroupBox
           AlignWithMargins = True
           Left = 3
@@ -91,9 +84,6 @@ object frmZMQConcept: TfrmZMQConcept
           Height = 120
           Align = alClient
           TabOrder = 0
-          ExplicitLeft = 2
-          ExplicitWidth = 431
-          ExplicitHeight = 126
           DesignSize = (
             329
             120)
@@ -129,7 +119,7 @@ object frmZMQConcept: TfrmZMQConcept
             Left = 74
             Top = 62
             Width = 70
-            Height = 22
+            Height = 21
             Alignment = taCenter
             EditLabel.Width = 24
             EditLabel.Height = 13
@@ -164,7 +154,6 @@ object frmZMQConcept: TfrmZMQConcept
             Anchors = [akLeft, akBottom]
             Images = imlMain
             TabOrder = 3
-            ExplicitTop = 95
           end
           object cbxTransport: TComboBox
             Left = 2
@@ -203,10 +192,6 @@ object frmZMQConcept: TfrmZMQConcept
       object tsSubscriptions: TTabSheet
         Caption = 'Subscriptions'
         ImageIndex = 4
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 422
-        ExplicitHeight = 179
         object grpSubscriptions: TGroupBox
           AlignWithMargins = True
           Left = 3
@@ -215,10 +200,6 @@ object frmZMQConcept: TfrmZMQConcept
           Height = 120
           Align = alClient
           TabOrder = 0
-          ExplicitLeft = 0
-          ExplicitTop = 8
-          ExplicitWidth = 422
-          ExplicitHeight = 105
           DesignSize = (
             329
             120)
@@ -233,7 +214,6 @@ object frmZMQConcept: TfrmZMQConcept
             EditLabel.Caption = 'Filter:'
             LabelPosition = lpLeft
             TabOrder = 0
-            ExplicitWidth = 119
           end
           object lbxSubscriptions: TListBox
             Left = 145
@@ -291,10 +271,6 @@ object frmZMQConcept: TfrmZMQConcept
       end
       object tsSend: TTabSheet
         Caption = 'Send'
-        ExplicitLeft = -68
-        ExplicitTop = 22
-        ExplicitWidth = 355
-        ExplicitHeight = 132
         DesignSize = (
           335
           126)
@@ -312,7 +288,6 @@ object frmZMQConcept: TfrmZMQConcept
           Font.Style = []
           ParentFont = False
           TabOrder = 0
-          ExplicitLeft = 254
         end
         object mmoSend: TMemo
           Left = 3
@@ -328,8 +303,6 @@ object frmZMQConcept: TfrmZMQConcept
           ParentFont = False
           ScrollBars = ssVertical
           TabOrder = 1
-          ExplicitWidth = 245
-          ExplicitHeight = 126
         end
         object btnSendCounterValue: TButton
           Left = 234
@@ -339,7 +312,6 @@ object frmZMQConcept: TfrmZMQConcept
           Action = actSendCounterValue
           Anchors = [akTop, akRight]
           TabOrder = 2
-          ExplicitLeft = 254
         end
         object edtCounter: TLabeledEdit
           Left = 283
@@ -356,7 +328,6 @@ object frmZMQConcept: TfrmZMQConcept
           TabOrder = 3
           Text = '>'
           OnExit = edtCounterExit
-          ExplicitLeft = 303
         end
         object btnSendLineByLine: TButton
           Left = 234
@@ -372,7 +343,6 @@ object frmZMQConcept: TfrmZMQConcept
           Font.Style = []
           ParentFont = False
           TabOrder = 4
-          ExplicitLeft = 254
         end
         object btnPopulateMemo: TButton
           Left = 234
@@ -382,16 +352,11 @@ object frmZMQConcept: TfrmZMQConcept
           Action = actPopulateMemo
           Anchors = [akTop, akRight]
           TabOrder = 5
-          ExplicitLeft = 254
         end
       end
       object tsReceive: TTabSheet
         Caption = 'Receive'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 422
-        ExplicitHeight = 179
         DesignSize = (
           335
           126)
@@ -410,7 +375,6 @@ object frmZMQConcept: TfrmZMQConcept
           ReadOnly = True
           ScrollBars = ssVertical
           TabOrder = 0
-          ExplicitHeight = 125
         end
         object btnReceive: TButton
           Left = 255
@@ -426,7 +390,6 @@ object frmZMQConcept: TfrmZMQConcept
           Font.Style = []
           ParentFont = False
           TabOrder = 1
-          ExplicitWidth = 100
         end
         object btnClearReceived: TButton
           Left = 255
@@ -443,16 +406,11 @@ object frmZMQConcept: TfrmZMQConcept
           Images = imlMain
           ParentFont = False
           TabOrder = 2
-          ExplicitWidth = 100
         end
       end
       object tsSettings: TTabSheet
         Caption = 'Settings'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 422
-        ExplicitHeight = 179
         DesignSize = (
           335
           126)
@@ -465,7 +423,6 @@ object frmZMQConcept: TfrmZMQConcept
           Anchors = [akLeft, akTop, akBottom]
           Caption = 'Monitor events'
           TabOrder = 0
-          ExplicitHeight = 125
           object lbxEvents: TCheckListBox
             AlignWithMargins = True
             Left = 5
@@ -492,8 +449,6 @@ object frmZMQConcept: TfrmZMQConcept
               'Disconnected'
               'MonitorStopped')
             TabOrder = 0
-            ExplicitWidth = 116
-            ExplicitHeight = 150
           end
         end
         object grpPollingSettings: TGroupBox
@@ -528,9 +483,6 @@ object frmZMQConcept: TfrmZMQConcept
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 4
-      ExplicitTop = 210
-      ExplicitWidth = 445
-      ExplicitHeight = 93
     end
   end
   object sbrMain: TStatusBar
@@ -540,8 +492,6 @@ object frmZMQConcept: TfrmZMQConcept
     Height = 19
     Panels = <>
     SimplePanel = True
-    ExplicitTop = 387
-    ExplicitWidth = 759
   end
   object pnlLeft: TPanel
     Left = 0
@@ -551,7 +501,6 @@ object frmZMQConcept: TfrmZMQConcept
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitHeight = 387
     object pnlSocketConfiguration: TPanel
       Left = 0
       Top = 0
@@ -560,7 +509,6 @@ object frmZMQConcept: TfrmZMQConcept
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 387
       object mmoIPs: TMemo
         AlignWithMargins = True
         Left = 6
@@ -582,8 +530,6 @@ object frmZMQConcept: TfrmZMQConcept
         ParentFont = False
         ReadOnly = True
         TabOrder = 0
-        ExplicitTop = 99
-        ExplicitHeight = 87
       end
       object grp1: TGroupBox
         Left = 0
@@ -651,7 +597,6 @@ object frmZMQConcept: TfrmZMQConcept
         Align = alTop
         Caption = 'Node'
         TabOrder = 2
-        ExplicitLeft = 7
         object btnCreateNew1: TButton
           Left = 3
           Top = 40
@@ -806,7 +751,7 @@ object frmZMQConcept: TfrmZMQConcept
     Left = 416
     Top = 200
     Bitmap = {
-      494C010106000800400010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010106000800440010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

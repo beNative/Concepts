@@ -58,13 +58,17 @@ type
     lmtScreenShot  = 24,
     lmtText        = 25,  // arbitrary text with optional highlighter info
     lmtDataSet     = 26,
+    lmtAction      = 27,  // TAction execution
     lmtClear       = 99
   );
 
   ILogger = interface;
 
   TLogMessage = packed record
-    MsgType   : Integer;     // TLogMessageType
+    MsgType   : Byte; // TLogMessageType
+    LogLevel  : Byte;
+    Reserved1 : Byte;
+    Reserved2 : Byte;
     TimeStamp : TDateTime;
     Text      : UTF8String;
     Data      : TStream;
@@ -171,12 +175,13 @@ type
   //      send stream?
   //      send file
 
-  ILogger = interface(IInterface)
+  ILogger = interface
   ['{28E9BADE-6B42-4399-8867-1CA115576E40}']
     function GetChannels: TChannelList;
+    function GetLogLevel: Byte;
+    procedure SetLogLevel(const Value: Byte);
 
     procedure Send(const AName: string; const AArgs: array of const); overload;
-
     procedure Send(const AName: string; const AValue: string = ''); overload;
 
     { These three overloads are here because TValue would cast them implicitely
@@ -250,10 +255,7 @@ type
       ASize      : LongWord
     );
     procedure SendShortCut(const AName: string; AShortCut: TShortCut);
-
     procedure SendVariant(const AName: string; const AValue: Variant);
-
-    // SendBitmap
 
     { Send methods for (optionally named) text that optionally can be displayed
       with a dedicated highlighter. }
@@ -280,6 +282,8 @@ type
       method is triggered. }
     function Track(const AName: string): IInterface; overload;
     function Track(ASender: TObject; const AName: string): IInterface; overload;
+
+    procedure Action(AAction: TBasicAction);
 
     procedure AddCheckPoint(const AName: string = '');
     procedure ResetCheckPoint(const AName: string = '');
@@ -314,6 +318,9 @@ type
     );
     { Sends out a dedicated message to clear the logviewer contents. }
     procedure Clear;
+
+    property LogLevel: Byte
+      read GetLogLevel write SetLogLevel;
 
     property Channels: TChannelList
       read GetChannels;
@@ -381,6 +388,8 @@ begin
     lmtScreenShot  : S := 'lmtScreenShot';
     lmtText        : S := 'lmtText';
     lmtClear       : S := 'lmtClear';
+    lmtDataSet     : S := 'lmtDataSet';
+    lmtAction      : S := 'lmtAction';
   else
     S := '';
   end;

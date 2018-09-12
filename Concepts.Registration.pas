@@ -76,6 +76,7 @@ uses
   Concepts.System.VirtualMethodInterceptor.Form,
   Concepts.System.VirtualInterface.Form,
   Concepts.System.PublishedFields.Form,
+  Concepts.System.Interfaces.Form,
   {$ENDIF}
 
   {$IFDEF DEVEXPRESS}
@@ -390,6 +391,13 @@ begin
     'Published fields',
     'System',
     'Demonstrates a form with components without published fields.',
+    FCategoryColor
+  );
+  ConceptManager.Register(
+    TfrmInterfaces,
+    'Interfaces',
+    'System',
+    'Demonstrates how object interfaces work.',
     FCategoryColor
   );
   {$ENDIF}

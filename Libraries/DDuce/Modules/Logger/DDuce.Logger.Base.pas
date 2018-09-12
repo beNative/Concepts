@@ -54,7 +54,6 @@ const
 
 type
   TLogger = class(TInterfacedObject, ILogger)
-  private
   type
     TTrack = class(TInterfacedObject)
     private
@@ -77,9 +76,14 @@ type
     FCheckList     : TStringList;
     FCounterList   : TStringList;
     FOnCustomData  : TCustomDataCallbackMethod;
+    FLogLevel      : Byte;
 
+    {$REGION 'property access methods'}
     procedure SetMaxStackCount(const AValue: Integer);
     function GetChannels: TChannelList;
+    function GetLogLevel: Byte;
+    procedure SetLogLevel(const Value: Byte);
+    {$ENDREGION}
 
   protected
     function StringValueOf(const AValue: TValue): string;
@@ -105,7 +109,7 @@ type
     { Sends a dedicated message to clear content in the receiver (LogViewer). }
     procedure Clear;
 
-    // Send functions
+    // Send procedures
     procedure Send(const AName: string; const AArgs: array of const); overload;
 
     procedure Send(const AName: string; const AValue: string = ''); overload;
@@ -224,6 +228,8 @@ type
     function Track(const AName: string): IInterface; overload;
     function Track(ASender: TObject; const AName: string): IInterface; overload;
 
+    procedure Action(AAction: TBasicAction);
+
     { Watches support }
     procedure Watch(const AName: string; const AValue: TValue); overload;
     procedure Watch(const AName: string; const AValue: string = ''); overload;
@@ -234,6 +240,9 @@ type
     { List of channels where logmessages will be posted to }
     property Channels: TChannelList
       read GetChannels;
+
+    property LogLevel: Byte
+      read GetLogLevel write SetLogLevel;
 
     property LogStack: TStrings
       read FLogStack;
@@ -269,6 +278,7 @@ const
   STACKCOUNTLIMIT        = 256;
   DEFAULT_CHECKPOINTNAME = 'CheckPoint';
 
+{$REGION 'non-interfaced routines'}
 function GetInterfaceTypeName(AIntf: IInterface): Tuple<string,string>;
 var
   O        : TObject;
@@ -294,6 +304,7 @@ begin
     end;
   end;
 end;
+{$ENDREGION}
 
 {$REGION 'TLogger'}
 {$REGION 'construction and destruction'}
@@ -324,6 +335,16 @@ end;
 function TLogger.GetChannels: TChannelList;
 begin
   Result := FChannels;
+end;
+
+function TLogger.GetLogLevel: Byte;
+begin
+  Result := FLogLevel;
+end;
+
+procedure TLogger.SetLogLevel(const Value: Byte);
+begin
+  FLogLevel := Value;
 end;
 
 procedure TLogger.SetMaxStackCount(const AValue: Integer);
@@ -365,7 +386,10 @@ var
   LM : TLogMessage;
   LC : ILogChannel;
 begin
-  LM.MsgType   := Integer(AMsgType);
+  LM.MsgType   := Byte(AMsgType);
+  LM.LogLevel  := LogLevel;
+  LM.Reserved1 := 0;
+  LM.Reserved2 := 0;
   LM.TimeStamp := Now;
   LM.Text      := UTF8String(AText);
   LM.Data      := AStream;
@@ -544,8 +568,11 @@ begin
 end;
 
 procedure TLogger.SendText(const AText: string);
+var
+  S : string;
 begin
-  InternalSend(lmtText, AText);
+  S := #13#10 + AText;
+  InternalSend(lmtText, S);
 end;
 
 procedure TLogger.SendVariant(const AName: string; const AValue: Variant);
@@ -804,6 +831,11 @@ begin
   S := AFunc(Self, AData, B);
   if B then
     InternalSendBuffer(lmtCustomData, AName, S[1], Length(S));
+end;
+
+procedure TLogger.Action(AAction: TBasicAction);
+begin
+  InternalSend(lmtAction, AAction.Name);
 end;
 
 procedure TLogger.AddCheckPoint(const AName: string);

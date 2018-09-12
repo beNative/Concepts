@@ -86,6 +86,8 @@ type
   published
     property Font;
 
+    property TreeOptions;
+
     property ShowHeader: Boolean
       read GetShowHeader write SetShowHeader;
 
@@ -118,7 +120,7 @@ end;
 
 procedure TValueList.SetData(const Value: IDynamicRecord);
 begin
-  if Value <> Data then
+  //if Value <> Data then
   begin
     FData := Value;
     if Assigned(FData) then
@@ -189,19 +191,29 @@ procedure TValueList.DoBeforeCellPaint(Canvas: TCanvas; Node: PVirtualNode;
   var ContentRect: TRect);
 var
   N : TValueListNode;
+  L : Integer;
 begin
   N := GetNodeData<TValueListNode>(Node);
+  L := GetNodeLevel(Node);
   ContentRect.Offset(2, 0);
   if Column = 0 then
   begin
     Canvas.Brush.Color := clCream;
-    if Assigned(N.Field) then
+    if L = 0 then
     begin
-      Canvas.FillRect(Rect(0, 0, 16, CellRect.Height));
+      Canvas.Pen.Color := clGray;
+      Canvas.MoveTo(CellRect.Left + 12, CellRect.Top);
+      Canvas.LineTo(CellRect.Left + 12, CellRect.Top + CellRect.Height);
+      Canvas.FillRect(Rect(0, 0, 12, CellRect.Height));
     end
     else
     begin
-      Canvas.FillRect(Rect(0, 0, 24, CellRect.Height));
+      Canvas.FillRect(Rect(0, 0, 20, CellRect.Height));
+      Canvas.Pen.Color := clGray;
+      Canvas.MoveTo(CellRect.Left + 12, CellRect.Top);
+      Canvas.LineTo(CellRect.Left + 20, CellRect.Top);
+      Canvas.LineTo(CellRect.Left + 20, CellRect.Top + CellRect.Height - 1);
+      Canvas.LineTo(CellRect.Left + 12, CellRect.Top + CellRect.Height - 1);
     end;
   end;
   inherited DoBeforeCellPaint(
@@ -215,13 +227,16 @@ var
 begin
   inherited DoGetText(pEventArgs);
   N := GetNodeData<TValueListNode>(pEventArgs.Node);
-  if pEventArgs.Column = 0 then
+  if Assigned(N) then
   begin
-    pEventArgs.CellText := N.Name
-  end
-  else if pEventArgs.Column = 1 then
-  begin
-    pEventArgs.CellText := N.Value.ToString;
+    if pEventArgs.Column = 0 then
+    begin
+      pEventArgs.CellText := N.Name
+    end
+    else if pEventArgs.Column = 1 then
+    begin
+      pEventArgs.CellText := N.Value.ToString;
+    end;
   end;
 end;
 
@@ -294,7 +309,7 @@ begin
   TreeOptions.SelectionOptions := [toExtendedFocus, toFullRowSelect];
   TreeOptions.MiscOptions := [
     toCheckSupport, toInitOnSave, toWheelPanning, toVariableNodeHeight,
-    toGridExtensions, toEditable, toEditOnDblClick
+    toEditable, toEditOnDblClick
   ];
   TreeOptions.EditOptions := toVerticalEdit;
 
@@ -328,7 +343,8 @@ begin
     Text        := 'Value';
     EditOptions := toVerticalEdit;
   end;
-  Indent               := 8;
+  Indent               := 8; // pixels between node levels
+  Margin               := 0;
   Header.AutoSizeIndex := 1;
   Header.MainColumn    := 0;
   LineMode             := lmBands;
