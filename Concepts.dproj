@@ -3,7 +3,7 @@
         <ProjectGuid>{3EBFDA94-DC39-4974-A022-0EFEEC3ABF85}</ProjectGuid>
         <MainSource>Concepts.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -78,13 +78,16 @@
         <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;ProductName=$(MSBuildProjectName);ProductVersion=1.7.4;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=0.4.0.7;ProductName=$(MSBuildProjectName);ProductVersion=0.4;ProgramID=com.embarcadero.$(MSBuildProjectName);OriginalFilename=Concepts.exe;LegalCopyright=2012 - 2018 (c) Tim Sinaeve;CompanyName=Tim Sinaeve</VerInfo_Keys>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <UWP_DelphiLogo44>D:\development\delphi\projects\Concepts\Concepts.ico</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>D:\development\delphi\projects\Concepts\Concepts.ico</UWP_DelphiLogo150>
         <Icon_MainIcon>Concepts_Icon.ico</Icon_MainIcon>
         <AppEnableHighDPI>true</AppEnableHighDPI>
+        <VerInfo_MajorVer>0</VerInfo_MajorVer>
+        <VerInfo_MinorVer>4</VerInfo_MinorVer>
+        <VerInfo_Build>7</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <UWP_DelphiLogo44>D:\development\delphi\projects\Concepts\Concepts.ico</UWP_DelphiLogo44>
@@ -92,11 +95,14 @@
         <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.7.4</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=0.4.0.7;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=0.4;OriginalFilename=Concepts.exe;LegalCopyright=2012 - 2018 (c) Tim Sinaeve;CompanyName=Tim Sinaeve</VerInfo_Keys>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <Icon_MainIcon>Concepts_Icon.ico</Icon_MainIcon>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
+        <VerInfo_MajorVer>0</VerInfo_MajorVer>
+        <VerInfo_MinorVer>4</VerInfo_MinorVer>
+        <VerInfo_Build>7</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
@@ -107,17 +113,23 @@
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;ProductName=$(MSBuildProjectName);ProductVersion=1.7.4;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=0.4.0.7;ProductName=$(MSBuildProjectName);ProductVersion=0.4;ProgramID=com.embarcadero.$(MSBuildProjectName);OriginalFilename=Concepts.exe;LegalCopyright=2012 - 2018 (c) Tim Sinaeve;CompanyName=Tim Sinaeve</VerInfo_Keys>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <Icon_MainIcon>Concepts_Icon.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>D:\development\delphi\projects\Concepts\Concepts.ico</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>D:\development\delphi\projects\Concepts\Concepts.ico</UWP_DelphiLogo150>
+        <VerInfo_MajorVer>0</VerInfo_MajorVer>
+        <VerInfo_MinorVer>4</VerInfo_MinorVer>
+        <VerInfo_Build>7</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.7.4</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=0.4.0.7;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=0.4;OriginalFilename=Concepts.exe;LegalCopyright=2012 - 2018 (c) Tim Sinaeve;CompanyName=Tim Sinaeve</VerInfo_Keys>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_MajorVer>0</VerInfo_MajorVer>
+        <VerInfo_MinorVer>4</VerInfo_MinorVer>
+        <VerInfo_Build>7</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -127,13 +139,19 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;ProductName=$(MSBuildProjectName);ProductVersion=1.7.4;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=0.4.0.7;ProductName=$(MSBuildProjectName);ProductVersion=0.4;ProgramID=com.embarcadero.$(MSBuildProjectName);OriginalFilename=Concepts.exe;LegalCopyright=2012 - 2018 (c) Tim Sinaeve;CompanyName=Tim Sinaeve</VerInfo_Keys>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_MajorVer>0</VerInfo_MajorVer>
+        <VerInfo_MinorVer>4</VerInfo_MinorVer>
+        <VerInfo_Build>7</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
-        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.7.4</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=0.4.0.7;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=0.4;OriginalFilename=Concepts.exe;LegalCopyright=2012 - 2018 (c) Tim Sinaeve;CompanyName=Tim Sinaeve</VerInfo_Keys>
+        <VerInfo_MajorVer>0</VerInfo_MajorVer>
+        <VerInfo_MinorVer>4</VerInfo_MinorVer>
+        <VerInfo_Build>7</VerInfo_Build>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
