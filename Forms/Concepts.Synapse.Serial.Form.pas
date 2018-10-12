@@ -502,10 +502,6 @@ begin
   if S <> '' then
   begin
     sbrMain.SimpleText := Format('%s %s', [S, Value]);
-//    FLogIn.LogFmt(
-//      '%s %s',
-//      [S, Value]
-//    );
   end;
 end;
 
