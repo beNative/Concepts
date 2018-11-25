@@ -10,7 +10,7 @@ uses
 
   zObjInspector, zObjInspTypes,
 
-  VirtualTrees;
+  VirtualTrees, System.Actions, Vcl.ActnList;
 
   {
      Required for a simple setup:
@@ -22,12 +22,27 @@ uses
 type
   TfrmVirtualTreeView = class(TForm)
     {$REGION 'designer controls'}
-    splVertical : TSplitter;
-    sbrMain     : TStatusBar;
-    pnlLeft     : TPanel;
-    pnlMain     : TPanel;
-    pnlHeader   : TPanel;
-    lblHeader   : TLabel;
+    splVertical       : TSplitter;
+    sbrMain           : TStatusBar;
+    pnlLeft           : TPanel;
+    pnlMain           : TPanel;
+    pnlHeader         : TPanel;
+    lblHeader         : TLabel;
+    pnlColumnSettings : TGridPanel;
+    pnlCol0           : TPanel;
+    pnlCol1           : TPanel;
+    pnlCol2           : TPanel;
+    pnlCol3           : TPanel;
+    pnlCol4           : TPanel;
+    pnlCol5           : TPanel;
+    pnlCol6: TPanel;
+    splHorizontal: TSplitter;
+    pnlTreeView: TPanel;
+    aclMain: TActionList;
+    actAutoSizeColumns: TAction;
+    btnAutoSizeColumns: TButton;
+    procedure FormResize(Sender: TObject);
+    procedure actAutoSizeColumnsExecute(Sender: TObject);
     {$ENDREGION}
   private
     FObjectInspector   : TzObjectInspector;
@@ -136,6 +151,7 @@ type
     procedure AfterConstruction; override;
 
     procedure InitializeTree;
+    procedure CreateInspectors;
   end;
 
 implementation
@@ -150,15 +166,44 @@ uses
 {$R *.dfm}
 
 {$REGION 'construction and destruction'}
+procedure TfrmVirtualTreeView.actAutoSizeColumnsExecute(Sender: TObject);
+begin
+  FVirtualStringTree.Header.AutoFitColumns(
+    True,
+    smaUseColumnOption
+  );
+end;
+
 procedure TfrmVirtualTreeView.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FVirtualStringTree := TVirtualStringTreeFactory.CreateList(Self, pnlMain);
+  FVirtualStringTree := TVirtualStringTreeFactory.CreateList(Self, pnlTreeView);
   InitializeTree;
   FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
   FObjectInspector.ObjectVisibility := mvPublished;
   FObjectInspector.Component := FVirtualStringTree;
+  CreateInspectors;
+end;
+
+procedure TfrmVirtualTreeView.CreateInspectors;
+var
+  I  : Integer;
+  OI : TzObjectInspector;
+  P  : TPanel;
+begin
+  for I := 0 to FVirtualStringTree.Header.Columns.Count - 1 do
+  begin
+    OI := TzObjectInspectorFactory.Create(
+      Self,
+      pnlColumnSettings,
+      FVirtualStringTree.Header.Columns[I]
+    );
+    OI.ExpandAll;
+    pnlColumnSettings.ControlCollection.Controls[I, 1] := OI;
+    P := pnlColumnSettings.ControlCollection.Controls[I, 0] as TPanel;
+    P.Caption := FVirtualStringTree.Header.Columns[I].Text;
+  end;
 end;
 {$ENDREGION}
 
@@ -168,6 +213,18 @@ function TfrmVirtualTreeView.FObjectInspectorBeforeAddItem(Sender: TControl;
 begin
   Result := not PItem.Name.Contains('ComObject');
   Result := Result and (not (PItem.Prop.PropertyType is TRttiMethodType));
+end;
+
+procedure TfrmVirtualTreeView.FormResize(Sender: TObject);
+var
+  I  : Integer;
+  OI : TzObjectInspector;
+begin
+  for I := 0 to pnlColumnSettings.ColumnCollection.Count - 1 do
+  begin
+    OI := pnlColumnSettings.ControlCollection.Controls[I, 1] as TzObjectInspector;
+    OI.SplitterPos := OI.Width div 2;
+  end;
 end;
 
 {$REGION 'FVirtualStringTree'}
