@@ -334,6 +334,13 @@
         <DCCReference Include="Forms\Concepts.System.Interfaces.InterfacedObject.pas"/>
         <DCCReference Include="Forms\Concepts.System.Interfaces.Interfaces.pas"/>
         <DCCReference Include="Forms\Concepts.System.Interfaces.WeakReferences.pas"/>
+        <DCCReference Include="Forms\Concepts.MQTT.Form.pas">
+            <Form>frmMQTTNode</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Libraries\MQTT\MQTT.pas"/>
+        <DCCReference Include="Libraries\MQTT\MQTTHeaders.pas"/>
+        <DCCReference Include="Libraries\MQTT\MQTTReadThread.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -84,7 +84,11 @@ uses
   Concepts.System.Interfaces.Form in 'Forms\Concepts.System.Interfaces.Form.pas' {frmInterfaces},
   Concepts.System.Interfaces.InterfacedObject in 'Forms\Concepts.System.Interfaces.InterfacedObject.pas',
   Concepts.System.Interfaces.Interfaces in 'Forms\Concepts.System.Interfaces.Interfaces.pas',
-  Concepts.System.Interfaces.WeakReferences in 'Forms\Concepts.System.Interfaces.WeakReferences.pas';
+  Concepts.System.Interfaces.WeakReferences in 'Forms\Concepts.System.Interfaces.WeakReferences.pas',
+  Concepts.MQTT.Form in 'Forms\Concepts.MQTT.Form.pas' {frmMQTTNode},
+  MQTT in 'Libraries\MQTT\MQTT.pas',
+  MQTTHeaders in 'Libraries\MQTT\MQTTHeaders.pas',
+  MQTTReadThread in 'Libraries\MQTT\MQTTReadThread.pas';
 
 {$R *.res}
 

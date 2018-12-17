@@ -42,7 +42,7 @@ type
   IZMQPair = interface
   ['{7F6D7BE5-7182-4972-96E1-4B5798608DDE}']
     { When manually closing the socket is needed }
-    procedure Close;
+    function Close: Boolean;
     { Server pair }
     function Bind(const Address: string): Integer;
     { Client pair }
@@ -125,7 +125,7 @@ type
     constructor Create(Context: TZeroMQ; Socket: Pointer);
     destructor Destroy; override;
     { When manually closing the socket is needed }
-    procedure Close;
+    function Close: Boolean;
     { Server pair }
     function Bind(const Address: string): Integer;
     { Client pair }
@@ -298,10 +298,10 @@ begin
   inherited;
 end;
 
-procedure TZMQPair.Close;
+function TZMQPair.Close: Boolean;
 begin
   FContext.FPairs.Remove(Self);
-  zmq_close(FSocket);
+  Result := zmq_close(FSocket) = 0;
   FSocket := nil;
 end;
 
@@ -464,7 +464,7 @@ begin
   LLength := 255;
   zmq_getsockopt(FSocket, ZMQ_LAST_ENDPOINT, @S[1], @LLength);
   SetLength(S, LLength - 1);
-  Result := S;
+  Result := string(S);
 end;
 
 { TZMQPoll }

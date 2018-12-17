@@ -33,6 +33,7 @@ uses
   System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList,
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.CheckLst, Vcl.ComCtrls, Vcl.ImgList,
+  Vcl.Buttons, Vcl.ToolWin,
 
   ZeroMQ,
 
@@ -40,7 +41,7 @@ uses
 
   VirtualTrees,
 
-  DDuce.Components.LogTree, Vcl.Buttons, Vcl.ToolWin;
+  DDuce.Components.LogTree;
 
 { IZeroMQ
     .Start(ZMQSocket) => IZMQPair  Creates a IZMQPair which supports the given
@@ -73,6 +74,15 @@ type
     actClose                   : TAction;
     actConnect                 : TAction;
     actCreateNew               : TAction;
+    actCreateNewDEALERNode     : TAction;
+    actCreateNewPAIRNode       : TAction;
+    actCreateNewPUBNode        : TAction;
+    actCreateNewPULLNode       : TAction;
+    actCreateNewPUSHNode       : TAction;
+    actCreateNewREPNode        : TAction;
+    actCreateNewREQNode        : TAction;
+    actCreateNewROUTERNode     : TAction;
+    actCreateNewSUBNode        : TAction;
     actCreateNewSubscriberNode : TAction;
     actCreateNewWithNewContext : TAction;
     actDeleteSubscription      : TAction;
@@ -86,24 +96,43 @@ type
     actShowLastEndPoint        : TAction;
     actStart                   : TAction;
     actSubscribeToAll          : TAction;
+    btnAddSubscription         : TToolButton;
+    btnClearReceived           : TButton;
+    btnClearSubscriptions      : TToolButton;
+    btnClientConnect           : TButton;
     btnClose                   : TButton;
+    btnCreateNew               : TButton;
+    btnCreateNew1              : TButton;
+    btnDeleteSubscription      : TToolButton;
     btnPopulateMemo            : TButton;
     btnReceive                 : TButton;
-    btnClearReceived: TButton;
     btnSend                    : TButton;
     btnSend1000Messages        : TButton;
     btnSendCounterValue        : TButton;
     btnSendLineByLine          : TButton;
+    btnServerBind              : TButton;
     btnStart                   : TButton;
+    btnSubscribeToAll          : TButton;
+    cbxTransport               : TComboBox;
     cbxZMQSocketType           : TComboBox;
+    edtAddress                 : TLabeledEdit;
+    edtConnectionString        : TEdit;
     edtCounter                 : TLabeledEdit;
+    edtFilter                  : TLabeledEdit;
     edtPollTimeout             : TLabeledEdit;
+    edtPort                    : TLabeledEdit;
     edtQuantity                : TEdit;
     grp1                       : TGroupBox;
+    grp2                       : TGroupBox;
+    grpEndPoint                : TGroupBox;
     grpMonitorEvents           : TGroupBox;
     grpPollingSettings         : TGroupBox;
+    grpSubscriptions           : TGroupBox;
     imlMain                    : TImageList;
+    lblTransport               : TLabel;
+    lbxEndPoints               : TListBox;
     lbxEvents                  : TCheckListBox;
+    lbxSubscriptions           : TListBox;
     mmoIPs                     : TMemo;
     mmoReceive                 : TMemo;
     mmoSend                    : TMemo;
@@ -114,41 +143,13 @@ type
     pnlSocketConfiguration     : TPanel;
     pnlTop                     : TPanel;
     sbrMain                    : TStatusBar;
+    tlbSubscriptions           : TToolBar;
     tmrPoll                    : TTimer;
+    tsEndpoints                : TTabSheet;
     tsReceive                  : TTabSheet;
     tsSend                     : TTabSheet;
     tsSettings                 : TTabSheet;
-    edtConnectionString: TEdit;
-    tsEndpoints: TTabSheet;
-    grpEndPoint: TGroupBox;
-    lblTransport: TLabel;
-    edtAddress: TLabeledEdit;
-    edtPort: TLabeledEdit;
-    btnClientConnect: TButton;
-    btnServerBind: TButton;
-    cbxTransport: TComboBox;
-    lbxEndPoints: TListBox;
-    tsSubscriptions: TTabSheet;
-    grpSubscriptions: TGroupBox;
-    edtFilter: TLabeledEdit;
-    lbxSubscriptions: TListBox;
-    btnSubscribeToAll: TButton;
-    tlbSubscriptions: TToolBar;
-    btnClearSubscriptions: TToolButton;
-    btnAddSubscription: TToolButton;
-    btnDeleteSubscription: TToolButton;
-    grp2: TGroupBox;
-    btnCreateNew1: TButton;
-    btnCreateNew: TButton;
-    actCreateNewSUBNode: TAction;
-    actCreateNewPULLNode: TAction;
-    actCreateNewPUSHNode: TAction;
-    actCreateNewPAIRNode: TAction;
-    actCreateNewREQNode: TAction;
-    actCreateNewREPNode: TAction;
-    actCreateNewDEALERNode: TAction;
-    actCreateNewROUTERNode: TAction;
-    actCreateNewPUBNode: TAction;
+    tsSubscriptions            : TTabSheet;
     {$ENDREGION}
 
     {$REGION 'action handlers'}
@@ -169,17 +170,6 @@ type
     procedure actClearReceivedExecute(Sender: TObject);
     procedure actSubscribeToAllExecute(Sender: TObject);
     procedure actPopulateMemoExecute(Sender: TObject);
-    {$ENDREGION}
-
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure lbxEventsClickCheck(Sender: TObject);
-    procedure edtCounterExit(Sender: TObject);
-    procedure tmrPollTimer(Sender: TObject);
-    procedure actShowLastEndPointExecute(Sender: TObject);
-    procedure actStartExecute(Sender: TObject);
-    procedure cbxZMQSocketTypeChange(Sender: TObject);
-    procedure edtAddressExit(Sender: TObject);
-    procedure edtPortExit(Sender: TObject);
     procedure actCreateNewPULLNodeExecute(Sender: TObject);
     procedure actCreateNewSUBNodeExecute(Sender: TObject);
     procedure actCreateNewPUSHNodeExecute(Sender: TObject);
@@ -189,6 +179,17 @@ type
     procedure actCreateNewDEALERNodeExecute(Sender: TObject);
     procedure actCreateNewROUTERNodeExecute(Sender: TObject);
     procedure actCreateNewPUBNodeExecute(Sender: TObject);
+    procedure actShowLastEndPointExecute(Sender: TObject);
+    procedure actStartExecute(Sender: TObject);
+    {$ENDREGION}
+
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure lbxEventsClickCheck(Sender: TObject);
+    procedure edtCounterExit(Sender: TObject);
+    procedure tmrPollTimer(Sender: TObject);
+    procedure cbxZMQSocketTypeChange(Sender: TObject);
+    procedure edtAddressExit(Sender: TObject);
+    procedure edtPortExit(Sender: TObject);
 
   private
     FActive          : Boolean;
@@ -286,10 +287,11 @@ uses
   DDuce.Reflect, DDuce.Logger, DDuce.Components.Factories, DDuce.RandomData,
   DDuce.Utils,
 
-  Concepts.ZeroMQ.Data, Concepts.Utils,
+  Concepts.Utils, Concepts.ZeroMQ.Data,
 
   Spring;
 
+{$REGION 'documentation'}
 {  REMARKS
      when inproc: server socket needs to be bound first before client socket(s)
                   connect.
@@ -305,8 +307,8 @@ uses
 
      Both PGM and EPGM are only supported when the library was compiled with
      this option. By default, it is not
-
 }
+{$ENDREGION}
 
 {$REGION 'construction and destruction'}
 procedure TfrmZMQConcept.AfterConstruction;

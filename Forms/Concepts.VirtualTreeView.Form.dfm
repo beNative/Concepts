@@ -143,8 +143,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 0
-        ExplicitLeft = -2
-        ExplicitTop = 6
       end
       object pnlCol1: TPanel
         Left = 143
@@ -160,10 +158,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 1
-        ExplicitLeft = 408
-        ExplicitTop = 96
-        ExplicitWidth = 167
-        ExplicitHeight = 41
       end
       object pnlCol2: TPanel
         Left = 286
@@ -179,10 +173,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 2
-        ExplicitLeft = 408
-        ExplicitTop = 96
-        ExplicitWidth = 167
-        ExplicitHeight = 41
       end
       object pnlCol3: TPanel
         Left = 429
@@ -198,10 +188,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 3
-        ExplicitLeft = 408
-        ExplicitTop = 96
-        ExplicitWidth = 167
-        ExplicitHeight = 41
       end
       object pnlCol4: TPanel
         Left = 572
@@ -217,10 +203,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 4
-        ExplicitLeft = 408
-        ExplicitTop = 96
-        ExplicitWidth = 167
-        ExplicitHeight = 41
       end
       object pnlCol5: TPanel
         Left = 715
@@ -236,9 +218,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 5
-        ExplicitLeft = 722
-        ExplicitTop = 1
-        ExplicitHeight = 30
       end
       object pnlCol6: TPanel
         Left = 858
@@ -254,10 +233,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 6
-        ExplicitLeft = 722
-        ExplicitTop = 1
-        ExplicitWidth = 145
-        ExplicitHeight = 30
       end
     end
     object pnlTreeView: TPanel
@@ -268,10 +243,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 376
-      ExplicitTop = 88
-      ExplicitWidth = 185
-      ExplicitHeight = 41
     end
   end
   object pnlHeader: TPanel
@@ -302,6 +273,15 @@ object frmVirtualTreeView: TfrmVirtualTreeView
       ParentFont = False
       Layout = tlCenter
       WordWrap = True
+    end
+    object lblFocusedNode: TLabel
+      Left = 977
+      Top = 7
+      Width = 75
+      Height = 13
+      AutoSize = False
+      Caption = 'lblFocusedNode'
+      Layout = tlCenter
     end
     object btnAutoSizeColumns: TButton
       Left = 712

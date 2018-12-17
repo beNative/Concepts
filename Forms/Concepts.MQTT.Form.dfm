@@ -1,759 +1,364 @@
-object frmZMQConcept: TfrmZMQConcept
+object frmMQTTNode: TfrmMQTTNode
   Left = 0
   Top = 0
-  ClientHeight = 261
-  ClientWidth = 464
-  Color = clWhite
+  ClientHeight = 321
+  ClientWidth = 359
+  Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  ShowHint = True
-  OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 13
-  object pnlClient: TPanel
-    Left = 121
-    Top = 0
-    Width = 343
-    Height = 242
+  object pnlLogging: TPanel
+    Left = 0
+    Top = 129
+    Width = 359
+    Height = 192
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    object btnSend1000Messages: TButton
-      Left = 15
-      Top = 132
-      Width = 131
-      Height = 25
-      Action = actSendMessages
-      TabOrder = 0
-    end
-    object edtQuantity: TEdit
-      Left = 152
-      Top = 127
-      Width = 156
-      Height = 21
-      TabOrder = 1
-      Text = '10000'
-    end
-    object pnlTop: TPanel
-      Left = 0
-      Top = 0
-      Width = 343
-      Height = 22
-      Align = alTop
-      BevelOuter = bvNone
-      TabOrder = 2
-      object edtConnectionString: TEdit
-        Left = 0
-        Top = 5
-        Width = 345
-        Height = 16
-        Alignment = taCenter
-        BevelInner = bvNone
-        BevelOuter = bvNone
-        BorderStyle = bsNone
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlue
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentFont = False
-        ReadOnly = True
-        TabOrder = 0
-      end
-    end
-    object pgcMessage: TPageControl
-      Left = 0
-      Top = 22
-      Width = 343
-      Height = 154
-      ActivePage = tsSubscriptions
-      Align = alTop
-      TabOrder = 3
-      ExplicitLeft = 6
-      ExplicitTop = 27
-      object tsEndpoints: TTabSheet
-        Caption = 'Endpoints'
-        ImageIndex = 3
-        object grpEndPoint: TGroupBox
-          AlignWithMargins = True
-          Left = 3
-          Top = 3
-          Width = 329
-          Height = 120
-          Align = alClient
-          TabOrder = 0
-          DesignSize = (
-            329
-            120)
-          object lblTransport: TLabel
-            Left = 14
-            Top = 48
-            Width = 51
-            Height = 13
-            Caption = 'Transport:'
-            FocusControl = cbxTransport
-          end
-          object edtAddress: TLabeledEdit
-            Left = 3
-            Top = 19
-            Width = 141
-            Height = 21
-            Alignment = taCenter
-            EditLabel.Width = 43
-            EditLabel.Height = 13
-            EditLabel.Caption = 'Address:'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            LabelSpacing = 1
-            ParentFont = False
-            TabOrder = 0
-            Text = 'localhost'
-            OnExit = edtAddressExit
-          end
-          object edtPort: TLabeledEdit
-            Left = 74
-            Top = 62
-            Width = 70
-            Height = 21
-            Alignment = taCenter
-            EditLabel.Width = 24
-            EditLabel.Height = 13
-            EditLabel.Caption = 'Port:'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            LabelSpacing = 1
-            ParentFont = False
-            TabOrder = 1
-            Text = '5555'
-            OnExit = edtPortExit
-          end
-          object btnClientConnect: TButton
-            Left = 2
-            Top = 90
-            Width = 70
-            Height = 25
-            Action = actConnect
-            Anchors = [akLeft, akBottom]
-            Images = imlMain
-            TabOrder = 2
-          end
-          object btnServerBind: TButton
-            Left = 74
-            Top = 90
-            Width = 70
-            Height = 25
-            Action = actBind
-            Anchors = [akLeft, akBottom]
-            Images = imlMain
-            TabOrder = 3
-          end
-          object cbxTransport: TComboBox
-            Left = 2
-            Top = 63
-            Width = 70
-            Height = 21
-            AutoDropDown = True
-            Style = csDropDownList
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ItemIndex = 0
-            ParentFont = False
-            TabOrder = 4
-            Text = 'tcp'
-            Items.Strings = (
-              'tcp'
-              'inproc'
-              'ipc'
-              'pgm'
-              'epgm')
-          end
-          object lbxEndPoints: TListBox
-            Left = 150
-            Top = 6
-            Width = 176
-            Height = 109
-            Anchors = [akLeft, akTop, akRight, akBottom]
-            ItemHeight = 13
-            TabOrder = 5
-          end
-        end
-      end
-      object tsSubscriptions: TTabSheet
-        Caption = 'Subscriptions'
-        ImageIndex = 4
-        object grpSubscriptions: TGroupBox
-          AlignWithMargins = True
-          Left = 3
-          Top = 3
-          Width = 329
-          Height = 120
-          Align = alClient
-          TabOrder = 0
-          DesignSize = (
-            329
-            120)
-          object edtFilter: TLabeledEdit
-            Left = 41
-            Top = 32
-            Width = 99
-            Height = 21
-            Anchors = [akLeft, akTop, akRight]
-            EditLabel.Width = 28
-            EditLabel.Height = 13
-            EditLabel.Caption = 'Filter:'
-            LabelPosition = lpLeft
-            TabOrder = 0
-          end
-          object lbxSubscriptions: TListBox
-            Left = 145
-            Top = 30
-            Width = 182
-            Height = 86
-            Anchors = [akLeft, akTop, akRight, akBottom]
-            ItemHeight = 13
-            TabOrder = 1
-          end
-          object btnSubscribeToAll: TButton
-            Left = 41
-            Top = 57
-            Width = 100
-            Height = 38
-            Action = actSubscribeToAll
-            TabOrder = 2
-            WordWrap = True
-          end
-          object tlbSubscriptions: TToolBar
-            Left = 157
-            Top = 6
-            Width = 170
-            Height = 23
-            Align = alNone
-            ButtonWidth = 58
-            Images = imlMain
-            List = True
-            ShowCaptions = True
-            AllowTextButtons = True
-            TabOrder = 3
-            object btnClearSubscriptions: TToolButton
-              Left = 0
-              Top = 0
-              Action = actClearSubscriptions
-              Caption = 'Clear'
-              Style = tbsTextButton
-            end
-            object btnAddSubscription: TToolButton
-              Left = 56
-              Top = 0
-              Action = actAddSubscription
-              Caption = 'Add'
-              Style = tbsTextButton
-            end
-            object btnDeleteSubscription: TToolButton
-              Left = 106
-              Top = 0
-              Action = actDeleteSubscription
-              Caption = 'Delete'
-              Style = tbsTextButton
-            end
-          end
-        end
-      end
-      object tsSend: TTabSheet
-        Caption = 'Send'
-        DesignSize = (
-          335
-          126)
-        object btnSend: TButton
-          Left = 234
-          Top = 25
-          Width = 100
-          Height = 25
-          Action = actSendMemoText
-          Anchors = [akTop, akRight]
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 0
-        end
-        object mmoSend: TMemo
-          Left = 3
-          Top = 3
-          Width = 225
-          Height = 121
-          Anchors = [akLeft, akTop, akRight, akBottom]
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-          ScrollBars = ssVertical
-          TabOrder = 1
-        end
-        object btnSendCounterValue: TButton
-          Left = 234
-          Top = 76
-          Width = 100
-          Height = 25
-          Action = actSendCounterValue
-          Anchors = [akTop, akRight]
-          TabOrder = 2
-        end
-        object edtCounter: TLabeledEdit
-          Left = 283
-          Top = 103
-          Width = 49
-          Height = 21
-          Alignment = taCenter
-          Anchors = [akTop, akRight]
-          EditLabel.Width = 43
-          EditLabel.Height = 13
-          EditLabel.Caption = 'Counter:'
-          LabelPosition = lpLeft
-          NumbersOnly = True
-          TabOrder = 3
-          Text = '0'
-          OnExit = edtCounterExit
-        end
-        object btnSendLineByLine: TButton
-          Left = 234
-          Top = 50
-          Width = 100
-          Height = 25
-          Action = actSendLineByLine
-          Anchors = [akTop, akRight]
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 4
-        end
-        object btnPopulateMemo: TButton
-          Left = 234
-          Top = 0
-          Width = 100
-          Height = 25
-          Action = actPopulateMemo
-          Anchors = [akTop, akRight]
-          TabOrder = 5
-        end
-      end
-      object tsReceive: TTabSheet
-        Caption = 'Receive'
-        ImageIndex = 1
-        DesignSize = (
-          335
-          126)
-        object mmoReceive: TMemo
-          Left = 3
-          Top = 3
-          Width = 246
-          Height = 120
-          Anchors = [akLeft, akTop, akRight, akBottom]
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-          ReadOnly = True
-          ScrollBars = ssVertical
-          TabOrder = 0
-        end
-        object btnReceive: TButton
-          Left = 255
-          Top = 26
-          Width = 80
-          Height = 25
-          Action = actReceive
-          Anchors = [akTop, akRight]
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 1
-        end
-        object btnClearReceived: TButton
-          Left = 255
-          Top = 1
-          Width = 80
-          Height = 25
-          Action = actClearReceived
-          Anchors = [akTop, akRight]
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          Images = imlMain
-          ParentFont = False
-          TabOrder = 2
-        end
-      end
-      object tsSettings: TTabSheet
-        Caption = 'Settings'
-        ImageIndex = 2
-        DesignSize = (
-          335
-          126)
-        object grpMonitorEvents: TGroupBox
-          AlignWithMargins = True
-          Left = 2
-          Top = 3
-          Width = 199
-          Height = 120
-          Anchors = [akLeft, akTop, akBottom]
-          Caption = 'Monitor events'
-          TabOrder = 0
-          object lbxEvents: TCheckListBox
-            AlignWithMargins = True
-            Left = 5
-            Top = 18
-            Width = 189
-            Height = 97
-            OnClickCheck = lbxEventsClickCheck
-            Align = alClient
-            AutoComplete = False
-            BevelInner = bvNone
-            BevelOuter = bvNone
-            Columns = 2
-            ItemHeight = 13
-            Items.Strings = (
-              'Connected'
-              'Delayed'
-              'Retried'
-              'Listening'
-              'BindFailed'
-              'Accepted'
-              'AcceptFailed'
-              'Closed'
-              'CloseFailed'
-              'Disconnected'
-              'MonitorStopped')
-            TabOrder = 0
-          end
-        end
-        object grpPollingSettings: TGroupBox
-          AlignWithMargins = True
-          Left = 207
-          Top = 3
-          Width = 114
-          Height = 72
-          Anchors = [akLeft, akTop, akRight]
-          Caption = 'Polling'
-          TabOrder = 1
-          object edtPollTimeout: TLabeledEdit
-            Left = 12
-            Top = 37
-            Width = 50
-            Height = 21
-            EditLabel.Width = 79
-            EditLabel.Height = 13
-            EditLabel.Caption = 'Poll timeout (ms)'
-            NumbersOnly = True
-            TabOrder = 0
-            Text = '10'
-          end
-        end
-      end
-    end
-    object pnlLog: TPanel
-      Left = 0
-      Top = 176
-      Width = 343
-      Height = 66
-      Align = alClient
-      BevelOuter = bvNone
-      TabOrder = 4
-    end
   end
-  object sbrMain: TStatusBar
-    Left = 0
-    Top = 242
-    Width = 464
-    Height = 19
-    Panels = <>
-    SimplePanel = True
-  end
-  object pnlLeft: TPanel
+  object pgcMessage: TPageControl
     Left = 0
     Top = 0
-    Width = 121
-    Height = 242
-    Align = alLeft
-    BevelOuter = bvNone
-    TabOrder = 2
-    object pnlSocketConfiguration: TPanel
-      Left = 0
-      Top = 0
-      Width = 115
-      Height = 242
-      Align = alLeft
-      BevelOuter = bvNone
-      TabOrder = 0
-      object mmoIPs: TMemo
+    Width = 359
+    Height = 129
+    ActivePage = tsEndpoints
+    Align = alTop
+    TabOrder = 1
+    object tsEndpoints: TTabSheet
+      Caption = 'MQTT broker'
+      ImageIndex = 3
+      object grpEndPoint: TGroupBox
         AlignWithMargins = True
-        Left = 6
-        Top = 183
-        Width = 103
-        Height = 53
-        Hint = 'Local IP addresses'
-        Margins.Left = 6
-        Margins.Right = 6
-        Margins.Bottom = 6
+        Left = 3
+        Top = 3
+        Width = 345
+        Height = 95
         Align = alClient
-        BevelInner = bvNone
-        BevelOuter = bvNone
+        TabOrder = 0
+        object edtAddress: TLabeledEdit
+          Left = 54
+          Top = 5
+          Width = 174
+          Height = 21
+          Alignment = taCenter
+          EditLabel.Width = 43
+          EditLabel.Height = 13
+          EditLabel.Caption = 'Address:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          LabelPosition = lpLeft
+          LabelSpacing = 1
+          ParentFont = False
+          TabOrder = 0
+          Text = 'localhost'
+        end
+        object edtPort: TLabeledEdit
+          Left = 264
+          Top = 5
+          Width = 75
+          Height = 21
+          Alignment = taCenter
+          EditLabel.Width = 24
+          EditLabel.Height = 13
+          EditLabel.Caption = 'Port:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          LabelPosition = lpLeft
+          LabelSpacing = 1
+          ParentFont = False
+          TabOrder = 1
+          Text = '1883'
+        end
+        object btnConnectToBroker: TButton
+          Left = 8
+          Top = 33
+          Width = 120
+          Height = 25
+          Caption = '&Connect'
+          ImageIndex = 3
+          TabOrder = 2
+          OnClick = actConnectExecute
+        end
+        object btnDisconnect: TButton
+          Left = 8
+          Top = 64
+          Width = 120
+          Height = 25
+          Caption = 'Disconnect'
+          TabOrder = 3
+          OnClick = actDisconnectExecute
+        end
+      end
+    end
+    object tsSubscriptions: TTabSheet
+      Caption = 'Subscriptions'
+      ImageIndex = 4
+      object grpSubscriptions: TGroupBox
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 345
+        Height = 95
+        Align = alClient
+        TabOrder = 0
+        DesignSize = (
+          345
+          95)
+        object edtTopic: TLabeledEdit
+          Left = 41
+          Top = 8
+          Width = 99
+          Height = 21
+          Anchors = [akLeft, akTop, akRight]
+          EditLabel.Width = 29
+          EditLabel.Height = 13
+          EditLabel.Caption = 'Topic:'
+          LabelPosition = lpLeft
+          TabOrder = 0
+        end
+        object lbxTopics: TListBox
+          Left = 157
+          Top = 30
+          Width = 185
+          Height = 61
+          Anchors = [akLeft, akTop, akRight, akBottom]
+          ItemHeight = 13
+          TabOrder = 1
+        end
+        object tlbSubscriptions: TToolBar
+          Left = 157
+          Top = 6
+          Width = 170
+          Height = 23
+          Align = alNone
+          ButtonWidth = 58
+          Images = imlMain
+          List = True
+          ShowCaptions = True
+          AllowTextButtons = True
+          TabOrder = 2
+          object btnClearSubscriptions: TToolButton
+            Left = 0
+            Top = 0
+            Caption = 'Clear'
+            ImageIndex = 2
+            Style = tbsTextButton
+            OnClick = actClearSubscriptionsExecute
+          end
+          object btnAddSubscription: TToolButton
+            Left = 56
+            Top = 0
+            Caption = 'Add'
+            ImageIndex = 0
+            Style = tbsTextButton
+            OnClick = actAddSubscriptionExecute
+          end
+          object btnDeleteSubscription: TToolButton
+            Left = 106
+            Top = 0
+            Caption = 'Delete'
+            ImageIndex = 1
+            Style = tbsTextButton
+            OnClick = actDeleteSubscriptionExecute
+          end
+        end
+      end
+    end
+    object tsPublish: TTabSheet
+      Caption = 'Publish'
+      DesignSize = (
+        351
+        101)
+      object btnSend: TButton
+        Left = 250
+        Top = 41
+        Width = 100
+        Height = 25
+        Anchors = [akTop, akRight]
+        Caption = 'Publish'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
+        TabOrder = 0
+        OnClick = actPublishExecute
+      end
+      object mmoPublish: TMemo
+        Left = 3
+        Top = 40
+        Width = 241
+        Height = 59
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Consolas'
+        Font.Style = []
+        ParentFont = False
+        ScrollBars = ssVertical
+        TabOrder = 1
+      end
+      object edtCounter: TLabeledEdit
+        Left = 299
+        Top = 103
+        Width = 49
+        Height = 21
+        Alignment = taCenter
+        Anchors = [akTop, akRight]
+        EditLabel.Width = 43
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Counter:'
+        LabelPosition = lpLeft
+        NumbersOnly = True
+        TabOrder = 2
+        Text = '0'
+      end
+      object btnPopulateMemo: TButton
+        Left = 248
+        Top = 72
+        Width = 100
+        Height = 25
+        Hint = 'Populates the list with 1000 random names.'
+        Anchors = [akTop, akRight]
+        Caption = '&Populate list'
+        TabOrder = 3
+        OnClick = actPopulateMemoExecute
+      end
+      object edtPublishTopic: TLabeledEdit
+        Left = 40
+        Top = 13
+        Width = 204
+        Height = 21
+        EditLabel.Width = 25
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Topic'
+        LabelPosition = lpLeft
+        TabOrder = 4
+      end
+    end
+    object tsReceive: TTabSheet
+      Caption = 'Receive'
+      ImageIndex = 1
+      DesignSize = (
+        351
+        101)
+      object mmoReceive: TMemo
+        Left = 3
+        Top = 3
+        Width = 262
+        Height = 95
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Consolas'
+        Font.Style = []
+        ParentFont = False
         ReadOnly = True
+        ScrollBars = ssVertical
         TabOrder = 0
       end
-      object grp1: TGroupBox
-        Left = 0
-        Top = 0
-        Width = 115
-        Height = 96
-        Align = alTop
-        Caption = 'Socket Type'
+      object btnClearReceived: TButton
+        Left = 271
+        Top = 1
+        Width = 80
+        Height = 25
+        Action = actClearReceived
+        Anchors = [akTop, akRight]
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 1
-        object cbxZMQSocketType: TComboBox
-          Left = 10
-          Top = 16
-          Width = 99
-          Height = 21
-          AutoDropDown = True
-          Style = csDropDownList
-          DropDownCount = 30
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ItemIndex = 0
-          ParentFont = False
-          TabOrder = 0
-          Text = 'Pair'
-          OnChange = cbxZMQSocketTypeChange
+      end
+    end
+    object tsSettings: TTabSheet
+      Caption = 'Settings'
+      ImageIndex = 2
+      DesignSize = (
+        351
+        101)
+      object grpMonitorEvents: TGroupBox
+        AlignWithMargins = True
+        Left = 2
+        Top = 3
+        Width = 199
+        Height = 95
+        Anchors = [akLeft, akTop, akBottom]
+        Caption = 'Monitor events'
+        TabOrder = 0
+        object lbxEvents: TCheckListBox
+          AlignWithMargins = True
+          Left = 5
+          Top = 18
+          Width = 189
+          Height = 72
+          Align = alClient
+          AutoComplete = False
+          BevelInner = bvNone
+          BevelOuter = bvNone
+          Columns = 2
+          ItemHeight = 13
           Items.Strings = (
-            'Pair'
-            'Publisher'
-            'Subscriber'
-            'Requester'
-            'Responder'
-            'Dealer'
-            'Router'
-            'Pull'
-            'Push'
-            'XPublisher'
-            'XSubscriber'
-            'Stream')
-        end
-        object btnStart: TButton
-          Left = 8
-          Top = 39
-          Width = 100
-          Height = 25
-          Action = actStart
-          TabOrder = 1
-        end
-        object btnClose: TButton
-          Left = 8
-          Top = 66
-          Width = 100
-          Height = 25
-          Action = actClose
-          Images = imlMain
-          TabOrder = 2
-        end
-      end
-      object grp2: TGroupBox
-        Left = 0
-        Top = 96
-        Width = 115
-        Height = 84
-        Align = alTop
-        Caption = 'Node'
-        TabOrder = 2
-        object btnCreateNew1: TButton
-          Left = 3
-          Top = 43
-          Width = 105
-          Height = 35
-          Action = actCreateNewWithNewContext
-          Images = imlMain
+            'Connected'
+            'Delayed'
+            'Retried'
+            'Listening'
+            'BindFailed'
+            'Accepted'
+            'AcceptFailed'
+            'Closed'
+            'CloseFailed'
+            'Disconnected'
+            'MonitorStopped')
           TabOrder = 0
-          WordWrap = True
-        end
-        object btnCreateNew: TButton
-          Left = 3
-          Top = 16
-          Width = 105
-          Height = 25
-          Action = actCreateNew
-          Images = imlMain
-          TabOrder = 1
         end
       end
-    end
-  end
-  object aclMain: TActionList
-    Images = imlMain
-    Left = 264
-    Top = 200
-    object actConnect: TAction
-      Caption = '&Connect'
-      ImageIndex = 3
-      OnExecute = actConnectExecute
-    end
-    object actSendMemoText: TAction
-      Caption = 'Send memotext'
-      OnExecute = actSendMemoTextExecute
-    end
-    object actBind: TAction
-      Caption = '&Bind'
-      ImageIndex = 4
-      OnExecute = actBindExecute
-    end
-    object actReceive: TAction
-      Caption = 'Receive'
-      OnExecute = actReceiveExecute
-    end
-    object actCreateNew: TAction
-      Caption = 'New node'
-      ImageIndex = 5
-      OnExecute = actCreateNewExecute
-    end
-    object actClose: TAction
-      Caption = 'Close'
-      Hint = 'Close connection'
-      OnExecute = actCloseExecute
-    end
-    object actSendCounterValue: TAction
-      Caption = 'Send cou&nter value'
-      OnExecute = actSendCounterValueExecute
-    end
-    object actResetCounter: TAction
-      Caption = 'Reset counter'
-      OnExecute = actResetCounterExecute
-    end
-    object actSendMessages: TAction
-      Caption = 'Send messages'
-      OnExecute = actSendMessagesExecute
-    end
-    object actAddSubscription: TAction
-      ImageIndex = 0
-      OnExecute = actAddSubscriptionExecute
-    end
-    object actDeleteSubscription: TAction
-      ImageIndex = 1
-      OnExecute = actDeleteSubscriptionExecute
-    end
-    object actClearSubscriptions: TAction
-      ImageIndex = 2
-      OnExecute = actClearSubscriptionsExecute
-    end
-    object actCreateNewWithNewContext: TAction
-      Caption = 'New node/'#13#10'new context'
-      ImageIndex = 5
-      OnExecute = actCreateNewWithNewContextExecute
-    end
-    object actSendLineByLine: TAction
-      Caption = 'Send &line by line'
-      OnExecute = actSendLineByLineExecute
-    end
-    object actClearReceived: TAction
-      Caption = 'Clear'
-      ImageIndex = 2
-      OnExecute = actClearReceivedExecute
-    end
-    object actSubscribeToAll: TAction
-      Caption = '&Subscribe to all messages'
-      OnExecute = actSubscribeToAllExecute
-    end
-    object actPopulateMemo: TAction
-      Caption = '&Populate list'
-      Hint = 'Populates the list with 1000 random names.'
-      OnExecute = actPopulateMemoExecute
-    end
-    object actShowLastEndPoint: TAction
-      Caption = 'LastEndpoint'
-      OnExecute = actShowLastEndPointExecute
-    end
-    object actStart: TAction
-      Caption = 'Start'
-      OnExecute = actStartExecute
-    end
-    object actCreateNewSubscriberNode: TAction
-      Caption = 'Create new subscriber node'
-    end
-    object actCreateNewSUBNode: TAction
-      Caption = 'Subscriber'
-      OnExecute = actCreateNewSUBNodeExecute
-    end
-    object actCreateNewPULLNode: TAction
-      Caption = 'Pull'
-      OnExecute = actCreateNewPULLNodeExecute
-    end
-    object actCreateNewPUSHNode: TAction
-      Caption = 'Push'
-      OnExecute = actCreateNewPUSHNodeExecute
-    end
-    object actCreateNewPAIRNode: TAction
-      Caption = 'Pair'
-      OnExecute = actCreateNewPAIRNodeExecute
-    end
-    object actCreateNewREQNode: TAction
-      Caption = 'Request'
-      OnExecute = actCreateNewREQNodeExecute
-    end
-    object actCreateNewREPNode: TAction
-      Caption = 'Reply'
-      OnExecute = actCreateNewREPNodeExecute
-    end
-    object actCreateNewDEALERNode: TAction
-      Caption = 'Dealer'
-      OnExecute = actCreateNewDEALERNodeExecute
-    end
-    object actCreateNewROUTERNode: TAction
-      Caption = 'Router'
-      OnExecute = actCreateNewROUTERNodeExecute
-    end
-    object actCreateNewPUBNode: TAction
-      Caption = 'Publisher'
-      OnExecute = actCreateNewPUBNodeExecute
+      object grpPollingSettings: TGroupBox
+        AlignWithMargins = True
+        Left = 207
+        Top = 3
+        Width = 130
+        Height = 72
+        Anchors = [akLeft, akTop, akRight]
+        Caption = 'Polling'
+        TabOrder = 1
+        object edtPollTimeout: TLabeledEdit
+          Left = 12
+          Top = 37
+          Width = 50
+          Height = 21
+          EditLabel.Width = 79
+          EditLabel.Height = 13
+          EditLabel.Caption = 'Poll timeout (ms)'
+          NumbersOnly = True
+          TabOrder = 0
+          Text = '10'
+        end
+      end
     end
   end
   object imlMain: TImageList
     ColorDepth = cd32Bit
-    Left = 416
-    Top = 200
+    Left = 290
+    Top = 64
     Bitmap = {
-      494C0101060008004C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010106000800580010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1024,11 +629,68 @@ object frmZMQConcept: TfrmZMQConcept
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000}
   end
-  object tmrPoll: TTimer
-    Enabled = False
-    Interval = 100
-    OnTimer = tmrPollTimer
-    Left = 376
-    Top = 208
+  object aclMain: TActionList
+    Images = imlMain
+    Left = 224
+    Top = 64
+    object actConnect: TAction
+      Caption = '&Connect'
+      ImageIndex = 3
+      OnExecute = actConnectExecute
+    end
+    object actPublish: TAction
+      Caption = 'Publish'
+      OnExecute = actPublishExecute
+    end
+    object actCreateNew: TAction
+      Caption = 'New node'
+      ImageIndex = 5
+    end
+    object actClose: TAction
+      Caption = 'Close'
+      Hint = 'Close connection'
+    end
+    object actAddSubscription: TAction
+      Caption = 'Add'
+      ImageIndex = 0
+      OnExecute = actAddSubscriptionExecute
+    end
+    object actDeleteSubscription: TAction
+      Caption = 'Delete'
+      ImageIndex = 1
+      OnExecute = actDeleteSubscriptionExecute
+    end
+    object actClearSubscriptions: TAction
+      Caption = 'Clear'
+      ImageIndex = 2
+      OnExecute = actClearSubscriptionsExecute
+    end
+    object actCreateNewWithNewContext: TAction
+      Caption = 'New node/'#13#10'new context'
+      ImageIndex = 5
+    end
+    object actClearReceived: TAction
+      Caption = 'Clear'
+      ImageIndex = 2
+      OnExecute = actClearReceivedExecute
+    end
+    object actPopulateMemo: TAction
+      Caption = '&Populate list'
+      Hint = 'Populates the list with 1000 random names.'
+      OnExecute = actPopulateMemoExecute
+    end
+    object actCreateNewSubscriberNode: TAction
+      Caption = 'Create new subscriber node'
+    end
+    object actCreateNewSUBNode: TAction
+      Caption = 'Subscriber'
+    end
+    object actCreateNewPUBNode: TAction
+      Caption = 'Publisher'
+    end
+    object actDisconnect: TAction
+      Caption = 'Disconnect'
+      OnExecute = actDisconnectExecute
+    end
   end
 end

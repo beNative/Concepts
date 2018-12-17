@@ -41,6 +41,7 @@ type
     aclMain: TActionList;
     actAutoSizeColumns: TAction;
     btnAutoSizeColumns: TButton;
+    lblFocusedNode: TLabel;
     procedure FormResize(Sender: TObject);
     procedure actAutoSizeColumnsExecute(Sender: TObject);
     {$ENDREGION}
@@ -146,6 +147,9 @@ type
       Hover, Pressed : Boolean;
       DropMark       : TVTDropMarkMode
     );
+
+  protected
+    procedure UpdateActions; override;
 
   public
     procedure AfterConstruction; override;
@@ -461,6 +465,20 @@ begin
     Header.Options := Header.Options + [hoOwnerDraw];
   end;
 end;
+procedure TfrmVirtualTreeView.UpdateActions;
+begin
+  inherited UpdateActions;
+  if Assigned(FVirtualStringTree) and Assigned(FVirtualStringTree.FocusedNode) then
+  begin
+    lblFocusedNode.Caption := FVirtualStringTree.FocusedNode.Index.ToString;
+  end
+  else
+  begin
+    lblFocusedNode.Caption := 'None';
+  end;
+
+end;
+
 {$ENDREGION}
 
 end.

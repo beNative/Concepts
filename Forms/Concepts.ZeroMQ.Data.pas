@@ -33,9 +33,6 @@ type
   private
     FZMQ       : IZeroMQ;
     FPair      : IZMQPair;
-    //FEventProc : TZMQEventProc;
-    //FEvents    : ZMQEvents;
-    //FPoll      : IZMQPoll;
     FPort      : Integer;
     FName      : string;
 
@@ -64,9 +61,6 @@ type
 
     property Pair: IZMQPair
       read FPair write FPair;
-
-//    property Poll: IZMQPoll
-//      read FPoll write FPoll;
 
     property SocketType: ZMQSocket
       read GetSocketType write SetSocketType;
@@ -128,12 +122,12 @@ end;
 {$REGION 'property access methods'}
 function TZeroMQDevice.GetConnectionString: string;
 begin
-
+  //
 end;
 
 function TZeroMQDevice.GetEvents: ZMQEvents;
 begin
-
+//
 end;
 
 function TZeroMQDevice.GetName: string;

@@ -39,8 +39,6 @@ uses
 const
   LIBZEROMQ = 'libzmq.dll';
 
-{.$DEFINE EXPERIMENTAL}
-
 {$WARN SYMBOL_PLATFORM OFF}
 (******************************************************************************)
 (*  0MQ versioning support.                                                   *)
@@ -133,8 +131,7 @@ function zmq_ctx_destroy(context: Pointer): Integer; cdecl; external LIBZEROMQ d
 (******************************************************************************)
 
 const
-  //ZMQ_MAX_VSM_SIZE = 30;
-  ZMQ_MAX_VSM_SIZE = 57;
+  ZMQ_MAX_VSM_SIZE = 58;
 
 type
   PZmqMsg = ^TZmqMsg;
@@ -335,8 +332,8 @@ type
     revents: SmallInt;
   end;
 
-const
-  ZMQ_POLLITEMS_DFLT = 16;
+//const
+//  ZMQ_POLLITEMS_DFLT = 16;
 
 function zmq_poll(items: PZmqPollItem; nitems: Integer; timeout: LongInt): Integer; cdecl; external LIBZEROMQ delayed;
 
@@ -392,5 +389,11 @@ function zmq_threadstart(func: TZmqThreadFn; arg: Pointer): Pointer; cdecl; exte
 procedure zmq_threadclose(thread: Pointer); cdecl; external LIBZEROMQ delayed;
 
 implementation
+
+(* TS:
+int zmq_has (const char *capability);
+int zmq_proxy_steerable (const void *frontend, const void *backend, const void *capture, const void *control);
+
+*)
 
 end.

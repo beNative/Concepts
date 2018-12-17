@@ -149,6 +149,8 @@ uses
   Concepts.VirtualTreeView.Form,
   {$ENDIF}
 
+  Concepts.MQTT.Form,
+
   Concepts.FMXContainer.Form,
 
   Concepts.Manager;
@@ -461,6 +463,13 @@ begin
     'ZeroMQ demo.'
   );
   {$ENDIF}
+
+  ConceptManager.Register(
+    TfrmMQTTNode,
+    'MQTT',
+    'MQTT',
+    'MQTT demo.'
+  );
 
   {$IFDEF DDETOURS}
   ConceptManager.Register(
