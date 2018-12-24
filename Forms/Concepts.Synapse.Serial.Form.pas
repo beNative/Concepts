@@ -116,9 +116,7 @@ type
     grpFlowControl         : TGroupBox;
     chkSoftwareHandshaking : TCheckBox;
     chkHardwareHandshaking : TCheckBox;
-    cbxParity              : TComboBox;
     lblSpeed               : TLabel;
-    lblParity              : TLabel;
     tmrPoll                : TTimer;
     pnlIndicators          : TGridPanel;
     pnlRTS                 : TPanel;
@@ -148,6 +146,7 @@ type
     procedure cbxCOMPortChange(Sender: TObject);
     procedure actSendMultiLineExecute(Sender: TObject);
     procedure tmrPollTimer(Sender: TObject);
+    procedure cbxBaudRateChange(Sender: TObject);
 
   private
     FLogIn     : TLogTree;
@@ -164,10 +163,6 @@ type
     procedure SetConnected(const Value: Boolean);
     function GetBaudRate: Integer;
     procedure SetBaudRate(const Value: Integer);
-    function GetDataBits: Integer;
-    procedure SetDataBits(const Value: Integer);
-    function GetStopBits: Integer;
-    procedure SetStopBits(const Value: Integer);
 
     procedure ComPortStatus(
       Sender      : TObject;
@@ -201,12 +196,6 @@ type
 
     property BaudRate: Integer
       read GetBaudRate write SetBaudRate;
-
-    property DataBits: Integer
-      read GetDataBits write SetDataBits;
-
-    property StopBits: Integer
-      read GetStopBits write SetStopBits;
 
     property Connected: Boolean
       read GetConnected write SetConnected;
@@ -331,16 +320,6 @@ begin
   end;
 end;
 
-function TfrmSynapseSerial.GetStopBits: Integer;
-begin
-  Result := 0;
-end;
-
-procedure TfrmSynapseSerial.SetStopBits(const Value: Integer);
-begin
-  // not supported
-end;
-
 function TfrmSynapseSerial.GetBaudRate: Integer;
 begin
   Result := StrToIntDef(cbxBaudRate.Text, 9600);
@@ -349,16 +328,6 @@ end;
 procedure TfrmSynapseSerial.SetBaudRate(const Value: Integer);
 begin
   cbxBaudRate.Text := Value.ToString;
-end;
-
-function TfrmSynapseSerial.GetDataBits: Integer;
-begin
-  Result := 0;
-end;
-
-procedure TfrmSynapseSerial.SetDataBits(const Value: Integer);
-begin
-//
 end;
 
 function TfrmSynapseSerial.GetConnected: Boolean;
@@ -376,7 +345,13 @@ begin
       StrToIntDef(cbxBaudRate.Text, 9600),
       8,
       'N',
+ { It's very common for devices to ignore parity errors, so this setting does
+   not matter. }
       0,
+ { (E)USART hardware automatically adds 1 stop bit. Receiving data from a device
+   that is sending 2 stop bits is exactly the same as receiving data with one
+   stop bit and a little extra time between bytes.
+   The UART will just wait however long it needs to until the next start bit. }
       chkSoftwareHandshaking.Checked,
       chkHardwareHandshaking.Checked
     );
@@ -443,6 +418,24 @@ end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
+procedure TfrmSynapseSerial.cbxBaudRateChange(Sender: TObject);
+begin
+    FComPort.Config(
+      StrToIntDef(cbxBaudRate.Text, 9600),
+      8,
+      'N',
+ { It's very common for devices to ignore parity errors, so this setting does
+   not matter. }
+      0,
+ { (E)USART hardware automatically adds 1 stop bit. Receiving data from a device
+   that is sending 2 stop bits is exactly the same as receiving data with one
+   stop bit and a little extra time between bytes.
+   The UART will just wait however long it needs to until the next start bit. }
+      chkSoftwareHandshaking.Checked,
+      chkHardwareHandshaking.Checked
+    );
+end;
+
 procedure TfrmSynapseSerial.cbxCOMPortChange(Sender: TObject);
 begin
   Port := cbxCOMPort.Text;

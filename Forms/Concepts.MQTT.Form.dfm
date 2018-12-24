@@ -32,6 +32,10 @@ object frmMQTTNode: TfrmMQTTNode
     object tsEndpoints: TTabSheet
       Caption = 'MQTT broker'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object grpEndPoint: TGroupBox
         AlignWithMargins = True
         Left = 3
@@ -81,8 +85,8 @@ object frmMQTTNode: TfrmMQTTNode
           Text = '1883'
         end
         object btnConnectToBroker: TButton
-          Left = 8
-          Top = 33
+          Left = 134
+          Top = 32
           Width = 120
           Height = 25
           Caption = '&Connect'
@@ -91,19 +95,31 @@ object frmMQTTNode: TfrmMQTTNode
           OnClick = actConnectExecute
         end
         object btnDisconnect: TButton
-          Left = 8
-          Top = 64
+          Left = 134
+          Top = 63
           Width = 120
           Height = 25
           Caption = 'Disconnect'
           TabOrder = 3
           OnClick = actDisconnectExecute
         end
+        object btnStartBroker: TButton
+          Left = 8
+          Top = 33
+          Width = 120
+          Height = 25
+          Action = actStartBroker
+          TabOrder = 4
+        end
       end
     end
     object tsSubscriptions: TTabSheet
       Caption = 'Subscriptions'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object grpSubscriptions: TGroupBox
         AlignWithMargins = True
         Left = 3
@@ -139,50 +155,51 @@ object frmMQTTNode: TfrmMQTTNode
         object tlbSubscriptions: TToolBar
           Left = 157
           Top = 6
-          Width = 170
+          Width = 188
           Height = 23
           Align = alNone
           ButtonWidth = 58
+          DoubleBuffered = True
           Images = imlMain
           List = True
+          ParentDoubleBuffered = False
           ShowCaptions = True
           AllowTextButtons = True
           TabOrder = 2
-          object btnClearSubscriptions: TToolButton
+          Wrapable = False
+          object btnAddSubscription: TToolButton
             Left = 0
             Top = 0
-            Caption = 'Clear'
-            ImageIndex = 2
+            Action = actAddSubscription
             Style = tbsTextButton
-            OnClick = actClearSubscriptionsExecute
-          end
-          object btnAddSubscription: TToolButton
-            Left = 56
-            Top = 0
-            Caption = 'Add'
-            ImageIndex = 0
-            Style = tbsTextButton
-            OnClick = actAddSubscriptionExecute
           end
           object btnDeleteSubscription: TToolButton
-            Left = 106
+            Left = 50
             Top = 0
-            Caption = 'Delete'
-            ImageIndex = 1
+            Action = actDeleteSubscription
             Style = tbsTextButton
-            OnClick = actDeleteSubscriptionExecute
+          end
+          object btnClearSubscriptions: TToolButton
+            Left = 112
+            Top = 0
+            Action = actClearSubscriptions
+            Style = tbsTextButton
           end
         end
       end
     end
     object tsPublish: TTabSheet
       Caption = 'Publish'
+      ExplicitLeft = 0
+      ExplicitTop = 22
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         351
         101)
       object btnSend: TButton
         Left = 250
-        Top = 41
+        Top = 11
         Width = 100
         Height = 25
         Anchors = [akTop, akRight]
@@ -227,8 +244,8 @@ object frmMQTTNode: TfrmMQTTNode
         Text = '0'
       end
       object btnPopulateMemo: TButton
-        Left = 248
-        Top = 72
+        Left = 250
+        Top = 42
         Width = 100
         Height = 25
         Hint = 'Populates the list with 1000 random names.'
@@ -248,10 +265,22 @@ object frmMQTTNode: TfrmMQTTNode
         LabelPosition = lpLeft
         TabOrder = 4
       end
+      object btnClearPublishList: TButton
+        Left = 250
+        Top = 72
+        Width = 100
+        Height = 25
+        Action = actClearPublishList
+        TabOrder = 5
+      end
     end
     object tsReceive: TTabSheet
       Caption = 'Receive'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         351
         101)
@@ -290,6 +319,10 @@ object frmMQTTNode: TfrmMQTTNode
     object tsSettings: TTabSheet
       Caption = 'Settings'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         351
         101)
@@ -355,8 +388,8 @@ object frmMQTTNode: TfrmMQTTNode
   end
   object imlMain: TImageList
     ColorDepth = cd32Bit
-    Left = 290
-    Top = 64
+    Left = 298
+    Top = 56
     Bitmap = {
       494C010106000800580010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
@@ -631,8 +664,8 @@ object frmMQTTNode: TfrmMQTTNode
   end
   object aclMain: TActionList
     Images = imlMain
-    Left = 224
-    Top = 64
+    Left = 296
+    Top = 80
     object actConnect: TAction
       Caption = '&Connect'
       ImageIndex = 3
@@ -691,6 +724,14 @@ object frmMQTTNode: TfrmMQTTNode
     object actDisconnect: TAction
       Caption = 'Disconnect'
       OnExecute = actDisconnectExecute
+    end
+    object actClearPublishList: TAction
+      Caption = 'Clear'
+      OnExecute = actClearPublishListExecute
+    end
+    object actStartBroker: TAction
+      Caption = 'Start broker'
+      OnExecute = actStartBrokerExecute
     end
   end
 end

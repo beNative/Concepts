@@ -78,13 +78,6 @@ object frmSynapseSerial: TfrmSynapseSerial
           Height = 13
           Caption = 'Speed:'
         end
-        object lblParity: TLabel
-          Left = 3
-          Top = 51
-          Width = 32
-          Height = 13
-          Caption = 'Parity:'
-        end
         object cbxCOMPort: TComboBox
           Left = 60
           Top = 1
@@ -158,6 +151,7 @@ object frmSynapseSerial: TfrmSynapseSerial
           ParentFont = False
           TabOrder = 3
           Text = '9600'
+          OnChange = cbxBaudRateChange
           Items.Strings = (
             '300'
             '600'
@@ -201,28 +195,6 @@ object frmSynapseSerial: TfrmSynapseSerial
             Caption = 'Hardware'
             TabOrder = 1
           end
-        end
-        object cbxParity: TComboBox
-          Left = 60
-          Top = 48
-          Width = 79
-          Height = 21
-          Hint = 'Parity bit setting'
-          DropDownCount = 30
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-          TabOrder = 5
-          Text = 'None'
-          Items.Strings = (
-            'None'
-            'Odd'
-            'Even'
-            'Mark'
-            'Space')
         end
         object pnlIndicators: TGridPanel
           Left = 5
@@ -285,7 +257,7 @@ object frmSynapseSerial: TfrmSynapseSerial
             item
               Value = 100.000000000000000000
             end>
-          TabOrder = 6
+          TabOrder = 5
           DesignSize = (
             305
             41)
@@ -769,7 +741,7 @@ object frmSynapseSerial: TfrmSynapseSerial
     Left = 72
     Top = 136
     Bitmap = {
-      494C010105000900180010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C0101050009001C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

@@ -47,6 +47,7 @@ type
   TfrmMQTTNode = class(TForm)
     aclMain                    : TActionList;
     actAddSubscription         : TAction;
+    actClearPublishList        : TAction;
     actClearReceived           : TAction;
     actClearSubscriptions      : TAction;
     actClose                   : TAction;
@@ -61,6 +62,7 @@ type
     actPopulateMemo            : TAction;
     actPublish                 : TAction;
     btnAddSubscription         : TToolButton;
+    btnClearPublishList        : TButton;
     btnClearReceived           : TButton;
     btnClearSubscriptions      : TToolButton;
     btnConnectToBroker         : TButton;
@@ -91,16 +93,19 @@ type
     tsReceive                  : TTabSheet;
     tsSettings                 : TTabSheet;
     tsSubscriptions            : TTabSheet;
+    actStartBroker: TAction;
+    btnStartBroker: TButton;
 
     procedure actPublishExecute(Sender: TObject);
-    procedure actSubscribeExecute(Sender: TObject);
     procedure actConnectExecute(Sender: TObject);
     procedure actClearSubscriptionsExecute(Sender: TObject);
     procedure actDeleteSubscriptionExecute(Sender: TObject);
     procedure actDisconnectExecute(Sender: TObject);
     procedure actAddSubscriptionExecute(Sender: TObject);
     procedure actPopulateMemoExecute(Sender: TObject);
+    procedure actClearPublishListExecute(Sender: TObject);
     procedure actClearReceivedExecute(Sender: TObject);
+    procedure actStartBrokerExecute(Sender: TObject);
 
   private
     FMQTT    : TMQTT;
@@ -133,10 +138,11 @@ implementation
 {$R *.dfm}
 
 uses
+  WinApi.ShellAPI,
   System.StrUtils,
 
   DDuce.Reflect, DDuce.Logger, DDuce.Components.Factories, DDuce.RandomData,
-  DDuce.Utils,
+  DDuce.Utils, DDuce.Utils.WinApi,
 
   Spring;
 
@@ -148,10 +154,12 @@ begin
   FLogTree.DateTimeFormat     := 'hh:nn:ss.zzz';
   FLogTree.ShowDateColumn     := False;
   FLogTree.AutoLogLevelColors := True;
+  pgcMessage.ActivePageIndex  := 0;
 end;
 
 procedure TfrmMQTTNode.BeforeDestruction;
 begin
+  FMQTT.Disconnect;
   FMQTT.Free;
   inherited BeforeDestruction;
 end;
@@ -176,8 +184,16 @@ end;
 {$REGION 'action handlers'}
 procedure TfrmMQTTNode.actAddSubscriptionExecute(Sender: TObject);
 begin
-  Topics.Add(edtTopic.Text);
-  FMQTT.Subscribe(UTF8String(edtTopic.Text), 0);
+  if (edtTopic.Text <> '') and (Topics.IndexOf(edtTopic.Text) = -1) then
+  begin
+    Topics.Add(edtTopic.Text);
+    FMQTT.Subscribe(UTF8String(edtTopic.Text), 0);
+  end;
+end;
+
+procedure TfrmMQTTNode.actClearPublishListExecute(Sender: TObject);
+begin
+  mmoPublish.Clear;
 end;
 
 procedure TfrmMQTTNode.actClearReceivedExecute(Sender: TObject);
@@ -193,6 +209,7 @@ begin
   begin
     FMQTT.Unsubscribe(UTF8String(S));
   end;
+  Topics.Clear;
 end;
 
 procedure TfrmMQTTNode.actConnectExecute(Sender: TObject);
@@ -201,7 +218,7 @@ begin
   begin
     FreeAndNil(FMQTT);
   end;
-  FMQTT := TMQTT.Create(UTF8String(edtAddress.Text), StrToInt(edtPort.Text));
+  FMQTT := TMQTT.Create(edtAddress.Text, StrToInt(edtPort.Text));
   FMQTT.OnPublish := FMQTTOnPublish;
   if FMQTT.Connect then
   begin
@@ -212,7 +229,7 @@ end;
 
 procedure TfrmMQTTNode.actDeleteSubscriptionExecute(Sender: TObject);
 begin
-  FMQTT.Unsubscribe(UTF8String(lbxTopics.Items[lbxTopics.ItemIndex]));
+  FMQTT.Unsubscribe(lbxTopics.Items[lbxTopics.ItemIndex]);
   Topics.Delete(lbxTopics.ItemIndex);
 end;
 
@@ -227,20 +244,20 @@ end;
 
 procedure TfrmMQTTNode.actPopulateMemoExecute(Sender: TObject);
 begin
-  mmoPublish.Text := GenerateRandomData(1000);
+  mmoPublish.Text := GenerateRandomData(5);
 end;
 
 procedure TfrmMQTTNode.actPublishExecute(Sender: TObject);
 begin
-  if FMQTT.Publish(UTF8String(edtPublishTopic.Text), UTF8String(mmoPublish.Text)) then
+  if FMQTT.Publish(edtPublishTopic.Text, mmoPublish.Text) then
   begin
     FLogTree.Log('Published', llInfo);
   end;
 end;
 
-procedure TfrmMQTTNode.actSubscribeExecute(Sender: TObject);
+procedure TfrmMQTTNode.actStartBrokerExecute(Sender: TObject);
 begin
-  FMQTT.Subscribe('Test', 1);
+  RunApplication('', 'mosquitto.exe', False);
 end;
 {$ENDREGION}
 
