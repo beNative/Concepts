@@ -12,9 +12,11 @@
 * [TChromeTabs](http://github.com/norgepaul/TChromeTabs) component
 * [SQLBuilder4Delphi](http://github.com/ezequieljuliano/SQLBuilder4Delphi) 
 * [ZeroMQ](http://github.com/zedalaye/Delphi-ZeroMQ) / [ZeroMQ (ØMQ)](http://zeromq.org)
+* [MQTT](http://github.com/wizinfantry/delphi-mqtt-client)
 * [DDetours](http://github.com/MahdiSafsafi/delphi-detours-library)
 * [TzObjectInspector](http://github.com/MahdiSafsafi/zcontrols)
 * [TBCEditor](http://github.com/bonecode/TBCEditor)
+* [SynEdit](https://github.com/SynEdit/SynEdit)
 * [JsonDataObjects](http://github.com/ahausladen/JsonDataObjects)
 * [Ararat Synapse](http://sourceforge.net/projects/synalist/)
 * [The Indy project](http://www.indyproject.org/)
