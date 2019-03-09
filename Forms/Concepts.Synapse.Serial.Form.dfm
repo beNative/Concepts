@@ -679,7 +679,7 @@ object frmSynapseSerial: TfrmSynapseSerial
         Top = 26
         Width = 621
         Height = 270
-        ActivePage = tsReceivedLog
+        ActivePage = tsReceivedText
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -713,10 +713,10 @@ object frmSynapseSerial: TfrmSynapseSerial
             Height = 242
             Align = alClient
             BorderStyle = bsNone
-            Font.Charset = DEFAULT_CHARSET
+            Font.Charset = OEM_CHARSET
             Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Consolas'
+            Font.Height = -12
+            Font.Name = 'Terminal_Ctrl+Hex'
             Font.Style = []
             Lines.Strings = (
               '')
@@ -741,7 +741,7 @@ object frmSynapseSerial: TfrmSynapseSerial
     Left = 72
     Top = 136
     Bitmap = {
-      494C0101050009001C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010105000900280010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

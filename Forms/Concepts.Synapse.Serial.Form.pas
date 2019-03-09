@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2018 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ type
     procedure SetDTRF(Value: Boolean); override;
     procedure SetRTSF(Value: Boolean); override;
 
+  published
     property RTS: Boolean
       read GetRTS write SetRTSF;
 
@@ -630,9 +631,9 @@ procedure TfrmSynapseSerial.UpdateIndicators;
 begin
   if Connected then
   begin
-    //ColorPanel(pnlRTS, FComPort.RTS);
+    ColorPanel(pnlRTS, FComPort.RTS);
     ColorPanel(pnlCTS, FComPort.CTS);
-    //ColorPanel(pnlDTR, FComPort.DTR);
+    ColorPanel(pnlDTR, FComPort.DTR);
     ColorPanel(pnlDSR, FComPort.DSR);
     ColorPanel(pnlCarrier, FComPort.Carrier);
     ColorPanel(pnlRing, FComPort.Ring);
