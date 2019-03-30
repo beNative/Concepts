@@ -1,4 +1,4 @@
-object frmIndyTCP: TfrmIndyTCP
+object frmIndyTelnet: TfrmIndyTelnet
   Left = 8
   Top = 8
   ClientHeight = 607
@@ -336,10 +336,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tsSentText: TTabSheet
           Caption = 'Text'
@@ -366,6 +362,7 @@ object frmIndyTCP: TfrmIndyTCP
               '')
             ParentFont = False
             PopupMenu = ppmReceivedText
+            ReadOnly = True
             ScrollBars = ssVertical
             TabOrder = 0
           end
@@ -447,10 +444,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tsReceivedText: TTabSheet
           Caption = 'Text'
@@ -476,6 +469,7 @@ object frmIndyTCP: TfrmIndyTCP
             Lines.Strings = (
               '')
             ParentFont = False
+            ReadOnly = True
             ScrollBars = ssVertical
             TabOrder = 0
           end
@@ -802,6 +796,14 @@ object frmIndyTCP: TfrmIndyTCP
     object actSendCommand: TAction
       Caption = 'SendCommand'
     end
+    object actAssignCommand: TAction
+      Caption = 'Assign command'
+      OnExecute = actAssignCommandExecute
+    end
+    object actClearCommand: TAction
+      Caption = 'Clear command'
+      OnExecute = actClearCommandExecute
+    end
   end
   object dlgSave: TSaveDialog
     DefaultExt = 'log'
@@ -819,18 +821,27 @@ object frmIndyTCP: TfrmIndyTCP
       Action = actSave
     end
   end
-  object IdConnectionIntercept: TIdConnectionIntercept
-    OnReceive = IdConnectionInterceptReceive
-    Left = 112
-    Top = 48
+  object IdTelnet: TIdTelnet
+    OnStatus = IdTelnetStatus
+    OnDisconnected = IdTelnetDisconnected
+    OnWork = IdTelnetWork
+    OnWorkBegin = IdTelnetWorkBegin
+    OnWorkEnd = IdTelnetWorkEnd
+    OnConnected = IdTelnetConnected
+    OnTelnetCommand = IdTelnetTelnetCommand
+    OnDataAvailable = IdTelnetDataAvailable
+    Terminal = 'dumb'
+    Left = 195
+    Top = 259
   end
-  object IdTCPClient: TIdTCPClient
-    Intercept = IdConnectionIntercept
-    ConnectTimeout = 0
-    IPVersion = Id_IPv4
-    Port = 80
-    ReadTimeout = -1
-    Left = 43
-    Top = 43
+  object ppmCommands: TPopupMenu
+    Left = 472
+    Top = 312
+    object mniAssignCommand: TMenuItem
+      Action = actAssignCommand
+    end
+    object mniClearCommand: TMenuItem
+      Action = actClearCommand
+    end
   end
 end

@@ -16,16 +16,9 @@
 
 {$I Concepts.inc}
 
-unit Concepts.Indy.TCP.Form;
+unit Concepts.Indy.Telnet.Form;
 
-{ Demonstrates how to create a TCP socket connection using Indy 10. }
-
-{
-  REMARKS:
-   - AFAICC commandhandlers cannot be used for communication that does not
-     involve welcome messages and replies consisting of less than 3 characters,
-     unless you write your own reply class.
-}
+{ Demonstrates a Telnet terminal using Indy 10. }
 
 interface
 
@@ -42,10 +35,10 @@ uses
 
   IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdCmdTCPClient,
   IdContext, IdIntercept, IdGlobal, IdIOHandler, IdIOHandlerSocket,
-  IdIOHandlerStack, IdCommandHandlers;
+  IdIOHandlerStack, IdCommandHandlers, IdTelnet;
 
 type
-  TfrmIndyTCP = class(TForm)
+  TfrmIndyTelnet = class(TForm)
     {$REGION 'designer controls'}
     aclMain                : TActionList;
     actClearReceived       : TAction;
@@ -64,7 +57,6 @@ type
     dlgSave                : TSaveDialog;
     edtPort                : TEdit;
     edtServer              : TEdit;
-    IdConnectionIntercept  : TIdConnectionIntercept;
     ilMain                 : TImageList;
     mmoReceivedText        : TMemo;
     mmoSentText            : TMemo;
@@ -94,7 +86,12 @@ type
     tsReceivedText         : TTabSheet;
     tsSentLog              : TTabSheet;
     tsSentText             : TTabSheet;
-    IdTCPClient            : TIdTCPClient;
+    IdTelnet               : TIdTelnet;
+    ppmCommands            : TPopupMenu;
+    actAssignCommand       : TAction;
+    mniAssignCommand       : TMenuItem;
+    actClearCommand        : TAction;
+    mniClearCommand        : TMenuItem;
     {$ENDREGION}
 
     procedure actClearReceivedExecute(Sender: TObject);
@@ -103,16 +100,25 @@ type
     procedure actDisconnectExecute(Sender: TObject);
     procedure actSaveExecute(Sender: TObject);
     procedure actSendExecute(Sender: TObject);
+    procedure actAssignCommandExecute(Sender: TObject);
+    procedure actClearCommandExecute(Sender: TObject);
 
     procedure InspectorModified(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure edtServerChange(Sender: TObject);
     procedure edtPortChange(Sender: TObject);
-    procedure IdTCPClientStatus(ASender: TObject; const AStatus: TIdStatus;
+    procedure IdTelnetDataAvailable(Sender: TIdTelnet; const Buffer: TIdBytes);
+    procedure IdTelnetStatus(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: string);
-    procedure IdConnectionInterceptReceive(ASender: TIdConnectionIntercept;
-      var ABuffer: TIdBytes);
-
+    procedure IdTelnetTelnetCommand(Sender: TIdTelnet;
+      Status: TIdTelnetCommand);
+    procedure IdTelnetConnected(Sender: TObject);
+    procedure IdTelnetDisconnected(Sender: TObject);
+    procedure IdTelnetWork(ASender: TObject; AWorkMode: TWorkMode;
+      AWorkCount: Int64);
+    procedure IdTelnetWorkBegin(ASender: TObject; AWorkMode: TWorkMode;
+      AWorkCountMax: Int64);
+    procedure IdTelnetWorkEnd(ASender: TObject; AWorkMode: TWorkMode);
 
   private
     FLogIn     : TLogTree;
@@ -127,7 +133,7 @@ type
     procedure SetPort(const Value: Integer);
     function GetConnected: Boolean;
     procedure SetConnected(const Value: Boolean);
-    function GetClient: TIdTCPClient;
+    function GetClient: TIdTelnet;
     procedure SetServer(const Value: string);
 
     procedure FCommandExecute(Sender: TObject);
@@ -137,6 +143,10 @@ type
     ): Boolean;
 
     procedure CreateCommandControls;
+    procedure AssignCommandToAction(
+      ASender        : TObject;
+      const ACommand : string = ''
+    );
 
   protected
     procedure LoadSettings; virtual;
@@ -164,7 +174,7 @@ type
     property Server: string
       read FServer write SetServer;
 
-    property Client: TIdTCPClient
+    property Client: TIdTelnet
       read GetClient;
 
   public
@@ -189,48 +199,8 @@ uses
 
   Concepts.Factories, Concepts.Settings;
 
-const
-  // conversion from a low-level control Char to its corresponding text
-  // - contains at least all used LIS1-A control chars
-  CTRL_TO_TEXT: array[#0..#31] of RawByteString = (
-    'NUL',
-    'SOH',
-    'STX',
-    'ETX',
-    'EOT',
-    'ENQ',
-    'ACK',
-    'BEL',
-    'BS',
-    'TAB',
-    'LF',
-    'VT',
-    'FF',
-    'CR',
-    'SO',
-    'SI',
-    'DLE',
-    'DC1',
-    'DC2',
-    'DC3',
-    'DC4',
-    'NAK',
-    'SYN',
-    'ETB',
-    'CAN',
-    'EM',
-    'SUB',
-    'ESC',
-    'FS',
-    'GS',
-    'RS',
-    'US'
-  );
-  SON  = '<font-color=clBlack><b>ON</b></font-color>';
-  SOFF = '<font-color=clRed><b>OFF</b></font-color>';
-
 {$REGION 'construction and destruction'}
-procedure TfrmIndyTCP.AfterConstruction;
+procedure TfrmIndyTelnet.AfterConstruction;
 begin
   inherited AfterConstruction;
   FCommands := TCollections.CreateObjectList<TContainedAction>(False);
@@ -239,27 +209,41 @@ begin
   FInspector := TzObjectInspectorFactory.Create(
     Self,
     pnlLeftTop,
-    idTCPClient
+    Client
   );
   FInspector.OnBeforeAddItem := FInspectorBeforeAddItem;
-  FLogIn                 :=  TDDuceComponents.CreateLogTree(Self, tsReceivedLog);
-  FLogIn.DateTimeFormat  := 'hh:nn:ss.zzz';
-  FLogIn.AutoLogLevelColors := True;
-  FLogIn.Images          := ilMain;
-  FLogOut                := TDDuceComponents.CreateLogTree(Self, tsSentLog);
-  FLogOut.Images         := ilMain;
-  FLogOut.DateTimeFormat := 'hh:nn:ss.zzz';
+  FLogIn                     :=  TDDuceComponents.CreateLogTree(Self, tsReceivedLog);
+  FLogIn.DateTimeFormat      := 'hh:nn:ss.zzz';
+  FLogIn.AutoLogLevelColors  := True;
+  FLogOut                    := TDDuceComponents.CreateLogTree(Self, tsSentLog);
+  FLogOut.DateTimeFormat     := 'hh:nn:ss.zzz';
   FLogOut.AutoLogLevelColors := True;
   Modified;
 end;
 
-procedure TfrmIndyTCP.BeforeDestruction;
+procedure TfrmIndyTelnet.AssignCommandToAction(ASender: TObject;
+  const ACommand: string);
+var
+  LActionComponent : TComponent;
+  LAction          : TContainedAction;
+begin
+  LActionComponent := (ASender as TContainedAction).ActionComponent;
+  if LActionComponent is TMenuItem then
+  begin
+    LAction := (((TPopupMenu(
+      TMenuItem(LActionComponent)
+        .GetParentMenu)
+          .PopupComponent) as TButton)
+            .Action as TContainedAction);
+    LAction.Caption := ACommand;
+  end;
+end;
+
+procedure TfrmIndyTelnet.BeforeDestruction;
 begin
   FInspector.Component := nil;
-  IdTCPClient.Intercept.OnReceive := nil;
-  IdTCPClient.OnStatus := nil;
-  IdTCPClient.Intercept.Disconnect;
-  IdTCPClient.Disconnect;
+  Client.OnStatus := nil;
+  Client.Disconnect;
 
   SaveSettings;
   inherited BeforeDestruction;
@@ -267,12 +251,12 @@ end;
 {$ENDREGION}
 
 {$REGION 'property access methods'}
-function TfrmIndyTCP.GetPort: Integer;
+function TfrmIndyTelnet.GetPort: Integer;
 begin
   Result := FPort;
 end;
 
-procedure TfrmIndyTCP.SetPort(const Value: Integer);
+procedure TfrmIndyTelnet.SetPort(const Value: Integer);
 begin
   if Value <> Port then
   begin
@@ -283,24 +267,24 @@ begin
   end;
 end;
 
-procedure TfrmIndyTCP.SetServer(const Value: string);
+procedure TfrmIndyTelnet.SetServer(const Value: string);
 begin
   FServer := Value;
   Client.Host := FServer;
   edtServer.Text := Value;
 end;
 
-function TfrmIndyTCP.GetClient: TIdTCPClient;
+function TfrmIndyTelnet.GetClient: TIdTelnet;
 begin
-  Result := IdTCPClient;
+  Result := IdTelnet;
 end;
 
-function TfrmIndyTCP.GetConnected: Boolean;
+function TfrmIndyTelnet.GetConnected: Boolean;
 begin
   Result := Client.Connected;
 end;
 
-procedure TfrmIndyTCP.SetConnected(const Value: Boolean);
+procedure TfrmIndyTelnet.SetConnected(const Value: Boolean);
 begin
   if Value then
   begin
@@ -316,13 +300,23 @@ end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
-procedure TfrmIndyTCP.actClearReceivedExecute(Sender: TObject);
+procedure TfrmIndyTelnet.actAssignCommandExecute(Sender: TObject);
+begin
+  AssignCommandToAction(Sender, cbxSent.Text);
+end;
+
+procedure TfrmIndyTelnet.actClearCommandExecute(Sender: TObject);
+begin
+  AssignCommandToAction(Sender);
+end;
+
+procedure TfrmIndyTelnet.actClearReceivedExecute(Sender: TObject);
 begin
   FLogIn.Clear;
   mmoReceivedText.Lines.Clear;
 end;
 
-procedure TfrmIndyTCP.actClearSentExecute(Sender: TObject);
+procedure TfrmIndyTelnet.actClearSentExecute(Sender: TObject);
 begin
   FLogOut.Clear;
   cbxSent.Items.Clear;
@@ -330,7 +324,7 @@ begin
   mmoSentText.Lines.Clear;
 end;
 
-procedure TfrmIndyTCP.actConnectExecute(Sender: TObject);
+procedure TfrmIndyTelnet.actConnectExecute(Sender: TObject);
 begin
   Port := StrToInt(edtPort.Text);
   try
@@ -344,13 +338,13 @@ begin
   end;
 end;
 
-procedure TfrmIndyTCP.actDisconnectExecute(Sender: TObject);
+procedure TfrmIndyTelnet.actDisconnectExecute(Sender: TObject);
 begin
   Connected := False;
   Modified;
 end;
 
-procedure TfrmIndyTCP.actSaveExecute(Sender: TObject);
+procedure TfrmIndyTelnet.actSaveExecute(Sender: TObject);
 begin
   if dlgSave.Execute then
   begin
@@ -358,71 +352,111 @@ begin
   end;
 end;
 
-procedure TfrmIndyTCP.actSendExecute(Sender: TObject);
+procedure TfrmIndyTelnet.actSendExecute(Sender: TObject);
 begin
-  SendString(RawByteString(cbxSent.Text));
+  SendString(cbxSent.Text);
+  cbxSent.Text := '';
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
-procedure TfrmIndyTCP.IdConnectionInterceptReceive(
-  ASender: TIdConnectionIntercept; var ABuffer: TIdBytes);
+procedure TfrmIndyTelnet.IdTelnetConnected(Sender: TObject);
 begin
-  DoStringReceived(RawByteString(PAnsiChar(ABuffer)));
-  UpdateControls;
-  Logger.Send('InterceptReceive', string(PAnsiChar(ABuffer)));
+  Logger.Info('Client connected.');
 end;
 
-procedure TfrmIndyTCP.IdTCPClientStatus(ASender: TObject;
-  const AStatus: TIdStatus; const AStatusText: string);
+procedure TfrmIndyTelnet.IdTelnetDataAvailable(Sender: TIdTelnet;
+  const Buffer: TIdBytes);
 begin
-  Logger.Track('IdTCPClientStatus');
+  DoStringReceived(BytesToString(Buffer));
+  UpdateControls;
+end;
+
+procedure TfrmIndyTelnet.IdTelnetDisconnected(Sender: TObject);
+begin
+  Logger.Info('Client disconnected');
+end;
+
+procedure TfrmIndyTelnet.IdTelnetStatus(ASender: TObject; const AStatus: TIdStatus;
+  const AStatusText: string);
+begin
   if Assigned(FLogin) then
     FLogIn.Log(AStatusText);
- Logger.Send('ClientStatus', AStatusText);
+  Logger.Info(AStatusText);
 end;
 
-procedure TfrmIndyTCP.InspectorModified(Sender: TObject);
+procedure TfrmIndyTelnet.IdTelnetTelnetCommand(Sender: TIdTelnet;
+  Status: TIdTelnetCommand);
+begin
+  Logger.Track(Self, 'IdTelnetTelnetCommand');
+  Logger.Send('Status', TValue.From(Status));
+end;
+
+procedure TfrmIndyTelnet.IdTelnetWork(ASender: TObject; AWorkMode: TWorkMode;
+  AWorkCount: Int64);
+begin
+  Logger.Track(Self, 'IdTelnetWork');
+  Logger.Send('AWorkMode', TValue.From(AWorkMode));
+  Logger.Send('AWorkCount', AWorkCount);
+end;
+
+procedure TfrmIndyTelnet.IdTelnetWorkBegin(ASender: TObject;
+  AWorkMode: TWorkMode; AWorkCountMax: Int64);
+begin
+  Logger.Track(Self, 'IdTelnetWorkBegin');
+  Logger.Send('AWorkMode', TValue.From(AWorkMode));
+  Logger.Send('AWorkCountMax', AWorkCountMax);
+end;
+
+procedure TfrmIndyTelnet.IdTelnetWorkEnd(ASender: TObject;
+  AWorkMode: TWorkMode);
+begin
+  Logger.Track(Self, 'IdTelnetWorkEnd');
+  Logger.Send('AWorkMode', TValue.From(AWorkMode));
+end;
+
+procedure TfrmIndyTelnet.InspectorModified(Sender: TObject);
 begin
   Modified;
 end;
 
-procedure TfrmIndyTCP.FCommandExecute(Sender: TObject);
+procedure TfrmIndyTelnet.FCommandExecute(Sender: TObject);
 begin
-  SendString(RawByteString((Sender as TContainedAction).Caption));
+  SendString((Sender as TContainedAction).Caption);
+  Modified;
 end;
 
-function TfrmIndyTCP.FInspectorBeforeAddItem(Sender: TControl;
+function TfrmIndyTelnet.FInspectorBeforeAddItem(Sender: TControl;
   PItem: PPropItem): Boolean;
 begin
   Result := not PItem.Name.Contains('ComObject');
   Result := Result and (not (PItem.Prop.PropertyType is TRttiMethodType));
 end;
 
-procedure TfrmIndyTCP.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmIndyTelnet.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   Action := caFree;
 end;
 
-procedure TfrmIndyTCP.edtPortChange(Sender: TObject);
+procedure TfrmIndyTelnet.edtPortChange(Sender: TObject);
 begin
   Port := StrToInt(edtPort.Text);
 end;
 
-procedure TfrmIndyTCP.edtServerChange(Sender: TObject);
+procedure TfrmIndyTelnet.edtServerChange(Sender: TObject);
 begin
   Server := edtServer.Text;
 end;
 {$ENDREGION}
 
 {$REGION 'private methods'}
-procedure TfrmIndyTCP.Modified;
+procedure TfrmIndyTelnet.Modified;
 begin
   FUpdate := True;
   UpdateActions;
 end;
 
-procedure TfrmIndyTCP.CreateCommandControls;
+procedure TfrmIndyTelnet.CreateCommandControls;
 var
   I  : Integer;
   CA : TContainedAction;
@@ -439,26 +473,31 @@ begin
     pnlCommands.ControlCollection.AddControl(B);
     B.Align := alClient;
     B.AlignWithMargins := True;
+    B.Font.Name  := 'Consolas';
     B.Font.Style := [fsBold];
     B.Parent := pnlCommands;
+    B.PopupMenu := ppmCommands;
   end;
 end;
 
-procedure TfrmIndyTCP.DoStringReceived(const AString: string);
+procedure TfrmIndyTelnet.DoStringReceived(const AString: string);
 begin
+  Logger.SendText(AString);
   if Assigned(FLogin) then
-    FLogIn.Log(string(AString));
+    FLogIn.Log(AString);
   mmoReceivedText.DisableAlign;
   mmoReceivedText.Text :=
-    mmoReceivedText.Text + AdjustLineBreaks(string(AString), tlbsCRLF);
+    mmoReceivedText.Text + AdjustLineBreaks(AString, tlbsCRLF);
   mmoReceivedText.EnableAlign;
   // scroll to last entry
   mmoReceivedText.SelStart := Length(mmoReceivedText.Text) - 1;
   mmoReceivedText.SelLength := 1;
+  Modified;
 end;
+{$ENDREGION}
 
 {$REGION 'protected methods'}
-procedure TfrmIndyTCP.UpdateControls;
+procedure TfrmIndyTelnet.UpdateControls;
 var
   CA : TContainedAction;
 begin
@@ -472,7 +511,7 @@ begin
     FInspector.UpdateProperties;
 end;
 
-procedure TfrmIndyTCP.UpdateActions;
+procedure TfrmIndyTelnet.UpdateActions;
 begin
   inherited UpdateActions;
 
@@ -483,7 +522,7 @@ begin
   end;
 end;
 
-procedure TfrmIndyTCP.LoadSettings;
+procedure TfrmIndyTelnet.LoadSettings;
 var
   I : Integer;
 begin
@@ -499,7 +538,7 @@ begin
   end;
 end;
 
-procedure TfrmIndyTCP.SaveSettings;
+procedure TfrmIndyTelnet.SaveSettings;
 var
   I : Integer;
 begin
@@ -515,22 +554,18 @@ begin
   end;
 end;
 
-procedure TfrmIndyTCP.SendString(const AString: string);
-var
-  S  : string;
+procedure TfrmIndyTelnet.SendString(const AString: string);
 begin
-  Client.IOHandler.Write(AString + #13#10);
-  FLogOut.Log(AString);
-  S := Trim(AString);
-  if cbxSent.Items.IndexOf(S) = -1 then
-    cbxSent.Items.Add(S);
-  mmoSentText.Lines.Add(string(AString));
+  // TODO: make this a setting
+  FLogIn.Clear;
+  mmoReceivedText.Lines.Clear;
 
-  if Client.IOHandler.CheckForDataOnSource then
-  begin
-    Client.IOHandler.WaitFor(#13#10, True, False, IndyTextEncoding_ASCII, 2);
-    //DoStringReceived(Client.IOHandler.AllData);
-  end;
+  Client.SendString(AString + EOL);
+
+  FLogOut.Log(AString);
+  if cbxSent.Items.IndexOf(AString) = -1 then
+    cbxSent.Items.Add(AString);
+  mmoSentText.Lines.Add(AString);
 end;
 {$ENDREGION}
 

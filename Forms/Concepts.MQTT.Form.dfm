@@ -2,7 +2,7 @@ object frmMQTTNode: TfrmMQTTNode
   Left = 0
   Top = 0
   ClientHeight = 321
-  ClientWidth = 359
+  ClientWidth = 391
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -10,21 +10,24 @@ object frmMQTTNode: TfrmMQTTNode
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  ShowHint = True
+  OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 13
   object pnlLogging: TPanel
     Left = 0
     Top = 129
-    Width = 359
+    Width = 391
     Height = 192
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 359
   end
   object pgcMessage: TPageControl
     Left = 0
     Top = 0
-    Width = 359
+    Width = 391
     Height = 129
     ActivePage = tsEndpoints
     Align = alTop
@@ -32,192 +35,193 @@ object frmMQTTNode: TfrmMQTTNode
     object tsEndpoints: TTabSheet
       Caption = 'MQTT broker'
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-      object grpEndPoint: TGroupBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 345
-        Height = 95
-        Align = alClient
+      ExplicitWidth = 351
+      DesignSize = (
+        383
+        101)
+      object edtAddress: TLabeledEdit
+        Left = 54
+        Top = 6
+        Width = 195
+        Height = 21
+        Alignment = taCenter
+        EditLabel.Width = 43
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Address:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        LabelPosition = lpLeft
+        LabelSpacing = 1
+        ParentFont = False
         TabOrder = 0
-        object edtAddress: TLabeledEdit
-          Left = 54
-          Top = 5
-          Width = 174
-          Height = 21
-          Alignment = taCenter
-          EditLabel.Width = 43
-          EditLabel.Height = 13
-          EditLabel.Caption = 'Address:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          LabelPosition = lpLeft
-          LabelSpacing = 1
-          ParentFont = False
-          TabOrder = 0
-          Text = 'localhost'
-        end
-        object edtPort: TLabeledEdit
-          Left = 264
-          Top = 5
-          Width = 75
-          Height = 21
-          Alignment = taCenter
-          EditLabel.Width = 24
-          EditLabel.Height = 13
-          EditLabel.Caption = 'Port:'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          LabelPosition = lpLeft
-          LabelSpacing = 1
-          ParentFont = False
-          TabOrder = 1
-          Text = '1883'
-        end
-        object btnConnectToBroker: TButton
-          Left = 134
-          Top = 32
-          Width = 120
-          Height = 25
-          Caption = '&Connect'
-          ImageIndex = 3
-          TabOrder = 2
-          OnClick = actConnectExecute
-        end
-        object btnDisconnect: TButton
-          Left = 134
-          Top = 63
-          Width = 120
-          Height = 25
-          Caption = 'Disconnect'
-          TabOrder = 3
-          OnClick = actDisconnectExecute
-        end
-        object btnStartBroker: TButton
-          Left = 8
-          Top = 33
-          Width = 120
-          Height = 25
-          Action = actStartBroker
-          TabOrder = 4
-        end
+        Text = 'localhost'
+      end
+      object btnConnectToBroker: TButton
+        Left = 6
+        Top = 34
+        Width = 120
+        Height = 25
+        Action = actConnect
+        Images = imlMain
+        TabOrder = 1
+      end
+      object btnDisconnect: TButton
+        Left = 6
+        Top = 65
+        Width = 120
+        Height = 25
+        Action = actDisconnect
+        Images = imlMain
+        TabOrder = 2
+      end
+      object btnStartBroker: TButton
+        Left = 129
+        Top = 34
+        Width = 120
+        Height = 56
+        Action = actStartBroker
+        TabOrder = 3
+        WordWrap = True
+      end
+      object chkAutoConnect: TCheckBox
+        Left = 255
+        Top = 39
+        Width = 120
+        Height = 41
+        Hint = 'Automatically connects to the broker on startup.'
+        Anchors = [akLeft, akTop, akRight]
+        Caption = 'Autoconnect to broker on startup'
+        TabOrder = 4
+        WordWrap = True
+        ExplicitWidth = 88
+      end
+      object edtPort: TLabeledEdit
+        Left = 280
+        Top = 5
+        Width = 62
+        Height = 21
+        Alignment = taCenter
+        EditLabel.Width = 24
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Port:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        LabelPosition = lpLeft
+        LabelSpacing = 1
+        ParentFont = False
+        TabOrder = 5
+        Text = '1883'
       end
     end
     object tsSubscriptions: TTabSheet
       Caption = 'Subscriptions'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-      object grpSubscriptions: TGroupBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 345
-        Height = 95
-        Align = alClient
+      ExplicitWidth = 351
+      DesignSize = (
+        383
+        101)
+      object edtTopic: TLabeledEdit
+        Left = 37
+        Top = 4
+        Width = 188
+        Height = 21
+        Anchors = [akLeft, akTop, akRight]
+        EditLabel.Width = 29
+        EditLabel.Height = 13
+        EditLabel.Caption = 'Topic:'
+        LabelPosition = lpLeft
         TabOrder = 0
-        DesignSize = (
-          345
-          95)
-        object edtTopic: TLabeledEdit
-          Left = 41
-          Top = 8
-          Width = 99
-          Height = 21
-          Anchors = [akLeft, akTop, akRight]
-          EditLabel.Width = 29
-          EditLabel.Height = 13
-          EditLabel.Caption = 'Topic:'
-          LabelPosition = lpLeft
-          TabOrder = 0
-        end
-        object lbxTopics: TListBox
-          Left = 157
-          Top = 30
-          Width = 185
-          Height = 61
-          Anchors = [akLeft, akTop, akRight, akBottom]
-          ItemHeight = 13
-          TabOrder = 1
-        end
-        object tlbSubscriptions: TToolBar
-          Left = 157
-          Top = 6
-          Width = 188
-          Height = 23
-          Align = alNone
-          ButtonWidth = 58
-          DoubleBuffered = True
-          Images = imlMain
-          List = True
-          ParentDoubleBuffered = False
-          ShowCaptions = True
-          AllowTextButtons = True
-          TabOrder = 2
-          Wrapable = False
-          object btnAddSubscription: TToolButton
-            Left = 0
-            Top = 0
-            Action = actAddSubscription
-            Style = tbsTextButton
-          end
-          object btnDeleteSubscription: TToolButton
-            Left = 50
-            Top = 0
-            Action = actDeleteSubscription
-            Style = tbsTextButton
-          end
-          object btnClearSubscriptions: TToolButton
-            Left = 112
-            Top = 0
-            Action = actClearSubscriptions
-            Style = tbsTextButton
-          end
-        end
+        ExplicitWidth = 156
+      end
+      object lbxTopics: TListBox
+        Left = 3
+        Top = 31
+        Width = 222
+        Height = 69
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        ItemHeight = 13
+        TabOrder = 1
+        ExplicitWidth = 190
+      end
+      object btnAddSubscription: TButton
+        Left = 231
+        Top = 37
+        Width = 69
+        Height = 25
+        Action = actAddSubscription
+        Anchors = [akTop, akRight]
+        Images = imlMain
+        TabOrder = 2
+        ExplicitLeft = 199
+      end
+      object btnDeleteSubscription: TButton
+        Left = 306
+        Top = 37
+        Width = 74
+        Height = 25
+        Action = actDeleteSubscription
+        Anchors = [akTop, akRight]
+        Images = imlMain
+        TabOrder = 3
+        ExplicitLeft = 274
+      end
+      object btnClearSubscriptions: TButton
+        Left = 231
+        Top = 73
+        Width = 149
+        Height = 25
+        Action = actClearSubscriptions
+        Anchors = [akTop, akRight]
+        Images = imlMain
+        TabOrder = 4
+        ExplicitLeft = 199
+      end
+      object chkSubscribeToAllTopics: TCheckBox
+        Left = 234
+        Top = 6
+        Width = 149
+        Height = 17
+        Anchors = [akTop, akRight]
+        Caption = 'Subscribe to all topics.'
+        TabOrder = 5
+        OnClick = chkSubscribeToAllTopicsClick
+        ExplicitLeft = 202
       end
     end
     object tsPublish: TTabSheet
       Caption = 'Publish'
-      ExplicitLeft = 0
-      ExplicitTop = 22
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitWidth = 351
       DesignSize = (
-        351
+        383
         101)
       object btnSend: TButton
-        Left = 250
-        Top = 11
-        Width = 100
+        Left = 259
+        Top = 72
+        Width = 120
         Height = 25
+        Action = actPublishMessage
         Anchors = [akTop, akRight]
-        Caption = 'Publish'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = []
+        Images = imlMain
         ParentFont = False
         TabOrder = 0
-        OnClick = actPublishExecute
+        ExplicitLeft = 227
       end
       object mmoPublish: TMemo
-        Left = 3
-        Top = 40
-        Width = 241
-        Height = 59
+        Left = 4
+        Top = 31
+        Width = 249
+        Height = 66
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -227,9 +231,10 @@ object frmMQTTNode: TfrmMQTTNode
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 1
+        ExplicitWidth = 217
       end
       object edtCounter: TLabeledEdit
-        Left = 299
+        Left = 331
         Top = 103
         Width = 49
         Height = 21
@@ -242,52 +247,55 @@ object frmMQTTNode: TfrmMQTTNode
         NumbersOnly = True
         TabOrder = 2
         Text = '0'
+        ExplicitLeft = 299
       end
       object btnPopulateMemo: TButton
-        Left = 250
-        Top = 42
-        Width = 100
+        Left = 260
+        Top = 37
+        Width = 120
         Height = 25
-        Hint = 'Populates the list with 1000 random names.'
+        Action = actPopulateMessage
         Anchors = [akTop, akRight]
-        Caption = '&Populate list'
+        Images = imlMain
         TabOrder = 3
-        OnClick = actPopulateMemoExecute
+        ExplicitLeft = 228
       end
       object edtPublishTopic: TLabeledEdit
-        Left = 40
-        Top = 13
-        Width = 204
+        Left = 30
+        Top = 5
+        Width = 225
         Height = 21
+        Anchors = [akLeft, akTop, akRight]
         EditLabel.Width = 25
         EditLabel.Height = 13
         EditLabel.Caption = 'Topic'
         LabelPosition = lpLeft
         TabOrder = 4
+        ExplicitWidth = 192
       end
       object btnClearPublishList: TButton
-        Left = 250
-        Top = 72
-        Width = 100
+        Left = 261
+        Top = 3
+        Width = 120
         Height = 25
-        Action = actClearPublishList
+        Action = actClearMessage
+        Anchors = [akTop, akRight]
+        Images = imlMain
         TabOrder = 5
+        ExplicitLeft = 228
       end
     end
     object tsReceive: TTabSheet
       Caption = 'Receive'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitWidth = 351
       DesignSize = (
-        351
+        383
         101)
       object mmoReceive: TMemo
         Left = 3
         Top = 3
-        Width = 262
+        Width = 306
         Height = 95
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
@@ -299,12 +307,13 @@ object frmMQTTNode: TfrmMQTTNode
         ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 0
+        ExplicitWidth = 274
       end
       object btnClearReceived: TButton
-        Left = 271
-        Top = 1
-        Width = 80
-        Height = 25
+        Left = 315
+        Top = 3
+        Width = 65
+        Height = 41
         Action = actClearReceived
         Anchors = [akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
@@ -312,212 +321,146 @@ object frmMQTTNode: TfrmMQTTNode
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = []
+        Images = imlMain
         ParentFont = False
         TabOrder = 1
-      end
-    end
-    object tsSettings: TTabSheet
-      Caption = 'Settings'
-      ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-      DesignSize = (
-        351
-        101)
-      object grpMonitorEvents: TGroupBox
-        AlignWithMargins = True
-        Left = 2
-        Top = 3
-        Width = 199
-        Height = 95
-        Anchors = [akLeft, akTop, akBottom]
-        Caption = 'Monitor events'
-        TabOrder = 0
-        object lbxEvents: TCheckListBox
-          AlignWithMargins = True
-          Left = 5
-          Top = 18
-          Width = 189
-          Height = 72
-          Align = alClient
-          AutoComplete = False
-          BevelInner = bvNone
-          BevelOuter = bvNone
-          Columns = 2
-          ItemHeight = 13
-          Items.Strings = (
-            'Connected'
-            'Delayed'
-            'Retried'
-            'Listening'
-            'BindFailed'
-            'Accepted'
-            'AcceptFailed'
-            'Closed'
-            'CloseFailed'
-            'Disconnected'
-            'MonitorStopped')
-          TabOrder = 0
-        end
-      end
-      object grpPollingSettings: TGroupBox
-        AlignWithMargins = True
-        Left = 207
-        Top = 3
-        Width = 130
-        Height = 72
-        Anchors = [akLeft, akTop, akRight]
-        Caption = 'Polling'
-        TabOrder = 1
-        object edtPollTimeout: TLabeledEdit
-          Left = 12
-          Top = 37
-          Width = 50
-          Height = 21
-          EditLabel.Width = 79
-          EditLabel.Height = 13
-          EditLabel.Caption = 'Poll timeout (ms)'
-          NumbersOnly = True
-          TabOrder = 0
-          Text = '10'
-        end
+        WordWrap = True
+        ExplicitLeft = 283
       end
     end
   end
   object imlMain: TImageList
     ColorDepth = cd32Bit
-    Left = 298
-    Top = 56
+    Left = 130
+    Top = 136
     Bitmap = {
-      494C010106000800580010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C0101060008007C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000001001B09532ED308512ED100000010000000000000
+      0000000000000000000000000000000000000000000000000000000000000042
+      5EBF0076AAFF0000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000503370C693BEE2A9368FC1F8456F704261590000000000000
+      000000000000000000000000000000000000000000000000000000000000001E
+      2B800078ACFF0078ACFF00000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      0000010F085C0D7040F53EA57DFF4DB492FF4CB08DFF0D7141F60001001D0000
       0000000000000000000000000000000000000000000000000000000000000000
+      0000007BAFFF00B8EBFF007BAFFF000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      000000000000000000000000000000000000000000050000000E0000001A0000
-      002600000030000000330321008F075100CC075100CC0321008F000000330000
-      00330000002A0000001D00000010000000060000000000000000000000000000
-      000000000000000000000000000000010021012B00A6034100CC012B00A60001
-      0021000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000020424
+      148D157446F552B391FF51B795FF3FAF8BFF53B897FF35956CFA06351EA90000
       0000000000000000000000000000000000000000000000000000000000000000
+      000000202C8000A6D9FF00B9ECFF007EB2FF0000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000001400000037000000670000
-      0098000000BF000000CC053000CC61EA50FF61EA50FF053000CC000000CC0000
-      00C9000000A8000000740000003F000000150000000000000000000000000000
-      0000000000000000000000000000053800A71D9811E833E122FF1D9811E80538
-      00A70000000000050033075400CC000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000000000C084125BB2181
+      54F563BF9FFF52BA97FF58BC9BFF69C3A5FF4AB792FF66C0A2FF127444F60003
+      022E000000000000000000000000000000000000000000000000000000000000
+      0000000000000082B5FF00CCFFFF00B9ECFF0082B5FF00000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000073B00990A4F00CC0A4F00CC073B0099000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000004D0000006600000066095D00CC55E744FF55E744FF55E744FF095D
-      00CC00000000095D00CC074700B3000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000073D23B5359268F872C7
+      ABFF56BD9BFF6AC5A7FF5EB593FE55AF8DFC62C2A2FF60C1A1FF4DA884FD0846
+      28C1000000000000000000000000000000000000000000000000000000000000
+      00000000000000212E8006ABDCFF0DCFFFFF09BDEDFF0086B9FF000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000000007B0000007B00000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000020202660000000000000000074300A73BA92CE871ED60FF3BA92CE80743
-      00A700000000000600330B6500CC000000000000000000000000000000000000
+      000000000000000000000000000000000000000000000B5932D960B695FF72CA
+      ADFF7DCEB3FF4DA581FB0D673BEB117444F77BCAAFFF55BF9CFF7ECDB3FF1C7A
+      4DF60007044200000000000000000000000000000000004C6ABF008ABDFF008A
+      BDFF008ABDFF008ABDFF089DCEFF21D4FFFF21D4FFFF18C1EEFF008ABDFF0000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000000007B0000007B00000000000000000000
+      0000000000000000000000000000000000000000000000040230137444F677C5
+      A8FF378E67F50A4D2DCB00000016052D1A9C479E79F978CDB2FF6AC8A9FF6ABD
+      9DFF0A5732D700000001000000000000000000000000002330801CB4E0FF38D9
+      FFFF38D9FFFF38D9FFFF38D9FFFF38D9FFFF38D9FFFF38D9FFFF2AC6EFFF008E
+      C1FF000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      000003030366000000000000000000020021094600A60D6B00CC094600A60002
-      0021000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000010D07570D66
+      3BE8052B18970000000400000000000000160F7042F58CD2B9FF61C7A6FF92D8
+      C1FF2C8559F5010E0758000000000000000000000000000000000093C6FF52DF
+      FFFF52DFFFFF52DFFFFF52DFFFFF52DFFFFF52DFFFFF52DFFFFF52DFFFFF3DCC
+      F1FF0093C6FF0000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000000007B0000007B00000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000060606660000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000031F1182459972F790DAC1FF71CF
+      B0FF86CDB3FF0C653AE8000000060000000000000000000000000026328037BE
+      E5FF6EE5FFFF6EE5FFFF6EE5FFFFA6F2FFFFDDFFFFFFDDFFFFFFDDFFFFFFDDFF
+      FFFFA6E5F2FF0097CAFF00000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000000007B0000007B00000000000000000000
+      0000000000000000000000000000000000000000000B0E6B3EEF93D5BDFF70D0
+      B1FF9CDFC9FF3E936BF602170C7000000000000000000000000000000000009B
+      CEFF8AECFFFF8AECFFFF8AECFFFF8AECFFFF66D8F3FF22AFDAFF009BCEFF009B
+      CEFF009BCEFF009BCEFF005673BF000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000080808660000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000002130A673A8F68F59FE1
+      CBFF74D4B4FF97D8C1FF0E6E3FF20000000E0000000000000000000000000028
+      348051C9E9FFA4F2FFFFA4F2FFFFA4F2FFFFA4F2FFFF7ADDF4FF009FD2FF0000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000000000B0000000B00000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000A0A0A660000000000000000000000140101016102020277010101610000
-      0014000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000000000000000000000000000000000000030C5F37E18BD0
+      B6FF79D5B7FF99DFC8FF4EA07CF8042314890000000000000000000000000000
+      000000A2D5FFBBF7FFFFBBF7FFFFBBF7FFFFBBF7FFFFBBF7FFFF8CE2F4FF00A2
+      D5FF000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      000000000000000000290000003A00000007000000070000003A000000290000
       0000000000000000000000000000000000000000000000000000000000000000
-      00000B0B0B6600000000000000000505055E575757BDE4E4E4FF575757BD0505
-      055E000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000010A064E2C85
+      5BF4A3E2CDFF91DCC3FF98D7C0FF0D653AE60000000000000000000000000000
+      00000029368067D1ECFFCFFCFFFFCFFCFFFFCFFCFFFFCFFCFFFFCFFCFFFF9BE6
+      F5FF00A5D8FF0000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      001A000000390000000000000065000000910000009100000065000000000000
-      00390000001800000000000000000000000000000000000000000D0D0D660D0D
-      0D660D0D0D660D0D0D660D0D0D660D0D0D6FF2F2F2FFF2F2F2FFF2F2F2FF0D0D
-      0D6F000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000B50
+      2ECE77C2A3FE71BF9FFE19784AF6031E117E0000000000000000000000000000
+      00000000000000A8DBFFDDFFFFFFDDFFFFFFDDFFFFFFDDFFFFFFDDFFFFFFDDFF
+      FFFFA6E9F6FF00A8DBFF00000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000550000004600000019000000000000000000000019000000460000
-      0055000000000000000000000000000000000000000000000000000000000000
-      00000000000000000000000000000B0B0B57696969B8FDFDFDFF696969B80B0B
-      0B57000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      000000000000000000360000005A00000068000000680000005A000000360000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000110D0D0D54141414670D0D0D540000
-      0011000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
-      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000004
+      02310D653AE8094829C30003022E000000000000000000000000000000000000
+      000000000000002A378016B3E0FF36BFE6FF57CCEBFF6ED5EEFF6ED5EEFF57CC
+      EBFF36BFE6FF16B3E0FF005E7CBF000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -664,16 +607,17 @@ object frmMQTTNode: TfrmMQTTNode
   end
   object aclMain: TActionList
     Images = imlMain
-    Left = 296
-    Top = 80
+    Left = 24
+    Top = 136
     object actConnect: TAction
       Caption = '&Connect'
       ImageIndex = 3
       OnExecute = actConnectExecute
     end
-    object actPublish: TAction
-      Caption = 'Publish'
-      OnExecute = actPublishExecute
+    object actPublishMessage: TAction
+      Caption = 'Publish message'
+      ImageIndex = 4
+      OnExecute = actPublishMessageExecute
     end
     object actCreateNew: TAction
       Caption = 'New node'
@@ -703,35 +647,33 @@ object frmMQTTNode: TfrmMQTTNode
       ImageIndex = 5
     end
     object actClearReceived: TAction
-      Caption = 'Clear'
+      Caption = 'Clear message'
       ImageIndex = 2
       OnExecute = actClearReceivedExecute
     end
-    object actPopulateMemo: TAction
-      Caption = '&Populate list'
-      Hint = 'Populates the list with 1000 random names.'
-      OnExecute = actPopulateMemoExecute
-    end
-    object actCreateNewSubscriberNode: TAction
-      Caption = 'Create new subscriber node'
-    end
-    object actCreateNewSUBNode: TAction
-      Caption = 'Subscriber'
-    end
-    object actCreateNewPUBNode: TAction
-      Caption = 'Publisher'
+    object actPopulateMessage: TAction
+      Caption = '&Populate message'
+      Hint = 'Populates the list with random names.'
+      ImageIndex = 5
+      OnExecute = actPopulateMessageExecute
     end
     object actDisconnect: TAction
       Caption = 'Disconnect'
+      ImageIndex = 3
       OnExecute = actDisconnectExecute
     end
-    object actClearPublishList: TAction
-      Caption = 'Clear'
-      OnExecute = actClearPublishListExecute
+    object actClearMessage: TAction
+      Caption = 'Clear message'
+      ImageIndex = 2
+      OnExecute = actClearMessageExecute
     end
     object actStartBroker: TAction
-      Caption = 'Start broker'
+      Caption = 'Start local mosquitto '#13#10'broker service'#13#10'[localhost:1883]'#13#10
       OnExecute = actStartBrokerExecute
+    end
+    object actSubscribeToAll: TAction
+      Caption = 'Subscribe to all topics'
+      OnExecute = actSubscribeToAllExecute
     end
   end
 end

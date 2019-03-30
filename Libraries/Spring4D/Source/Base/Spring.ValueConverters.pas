@@ -1229,6 +1229,8 @@ var
   enumValue: Integer;
 begin
   enumValue := GetEnumValue(targetTypeInfo, value.AsString);
+  if enumValue < targetTypeInfo.TypeData.MinValue then
+    RaiseConvertError(value.TypeInfo, targetTypeInfo);
   TValue.Make(enumValue, targetTypeInfo, Result);
 end;
 

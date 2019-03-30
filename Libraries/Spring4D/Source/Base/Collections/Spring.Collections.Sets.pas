@@ -321,7 +321,7 @@ end;
 procedure THashSet<T>.DoKeyNotify(Sender: TObject; const Item: T;
   Action: TCollectionNotification);
 begin
-  Changed(Item, TCollectionChangedAction(Action));
+  Changed(Item, CollectionNotificationMapping[Action]);
 end;
 
 function THashSet<T>.Extract(const item: T): T;

@@ -497,6 +497,22 @@ type
     property Items[index: Integer]: T read GetItem write SetItem; default;
   end;
 
+const
+  CollectionNotificationMapping: array[TCollectionNotification] of TCollectionChangedAction = (
+{$IFDEF VER330}
+    caAdded,
+    caAdded,
+    caExtracted,
+    caExtracted,
+    caRemoved,
+    caRemoved
+{$ELSE}
+    caAdded,
+    caRemoved,
+    caExtracted
+{$ENDIF}
+  );
+
 implementation
 
 uses

@@ -78,6 +78,10 @@ object frmZMQConcept: TfrmZMQConcept
       object tsEndpoints: TTabSheet
         Caption = 'Endpoints'
         ImageIndex = 3
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object grpEndPoint: TGroupBox
           AlignWithMargins = True
           Left = 3
@@ -194,6 +198,10 @@ object frmZMQConcept: TfrmZMQConcept
       object tsSubscriptions: TTabSheet
         Caption = 'Subscriptions'
         ImageIndex = 4
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object grpSubscriptions: TGroupBox
           AlignWithMargins = True
           Left = 3
@@ -273,6 +281,10 @@ object frmZMQConcept: TfrmZMQConcept
       end
       object tsSend: TTabSheet
         Caption = 'Send'
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         DesignSize = (
           335
           126)
@@ -359,6 +371,10 @@ object frmZMQConcept: TfrmZMQConcept
       object tsReceive: TTabSheet
         Caption = 'Receive'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         DesignSize = (
           335
           126)
@@ -413,6 +429,10 @@ object frmZMQConcept: TfrmZMQConcept
       object tsSettings: TTabSheet
         Caption = 'Settings'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         DesignSize = (
           335
           126)
@@ -753,7 +773,7 @@ object frmZMQConcept: TfrmZMQConcept
     Left = 416
     Top = 200
     Bitmap = {
-      494C0101060008004C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010106000800500010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

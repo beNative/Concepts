@@ -651,7 +651,7 @@ procedure TfrmZMQConcept.actSendLineByLineExecute(Sender: TObject);
 var
   SL : IShared<TStringList>;
 begin
-  SL := Shared<TStringList>.New;
+  SL := Shared<TStringList>.Make;
   SL.Assign(mmoSend.Lines);
   TThread.CreateAnonymousThread(procedure
     var
@@ -686,7 +686,7 @@ var
   I  : Integer;
   SL : IShared<TStringList>;
 begin
-  SL := Shared<TStringList>.New;
+  SL := Shared<TStringList>.Make;
   for I := 0 to ALineCount - 1 do
   begin
     SL.Add(RandomData.FullName);

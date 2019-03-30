@@ -76,16 +76,14 @@ type
     function BeginTransaction: IDBTransaction; override;
   end;
 
-  TFireDACTransactionAdapter = class(TDriverTransactionAdapter<TFDTransaction>)
+  TFireDACTransactionAdapter = class(TDriverTransactionAdapter<TFDConnection>, IDBTransaction)
   private
-    fOwnsObject: Boolean;
+    fInTransaction: Boolean;
   protected
     function InTransaction: Boolean; override;
   public
-    constructor Create(const transaction: TFDTransaction;
-      const exceptionHandler: IORMExceptionHandler;
-      ownsObject: Boolean = False); reintroduce;
-    destructor Destroy; override;
+    constructor Create(const transaction: TFDConnection;
+      const exceptionHandler: IORMExceptionHandler); reintroduce;
     procedure Commit; override;
     procedure Rollback; override;
   end;
@@ -194,19 +192,14 @@ begin
 end;
 
 function TFireDACConnectionAdapter.BeginTransaction: IDBTransaction;
-var
-  transaction: TFDTransaction;
 begin
   if Assigned(Connection) then
   try
     Connection.Connected := True;
     if not Connection.InTransaction or Connection.TxOptions.EnableNested then
     begin
-      transaction := TFDTransaction.Create(nil);
-      transaction.Connection := Connection;
-      transaction.StartTransaction;
-      Result := TFireDACTransactionAdapter.Create(transaction, ExceptionHandler,
-        True);
+      Connection.StartTransaction;
+      Result := TFireDACTransactionAdapter.Create(Connection, ExceptionHandler);
     end
     else
       raise EFireDACAdapterException.Create('Transaction already started, and EnableNested transaction is false');
@@ -275,33 +268,19 @@ end;
 
 {$REGION 'TFireDACTransactionAdapter'}
 
-constructor TFireDACTransactionAdapter.Create(const transaction: TFDTransaction;
-  const exceptionHandler: IORMExceptionHandler; ownsObject: Boolean);
+constructor TFireDACTransactionAdapter.Create(const transaction: TFDConnection;
+  const exceptionHandler: IORMExceptionHandler);
 begin
   inherited Create(transaction, exceptionHandler);
-  fOwnsObject := ownsObject
-end;
-
-destructor TFireDACTransactionAdapter.Destroy;
-begin
-  try
-    inherited Destroy;
-  finally
-    if fOwnsObject then
-    begin
-{$IFDEF NEXTGEN}
-      fTransaction.DisposeOf;
-{$ENDIF}
-      fTransaction.Free;
-    end;
-  end;
+  fInTransaction := True;
 end;
 
 procedure TFireDACTransactionAdapter.Commit;
 begin
-  if Assigned(Transaction) then
+  if InTransaction then
   try
     Transaction.Commit;
+    fInTransaction := False;
   except
     raise HandleException;
   end;
@@ -309,14 +288,15 @@ end;
 
 function TFireDACTransactionAdapter.InTransaction: Boolean;
 begin
-  Result := Assigned(Transaction) and Transaction.Active;
+  Result := fInTransaction and Assigned(Transaction) and Transaction.InTransaction;
 end;
 
 procedure TFireDACTransactionAdapter.Rollback;
 begin
-  if Assigned(Transaction) then
+  if InTransaction then
   try
     Transaction.Rollback;
+    fInTransaction := False;
   except
     raise HandleException;
   end;

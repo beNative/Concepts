@@ -131,6 +131,8 @@ begin
     TLogEventType.SerializedData,
     TLogEventType.CallStack:
       Result := event.Msg;
+    TLogEventType.Value:
+      Result := event.Msg + ': ' + event.Data.ToString;
 
     TLogEventType.Entering:
       Result := FormatEntering(event.ClassType, event.Msg);

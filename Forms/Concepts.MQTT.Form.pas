@@ -32,80 +32,77 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList,
-  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.CheckLst, Vcl.ComCtrls, Vcl.ToolWin,
+  System.ImageList,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList, Vcl.ImgList,
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
 
   MQTT,
 
-  Spring.SystemUtils,
-
   VirtualTrees,
 
-  DDuce.Components.LogTree, System.ImageList, Vcl.ImgList;
+  DDuce.Components.LogTree;
 
 type
   TfrmMQTTNode = class(TForm)
+    {$REGION 'designer conntrols'}
     aclMain                    : TActionList;
     actAddSubscription         : TAction;
-    actClearPublishList        : TAction;
+    actClearMessage            : TAction;
     actClearReceived           : TAction;
     actClearSubscriptions      : TAction;
     actClose                   : TAction;
     actConnect                 : TAction;
     actCreateNew               : TAction;
-    actCreateNewPUBNode        : TAction;
-    actCreateNewSUBNode        : TAction;
-    actCreateNewSubscriberNode : TAction;
     actCreateNewWithNewContext : TAction;
     actDeleteSubscription      : TAction;
     actDisconnect              : TAction;
-    actPopulateMemo            : TAction;
-    actPublish                 : TAction;
-    btnAddSubscription         : TToolButton;
+    actPopulateMessage         : TAction;
+    actPublishMessage          : TAction;
+    actStartBroker             : TAction;
+    actSubscribeToAll          : TAction;
+    btnAddSubscription         : TButton;
     btnClearPublishList        : TButton;
     btnClearReceived           : TButton;
-    btnClearSubscriptions      : TToolButton;
+    btnClearSubscriptions      : TButton;
     btnConnectToBroker         : TButton;
-    btnDeleteSubscription      : TToolButton;
+    btnDeleteSubscription      : TButton;
     btnDisconnect              : TButton;
     btnPopulateMemo            : TButton;
     btnSend                    : TButton;
+    btnStartBroker             : TButton;
+    chkAutoConnect             : TCheckBox;
+    chkSubscribeToAllTopics    : TCheckBox;
     edtAddress                 : TLabeledEdit;
     edtCounter                 : TLabeledEdit;
-    edtPollTimeout             : TLabeledEdit;
     edtPort                    : TLabeledEdit;
     edtPublishTopic            : TLabeledEdit;
     edtTopic                   : TLabeledEdit;
-    grpEndPoint                : TGroupBox;
-    grpMonitorEvents           : TGroupBox;
-    grpPollingSettings         : TGroupBox;
-    grpSubscriptions           : TGroupBox;
     imlMain                    : TImageList;
-    lbxEvents                  : TCheckListBox;
     lbxTopics                  : TListBox;
     mmoPublish                 : TMemo;
     mmoReceive                 : TMemo;
     pgcMessage                 : TPageControl;
     pnlLogging                 : TPanel;
-    tlbSubscriptions           : TToolBar;
     tsEndpoints                : TTabSheet;
     tsPublish                  : TTabSheet;
     tsReceive                  : TTabSheet;
-    tsSettings                 : TTabSheet;
     tsSubscriptions            : TTabSheet;
-    actStartBroker: TAction;
-    btnStartBroker: TButton;
+    {$ENDREGION}
 
-    procedure actPublishExecute(Sender: TObject);
+    procedure actPublishMessageExecute(Sender: TObject);
     procedure actConnectExecute(Sender: TObject);
     procedure actClearSubscriptionsExecute(Sender: TObject);
     procedure actDeleteSubscriptionExecute(Sender: TObject);
     procedure actDisconnectExecute(Sender: TObject);
     procedure actAddSubscriptionExecute(Sender: TObject);
-    procedure actPopulateMemoExecute(Sender: TObject);
-    procedure actClearPublishListExecute(Sender: TObject);
+    procedure actPopulateMessageExecute(Sender: TObject);
+    procedure actClearMessageExecute(Sender: TObject);
     procedure actClearReceivedExecute(Sender: TObject);
     procedure actStartBrokerExecute(Sender: TObject);
+    procedure actSubscribeToAllExecute(Sender: TObject);
+
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure chkSubscribeToAllTopicsClick(Sender: TObject);
 
   private
     FMQTT    : TMQTT;
@@ -118,11 +115,16 @@ type
       Payload : UTF8String
     );
     function GetTopics: TStrings;
+    procedure Connect;
+    function GetConnected: Boolean;
+    procedure SubscribeToAllTopics;
 
   protected
     procedure UpdateActions; override;
 
     function GenerateRandomData(ALineCount: Integer): string;
+    procedure LoadSettings;
+    procedure SaveSettings;
 
     property Topics: TStrings
       read GetTopics;
@@ -131,6 +133,9 @@ type
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
 
+    property Connected: Boolean
+      read GetConnected;
+
   end;
 
 implementation
@@ -138,13 +143,11 @@ implementation
 {$R *.dfm}
 
 uses
-  WinApi.ShellAPI,
-  System.StrUtils,
+  DDuce.Components.Factories, DDuce.RandomData, DDuce.Utils.WinApi,
 
-  DDuce.Reflect, DDuce.Logger, DDuce.Components.Factories, DDuce.RandomData,
-  DDuce.Utils, DDuce.Utils.WinApi,
+  Spring,
 
-  Spring;
+  Concepts.Settings;
 
 {$REGION 'construction and destruction'}
 procedure TfrmMQTTNode.AfterConstruction;
@@ -154,6 +157,11 @@ begin
   FLogTree.DateTimeFormat     := 'hh:nn:ss.zzz';
   FLogTree.ShowDateColumn     := False;
   FLogTree.AutoLogLevelColors := True;
+  LoadSettings;
+//  if chkAutoConnect.Checked then
+//  begin
+//    Connect;
+//  end;
   pgcMessage.ActivePageIndex  := 0;
 end;
 
@@ -166,6 +174,14 @@ end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
+procedure TfrmMQTTNode.chkSubscribeToAllTopicsClick(Sender: TObject);
+begin
+  if (Sender as TCheckBox).Checked then
+  begin
+    SubscribeToAllTopics;
+  end;
+end;
+
 { Called on the subscriber. }
 
 procedure TfrmMQTTNode.FMQTTOnPublish(Sender: TObject; Topic,
@@ -175,9 +191,10 @@ begin
   FLogTree.LogFmt('Received for topic %s.', [Topic]);
 end;
 
-function TfrmMQTTNode.GetTopics: TStrings;
+procedure TfrmMQTTNode.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  Result := lbxTopics.Items;
+  SaveSettings;
+  Action := caFree;
 end;
 {$ENDREGION}
 
@@ -191,7 +208,7 @@ begin
   end;
 end;
 
-procedure TfrmMQTTNode.actClearPublishListExecute(Sender: TObject);
+procedure TfrmMQTTNode.actClearMessageExecute(Sender: TObject);
 begin
   mmoPublish.Clear;
 end;
@@ -214,17 +231,7 @@ end;
 
 procedure TfrmMQTTNode.actConnectExecute(Sender: TObject);
 begin
-  if Assigned(FMQTT) then
-  begin
-    FreeAndNil(FMQTT);
-  end;
-  FMQTT := TMQTT.Create(edtAddress.Text, StrToInt(edtPort.Text));
-  FMQTT.OnPublish := FMQTTOnPublish;
-  if FMQTT.Connect then
-  begin
-    FLogTree.Log('Socket connected to broker.', llInfo);
-    FLogTree.Header.AutoFitColumns;
-  end;
+  Connect;
 end;
 
 procedure TfrmMQTTNode.actDeleteSubscriptionExecute(Sender: TObject);
@@ -242,12 +249,12 @@ begin
   end;
 end;
 
-procedure TfrmMQTTNode.actPopulateMemoExecute(Sender: TObject);
+procedure TfrmMQTTNode.actPopulateMessageExecute(Sender: TObject);
 begin
-  mmoPublish.Text := GenerateRandomData(5);
+  mmoPublish.Text := GenerateRandomData(50);
 end;
 
-procedure TfrmMQTTNode.actPublishExecute(Sender: TObject);
+procedure TfrmMQTTNode.actPublishMessageExecute(Sender: TObject);
 begin
   if FMQTT.Publish(edtPublishTopic.Text, mmoPublish.Text) then
   begin
@@ -256,18 +263,83 @@ begin
 end;
 
 procedure TfrmMQTTNode.actStartBrokerExecute(Sender: TObject);
+const
+  MOSQUITTO_FILENAME = 'mosquitto.exe';
 begin
-  RunApplication('', 'mosquitto.exe', False);
+  if FileExists(MOSQUITTO_FILENAME) then
+  begin
+    RunApplication('', MOSQUITTO_FILENAME, False);
+    ShowMessage('Broker started on localhost:1883.');
+  end
+  else
+  begin
+    ShowMessageFmt('''%s'' not found.', [MOSQUITTO_FILENAME]);
+  end;
+end;
+
+procedure TfrmMQTTNode.actSubscribeToAllExecute(Sender: TObject);
+begin
+
+end;
+{$ENDREGION}
+
+{$REGION 'property access methods'}
+function TfrmMQTTNode.GetConnected: Boolean;
+begin
+  Result := Assigned(FMQTT) and FMQTT.Connected;
+end;
+
+function TfrmMQTTNode.GetTopics: TStrings;
+begin
+  Result := lbxTopics.Items;
 end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
+procedure TfrmMQTTNode.Connect;
+begin
+  if Assigned(FMQTT) then
+  begin
+    FreeAndNil(FMQTT);
+  end;
+  FMQTT := TMQTT.Create(edtAddress.Text, StrToInt(edtPort.Text));
+  FMQTT.OnPublish := FMQTTOnPublish;
+  FMQTT.WillTopic := 'a'; // required by some brokers
+  FMQTT.WillMsg := 'a';   // required by some brokers
+  if FMQTT.Connect then
+  begin
+    FLogTree.Log('Socket connected to broker.', llInfo);
+    FLogTree.Header.AutoFitColumns;
+    if chkSubscribeToAllTopics.Checked then
+      SubscribeToAllTopics;
+  end;
+end;
+
+procedure TfrmMQTTNode.LoadSettings;
+begin
+  edtAddress.Text := Settings.ReadString(UnitName, 'BrokerAddress', 'localhost');
+  edtPort.Text := Settings.ReadInteger(UnitName, 'BrokerPort', 1883).ToString;
+  edtPublishTopic.Text := Settings.ReadString(UnitName, 'PublishTopic');
+  chkAutoConnect.Checked := Settings.ReadBool(UnitName, 'AutoConnect', False);
+  chkSubscribeToAllTopics.Checked :=
+    Settings.ReadBool(UnitName, 'SubscribeToAllTopics', False);
+end;
+
+procedure TfrmMQTTNode.SaveSettings;
+begin
+  Settings.WriteString(UnitName, 'BrokerAddress', edtAddress.Text);
+  Settings.WriteString(UnitName, 'PublishTopic', edtPublishTopic.Text);
+  Settings.WriteInteger(UnitName, 'BrokerPort', StrToIntDef(edtPort.Text, 1883));
+  Settings.WriteBool(UnitName, 'AutoConnect', chkAutoConnect.Checked);
+  Settings.WriteBool(UnitName, 'SubscribeToAllTopics', chkSubscribeToAllTopics.Checked);
+end;
+
 function TfrmMQTTNode.GenerateRandomData(ALineCount: Integer): string;
 var
   I  : Integer;
   SL : IShared<TStringList>;
 begin
-  SL := Shared<TStringList>.New;
+  SL := Shared<TStringList>.Make;
   for I := 0 to ALineCount - 1 do
   begin
     SL.Add(RandomData.FullName);
@@ -275,13 +347,28 @@ begin
   Result := SL.Text;
 end;
 
+procedure TfrmMQTTNode.SubscribeToAllTopics;
+begin
+  Topics.Clear;
+  Topics.Add('#');
+  if Connected then
+    FMQTT.Subscribe('#', 0);
+  UpdateActions;
+end;
+
 procedure TfrmMQTTNode.UpdateActions;
 var
   B : Boolean;
 begin
-  B := Assigned(FMQTT);
-  actConnect.Enabled := not B or not FMQTT.isConnected;
-  actDisconnect.Enabled := not actConnect.Enabled;
+  actConnect.Enabled        := not Connected;
+  actDisconnect.Enabled     := Connected;
+  actPublishMessage.Enabled := Connected and (edtPublishTopic.Text <> '');
+  B := chkSubscribeToAllTopics.Checked;
+  lbxTopics.Enabled             := not B;
+  edtTopic.Enabled              := not B;
+  actAddSubscription.Enabled    := not B;
+  actDeleteSubscription.Enabled := not B;
+  actClearSubscriptions.Enabled := not B;
   inherited UpdateActions;
 end;
 {$ENDREGION}

@@ -83,7 +83,9 @@ type
   TTestIntegerList = class(TTestCase)
   private
     SUT: IList<Integer>;
+    ChangeCount: Integer;
     procedure SimpleFillList;
+    procedure HandleChange(Sender: TObject; const item: Integer; action: TCollectionChangedAction);
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -106,6 +108,7 @@ type
     procedure TestListIndexOf;
     procedure TestLastIndexOf;
     procedure TestListMove;
+    procedure TestListMoveSameIndexes;
     procedure TestListClear;
     procedure TestListLargeDelete;
     procedure TestQueryInterface;
@@ -809,6 +812,12 @@ begin
   CheckEquals(4, TList<Integer>(SUT).Capacity);
 end;
 
+procedure TTestIntegerList.HandleChange(Sender: TObject; const item: Integer;
+  action: TCollectionChangedAction);
+begin
+  Inc(ChangeCount);
+end;
+
 procedure TTestIntegerList.SetCapacity;
 begin
   SimpleFillList;
@@ -1271,6 +1280,15 @@ begin
   CheckEquals(2, SUT[0]);
   CheckEquals(3, SUT[1]);
   CheckEquals(1, SUT[2]);
+end;
+
+procedure TTestIntegerList.TestListMoveSameIndexes;
+begin
+  SimpleFillList;
+  SUT.OnChanged.Add(HandleChange);
+
+  SUT.Move(1, 1);
+  CheckEquals(0, ChangeCount);
 end;
 
 procedure TTestIntegerList.TestListMultipleDelete;

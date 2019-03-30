@@ -74,9 +74,6 @@ Coordinates=410,212,70,58
 [pnlSent]
 Coordinates=342,212,58,58
 
-[idTCPClient]
-Coordinates=133,431,83,36
-
 [pgcSend]
 Coordinates=466,280,65,36
 
@@ -156,5 +153,5 @@ Coordinates=831,111,116,36
 Coordinates=594,212,119,36
 
 []
-Coordinates=303,505,91,36
+Coordinates=133,431,83,36
 

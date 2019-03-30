@@ -2609,8 +2609,8 @@ type
 
     class function CreateSortedDictionary<TKey, TValue>: IDictionary<TKey, TValue>; overload; static;
     class function CreateSortedDictionary<TKey, TValue>(const keyComparer: IComparer<TKey>): IDictionary<TKey, TValue>; overload; static;
-    class function CreateSortedDictionary<TKey, TValue>(const valueComparer: IComparer<TValue>): IDictionary<TKey, TValue>; overload; static;
-    class function CreateSortedDictionary<TKey, TValue>(const keyComparer: IComparer<TKey>; const ValueComparer: IComparer<TValue>): IDictionary<TKey, TValue>; overload; static;
+    class function CreateSortedDictionary<TKey, TValue>(const valueComparer: IEqualityComparer<TValue>): IDictionary<TKey, TValue>; overload; static;
+    class function CreateSortedDictionary<TKey, TValue>(const keyComparer: IComparer<TKey>; const valueComparer: IEqualityComparer<TValue>): IDictionary<TKey, TValue>; overload; static;
   {$ENDIF}
   end;
 
@@ -3484,14 +3484,14 @@ begin
 end;
 
 class function TCollections.CreateSortedDictionary<TKey, TValue>(
-  const valueComparer: IComparer<TValue>): IDictionary<TKey, TValue>;
+  const valueComparer: IEqualityComparer<TValue>): IDictionary<TKey, TValue>;
 begin
   Result := TSortedDictionary<TKey, TValue>.Create(nil, valueComparer);
 end;
 
 class function TCollections.CreateSortedDictionary<TKey, TValue>(
   const keyComparer: IComparer<TKey>;
-  const valueComparer: IComparer<TValue>): IDictionary<TKey, TValue>;
+  const valueComparer: IEqualityComparer<TValue>): IDictionary<TKey, TValue>;
 begin
   Result := TSortedDictionary<TKey, TValue>.Create(keyComparer, valueComparer);
 end;

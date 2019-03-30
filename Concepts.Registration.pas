@@ -139,6 +139,7 @@ uses
 
   {$IFDEF INDY}
   Concepts.Indy.TCP.Form,
+  Concepts.Indy.Telnet.Form,
   {$ENDIF}
 
   {$IFDEF SYNEDIT}
@@ -149,6 +150,7 @@ uses
   Concepts.VirtualTreeView.Form,
   {$ENDIF}
 
+  Concepts.SynMemoEx.Form,
   Concepts.MQTT.Form,
 
   Concepts.FMXContainer.Form,
@@ -544,9 +546,15 @@ begin
   {$IFDEF INDY}
   ConceptManager.Register(
     TfrmIndyTCP,
-    'Indy',
     'TCP',
+    'Indy',
     'Indy TCP client'
+  );
+  ConceptManager.Register(
+    TfrmIndyTelnet,
+    'Telnet',
+    'Indy',
+    'Indy Telnet client'
   );
   {$ENDIF}
 
@@ -567,6 +575,13 @@ begin
     'Demonstrates the TVirtualStringTree component.'
   );
   {$ENDIF}
+
+  ConceptManager.Register(
+    TfrmSynMemoEx,
+    'SynMemoEx',
+    'TMemoEx',
+    'TMemoEx component from mORMot framework'
+  );
 
   RegisterSpringConcepts;
   RegisterDSharpConcepts;

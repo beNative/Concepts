@@ -69,13 +69,13 @@ uses
 {$ELSE}
   {$IFDEF DELPHI2010}
   GUITestRunner;
-  {$ENDIF}
   {$ELSE}
   {$IFDEF MSWINDOWS}
   VSoft.DUnit.XMLTestRunner;
   {$ELSE}
   TextTestRunner;
   {$ENDIF}
+{$ENDIF}
 
 {$APPTYPE CONSOLE}
 

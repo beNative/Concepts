@@ -35,7 +35,7 @@ uses
   SyncObjs,
   TypInfo;
 
-{$IF not declared(CPP_ABI_ADJUST)}
+{$IF not Declared(CPP_ABI_ADJUST)}
 const
   CPP_ABI_ADJUST = 0;
 {$IFEND}

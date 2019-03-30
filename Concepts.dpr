@@ -42,7 +42,7 @@ uses
   Concepts.Types.Contact in 'Types\Concepts.Types.Contact.pas',
   Concepts.Utils in 'Concepts.Utils.pas',
   Concepts.Vcl.GridPanel.Form in 'Forms\Concepts.Vcl.GridPanel.Form.pas' {frmGridPanel},
-  Concepts.Indy.TCP.Form in 'Forms\Concepts.Indy.TCP.Form.pas' {frmIndyTCP},
+  Concepts.Indy.Telnet.Form in 'Forms\Concepts.Indy.Telnet.Form.pas' {frmIndyTelnet},
   Concepts.Vcl.RelativePanel.Form in 'Forms\Concepts.Vcl.RelativePanel.Form.pas' {frmRelativePanel},
   Concepts.WinApi.LockPaint.Form in 'Forms\Concepts.WinApi.LockPaint.Form.pas' {frmLockPaint},
   Concepts.SQLBuilder4D.Form in 'Forms\Concepts.SQLBuilder4D.Form.pas' {frmSQLBuilder4D},
@@ -74,7 +74,6 @@ uses
   ORM.Chinook.PlaylistTrack in 'ORM\ORM.Chinook.PlaylistTrack.pas',
   ORM.Chinook.Track in 'ORM\ORM.Chinook.Track.pas',
   Concepts.zObjectInspector.StringsDialog.Form in 'Forms\Concepts.zObjectInspector.StringsDialog.Form.pas' {frmStringsDialog},
-  Concepts.SynEdit.Form in 'Forms\Concepts.SynEdit.Form.pas' {frmSynEdit},
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
   Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter},
   Concepts.VirtualTreeView.Form in 'Forms\Concepts.VirtualTreeView.Form.pas' {frmVirtualTreeView},
@@ -88,7 +87,11 @@ uses
   Concepts.MQTT.Form in 'Forms\Concepts.MQTT.Form.pas' {frmMQTTNode},
   MQTT in 'Libraries\MQTT\MQTT.pas',
   MQTTHeaders in 'Libraries\MQTT\MQTTHeaders.pas',
-  MQTTReadThread in 'Libraries\MQTT\MQTTReadThread.pas';
+  MQTTReadThread in 'Libraries\MQTT\MQTTReadThread.pas',
+  SynMemoEx in 'Libraries\SynMemoEx\SynMemoEx.pas',
+  Concepts.SynMemoEx.Form in 'Forms\Concepts.SynMemoEx.Form.pas' {frmSynMemoEx},
+  Concepts.SynEdit.Form in 'Forms\Concepts.SynEdit.Form.pas' {frmSynEdit},
+  Concepts.Indy.TCP.Form in 'Forms\Concepts.Indy.TCP.Form.pas' {frmIndyTCP};
 
 {$R *.res}
 
@@ -100,7 +103,7 @@ const
 //  EXECUTE_BY_NAME = 'FireDAC';
   //EXECUTE_BY_NAME = 'ORM';
   //EXECUTE_BY_NAME = 'TStringList';
-  //EXECUTE_BY_NAME = 'Indy';
+  //EXECUTE_BY_NAME = 'Telnet';
   //EXECUTE_BY_NAME = 'Parallel Library';
 
 begin

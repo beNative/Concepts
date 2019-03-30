@@ -560,6 +560,7 @@ procedure TTestSuite.AddTests(testClass: TTestCaseClass);
 var
   method: TRttiMethod;
   parameters: TArray<TRttiParameter>;
+  i: Integer;
   arguments: TArray<TValue>;
   suite: ITestSuite;
   attribute: TestCaseAttribute;
@@ -570,6 +571,13 @@ begin
       Continue;
 
     parameters := method.GetParameters;
+
+    for i := 0 to High(parameters) do
+      if pfArray in parameters[i].Flags then
+        Break;
+    if i < Length(parameters) then
+      Continue;
+
     if method.ReturnType = nil then
       SetLength(arguments, Length(parameters))
     else

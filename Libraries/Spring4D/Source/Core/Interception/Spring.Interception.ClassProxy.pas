@@ -222,10 +222,10 @@ var
   intf: TRttiInterfaceType;
   additionalInterface: PTypeInfo;
 begin
-  entryCount := 1 + Length(additionalInterfaces);
+  entryCount := Length(additionalInterfaces) + 1;
   for i := 0 to options.Mixins.Count - 1 do
     Inc(entryCount, TType.GetType(options.Mixins[i].ClassType).GetInterfaces.Count);
-  size := SizeOf(Integer) + SizeOf(TInterfaceEntry) * EntryCount;
+  size := SizeOf(Integer) + SizeOf(TInterfaceEntry) * entryCount;
 {$IFDEF CPU64BITS}
   Inc(size, SizeOf(Int32));
 {$ENDIF}
@@ -239,7 +239,7 @@ begin
   table.Entries[0].IOffset := 0;
   table.Entries[0].ImplGetter := NativeUInt(@TClassProxy.GetProxyTargetAccessor);
 
-  SetLength(fAdditionalInterfaces, entryCount);
+  SetLength(fAdditionalInterfaces, entryCount - 1);
 
   offset := ProxyClassData.InstanceSize - hfFieldSize;
   Inc(ProxyClassData.InstanceSize, (entryCount - 1) * SizeOf(Pointer));
@@ -268,7 +268,7 @@ begin
     interfaces := TType.GetType(options.Mixins[i].ClassType).GetInterfaces;
     for intf in interfaces do
     begin
-      Supports(options.Mixins[i], intf.Guid, fAdditionalInterfaces[index]);
+      Supports(options.Mixins[i], intf.Guid, fAdditionalInterfaces[index - 1]);
 
       table.Entries[index].IID := intf.GUID;
       table.Entries[index].VTable := nil;

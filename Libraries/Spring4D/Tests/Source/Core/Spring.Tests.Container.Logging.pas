@@ -95,7 +95,6 @@ type
     procedure TestInjectMultipleAppendersToSingleController;
     procedure TestLeak;
     procedure TestMultipleConfiguration;
-    procedure TestDuplicateDefault;
     procedure TestUnknownClass;
     procedure TestUnknownProperty;
     procedure TestUnknownPropertyKind;
@@ -756,18 +755,6 @@ begin
 
   logger := fContainer.Resolve<ILogger>;
   CheckIs(TObject(logger), TLogger);
-end;
-
-procedure TTestLoggingConfiguration.TestDuplicateDefault;
-begin
-  fStrings
-    .Add('[appenders\default]')
-    .Add('class = TAppenderMock');
-  fStrings
-    .Add('[appenders\default]')
-    .Add('class = TAppenderMock');
-  ExpectedException := ERegistrationException;
-  TLoggingConfiguration.LoadFromStrings(fContainer, fStrings);
 end;
 
 procedure TTestLoggingConfiguration.TestInjectMultipleAppendersToSingleController;

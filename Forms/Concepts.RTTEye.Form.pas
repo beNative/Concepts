@@ -65,6 +65,7 @@ type
   private
     FRttiContext: TRttiContext;
 
+  protected
     procedure LoadTree;
 
     function FindTreeViewText(

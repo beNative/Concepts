@@ -246,8 +246,8 @@
         <DCCReference Include="Forms\Concepts.Vcl.GridPanel.Form.pas">
             <Form>frmGridPanel</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Concepts.Indy.TCP.Form.pas">
-            <Form>frmIndyTCP</Form>
+        <DCCReference Include="Forms\Concepts.Indy.Telnet.Form.pas">
+            <Form>frmIndyTelnet</Form>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.Vcl.RelativePanel.Form.pas">
             <Form>frmRelativePanel</Form>
@@ -308,9 +308,6 @@
         <DCCReference Include="Forms\Concepts.zObjectInspector.StringsDialog.Form.pas">
             <Form>frmStringsDialog</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Concepts.SynEdit.Form.pas">
-            <Form>frmSynEdit</Form>
-        </DCCReference>
         <DCCReference Include="Forms\Concepts.DevExpress.cxEditors.Form.pas">
             <Form>frmcxEditors</Form>
         </DCCReference>
@@ -341,6 +338,19 @@
         <DCCReference Include="Libraries\MQTT\MQTT.pas"/>
         <DCCReference Include="Libraries\MQTT\MQTTHeaders.pas"/>
         <DCCReference Include="Libraries\MQTT\MQTTReadThread.pas"/>
+        <DCCReference Include="Libraries\SynMemoEx\SynMemoEx.pas"/>
+        <DCCReference Include="Forms\Concepts.SynMemoEx.Form.pas">
+            <Form>frmSynMemoEx</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.SynEdit.Form.pas">
+            <Form>frmSynEdit</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Forms\Concepts.Indy.TCP.Form.pas">
+            <Form>frmIndyTCP</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

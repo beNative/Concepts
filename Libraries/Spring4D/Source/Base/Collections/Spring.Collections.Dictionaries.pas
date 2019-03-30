@@ -394,7 +394,7 @@ type
   private
     fTree: IRedBlackTree<TKey,TValue>;
     fKeyComparer: IComparer<TKey>;
-    fValueComparer: IComparer<TValue>;
+    fValueComparer: IEqualityComparer<TValue>;
     fKeyValueComparerByKey: IComparer<TKeyValue>;
     fKeys: IList<TKey>;
     fValues: IList<TValue>;
@@ -408,7 +408,7 @@ type
   {$ENDREGION}
   public
     constructor Create; override;
-    constructor Create(const keyComparer: IComparer<TKey>; const valueComparer: IComparer<TValue>); overload;
+    constructor Create(const keyComparer: IComparer<TKey>; const valueComparer: IEqualityComparer<TValue>); overload;
     destructor Destroy; override;
 
     {$REGION 'Implements IEnumerable<TPair<TKey, TValue>>'}
@@ -542,7 +542,7 @@ procedure TDictionary<TKey, TValue>.DoKeyNotify(Sender: TObject;
 begin
   if Assigned(fOnKeyNotify) then
     fOnKeyNotify(Sender, Item, Action);
-  KeyChanged(Item, TCollectionChangedAction(action));
+  KeyChanged(Item, CollectionNotificationMapping[action]);
 end;
 
 procedure TDictionary<TKey, TValue>.DoValueNotify(Sender: TObject;
@@ -550,7 +550,7 @@ procedure TDictionary<TKey, TValue>.DoValueNotify(Sender: TObject;
 begin
   if Assigned(fOnValueNotify) then
     fOnValueNotify(Sender, Item, Action);
-  ValueChanged(Item, TCollectionChangedAction(Action));
+  ValueChanged(Item, CollectionNotificationMapping[action]);
 end;
 
 function TDictionary<TKey, TValue>.GetEnumerator: IEnumerator<TKeyValuePair>;
@@ -1487,7 +1487,8 @@ begin
 end;
 
 constructor TSortedDictionary<TKey, TValue>.Create(
-  const keyComparer: IComparer<TKey>; const valueComparer: IComparer<TValue>);
+  const keyComparer: IComparer<TKey>;
+  const valueComparer: IEqualityComparer<TValue>);
 begin
   inherited Create;
 
@@ -1496,7 +1497,7 @@ begin
     fKeyComparer := TComparer<TKey>.Default;
   fValueComparer := valueComparer;
   if not Assigned(fValueComparer) then
-    fValueComparer := TComparer<TValue>.Default;
+    fValueComparer := TEqualityComparer<TValue>.Default;
   fTree := TRedBlackTree<TKey,TValue>.Create(keyComparer);
 
 {$IFDEF DELPHI2010}
@@ -1576,8 +1577,7 @@ function TSortedDictionary<TKey, TValue>.Contains(const key: TKey;
 var
   found: TValue;
 begin
-  Result := fTree.Find(key, found)
-    and (fValueComparer.Compare(value, found) = EqualsValue);
+  Result := fTree.Find(key, found) and fValueComparer.Equals(value, found);
 end;
 
 function TSortedDictionary<TKey, TValue>.ContainsKey(const key: TKey): Boolean;
@@ -1590,7 +1590,7 @@ var
   found: TKeyValue;
 begin
   for found in fTree do
-    if fValueComparer.Compare(value, found.Value) = EqualsValue then
+    if fValueComparer.Equals(value, found.Value) then
       Exit(True);
   Result := False;
 end;
@@ -1601,8 +1601,7 @@ var
   node: PNode;
 begin
   node := fTree.FindNode(key);
-  if Assigned(node)
-    and (fValueComparer.Compare(value, node.Value) = EqualsValue) then
+  if Assigned(node) and fValueComparer.Equals(value, node.Value) then
   begin
     Result.Key := node.Key;
     Result.Value := node.Value;
@@ -1718,8 +1717,7 @@ var
   node: PNode;
 begin
   node := fTree.FindNode(key);
-  Result := Assigned(node)
-    and (fValueComparer.Compare(value, node.Value) = EqualsValue);
+  Result := Assigned(node) and fValueComparer.Equals(value, node.Value);
   if Result then
   begin
     KeyChanged(node.Key, caRemoved);

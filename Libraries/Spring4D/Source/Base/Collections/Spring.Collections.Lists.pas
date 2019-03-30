@@ -670,6 +670,9 @@ begin
   Guard.CheckRange((newIndex >= 0) and (newIndex < fCount), 'newIndex');
 {$ENDIF}
 
+  if currentIndex = newIndex then
+    Exit;
+
   temp := fItems[currentIndex];
 
   IncUnchecked(fVersion);

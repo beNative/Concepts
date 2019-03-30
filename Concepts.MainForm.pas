@@ -267,7 +267,7 @@ end;
 
 procedure TfrmMain.FTVPDoubleClick(Sender: TObject);
 begin
-  ConceptManager.Execute(FTVP.SelectedItem);
+  ConceptManager.Execute(FTVP.SelectedItem, False);
 end;
 
 procedure TfrmMain.FTVPFilter(Item: TObject; var Accepted: Boolean);
