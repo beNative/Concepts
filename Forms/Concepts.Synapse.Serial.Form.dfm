@@ -36,7 +36,7 @@ object frmSynapseSerial: TfrmSynapseSerial
     TabOrder = 0
     object splLeftHorizontal: TSplitter
       Left = 0
-      Top = 337
+      Top = 309
       Width = 313
       Height = 6
       Cursor = crVSplit
@@ -49,7 +49,7 @@ object frmSynapseSerial: TfrmSynapseSerial
       Left = 0
       Top = 0
       Width = 313
-      Height = 337
+      Height = 309
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 0
@@ -153,6 +153,10 @@ object frmSynapseSerial: TfrmSynapseSerial
           Text = '9600'
           OnChange = cbxBaudRateChange
           Items.Strings = (
+            '50'
+            '75'
+            '110'
+            '150'
             '300'
             '600'
             '1200'
@@ -166,9 +170,13 @@ object frmSynapseSerial: TfrmSynapseSerial
             '19200'
             '28800'
             '38400'
+            '56000'
             '57600'
+            '76800'
             '115200'
-            '230400')
+            '230400'
+            '256000'
+            '460800')
         end
         object grpFlowControl: TGroupBox
           Left = 145
@@ -375,40 +383,46 @@ object frmSynapseSerial: TfrmSynapseSerial
     object pnlLeftBottom: TPanel
       AlignWithMargins = True
       Left = 3
-      Top = 346
+      Top = 318
       Width = 307
-      Height = 233
+      Height = 261
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitTop = 346
+      ExplicitHeight = 233
       object pgcSend: TPageControl
         Left = 0
         Top = 0
         Width = 307
-        Height = 233
-        ActivePage = tsMemo
+        Height = 261
+        ActivePage = tsCommands
         Align = alClient
         TabOrder = 0
+        ExplicitHeight = 233
         object tsMemo: TTabSheet
           Caption = 'Memo'
+          ExplicitHeight = 205
           object mmoSend: TMemo
             Left = 0
             Top = 0
             Width = 299
-            Height = 205
+            Height = 233
             Align = alClient
             TabOrder = 0
+            ExplicitHeight = 205
           end
         end
         object tsCommands: TTabSheet
           Caption = 'Commands'
           ImageIndex = 1
+          ExplicitHeight = 205
           object pnlCommands: TGridPanel
             AlignWithMargins = True
             Left = 3
             Top = 3
             Width = 293
-            Height = 199
+            Height = 227
             Align = alClient
             BevelOuter = bvNone
             ColumnCollection = <
@@ -444,6 +458,7 @@ object frmSynapseSerial: TfrmSynapseSerial
                 Value = 16.666666666666670000
               end>
             TabOrder = 0
+            ExplicitHeight = 199
           end
         end
       end
@@ -500,15 +515,16 @@ object frmSynapseSerial: TfrmSynapseSerial
         BevelOuter = bvNone
         Caption = 'Sent'
         Color = clWhite
+        Ctl3D = True
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentBackground = False
+        ParentCtl3D = False
         ParentFont = False
         TabOrder = 0
-        StyleElements = [seFont, seBorder]
         object btnClearSent: TSpeedButton
           Left = 565
           Top = 0
@@ -679,7 +695,7 @@ object frmSynapseSerial: TfrmSynapseSerial
         Top = 26
         Width = 621
         Height = 270
-        ActivePage = tsReceivedText
+        ActivePage = tsReceivedLog
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -741,7 +757,7 @@ object frmSynapseSerial: TfrmSynapseSerial
     Left = 72
     Top = 136
     Bitmap = {
-      494C010105000900280010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C0101050009003C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1049,6 +1065,17 @@ object frmSynapseSerial: TfrmSynapseSerial
       Caption = 'Send'
       OnExecute = actSendMultiLineExecute
     end
+    object actSendCommand: TAction
+      Caption = 'Send command'
+    end
+    object actAssignCommand: TAction
+      Caption = 'Assign command'
+      OnExecute = actAssignCommandExecute
+    end
+    object actClearCommand: TAction
+      Caption = 'Clear command'
+      OnExecute = actClearCommandExecute
+    end
   end
   object dlgSave: TSaveDialog
     DefaultExt = 'log'
@@ -1068,9 +1095,19 @@ object frmSynapseSerial: TfrmSynapseSerial
   end
   object tmrPoll: TTimer
     Enabled = False
-    Interval = 50
+    Interval = 200
     OnTimer = tmrPollTimer
     Left = 16
     Top = 136
+  end
+  object ppmCommands: TPopupMenu
+    Left = 144
+    Top = 192
+    object mniAssignCommand: TMenuItem
+      Action = actAssignCommand
+    end
+    object mniClearCommand: TMenuItem
+      Action = actClearCommand
+    end
   end
 end

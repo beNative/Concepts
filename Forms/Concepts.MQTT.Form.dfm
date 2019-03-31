@@ -673,7 +673,6 @@ object frmMQTTNode: TfrmMQTTNode
     end
     object actSubscribeToAll: TAction
       Caption = 'Subscribe to all topics'
-      OnExecute = actSubscribeToAllExecute
     end
   end
 end

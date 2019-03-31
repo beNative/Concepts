@@ -326,14 +326,12 @@
         <DCCReference Include="Forms\Concepts.System.Interfaces.DelegatedImplementation.pas"/>
         <DCCReference Include="Forms\Concepts.System.Interfaces.Form.pas">
             <Form>frmInterfaces</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.System.Interfaces.InterfacedObject.pas"/>
         <DCCReference Include="Forms\Concepts.System.Interfaces.Interfaces.pas"/>
         <DCCReference Include="Forms\Concepts.System.Interfaces.WeakReferences.pas"/>
         <DCCReference Include="Forms\Concepts.MQTT.Form.pas">
             <Form>frmMQTTNode</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Libraries\MQTT\MQTT.pas"/>
         <DCCReference Include="Libraries\MQTT\MQTTHeaders.pas"/>
@@ -341,15 +339,12 @@
         <DCCReference Include="Libraries\SynMemoEx\SynMemoEx.pas"/>
         <DCCReference Include="Forms\Concepts.SynMemoEx.Form.pas">
             <Form>frmSynMemoEx</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.SynEdit.Form.pas">
             <Form>frmSynEdit</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.Indy.TCP.Form.pas">
             <Form>frmIndyTCP</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>

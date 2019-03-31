@@ -102,6 +102,7 @@ type
     procedure actSendExecute(Sender: TObject);
     procedure actAssignCommandExecute(Sender: TObject);
     procedure actClearCommandExecute(Sender: TObject);
+    procedure actSendCommandExecute(Sender: TObject);
 
     procedure InspectorModified(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -221,24 +222,6 @@ begin
   Modified;
 end;
 
-procedure TfrmIndyTelnet.AssignCommandToAction(ASender: TObject;
-  const ACommand: string);
-var
-  LActionComponent : TComponent;
-  LAction          : TContainedAction;
-begin
-  LActionComponent := (ASender as TContainedAction).ActionComponent;
-  if LActionComponent is TMenuItem then
-  begin
-    LAction := (((TPopupMenu(
-      TMenuItem(LActionComponent)
-        .GetParentMenu)
-          .PopupComponent) as TButton)
-            .Action as TContainedAction);
-    LAction.Caption := ACommand;
-  end;
-end;
-
 procedure TfrmIndyTelnet.BeforeDestruction;
 begin
   FInspector.Component := nil;
@@ -352,6 +335,11 @@ begin
   end;
 end;
 
+procedure TfrmIndyTelnet.actSendCommandExecute(Sender: TObject);
+begin
+//
+end;
+
 procedure TfrmIndyTelnet.actSendExecute(Sender: TObject);
 begin
   SendString(cbxSent.Text);
@@ -450,6 +438,24 @@ end;
 {$ENDREGION}
 
 {$REGION 'private methods'}
+procedure TfrmIndyTelnet.AssignCommandToAction(ASender: TObject;
+  const ACommand: string);
+var
+  LActionComponent : TComponent;
+  LAction          : TContainedAction;
+begin
+  LActionComponent := (ASender as TContainedAction).ActionComponent;
+  if LActionComponent is TMenuItem then
+  begin
+    LAction := (((TPopupMenu(
+      TMenuItem(LActionComponent)
+        .GetParentMenu)
+          .PopupComponent) as TButton)
+            .Action as TContainedAction);
+    LAction.Caption := ACommand;
+  end;
+end;
+
 procedure TfrmIndyTelnet.Modified;
 begin
   FUpdate := True;

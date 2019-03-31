@@ -3,6 +3,7 @@ program Concepts;
 {$I Concepts.inc}
 
 uses
+  {LeakCheck,}
   Vcl.Themes,
   Vcl.Styles,
   Vcl.Forms,

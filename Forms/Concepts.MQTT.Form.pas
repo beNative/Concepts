@@ -99,7 +99,6 @@ type
     procedure actClearMessageExecute(Sender: TObject);
     procedure actClearReceivedExecute(Sender: TObject);
     procedure actStartBrokerExecute(Sender: TObject);
-    procedure actSubscribeToAllExecute(Sender: TObject);
 
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure chkSubscribeToAllTopicsClick(Sender: TObject);
@@ -158,10 +157,6 @@ begin
   FLogTree.ShowDateColumn     := False;
   FLogTree.AutoLogLevelColors := True;
   LoadSettings;
-//  if chkAutoConnect.Checked then
-//  begin
-//    Connect;
-//  end;
   pgcMessage.ActivePageIndex  := 0;
 end;
 
@@ -275,11 +270,6 @@ begin
   begin
     ShowMessageFmt('''%s'' not found.', [MOSQUITTO_FILENAME]);
   end;
-end;
-
-procedure TfrmMQTTNode.actSubscribeToAllExecute(Sender: TObject);
-begin
-
 end;
 {$ENDREGION}
 

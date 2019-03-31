@@ -20,7 +20,7 @@ type
   TMQTT = class
   private
     FClientId   : UTF8String;
-    FHostname   : UTF8String;
+    FHostname   : string;
     FPort       : Integer;
     FMessageId  : Integer;
     FConnected  : Boolean;
@@ -137,8 +137,8 @@ type
     function PingReq: Boolean;
 
     constructor Create(
-      AHostName : UTF8String;
-      APort     : Integer
+      const AHostName : string;
+      APort           : Integer
     );
     destructor Destroy; override;
 
@@ -277,9 +277,7 @@ begin
   Result.FixedHeader.Duplicate   := 0;
 end;
 
-constructor TMQTT.Create(
-  AHostName : UTF8String;
-  APort     : Integer);
+constructor TMQTT.Create(const AHostName: string; APort: Integer);
 begin
   inherited Create;
 

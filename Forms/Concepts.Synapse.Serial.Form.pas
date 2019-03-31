@@ -57,7 +57,6 @@ type
     procedure SetDTRF(Value: Boolean); override;
     procedure SetRTSF(Value: Boolean); override;
 
-  published
     property RTS: Boolean
       read GetRTS write SetRTSF;
 
@@ -70,31 +69,44 @@ type
   TfrmSynapseSerial = class(TForm)
     {$REGION 'designer controls'}
     aclMain                : TActionList;
+    actAssignCommand       : TAction;
+    actClearCommand        : TAction;
     actClearReceived       : TAction;
     actClearSent           : TAction;
-    actConnect             : TAction;
+    actConnect              : TAction;
     actConnectEvents       : TAction;
     actDisconnect          : TAction;
     actDisconnectEvents    : TAction;
     actSave                : TAction;
     actSend                : TAction;
+    actSendCommand         : TAction;
     actSendMultiLine       : TAction;
     btnClearReceived       : TSpeedButton;
     btnClearSent           : TSpeedButton;
     btnConnect             : TButton;
     btnDisconnect          : TButton;
     btnSendString          : TButton;
+    cbxBaudRate            : TComboBox;
     cbxCOMPort             : TComboBox;
     cbxSent                : TComboBox;
+    chkHardwareHandshaking : TCheckBox;
+    chkSoftwareHandshaking : TCheckBox;
     dlgSave                : TSaveDialog;
+    grpFlowControl         : TGroupBox;
     ilMain                 : TImageList;
     lblCOMPort             : TLabel;
+    lblSpeed               : TLabel;
     mmoReceivedText        : TMemo;
+    mmoSend                : TMemo;
     mmoSentText            : TMemo;
+    mniAssignCommand       : TMenuItem;
+    mniClearCommand        : TMenuItem;
     mniClearReceivedText   : TMenuItem;
     mniSave                : TMenuItem;
     pgcReceived            : TPageControl;
+    pgcSend                : TPageControl;
     pgcSent                : TPageControl;
+    pnlCommands            : TGridPanel;
     pnlLeft                : TPanel;
     pnlLeftBottom          : TPanel;
     pnlLeftTop             : TPanel;
@@ -105,20 +117,19 @@ type
     pnlRightTop            : TPanel;
     pnlSend                : TPanel;
     pnlSent                : TPanel;
+    ppmCommands            : TPopupMenu;
     ppmReceivedText        : TPopupMenu;
+    sbrMain                : TStatusBar;
     splLeftHorizontal      : TSplitter;
     splRightHorizontal     : TSplitter;
     splVertical            : TSplitter;
+    tmrPoll                : TTimer;
+    tsCommands             : TTabSheet;
+    tsMemo                 : TTabSheet;
     tsReceivedLog          : TTabSheet;
     tsReceivedText         : TTabSheet;
     tsSentLog              : TTabSheet;
     tsSentText             : TTabSheet;
-    cbxBaudRate            : TComboBox;
-    grpFlowControl         : TGroupBox;
-    chkSoftwareHandshaking : TCheckBox;
-    chkHardwareHandshaking : TCheckBox;
-    lblSpeed               : TLabel;
-    tmrPoll                : TTimer;
     pnlIndicators          : TGridPanel;
     pnlRTS                 : TPanel;
     pnlCTS                 : TPanel;
@@ -126,12 +137,6 @@ type
     pnlDSR                 : TPanel;
     pnlCarrier             : TPanel;
     pnlRing                : TPanel;
-    pgcSend                : TPageControl;
-    tsMemo                 : TTabSheet;
-    tsCommands             : TTabSheet;
-    pnlCommands            : TGridPanel;
-    mmoSend                : TMemo;
-    sbrMain                : TStatusBar;
     {$ENDREGION}
 
     procedure actClearReceivedExecute(Sender: TObject);
@@ -140,6 +145,8 @@ type
     procedure actDisconnectExecute(Sender: TObject);
     procedure actSaveExecute(Sender: TObject);
     procedure actSendExecute(Sender: TObject);
+    procedure actAssignCommandExecute(Sender: TObject);
+    procedure actClearCommandExecute(Sender: TObject);
 
     procedure InspectorModified(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -173,9 +180,13 @@ type
     procedure FCommandExecute(Sender: TObject);
 
     function CreateComPort: TSynapseSerial;
-    procedure CreateControls;
+    procedure CreateCommandControls;
 
     function MakeLogString(const AString: string): string;
+    procedure AssignCommandToAction(
+      ASender        : TObject;
+      const ACommand : string = ''
+    );
 
   protected
     procedure LoadSettings; virtual;
@@ -278,7 +289,7 @@ procedure TfrmSynapseSerial.AfterConstruction;
 begin
   inherited AfterConstruction;
   FCommands := TCollections.CreateObjectList<TContainedAction>(False);
-  CreateControls;
+  CreateCommandControls;
   FComPort                   := CreateComPort;
   cbxCOMPort.Items.CommaText := GetSerialPortNames;
   LoadSettings;
@@ -367,6 +378,16 @@ end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
+procedure TfrmSynapseSerial.actAssignCommandExecute(Sender: TObject);
+begin
+  AssignCommandToAction(Sender, cbxSent.Text);
+end;
+
+procedure TfrmSynapseSerial.actClearCommandExecute(Sender: TObject);
+begin
+  AssignCommandToAction(Sender);
+end;
+
 procedure TfrmSynapseSerial.actClearReceivedExecute(Sender: TObject);
 begin
   FLogIn.Clear;
@@ -456,6 +477,7 @@ end;
 procedure TfrmSynapseSerial.FCommandExecute(Sender: TObject);
 begin
   SendString(RawByteString((Sender as TContainedAction).Caption + #13#10));
+  Modified;
 end;
 
 procedure TfrmSynapseSerial.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -468,12 +490,30 @@ begin
   while FComPort.WaitingDataEx <> 0 do
   begin
     DoStringReceived(FComPort.RecvPacket(50));
-    UpdateControls;
+    Modified;
   end;
 end;
 {$ENDREGION}
 
 {$REGION 'private methods'}
+procedure TfrmSynapseSerial.AssignCommandToAction(ASender: TObject;
+  const ACommand: string);
+var
+  LActionComponent : TComponent;
+  LAction          : TContainedAction;
+begin
+  LActionComponent := (ASender as TContainedAction).ActionComponent;
+  if LActionComponent is TMenuItem then
+  begin
+    LAction := (((TPopupMenu(
+      TMenuItem(LActionComponent)
+        .GetParentMenu)
+          .PopupComponent) as TButton)
+            .Action as TContainedAction);
+    LAction.Caption := ACommand;
+  end;
+end;
+
 procedure TfrmSynapseSerial.Modified;
 begin
   FUpdate := True;
@@ -482,7 +522,7 @@ end;
 procedure TfrmSynapseSerial.ComPortStatus(Sender: TObject;
   Reason: THookSerialReason; const Value: string);
 var
-  S: string;
+  S : string;
 begin
   case Reason of
     HR_SerialClose: S := 'Serial Close';
@@ -499,32 +539,33 @@ begin
   end;
 end;
 
-
 {
-baud
-    Define connection speed. Baud rate can be from 50 to 4000000 bits per second. (it depends on your hardware!)
-bits
+  baud
+    connection speed. Baud rate can be from 50 to 4000000 bits per second.
+    (it depends on your hardware!)
+  bits
     Number of bits in communication.
-parity
-    Define communication parity (N - None, O - Odd, E - Even, M - Mark or S - Space).
-stop
-    Define number of stopbits. Use constants SB1, SB1andHalf and SB2.
-softflow
+  parity
+    communication parity (N - None, O - Odd, E - Even, M - Mark or S - Space).
+  stop
+    number of stopbits. Use constants SB1, SB1andHalf and SB2.
+  softflow
     Enable XON/XOFF handshake.
-hardflow
-    Enable CTS/RTS handshake.   }
+  hardflow
+    Enable CTS/RTS handshake.
+}
 
 function TfrmSynapseSerial.CreateComPort: TSynapseSerial;
 begin
   Result := TSynapseSerial.Create;
-  Result.OnStatus := ComPortStatus;
-  Result.EnableRTSToggle(True);
-  Result.ConvertLineEnd := False;
-  Result.RaiseExcept := False;
+  Result.OnStatus           := ComPortStatus;
+  Result.ConvertLineEnd     := False;
+  Result.RaiseExcept        := False;
   Result.InterPacketTimeout := True;
+  Result.EnableRTSToggle(True);
 end;
 
-procedure TfrmSynapseSerial.CreateControls;
+procedure TfrmSynapseSerial.CreateCommandControls;
 var
   I  : Integer;
   CA : TContainedAction;
@@ -536,26 +577,25 @@ begin
     CA.Name := Format('actCommand%d', [I]);
     CA.OnExecute := FCommandExecute;
     FCommands.Add(CA);
-    B := TButton.Create(Self);
-    B.Action := CA;
-    pnlCommands.ControlCollection.AddControl(B);
-    B.Align := alClient;
+    B                  := TButton.Create(Self);
+    B.Action           := CA;
+    B.Align            := alClient;
     B.AlignWithMargins := True;
-    B.Font.Style := [fsBold];
-    B.Parent := pnlCommands;
+    B.Font.Name        := 'Consolas';
+    B.Font.Style       := [fsBold];
+    B.Parent           := pnlCommands;
+    B.PopupMenu        := ppmCommands;
+    pnlCommands.ControlCollection.AddControl(B);
   end;
 end;
 
 procedure TfrmSynapseSerial.DoStringReceived(const AString: RawByteString);
 begin
   FLogIn.Log(MakeLogString(string(AString)));
-  mmoReceivedText.DisableAlign;
+  mmoReceivedText.Lines.BeginUpdate;
   mmoReceivedText.Text :=
     mmoReceivedText.Text + AdjustLineBreaks(string(AString), tlbsCRLF);
-  mmoReceivedText.EnableAlign;
-  // scroll to last entry
-  mmoReceivedText.SelStart := Length(mmoReceivedText.Text) - 1;
-  mmoReceivedText.SelLength := 1;
+  mmoReceivedText.Lines.EndUpdate;
 end;
 
 function TfrmSynapseSerial.MakeLogString(const AString: string): string;
@@ -567,10 +607,10 @@ const
     '</f>' +
     '</fc>';
 var
-  S  : RawByteString;
-  I  : Integer;
-  N  : Integer;
-  C  : AnsiChar;
+  S : RawByteString;
+  I : Integer;
+  N : Integer;
+  C : AnsiChar;
 begin
   N := Length(AString);
   if N > 0 then
@@ -631,9 +671,9 @@ procedure TfrmSynapseSerial.UpdateIndicators;
 begin
   if Connected then
   begin
-    ColorPanel(pnlRTS, FComPort.RTS);
+    //ColorPanel(pnlRTS, FComPort.RTS);
     ColorPanel(pnlCTS, FComPort.CTS);
-    ColorPanel(pnlDTR, FComPort.DTR);
+    //ColorPanel(pnlDTR, FComPort.DTR);
     ColorPanel(pnlDSR, FComPort.DSR);
     ColorPanel(pnlCarrier, FComPort.Carrier);
     ColorPanel(pnlRing, FComPort.Ring);
@@ -647,17 +687,20 @@ begin
   if FUpdate then
   begin
     UpdateControls;
+      // scroll to last entry
+    mmoReceivedText.SelStart := Length(mmoReceivedText.Text) - 1;
+    mmoReceivedText.SelLength := 1;
     FUpdate := False;
   end;
 end;
 
 procedure TfrmSynapseSerial.LoadSettings;
 var
-  I  : Integer;
+  I : Integer;
 begin
-  Port := Settings.ReadString(UnitName, 'Port', '');
+  Port     := Settings.ReadString(UnitName, 'Port', '');
   BaudRate := Settings.ReadInteger(UnitName, 'BaudRate', 9600);
-  for I := 0 to FCommands.Count - 1 do
+  for I    := 0 to FCommands.Count - 1 do
   begin
     FCommands[I].Caption := Settings.ReadString(
       UnitName,
@@ -669,7 +712,7 @@ end;
 
 procedure TfrmSynapseSerial.SaveSettings;
 var
-  I  : Integer;
+  I : Integer;
 begin
   Settings.WriteString(UnitName, 'Port', Port);
   Settings.WriteInteger(UnitName, 'BaudRate', BaudRate);
