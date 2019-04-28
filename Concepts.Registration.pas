@@ -44,7 +44,8 @@ type
 implementation
 
 uses
-  System.SysUtils,
+  Winapi.Windows,
+  System.SysUtils, System.Classes,
 
   {$REGION 'Concept form units'}
   {$IFDEF WINAPI}
@@ -164,6 +165,31 @@ const
   SYSTEM_CATEGORY_COLOR     = $00E1E1FF;
   VCL_CATEGORY_COLOR        = $00FFD9D9;
   WINAPI_CATEGORY_COLOR     = clWhite;
+
+procedure EnsureZMQLibExists;
+const
+  LIBZMQ = 'libzmq';
+var
+  LResStream  : TResourceStream;
+  LFileStream : TFileStream;
+  LPath       : string;
+begin
+  LPath := Format('%s\%s.dll', [ExtractFileDir(ParamStr(0)), LIBZMQ]);
+  if not FileExists(LPath) then
+  begin
+    LResStream := TResourceStream.Create(HInstance, LIBZMQ, RT_RCDATA);
+    try
+      LFileStream := TFileStream.Create(LPath, fmCreate);
+      try
+        LFileStream.CopyFrom(LResStream, 0);
+      finally
+        LFileStream.Free;
+      end;
+    finally
+      LResStream.Free;
+    end;
+  end;
+end;
 
 {$REGION 'private methods'}
 class procedure TConcepts.RegisterSpringConcepts;
@@ -592,5 +618,8 @@ begin
   RegisterWinApiConcepts;
  end;
 {$ENDREGION}
+
+initialization
+  EnsureZMQLibExists;
 
 end.

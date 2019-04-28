@@ -187,11 +187,11 @@ constructor TMQTTReadThread.Create(var Socket: TIdTCPClient;
   var CSSock: TCriticalSection);
 // ==============================================================================
 begin
-  inherited Create(false);
+  inherited Create(False);
 
   FPSocket        := Socket;
   FCSock          := CSSock;
-  FreeOnTerminate := false;
+  FreeOnTerminate := False;
 
   CleanStart;
 end;
@@ -462,7 +462,6 @@ begin
         end;
       end;
   end;
-
 end;
 
 function TMQTTReadThread.ReadMessageId(const ADataStream: TBytes;

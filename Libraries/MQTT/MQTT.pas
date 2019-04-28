@@ -214,7 +214,7 @@ begin
     // HammerOh
     // FSocket.Connect(Self.FHostname, IntToStr(Self.FPort));
     FSocket.Host := FHostname;
-    FSocket.port := FPort;
+    FSocket.Port := FPort;
     FSocket.Connect;
     // ==============================================================================
     FConnected := True;
@@ -241,7 +241,7 @@ begin
         LMsg.Payload.Contents.Add(Self.FWillMsg);
       end;
 
-      if ((Length(FUsername) > 1) and (Length(FPassword) > 1)) then
+      if (Length(FUsername) > 1) and (Length(FPassword) > 1) then
       begin
         LMsg.Payload.Contents.Add(FUsername);
         LMsg.Payload.Contents.Add(FPassword);

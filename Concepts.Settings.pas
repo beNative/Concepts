@@ -122,7 +122,7 @@ procedure TSettings.AfterConstruction;
 var
   S : string;
 begin
-  inherited;
+  inherited AfterConstruction;
   S := ExtractFilePath(Application.ExeName) +
     ExtractFileName(ChangeFileExt(Application.ExeName, '.ini'));
   FIniFile := TIniFile.Create(S);
@@ -131,7 +131,7 @@ end;
 procedure TSettings.BeforeDestruction;
 begin
   FIniFile.Free;
-  inherited;
+  inherited BeforeDestruction;
 end;
 {$ENDREGION}
 

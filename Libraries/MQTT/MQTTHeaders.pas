@@ -642,7 +642,7 @@ end;
 {$REGION 'TMQTTPayload'}
 constructor TMQTTPayload.Create;
 begin
-  FContents            := TStringList.Create();
+  FContents            := TStringList.Create;
   FContainsIntLiterals := False;
   FPublishMessage      := False;
 end;

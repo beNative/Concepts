@@ -45,23 +45,6 @@ unit SynEditMiscClasses;
 interface
 
 uses
-{$IFDEF SYN_CLX}
-  {$IFDEF SYN_LINUX}
-  Xlib,
-  {$ENDIF}
-  Types,
-  Qt,
-  QConsts,
-  QGraphics,
-  QControls,
-  QImgList,
-  QStdCtrls,
-  QMenus,
-  kTextDrawer,
-  QSynEditTypes,
-  QSynEditKeyConst,
-  QSynUnicode,
-{$ELSE}
   Consts,
   Windows,
   Messages,
@@ -74,10 +57,6 @@ uses
   SynEditTypes,
   SynEditKeyConst,
   SynUnicode,
-{$IFDEF SYN_DirectWrite}
-  Direct2D,
-{$ENDIF}
-{$ENDIF}
 {$IFDEF SYN_COMPILER_4_UP}
   Math,
 {$ENDIF}
@@ -336,28 +315,15 @@ type
 //++ DPI-Aware
     procedure ChangeScale(M, D: Integer); virtual;
 //-- DPI-Aware
-{$IFDEF SYN_DirectWrite}
-    procedure Draw(ACanvas: TDirect2DCanvas; Number, X, Y, LineHeight: Integer); overload;
-    procedure DrawTransparent(ACanvas: TDirect2DCanvas; Number, X, Y,
-      LineHeight: Integer; TransparentColor: TColor); overload;
-{$ENDIF}
   end;
 
 { TSynHotKey }
 
 const
-  {$IFDEF SYN_CLX}
-  BorderWidth = 2;
-  {$ELSE}
   BorderWidth = 0;
-  {$ENDIF}
 
 type
-  {$IFDEF SYN_CLX}
-  TSynBorderStyle = bsNone..bsSingle;
-  {$ELSE}
   TSynBorderStyle = TBorderStyle;
-  {$ENDIF}
 
   THKModifier = (hkShift, hkCtrl, hkAlt);
   THKModifiers = set of THKModifier;
@@ -376,26 +342,16 @@ type
     procedure SetHotKey(const Value: TShortCut);
     procedure SetInvalidKeys(const Value: THKInvalidKeys);
     procedure SetModifiers(const Value: THKModifiers);
-    {$IFNDEF SYN_CLX}
     procedure WMGetDlgCode(var Message: TMessage); message WM_GETDLGCODE;
      procedure WMKillFocus(var Msg: TWMKillFocus); message WM_KILLFOCUS;
     procedure WMSetFocus(var Msg: TWMSetFocus); message WM_SETFOCUS;
-    {$ENDIF}
   protected
-    {$IFNDEF SYN_CLX}
-    procedure CreateParams(var Params: TCreateParams); override;
-    {$ENDIF}
-    {$IFDEF SYN_CLX}
-    function EventFilter(Sender: QObjectH; Event: QEventH): Boolean; override;
-    {$ENDIF}
     procedure DoExit; override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure Paint; override;
-    {$IFDEF SYN_CLX}
-    function WidgetFlags: Integer; override;
-    {$ENDIF}
+    procedure CreateParams(var Params: TCreateParams); override;
   public
     constructor Create(AOwner: TComponent); override;
   published
@@ -424,7 +380,6 @@ type
     property Options: TSynSearchOptions write SetOptions;
   end;
 
-{$IFNDEF SYN_CLX}
   {$IFNDEF SYN_COMPILER_4_UP}
   TBetterRegistry = class(TRegistry)
     function OpenKeyReadOnly(const Key: string): Boolean;
@@ -432,7 +387,6 @@ type
   {$ELSE}
   TBetterRegistry = TRegistry;
   {$ENDIF}
-{$ENDIF}
 
 //++ DPI-Aware
   procedure ResizeBitmap(Bitmap: TBitmap; const NewWidth,
@@ -443,11 +397,7 @@ type
 implementation
 
 uses
-{$IFDEF SYN_CLX}
-  QSynEditMiscProcs;
-{$ELSE}
   SynEditMiscProcs;
-{$ENDIF}
 
 //++ DPI-Aware
 procedure ResizeBitmap(Bitmap: TBitmap; const NewWidth,
@@ -457,9 +407,19 @@ var
 begin
   buffer := TBitmap.Create;
   try
+    {$IFDEF SYN_COMPILER_12_UP}
     buffer.SetSize(NewWidth, NewHeight);
+    {$ELSE}
+    buffer.Width := NewWidth;
+    buffer.Height := NewHeight;
+    {$ENDIF}
     buffer.Canvas.StretchDraw(Rect(0, 0, NewWidth, NewHeight), Bitmap);
-    Bitmap.SetSize(NewWidth, NewHeight);
+    {$IFDEF SYN_COMPILER_12_UP}
+    buffer.SetSize(NewWidth, NewHeight);
+    {$ELSE}
+    buffer.Width := NewWidth;
+    buffer.Height := NewHeight;
+    {$ENDIF}
     Bitmap.Canvas.Draw(0, 0, buffer);
   finally
     buffer.Free;
@@ -1045,17 +1005,7 @@ begin
     rcSrc := Rect(0, aY, vGlyph.Width, aY + aLineHeight);
   end;
 
-{$IFDEF SYN_CLX}
-  if vMaskColor = clNone then
-    vGlyph.Transparent := False
-  else begin
-    vGlyph.TransparentColor := vMaskColor;
-    vGlyph.Transparent := True;
-  end;
-  aCanvas.CopyRect(rcDest, vGlyph.Canvas, rcSrc);
-{$ELSE}
   aCanvas.BrushCopy(rcDest, vGlyph, rcSrc, vMaskColor);
-{$ENDIF}
 end;
 
 procedure TSynGlyph.SetGlyph(Value: TBitmap);
@@ -1373,60 +1323,9 @@ begin
       rcSrc := Rect(Number * FWidth, Y, (Number + 1) * FWidth,
         Y + LineHeight);
     end;
-{$IFDEF SYN_CLX}
-    ACanvas.CopyMode := cmMergeCopy;
-    ACanvas.CopyRect(rcDest, FImages.Canvas, rcSrc);
-{$ELSE}
     ACanvas.BrushCopy(rcDest, FImages, rcSrc, TransparentColor);
-{$ENDIF}
   end;
 end;
-
-{$IFDEF SYN_DirectWrite}
-procedure TSynInternalImage.Draw(ACanvas: TDirect2DCanvas;
-  Number, X, Y, LineHeight: Integer);
-var
-  rcSrc, rcDest: TRect;
-begin
-  if (Number >= 0) and (Number < FCount) then
-  begin
-    if LineHeight >= FHeight then
-    begin
-      rcSrc := Rect(Number * FWidth, 0, (Number + 1) * FWidth, FHeight);
-      Inc(Y, (LineHeight - FHeight) div 2);
-      rcDest := Rect(X, Y, X + FWidth, Y + FHeight);
-    end else
-    begin
-      rcDest := Rect(X, Y, X + FWidth, Y + LineHeight);
-      Y := (FHeight - LineHeight) div 2;
-      rcSrc := Rect(Number * FWidth, Y, (Number + 1) * FWidth,
-        Y + LineHeight);
-    end;
-//    CopyRect(rcDest, FImages.Canvas, rcSrc);
-  end;
-end;
-
-procedure TSynInternalImage.DrawTransparent(ACanvas: TDirect2DCanvas; Number,
-  X, Y, LineHeight: Integer; TransparentColor: TColor);
-var
-  rcSrc, rcDest: TRect;
-begin
-  if (Number >= 0) and (Number < FCount) then
-  begin
-    if LineHeight >= FHeight then begin
-      rcSrc := Rect(Number * FWidth, 0, (Number + 1) * FWidth, FHeight);
-      Inc(Y, (LineHeight - FHeight) div 2);
-      rcDest := Rect(X, Y, X + FWidth, Y + FHeight);
-    end else begin
-      rcDest := Rect(X, Y, X + FWidth, Y + LineHeight);
-      Y := (FHeight - LineHeight) div 2;
-      rcSrc := Rect(Number * FWidth, Y, (Number + 1) * FWidth,
-        Y + LineHeight);
-    end;
-//    ACanvas.BrushCopy(rcDest, FImages, rcSrc, TransparentColor);
-  end;
-end;
-{$ENDIF}
 
 
 { TSynHotKey }
@@ -1473,12 +1372,7 @@ begin
   if ssShift in Shift then Result := Result + SmkcShift;
   if ssAlt in Shift then Result := Result + SmkcAlt;
 
-  {$IFDEF SYN_CLX}
-  if Lo(Key) > Ord('Z') then
-    Result := Result + Chr(Key)
-  else
-  {$ENDIF}
-    Result := Result + ShortCutToText(TShortCut(Key));
+  Result := Result + ShortCutToText(TShortCut(Key));
   if Result = '' then
     Result := srNone;
 end;
@@ -1486,15 +1380,10 @@ end;
 constructor TSynHotKey.Create(AOwner: TComponent);
 begin
   inherited;
-  {$IFDEF SYN_CLX}
-  InputKeys := [ikAll];
-  {$ENDIF}
 
   BorderStyle := bsSingle;
-  {$IFNDEF SYN_CLX}
   {$IFDEF SYN_COMPILER_7_UP}
   ControlStyle := ControlStyle + [csNeedsBorderPaint];
-  {$ENDIF}
   {$ENDIF}
 
   FInvalidKeys := [hcNone, hcShift];
@@ -1506,7 +1395,6 @@ begin
   TabStop := True;
 end;
 
-{$IFNDEF SYN_CLX}
 procedure TSynHotKey.CreateParams(var Params: TCreateParams);
 const
   BorderStyles: array[TSynBorderStyle] of DWORD = (0, WS_BORDER);
@@ -1525,7 +1413,6 @@ begin
     end;
   end;
 end;
-{$ENDIF}
 
 procedure TSynHotKey.DoExit;
 begin
@@ -1536,26 +1423,6 @@ begin
     Invalidate;
   end;
 end;
-
-{$IFDEF SYN_CLX}
-function TSynHotKey.EventFilter(Sender: QObjectH; Event: QEventH): Boolean;
-begin
-  Result := inherited EventFilter(Sender, Event);
-  case QEvent_type(Event) of
-    QEventType_FocusIn:
-      begin
-        Canvas.Font := Font;
-        CreateCaret(Self, 0, 1, TextHeight(Canvas, 'x') + 2);
-        SetCaretPos(BorderWidth + 1 + TextWidth(Canvas, Text), BorderWidth + 1);
-        ShowCaret(Self);
-      end;
-    QEventType_FocusOut:
-      begin
-        DestroyCaret;
-      end;
-  end;
-end;
-{$ENDIF}
 
 procedure TSynHotKey.KeyDown(var Key: Word; Shift: TShiftState);
 var
@@ -1584,10 +1451,6 @@ begin
 
   if not FPressedOnlyModifiers then
   begin
-    {$IFDEF SYN_CLX}
-    if Lo(Key) > Ord('Z') then
-      Key := Lo(Key);
-    {$ENDIF}
     FHotKey := ShortCut(Key, Shift)
   end
   else
@@ -1643,11 +1506,6 @@ var
 begin
   r := ClientRect;
   
-  {$IFDEF SYN_CLX}
-  QClxDrawUtil_DrawWinPanel(Canvas.Handle, @r, Palette.ColorGroup(cgActive), True,
-    QBrushH(0));
-  {$ENDIF}
-
   Canvas.Brush.Style := bsSolid;
   Canvas.Brush.Color := Color;
   InflateRect(r, -BorderWidth, -BorderWidth);
@@ -1660,12 +1518,7 @@ begin
   if FBorderStyle <> Value then
   begin
     FBorderStyle := Value;
-{$IFDEF SYN_CLX}
-    Resize;
-    Invalidate;
-{$ELSE}
     RecreateWnd;
-{$ENDIF}
   end;
 end;
 
@@ -1700,14 +1553,6 @@ begin
   SetHotKey(FHotKey);
 end;
 
-{$IFDEF SYN_CLX}
-function TSynHotKey.WidgetFlags: Integer;
-begin
-  Result := inherited WidgetFlags or Integer(WidgetFlags_WRepaintNoErase);
-end;
-{$ENDIF}
-
-{$IFNDEF SYN_CLX}
 procedure TSynHotKey.WMGetDlgCode(var Message: TMessage);
 begin
   Message.Result := DLGC_WANTTAB or DLGC_WANTARROWS;
@@ -1725,11 +1570,9 @@ begin
   SetCaretPos(BorderWidth + 1 + TextWidth(Canvas, Text), BorderWidth + 1);
   ShowCaret(Handle);
 end;
-{$ENDIF}
 
 
-{$IFNDEF SYN_CLX}
-  {$IFNDEF SYN_COMPILER_4_UP}
+{$IFNDEF SYN_COMPILER_4_UP}
 
 { TBetterRegistry }
 
@@ -1759,8 +1602,7 @@ begin
   end;
 end; { TBetterRegistry.OpenKeyReadOnly }
 
-  {$ENDIF SYN_COMPILER_4_UP}
-{$ENDIF SYN_CLX}
+{$ENDIF SYN_COMPILER_4_UP}
 
 begin
   InternalResources := nil;

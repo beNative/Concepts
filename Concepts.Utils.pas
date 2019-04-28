@@ -55,10 +55,8 @@ uses
   Vcl.Forms, Vcl.Dialogs;
 
 {$REGION 'interfaced routines'}
-procedure AutoSizeDisplayWidths(ADataSet : TDataSet;
-                                AFont    : TFont;
-                                ACount   : Integer;
-                                AOffset  : Integer);
+procedure AutoSizeDisplayWidths(ADataSet: TDataSet; AFont: TFont;
+  ACount: Integer; AOffset: Integer);
 var
   BM : TBookmark;
   I  : Integer;

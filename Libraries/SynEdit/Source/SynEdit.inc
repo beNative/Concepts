@@ -121,7 +121,6 @@
 (* SYN_DELPHI_10_3      : Delphi RX 10.3 (Rio) is being used.                 *)
 (* SYN_DELPHI_10_3_UP   : Delphi RX 10.3 or higher is being used.             *)
 (* SYN_KYLIX            : Kylix 1.0 is being using.                           *)
-(* SYN_CLX              : A CLX application is being created.                 *)
 (******************************************************************************)
 
 {$DEFINE SYNEDIT_INCLUDE}
@@ -711,6 +710,34 @@
   {$DEFINE SYN_COMPILER_25_UP}
 {$ENDIF}
 
+{$IFDEF SYN_COMPILER_26}
+  {$DEFINE SYN_COMPILER_1_UP}
+  {$DEFINE SYN_COMPILER_2_UP}
+  {$DEFINE SYN_COMPILER_3_UP}
+  {$DEFINE SYN_COMPILER_4_UP}
+  {$DEFINE SYN_COMPILER_5_UP}
+  {$DEFINE SYN_COMPILER_6_UP}
+  {$DEFINE SYN_COMPILER_7_UP}
+  {$DEFINE SYN_COMPILER_8_UP}
+  {$DEFINE SYN_COMPILER_9_UP}
+  {$DEFINE SYN_COMPILER_10_UP}
+  {$DEFINE SYN_COMPILER_11_UP}
+  {$DEFINE SYN_COMPILER_12_UP}
+  {$DEFINE SYN_COMPILER_14_UP}
+  {$DEFINE SYN_COMPILER_15_UP}
+  {$DEFINE SYN_COMPILER_16_UP}
+  {$DEFINE SYN_COMPILER_17_UP}
+  {$DEFINE SYN_COMPILER_18_UP}
+  {$DEFINE SYN_COMPILER_19_UP}
+  {$DEFINE SYN_COMPILER_20_UP}
+  {$DEFINE SYN_COMPILER_21_UP}
+  {$DEFINE SYN_COMPILER_22_UP}
+  {$DEFINE SYN_COMPILER_23_UP}
+  {$DEFINE SYN_COMPILER_24_UP}
+  {$DEFINE SYN_COMPILER_25_UP}
+  {$DEFINE SYN_COMPILER_26_UP}
+{$ENDIF}
+
 
 {$IFDEF SYN_DELPHI_2}
   {$DEFINE SYN_DELPHI_2_UP}
@@ -1102,18 +1129,7 @@
 {$ENDIF}
 
 {$IFDEF SYN_KYLIX}
-  // A Kylix application is always a CLX application
-  {$DEFINE SYN_CLX}
-
-  {$IF not Declared(CompilerVersion)}
-    {$DEFINE SYN_KYLIX_1}
-  {$ELSEIF Declared(CompilerVersion) and (CompilerVersion > +14)}
-    {$DEFINE SYN_KYLIX_2}
-  {$ELSEIF Declared(CompilerVersion) and (CompilerVersion < +15)}
-    {$DEFINE SYN_KYLIX_3}
-  {$ELSEIF True}
-    Add new Kylix version
-  {$IFEND}
+  Kylix is no longer supported. Please refer to the branch 'Kylix'
 {$ELSE}
   {$DEFINE SYN_WIN32}
 {$ENDIF}
@@ -1139,11 +1155,6 @@
 
 // Turn this off if you don't need complex script support, since it is slower
 {-$DEFINE SYN_UNISCRIBE}
-
-// DirectWrite
-{$IFDEF SYN_DELPHI_XE2_UP}
-  {$DEFINE SYN_DirectWrite}
-{$ENDIF}
 
 // Code Folding
 {$IFDEF SYN_DELPHI_XE_UP}
