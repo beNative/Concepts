@@ -22,7 +22,6 @@ object frmMQTTNode: TfrmMQTTNode
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 359
   end
   object pgcMessage: TPageControl
     Left = 0
@@ -35,7 +34,10 @@ object frmMQTTNode: TfrmMQTTNode
     object tsEndpoints: TTabSheet
       Caption = 'MQTT broker'
       ImageIndex = 3
-      ExplicitWidth = 351
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         383
         101)
@@ -96,7 +98,6 @@ object frmMQTTNode: TfrmMQTTNode
         Caption = 'Autoconnect to broker on startup'
         TabOrder = 4
         WordWrap = True
-        ExplicitWidth = 88
       end
       object edtPort: TLabeledEdit
         Left = 280
@@ -122,7 +123,10 @@ object frmMQTTNode: TfrmMQTTNode
     object tsSubscriptions: TTabSheet
       Caption = 'Subscriptions'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 351
+      ExplicitHeight = 0
       DesignSize = (
         383
         101)
@@ -147,7 +151,6 @@ object frmMQTTNode: TfrmMQTTNode
         Anchors = [akLeft, akTop, akRight, akBottom]
         ItemHeight = 13
         TabOrder = 1
-        ExplicitWidth = 190
       end
       object btnAddSubscription: TButton
         Left = 231
@@ -196,7 +199,10 @@ object frmMQTTNode: TfrmMQTTNode
     end
     object tsPublish: TTabSheet
       Caption = 'Publish'
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 351
+      ExplicitHeight = 0
       DesignSize = (
         383
         101)
@@ -288,7 +294,10 @@ object frmMQTTNode: TfrmMQTTNode
     object tsReceive: TTabSheet
       Caption = 'Receive'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 351
+      ExplicitHeight = 0
       DesignSize = (
         383
         101)
@@ -334,7 +343,7 @@ object frmMQTTNode: TfrmMQTTNode
     Left = 130
     Top = 136
     Bitmap = {
-      494C0101060008007C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010106000800040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000001001B09532ED308512ED100000010000000000000

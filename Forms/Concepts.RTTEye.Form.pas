@@ -90,7 +90,7 @@ uses
 
   Spring, Spring.Reflection,
 
-  Concepts.Utils;
+  Concepts.Utils, DDuce.Utils;
 
 const
   LEVEL_PACKAGE = 0;
@@ -105,24 +105,24 @@ resourcestring
 procedure TfrmRTTEye.AfterConstruction;
 begin
   inherited AfterConstruction;
-  //HourGlass(LoadTree);
+  HourGlass(LoadTree);
 end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
 procedure TfrmRTTEye.actCollapseExecute(Sender: TObject);
 begin
-  //HourGlass(CollapseTree);
+  HourGlass(CollapseTree);
 end;
 
 procedure TfrmRTTEye.actExpandExecute(Sender: TObject);
 begin
-  //HourGlass(ExpandTree);
+  HourGlass(ExpandTree);
 end;
 
 procedure TfrmRTTEye.actRefreshExecute(Sender: TObject);
 begin
-  //HourGlass(LoadTree);
+  HourGlass(LoadTree);
 end;
 
 procedure TfrmRTTEye.actSearchExecute(Sender: TObject);

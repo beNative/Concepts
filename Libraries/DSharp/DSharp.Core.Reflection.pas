@@ -965,7 +965,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkInteger
     (
@@ -976,7 +976,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvOrd2Ord, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvOrd2Str, ConvFail, ConvFail, ConvFail
+      ConvOrd2Str, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkChar
     (
@@ -987,7 +987,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvOrd2Ord, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkEnumeration
     (
@@ -998,7 +998,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvOrd2Ord, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvOrd2Str, ConvFail, ConvFail, ConvFail
+      ConvOrd2Str, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkFloat
     (
@@ -1009,7 +1009,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFloat2Ord, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFloat2Str, ConvFail, ConvFail, ConvFail
+      ConvFloat2Str, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkString
     (
@@ -1020,7 +1020,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkSet
     (
@@ -1031,7 +1031,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkClass
     (
@@ -1042,7 +1042,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkMethod
     (
@@ -1053,7 +1053,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkWChar
     (
@@ -1064,7 +1064,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvOrd2Ord, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkLString
     (
@@ -1075,7 +1075,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkWString
     (
@@ -1086,7 +1086,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkVariant
     (
@@ -1097,7 +1097,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkArray
     (
@@ -1108,7 +1108,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkRecord
     (
@@ -1119,7 +1119,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkInterface
     (
@@ -1130,7 +1130,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvIntf2Intf, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkInt64
     (
@@ -1141,7 +1141,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvOrd2Ord, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvOrd2Str, ConvFail, ConvFail, ConvFail
+      ConvOrd2Str, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkDynArray
     (
@@ -1152,7 +1152,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkUString
     (
@@ -1163,7 +1163,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvStr2Ord, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkClassRef
     (
@@ -1174,7 +1174,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkPointer
     (
@@ -1185,7 +1185,7 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     ),
     // tkProcedure
     (
@@ -1196,7 +1196,18 @@ const
       // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
       ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
       // tkUString, tkClassRef, tkPointer, tkProcedure
-      ConvFail, ConvFail, ConvFail, ConvFail
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
+    ),
+    // tk
+    (
+      // tkUnknown, tkInteger, tkChar, tkEnumeration, tkFloat, tkString,
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
+      // tkSet, tkClass, tkMethod, tkWChar, tkLString, tkWString
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
+      // tkVariant, tkArray, tkRecord, tkInterface, tkInt64, tkDynArray
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail, ConvFail,
+      // tkUString, tkClassRef, tkPointer, tkProcedure
+      ConvFail, ConvFail, ConvFail, ConvFail, ConvFail
     )
   );
 {$ENDREGION}

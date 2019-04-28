@@ -2,13 +2,14 @@ program Concepts;
 
 {$I Concepts.inc}
 
+
+
 uses
-  {LeakCheck,}
   Vcl.Themes,
   Vcl.Styles,
   Vcl.Forms,
   DDuce.Logger,
-  DDuce.Logger.Channels.WinIPC,
+  DDuce.Logger.Channels.ZeroMQ,
   Concepts.BTMemoryModule.Form in 'Forms\Concepts.BTMemoryModule.Form.pas' {frmBTMemoryModule},
   Concepts.ChromeTabs.Form in 'Forms\Concepts.ChromeTabs.Form.pas' {frmChromeTabs},
   Concepts.DSharp.TreeViewPresenter.Tree.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.Tree.Form.pas' {frmTreeViewPresenterTree},
@@ -99,13 +100,15 @@ uses
 { Used to directly start a concept by name. If empty a list will be shown with
   all registered concepts. }
 const
-  EXECUTE_BY_NAME = '';
-  //EXECUTE_BY_NAME = 'ZeroMQ';
+//  EXECUTE_BY_NAME = '';
+//  EXECUTE_BY_NAME = 'Virtual treeview';
+//  EXECUTE_BY_NAME = 'ZeroMQ';
 //  EXECUTE_BY_NAME = 'FireDAC';
-  //EXECUTE_BY_NAME = 'ORM';
-  //EXECUTE_BY_NAME = 'TStringList';
-  //EXECUTE_BY_NAME = 'Telnet';
-  //EXECUTE_BY_NAME = 'Parallel Library';
+//  EXECUTE_BY_NAME = 'ORM';
+//  EXECUTE_BY_NAME = 'TStringList';
+//  EXECUTE_BY_NAME = 'Telnet';
+//  EXECUTE_BY_NAME = 'Parallel Library';
+    EXECUTE_BY_NAME = 'TreeViewPresenter tree';
 
 begin
   {$WARNINGS OFF}
@@ -113,7 +116,7 @@ begin
   {$WARNINGS ON}
   Application.Initialize;
   TConcepts.RegisterConcepts;
-  Logger.Channels.Add(TWinIPCChannel.Create);
+//  Logger.Channels.Add(TZeroMQChannel.Create);
   Application.CreateForm(TdmResources, dmResources);
   if not ConceptManager.Execute(EXECUTE_BY_NAME) then
   begin

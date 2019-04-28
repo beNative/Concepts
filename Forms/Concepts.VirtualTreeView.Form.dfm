@@ -255,10 +255,13 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     Color = clWhite
     ParentBackground = False
     TabOrder = 3
+    DesignSize = (
+      1342
+      28)
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 909
+      Width = 1041
       Height = 28
       Align = alLeft
       Alignment = taCenter
@@ -275,20 +278,22 @@ object frmVirtualTreeView: TfrmVirtualTreeView
       WordWrap = True
     end
     object lblFocusedNode: TLabel
-      Left = 977
+      Left = 1257
       Top = 7
       Width = 75
       Height = 13
+      Anchors = [akTop, akRight]
       AutoSize = False
       Caption = 'lblFocusedNode'
       Layout = tlCenter
     end
     object btnAutoSizeColumns: TButton
-      Left = 712
+      Left = 1052
       Top = 2
       Width = 185
       Height = 25
       Action = actAutoSizeColumns
+      Anchors = [akTop, akRight]
       TabOrder = 0
     end
   end
