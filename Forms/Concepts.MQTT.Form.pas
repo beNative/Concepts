@@ -144,7 +144,7 @@ implementation
 uses
   DDuce.Components.Factories, DDuce.RandomData, DDuce.Utils.WinApi,
 
-  Spring, //mosquitto,
+  Spring, mosquitto,
 
   Concepts.Settings;
 

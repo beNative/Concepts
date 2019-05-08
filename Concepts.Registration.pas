@@ -553,12 +553,12 @@ begin
   );
   {$ENDIF}
 
-  ConceptManager.Register(
-    TfrmRTTEye,
-    'RTTEye',
-    'System',
-    'Reflection-like overview using the extended RTTI.'
-  );
+//  ConceptManager.Register(
+//    TfrmRTTEye,
+//    'RTTEye',
+//    'System',
+//    'Reflection-like overview using the extended RTTI.'
+//  );
 
   {$IFDEF SYNAPSE}
   ConceptManager.Register(
@@ -620,6 +620,6 @@ begin
 {$ENDREGION}
 
 initialization
-  //EnsureZMQLibExists;
+  EnsureZMQLibExists;
 
 end.
