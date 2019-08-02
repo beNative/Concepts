@@ -23,8 +23,6 @@ object frmFMXContainer: TfrmFMXContainer
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 800
-    ExplicitHeight = 357
   end
   object pnlHeader: TPanel
     Left = 0
@@ -45,6 +43,5 @@ object frmFMXContainer: TfrmFMXContainer
     ParentBackground = False
     ParentFont = False
     TabOrder = 1
-    ExplicitWidth = 632
   end
 end

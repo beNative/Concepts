@@ -40,7 +40,6 @@ uses
   Spring.Logging.Appenders,
 
   DDuce.Logging.Appenders.WinIPC, DDuce.Logging.Appenders.LogTree,
-
   DDuce.Components.PropertyInspector, DDuce.Components.Logtree;
 
 type
@@ -114,7 +113,7 @@ implementation
 uses
   System.Rtti,
 
-  Spring.Logging.Loggers, Spring.Logging.Serializers,
+  Spring.Logging.Loggers,
 
   DDuce.Reflect, DDuce.Components.Factories;
 

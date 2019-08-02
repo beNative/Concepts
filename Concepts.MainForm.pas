@@ -25,7 +25,7 @@ interface
 uses
   System.Actions, System.Classes, System.Win.TaskbarCore,
   Vcl.ActnList, Vcl.Controls, Vcl.StdCtrls, Vcl.Forms, Vcl.ExtCtrls,
-  Vcl.ComCtrls, Vcl.Taskbar, Vcl.JumpList,
+  Vcl.ComCtrls, Vcl.Taskbar,
 
   VirtualTrees,
 

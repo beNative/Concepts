@@ -30,19 +30,19 @@ unit Concepts.Indy.TCP.Form;
 interface
 
 uses
-  System.SysUtils, System.Actions, System.Classes, System.ImageList,
-  Vcl.Dialogs, Vcl.ActnList, Vcl.ImgList, Vcl.Menus, Vcl.Controls, Vcl.StdCtrls,
+  System.SysUtils, System.Actions, System.Classes,
+  Vcl.Dialogs, Vcl.ActnList, Vcl.Menus, Vcl.Controls, Vcl.StdCtrls,
   Vcl.Buttons, Vcl.ExtCtrls, Vcl.Forms, Vcl.ComCtrls,
 
   Spring.Collections,
 
-  DDuce.Components.LogTree, DDuce.Components.PropertyInspector, DDuce.Logger,
+  DDuce.Components.LogTree, DDuce.Logger,
 
   zObjInspector, zObjInspTypes,
 
-  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdCmdTCPClient,
-  IdContext, IdIntercept, IdGlobal, IdIOHandler, IdIOHandlerSocket,
-  IdIOHandlerStack, IdCommandHandlers;
+  IdComponent, IdTCPConnection, IdTCPClient,
+  IdIntercept, IdGlobal, IdIOHandler,
+  IdIOHandlerStack, IdBaseComponent, System.ImageList, Vcl.ImgList;
 
 type
   TfrmIndyTCP = class(TForm)
@@ -112,7 +112,6 @@ type
       const AStatusText: string);
     procedure IdConnectionInterceptReceive(ASender: TIdConnectionIntercept;
       var ABuffer: TIdBytes);
-
 
   private
     FLogIn     : TLogTree;
@@ -185,9 +184,7 @@ uses
 
   VirtualTrees,
 
-  Spring.Cryptography,
-
-  Concepts.Factories, Concepts.Settings;
+  Concepts.Settings;
 
 const
   // conversion from a low-level control Char to its corresponding text

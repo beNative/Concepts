@@ -25,12 +25,12 @@ interface
 
 uses
   System.SysUtils, System.Actions, System.Classes, System.ImageList,
-  Vcl.Dialogs, Vcl.ActnList, Vcl.ImgList, Vcl.Menus, Vcl.Controls, Vcl.StdCtrls,
-  Vcl.Buttons, Vcl.ExtCtrls, Vcl.Forms, Vcl.ComCtrls,
+  Vcl.Dialogs, Vcl.ActnList, Vcl.Menus, Vcl.Controls, Vcl.StdCtrls,
+  Vcl.Buttons, Vcl.ExtCtrls, Vcl.Forms, Vcl.ComCtrls, Vcl.ImgList,
 
   Spring.Collections,
 
-  DDuce.Components.LogTree, DDuce.Components.PropertyInspector,
+  DDuce.Components.LogTree,
 
   zObjInspector,
 
@@ -236,7 +236,7 @@ uses
 
   VirtualTrees,
 
-  Concepts.Factories, Concepts.Settings;
+  Concepts.Settings;
 
 const
   /// conversion from a low-level control Char to its corresponding text

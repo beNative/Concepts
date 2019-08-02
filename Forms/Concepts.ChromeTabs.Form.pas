@@ -82,7 +82,7 @@ implementation
 uses
   System.TypInfo, System.Rtti,
 
-  DDuce.Components.Factories, DDuce.Factories.zObjInspector;
+  DDuce.Factories.zObjInspector;
 
 {$R *.dfm}
 
@@ -96,10 +96,7 @@ begin
   FCTTop.OnTabDragDrop          := FCTTopTabDragDrop;
   FCTTop.OnNeedDragImageControl := FCTTopNeedDragImageControl;
 
-  FObjectInspector := TzObjectInspectorFactory.Create(
-    Self,
-    pnlLeft
-  );
+  FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
   FObjectInspector.ObjectVisibility := mvPublic;
   FObjectInspector.Component := FCTTop;

@@ -35,7 +35,6 @@ type
     class procedure RegisterDevExpressConcepts; static;
     class procedure RegisterSystemConcepts; static;
     class procedure RegisterVclConcepts; static;
-    class procedure RegisterFireDACConcepts; static;
     class procedure RegisterWinApiConcepts; static;
   public
     class procedure RegisterConcepts; static;
@@ -106,8 +105,6 @@ uses
   {$IFDEF BTMEMORYMODULE}
   Concepts.BTMemoryModule.Form,
   {$ENDIF}
-
-  Concepts.RTTEye.Form,
 
   {$IFDEF SQLBUILDER4D}
   Concepts.SQLBuilder4D.Form,
@@ -296,19 +293,6 @@ begin
     FCategoryColor
   );
   {$ENDIF}
-  {$ENDIF}
-end;
-
-class procedure TConcepts.RegisterFireDACConcepts;
-begin
-  {$IFDEF FIREDAC}
-  ConceptManager.Register(
-    TfrmFireDAC,
-    'FireDAC',
-    'FireDAC',
-    'Native cross-platform data access components',
-    FCategoryColor
-  );
   {$ENDIF}
 end;
 
@@ -614,7 +598,6 @@ begin
   RegisterDevExpressConcepts;
   RegisterSystemConcepts;
   RegisterVclConcepts;
-  RegisterFireDACConcepts;
   RegisterWinApiConcepts;
  end;
 {$ENDREGION}

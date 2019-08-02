@@ -23,8 +23,7 @@ unit Concepts.System.InterfaceImplementationByAggregation.Form;
   Why this object property is not a TInterfacedObject is explained in detail.
 
   Commented sections are to demonstrate what happens if the inner object holds
-  a reference to the outer object (and why it is not a good idea).
-}
+  a reference to the outer object (and why it is not a good idea). }
 
 interface
 

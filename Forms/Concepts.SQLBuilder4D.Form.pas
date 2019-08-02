@@ -22,9 +22,9 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes,
+  System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  System.Actions, Vcl.ActnList, Vcl.ExtCtrls;
+  Vcl.ActnList, Vcl.ExtCtrls;
 
 type
   TfrmSQLBuilder4D = class(TForm)

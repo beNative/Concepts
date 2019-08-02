@@ -25,7 +25,7 @@ uses
   System.Classes, System.Rtti, System.Types,
   Vcl.Graphics,
 
-  zObjInspector, zObjInspTypes, zValueManager;
+  zObjInspTypes, zValueManager;
 
 type
   TValueManager = class(TzCustomValueManager)

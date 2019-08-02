@@ -36,9 +36,7 @@ uses
   DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter,
   DSharp.Bindings, DSharp.Windows.CustomPresenter,
 
-  Spring.Collections, Spring.Reflection,
-
-  Concepts.Resources;
+  Spring.Collections, Spring.Reflection;
 
 type
   TfrmTreeViewPresenterTree = class(TForm)

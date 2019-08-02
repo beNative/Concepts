@@ -46,14 +46,18 @@ type
   end;
 
   TNumber = class(TInterfacedObject, INumber)
+  private
+    FValue : Integer;
+  public
     function One: Integer; virtual;
     function Two: Integer; dynamic;
     function Three: Integer;
+    class function Four: Integer; virtual;
   end;
 
   TInterceptor = class(TInterfacedObject, IInterceptor)
   public
-    procedure Intercept(const invocation: IInvocation);
+    procedure Intercept(const AInvocation: IInvocation);
   end;
 
   TfrmClassProxy = class(TForm)
@@ -98,13 +102,14 @@ begin
     [TInterceptor.Create]
   );
 
+  //FClassProxy := TProxyGenerator.CreateClassProxy()
+
   { All implemented methods of INumber can be intercepted }
   FNumber := TNumber.Create;
   FInterfaceProxy := TProxyGenerator.CreateInterfaceProxyWithTarget<INumber>(
     FNumber,
     [TInterceptor.Create]
   )
-
 end;
 
 procedure TfrmClassProxy.BeforeDestruction;
@@ -117,9 +122,10 @@ end;
 {$REGION 'action handlers'}
 procedure TfrmClassProxy.actCallClassProxyMethodsExecute(Sender: TObject);
 begin
-   FClassProxy.One;
+   FClassProxy.One;   // only this call will be intercepted
    FClassProxy.Two;
    FClassProxy.Three;
+   FClassProxy.Four;
 end;
 
 procedure TfrmClassProxy.actCallInterfaceProxyMethodsExecute(Sender: TObject);
@@ -131,11 +137,21 @@ end;
 {$ENDREGION}
 
 {$REGION 'TInterceptor'}
-procedure TInterceptor.Intercept(const invocation: IInvocation);
+procedure TInterceptor.Intercept(const AInvocation: IInvocation);
 begin
-  invocation.Proceed;
-  ShowMessage(invocation.Result.ToString);
-  Logger.Send('method', invocation.Method.Name);
+  Logger.Track(Self, 'Intercept');
+  Logger.Track(Self, AInvocation.Method.Name);
+  Logger.Send('AInvocation.Arguments', TValue.From(AInvocation.Arguments));
+  //Logger.SendInterface('AInvocation', AInvocation);
+
+  Logger.SendObject('AInvocation.Method', AInvocation.Method);
+  Logger.Send('AInvocation.Result', AInvocation.Result);
+  Logger.SendObject('AInvocation.Target', AInvocation.Target.AsObject);
+
+
+  Logger.Info('AInvocation.Proceed');
+  AInvocation.Proceed;
+  Logger.Send('AInvocation.Result', AInvocation.Result);
 end;
 {$ENDREGION}
 
@@ -153,6 +169,11 @@ end;
 function TNumber.Three: Integer;
 begin
   Result := 3;
+end;
+
+class function TNumber.Four: Integer;
+begin
+  Result := 4;
 end;
 {$ENDREGION}
 

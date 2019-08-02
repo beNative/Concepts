@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2016 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,10 +28,8 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls,
   Vcl.ActnList, Vcl.StdCtrls,
 
-  cxControls, cxGridLevel, cxClasses, cxGridCustomView, cxGridCustomTableView,
-  cxGridTableView, cxGrid, cxTL, cxInplaceContainer, cxTLData, cxGraphics,
-  cxLookAndFeels, cxLookAndFeelPainters, cxStyles, cxCustomData, cxFilter,
-  cxData, cxDataStorage, cxEdit, cxTextEdit, cxTLdxBarBuiltInMenu, cxNavigator,
+  cxControls, cxGridLevel, cxClasses, cxGridCustomTableView,
+  cxGridTableView, cxGrid, cxTL, cxTLData, cxGraphics,
 
   Spring.Collections,
 
@@ -46,31 +44,31 @@ uses
 type
   TfrmcxGridViewPresenter = class(TForm)
     {$REGION 'designer controls'}
-    pnlMain                : TPanel;
-    pgcMain                : TPageControl;
-    tsGridView             : TTabSheet;
-    grdMain                : TcxGrid;
-    tvwMain                : TcxGridTableView;
-    grlMain                : TcxGridLevel;
-    tsTreelist             : TTabSheet;
-    lstMain                : TcxVirtualTreeList;
-    sbrMain                : TStatusBar;
-    aclMain                : TActionList;
-    actFillList            : TAction;
-    btnFillList            : TButton;
-    tsVirtualTree          : TTabSheet;
-    vstMain                : TVirtualStringTree;
-    tlcMainColumn1: TcxTreeListColumn;
-    tlcMainColumn2: TcxTreeListColumn;
-    tlcMainColumn3: TcxTreeListColumn;
-    tlcMainColumn4: TcxTreeListColumn;
-    tlcMainColumn5: TcxTreeListColumn;
-    tlcMainColumn6: TcxTreeListColumn;
-    tlcMainColumn7: TcxTreeListColumn;
-    actInspectGridViewPresenter: TAction;
-    btnInspectGridViewPresenter: TButton;
-    actInspectTreeListPresenter: TAction;
-    btnInspectTreeListPresenter: TButton;
+    aclMain                     : TActionList;
+    actFillList                 : TAction;
+    actInspectGridViewPresenter : TAction;
+    actInspectTreeListPresenter : TAction;
+    btnFillList                 : TButton;
+    btnInspectGridViewPresenter : TButton;
+    btnInspectTreeListPresenter : TButton;
+    grdMain                     : TcxGrid;
+    grlMain                     : TcxGridLevel;
+    lstMain                     : TcxVirtualTreeList;
+    pgcMain                     : TPageControl;
+    pnlMain                     : TPanel;
+    sbrMain                     : TStatusBar;
+    tlcMainColumn1              : TcxTreeListColumn;
+    tlcMainColumn2              : TcxTreeListColumn;
+    tlcMainColumn3              : TcxTreeListColumn;
+    tlcMainColumn4              : TcxTreeListColumn;
+    tlcMainColumn5              : TcxTreeListColumn;
+    tlcMainColumn6              : TcxTreeListColumn;
+    tlcMainColumn7              : TcxTreeListColumn;
+    tsGridView                  : TTabSheet;
+    tsTreelist                  : TTabSheet;
+    tsVirtualTree               : TTabSheet;
+    tvwMain                     : TcxGridTableView;
+    vstMain                     : TVirtualStringTree;
     {$ENDREGION}
 
     procedure actFillListExecute(Sender: TObject);
@@ -97,26 +95,24 @@ implementation
 {$R *.dfm}
 
 uses
-  DSharp.Bindings.Notifications,
+  DDuce.ObjectInspector.zObjectInspector,
 
-  DDuce.RandomData, DDuce.ObjectInspector.zObjectInspector,
-
-  Concepts.Factories, Concepts.Resources;
+  Concepts.Factories;
 
 {$REGION 'construction and destruction'}
 procedure TfrmcxGridViewPresenter.actInspectGridViewPresenterExecute(
   Sender: TObject);
 begin
-//  InspectComponent(FGVPresenter);
-//  InspectObject(FGVPresenter.ColumnDefinitions as TColumnDefinitions);
+  InspectComponent(FGVPresenter);
+  InspectObject(FGVPresenter.ColumnDefinitions as TColumnDefinitions);
 end;
 
 procedure TfrmcxGridViewPresenter.actInspectTreeListPresenterExecute(
   Sender: TObject);
 begin
   InspectComponent(tvwMain);
-//  InspectComponent(FTLPresenter);
-//  InspectObject(FTLPresenter.ColumnDefinitions as TColumnDefinitions);
+  InspectComponent(FTLPresenter);
+  InspectObject(FTLPresenter.ColumnDefinitions as TColumnDefinitions);
 end;
 
 procedure TfrmcxGridViewPresenter.AfterConstruction;
@@ -148,6 +144,6 @@ begin
 end;
 {$ENDREGION}
 
-{$ENDIF}
+{$ENDIF} // DEVEXPRESS
 
 end.

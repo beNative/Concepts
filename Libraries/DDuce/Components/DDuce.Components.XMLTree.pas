@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2018 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -1189,8 +1189,8 @@ function TXMLTree.DoGetImageIndex(ANode: PVirtualNode; Kind: TVTImageKind;
   Column: TColumnIndex; var Ghosted: Boolean; var Index: TImageIndex)
   : TCustomImageList;
 begin
-  if (Column = Header.MainColumn) and (Kind in [ikNormal, ikSelected]) then
-    Index := Ord(GetData(ANode).NodeType);
+//  if (Column = Header.MainColumn) and (Kind in [ikNormal, ikSelected]) then
+//    Index := Ord(GetData(ANode).NodeType);
   Result := inherited DoGetImageIndex(ANode, Kind, Column, Ghosted, Index);
 end;
 

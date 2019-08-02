@@ -16,6 +16,9 @@
 
 unit Concepts.System.PublishedFields.Form;
 
+{ Designtime controls with no (automatically created) published field references
+  to them. }
+
 interface
 
 uses
@@ -30,10 +33,9 @@ uses
    The streaming system uses the classname from the RTTI generated for the
    published fields to create the components of the right class.
 
-   It is possible to get rid of these published fields if you register the
+   It is possible to get rid of these published fields if you just register the
    corresponding classes. This is all that is needed to create the components
-   on your form at runtime.
-}
+   on your form at runtime. }
 
 type
   TfrmPublishedFields = class(TForm)

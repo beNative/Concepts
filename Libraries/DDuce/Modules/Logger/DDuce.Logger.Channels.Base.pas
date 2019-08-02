@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2018 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,33 +26,38 @@ uses
 type
   TCustomLogChannel = class(TInterfacedObject, ILogChannel)
   private
-    FActive    : Boolean;
-    FConnected : Boolean;
+    FEnabled     : Boolean;
+    FAutoConnect : Boolean;
 
   protected
     {$REGION 'property access methods'}
     function GetPort: Integer; virtual;
-    function GetActive: Boolean; virtual;
-    procedure SetActive(const Value: Boolean); virtual;
+    function GetEnabled: Boolean; virtual;
+    procedure SetEnabled(const Value: Boolean); virtual;
     function GetConnected: Boolean; virtual;
-    procedure SetConnected(const Value: Boolean); virtual;
+    function GetAutoConnect: Boolean;
+    procedure SetAutoConnect(const Value: Boolean);
     {$ENDREGION}
+
+    { Will try to (re)connect automatically to a disconnected channel if a
+      new message is written.  }
+    property AutoConnect: Boolean
+      read GetAutoConnect write SetAutoConnect;
 
     { Indicates that messages from the Logger object will be sent through this
       channel. }
-    property Active: Boolean
-      read GetActive write SetActive;
+    property Enabled: Boolean
+      read GetEnabled write SetEnabled;
 
-    { True when the channel is connected with the receiver instance. A channel
-      can only connect when it is set Active first.  }
+    { True when the channel is connected with the receiver instance.  }
     property Connected: Boolean
-      read GetConnected write SetConnected;
+      read GetConnected;
 
     property Port: Integer
       read GetPort;
 
   public
-    constructor Create(AActive: Boolean = True); virtual;
+    constructor Create(AEnabled: Boolean = True); virtual;
 
     function Write(const AMsg: TLogMessage): Boolean; virtual; abstract;
 
@@ -64,37 +69,42 @@ type
 implementation
 
 {$REGION 'construction and destruction'}
-constructor TCustomLogChannel.Create(AActive: Boolean);
+constructor TCustomLogChannel.Create(AEnabled: Boolean);
 begin
   inherited Create;
-  Active := AActive;
+  Enabled := AEnabled;
 end;
 {$ENDREGION}
 
 {$REGION 'property access methods'}
-function TCustomLogChannel.GetActive: Boolean;
+function TCustomLogChannel.GetEnabled: Boolean;
 begin
-  Result := FActive;
+  Result := FEnabled;
 end;
 
-procedure TCustomLogChannel.SetActive(const Value: Boolean);
+procedure TCustomLogChannel.SetEnabled(const Value: Boolean);
 begin
-  FActive := Value;
+  FEnabled := Value;
+end;
+
+function TCustomLogChannel.GetAutoConnect: Boolean;
+begin
+  Result := FAutoConnect;
+end;
+
+procedure TCustomLogChannel.SetAutoConnect(const Value: Boolean);
+begin
+  FAutoConnect := Value;
 end;
 
 function TCustomLogChannel.GetConnected: Boolean;
 begin
-  Result := Active and FConnected;
-end;
-
-procedure TCustomLogChannel.SetConnected(const Value: Boolean);
-begin
-  FConnected := Value;
+  Result := False; // to be overridden in descendants
 end;
 
 function TCustomLogChannel.GetPort: Integer;
 begin
-  Result := 0;
+  Result := 0;  // to be overridden in descendants
 end;
 {$ENDREGION}
 

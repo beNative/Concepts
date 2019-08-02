@@ -35,12 +35,12 @@ uses
   DSharp.Core.DataTemplates, DSharp.Windows.CustomPresenter,
   DSharp.Windows.ColumnDefinitions,
   {$IFDEF DEVEXPRESS}
-  DSharp.DevExpress.GridViewPresenter, DSharp.DevExpress.PresenterDataSource,
+  DSharp.DevExpress.GridViewPresenter,
   DSharp.DevExpress.TreeListPresenter,
   {$ENDIF}
 
   {$IFDEF DEVEXPRESS}
-  cxGridCustomView, cxTL, cxTLData,
+  cxGridCustomView, cxTLData,
   {$ENDIF}
 
   {$IFDEF BCEDITOR}

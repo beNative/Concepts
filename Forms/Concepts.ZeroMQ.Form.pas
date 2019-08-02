@@ -29,15 +29,13 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.ImageList, System.SysUtils, System.Variants, System.Actions,
+  System.SysUtils, System.Variants, System.Actions, System.ImageList,
   System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList, Vcl.ToolWin,
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.CheckLst, Vcl.ComCtrls, Vcl.ImgList,
-  Vcl.Buttons, Vcl.ToolWin,
+  Vcl.Buttons,
 
   ZeroMQ,
-
-  Spring.SystemUtils,
 
   VirtualTrees,
 
@@ -284,8 +282,8 @@ implementation
 uses
   System.StrUtils,
 
-  DDuce.Reflect, DDuce.Logger, DDuce.Components.Factories, DDuce.RandomData,
-  DDuce.Utils,
+  DDuce.Logger, DDuce.Components.Factories, DDuce.RandomData,
+
 
   Concepts.Utils, Concepts.ZeroMQ.Data,
 

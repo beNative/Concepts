@@ -53,8 +53,6 @@ implementation
 {$R *.dfm}
 
 uses
-  DDuce.ObjectInspector.zObjectInspector,
-
   Concepts.FireMonkey.Form;
 
 {$REGION 'construction and destruction'}

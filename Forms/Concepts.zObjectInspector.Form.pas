@@ -30,11 +30,11 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls,
-  Vcl.ExtCtrls, Vcl.ButtonGroup, Vcl.StdCtrls, Vcl.ActnList,
+  Vcl.ExtCtrls, Vcl.ButtonGroup, Vcl.StdCtrls, Vcl.ActnList, Vcl.ExtActns,
 
   Concepts.Types.Contact,
 
-  zObjInspector, zObjInspTypes, Vcl.ExtActns;
+  zObjInspector, zObjInspTypes;
 
 type
   TfrmzObjectInspector = class(TForm)
@@ -85,12 +85,11 @@ implementation
 {$R *.dfm}
 
 uses
-  System.Rtti, System.TypInfo,
+  System.Rtti,
 
   DDuce.Logger,
 
-  Concepts.Resources, Concepts.Factories,
-  Concepts.zObjectInspector.ValueManager;
+  Concepts.Resources, Concepts.Factories;
 
 {$REGION 'construction and destruction'}
 procedure TfrmzObjectInspector.AfterConstruction;

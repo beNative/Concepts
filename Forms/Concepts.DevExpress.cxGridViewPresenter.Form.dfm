@@ -2,8 +2,8 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
   Left = 0
   Top = 0
   Caption = 'Specialized presenters'
-  ClientHeight = 587
-  ClientWidth = 835
+  ClientHeight = 556
+  ClientWidth = 792
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -12,44 +12,37 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  DesignSize = (
-    835
-    587)
   PixelsPerInch = 96
   TextHeight = 13
   object pnlMain: TPanel
     Left = 0
     Top = 0
-    Width = 835
-    Height = 568
+    Width = 792
+    Height = 537
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     DesignSize = (
-      835
-      568)
+      792
+      537)
     object pgcMain: TPageControl
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 829
-      Height = 526
+      Width = 786
+      Height = 495
       ActivePage = tsGridView
       Align = alTop
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 0
       object tsGridView: TTabSheet
         Caption = 'DevExpress TcxGrid'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object grdMain: TcxGrid
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 815
-          Height = 492
+          Width = 772
+          Height = 461
           Align = alClient
           TabOrder = 0
           object tvwMain: TcxGridTableView
@@ -96,14 +89,14 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
         ImageIndex = 1
         ExplicitLeft = 0
         ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
+        ExplicitWidth = 821
+        ExplicitHeight = 498
         object lstMain: TcxVirtualTreeList
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 815
-          Height = 492
+          Width = 772
+          Height = 461
           Align = alClient
           Bands = <
             item
@@ -113,8 +106,11 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
           OptionsView.ColumnAutoWidth = True
           OptionsView.GridLineColor = clSilver
           TabOrder = 0
+          ExplicitWidth = 815
+          ExplicitHeight = 492
           object tlcMainColumn1: TcxTreeListColumn
             DataBinding.ValueType = 'String'
+            Width = 100
             Position.ColIndex = 0
             Position.RowIndex = 0
             Position.BandIndex = 0
@@ -123,6 +119,7 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
           end
           object tlcMainColumn2: TcxTreeListColumn
             DataBinding.ValueType = 'String'
+            Width = 100
             Position.ColIndex = 1
             Position.RowIndex = 0
             Position.BandIndex = 0
@@ -131,6 +128,7 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
           end
           object tlcMainColumn3: TcxTreeListColumn
             DataBinding.ValueType = 'String'
+            Width = 100
             Position.ColIndex = 2
             Position.RowIndex = 0
             Position.BandIndex = 0
@@ -139,6 +137,7 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
           end
           object tlcMainColumn4: TcxTreeListColumn
             DataBinding.ValueType = 'String'
+            Width = 100
             Position.ColIndex = 3
             Position.RowIndex = 0
             Position.BandIndex = 0
@@ -147,6 +146,7 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
           end
           object tlcMainColumn5: TcxTreeListColumn
             DataBinding.ValueType = 'String'
+            Width = 100
             Position.ColIndex = 4
             Position.RowIndex = 0
             Position.BandIndex = 0
@@ -155,6 +155,7 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
           end
           object tlcMainColumn6: TcxTreeListColumn
             DataBinding.ValueType = 'String'
+            Width = 100
             Position.ColIndex = 5
             Position.RowIndex = 0
             Position.BandIndex = 0
@@ -163,6 +164,7 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
           end
           object tlcMainColumn7: TcxTreeListColumn
             DataBinding.ValueType = 'String'
+            Width = 100
             Position.ColIndex = 6
             Position.RowIndex = 0
             Position.BandIndex = 0
@@ -176,32 +178,29 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
         ImageIndex = 2
         ExplicitLeft = 0
         ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
+        ExplicitWidth = 821
+        ExplicitHeight = 498
         object vstMain: TVirtualStringTree
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 815
-          Height = 492
+          Width = 772
+          Height = 461
           Align = alClient
           Header.AutoSizeIndex = -1
-          Header.Font.Charset = DEFAULT_CHARSET
-          Header.Font.Color = clWindowText
-          Header.Font.Height = -11
-          Header.Font.Name = 'Tahoma'
-          Header.Font.Style = []
           Header.MainColumn = -1
           Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
           NodeDataSize = 4
           TabOrder = 0
+          ExplicitWidth = 815
+          ExplicitHeight = 492
           Columns = <>
         end
       end
     end
     object btnFillList: TButton
-      Left = 675
-      Top = 535
+      Left = 632
+      Top = 504
       Width = 150
       Height = 26
       Action = actFillList
@@ -210,31 +209,31 @@ object frmcxGridViewPresenter: TfrmcxGridViewPresenter
       Images = dmResources.imlMain
       TabOrder = 1
     end
+    object btnInspectTreeListPresenter: TButton
+      Left = 320
+      Top = 504
+      Width = 150
+      Height = 25
+      Action = actInspectTreeListPresenter
+      Anchors = [akRight, akBottom]
+      TabOrder = 2
+    end
+    object btnInspectGridViewPresenter: TButton
+      Left = 476
+      Top = 504
+      Width = 150
+      Height = 26
+      Action = actInspectGridViewPresenter
+      Anchors = [akRight, akBottom]
+      TabOrder = 3
+    end
   end
   object sbrMain: TStatusBar
     Left = 0
-    Top = 568
-    Width = 835
+    Top = 537
+    Width = 792
     Height = 19
     Panels = <>
-  end
-  object btnInspectGridViewPresenter: TButton
-    Left = 519
-    Top = 535
-    Width = 150
-    Height = 26
-    Action = actInspectGridViewPresenter
-    Anchors = [akTop, akRight]
-    TabOrder = 2
-  end
-  object btnInspectTreeListPresenter: TButton
-    Left = 363
-    Top = 535
-    Width = 150
-    Height = 25
-    Action = actInspectTreeListPresenter
-    Anchors = [akTop, akRight]
-    TabOrder = 3
   end
   object aclMain: TActionList
     Images = dmResources.imlMain

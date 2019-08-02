@@ -53,7 +53,7 @@ type
     procedure actShowAsStringExecute(Sender: TObject);
 
   private
-    FVariant: Variant;
+    FVariant : Variant;
 
   end;
 

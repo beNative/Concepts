@@ -24,16 +24,15 @@ interface
     - TThread.CreateAnonymousThread
     - TMonitor.Enter/Exit
     - TMonitor.Wait/Pulse/PulseAll
-    - Spring.Collections (IList<TThread>)
- }
+    - Spring.Collections (IList<TThread>) }
 
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ActnList, Vcl.ComCtrls, Vcl.CheckLst,
+  Vcl.ActnList, Vcl.ComCtrls, Vcl.CheckLst, Vcl.ExtCtrls,
 
-  Spring.Collections, Vcl.ExtCtrls;
+  Spring.Collections;
 
 type
   TMonitor = System.TMonitor;
@@ -109,7 +108,7 @@ resourcestring
 {$REGION 'construction and destruction'}
 procedure TfrmThreads.AfterConstruction;
 begin
-  inherited;
+  inherited AfterConstruction;
   Application.HintHidePause := 10000;
   Randomize;
   FThreads := TCollections.CreateObjectList<TThread>(True);
@@ -119,7 +118,7 @@ end;
 procedure TfrmThreads.BeforeDestruction;
 begin
   FLock.Free;
-  inherited;
+  inherited BeforeDestruction;
 end;
 {$ENDREGION}
 

@@ -45,7 +45,7 @@ object FireMonkeyForm: TFireMonkeyForm
           item
           end>
         IsSelected = True
-        Size.Width = 69.000000000000000000
+        Size.Width = 70.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False
         StyleLookup = ''
@@ -59,7 +59,7 @@ object FireMonkeyForm: TFireMonkeyForm
           item
           end>
         IsSelected = False
-        Size.Width = 69.000000000000000000
+        Size.Width = 70.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False
         StyleLookup = ''

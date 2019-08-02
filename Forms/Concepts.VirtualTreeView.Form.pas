@@ -4,13 +4,13 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes,
+  System.SysUtils, System.Variants, System.Classes, System.Actions,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls,
-  Vcl.StdCtrls,
+  Vcl.StdCtrls, Vcl.ActnList,
 
   zObjInspector, zObjInspTypes,
 
-  VirtualTrees, System.Actions, Vcl.ActnList;
+  VirtualTrees;
 
   {
      Required for a simple setup:
@@ -45,6 +45,7 @@ type
     procedure FormResize(Sender: TObject);
     procedure actAutoSizeColumnsExecute(Sender: TObject);
     {$ENDREGION}
+
   private
     FObjectInspector   : TzObjectInspector;
     FVirtualStringTree : TVirtualStringTree;
@@ -160,14 +161,14 @@ type
 
 implementation
 
+{$R *.dfm}
+
 uses
   System.TypInfo, System.Rtti,
 
   DDuce.Logger, DDuce.Factories.VirtualTrees, DDuce.Factories.zObjInspector,
 
-  Concepts.Types.Contact, Concepts.Factories, Concepts.Utils;
-
-{$R *.dfm}
+  Concepts.Types.Contact, Concepts.Factories;
 
 {$REGION 'construction and destruction'}
 procedure TfrmVirtualTreeView.actAutoSizeColumnsExecute(Sender: TObject);

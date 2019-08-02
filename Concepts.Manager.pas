@@ -24,7 +24,7 @@ unit Concepts.Manager;
 interface
 
 uses
-  System.Classes, System.Generics.Collections,
+  System.Classes,
   Vcl.Forms, Vcl.Graphics,
 
   Spring.Collections, Spring.Collections.Lists;

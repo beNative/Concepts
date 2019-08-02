@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2018 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -59,8 +59,11 @@ type
     lmtText        = 25,  // arbitrary text with optional highlighter info
     lmtDataSet     = 26,
     lmtAction      = 27,  // TAction execution
-    lmtClear       = 99
+    lmtClear       = 99,
+    lmtNone        = 100  // can be used as a default value
   );
+
+  TLogMessageTypes = set of TLogMessageType;
 
   ILogger = interface;
 
@@ -96,23 +99,24 @@ type
   ILogChannel = interface
   ['{FDE37401-BB4F-4362-863A-CCCCF9228BD9}']
     {$REGION 'property access methods'}
-    function GetActive: Boolean;
-    procedure SetActive(const Value: Boolean);
+    function GetEnabled: Boolean;
+    procedure SetEnabled(const Value: Boolean);
     function GetConnected: Boolean;
-    procedure SetConnected(const Value: Boolean);
+    function GetAutoConnect: Boolean;
+    procedure SetAutoConnect(const Value: Boolean);
     {$ENDREGION}
 
     function Write(const AMsg: TLogMessage): Boolean;
     function Connect: Boolean;
     function Disconnect: Boolean;
 
-    property Active: Boolean
-      read GetActive write SetActive;
+    property Enabled: Boolean
+      read GetEnabled write SetEnabled;
 
     { True when the channel is connected with the server (or receiving)
       instance. }
     property Connected: Boolean
-      read GetConnected write SetConnected;
+      read GetConnected;
   end;
 
   ILogFileChannel = interface(ILogChannel)
@@ -155,11 +159,27 @@ type
     function GetZMQVersion: string;
     {$ENDREGION}
 
+    { Endpoint string consisting of transport, host/IP, port  }
     property EndPoint : string
       read GetEndPoint write SetEndPoint;
 
     property ZMQVersion: string
       read GetZMQVersion;
+
+    property Port: Integer
+      read GetPort;
+  end;
+
+  IMQTTChannel = interface(ILogChannel)
+  ['{5D482099-AB68-462B-8EE8-CCE4DBB60C44}']
+    {$REGION 'property access methods'}
+    function GetPort: Integer;
+    function GetBroker: string;
+    procedure SetBroker(const Value: string);
+    {$ENDREGION}
+    { Hostname/IP of the MQTT broker }
+    property Broker: string
+      read GetBroker write SetBroker;
 
     property Port: Integer
       read GetPort;
@@ -182,13 +202,13 @@ type
     procedure SetLogLevel(const Value: Byte);
 
     procedure Send(const AName: string; const AArgs: array of const); overload;
-    procedure Send(const AName: string; const AValue: string = ''); overload;
 
     { These three overloads are here because TValue would cast them implicitely
       to string (and we would lose type information of AValue) }
     procedure Send(const AName: string; const AValue: AnsiString); overload;
     procedure Send(const AName: string; const AValue: WideString); overload;
     procedure Send(const AName: string; const AValue: ShortString); overload;
+    procedure Send(const AName: string; const AValue: string); overload;
 
     { UInt8 = Byte }
     procedure Send(const AName: string; const AValue: Byte); overload;
@@ -223,39 +243,71 @@ type
     }
     procedure Send(const AName: string; const AValue: TValue); overload;
 
+    procedure Send(const AValue: AnsiString); overload;
+    procedure Send(const AValue: WideString); overload;
+    procedure Send(const AValue: ShortString); overload;
+    procedure Send(const AValue: string); overload;
+
+    procedure Send(const AValue: Byte); overload;
+    procedure Send(const AValue: Word); overload;
+    procedure Send(const AValue: Cardinal); overload;
+    procedure Send(const AValue: UInt64); overload;
+    procedure Send(const AValue: ShortInt); overload;
+    procedure Send(const AValue: SmallInt); overload;
+    procedure Send(const AValue: FixedInt); overload;
+
+    procedure Send(const AValue: TValue); overload;
+
     { Send methods for types that do not have an implicit cast to TValue
       These are equivalent to Send(AName, TValue.From(AValue)); }
-    procedure SendDateTime(const AName: string; AValue: TDateTime);
-    procedure SendDate(const AName: string; AValue: TDate);
-    procedure SendTime(const AName: string; AValue: TTime);
+    procedure SendDateTime(const AName: string; AValue: TDateTime); overload;
+    procedure SendDateTime(AValue: TDateTime); overload;
+    procedure SendDate(const AName: string; AValue: TDate); overload;
+    procedure SendDate(AValue: TDate); overload;
+    procedure SendTime(const AName: string; AValue: TTime); overload;
+    procedure SendTime(AValue: TTime); overload;
 
     { Send methods for types that need a custom representation. }
-    procedure SendColor(const AName: string; AColor: TColor);
-    procedure SendAlphaColor(const AName: string; AAlphaColor: TAlphaColor);
-    procedure SendObject(
-      const AName : string;
-      AValue      : TObject
-    );
+    procedure SendColor(const AName: string; AColor: TColor); overload;
+    procedure SendColor(AColor: TColor); overload;
+    procedure SendAlphaColor(const AName: string; AAlphaColor: TAlphaColor); overload;
+    procedure SendAlphaColor(AAlphaColor: TAlphaColor); overload;
+    procedure SendObject(const AName: string; AValue: TObject); overload;
+    procedure SendObject(AValue: TObject); overload;
     { Logs interface properties. }
-    procedure SendInterface(const AName: string; AValue: IInterface);
+    procedure SendInterface(const AName: string; AValue: IInterface); overload;
+    procedure SendInterface(AValue: IInterface); overload;
     { Logs published properties. }
-    procedure SendPersistent(const AName: string; AValue: TPersistent);
-    procedure SendRect(const AName: string; const AValue: TRect);
-    procedure SendPoint(const AName: string; const APoint: TPoint);
-    procedure SendStrings(const AName: string; AValue: TStrings);
-    procedure SendComponent(const AName: string; AValue: TComponent);
-    procedure SendPointer(const AName: string; APointer: Pointer);
-    procedure SendException(const AName: string; AException: Exception);
-    procedure SendBitmap(const AName: string; ABitmap: TBitmap);
-    procedure SendScreenShot(const AName: string; AForm: TCustomForm);
-    procedure SendDataSet(const AName: string; ADataSet: TDataSet);
+    procedure SendPersistent(const AName: string; AValue: TPersistent); overload;
+    procedure SendPersistent(AValue: TPersistent); overload;
+    procedure SendRect(const AName: string; const AValue: TRect); overload;
+    procedure SendRect(const AValue: TRect); overload;
+    procedure SendPoint(const AName: string; const AValue: TPoint); overload;
+    procedure SendPoint(const AValue: TPoint); overload;
+    procedure SendStrings(const AName: string; AValue: TStrings); overload;
+    procedure SendStrings(AValue: TStrings); overload;
+    procedure SendComponent(const AName: string; AValue: TComponent); overload;
+    procedure SendComponent(AValue: TComponent); overload;
+    procedure SendPointer(const AName: string; AValue: Pointer); overload;
+    procedure SendPointer(AValue: Pointer); overload;
+    procedure SendException(const AName: string; AValue: Exception); overload;
+    procedure SendException(AValue: Exception); overload;
+    procedure SendBitmap(const AName: string; AValue: TBitmap); overload;
+    procedure SendBitmap(AValue: TBitmap); overload;
+    procedure SendScreenShot(const AName: string; AForm: TCustomForm); overload;
+    procedure SendScreenShot(AForm: TCustomForm); overload;
+    procedure SendDataSet(const AName: string; AValue: TDataSet); overload;
+    procedure SendDataSet(AValue: TDataSet); overload;
+    procedure SendShortCut(const AName: string; AValue: TShortCut); overload;
+    procedure SendShortCut(AValue: TShortCut); overload;
+    procedure SendVariant(const AName: string; const AValue: Variant); overload;
+    procedure SendVariant(const AValue: Variant); overload;
+
     procedure SendMemory(
       const AName: string;
       AAddress   : Pointer;
       ASize      : LongWord
     );
-    procedure SendShortCut(const AName: string; AShortCut: TShortCut);
-    procedure SendVariant(const AName: string; const AValue: Variant);
 
     { Send methods for (optionally named) text that optionally can be displayed
       with a dedicated highlighter. }
@@ -265,6 +317,17 @@ type
       const AHighlighter : string = ''
     ); overload;
     procedure SendText(const AText: string); overload;
+
+    procedure SendSql(const AName: string; const AValue: string); overload;
+    procedure SendSql(const AValue: string); overload;
+    procedure SendXml(const AName: string; const AValue: string); overload;
+    procedure SendXml(const AValue: string); overload;
+    procedure SendHtml(const AName: string; const AValue: string); overload;
+    procedure SendHtml(const AValue: string); overload;
+    procedure SendIni(const AName: string; const AValue: string); overload;
+    procedure SendIni(const AValue: string); overload;
+    procedure SendJson(const AName: string; const AValue: string); overload;
+    procedure SendJson(const AValue: string); overload;
 
     procedure IncCounter(const AName: string);
     procedure DecCounter(const AName: string);
@@ -327,7 +390,7 @@ type
   end;
 
 const
-  LOG_PREFIXES: array [lmtInfo..lmtCounter] of string = (
+  LOG_PREFIXES: array [lmtInfo..lmtAction] of string = (
     'INFO',
     'ERROR',
     'WARNING',
@@ -349,7 +412,13 @@ const
     '',
     '',
     'WATCH',
-    'COUNTER'
+    'COUNTER',
+    'COLOR',
+    'ALPHACOLOR',
+    'SCREENSHOT',
+    'TEXT',
+    'DATASET',
+    'ACTION'
   );
 
 function LogMessageTypeNameOf(ALogMessageType: TLogMessageType): string;

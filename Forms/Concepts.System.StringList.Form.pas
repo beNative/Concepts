@@ -23,8 +23,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids,
-  Vcl.ActnList, Vcl.ValEdit, Vcl.ExtCtrls, Vcl.ComCtrls;
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  Vcl.ActnList, Vcl.ValEdit, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Grids;
 
 type
   TfrmStringList = class(TForm)

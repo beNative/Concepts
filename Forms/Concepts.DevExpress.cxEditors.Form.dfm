@@ -53,6 +53,7 @@ object frmcxEditors: TfrmcxEditors
       OptionsView.CellAutoHeight = True
       OptionsView.CellEndEllipsis = True
       OptionsView.CategoryExplorerStyle = True
+      OptionsView.PaintStyle = psdotNet
       OptionsView.RowHeaderWidth = 280
       OptionsView.ShowEmptyRowImage = True
       OptionsView.GridLines = vglVertical

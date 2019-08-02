@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2018 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ uses
 type
   TWinIPCMessageEvent = procedure(
     ASender   : TObject;
-    ASourceId : Integer; // unique source id for the sending process
+    ASourceId : UInt32; // unique source id for the sending process
     AData     : TStream
   ) of object;
 
@@ -48,7 +48,7 @@ type
     procedure SetActive(const AValue : Boolean);
 
   protected
-    procedure DoMessage(ASourceId: Integer; AData: TStream);
+    procedure DoMessage(ASourceId: UInt32; AData: TStream);
     function AllocateHWnd: THandle;
     procedure ReadMsgData(var Msg : TMsg);
     procedure StartServer;
@@ -160,7 +160,7 @@ end;
 {$ENDREGION}
 
 {$REGION 'event dispatch methods'}
-procedure TWinIPCServer.DoMessage(ASourceId: Integer; AData: TStream);
+procedure TWinIPCServer.DoMessage(ASourceId: UInt32; AData: TStream);
 begin
   if Assigned(FOnMessage) then
     FOnMessage(Self, ASourceId, AData);

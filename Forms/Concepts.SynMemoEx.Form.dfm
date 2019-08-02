@@ -63,6 +63,5 @@ object frmSynMemoEx: TfrmSynMemoEx
     ParentBackground = False
     ParentFont = False
     TabOrder = 3
-    ExplicitTop = -6
   end
 end

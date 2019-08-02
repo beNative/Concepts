@@ -20,8 +20,7 @@ unit Concepts.DDetours.Form;
           http://github.com/mahdisafsafi/delphi-detours-library
 
   Instructions on how to use:
-  http://github.com/MahdiSafsafi/delphi-detours-library/blob/wiki/DDetours.md
-}
+  http://github.com/MahdiSafsafi/delphi-detours-library/blob/wiki/DDetours.md }
 
 interface
 

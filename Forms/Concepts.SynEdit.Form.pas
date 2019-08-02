@@ -29,7 +29,7 @@ uses
 
   SynEdit, SynEditMiscClasses, SynEditSearch, SynHighlighterPas,
   SynHighlighterURI, SynEditHighlighter, SynHighlighterIni, SynEditOptionsDialog,
-  SynURIOpener, SynCompletionProposal, SynEditCodeFolding;
+  SynURIOpener, SynCompletionProposal;
 
 type
   TfrmSynEdit = class(TForm)
@@ -65,14 +65,12 @@ type
 
 implementation
 
+{$R *.dfm}
+
 uses
   System.TypInfo, System.Rtti,
 
-  DDuce.Components.Factories, DDuce.Factories.zObjInspector, DDuce.Logger,
-
-  Concepts.Factories, Concepts.Utils;
-
-{$R *.dfm}
+  DDuce.Factories.zObjInspector, DDuce.Logger;
 
 {$REGION 'construction and destruction'}
 procedure TfrmSynEdit.AfterConstruction;

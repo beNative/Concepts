@@ -58,13 +58,11 @@ object frmSynEdit: TfrmSynEdit
       Font.Pitch = fpFixed
       Font.Style = []
       TabOrder = 0
-      CodeFolding.GutterShapeSize = 11
       CodeFolding.CollapsedLineColor = clGrayText
       CodeFolding.FolderBarLinesColor = clGrayText
+      CodeFolding.ShowCollapsedLine = False
       CodeFolding.IndentGuidesColor = clGray
       CodeFolding.IndentGuides = True
-      CodeFolding.ShowCollapsedLine = False
-      CodeFolding.ShowHintMark = True
       UseCodeFolding = False
       Gutter.Font.Charset = DEFAULT_CHARSET
       Gutter.Font.Color = clWindowText

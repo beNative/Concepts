@@ -27,9 +27,8 @@ interface
 }
 
 uses
-  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls,
-  System.Bluetooth, System.Classes, System.Bluetooth.Components, System.Actions,
-  Vcl.ActnList;
+  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ActnList,
+  System.Bluetooth, System.Classes, System.Bluetooth.Components, System.Actions;
 
 type
   TfrmLibraries = class(TForm)
@@ -46,10 +45,9 @@ type
     procedure bltBluetoothDiscoveryEnd(const Sender: TObject;
       const ADeviceList: TBluetoothDeviceList);
     procedure bltBluetoothDiscoverableEnd(const Sender: TObject);
+    procedure chkEnabledClick(Sender: TObject);
 
     procedure actStartDiscoverableExecute(Sender: TObject);
-
-    procedure chkEnabledClick(Sender: TObject);
     procedure actDiscoverDevicesExecute(Sender: TObject);
 
   public

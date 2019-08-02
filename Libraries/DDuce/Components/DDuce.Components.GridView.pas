@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2018 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -748,30 +748,6 @@ type
   end;
 
 { TCustomGridRows }
-{
-  Table rows.
-
-  Properties:
-    MaxCount -    the maximum allowed quantity of rows in the grid. It depends
-                  on the height of line.
-    AutoHeight -  Automatically select the height of lines.
-    Count -       Quantity of rows in the grid.
-    Grid -        Reference to the grid.
-    Height -      the height of one line. With the established property AutoHeight
-                  it is selected taking into account the presence of flags, height of pictures,
-                  the height of type of table, height of type, 3D form, the value
-                  property Fixed.GridColor, the vertical displacement of the text
-                  cell, the presence of grid.
-                  NOTE: If the height of line is less than the height of the text
-                  of yacheyki, are possible Glucks from the otrisovkoy button of the line of the introduction
-                  table. Sootvestviye of the height of line and type of the table
-                  one should track by hand or establish AutoHeight in
-                  True.
-
-  Events:
-    OnChange -    Event to track property changes.
-}
-
   TCustomGridRows = class(TPersistent)
   private
     FGrid       : TCustomGridView;
@@ -822,29 +798,6 @@ type
   end;
 
 { TCustomGridFixed }
-{
-  Parameters of fixed columns in the grid view.
-
-  Properties:
-    Count -     a quantity of fixed columns. It cannot be more than
-                a quantity of columns of table minus 1.
-    Color -     the color of the fixed part.
-    Flat -      the form of mapping the fixed cells. If Flat = True, then
-                cells are reflected by flat, otherwise - in the form of buttons.
-    Font -      type of the text of cells.
-    GridColor - to take as the color of those fixed the color of table.
-                NOTE: if GridColor = True, then the grid of those fixed
-                cells is drawn by single linimya, as in usual cells. In
-                the contrary case grid - dual separating line as
-                in the title
-    GridFont -  to take as type of those fixed type of table.
-    ShowDivider - Forces a vertical divider line to be shown between the fixed
-                  and the normal columns if the property <Gridlines> of the grid
-                  is set to False.
-
-  Events:
-    OnChange -  event to a change in the parameters.
-}
 
   TCustomGridFixed = class(TPersistent)
   private
@@ -922,39 +875,6 @@ type
   end;
 
 { TGridScrollBar }
-{
-  Scroll bar properties of the grid view.
-
-  Procedures:
-    Change -        it is caused to paste after a change in the position.
-    Scroll -        it is caused directly before a change in the position for
-                    the correction of new position.
-    ScrollGrid -    To skrollirovat' the image of grid. It is caused with the change
-                    the position of cursor.
-    ScrollMessage - to process communication Windows about the pressure on the scroller.
-    SetParams -     to establish limits.
-    SetPosition -   to establish position.
-    SetPositionEx - to establish position.
-
-  Properties:
-    Grid -           Reference to the grid component.
-    Kind -           the type of scroller (horizontal or vertical).
-    LineStep -       low pitch.
-    LineSize -       the size of the skrolliruyemoy part of the window during the displacement to 1
-                     position.
-    Min -            the minimum.
-    max of -         maximum.
-    PageStep -       steep pitch.
-    Position -       the current position.
-    Tracking -       the sign of a synchronous change in the position with the displacement
-                     myshkoy central cursor.
-    Visible -        the visibility of scroller.
-    Events:
-    OnChange -       occurred changes in the position.
-    OnChangeParams - occurred changes in the parameters (step, maximum).
-    OnScroll -       it is caused directly before a change in the position
-                     scroller.
-  }
 
   TGridScrollEvent = procedure(
     Sender        : TObject;
@@ -1053,9 +973,6 @@ type
   end;
 
 { TGridListBox }
-{
-   Dropdown inplace editor.
-}
 
   TGridListBox = class(TCustomListBox)
   private
@@ -1081,56 +998,6 @@ type
   end;
 
 { TCustomGridEdit }
-  {
-    Storka of the introduction of table. It can contain button with the dots or button s
-    falling out of spisokm.
-    Procedures:
-    GetDropList -      to obtain the falling out list of the line of editing in
-                       sootvestvii with the type of line. Function should be overlapped
-                       for obtaining creating the list of another class,
-                       different from TGridListBox. For example, the heir
-                       TDBGridView vovzrashchayet list TDBLookupListBox for
-                       line of the type TDataList.
-    PaintButton -      to draw button.
-    UpdateBounds -     the determination of position and size of line with that following
-                       by its demonstration (it is caused directly from the method
-                       Show).
-    UpdateColors -     the determination of the color of cell and type.
-    UpdateContents -   the determination of the text of line, maximum length of the line
-                       and the possibility of editing.
-    UpdateList -       tuning exterior view vypadashchengo of list.
-    UpdateListBounds - determination of position and size of the falling out list.
-    UpdateListItems -  the filling of the current falling out list with values.
-    UpdateListValue -  the installation of the selected value of the falling out list.
-                       It is caused from method CloseUp with the selection of value.
-    UpdateStyle -      determination of the type of line.
-    CloseUp -          to shut the falling out list.
-    DropDown -         to open the falling out list (only for the line with the type
-                       gePickList, geDataList).
-    Press -            pressure on the button with the dots (by mouse or they will gain
-                       Ctrl+.Enter with WantReturns = False).
-    SelectNext -       should be selected the following value from the list (they will gain
-                       Ctrl+.Enter with WantReturns = False).
-    Properties:
-    ButtonRect -       the rectangle of button.
-    ButtonWidth -      the width of button.
-    DropDownCount -    a quantity of lines in the dropdown list.
-    DropList -         the current falling out list of line. It can not coincide
-                       with DropListBox dl yanaslednikov (for example, for Lookup
-                       cells in TDBGridView).
-    DropListBox -      its own falling out list of line.
-    DropListVisible -  the visibility of the falling out list.
-    EditStyle -        the type of line. It can take the following values:
-                         geSimple -         the simple line of editing.
-                         geEllipsis -       line with the button... (with the dots)
-                         gePickList -       line with the button of the falling out list
-                         geDataList -       to use in combination with Lookup fields
-                         geUserDefine -     line with the button of user.
-    Grid -             reference to the button.
-    LineCount -        a quantity of lines in the line.
-    WantReturns -      can text in the line contain the symbols of transfer.
-    WordWrap -         is permitted the automatic transfer of words.
-  }
 
   TGridEditClass = class of TCustomGridEdit;
 
@@ -3540,10 +3407,9 @@ begin
     Result := Rect(0, 0, 0, 0);
     Exit;
   end;
-  {absolute boundaries}
+
   Result := FBoundsRect;
-  {if this is the not fixed title - we displace it by the value of the shift
-    table by scroller}
+
   if not FixedColumn then
     OffsetRect(Result, Header.Grid.GetGridOrigin.X, 0);
 end;
@@ -3631,14 +3497,12 @@ function TGridHeaderSection.GetResizeColumnIndex: Integer;
 var
   I: Integer;
 begin
-  {if there are subtitles we return the column of the latter from them}
   for I := Sections.Count - 1 downto 0 do
     if Sections[I].Visible then
     begin
       Result := Sections[I].ResizeColumnIndex;
       Exit;
     end;
-  { return the calculated index of column}
   Result := FColumnIndex;
 end;
 
@@ -3646,7 +3510,6 @@ function TGridHeaderSection.GetVisible: Boolean;
 var
   I: Integer;
 begin
-  {if there are subtitles, then we look their visibility}
   if Sections.Count > 0 then
     for I := 0 to Sections.Count - 1 do
       if Sections[I].Visible then
@@ -3654,7 +3517,6 @@ begin
         Result := True;
         Exit;
       end;
-  { otherwise look the visibility of column}
   if (Header <> nil) and (Header.Grid <> nil) then
   begin
     I := ColumnIndex;
@@ -3664,7 +3526,6 @@ begin
       Exit;
     end;
   end;
-  {there is no column - section is visible}
   Result := True;
 end;
 
@@ -3673,7 +3534,6 @@ var
   I: Integer;
   S: TGridHeaderSection;
 begin
-  {if there are subtitles, then width is a sum of the widths of subtitles}
   if Sections.Count > 0 then
   begin
     Result := 0;
@@ -3684,7 +3544,6 @@ begin
     end;
     Exit;
   end;
-  { otherwise return the width of the corresponding column}
   if (Header <> nil) and (Header.Grid <> nil) then
   begin
     I := ColumnIndex;
@@ -3694,7 +3553,6 @@ begin
       Exit;
     end;
   end;
-  {there is no column - its width}
   Result := FWidth;
 end;
 
@@ -4171,27 +4029,22 @@ var
   end;
 
 begin
-  {before the synchronization it is necessary to renew the internal parameters of sections}
   UpdateSections;
-  { synchronize sections}
   if (Grid <> nil) and (Grid.ComponentState * [csReading, csLoading] = [])
     and (Grid.Columns <> nil) then
   begin
     Sections.BeginUpdate;
     try
-      {title is empty - we add all columns}
       if Sections.Count = 0 then
       begin
         DoAddSections(0, True);
         Exit;
       end;
-      {if sections it is less - we add, otherwise move away excess}
       C := Sections[Sections.Count - 1].ColumnIndex;
       if C < Grid.Columns.Count - 1 then
         DoAddSections(C + 1, False)
       else if C > Grid.Columns.Count - 1 then
         DoDeleteSections(Sections);
-      {in lower sections we synchronize title, levelling off and shinrinu}
       DoSynchronizeSections(Sections);
     finally
       Sections.EndUpdate;
@@ -4212,18 +4065,14 @@ var
     for I := 0 to Sections.Count - 1 do
     begin
       S := Sections[I];
-      {there are whether subtitles}
       if S.Sections.Count = 0 then
       begin
-        {this is lower section}
         S.FColumnIndex := C;
         Inc(C);
       end
       else
       begin
-        {recursion to all subtitles from below}
         DoUpdateColumnIndex(S.Sections);
-        {index is an index of the latter}
         S.FColumnIndex := S.Sections[S.Sections.Count - 1].FColumnIndex;
       end;
     end;
@@ -4237,25 +4086,19 @@ var
   begin
     R := Rect;
     R.Right := R.Left;
-    { sort out subtitles}
     for I := 0 to Sections.Count - 1 do
     begin
       S := Sections[I];
       R.Left := R.Right;
       R.Right := R.Left + S.Width;
-      {rectangle}
       SR := R;
       if S.Sections.Count > 0 then
         SR.Bottom := R.Top + SectionHeight;
-      { memorize}
       S.FBoundsRect := SR;
-      {subtitles}
       if S.Sections.Count > 0 then
       begin
-        {it is subtracted line from above}
         SR.Top := SR.Bottom;
         SR.Bottom := R.Bottom;
-        {subtitles from below}
         DoUpdateSecionsBounds(S.Sections, SR);
       end;
     end;
@@ -4265,15 +4108,12 @@ begin
   if (Grid <> nil) and (Grid.ComponentState * [csReading, csLoading] = [])
     and (Grid.Columns <> nil) then
   begin
-    {opredelyaei the indices of columns}
     C := 0;
     DoUpdateColumnIndex(Sections);
-    {the absolute boundaries of title}
     R.Left := Grid.ClientRect.Left;
     R.Right := R.Left + Grid.GetColumnsWidth(0, Grid.Columns.Count - 1);
     R.Top := Grid.ClientRect.Top;
     R.Bottom := R.Top + Height;
-    { define the boundaries of sections}
     DoUpdateSecionsBounds(Sections, R);
   end;
 end;
@@ -4589,17 +4429,13 @@ var
 begin
   Strings := TStringList.Create;
   try
-    { add in the list of the width of columns}
     for I := 0 to Count - 1 do
     begin
-      {the negative value of width sootvestvuyet to invisible column}
       W := Columns[I].DefWidth;
       if not Columns[I].Visible then
         W := W * (-1);
-      { add in the list}
       Strings.Add(IntToStr(W));
     end;
-    {result - widths of columns, divided by comma}
     Result := ExpandStrings(Strings, ',')
   finally
     Strings.Free;
@@ -4620,17 +4456,12 @@ begin
   try
     Strings := TStringList.Create;
     try
-      { divide the widths of columns, divided by comma, into the lines}
       ExtractStrings([','], [' '], PChar(Value), Strings);
-      { change the widths of columns}
       for I := 0 to Strings.Count - 1 do
       begin
-        { check a quantity of columns}
         if I > Count - 1 then
           Break;
-        { obtain width}
         W := StrToIntDef(Strings[I], Columns[I].DefWidth);
-        {the negative value of width sootvestvuyet to invisible column}
         Columns[I].DefWidth := Abs(W);
         Columns[I].Visible := W > 0;
       end;
@@ -4702,7 +4533,6 @@ var
 begin
   if AutoHeight and (Grid <> nil) then
   begin
-    {the height of text}
     TH := GetFontHeight(Grid.Font) + Grid.TextTopIndent * 2;
     FH := GetFontHeight(Grid.Fixed.Font) + Grid.TextTopIndent * 2;
     CH := 0;
@@ -4719,7 +4549,6 @@ begin
       else if Grid.GridLines and (gsHorzLine in Grid.GridStyle) then
         Inc(CH, 1);
     end;
-    {the height of picture}
     IH := 0;
     if Grid.Images <> nil then
     begin
@@ -5179,10 +5008,8 @@ var
 begin
   case Key of
     #8, #27:
-      { discard the text of search}
       FSearchText := '';
     #32..#255:
-      { initiate search}
       begin
         TickCount := Longint(GetTickCount);
         if Abs(TickCount - FSearchTime) > 2000 then
@@ -5209,11 +5036,9 @@ end;
 constructor TCustomGridEdit.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  {internal variables}
   FEditStyle := geSimple;
   FDropDownCount := 8;
   FButtonWidth := GetSystemMetrics(SM_CXVSCROLL);
-  {the parameters of exterior view}
   ParentCtl3D := False;
   Ctl3D := False;
   TabStop := False;
@@ -5325,8 +5150,6 @@ procedure TCustomGridEdit.WMLButtonDown(var Message: TWMLButtonDown);
 begin
   SendCancelMode(Self);
   with Message do
-    {in order to the isolation of text not gaslo with the pressure on the button, it is processed
-      pressure themselves}
     if (EditStyle <> geSimple) and PtInrect(ButtonRect, Point(XPos, YPos)) then
     begin
       if csCaptureMouse in ControlStyle then
@@ -5404,15 +5227,12 @@ end;
 
 procedure TCustomGridEdit.CMShowingChanged(var Message: TMessage);
 begin
-  { ignore a change in the visibility through a change in property Visible}
+  { ignore changes when changing the Visible property value }
 end;
 
 procedure TCustomGridEdit.WMContextMenu(var Message: TMessage);
 begin
-  {if property DefaultPopupMenu of table is established in True, then on the the right
-    to button it is necessary to show the standard popup menu of the line of introduction, but not Popup
-    the menu of table}
-  if (Grid <> nil) and Grid.DefaultEditMenu and Assigned(Grid.PopupMenu) then
+  if Assigned(Grid) and Grid.DefaultEditMenu and Assigned(Grid.PopupMenu) then
     with Message do
       Result := CallWindowProc(DefWndProc, Handle, Msg, WParam, LParam)
   else
@@ -5494,25 +5314,19 @@ procedure TCustomGridEdit.KeyDown(var Key: Word; Shift: TShiftState);
   end;
 
 begin
-  {it is processed pressure}
   case Key of
     VK_UP, VK_DOWN:
-      {the displacement of focus}
       if (Shift = [ssCtrl]) or ((Shift = []) and (not (WantReturns or WordWrap))) then
         SendToParent;
     VK_PRIOR, VK_NEXT:
-      {the displacement of focus}
       if Shift = [ssCtrl] then
         SendToParent;
     VK_ESCAPE:
-      {cancellation}
       SendToParent;
     VK_DELETE:
-      {removal}
       if not EditCanModify then
         SendToParent;
     VK_INSERT:
-      {insert}
       if (not EditCanModify) or (Shift = []) then
         SendToParent;
 (*
@@ -5523,11 +5337,9 @@ begin
 *)
 
     VK_TAB:
-      {tabulation}
       if not (ssAlt in Shift) then
         SendToParent;
   end;
-  {button is not processed - event}
   if Key <> 0 then
   begin
     ParentEvent;
@@ -5548,10 +5360,8 @@ begin
     end;
     case Key of
       #9, #27, #13: // bugfix TS : added #13
-        {TAB, ESC we remove }
         Key := #0;
       ^H, ^V, ^X, #32..#255:
-        {BACKSPACE, usual symbols we remove, if it cannot be edited}
         if not EditCanModify then
           Key := #0;
     end;
@@ -5636,10 +5446,9 @@ end;
 
 procedure TCustomGridEdit.PaintWindow(DC: HDC);
 var
-  R: TRect;
+  R : TRect;
 begin
   PaintButton(DC);
-  { remove the rectangle of button from the region of painting}
   if (EditStyle <> geSimple) then
   begin
     R := GetButtonRect;
@@ -5657,8 +5466,8 @@ end;
 
 procedure TCustomGridEdit.StepButtonTracking(X, Y: Integer);
 var
-  R: TRect;
-  P: Boolean;
+  R : TRect;
+  P : Boolean;
 begin
   R := GetButtonRect;
   P := PtInRect(R, Point(X, Y));
@@ -5783,7 +5592,6 @@ var
 begin
   if (Grid = nil) or (FActiveList = nil) then
     Exit;
-  {for the standard list we determine width and height in the lines}
   if FActiveList is TGridListBox then
     with TGridListBox(FActiveList) do
     begin
@@ -5809,19 +5617,14 @@ begin
       else
         ClientHeight := FDropDownCount * ItemHeight;
     end;
-  { to podpravlyam the dimensions of list depending on the dimensions of column and it
-    position on the screen}
   with FActiveList do
   begin
-    { correct on the width of column}
     R := Grid.GetCellRect(Grid.EditCell);
     Width := MaxIntValue([Width, R.Right - R.Left]);
-    {position}
     Left := Self.ClientOrigin.X + Self.Width - Width;
     Top := Self.ClientOrigin.Y + Self.Height;
     if Top + Height > Screen.Height then
       Top := Self.ClientOrigin.Y - Height;
-    { correct in the the sootvestviyem with the wish of user}
     R := BoundsRect;
     Grid.GetEditListBounds(Grid.EditCell, R);
     BoundsRect := R;
@@ -5861,17 +5664,14 @@ procedure TCustomGridEdit.UpdateStyle;
 var
   Style: TGridEditStyle;
 begin
-  { obtain the style of line}
   Style := geSimple;
   if (Grid <> nil) and (not Grid.ReadOnly) then
     Style := Grid.GetEditStyle(Grid.EditCell);
   EditStyle := Style;
 end;
 
-{
-  Delete the requested message from the queue, but throw back
-  any WM_QUIT msgs that PeekMessage may also return.
-}
+{ Delete the requested message from the queue, but throw back
+  any WM_QUIT msgs that PeekMessage may also return. }
 
 procedure KillMessage(Wnd: HWND; Msg: Integer);
 var
@@ -5987,10 +5787,11 @@ procedure TCustomGridEdit.DropDown;
 const
   Flags = SWP_NOSIZE or SWP_NOACTIVATE or SWP_SHOWWINDOW;
 begin
-  if (not FDropListVisible) and (Grid <> nil) and (EditStyle in [gePickList, geDataList]) then
+  if (not FDropListVisible) and Assigned(Grid)
+    and (EditStyle in [gePickList, geDataList]) then
   begin
     FActiveList := GetDropList;
-    if FActiveList <> nil then
+    if Assigned(FActiveList) then
     begin
       UpdateList;
       UpdateListItems;
@@ -6079,8 +5880,6 @@ begin
     ScrollCaret := not Grid.FEditing;
     Grid.FEditing := True;
     Grid.FCellSelected := True;
-    { correct colors (one should make before the installation of boundaries, since
-      they are advanced depending on the size of type)}
     UpdateColors;
     UpdateBounds(ScrollCaret);
     if Grid.Focused then
@@ -7110,9 +6909,7 @@ begin
       Result := 1;
       Exit;
     end;
-    { obtain the rectangle of cell (without the picture)}
     R := GetCellHintRect(FTipsCell);
-    { obtain the rectangle of the text of cell}
     TR := GetCellTextBounds(FTipsCell);
     W := TR.Right - TR.Left;
     case Columns[FTipsCell.Col].Alignment of
@@ -7130,7 +6927,6 @@ begin
       TR.Left := R.Left;
       TR.Right := TR.Left + W;
     end;
-    { consider the visible part of the table}
     IntersectRect(R, R, ClientRect);
     if ShowHeader then
       SubtractRect(R, R, GetHeaderRect);
@@ -8101,50 +7897,36 @@ function TCustomGridView.GetCursorCell(Cell: TGridCell;
 begin
   case Offset of
     goLeft:
-      {displacement to the column to the left}
       Result := DoMoveLeft(1);
     goRight:
-      {displacement to the right to one column}
       Result := DoMoveRight(1);
     goUp:
-      {upward bias to one column}
       Result := DoMoveUp(1);
     goDown:
-      {downward bias to one column}
       Result := DoMoveDown(1, True);
     goMouseWheelUp:
       Result := DoMoveUp(1);
     goMouseWheelDown:
       Result := DoMoveDown(1);
     goPageUp:
-      {displacement to the page upward}
       Result := DoMoveUp(VisSize.Row - 1);
     goPageDown:
-      {displacement to the page downward}
       Result := DoMoveDown(VisSize.Row - 1);
     goHome:
-      {into the beginning of line}
       Result := DoMoveHome;
     goEnd:
-      {into the end of the line}
       Result := DoMoveEnd;
     goGridHome:
-      {into the beginning of table}
       Result := DoMoveGridHome;
     goGridEnd:
-      {into the end of the table}
       Result := DoMoveGridEnd;
     goSelect:
-      {checking cell}
       Result := DoSelect;
     goFirst:
-      {to select the first possible cell}
       Result := DoFirst;
     goNext:
-      {to select the following cell}
       Result := DoNext;
     goPrev:
-      {to select the previous possible cell}
       Result := DoPrev;
   else
     Result := Cell;
@@ -8256,17 +8038,13 @@ var
   P: TDrawTextParams;
   F, W, H, I: Integer;
 begin
-  { check how the text is derived: with the aid of DrawTextEx or TextOut}
   if WantReturns or WordWrap or EndEllipsis then
   begin
-    {the parameters of the conclusion of text}
     FillChar(P, SizeOf(P), 0);
     P.cbSize := SizeOf(P);
     P.iLeftMargin := LeftIndent;
     P.iRightMargin := TextRightIndent;
-    {the attributes of text}
     F := DT_NOPREFIX;
-    {horizontal levelling off}
     case Alignment of
       taLeftJustify:
         F := F or DT_LEFT;
@@ -8275,33 +8053,23 @@ begin
       taRightJustify:
         F := F or DT_RIGHT;
     end;
-    {vertical levelling off}
     if not (WantReturns or WordWrap) then
     begin
-      {the automatic flare function}
       F := F or DT_SINGLELINE or DT_VCENTER;
-      {dots at the end we do not consider}
     end;
-    {the transfer of words}
     if WordWrap then
       F := F or DT_WORDBREAK;
-    {the rectangle of text}
     R := Rect;
-    { draw text}
     DrawTextEx(Canvas.Handle, PChar(Text), Length(Text), R, F or DT_CALCRECT, @P);
-    {the dimensions of text}
     W := MaxIntValue([Rect.Right - Rect.Left, R.Right - R.Left]);
     H := MaxIntValue([Rect.Bottom - Rect.Top, R.Bottom - R.Top]);
   end
   else
   begin
-    {the displacement of text to the left}
     I := LeftIndent;
-    {height and the width of text}
     W := MaxIntValue([Rect.Right - Rect.Left, I + Canvas.TextWidth(Text) + TextRightIndent]);
     H := MaxIntValue([Rect.Bottom - Rect.Top, Canvas.TextHeight(Text)]);
   end;
-  { form rectangle}
   case Alignment of
     taCenter:
       begin
@@ -8330,32 +8098,26 @@ var
   WR, WW: Boolean;
   T: string;
 begin
-  { check cell}
   if not IsCellValid(Cell) then
   begin
     Result := Rect(0, 0, 0, 0);
     Exit;
   end;
-  { calculate rectangle}
   with GetTipsWindowClass.Create(Self) do
   try
     GetCellColors(Cell, Canvas);
-    {the parameters of painting}
     R := GetEditRect(Cell);
     TI := GetCellTextIndent(Cell);
     A := Columns[Cell.Col].Alignment;
     WR := Columns[Cell.Col].WantReturns;
     WW := Columns[Cell.Col].WordWrap;
     T := GetTipsText(Cell);
-    { count rectangle}
     R := GetTextRect(Canvas, R, TI.X, TI.Y, A, WR, WW, T);
   finally
     Free;
   end;
-  {for the text, it is more than the height of line - correction}
   if R.Bottom - R.Top > Rows.Height then
-    Inc(R.Bottom, TextTopIndent * 2); {!}
-  { consider border}
+    Inc(R.Bottom, TextTopIndent * 2);
   InflateRect(R, 1, 1);
   Result := R;
   if Assigned(FOnGetTipsRect) then
@@ -8383,7 +8145,6 @@ end;
 procedure TCustomGridView.HeaderClicking(Section: TGridHeaderSection;
   var AllowClick: Boolean);
 begin
-  {  by default you can click only on the lower sections }
   AllowClick := ColumnClick and Section.AllowClick and (Section.Sections.Count = 0);
   if Assigned(FOnHeaderClicking) then
     FOnHeaderClicking(Self, Section, AllowClick);
@@ -8439,17 +8200,14 @@ begin
         end;
       VK_UP:
         begin
-          {if there is no focus, then we displace entire table}
           if not AllowSelect then
             Cell := VisOrigin
           else
             Cell := CellFocused;
-          { change that isolated}
           SetCursor(GetCursorCell(Cell, goUp), True, True);
         end;
       VK_DOWN:
         begin
-          {if there is no focus, then we displace entire table}
           if not AllowSelect then
           begin
             Cell := GridCell(VisOrigin.Col, VisOrigin.Row + VisSize.Row - 1);
@@ -8458,23 +8216,18 @@ begin
           end
           else
             Cell := CellFocused;
-          { change that isolated}
           SetCursor(GetCursorCell(Cell, goDown), True, True)
         end;
       VK_PRIOR:
-        {cursor to the page upward}
         SetCursor(GetCursorCell(CellFocused, goPageUp), True, True);
       VK_NEXT:
-        {cursor to the page downward}
         SetCursor(GetCursorCell(CellFocused, goPageDown), True, True);
       VK_HOME:
-        {cursor into the beginning of line or table}
         begin
           Cell := GetCursorCell(CellFocused, HomeOffsets[ssCtrl in Shift]);
           SetCursor(Cell, True, True);
         end;
       VK_END:
-        {cursor into the end of the line or table}
         begin
           Cell := GetCursorCell(CellFocused, EndOffsets[ssCtrl in Shift]);
           SetCursor(Cell, True, True);
@@ -8484,7 +8237,6 @@ begin
   if Key = VK_F2 then
     Editing := True;
 
-  {cursor to the following or previous cell with pressure TAB}
   if (gkTabs in CursorKeys) and (Key = VK_TAB) then
     SetCursor(GetCursorCell(CellFocused, TabOffsets[ssShift in Shift]), True, True);
 
@@ -8503,26 +8255,21 @@ end;
 procedure TCustomGridView.KeyPress(var Key: Char);
 begin
   inherited KeyPress(Key);
-  { Handle <RETURN> }
   if Key = #13 then
   begin
-    { Edit cell }
     if Editing then
     begin
       ApplyEdit;
     end;
-    { Position cursor to the next (selectable) cell }
     if gkReturn in CursorKeys then
     begin
       SetCursor(GetCursorCell(CellFocused, goNext), True, True);
     end;
   end
-  { Handle <ESCAPE> key (terminates edit mode if applicable). }
   else if Key = #27 then
   begin
     if Editing then
     begin
-      { Cancel input in text editor and restore cell value. }
       if not AlwaysEdit then
         CancelEdit
       else
@@ -9219,7 +8966,6 @@ var
   LastRow   : Integer;
   Cell      : TGridCell;
 begin
-  {field to the right of table}
   X := GetColumnRect(VisOrigin.Col + VisSize.Col).Left;
   R := GetGridRect;
   if X < R.Right then
@@ -9227,7 +8973,7 @@ begin
     R.Left := X;
     with Canvas do
       if gsFullRowPaint in GridStyle then
-    begin
+      begin
         Cell.Row := VisOrigin.Row;
         Cell.Col := -1;
         LastRow := Cell.Row + VisSize.Row - 1;
@@ -9243,11 +8989,10 @@ begin
       end
       else
       begin
-      Brush.Color := Color;
-      FillRect(R);
-    end;
+        Brush.Color := Color;
+        FillRect(R);
+      end;
   end;
-  {field from below from the table}
   Y := GetRowRect(VisOrigin.Row + VisSize.Row).Top;
   R := GetGridRect;
   if Y < R.Bottom then
@@ -9259,7 +9004,6 @@ begin
       Brush.Color := Color;
       FillRect(R);
     end;
-    {field under those fixed}
     R.Right := R.Left;
     R.Left := GetFixedRect.Left;
     with Canvas do
@@ -9268,7 +9012,6 @@ begin
       FillRect(R);
     end;
   end;
-  {the line of a change in the width of column}
   if FColResizing and (FColResizeCount > 0) and not FColumnsFullDrag then
     PaintResizeLine;
 end;
@@ -9284,7 +9027,6 @@ var
   Index               : Integer;
   Rect                : TRect;
 begin
-  {opreleyaem a quantity of lines of grid}
   StrokeCount := 0;
   if gsHorzLine in GridStyle then
   begin
@@ -9294,18 +9036,13 @@ begin
   end;
   if gsVertLine in GridStyle then
     StrokeCount := StrokeCount + FVisSize.Col;
-  {but there is whether grid}
   if StrokeCount > 0 then
   begin
-    {opreleyaem a quantity of points of grid}
     PointCount := StrokeCount * 2;
-    { separate memory under the lines}
     StrokeList := AllocMem(StrokeCount * SizeOf(Integer));
     Points := AllocMem(PointCount * SizeOf(TPoint));
-    {the initialization of the massif of a quantity of points of poly-lines}
     FillDWord(StrokeList^, StrokeCount, 2);
     Rect := GetGridRect;
-    {the point of vertical lines}
     if gsVertLine in GridStyle then
     begin
       T := Rect.Top;
@@ -9323,7 +9060,6 @@ begin
         Points^[Index + 3] := B;
       end;
     end;
-    {the point of horizontal lines}
     if gsHorzLine in GridStyle then
     begin
       L := Rect.Left + GetFixedWidth;
@@ -9361,9 +9097,7 @@ procedure TCustomGridView.PaintHeader(Section: TGridHeaderSection; Rect: TRect);
 var
   DefDraw: Boolean;
 begin
-  { establish color and type of section}
   GetHeaderColors(Section, Canvas);
-  {drawing of user}
   DefDraw := True;
   try
     if Assigned(FOnDrawHeader) then
@@ -9371,7 +9105,6 @@ begin
   except
     Application.HandleException(Self);
   end;
-  {is necessary drawing on silence}
   if DefDraw then
     DefaultDrawHeader(Section, Rect);
 end;
@@ -9405,7 +9138,6 @@ begin
   end;
   if Header.Flat then
   begin
-    { correct the edge of rectangle}
     if DrawFixed then
     begin
       R.Left := GetClientRect.Left;
@@ -9416,9 +9148,7 @@ begin
       R.Left := GetFixedRect.Right;
       R.Right := GetClientRect.Right;
     end;
-    { draw}
     with Canvas do
-      {if the colors of those fixed i  of table coincide - it drawes usual strip}
       if Header.GridColor then
       begin
         Pen.Color := GetGridLineColor(Color);
@@ -9427,7 +9157,6 @@ begin
         LineTo(R.Right, R.Bottom - 1);
       end
       else
-      { otherwise draw dual strip}
       begin
       with Canvas do
       begin
@@ -9441,7 +9170,6 @@ begin
       end;
     end;
   end;
-  {the line of a change in the width of column}
   if FColResizing and (FColResizeCount > 0) and not FColumnsFullDrag then
     PaintResizeLine;
 end;
@@ -9456,18 +9184,14 @@ begin
   for I := 0 to Sections.Count - 1 do
   begin
     S := Sections[I];
-    { draw only the sections "of the fixedness indicated"}
     if AllowFixed = S.FixedColumn then
     begin
       R := S.BoundsRect;
-      { do not draw, the section of nontrivial width}
       if R.Right > R.Left then
       begin
-        { calculate the rectangle of section}
         SR := R;
         if S.Sections.Count > 0 then
           SR.Bottom := GetHeaderRect.Bottom;
-        { draw only those sections and pozzagolovki, which must be drawn again}
         if RectVisible(Canvas.Handle, SR) then
         begin
           PaintHeader(S, R);
@@ -9476,9 +9200,6 @@ begin
       end;
     end
     else
-      {nektorye general titles can have simultaneously that fixed and
-        the unfixed subtitles (although this is incorrect); therefore
-        let us try to otrasovat' them also}
       PaintHeaderSections(S.Sections, AllowFixed);
   end;
 end;
@@ -9519,17 +9240,13 @@ var
   F, DX: Integer;
   A: UINT;
 begin
-  {is concluded text}
   if WantReturns or WordWrap or EndEllipsis then
   begin
-    {the parameters of the conclusion of text}
     FillChar(P, SizeOf(P), 0);
     P.cbSize := SizeOf(P);
     P.iLeftMargin := LeftIndent;
     P.iRightMargin := TextRightIndent;
-    {the attributes of text}
     F := DT_NOPREFIX;
-    { horizontal offset }
     case Alignment of
       taLeftJustify:
         F := F or DT_LEFT;
@@ -9538,21 +9255,15 @@ begin
       taRightJustify:
         F := F or DT_RIGHT;
     end;
-    { vertical offset }
     if not (WantReturns or WordWrap) then
     begin
-      {the automatic flare function}
       F := F or DT_SINGLELINE;
-      {dots at the end}
       if Alignment = taLeftJustify then
         F := F or DT_END_ELLIPSIS
     end;
-    {the transfer of words}
     if WordWrap then
       F := F or DT_WORDBREAK;
-    {the displacement of text from above}
     Inc(Rect.Top, TopIndent);
-    {is concluded text}
     with Canvas do
     begin
       SetBkMode(Handle, TRANSPARENT);
@@ -9561,7 +9272,6 @@ begin
   end
   else
   begin
-    {displacement along horizontal}
     case Alignment of
       taCenter:
         begin
@@ -9577,12 +9287,12 @@ begin
       DX := LeftIndent;
       A := TA_LEFT;
     end;
-    {the standard conclusion of text}
     with Canvas do
     begin
       SetBkMode(Handle, TRANSPARENT);
       SetTextAlign(Handle, A);
-      ExtTextOut(Handle, Rect.Left + DX, Rect.Top + TopIndent, ETO_CLIPPED, @Rect, PChar(Text), Length(Text), nil);
+      ExtTextOut(Handle, Rect.Left + DX, Rect.Top + TopIndent, ETO_CLIPPED,
+        @Rect, PChar(Text), Length(Text), nil);
       SetTextAlign(Handle, TA_LEFT);
     end;
   end;
@@ -9601,13 +9311,6 @@ begin
   begin
     if Canvas.Brush.Bitmap = FPatternBitmap then
       Exit;
-    {lines by smallen point are drawn with the use of point filling. Size
-      filling is established immediately on entire Canvas relative to the the upper
-      the left angle of component. Therefore, even pouring the line, shifted by 1
-      pixel from previous, we nevertheless will obtain the alternating filling.
-      The displacement of table to 1 pixel old grid displaces with the horizontal,
-      and so that the new grid would be drawn by that also by alternating with the old, it is necessary
-      to displace the size of filling. }
     if HorzScrollBar.Position mod 2 = 0 then
     begin
       FPatternBitmap.Canvas.Pixels[0, 0] := Color;
@@ -9677,7 +9380,6 @@ begin
     PaintFocus;
 end;
 
-
 procedure TCustomGridView.SizeColumnsToClient;
 const
   MAX_RUNCOUNT = 20;
@@ -9698,7 +9400,6 @@ begin
     // should not be done if we want to take GUI-resizings into account
   //  if (gsColSizing <> FGridState) and (ColumnResizeMode = crmDynamic) then
 //    AutoSizeCols(False);
-
     // determine iVisColCount and iTotColW
     iVisColCount := 0;
     iTotColW     := 0;
@@ -9809,7 +9510,6 @@ procedure TCustomGridView.StartColResize(Section: TGridHeaderSection;
 begin
   FColResizeSection := Section;
   FColResizeIndex := Section.ResizeColumnIndex;
-  { calculate boundary rectangle for changing the size}
   with FColResizeSection do
   begin
     if FColResizeIndex <= Columns.Count - 1 then
@@ -9830,13 +9530,10 @@ begin
     FColResizeRect.Top := Level * Header.SectionHeight;
     FColResizeRect.Bottom := Height;
   end;
-  {the position of dimension line}
   FColResizePos := FColResizeRect.Right;
   FColResizeOffset := FColResizePos - X;
-  {it is possible to change the size of column}
   FColResizeCount := 0;
   FColResizing := True;
-  { seize mouse}
   MouseCapture := True;
 end;
 
@@ -9846,61 +9543,41 @@ var
   R: TRect;
   S: TGridHeaderSection;
 begin
-  {but will go a change in the size of column}
   if FColResizing then
   begin
-    {the current position of line}
     X := X + FColResizeOffset;
-    {the current width}
     W := X - FColResizeRect.Left;
-    { correct width in sootvestvii with the boundaries}
     if W < FColResizeMinWidth then
       W := FColResizeMinWidth;
     if W > FColResizeMaxWidth then
       W := FColResizeMaxWidth;
     ColumnResizing(FColResizeIndex, W);
-    { again correct shshchirinu}
     if W < FColResizeMinWidth then
       W := FColResizeMinWidth;
     if W > FColResizeMaxWidth then
       W := FColResizeMaxWidth;
-    {the new position of line}
     X := FColResizeRect.Left + W;
-    { draw a line}
     if FColResizePos <> X then
     begin
-      { paint old line}
       if (FColResizeCount > 0) and not FColumnsFullDrag then
         PaintResizeLine;
       Inc(FColResizeCount);
-      {the new position of line}
       FColResizePos := X;
-      { establish width}
       if FColumnsFullDrag and (FColResizeIndex < Columns.Count) then
       begin
-        {before a change in the width of column we calculate and it is renovated changing
-          the part of the cells of table}
         R := GetClientRect;
         R.Left := GetColumnRect(FColResizeIndex).Left;
         if FColResizeIndex >= Fixed.Count then
-          {if the unfixed column is partially closed fixed,
-            that this closed part drawn again must not be}
           R.Left := MaxIntValue([R.Left, GetFixedRect.Right]);
         if W < Columns[FColResizeIndex].Width then
           with HorzScrollBar do
             if (Range > PageStep) and (Position = Range - PageStep) then
               if FColResizeIndex <= Columns.Count - 1 then
               begin
-                {the borderline case: if horizontal scroller in the the very
-                  with right position, the decrease of the width of column gives k
-                  to the right-shift of all unfixed columns, located
-                  to the left of that flowing}
                 R.Left := GetFixedRect.Right;
                 R.Right := GetColumnRect(FColResizeIndex + 1).Left;
               end;
         InvalidateRect(R);
-        {if the column has multilevel title, then additionally
-          it is renovated uppermost section}
         S := GetHeaderSection(FColResizeIndex, 0);
         if S <> nil then
         begin
@@ -9908,24 +9585,19 @@ begin
           R.Bottom := GetHeaderRect.Bottom;
           InvalidateRect(R);
         end;
-        { forbid the copying of entire table, we establish the new width
-          stolbtsa }
         LockUpdate;
         try
           Columns[FColResizeIndex].Width := W;
         finally
           UnlockUpdate(False);
         end;
-        {now we draw again (better immediately - so less it blinks)}
         Update;
       end
       else
-        { draw new line}
         PaintResizeLine;
     end
     else
     begin
-      { draw line for the first time}
       if (FColResizeCount = 0) and not FColumnsFullDrag then
         PaintResizeLine;
       Inc(FColResizeCount);
@@ -9939,35 +9611,25 @@ var
 begin
   if FColResizing then
   try
-    { free mouse}
     MouseCapture := False;
-    {there was khotyaby one displacement}
     if FColResizeCount > 0 then
     begin
-      { paint line}
       if not FColumnsFullDrag then
         PaintResizeLine;
-      {but is not interrupted change}
       if Abort then
         Exit;
-      { establish the size of column}
       with FColResizeSection do
       begin
-        {new width}
         W := FColResizePos - FColResizeRect.Left;
-        { correct width in sootvestvii with the boundaries}
         if W < FColResizeMinWidth then
           W := FColResizeMinWidth;
         if W > FColResizeMaxWidth then
           W := FColResizeMaxWidth;
-        {the event of user}
         ColumnResize(FColResizeIndex, W);
-        { again correct shshchirinu}
         if W < FColResizeMinWidth then
           W := FColResizeMinWidth;
         if W > FColResizeMaxWidth then
           W := FColResizeMaxWidth;
-        { establish width}
         if FColResizeIndex < Columns.Count then
           Columns[FColResizeIndex].Width := W;
         Width := W;
@@ -10141,49 +9803,35 @@ begin
   end;
   CK := GetCheckKind(Cell);
   CI := GetCellImage(Cell);
-  { determine the sign of the illumination of the picture: picture is not illuminated,
-    if cell is first chosen, the flag of the illumination is not advanced
-    and the color of the background of cell is a color of that isolated}
   RH := RowSelect and (Cell.Col = Fixed.Count) and (Cell.Row = CellFocused.Row);
   CH := (not RowSelect) and IsCellEqual(Cell, CellFocused);
-  SH := (Canvas.Brush.Color = clHighlight) or (Canvas.Brush.Color = clBtnFace); {?}
+  SH := (Canvas.Brush.Color = clHighlight) or (Canvas.Brush.Color = clBtnFace);
   IH := (not ImageHighlight) and (RH or CH) and SH;
-  { draw checkbox }
   if CK <> gcNone then
   begin
-    { for the illuminated flag we restore the color of background}
     if IH then
       Canvas.Brush.Color := Color;
-    { obtain the rectangle of flag}
     R := Rect;
     R.Right := MinIntValue([R.Left + CheckWidth + GetCheckIndent(Cell).X, Rect.Right]);
-    {but is visible flag}
     if R.Left < DefRect.Right then
     begin
-      { draw}
       with Canvas do
       begin
-        {the position of flag}
         X := R.Left + GetCheckIndent(Cell).X;
         Y := R.Top + GetCheckIndent(Cell).Y;
-        {the size of the flag (necessarily for the cutting off of the flags of narrow columns)}
         W := CheckWidth;
         if X + W > R.Right then
           W := R.Right - X;
         H := CheckHeight;
         if Y + H > R.Bottom then
           H := R.Bottom - Y;
-        { define the type of flag}
         if CK <> gcUserDefine then
         begin
-          { determine a series of pictures according to the type of flag}
           CB := FCheckBitmapCB;
           if CK = gcRadioButton then
             CB := FCheckBitmapRB;
-          { determine the picture of flag}
           CR := Bounds(CheckWidth * Ord(GetCheckState(Cell)), 0, W, H);
           OffsetRect(CR, CheckWidth * 4 * Ord(CheckStyle), 0);
-          { draw vlazhok}
           FillRect(R);
           BrushCopy(Bounds(X, Y, W, H), CB, CR, CB.TransparentColor);
         end
@@ -10201,31 +9849,25 @@ begin
           end;
         end;
       end;
-      { displace the left edge of initial rectangle}
       Rect.Left := R.Right;
     end;
   end;
-  { draw picture}
   if CI <> -1 then
   begin
-    {for the illuminated picture we restore the color of background}
     if IH then
       Canvas.Brush.Color := Color;
-    { obtain the rectangle of picture}
     R := Rect;
     R.Right := MinIntValue([R.Left + Images.Width + GetCellImageIndent(Cell).X, Rect.Right]);
     if R.Left < DefRect.Right then
     begin
       X := R.Left + GetCellImageIndent(Cell).X;
       Y := R.Top + GetCellImageIndent(Cell).Y;
-      {the size of the picture (necessarily for the cutting off of the pictures of narrow columns)}
       W := Images.Width;
       if X + W > R.Right then
         W := R.Right - X;
       H := Images.Height;
       if Y + H > R.Bottom then
         H := R.Bottom - Y;
-      {style and the background colors of picture}
       IDS := DS[IsCellHighlighted(Cell) and Focused and IH];
       BKC := GetRGBColor(Images.BkColor);
       BLC := GetRGBColor(Images.BlendColor);
@@ -10234,7 +9876,6 @@ begin
       Rect.Left := R.Right;
     end;
   end;
-  { restore the color of background}
   GetCellColors(Cell, Canvas);
   if not(IsCellEqual(Cell, FEditCell) and (not IsFocusAllowed)) then
   begin
@@ -10284,14 +9925,12 @@ begin
       ThemedHeader := thHeaderItemNormal;
     Details := StyleServices.GetElementDetails(ThemedHeader);
     DC := Canvas.Handle;
-    // Header shape
     StyleServices.DrawElement(DC, Details, Rect);
   end
   else
   begin
     Canvas.FillRect(Rect);
   end;
-  {if section is pressed - we displace picture and text}
   if IsHeaderPressed(Section) then
     OffsetRect(Rect, 1, 1);
   I := GetHeaderImage(Section);
@@ -10305,35 +9944,28 @@ begin
       begin
         X := R.Left + 2;
         Y := R.Top + 1 + Ord(not Header.Flat);
-        {the size of the picture (necessarily for the cutting off of the pictures of narrow sections)}
         W := Header.Images.Width;
         if X + W > R.Right then
           W := R.Right - X;
         H := Header.Images.Height;
         if Y + H > R.Bottom then
           H := R.Bottom - Y;
-        {the background colors of picture}
         BKC := GetRGBColor(Header.Images.BkColor);
         BLC := GetRGBColor(Header.Images.BlendColor);
-        { draw picture }
         ImageList_DrawEx(Header.Images.Handle, I, Canvas.Handle, X, Y, W, H, BKC, BLC, ILD_NORMAL);
       end;
-      { displace the left edge of initial rectangle }
       Rect.Left := R.Right;
     end;
   end;
   if Rect.Left < Rect.Right then
   begin
-    { obtain the text of title}
     T := Section.Caption;
     TL := Length(T);
-    {for the quite lower section we obtain the direction of sorting}
     SD := gsNone;
     if Section.Level = Header.MaxLevel then
       SD := GetSortDirection(Section);
     with Canvas do
     begin
-      {the parameters of the conclusion of text}
       FillChar(P, SizeOf(P), 0);
       P.cbSize := SizeOf(P);
       P.iLeftMargin := 2 + 4 * Ord(I = -1);
@@ -10349,22 +9981,18 @@ begin
       end;
       if Section.WordWrap then
         F := F or DT_WORDBREAK;
-      {if there is a picture of sorting - we draw first it}
       if SD <> gsNone then
       begin
         SB := FSortBuffer;
-        { assign picture on silence }
         case SD of
           gsAscending:
             SB.Assign(FSortBitmapA);
           gsDescending:
             SB.Assign(FSortBitmapD);
         end;
-        { if there is a user-defined picture, we take it }
         GetSortImage(Section, SB);
         W := SB.Width;
         H := SB.Height;
-        { determine the width of text }
         R := Rect;
         if TL > 0 then
         begin
@@ -10377,7 +10005,6 @@ begin
           R.Right := R.Left;
           R.Top := Rect.Top + 2 * Ord(not Header.Flat);
         end;
-        { calculate rectangle }
         SR.Left := MinIntValue([Rect.Right - W - 6, R.Right + SortLeftIndent]);
         SR.Left := MaxIntValue([Rect.Left + P.iLeftMargin, SR.Left]);
         SR.Right := MinIntValue([Rect.Right - 6, SR.Left + W]);
@@ -10385,63 +10012,49 @@ begin
         SR.Bottom := MinIntValue([Rect.Bottom, SR.Top + H]);
         W := SR.Right - SR.Left;
         H := SR.Bottom - SR.Top;
-        { draw picture }
         BrushCopy(SR, SB, Bounds(0, 0, W, H),  clWhite);
-        { correct the rectangle of text}
         Rect.Right := SR.Left - SortLeftIndent;
       end;
-      { draw text}
       if (TL > 0) and (Rect.Left < Rect.Right) then
       begin
-        { again determine the rectangle of text}
         R := Rect;
         DrawTextEx(Handle, PChar(T), Length(T), R, F or DT_CALCRECT, @P);
-        {for the sections without the pictures we equalize text on the vertical line}
         if I = -1 then
           OffsetRect(R, 0,
             ((Rect.Bottom - Rect.Top) - (R.Bottom - R.Top)) div 2)
         else
           OffsetRect(R, 0, 2 + 2 * Ord(not Header.Flat));
-        { correct left and right side of edge}
         R.Right := Rect.Right;
         R.Left := Rect.Left;
-        {is concluded text}
         SetBkMode(Handle, TRANSPARENT);
         DrawTextEx(Handle, PChar(T), Length(T), R, F, @P);
       end;
     end;
   end;
   if not FThemingEnabled or not StyleServices.Enabled then
-  { draw separator}
   with Canvas do
   begin
     Rect := DefRect;
-    { determine what to draw - button or strip}
     if Header.Flat then
     begin
-      {if the color of title and table coincides - it drawes single line}
       if Header.GridColor then
       begin
         Pen.Color := GetGridLineColor(Color);
         Pen.Width := FGridLineWidth;
-        {strip from below}
         MoveTo(Rect.Left, Rect.Bottom - 1);
         LineTo(Rect.Right - 1, Rect.Bottom - 1);
-        {strip to the right}
         MoveTo(Rect.Right - 1, Rect.Top);
         LineTo(Rect.Right - 1, Rect.Bottom);
       end
       else
       begin
         Pen.Width := 1;
-        {strip from below}
         Pen.Color := clBtnShadow;
         MoveTo(Rect.Left, Rect.Bottom - 2);
         LineTo(Rect.Right - 1, Rect.Bottom - 2);
         Pen.Color := clBtnHighlight;
         MoveTo(Rect.Left, Rect.Bottom - 1);
         LineTo(Rect.Right - 1, Rect.Bottom - 1);
-        {strip to the right}
         Pen.Color := clBtnShadow;
         MoveTo(Rect.Right - 2, Rect.Top);
         LineTo(Rect.Right - 2, Rect.Bottom - 1);
@@ -10452,12 +10065,10 @@ begin
     end
     else
     begin
-      { draw the framework of button}
       if IsHeaderPressed(Section) then
         DrawEdge(Handle, Rect, BDR_SUNKENOUTER, BF_RECT or BF_FLAT)
       else
         Paint3DFrame(Rect, BF_RECT);
-      { correct the rectangle of section}
       InflateRect(Rect, -2, -2);
     end;
   end;
@@ -10473,7 +10084,6 @@ begin
     GetCellColors(CellFocused, Canvas);
     with Canvas do
     begin
-      { intercept place under the title and fixed }
       with GetGridRect do
         IntersectClipRect(Handle, GetFixedRect.Right, Top, Right, Bottom);
       DrawFocusRect(R);
@@ -10487,7 +10097,6 @@ var
   I, J, D, C: Integer;
   S: string;
 begin
-  {the direction of search, the current line and a quantity of lines for the search}
   if frDown in Options then
   begin
     D := 1;
@@ -10500,19 +10109,14 @@ begin
     J := StartCell.Row - 1;
     C := J + 1;
   end;
-  { search for}
   while C > 0 do
   begin
-    { sort out columns}
     for I := 0 to Columns.Count - 1 do
-      { compare values (only for the visible columns)}
       if Columns[I].Width > 0 then
       begin
         S := Cells[I, J];
-        {in the empty line we do not search for}
         if Length(S) = 0 then
           Continue;
-        { compare lines taking into account conditions}
         if CompareStrEx(SearchStr, S, frWholeWord in Options,
           frMatchCase in Options) then
         begin
@@ -10521,7 +10125,6 @@ begin
           Exit;
         end;
       end;
-    {the following line}
     Inc(J, D);
     Dec(C);
   end;
@@ -10564,7 +10167,6 @@ begin
   CR := GetColumnRect(Cell1.Col);
   if Cell2.Col > Cell1.Col then
     CR.Right := GetColumnRect(Cell2.Col).Right;
-  {upper and lower boundaries}
   RR := GetRowRect(Cell1.Row);
   if Cell2.Row > Cell1.Row then
     RR.Bottom := GetRowRect(Cell2.Row).Bottom;
@@ -10658,25 +10260,17 @@ begin
 
   if MaxRow >= MinRow then
   begin
-    { calculate the optimal column width }
     for I := MinRow to MaxRow do
     begin
-      { column and celltext }
       C := GridCell(Column, I);
-      { determine the text rectangle }
       R := GetCellTextBounds(C);
-      { determine text width }
       W := R.Right - R.Left;
-      { include cell checkbox }
       if IsCellHasCheck(C) then
         Inc(W, CheckWidth + GetCheckIndent(C).X);
-      { include cell image }
       if IsCellHasImage(C) then
         Inc(W, Images.Width + GetCellImageIndent(C).X);
-      { include grid lines }
       if GridLines and (gsVertLine in GridStyle) then
         Inc(W, FGridLineWidth);
-      { if the column title is wider, return the title width }
       if Result < W then
         Result := W;
     end;
@@ -10686,8 +10280,6 @@ end;
 function TCustomGridView.GetColumnRect(Column: Integer): TRect;
 begin
   Result := GetColumnLeftRight(Column);
-  {the upper and bottom edge of line is determined respectively by the the upper
-    to the edge of the first line and on the bottom edge of last line}
   Result.Top := GetRowTopBottom(0).Top;
   Result.Bottom := GetRowTopBottom(Rows.Count - 1).Bottom;
 end;
@@ -10726,7 +10318,6 @@ begin
     if gsHorzLine in GridStyle then
       Dec(Result.Bottom, FGridLineWidth);
   end;
-  { check right edge}
   if Result.Left > Result.Right then
     Result.Left := Result.Right;
 end;
@@ -10827,23 +10418,19 @@ function TCustomGridView.GetHeaderSection(ColumnIndex, Level: Integer):
     begin
       S := Sections[I];
       L := S.Level;
-      { compare column and level}
       if (S.ColumnIndex >= ColumnIndex) and
         (((Level = -1) and (S.Sections.Count = 0)) or (L = Level)) then
       begin
         Result := S;
         Exit;
       end;
-      {recursion to all subtitles from below}
       S := DoGetSection(S.Sections);
-      {they found or not}
       if S <> nil then
       begin
         Result := S;
         Exit;
       end;
     end;
-    {there is no section}
     Result := nil;
   end;
 
@@ -10862,17 +10449,13 @@ function TCustomGridView.GetResizeSectionAt(X, Y: Integer): TGridHeaderSection;
   begin
     for I := Sections.Count - 1 downto 0 do
     begin
-      { obtain cell and its column}
       S := Sections[I];
-      { search for only for the visible columns}
       if S.Visible then
       begin
         C := S.ResizeColumnIndex;
-        { obtain the rectangle of the range of change in the size}
         R := S.BoundsRect;
         with R do
         begin
-          { determine an error in the entry}
           DL := 7;
           if R.Right - R.Left < 20 then
             DL := 3;
@@ -10886,7 +10469,6 @@ function TCustomGridView.GetResizeSectionAt(X, Y: Integer): TGridHeaderSection;
             if Columns[C + 1].DefWidth < 10 then
               DR := 1;
           end;
-          { correct the rectangle of entry}
           if R.Right > R.Left then
             Left := Right - DL;
           Right := Right + DR;
@@ -10906,7 +10488,6 @@ function TCustomGridView.GetResizeSectionAt(X, Y: Integer): TGridHeaderSection;
           end;
           Exit;
         end;
-        { search for section in the subtitles}
         if FindSection(S.Sections, Section) then
         begin
           Result := True;
@@ -10943,9 +10524,6 @@ end;
 function TCustomGridView.GetRowRect(Row: Integer): TRect;
 begin
   Result := GetRowTopBottom(Row);
-  {the left and right edge of line is determined respectively by the leftist
-    to the edge of the first unfixed column and on the right edge of the latter
-    column}
   Result.Left := MinIntValue([GetClientRect.Left,
     GetColumnLeftRight(Fixed.Count).Left]);
   Result.Right := GetColumnLeftRight(Columns.Count - 1).Right;
@@ -10973,7 +10551,6 @@ end;
 
 function TCustomGridView.GetRowTopBottom(Row: Integer): TRect;
 begin
-  {the top and the bottom of rectangle is calculated from number and height of line}
   Result.Top := GetGridRect.Top + GetRowsHeight(0, Row - 1) + GetGridOrigin.Y;
   Result.Bottom := Result.Top + Rows.Height;
 end;
@@ -11000,7 +10577,6 @@ function TCustomGridView.GetSectionAt(X, Y: Integer): TGridHeaderSection;
           Exit;
         end;
       end;
-      { search for section in the sub headers}
       if FindSection(S.Sections, Section) then
       begin
         Result := True;
@@ -11192,7 +10768,6 @@ function TCustomGridView.IsCellValidEx(Cell: TGridCell; CheckPosition,
 var
   C, R, V: Boolean;
 begin
-  { determine visibility, width of column and correctness of cell}
   with Cell do
   begin
     C := (Col >= 0) and (Col < Columns.Count);
@@ -11207,15 +10782,11 @@ function TCustomGridView.IsCellVisible(Cell: TGridCell; PartialOK: Boolean):
 var
   CR, GR, R: TRect;
 begin
-  { obtain the boundaries of cell and grid}
   CR := GetCellRect(Cell);
   GR := GetGridRect;
-  {if there are those fixed and cell is not fixed, then left boundary exists
-    the boundary of those fixed, but not the boundary of table}
   if (Fixed.Count > 0) and (Cell.Col >- Fixed.Count) then
     GR.Left := GetFixedRect.Right;
   Result := IntersectRect(R, CR, GR);
-  { complete visibility }
   if not PartialOK then
     Result := EqualRect(R, CR);
 end;
@@ -11266,7 +10837,6 @@ begin
     DY := 0;
     with GetGridRect do
     begin
-      {displacement along horizontal}
       if not RowSelect then
       begin
         R := GetColumnRect(Cell.Col);
@@ -11278,7 +10848,6 @@ begin
         if R.Right - R.Left > Right - X then
           DX := X - R.Left;
       end;
-      {displacement on the vertical line}
       if Rows.Height > 0 then
       begin
         R := GetRowRect(Cell.Row);
@@ -11294,7 +10863,6 @@ begin
         DY := Y;
       end;
     end;
-    { change position}
     with VertScrollBar do
       Position := Position - DY;
     with HorzScrollBar do
@@ -11305,17 +10873,12 @@ end;
 procedure TCustomGridView.SetCursor(Cell: TGridCell;
   Selected, Visible: Boolean);
 begin
-  { Validate position and selection }
   UpdateSelection(Cell, Selected);
-  { If selection or focus was changed by UpdateSelection, then update the grid }
   if (not IsCellEqual(FCellFocused, Cell)) or (FCellSelected <> Selected) then
   begin
-    { Dispatch <OnChanging> event }
     Changing(Cell, Selected);
-    { Set focus to the active cell. }
     if not IsCellEqual(FCellFocused, Cell) then
     begin
-      { Hide cell tips. }
       CancelCellTips;
       Editing := False;
       HideCursor;
@@ -11325,7 +10888,6 @@ begin
         MakeCellVisible(CellFocused, False);
       ShowCursor;
     end
-    { Update selection on the active cell. }
     else if FCellSelected <> Selected then
     begin
       if Editing then
@@ -11339,11 +10901,9 @@ begin
         ShowCursor;
       end;
     end;
-    { Dispatch <OnChange> event }
     Change(FCellFocused, FCellSelected);
   end
   else
-    { Cell did not change - we update visibility }
     if Visible then
       MakeCellVisible(CellFocused, False);
 end;
@@ -11368,15 +10928,12 @@ var
 begin
   Cell := CellFocused;
   IsValidCell := IsCellValid(Cell) and IsCellAcceptCursor(Cell);
-  { if the current cell is inaccessible, then we search for accessible cell all
-    around or first fallen, if there is no such}
   if not IsValidCell then
   begin
     UpdateSelection(Cell, Dummy);
     if IsCellEqual(Cell, CellFocused) then
       Cell := GetCursorCell(Cell, goFirst);
   end;
-  { correct the isolation of cell}
   SetCursor(Cell, CellSelected, not IsValidCell);
 end;
 
@@ -11466,13 +11023,9 @@ begin
     except
       on E: Exception do
       begin
-        { do not give to be shifted to the cursor of scroller}
         MakeCellVisible(CellFocused, False);
-        {if line is visible - focus to it, otherwise it will be extinguished afterward
-          opening window with the communication about the error}
         if EditFocused then
           Edit.SetFocus;
-        {error}
         raise;
       end;
     end;
@@ -11532,11 +11085,8 @@ procedure TCustomGridView.UpdateScrollBars;
 var
   R, P, L: Integer;
 begin
-  { block repeated updates when dimensions of the window change, which
-    compulsorily it will occur with the demonstration of scroller or with its extinction}
   LockUpdate;
   try
-    {the parameters of vertical scroller}
     if (Rows.Count > 0) and (Rows.Height > 0) then
     begin
       R := Rows.Count - 1;
@@ -11583,7 +11133,6 @@ procedure TCustomGridView.UpdateSelection(var Cell: TGridCell;
 begin
   Selected := Selected or FAlwaysSelected;
   Selected := Selected and (Rows.Count > 0) and (Columns.Count > 0);
-  { Check if the cell position is valid and update it if needed. }
   with Cell do
   begin
     if Col < Fixed.Count then
@@ -11615,7 +11164,6 @@ begin
     Exit;
   if Columns.Count > 0 then
   begin
-    { search for the first-encountered visible unfixed column}
     X := GetClientRect.Left + GetFixedWidth - HorzScrollBar.Position;
     R := GetFixedRect;
     I := Fixed.Count;
@@ -11627,7 +11175,6 @@ begin
       Inc(I);
     end;
     FVisOrigin.Col := I;
-    { count a quantity of visible columns}
     R := GetGridRect;
     while I < Columns.Count - 1 do
     begin
@@ -11645,9 +11192,7 @@ begin
   end;
   if (Rows.Count > 0) and (Rows.Height > 0) then
   begin
-    {vertical cursor is determined the number of the first visible line}
     FVisOrigin.Row := VertScrollBar.Position;
-    { count a quantity of visible (even partially) lines}
     H := GetGridHeight;
     FVisSize.Row := H div Rows.Height + Ord(H mod Rows.Height > 0);
     if FVisSize.Row + FVisOrigin.Row  > Rows.Count then
@@ -11681,7 +11226,6 @@ var
       not(STATE_SYSTEM_UNAVAILABLE and BarInfo.rgstate[0] <> 0);
     if FVertScrollBarWindow.Visible then
     begin
-      // ScrollBar Rect
       P := BarInfo.rcScrollBar.TopLeft;
       ScreenToClient(Handle, P);
       FVertScrollBarRect.TopLeft := P;
@@ -12324,7 +11868,6 @@ begin
         SF.fMask := SIF_ALL;
         SF.cbSize := SizeOf(SF);
         GetScrollInfo(Handle, SB_HORZ, SF);
-        // FListPos := SF.nPos;
         FScrollPos := SF.nPos;
         FPrevScrollPos := Mouse.CursorPos.X;
         FHorzScrollBarSliderState := tsThumbBtnHorzPressed;

@@ -108,7 +108,7 @@ type
   end;
 
 var
-  FSettings: ISettings;
+  FSettings : ISettings;
 
 function Settings: ISettings;
 begin
