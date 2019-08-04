@@ -88,9 +88,9 @@ uses
   System.SysUtils, System.TypInfo, System.Threading,
   Vcl.Dialogs, Vcl.Graphics,
 
-  Spring, Spring.Reflection,
+  Spring,
 
-  Concepts.Utils, DDuce.Utils;
+  DDuce.Utils;
 
 const
   LEVEL_PACKAGE = 0;

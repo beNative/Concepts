@@ -55,14 +55,12 @@ type
 
 implementation
 
+{$R *.dfm}
+
 uses
   System.TypInfo, System.Rtti,
 
-  DDuce.Components.Factories, DDuce.Factories.zObjInspector, DDuce.Logger,
-
-  Concepts.Factories, Concepts.Utils;
-
-{$R *.dfm}
+  DDuce.Factories.zObjInspector, DDuce.Logger;
 
 {$REGION 'construction and destruction'}
 procedure TfrmSynMemoEx.AfterConstruction;

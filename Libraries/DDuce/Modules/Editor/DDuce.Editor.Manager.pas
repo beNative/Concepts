@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2018 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -84,12 +84,13 @@ uses
   Vcl.Controls, Vcl.ActnList, Vcl.Menus, Vcl.Dialogs, Vcl.Forms, Vcl.ImgList,
   Vcl.ActnPopup,
 
-  Spring.Collections,
+  Spring, Spring.Collections,
 
   BCEditor.Editor, BCEditor.Editor.KeyCommands,
 
   DDuce.Editor.Types, DDuce.Editor.Interfaces, DDuce.Editor.Resources,
   DDuce.Editor.View, DDuce.Editor.Highlighters,
+  DDuce.Editor.Commands,
 
   DDuce.Logger;
 
@@ -414,7 +415,7 @@ type
     FPersistSettings : Boolean;
     FToolViews       : IEditorToolViews;
     FEvents          : IEditorEvents;
-    FCommands        : IEditorCommands;
+    FCommands        : TEditorCommands;
     FSettings        : IEditorSettings;
     FActiveView      : IEditorView;
     FViewList        : IList<IEditorView>;
@@ -698,8 +699,6 @@ uses
   System.StrUtils, System.TypInfo,
   Vcl.Clipbrd,
 
-  Spring,
-
   DDuce.Editor.Settings, DDuce.Editor.Utils,
 
   DDuce.Editor.ToolView.Manager,
@@ -718,8 +717,7 @@ uses
   DDuce.Editor.Search.Engine.Settings,
   DDuce.Editor.SortStrings.Settings,
   DDuce.Editor.Search.Engine,
-
-  DDuce.Editor.Events, DDuce.Editor.Commands;
+  DDuce.Editor.Events;
 const
   // prefixes used for naming dynamically created actions.
   ACTION_PREFIX_ENCODING       = 'actEncoding';
@@ -735,6 +733,7 @@ begin
   FSettings := ASettings;
   if not Assigned(FSettings) then
     FSettings := TEditorSettings.Create(Self);
+  FSettings.OnChanged.Add(EditorSettingsChanged);
 end;
 
 procedure TdmEditorManager.AfterConstruction;
@@ -749,10 +748,10 @@ begin
   FCommands         := TEditorCommands.Create(Self);
   FViewList         := TCollections.CreateInterfaceList<IEditorView>;;
   FSearchEngine     := TSearchEngine.Create(Self);
-  FSettings.OnChanged.Add(EditorSettingsChanged);
   RegisterToolViews;
   CreateActions;
   InitializePopupMenus;
+  aclActions.State := asSuspended;
 end;
 
 procedure TdmEditorManager.BeforeDestruction;
@@ -919,6 +918,7 @@ procedure TdmEditorManager.SetActiveView(AValue: IEditorView);
 begin
   if Assigned(AValue) and (AValue <> FActiveView) then
   begin
+    Logger.Track(Self, 'SetActiveView');
     FActiveView := AValue;
     Events.DoActiveViewChange;
     ActiveViewChanged;
@@ -1284,7 +1284,7 @@ end;
 
 procedure TdmEditorManager.actCutExecute(Sender: TObject);
 begin
-  if ActiveView.Focused then
+  if Assigned(ActiveView) and ActiveView.Focused then
     ActiveView.Cut;
 end;
 
@@ -1307,7 +1307,7 @@ end;
 
 procedure TdmEditorManager.actHelpExecute(Sender: TObject);
 begin
-//  ShortCuts.Show;
+  ShowMessage(SNotImplementedYet);
 end;
 
 procedure TdmEditorManager.actInsertColorValueExecute(Sender: TObject);
@@ -1318,16 +1318,6 @@ end;
 
 procedure TdmEditorManager.actInspectExecute(Sender: TObject);
 begin
-//  InspectComponents([
-//    HighlighterPopupMenu.Items,
-//    HighlighterPopupMenu.Items[0],
-//    HighlighterPopupMenu.Items[1],
-//    ActiveView.Editor,
-//    ActiveView.Editor.Gutter.ChangesPart,
-//    ActiveView.Editor.Gutter.LineNumberPart,
-//    ActiveView.Editor.Gutter.CodeFoldPart,
-//    ActiveView.Editor.Gutter.SeparatorPart
-//  ]);
   ShowMessage(SNotImplementedYet);
 end;
 
@@ -1493,11 +1483,6 @@ end;
 procedure TdmEditorManager.actSettingsExecute(Sender: TObject);
 begin
   ShowMessage(SNotImplementedYet);
-{  with TEditorSettingsDialog.Create(Self) do
-  begin
-    ShowModal;
-  end;         }
-//  ExecuteSettingsDialog(Self);
 end;
 
 procedure TdmEditorManager.actHighlighterExecute(Sender: TObject);
@@ -1678,6 +1663,7 @@ procedure TdmEditorManager.aclActionsExecute(AAction: TBasicAction;
   var Handled: Boolean);
 begin
   Events.DoActionExecute(AAction, Handled);
+  Logger.Action(AAction);
 end;
 
 procedure TdmEditorManager.actAlignAndSortSelectionExecute(Sender: TObject);
@@ -2481,6 +2467,7 @@ procedure TdmEditorManager.ExportLines(AFormat: string; AToClipBoard: Boolean;
 //  S  : string;
 //  SL : TStringList;
 begin
+  ShowMessage(SNotImplementedYet);
 //  SL := TStringList.Create;
 //  try
 //    if AFormat = 'HTML' then
@@ -2609,16 +2596,17 @@ end;
 
 procedure TdmEditorManager.UpdateActions;
 var
-  B  : Boolean;
-  V  : IEditorView;
+  B : Boolean;
+  V : IEditorView;
 begin
-  V := ActiveView;
-  if Assigned(V) then
+  if Assigned(ActiveView) then
   begin
-    B := ActiveView.Focused;
+    aclActions.State := asNormal;
+    V := ActiveView;
+    B := V.Editor.Focused;
     actCut.Enabled   := actCut.Visible and B;
     actCopy.Enabled  := actCopy.Visible and B;
-    actPaste.Enabled := actPaste.Visible and ActiveView.CanPaste and B;
+    actPaste.Enabled := actPaste.Visible and V.CanPaste and B;
 
     if Assigned(Settings) and V.Focused {and FChanged} then
     begin
@@ -2729,8 +2717,8 @@ begin
 //      if MI.Caption = '-' then
 //        MI.Visible := False;
 //    end;
+    actHighlighterMenu.Enabled := True;
   end;
-  actHighlighterMenu.Enabled := True;
 end;
 
 procedure TdmEditorManager.UpdateEncodingActions;

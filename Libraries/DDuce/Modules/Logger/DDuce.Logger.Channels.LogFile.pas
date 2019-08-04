@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2018 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ type
     FShowStrings    : Boolean;
     FStreamWriter   : Lazy<TStreamWriter>;
     FFileName       : string;
+    FFileStream     : Lazy<TFileStream>;
 
     function Space(ACount: Integer): string;
     procedure UpdateIndentation;
@@ -105,13 +106,29 @@ begin
   FShowTime     := True;
   FShowStrings  := True;
   FShowHeader   := False;
-  Active        := False;
+  Enabled       := False;
+  FFileStream.Create(function: TFileStream
+    begin
+      if not FileExists(FFileName) then
+        Result := TFileStream.Create(FFileName, fmCreate or fmShareDenyNone)
+      else
+        Result := TFileStream.Create(FFileName, fmOpenWrite or fmShareDenyNone);
+    end
+  );
+
   FStreamWriter.Create(function: TStreamWriter
     begin
-      Result := TStreamWriter.Create(FFileName, True); // Append
+      Result := TStreamWriter.Create(FFileStream);
       if FShowHeader then
-        Result.WriteLine('============|Log Session Started at ' + DateTimeToStr(Now)
-          + ' by ' + Application.Title + '|============');
+      begin
+        Result.WriteLine(
+          '============|Log Session Started at ' +
+          DateTimeToStr(Now) +
+          ' by ' +
+          Application.Title +
+          '|============'
+        );
+      end;
       UpdateIndentation;
     end
   )
@@ -119,6 +136,7 @@ end;
 
 procedure TLogFileChannel.BeforeDestruction;
 begin
+  //FFileStream.Free;
   inherited BeforeDestruction;
 end;
 {$ENDREGION}
@@ -229,7 +247,6 @@ end;
 {$REGION 'public methods'}
 function TLogFileChannel.Write(const AMsg: TLogMessage): Boolean;
 begin
-  // Exit method identation must be set before
   if (AMsg.MsgType = Integer(lmtLeaveMethod)) and (FRelativeIndent >= 2) then
     Dec(FRelativeIndent, 2);
   if ShowDate then

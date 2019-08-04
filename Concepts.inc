@@ -36,5 +36,4 @@
 {$DEFINE ZOBJECTINSPECTOR} // TzObjectInspector
 {.$DEFINE DEVEXPRESS}    // DevExpress - http://www.devexpress.com/Products/VCL/
 {.$DEFINE BTMEMORYMODULE} // BTMemoryModule.pas
-{.$DEFINE FIREDAC}       // Delphi FireDAC units ('FireDAC' prefix)
 {.$DEFINE FASTMM}         // FastMM

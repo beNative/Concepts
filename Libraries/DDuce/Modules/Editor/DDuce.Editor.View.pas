@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2018 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -81,13 +81,14 @@ type
       var AAction    : TBCEditorReplaceAction
     );
 
+    procedure EditorEnter(Sender: TObject);
+
     procedure EditorDropFiles(
       Sender : TObject;
       Pos    : TPoint;
       AFiles : TStrings
     );
 
-    function IsActive: Boolean;
     procedure ApplySettings;
 
   private
@@ -235,6 +236,7 @@ type
     procedure DoChange; dynamic;
 
   protected
+    function IsActive: Boolean;
     // TCustomForm overrides
     procedure Activate; override;
     procedure UpdateActions; override;
@@ -244,6 +246,8 @@ type
     // constructors and destructors
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
+
+
 
     // public overridden methods
     function CloseQuery: Boolean; override;
@@ -276,6 +280,7 @@ type
       read GetLogicalCaretXY write SetLogicalCaretXY;
 
   public
+    function Focused: Boolean; override;
     { current X-coordinate of the caret on the screen. }
     property CaretX: Integer
       read GetCaretX write SetCaretX;
@@ -520,6 +525,11 @@ begin
 // TS: TEMP!
   Editor.LoadFromFile(AFiles[0]);
   Editor.Highlighter.LoadFromFile('Object Pascal.json');
+end;
+
+procedure TEditorView.EditorEnter(Sender: TObject);
+begin
+  Activate;
 end;
 
 procedure TEditorView.EditorReplaceText(Sender: TObject; const ASearch,
@@ -958,7 +968,7 @@ end;
 
 function TEditorView.GetActions: IEditorActions;
 begin
-  Result := Owner as IEditorActions;
+  Result := Manager as IEditorActions;
 end;
 
 function TEditorView.GetCaretXY: TPoint;
@@ -1121,7 +1131,10 @@ end;
 
 function TEditorView.GetManager: IEditorManager;
 begin
-  Result := Owner as IEditorManager;
+  if Assigned(Owner) and Supports(Owner, IEditorManager) then
+    Result := Owner as IEditorManager
+  else
+    Result := nil;
 end;
 
 function TEditorView.GetVisible: Boolean;
@@ -1318,6 +1331,7 @@ begin
   //AEditor.OnCommandProcessed     := EditorCommandProcessed;
   AEditor.OnDropFiles            := EditorDropFiles;
   AEditor.OnCustomTokenAttribute := EditorCustomTokenAttribute;
+  AEditor.OnEnter                := EditorEnter;
 
   // TEMP
   AEditor.Highlighter.Colors.LoadFromFile('tsColors.json');
@@ -1468,12 +1482,13 @@ end;
 procedure TEditorView.Activate;
 begin
   inherited Activate;
+  Logger.Track(Self, 'Activate');
   Manager.ActiveView := Self as IEditorView;
 end;
 
 function TEditorView.EditorViewFocused: Boolean;
 begin
-  Result := Focused or Editor.Focused;
+  Result := Editor.Focused;
 end;
 
 procedure TEditorView.SelectWord;
@@ -1516,6 +1531,11 @@ begin
   end;
 end;
 
+function TEditorView.Focused: Boolean;
+begin
+  Result := Editor.Focused;
+end;
+
 procedure TEditorView.UpdateActions;
 var
   B: Boolean;
@@ -1532,25 +1552,23 @@ begin
   begin
     Activate;
   end;
-
-  if IsActive then
-  begin
-//    Editor.Color := clWhite;
-//    UpdateSharedViews;
-  end
-  else
-  begin
-    if Settings.DimInactiveView then
-//      Editor.Color := GetHighLightColor(15329769, 10);
-  end;
-
   if Assigned(Actions) then
-    Actions.UpdateActions;
-
-  if FUpdate then
   begin
-    ApplySettings;
-    FUpdate := False;
+//    if not (csDestroying in ComponentState) then
+//    begin
+//      if Assigned(Actions.ActionList) then
+      try
+        Actions.UpdateActions; // TODO: Abstract error on releasing object if this is placed outside FUpdate condition.
+      except
+        on E: EAbstractError do
+        ;
+      end;
+    //end;
+    if FUpdate then
+    begin
+      ApplySettings;
+      FUpdate := False;
+    end;
   end;
 end;
 

@@ -35,13 +35,15 @@ unit Concepts.Spring.Collections.Form;
 interface
 
 uses
-  System.Actions, System.Classes, System.SysUtils,
+  System.Actions, System.Classes, System.SysUtils, System.Bindings.Outputs,
+  System.Rtti,
   Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.Forms, Vcl.ComCtrls,
+  Vcl.Bind.DBEngExt, Vcl.Bind.Editors, Vcl.ExtCtrls,
+  Data.Bind.EngExt, Data.Bind.Components,
 
   Spring, Spring.Collections,
 
-  Concepts.Types.Contact, Data.Bind.EngExt, Vcl.Bind.DBEngExt, System.Rtti,
-  System.Bindings.Outputs, Vcl.Bind.Editors, Data.Bind.Components, Vcl.ExtCtrls;
+  Concepts.Types.Contact;
 
 type
   TfrmCollections = class(TForm)
@@ -52,21 +54,21 @@ type
     actFirstNameIs  : TAction;
     actLastNameIs   : TAction;
     actPopulateList : TAction;
+    BindExpression1 : TBindExpression;
     btnBoth         : TButton;
     btnCreateList   : TButton;
     btnFirstNameIs  : TButton;
     btnLastNameIs   : TButton;
     edtFirstName    : TEdit;
     edtLastName     : TEdit;
-    lblRecordCount  : TLabel;
-    mmoList         : TMemo;
-    trbRecordCount  : TTrackBar;
-    sbrMain         : TStatusBar;
-    lstBindings     : TBindingsList;
     edtRecordCount  : TEdit;
-    BindExpression1 : TBindExpression;
-    pnlHeader       : TPanel;
     lblHeader       : TLabel;
+    lblRecordCount  : TLabel;
+    lstBindings     : TBindingsList;
+    mmoList         : TMemo;
+    pnlHeader       : TPanel;
+    sbrMain         : TStatusBar;
+    trbRecordCount  : TTrackBar;
     {$ENDREGION}
 
     procedure actPopulateListExecute(Sender: TObject);
@@ -101,7 +103,7 @@ uses
 
   DDuce.ScopedReference, DDuce.Utils,
 
-  Concepts.Factories, Concepts.Utils;
+  Concepts.Factories;
 
 resourcestring
   SFindContactsWithFirstName = 'Find all contacts with first name = %s';

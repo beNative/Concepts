@@ -57,8 +57,7 @@ type
   end;
 
   IRunnable = interface
-    [IRunnable_IID]
-
+  [IRunnable_IID]
     procedure Run(ARaiseException: Boolean = False);
   end;
 

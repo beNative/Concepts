@@ -26,13 +26,12 @@ uses
 
 type
   TdmResources = class(TDataModule)
-    imlMain: TImageList;
+    imlMain : TImageList;
 
   end;
 
 var
   dmResources: TdmResources;
-
 
 implementation
 

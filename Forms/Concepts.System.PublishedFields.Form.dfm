@@ -98,7 +98,5 @@ object frmPublishedFields: TfrmPublishedFields
     ParentBackground = False
     ParentFont = False
     TabOrder = 6
-    ExplicitLeft = -905
-    ExplicitWidth = 1164
   end
 end

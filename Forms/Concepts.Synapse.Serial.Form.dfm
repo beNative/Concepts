@@ -389,8 +389,6 @@ object frmSynapseSerial: TfrmSynapseSerial
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitTop = 346
-      ExplicitHeight = 233
       object pgcSend: TPageControl
         Left = 0
         Top = 0
@@ -399,9 +397,11 @@ object frmSynapseSerial: TfrmSynapseSerial
         ActivePage = tsCommands
         Align = alClient
         TabOrder = 0
-        ExplicitHeight = 233
         object tsMemo: TTabSheet
           Caption = 'Memo'
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
           ExplicitHeight = 205
           object mmoSend: TMemo
             Left = 0
@@ -416,7 +416,6 @@ object frmSynapseSerial: TfrmSynapseSerial
         object tsCommands: TTabSheet
           Caption = 'Commands'
           ImageIndex = 1
-          ExplicitHeight = 205
           object pnlCommands: TGridPanel
             AlignWithMargins = True
             Left = 3
@@ -458,7 +457,6 @@ object frmSynapseSerial: TfrmSynapseSerial
                 Value = 16.666666666666670000
               end>
             TabOrder = 0
-            ExplicitHeight = 199
           end
         end
       end
@@ -757,7 +755,7 @@ object frmSynapseSerial: TfrmSynapseSerial
     Left = 72
     Top = 136
     Bitmap = {
-      494C0101050009003C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010105000900040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

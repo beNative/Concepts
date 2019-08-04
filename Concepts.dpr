@@ -2,8 +2,6 @@ program Concepts;
 
 {$I Concepts.inc}
 
-{$R *.dres}
-
 uses
   Vcl.Themes,
   Vcl.Styles,
@@ -79,7 +77,6 @@ uses
   Concepts.DevExpress.cxEditors.Form in 'Forms\Concepts.DevExpress.cxEditors.Form.pas' {frmcxEditors},
   Concepts.DevExpress.cxGridViewPresenter.Form in 'Forms\Concepts.DevExpress.cxGridViewPresenter.Form.pas' {frmcxGridViewPresenter},
   Concepts.VirtualTreeView.Form in 'Forms\Concepts.VirtualTreeView.Form.pas' {frmVirtualTreeView},
-  Concepts.FireDAC.Form in 'Forms\Concepts.FireDAC.Form.pas' {frmFireDAC},
   Concepts.System.PublishedFields.Form in 'Forms\Concepts.System.PublishedFields.Form.pas' {frmPublishedFields},
   Concepts.System.Interfaces.DelegatedImplementation in 'Forms\Concepts.System.Interfaces.DelegatedImplementation.pas',
   Concepts.System.Interfaces.Form in 'Forms\Concepts.System.Interfaces.Form.pas' {frmInterfaces},
@@ -101,7 +98,8 @@ uses
 { Used to directly start a concept by name. If empty a list will be shown with
   all registered concepts. }
 const
-  EXECUTE_BY_NAME = '';
+  EXECUTE_BY_NAME = 'ClassProxy';
+//  EXECUTE_BY_NAME = '';
 //  EXECUTE_BY_NAME = 'Virtual treeview';
 //  EXECUTE_BY_NAME = 'ZeroMQ';
 //  EXECUTE_BY_NAME = 'FireDAC';
@@ -117,6 +115,8 @@ begin
   Application.Initialize;
   TConcepts.RegisterConcepts;
   Logger.Channels.Add(TZeroMQChannel.Create);
+  Logger.Clear;
+  Logger.Info('Concepts started.');
   Application.CreateForm(TdmResources, dmResources);
   if not ConceptManager.Execute(EXECUTE_BY_NAME) then
   begin

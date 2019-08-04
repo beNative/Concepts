@@ -1,9 +1,10 @@
 object frmClassProxy: TfrmClassProxy
   Left = 0
   Top = 0
+  BorderStyle = bsDialog
   Caption = 'Class Proxy'
-  ClientHeight = 38
-  ClientWidth = 323
+  ClientHeight = 39
+  ClientWidth = 319
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

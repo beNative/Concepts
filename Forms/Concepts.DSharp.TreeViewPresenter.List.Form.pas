@@ -100,7 +100,6 @@ type
       PItem  : PPropItem
     ): Boolean;
 
-
     procedure CreateColumnDefinitionsView;
 
   public

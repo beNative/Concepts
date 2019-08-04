@@ -56,8 +56,6 @@ object frmDDetours: TfrmDDetours
     ParentBackground = False
     ParentFont = False
     TabOrder = 3
-    ExplicitLeft = -259
-    ExplicitWidth = 495
     object lblHeader: TLabel
       Left = 0
       Top = 0

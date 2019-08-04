@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows,
-  System.Classes, System.SysUtils, System.Generics.Collections, System.SyncObjs,
+  System.Classes, System.SysUtils, System.SyncObjs,
 
   // ==============================================================================
   // HammerOh
@@ -120,8 +120,7 @@ type
 
 implementation
 
-uses
-  MQTT;
+
 
 {$REGION 'non-interfaced routines'}
 procedure AppendBytes(var ADestArray: TBytes; const ANewBytes: TBytes);

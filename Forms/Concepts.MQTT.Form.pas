@@ -33,8 +33,9 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   System.ImageList,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList, Vcl.ImgList,
-  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
+
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList,
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.ImgList,
 
   MQTT,
 
@@ -113,10 +114,13 @@ type
       Topic   : UTF8String;
       Payload : UTF8String
     );
+
+    {$REGION 'property access methods'}
     function GetTopics: TStrings;
     procedure Connect;
     function GetConnected: Boolean;
     procedure SubscribeToAllTopics;
+    {$ENDREGION}
 
   protected
     procedure UpdateActions; override;
@@ -144,7 +148,7 @@ implementation
 uses
   DDuce.Components.Factories, DDuce.RandomData, DDuce.Utils.WinApi,
 
-  Spring, mosquitto,
+  Spring,
 
   Concepts.Settings;
 

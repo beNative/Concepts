@@ -57,9 +57,7 @@ implementation
 uses
   Winapi.Windows,
 
-  DDuce.Utils,
-
-  Concepts.Utils;
+  DDuce.Utils;
 
 {$REGION 'action handlers'}
 procedure TfrmLockPaint.actDrawExecute(Sender: TObject);

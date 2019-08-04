@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2018 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -44,14 +44,16 @@ type
     FPublisher : IZMQPair;
     FPort      : Integer;
     FEndPoint  : string;
+    FBound     : Boolean;
 
   protected
     {$REGION 'property access methods'}
     function GetZMQVersion: string;
-    function GetActive: Boolean; override;
+    function GetEnabled: Boolean; override;
     function GetEndPoint: string;
     procedure SetEndPoint(const Value: string);
     function GetPort: Integer; override;
+    function GetConnected: Boolean; override;
     {$ENDREGION}
 
     { The endpoint argument is a string consisting of two parts as follows:
@@ -71,10 +73,12 @@ type
     constructor Create(
       const AEndPoint : string = '';
       AActive         : Boolean = True
-    ); reintroduce; virtual;
+    ); reintroduce; overload; virtual;
+
+    function Connect: Boolean; override;
+    function Disconnect: Boolean; override;
 
     function Write(const AMsg: TLogMessage): Boolean; override;
-    function Connect: Boolean; override;
 
   end;
 
@@ -105,8 +109,10 @@ begin
   begin
     FEndPoint := DEFAULT_ENDPOINT;
   end;
-  if Active then
-    Connect;
+  if Enabled then
+  begin
+    FBound := Connect;
+  end;
 end;
 
 procedure TZeroMQChannel.BeforeDestruction;
@@ -115,18 +121,23 @@ begin
   begin
     FBuffer.Free;
   end;
-  if Assigned(FPublisher)  then
+  if Assigned(FPublisher) then
   begin
-    FPublisher.Close;
+    Disconnect;
   end;
   inherited BeforeDestruction;
 end;
 {$ENDREGION}
 
 {$REGION 'property access methods'}
-function TZeroMQChannel.GetActive: Boolean;
+function TZeroMQChannel.GetEnabled: Boolean;
 begin
-  Result := Assigned(FZMQ) and inherited GetActive;
+  Result := Assigned(FZMQ) and inherited GetEnabled;
+end;
+
+function TZeroMQChannel.GetConnected: Boolean;
+begin
+  Result := FBound;
 end;
 
 function TZeroMQChannel.GetEndPoint: string;
@@ -139,8 +150,6 @@ begin
   if Value <> EndPoint then
   begin
     FEndPoint := Value;
-    if Active then
-      Connect;
   end;
 end;
 
@@ -161,15 +170,17 @@ end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
+{ Returns true if successful. }
+
 function TZeroMQChannel.Connect: Boolean;
 var
   S : string;
   A : TStringDynArray;
 begin
-  if Active then
+  if Enabled then
   begin
     FPublisher := FZMQ.Start(ZMQSocket.Publisher);
-    Connected  := FPublisher.Bind(FEndPoint) <> -1;
+    FBound := FPublisher.Bind(FEndPoint) = 0; // 0 when successful
     // Physical connection is always a bit after Connected reports True.
     // https://stackoverflow.com/questions/11634830/zeromq-always-loses-the-first-message
     if Connected then
@@ -182,8 +193,21 @@ begin
     S := FPublisher.LastEndPoint;
     A := SplitString(S, [':']);
     FPort := StrToIntDef(A[High(A)], 0);
+    FEndPoint := S;
   end;
   Result := Connected;
+end;
+
+{ Returns True if successful. }
+
+function TZeroMQChannel.Disconnect: Boolean;
+begin
+  Result := True;
+  if Connected then
+  begin
+    Result := FPublisher.Close;
+    FBound := False;
+  end;
 end;
 
 function TZeroMQChannel.Write(const AMsg: TLogMessage): Boolean;
@@ -193,9 +217,9 @@ var
   TextSize : Integer;
   DataSize : Integer;
 begin
-  if Active then
+  if Enabled then
   begin
-    if not Connected then
+    if not Connected and AutoConnect then
       Connect;
     if Connected then
     begin

@@ -153,8 +153,8 @@ object frmCollections: TfrmCollections
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 372
-      Height = 13
+      Width = 495
+      Height = 29
       Align = alClient
       Alignment = taCenter
       Caption = 
@@ -162,6 +162,8 @@ object frmCollections: TfrmCollections
         '.'
       Layout = tlCenter
       WordWrap = True
+      ExplicitWidth = 372
+      ExplicitHeight = 13
     end
   end
   object aclMain: TActionList

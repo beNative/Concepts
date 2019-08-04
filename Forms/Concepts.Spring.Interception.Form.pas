@@ -22,9 +22,9 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.Actions,
-  Vcl.ActnList, Vcl.StdCtrls, Vcl.ExtCtrls;
+  System.SysUtils, System.Variants, System.Classes, System.Actions,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList,
+  Vcl.StdCtrls, Vcl.ExtCtrls;
 
 type
   {$M+}
@@ -149,3 +149,119 @@ end;
 {$ENDREGION}
 
 end.
+
+
+(*
+program Project1;
+
+{$AppType Console}
+
+{$R *.res}
+
+uses
+  System.SysUtils,
+  Spring,
+  Spring.Container,
+  Spring.Interception;
+
+type
+  IThingy = interface (IInvokable)
+    ['{FD337CC6-03EB-4384-A027-E993AB687BF0}']
+    function GetValue: String;
+    procedure SetValue(const Value: String);
+
+    property Value: String read GetValue write SetValue;
+  end;
+
+  TThingy = class (TInterfacedObject, IThingy)
+  strict private
+    FValue: String;
+
+    function GetValue: String;
+    procedure SetValue(const Value: String);
+  end;
+
+{ TThingy }
+
+function TThingy.GetValue: String;
+begin
+  Result := FValue;
+end;
+
+procedure TThingy.SetValue(const Value: String);
+begin
+  FValue := Value;
+end;
+
+type
+  TClassInterceptor = class(TInterfacedObject, IInterceptor)
+    procedure Intercept(const Invocation: IInvocation);
+  end;
+
+  TInstanceInterceptor = class(TInterfacedObject, IInterceptor)
+  private
+    class var InstanceCount: Integer;
+    var FNo: Integer;
+    procedure Intercept(const Invocation: IInvocation);
+  public
+    constructor Create;
+  end;
+
+{ Main }
+
+procedure Main;
+var
+  Thingy1: IThingy;
+  Thingy2: IThingy;
+begin
+  GlobalContainer.RegisterType<TClassInterceptor,TClassInterceptor>.AsSingleton;
+  GlobalContainer.RegisterType<TInstanceInterceptor>('instance');
+  GlobalContainer.RegisterType<IThingy, TThingy>.InterceptedBy<TClassInterceptor>.InterceptedBy('instance');
+  GlobalContainer.Build;
+
+  Thingy1 := GlobalContainer.Resolve<IThingy>;
+  Thingy2 := GlobalContainer.Resolve<IThingy>;
+
+  Thingy1.Value := 'Value 1';
+  Thingy2.Value := 'Value 2';
+
+  WriteLn(Format('Thingy1.Value: %s', [Thingy1.Value]));
+  WriteLn(Format('Thingy2.Value: %s', [Thingy2.Value]));
+end;
+
+procedure TClassInterceptor.Intercept(const Invocation: IInvocation);
+begin
+  Invocation.Proceed;
+
+  if Invocation.Method.Name = 'GetValue' then
+    Invocation.Result := TValue.From<String>(Invocation.Result.AsString + ' intercepted by class aspect');
+end;
+
+constructor TInstanceInterceptor.Create;
+begin
+  Inc(InstanceCount);
+  FNo := InstanceCount;
+end;
+
+procedure TInstanceInterceptor.Intercept(const Invocation: IInvocation);
+begin
+  Invocation.Proceed;
+
+  if Invocation.Method.Name = 'GetValue' then
+    Invocation.Result := TValue.From<String>(Invocation.Result.AsString + ' intercepted by instance aspect ' + IntToStr(FNo));
+end;
+
+begin
+  try
+    Main;
+  except
+    on E: Exception do
+      WriteLn(E.ClassName, ': ', E.Message);
+  end;
+  if DebugHook <> 0 then
+  begin
+    WriteLn('Press enter...');
+    ReadLn;
+  end;
+end.
+*)

@@ -24,23 +24,24 @@ interface
 
 uses
   System.SysUtils, System.Actions, System.Classes, System.ImageList,
-  Vcl.Dialogs, Vcl.ActnList, Vcl.ImgList, Vcl.Menus, Vcl.Controls, Vcl.StdCtrls,
-  Vcl.Buttons, Vcl.ExtCtrls, Vcl.Forms, Vcl.ComCtrls,
+  Vcl.Dialogs, Vcl.ActnList, Vcl.Menus, Vcl.Controls, Vcl.StdCtrls, Vcl.Buttons,
+  Vcl.ExtCtrls, Vcl.Forms, Vcl.ComCtrls, Vcl.ImgList,
 
   Spring.Collections,
 
-  DDuce.Components.LogTree, DDuce.Components.PropertyInspector, DDuce.Logger,
+  DDuce.Components.LogTree, DDuce.Logger,
 
   zObjInspector, zObjInspTypes,
 
-  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdCmdTCPClient,
-  IdContext, IdIntercept, IdGlobal, IdIOHandler, IdIOHandlerSocket,
-  IdIOHandlerStack, IdCommandHandlers, IdTelnet;
+  IdComponent, IdTCPConnection, IdTCPClient, IdGlobal, IdIOHandler, IdTelnet,
+  IdIOHandlerStack, IdBaseComponent;
 
 type
   TfrmIndyTelnet = class(TForm)
     {$REGION 'designer controls'}
     aclMain                : TActionList;
+    actAssignCommand       : TAction;
+    actClearCommand        : TAction;
     actClearReceived       : TAction;
     actClearSent           : TAction;
     actConnect             : TAction;
@@ -57,9 +58,12 @@ type
     dlgSave                : TSaveDialog;
     edtPort                : TEdit;
     edtServer              : TEdit;
+    IdTelnet               : TIdTelnet;
     ilMain                 : TImageList;
     mmoReceivedText        : TMemo;
     mmoSentText            : TMemo;
+    mniAssignCommand       : TMenuItem;
+    mniClearCommand        : TMenuItem;
     mniClearReceivedText   : TMenuItem;
     mniSave                : TMenuItem;
     pgcReceived            : TPageControl;
@@ -76,6 +80,7 @@ type
     pnlRightTop            : TPanel;
     pnlSend                : TPanel;
     pnlSent                : TPanel;
+    ppmCommands            : TPopupMenu;
     ppmReceivedText        : TPopupMenu;
     sbrMain                : TStatusBar;
     splLeftHorizontal      : TSplitter;
@@ -86,12 +91,6 @@ type
     tsReceivedText         : TTabSheet;
     tsSentLog              : TTabSheet;
     tsSentText             : TTabSheet;
-    IdTelnet               : TIdTelnet;
-    ppmCommands            : TPopupMenu;
-    actAssignCommand       : TAction;
-    mniAssignCommand       : TMenuItem;
-    actClearCommand        : TAction;
-    mniClearCommand        : TMenuItem;
     {$ENDREGION}
 
     procedure actClearReceivedExecute(Sender: TObject);
@@ -130,12 +129,14 @@ type
     FCommands  : IList<TContainedAction>;
     FServer    : string;
 
+    {$REGION 'property access methods'}
     function GetPort: Integer;
     procedure SetPort(const Value: Integer);
     function GetConnected: Boolean;
     procedure SetConnected(const Value: Boolean);
     function GetClient: TIdTelnet;
     procedure SetServer(const Value: string);
+    {$ENDREGION}
 
     procedure FCommandExecute(Sender: TObject);
     function FInspectorBeforeAddItem(
@@ -196,9 +197,7 @@ uses
 
   VirtualTrees,
 
-  Spring.Cryptography,
-
-  Concepts.Factories, Concepts.Settings;
+  Concepts.Settings;
 
 {$REGION 'construction and destruction'}
 procedure TfrmIndyTelnet.AfterConstruction;

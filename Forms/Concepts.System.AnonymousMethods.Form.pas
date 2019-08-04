@@ -21,8 +21,7 @@ unit Concepts.System.AnonymousMethods.Form;
 { Form demonstrating the variable (not value) capturing by anonymous methods.
   The scope is limited to only the routine where the anonymous method is
   defined, and not any other data in scope from that routine (as I thought at
-  first was the case).
- }
+  first was the case). }
 
 interface
 

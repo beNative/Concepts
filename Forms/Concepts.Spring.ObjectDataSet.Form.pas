@@ -120,11 +120,13 @@ type
     FObjectDataSet : TObjectDataset;
     FBindScope     : TBindScope;
 
+    {$REGION 'property access methods'}
     function GetDataSet: TDataSet;
     function GetDataSetEnabled: Boolean;
     function GetPresenterEnabled: Boolean;
     procedure SetDataSetEnabled(const Value: Boolean);
     procedure SetPresenterEnabled(const Value: Boolean);
+    {$ENDREGION}
 
     procedure FillList;
     procedure DisconnectPresenter;
@@ -160,7 +162,7 @@ uses
 
   DSharp.Windows.ColumnDefinitions,
 
-  Concepts.Factories; //Concepts.Utils;
+  Concepts.Factories;
 
 {$REGION 'construction and destruction'}
 procedure TfrmObjectDataSet.AfterConstruction;

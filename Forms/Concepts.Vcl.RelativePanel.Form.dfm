@@ -35,12 +35,12 @@ object frmRelativePanel: TfrmRelativePanel
       497
       321)
     object btn1: TButton
-      Left = 72
-      Top = 32
-      Width = 129
+      Left = 0
+      Top = 0
+      Width = 185
       Height = 25
       Anchors = []
-      Caption = 'btn1'
+      Caption = 'Button'
       TabOrder = 0
     end
   end

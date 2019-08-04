@@ -41,9 +41,7 @@ implementation
 uses
   Vcl.Dialogs,
 
-  DDuce.Utils,
-
-  Concepts.Utils;
+  DDuce.Utils;
 
 type
   TTest    = (ttOne, ttTwo, ttThree);

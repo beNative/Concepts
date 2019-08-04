@@ -29,9 +29,9 @@ uses
   Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms,
   Vcl.Graphics, Vcl.Menus,
 
-  cxGraphics, cxEdit, cxContainer, cxRichEdit, cxCheckBox, cxMemo, cxMaskEdit,
-  cxControls, cxTextEdit, cxInplaceContainer, cxVGrid, cxOI, cxClasses,
-  cxButtons, dxStatusBar, cxLookAndFeels, cxLookAndFeelPainters, cxStyles;
+  cxGraphics, cxEdit, cxRichEdit, cxCheckBox, cxMaskEdit,
+  cxControls, cxTextEdit, cxOI, cxClasses,
+  cxButtons, dxStatusBar;
 
 type
   TfrmcxEditors = class(TForm)

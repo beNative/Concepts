@@ -27,8 +27,8 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ComCtrls, Vcl.Bind.DBEngExt, Vcl.Bind.Editors, Vcl.ExtCtrls, Vcl.ActnList,
   Vcl.Bind.Grid, Data.Bind.Grid, Vcl.Grids, Vcl.Buttons, Vcl.Bind.Navigator,
-  Data.Bind.EngExt, Data.Bind.Components, Data.Bind.GenData,
-  Data.Bind.ObjectScope, Data.Bind.Controls, Data.Bind.DBScope,
+  Data.Bind.EngExt, Data.Bind.Components, Data.Bind.GenData, Data.Bind.Controls,
+  Data.Bind.ObjectScope, Data.Bind.DBScope,
 
   zObjInspector,
 
@@ -83,9 +83,9 @@ type
     procedure actAlterContactCompanyExecute(Sender: TObject);
 
   private
-    FObjectInspector   : TzObjectInspector;
-    FBindScope         : TBindScope;
-    FContact           : TContact;
+    FObjectInspector : TzObjectInspector;
+    FBindScope       : TBindScope;
+    FContact         : TContact;
 
     procedure AddComponents;
 
@@ -102,7 +102,7 @@ implementation
 {$R *.dfm}
 
 uses
-  DDuce.Components.Factories, DDuce.Factories.zObjInspector,
+  DDuce.Factories.zObjInspector,
 
   Concepts.Factories;
 

@@ -23,8 +23,8 @@ unit Concepts.Utils;
 interface
 
 uses
-  Winapi.WinSock, Winapi.WinInet,
-  System.Classes, System.Rtti, System.TypInfo, System.SysUtils,
+  Winapi.WinSock,
+  System.Classes, System.Rtti, System.SysUtils,
   Vcl.Controls, Vcl.Graphics,
 
   Data.DB;
@@ -51,7 +51,7 @@ implementation
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.StrUtils, System.Variants, System.Character, System.UITypes,
+  System.Variants, System.Character, System.UITypes,
   Vcl.Forms, Vcl.Dialogs;
 
 {$REGION 'interfaced routines'}

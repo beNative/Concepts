@@ -26,7 +26,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
-  System.ImageList, System.Threading,
+  System.Threading, System.ImageList,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList, Vcl.ImgList,
   Vcl.StdCtrls, Vcl.ExtCtrls,
 
@@ -101,7 +101,7 @@ implementation
 uses
   System.Diagnostics,
 
-  DDuce.Components.Factories, DDuce.RandomData;
+  DDuce.Components.Factories;
 
 resourcestring
   STaskStarted                  = 'Task %d started.';

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2018 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -24,13 +24,20 @@ uses
   Winapi.Windows,
   System.Classes, System.SysUtils;
 
-function GetExenameForProcess(AProcessId: DWORD): string;
+type
+  TProcessId = DWORD;
+
+function GetTotalCpuUsagePct : Double;
+
+function GetProcessCpuUsagePct(AProcessId: TProcessId): Double;
+
+function GetExenameForProcess(AProcessId: TProcessId): string;
 
 function GetExenameForWindow(AWndHandle: HWND): string;
 
-function GetExenameForProcessUsingPsAPI(AProcessId: DWORD): string;
+function GetExenameForProcessUsingPsAPI(AProcessId: TProcessId): string;
 
-function GetExenameForProcessUsingToolhelp32(AProcessId: DWORD): string;
+function GetExenameForProcessUsingToolhelp32(AProcessId: TProcessId): string;
 
 procedure GetIPAddresses(AStrings: TStrings); overload;
 
@@ -44,16 +51,43 @@ procedure RunApplication(
   AWait         : Boolean = True
 );
 
+procedure OpenLink(const ALink: string);
+
 implementation
 
 uses
   Winapi.PsAPI, Winapi.TlHelp32, Winapi.WinSock, Winapi.WinInet,
   Winapi.ShellAPI, Winapi.Messages,
+  Vcl.Forms,
+
+  System.DateUtils, System.Generics.Collections,
 
   DDuce.Utils;
 
+type
+  TSystemTimesRec = record
+    KernelTime : TFileTIme;
+    UserTime   : TFileTIme;
+  end;
+
+  TProcessTimesRec = record
+    KernelTime : TFileTIme;
+    UserTime   : TFileTIme;
+  end;
+
+  TProcessCpuUsage = class
+    LastSystemTimes           : TSystemTimesRec;
+    LastProcessTimes          : TProcessTimesRec;
+    ProcessCPUusagePercentage : Double;
+  end;
+
+  TProcessCpuUsageList = TObjectDictionary<TProcessId, TProcessCpuUsage>;
+
+var
+  LatestProcessCpuUsageCache : TProcessCpuUsageList;
+
 {$REGION 'interfaced routines'}
-function GetExenameForProcessUsingPsAPI(AProcessId: DWORD): string;
+function GetExenameForProcessUsingPsAPI(AProcessId: TProcessId): string;
 var
   I           : DWORD;
   LCBNeeded   : DWORD;
@@ -97,7 +131,7 @@ begin
   end;
 end;
 
-function GetExenameForProcessUsingToolhelp32(AProcessId: DWORD): string;
+function GetExenameForProcessUsingToolhelp32(AProcessId: TProcessId): string;
 var
   LSnapshot  : THandle;
   LProcEntry : TProcessEntry32;
@@ -125,7 +159,7 @@ begin
     end;
 end;
 
-function GetExenameForProcess(AProcessId: DWORD): string;
+function GetExenameForProcess(AProcessId: TProcessId): string;
 begin
   if (Win32Platform = VER_PLATFORM_WIN32_NT) and (Win32MajorVersion <= 4) then
     Result := GetExenameForProcessUsingPSAPI(AProcessId)
@@ -136,7 +170,7 @@ end;
 
 function GetExenameForWindow(AWndHandle: HWND): string;
 var
-  LProcessID: DWORD;
+  LProcessID: TProcessId;
 begin
   Result := '';
   if IsWindow(AWndHandle) then
@@ -343,6 +377,180 @@ begin
   else
     raise Exception.CreateFmt('"%s" not found', [AFile]);
 end;
+
+procedure OpenLink(const ALink: string);
+begin
+  ShellExecute(Application.MainForm.Handle, 'open', PWideChar(ALink), nil, nil, SW_SHOW);
+end;
 {$ENDREGION}
+
+function GetRunningProcessIDs: TArray<TProcessId>;
+var
+  SnapProcHandle: THandle;
+  ProcEntry: TProcessEntry32;
+  NextProc: Boolean;
+begin
+  SnapProcHandle := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+  if SnapProcHandle <> INVALID_HANDLE_VALUE then
+  begin
+    try
+      ProcEntry.dwSize := SizeOf(ProcEntry);
+      NextProc := Process32First(SnapProcHandle, ProcEntry);
+      while NextProc do
+      begin
+        SetLength(Result, Length(Result) + 1);
+        Result[Length(Result) - 1] := ProcEntry.th32ProcessID;
+        NextProc := Process32Next(SnapProcHandle, ProcEntry);
+      end;
+    finally
+      CloseHandle(SnapProcHandle);
+    end;
+    TArray.Sort<TProcessId>(Result);
+  end;
+end;
+
+function GetProcessCpuUsagePct(AProcessId: TProcessId): Double;
+  function SubtractFileTime(FileTime1: TFileTIme; FileTime2: TFileTIme): TFileTIme;
+  begin
+    Result := TFileTIme(Int64(FileTime1) - Int64(FileTime2));
+  end;
+
+var
+  LProcessCpuUsage          : TProcessCpuUsage;
+  LProcessHandle            : THandle;
+  LSystemTimes              : TSystemTimesRec;
+  LSystemDiffTimes          : TSystemTimesRec;
+  LProcessDiffTimes         : TProcessTimesRec;
+  LProcessTimes             : TProcessTimesRec;
+
+  LSystemTimesIdleTime      : TFileTime;
+  LProcessTimesCreationTime : TFileTime;
+  LProcessTimesExitTime     : TFileTime;
+begin
+  Result := 0.0;
+
+  LatestProcessCpuUsageCache.TryGetValue(AProcessId, LProcessCpuUsage);
+  if LProcessCpuUsage = nil then
+  begin
+    LProcessCpuUsage := TProcessCpuUsage.Create;
+    LatestProcessCpuUsageCache.Add(AProcessId, LProcessCpuUsage);
+  end;
+  // method from:
+  // http://www.philosophicalgeek.com/2009/01/03/determine-cpu-usage-of-current-process-c-and-c/
+  LProcessHandle := OpenProcess(PROCESS_QUERY_INFORMATION or PROCESS_VM_READ, False, AProcessId);
+  if LProcessHandle <> 0 then
+  begin
+    try
+      if GetSystemTimes(LSystemTimesIdleTime, LSystemTimes.KernelTime, LSystemTimes.UserTime) then
+      begin
+        LSystemDiffTimes.KernelTime := SubtractFileTime(LSystemTimes.KernelTime, LProcessCpuUsage.LastSystemTimes.KernelTime);
+        LSystemDiffTimes.UserTime := SubtractFileTime(LSystemTimes.UserTime, LProcessCpuUsage.LastSystemTimes.UserTime);
+        LProcessCpuUsage.LastSystemTimes := LSystemTimes;
+        if GetProcessTimes(LProcessHandle, LProcessTimesCreationTime, LProcessTimesExitTime, LProcessTimes.KernelTime, LProcessTimes.UserTime) then
+        begin
+          LProcessDiffTimes.KernelTime := SubtractFileTime(LProcessTimes.KernelTime, LProcessCpuUsage.LastProcessTimes.KernelTime);
+          LProcessDiffTimes.UserTime := SubtractFileTime(LProcessTimes.UserTime, LProcessCpuUsage.LastProcessTimes.UserTime);
+          LProcessCpuUsage.LastProcessTimes := LProcessTimes;
+          if (Int64(LSystemDiffTimes.KernelTime) + Int64(LSystemDiffTimes.UserTime)) > 0 then
+            Result := (Int64(LProcessDiffTimes.KernelTime) + Int64(LProcessDiffTimes.UserTime)) / (Int64(LSystemDiffTimes.KernelTime) + Int64(LSystemDiffTimes.UserTime)) * 100;
+        end;
+      end;
+    finally
+      CloseHandle(LProcessHandle);
+    end;
+  end;
+end;
+
+procedure DeleteNonExistingProcessIDsFromCache(const RunningProcessIds: TArray<TProcessId>);
+var
+  FoundKeyIdx: Integer;
+  Keys: TArray<TProcessId>;
+  n: Integer;
+begin
+  Keys := LatestProcessCpuUsageCache.Keys.ToArray;
+  for n := Low(Keys) to High(Keys) do
+  begin
+    if not TArray.BinarySearch<TProcessId>(RunningProcessIds, Keys[n], FoundKeyIdx) then
+      LatestProcessCpuUsageCache.Remove(Keys[n]);
+  end;
+end;
+
+function GetTotalCpuUsagePct(): Double;
+var
+  LProcessId         : TProcessId;
+  LRunningProcessIds : TArray<TProcessId>;
+begin
+  Result := 0.0;
+  LRunningProcessIds := GetRunningProcessIDs;
+
+  DeleteNonExistingProcessIDsFromCache(LRunningProcessIds);
+
+  for LProcessId in LRunningProcessIds do
+    Result := Result + GetProcessCpuUsagePct(LProcessId);
+end;
+
+
+
+{
+uses
+  SysUtils,
+  ActiveX,
+  ComObj,
+  Variants;
+
+// Serial Port Name
+
+procedure  GetMSSerial_PortNameInfo;
+const
+  wbemFlagForwardOnly = $00000020;
+var
+  FSWbemLocator : OLEVariant;
+  FWMIService   : OLEVariant;
+  FWbemObjectSet: OLEVariant;
+  FWbemObject   : OLEVariant;
+  oEnum         : IEnumvariant;
+  iValue        : LongWord;
+begin;
+  FSWbemLocator := CreateOleObject('WbemScripting.SWbemLocator');
+  FWMIService   := FSWbemLocator.ConnectServer('localhost', 'root\WMI', '', '');
+  FWbemObjectSet:= FWMIService.ExecQuery('SELECT * FROM MSSerial_PortName','WQL',wbemFlagForwardOnly);
+  oEnum         := IUnknown(FWbemObjectSet._NewEnum) as IEnumVariant;
+  while oEnum.Next(1, FWbemObject, iValue) = 0 do
+  begin
+    Writeln(Format('Active          %s',[FWbemObject.Active]));// Boolean
+    Writeln(Format('InstanceName    %s',[FWbemObject.InstanceName]));// String
+    Writeln(Format('PortName        %s',[FWbemObject.PortName]));// String
+
+    Writeln('');
+    FWbemObject:=Unassigned;
+  end;
+end;
+
+
+begin
+ try
+    CoInitialize(nil);
+    try
+      GetMSSerial_PortNameInfo;
+      Readln;
+    finally
+    CoUninitialize;
+    end;
+ except
+    on E:Exception do
+    begin
+        Writeln(E.Classname, ':', E.Message);
+        Readln;
+    end;
+  end;
+end.
+}
+
+initialization
+  LatestProcessCpuUsageCache := TProcessCpuUsageList.Create([doOwnsValues]);
+  GetTotalCpuUsagePct;
+
+finalization
+  LatestProcessCpuUsageCache.Free;
 
 end.
