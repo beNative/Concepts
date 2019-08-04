@@ -1212,9 +1212,6 @@ type
 
 implementation
 
-uses
-  System.Generics.Collections;
-
 { TChromeTab }
 
 constructor TChromeTab.Create(Collection: TCollection);

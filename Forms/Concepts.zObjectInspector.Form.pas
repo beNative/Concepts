@@ -39,30 +39,33 @@ uses
 type
   TfrmzObjectInspector = class(TForm)
     {$REGION 'designer controls'}
-    bgMain          : TButtonGroup;
-    btnButton       : TButton;
-    cbxControls     : TComboBox;
-    chkCheckBox     : TCheckBox;
-    edtButtonedEdit : TButtonedEdit;
-    edtEdit         : TEdit;
-    pnlLeft         : TPanel;
-    pnlMain         : TPanel;
-    pnlRight        : TPanel;
-    sbrStatusBar    : TStatusBar;
-    splSplitter     : TSplitter;
-    trbTrackBar     : TTrackBar;
-    pnlHeader       : TPanel;
-    lblHeader       : TLabel;
-    aclMain         : TActionList;
-    actTest1        : TAction;
-    actTest2        : TAction;
-    actInternetBrowseURL: TBrowseURL;
-    lblLink: TLinkLabel;
+    aclMain              : TActionList;
+    actInternetBrowseURL : TBrowseURL;
+    actTest1             : TAction;
+    actTest2             : TAction;
+    bgMain               : TButtonGroup;
+    btnButton            : TButton;
+    cbxControls          : TComboBox;
+    chkCheckBox          : TCheckBox;
+    edtButtonedEdit      : TButtonedEdit;
+    edtEdit              : TEdit;
+    lblHeader            : TLabel;
+    lblLink              : TLinkLabel;
+    pnlHeader            : TPanel;
+    pnlLeft              : TPanel;
+    pnlMain              : TPanel;
+    pnlRight             : TPanel;
+    sbrStatusBar         : TStatusBar;
+    splSplitter          : TSplitter;
+    trbTrackBar          : TTrackBar;
     {$ENDREGION}
 
     procedure cbxControlsChange(Sender: TObject);
-    procedure lblLinkLinkClick(Sender: TObject; const Link: string;
-      LinkType: TSysLinkType);
+    procedure lblLinkLinkClick(
+      Sender     : TObject;
+      const Link : string;
+      LinkType   : TSysLinkType
+    );
 
   private
     FObjectInspector : TzObjectInspector;
@@ -100,12 +103,14 @@ var
 begin
   inherited AfterConstruction;
   FContact := TConceptFactories.CreateRandomContact;
-  FObjectInspector                  := TzObjectInspector.Create(Self);
-  FObjectInspector.Parent           := pnlLeft;
-  FObjectInspector.Align            := alClient;
-  FObjectInspector.AlignWithMargins := True;
-  FObjectInspector.Name             := 'FObjectInspector';
-  FObjectInspector.OnBeforeAddItem  := FObjectInspectorBeforeAddItem;
+  FObjectInspector                        := TzObjectInspector.Create(Self);
+  FObjectInspector.Parent                 := pnlLeft;
+  FObjectInspector.Align                  := alClient;
+  FObjectInspector.AlignWithMargins       := True;
+  FObjectInspector.Name                   := 'FObjectInspector';
+  FObjectInspector.ShowReadOnlyProperties := False;
+  FObjectInspector.ShowEventProperties    := False;
+  FObjectInspector.OnBeforeAddItem        := FObjectInspectorBeforeAddItem;
   aclMain.Images   := dmResources.imlMain;
   btnButton.Images := dmResources.imlMain;
 
@@ -142,6 +147,7 @@ function TfrmzObjectInspector.FObjectInspectorBeforeAddItem(Sender: TControl;
   PItem: PPropItem): Boolean;
 begin
   Result := True;
+  Logger.Send('PItem', TValue.From(PItem));
 end;
 
 procedure TfrmzObjectInspector.lblLinkLinkClick(Sender: TObject;

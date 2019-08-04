@@ -921,7 +921,7 @@ begin
     Poll.RegisterPair(Pair, [PollEvent.PollIn],
       procedure(Event: PollEvents)
       begin
-        pgcMessage.ActivePageIndex := 1;
+        pgcMessage.ActivePage := tsReceive;
         if Assigned(Pair) then
         begin
           mmoReceive.Lines.Add(Pair.ReceiveString);

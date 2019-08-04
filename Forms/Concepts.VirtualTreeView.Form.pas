@@ -236,7 +236,7 @@ procedure TfrmVirtualTreeView.FVirtualStringTreeAfterCellPaint(Sender: TBaseVirt
   TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
   CellRect: TRect);
 begin
-  //Logger.IncCounter('OnAfterCellPaint');
+  Logger.IncCounter('OnAfterCellPaint');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeChange(Sender: TBaseVirtualTree;
