@@ -50,8 +50,11 @@ type
     { Socket Options }
     function SocketType: ZMQSocket;
     { Required for ZMQ.Subscriber pair }
-    function Subscribe(const Filter: string): Integer;
-    function UnSubscribe(const Filter: string): Integer;
+    function Subscribe(const Filter: string): Integer; overload;
+    function UnSubscribe(const Filter: string): Integer; overload;
+
+    function Subscribe(const ABuffer: RawByteString): Integer; overload;
+    function UnSubscribe(const ABuffer: RawByteString): Integer; overload;
 
     function HaveMore: Boolean;
     { Raw messages }
@@ -60,6 +63,7 @@ type
     { Simple string message }
     function SendString(const Data: string; Flags: MessageFlags): Integer; overload;
     function SendString(const Data: string; DontWait: Boolean = False): Integer; overload;
+    function SendBytesStream(AStream: TBytesStream): Integer;
     function ReceiveString(DontWait: Boolean = False): string;
     { Multipart string message }
     function SendStrings(const Data: array of string; DontWait: Boolean = False): Integer;
@@ -118,8 +122,8 @@ uses
 type
   TZMQPair = class(TInterfacedObject, IZMQPair)
   private
-    FSocket: Pointer;
-    FContext: TZeroMQ;
+    FSocket  : Pointer;
+    FContext : TZeroMQ;
 
   public
     constructor Create(Context: TZeroMQ; Socket: Pointer);
@@ -131,8 +135,12 @@ type
     { Client pair }
     function Connect(const Address: string): Integer;
     { Required for ZMQ.Subscriber pair }
-    function Subscribe(const Filter: string): Integer;
-    function UnSubscribe(const Filter: string): Integer;
+    function Subscribe(const Filter: string): Integer; overload;
+    function UnSubscribe(const Filter: string): Integer; overload;
+    { Subscribe to raw data (bytestring) }
+    function Subscribe(const ABuffer: RawByteString): Integer; overload;
+    function UnSubscribe(const ABuffer: RawByteString): Integer; overload;
+
     function HaveMore: Boolean;
     { Socket Options }
     function SocketType: ZMQSocket;
@@ -142,6 +150,8 @@ type
     { Simple string message }
     function SendString(const Data: string; Flags: MessageFlags): Integer; overload;
     function SendString(const Data: string; DontWait: Boolean = False): Integer; overload;
+    { Send bytestream }
+    function SendBytesStream(AStream: TBytesStream): Integer;
     function ReceiveString(DontWait: Boolean = False): string;
     { Multipart string message }
     function SendStrings(const Data: array of string; DontWait: Boolean = False): Integer;
@@ -170,6 +180,9 @@ begin
   inherited Create;
   FPairs := TList<IZMQPair>.Create;
   FContext := zmq_ctx_new;
+
+  // TS
+  //zmq_ctx_set(FContext, ZMQ_IO_THREADS, 1);
 end;
 
 destructor TZeroMQ.Destroy;
@@ -185,8 +198,15 @@ begin
 end;
 
 function TZeroMQ.Start(Kind: ZMQSocket): IZMQPair;
+var
+  LHWM: Integer;
 begin
   Result := TZMQPair.Create(Self, zmq_socket(FContext, Ord(Kind)));
+//  LHWM := 200000;
+   // TS
+//  zmq_setsockopt ((Result as TZMQPair).FSocket, ZMQ_SNDHWM, @LHWM, SizeOf(LHWM));
+//zmq_setsockopt ((Result as TZMQPair).FSocket, ZMQ_RCVHWM, @LHWM, SizeOf(LHWM));
+
   FPairs.Add(Result);
 end;
 
@@ -323,12 +343,22 @@ begin
   Result := zmq_setsockopt(FSocket, ZMQ_SUBSCRIBE, PAnsiChar(str), Length(str));
 end;
 
+function TZMQPair.Subscribe(const ABuffer: RawByteString): Integer;
+begin
+  Result := zmq_setsockopt(FSocket, ZMQ_SUBSCRIBE, PAnsiChar(ABuffer), Length(ABuffer));
+end;
+
 function TZMQPair.UnSubscribe(const Filter: string): Integer;
 var
   str: UTF8String;
 begin
   str := UTF8String(Filter);
   Result := zmq_setsockopt(FSocket, ZMQ_UNSUBSCRIBE, PAnsiChar(str), Length(str));
+end;
+
+function TZMQPair.UnSubscribe(const ABuffer: RawByteString): Integer;
+begin
+  Result := zmq_setsockopt(FSocket, ZMQ_UNSUBSCRIBE, PAnsiChar(ABuffer), Length(ABuffer));
 end;
 
 function TZMQPair.HaveMore: Boolean;
@@ -376,6 +406,21 @@ begin
     Result := L.ToArray;
   finally
     L.Free;
+  end;
+end;
+
+function TZMQPair.SendBytesStream(AStream: TBytesStream): Integer;
+var
+  msg: TZmqMsg;
+  len: NativeUInt;
+begin
+  len := NativeUInt(AStream.Size);
+  Result := zmq_msg_init_size(@msg, len);
+  if Result = 0 then
+  begin
+    Move(AStream.Memory, zmq_msg_data(@msg)^, len);
+    Result := SendMessage(msg, [DontWait]);
+    zmq_msg_close(@msg);
   end;
 end;
 

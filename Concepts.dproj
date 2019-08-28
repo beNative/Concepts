@@ -315,9 +315,6 @@
         <DCCReference Include="Forms\Concepts.VirtualTreeView.Form.pas">
             <Form>frmVirtualTreeView</Form>
         </DCCReference>
-        <DCCReference Include="Forms\Concepts.FireDAC.Form.pas">
-            <Form>frmFireDAC</Form>
-        </DCCReference>
         <DCCReference Include="Forms\Concepts.System.PublishedFields.Form.pas">
             <Form>frmPublishedFields</Form>
         </DCCReference>

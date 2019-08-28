@@ -188,6 +188,7 @@ type
     procedure cbxZMQSocketTypeChange(Sender: TObject);
     procedure edtAddressExit(Sender: TObject);
     procedure edtPortExit(Sender: TObject);
+    procedure sbrMainDblClick(Sender: TObject);
 
   private
     FActive          : Boolean;
@@ -282,12 +283,11 @@ implementation
 uses
   System.StrUtils,
 
+  Spring, ZeroMQ.API,
+
   DDuce.Logger, DDuce.Components.Factories, DDuce.RandomData,
 
-
-  Concepts.Utils, Concepts.ZeroMQ.Data,
-
-  Spring;
+  Concepts.Utils, Concepts.ZeroMQ.Data;
 
 {$REGION 'documentation'}
 {  REMARKS
@@ -464,6 +464,15 @@ procedure TfrmZMQConcept.lbxEventsClickCheck(Sender: TObject);
 begin
   UpdateEvents;
 end;
+procedure TfrmZMQConcept.sbrMainDblClick(Sender: TObject);
+var
+  A, B, C : Integer;
+begin
+ zmq_version(@A, @B, @C);
+ ShowMessageFmt('%d.%d.%d', [A, B, C]);
+//
+end;
+
 {$ENDREGION}
 
 {$REGION 'action handlers'}

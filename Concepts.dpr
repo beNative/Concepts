@@ -98,8 +98,8 @@ uses
 { Used to directly start a concept by name. If empty a list will be shown with
   all registered concepts. }
 const
-  EXECUTE_BY_NAME = 'ClassProxy';
-//  EXECUTE_BY_NAME = '';
+  //EXECUTE_BY_NAME = 'ClassProxy';
+  EXECUTE_BY_NAME = '';
 //  EXECUTE_BY_NAME = 'Virtual treeview';
 //  EXECUTE_BY_NAME = 'ZeroMQ';
 //  EXECUTE_BY_NAME = 'FireDAC';
@@ -114,7 +114,7 @@ begin
   {$WARNINGS ON}
   Application.Initialize;
   TConcepts.RegisterConcepts;
-  Logger.Channels.Add(TZeroMQChannel.Create);
+//  Logger.Channels.Add(TZeroMQChannel.Create);
   Logger.Clear;
   Logger.Info('Concepts started.');
   Application.CreateForm(TdmResources, dmResources);

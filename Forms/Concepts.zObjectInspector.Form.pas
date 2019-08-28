@@ -117,16 +117,16 @@ begin
   for I := 0 to ComponentCount - 1 do
   begin
     C := Components[I];
-    FObjectHost.AddObject(C, C.Name);
+    //FObjectHost.AddObject(C, C.Name);
     cbxControls.AddItem(Format('%s: %s', [C.Name, C.ClassName]), C);
   end;
   for I := 0 to bgMain.Images.Count - 1 do
     with bgMain.Items.Add do
       ImageIndex := I;
-  FObjectHost.AddObject(FObjectInspector, 'ObjectInspector');
-  FObjectHost.AddObject(FContact, 'FContact');
+//  FObjectHost.AddObject(FObjectInspector, 'ObjectInspector');
+//  FObjectHost.AddObject(FContact, 'FContact');
 
-  FObjectInspector.Component      := FObjectHost;
+  FObjectInspector.Component      := FObjectInspector;
   FObjectInspector.SplitterPos    := FObjectInspector.Width div 2;
   FObjectInspector.SortByCategory := False;
 end;
@@ -146,7 +146,8 @@ function TfrmzObjectInspector.FObjectInspectorBeforeAddItem(Sender: TControl;
   PItem: PPropItem): Boolean;
 begin
   Result := True;
-  Logger.Send('PItem', TValue.From(PItem));
+  if PItem.Component = FContact then
+    Logger.Send('PItem', TValue.From(PItem^));
 end;
 
 procedure TfrmzObjectInspector.lblLinkLinkClick(Sender: TObject;
@@ -165,7 +166,7 @@ begin
   begin
     // this assignment will destroy the assigned ObjectHost object!!
     FObjectInspector.Component := CBX.Items.Objects[CBX.ItemIndex];
-    FObjectHost := nil;
+    //FObjectHost := nil;
     FObjectInspector.SortByCategory := False;
   end;
 end;
