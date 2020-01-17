@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -77,11 +77,13 @@ type
     procedure actBothExecute(Sender: TObject);
 
     procedure trbRecordCountChange(Sender: TObject);
+    procedure lblRecordCountClick(Sender: TObject);
 
   private
     FList        : IList<TContact>;
     FFirstNameIs : TPredicate<TContact>;
     FLastNameIs  : TPredicate<TContact>;
+    FDict        : IDictionary<string,Int64>;
 
     procedure PopulateList;
     procedure DefinePredicates;
@@ -124,6 +126,10 @@ begin
   // method to return an IList which wraps the original generic list and uses
   // TValue on its API.
   FList := TCollections.CreateObjectList<TContact>;
+
+  FDict := TCollections.CreateDictionary<string, Int64>;
+
+
 end;
 {$ENDREGION}
 
@@ -213,6 +219,15 @@ begin
     Result := AC.Lastname = edtLastName.Text;
   end;
 end;
+procedure TfrmCollections.lblRecordCountClick(Sender: TObject);
+begin
+  FDict.AddOrSetValue('Test', 5);
+  FDict.AddOrSetValue('Test', 6);
+
+  if FDict.ContainsKey('Test') then
+    ShowMessage(FDict.Count.ToString);
+end;
+
 {$ENDREGION}
 
 {$REGION 'protected methods'}

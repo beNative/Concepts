@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -37,15 +37,8 @@ type
     FName      : string;
 
     {$REGION 'property access methods'}
-    function GetConnectionString: string;
-    function GetEvents: ZMQEvents;
     function GetPort: Integer;
-    function GetSocketType: ZMQSocket;
-    function GetTransport: string;
-    procedure SetEvents(const Value: ZMQEvents);
     procedure SetPort(const Value: Integer);
-    procedure SetSocketType(const Value: ZMQSocket);
-    procedure SetTransport(const Value: string);
     function GetName: string;
     procedure SetName(const Value: string);
     {$ENDREGION}
@@ -62,21 +55,8 @@ type
     property Pair: IZMQPair
       read FPair write FPair;
 
-    property SocketType: ZMQSocket
-      read GetSocketType write SetSocketType;
-
     property Port: Integer
       read GetPort write SetPort default ZMQ_DEFAULT_PORT;
-
-    property Transport: string
-      read GetTransport write SetTransport;
-
-    property ConnectionString: string
-      read GetConnectionString;
-
-    { Set of all event types to monitor. }
-    property Events: ZMQEvents
-      read GetEvents write SetEvents;
 
     property Name: string
       read GetName write SetName;
@@ -120,16 +100,6 @@ end;
 {$ENDREGION}
 
 {$REGION 'property access methods'}
-function TZeroMQDevice.GetConnectionString: string;
-begin
-  //
-end;
-
-function TZeroMQDevice.GetEvents: ZMQEvents;
-begin
-//
-end;
-
 function TZeroMQDevice.GetName: string;
 begin
   Result := FName;
@@ -140,21 +110,6 @@ begin
   Result := FPort;
 end;
 
-function TZeroMQDevice.GetSocketType: ZMQSocket;
-begin
-
-end;
-
-function TZeroMQDevice.GetTransport: string;
-begin
-
-end;
-
-procedure TZeroMQDevice.SetEvents(const Value: ZMQEvents);
-begin
-
-end;
-
 procedure TZeroMQDevice.SetName(const Value: string);
 begin
   FName := Value;
@@ -163,16 +118,6 @@ end;
 procedure TZeroMQDevice.SetPort(const Value: Integer);
 begin
   FPort := Value;
-end;
-
-procedure TZeroMQDevice.SetSocketType(const Value: ZMQSocket);
-begin
-
-end;
-
-procedure TZeroMQDevice.SetTransport(const Value: string);
-begin
-
 end;
 {$ENDREGION}
 
