@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,6 +26,24 @@ interface
   same topics and do with the information as they please. The broker and MQTT
   act as a simple, common interface for everything to connect to.
   See https://mosquitto.org/ for more info.
+
+  MQTT subscription syntax
+
+  In MQTT, the word topic refers to an UTF-8 string that the broker uses to
+  filter messages for each connected client. The topic consists of one or
+  more topic levels. Each topic level is separated by a forward slash (topic
+  level separator).
+
+  Symbols used in topics
+    / topic level seperator
+    + can be used as a single level wildcard
+    # can be used as a multi-level wildcard (can only be specified at the end).
+
+  Best practices
+    - Never use a leading forward slash
+    - Never use spaces in a topic
+    - Use only ASCII characters, avoid non printable characters
+    - Embed a unique identifier or the Client Id into the topic
 }
 {$ENDREGION}
 
@@ -235,7 +253,7 @@ end;
 
 procedure TfrmMQTTNode.actDeleteSubscriptionExecute(Sender: TObject);
 begin
-  FMQTT.Unsubscribe(lbxTopics.Items[lbxTopics.ItemIndex]);
+  FMQTT.Unsubscribe(UTF8String(lbxTopics.Items[lbxTopics.ItemIndex]));
   Topics.Delete(lbxTopics.ItemIndex);
 end;
 
@@ -255,7 +273,7 @@ end;
 
 procedure TfrmMQTTNode.actPublishMessageExecute(Sender: TObject);
 begin
-  if FMQTT.Publish(edtPublishTopic.Text, mmoPublish.Text) then
+  if FMQTT.Publish(UTF8String(edtPublishTopic.Text),UTF8String(mmoPublish.Text)) then
   begin
     FLogTree.Log('Published', llInfo);
   end;

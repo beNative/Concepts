@@ -28,7 +28,7 @@ object frmMQTTNode: TfrmMQTTNode
     Top = 0
     Width = 391
     Height = 129
-    ActivePage = tsEndpoints
+    ActivePage = tsSubscriptions
     Align = alTop
     TabOrder = 1
     object tsEndpoints: TTabSheet
@@ -133,7 +133,6 @@ object frmMQTTNode: TfrmMQTTNode
         EditLabel.Caption = 'Topic:'
         LabelPosition = lpLeft
         TabOrder = 0
-        ExplicitWidth = 156
       end
       object lbxTopics: TListBox
         Left = 3
@@ -153,7 +152,6 @@ object frmMQTTNode: TfrmMQTTNode
         Anchors = [akTop, akRight]
         Images = imlMain
         TabOrder = 2
-        ExplicitLeft = 199
       end
       object btnDeleteSubscription: TButton
         Left = 306
@@ -164,7 +162,6 @@ object frmMQTTNode: TfrmMQTTNode
         Anchors = [akTop, akRight]
         Images = imlMain
         TabOrder = 3
-        ExplicitLeft = 274
       end
       object btnClearSubscriptions: TButton
         Left = 231
@@ -175,7 +172,6 @@ object frmMQTTNode: TfrmMQTTNode
         Anchors = [akTop, akRight]
         Images = imlMain
         TabOrder = 4
-        ExplicitLeft = 199
       end
       object chkSubscribeToAllTopics: TCheckBox
         Left = 234
@@ -186,7 +182,6 @@ object frmMQTTNode: TfrmMQTTNode
         Caption = 'Subscribe to all topics.'
         TabOrder = 5
         OnClick = chkSubscribeToAllTopicsClick
-        ExplicitLeft = 202
       end
     end
     object tsPublish: TTabSheet
@@ -209,7 +204,6 @@ object frmMQTTNode: TfrmMQTTNode
         Images = imlMain
         ParentFont = False
         TabOrder = 0
-        ExplicitLeft = 227
       end
       object mmoPublish: TMemo
         Left = 4
@@ -225,7 +219,6 @@ object frmMQTTNode: TfrmMQTTNode
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 1
-        ExplicitWidth = 217
       end
       object edtCounter: TLabeledEdit
         Left = 331
@@ -241,7 +234,6 @@ object frmMQTTNode: TfrmMQTTNode
         NumbersOnly = True
         TabOrder = 2
         Text = '0'
-        ExplicitLeft = 299
       end
       object btnPopulateMemo: TButton
         Left = 260
@@ -252,7 +244,6 @@ object frmMQTTNode: TfrmMQTTNode
         Anchors = [akTop, akRight]
         Images = imlMain
         TabOrder = 3
-        ExplicitLeft = 228
       end
       object edtPublishTopic: TLabeledEdit
         Left = 30
@@ -265,7 +256,6 @@ object frmMQTTNode: TfrmMQTTNode
         EditLabel.Caption = 'Topic'
         LabelPosition = lpLeft
         TabOrder = 4
-        ExplicitWidth = 192
       end
       object btnClearPublishList: TButton
         Left = 261
@@ -276,7 +266,6 @@ object frmMQTTNode: TfrmMQTTNode
         Anchors = [akTop, akRight]
         Images = imlMain
         TabOrder = 5
-        ExplicitLeft = 228
       end
     end
     object tsReceive: TTabSheet
@@ -300,7 +289,6 @@ object frmMQTTNode: TfrmMQTTNode
         ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 0
-        ExplicitWidth = 274
       end
       object btnClearReceived: TButton
         Left = 315
@@ -318,7 +306,6 @@ object frmMQTTNode: TfrmMQTTNode
         ParentFont = False
         TabOrder = 1
         WordWrap = True
-        ExplicitLeft = 283
       end
     end
   end
@@ -327,7 +314,7 @@ object frmMQTTNode: TfrmMQTTNode
     Left = 130
     Top = 136
     Bitmap = {
-      494C010106000800040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C0101060008000C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000001001B09532ED308512ED100000010000000000000

@@ -24,6 +24,7 @@ object frmCollections: TfrmCollections
     Anchors = [akLeft, akTop, akRight]
     Caption = 'RecordCount:'
     FocusControl = trbRecordCount
+    OnClick = lblRecordCountClick
   end
   object btnFirstNameIs: TButton
     Left = 8

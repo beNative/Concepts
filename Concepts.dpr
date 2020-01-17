@@ -2,6 +2,8 @@ program Concepts;
 
 {$I Concepts.inc}
 
+{$R *.dres}
+
 uses
   Vcl.Themes,
   Vcl.Styles,

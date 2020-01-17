@@ -180,9 +180,6 @@ begin
   inherited Create;
   FPairs := TList<IZMQPair>.Create;
   FContext := zmq_ctx_new;
-
-  // TS
-  //zmq_ctx_set(FContext, ZMQ_IO_THREADS, 1);
 end;
 
 destructor TZeroMQ.Destroy;
@@ -198,15 +195,8 @@ begin
 end;
 
 function TZeroMQ.Start(Kind: ZMQSocket): IZMQPair;
-var
-  LHWM: Integer;
 begin
   Result := TZMQPair.Create(Self, zmq_socket(FContext, Ord(Kind)));
-//  LHWM := 200000;
-   // TS
-//  zmq_setsockopt ((Result as TZMQPair).FSocket, ZMQ_SNDHWM, @LHWM, SizeOf(LHWM));
-//zmq_setsockopt ((Result as TZMQPair).FSocket, ZMQ_RCVHWM, @LHWM, SizeOf(LHWM));
-
   FPairs.Add(Result);
 end;
 
