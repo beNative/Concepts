@@ -109,6 +109,7 @@ const
 //  EXECUTE_BY_NAME = 'TStringList';
 //  EXECUTE_BY_NAME = 'Telnet';
 //  EXECUTE_BY_NAME = 'Parallel Library';
+//    EXECUTE_BY_NAME = 'Serial';
 
 begin
   {$WARNINGS OFF}

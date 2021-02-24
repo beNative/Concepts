@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
 
 unit Concepts.System.Threading.Form;
 
-{ Demonstration of the new Delphi XE7 - System.Threading unit, which is also
-  referenced to as the PPL (Parallel Programming Library). }
+{ Demonstration of the as of Delphi XE7 new - System.Threading unit, which is
+  also referenced to as the PPL (Parallel Programming Library). }
 
 interface
 
@@ -82,6 +82,8 @@ type
       ACount      : Integer
     );
 
+   procedure CleanupCompletedTasks;
+
   public
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
@@ -120,14 +122,33 @@ begin
   FLog := TDDuceComponents.CreateLogTree(Self, pnlLog);
   FLog.DateTimeFormat := 'hh:nn:ss.zzz';
   FLog.Images := imlMain;
-  FLog.AutoLogLevelColors := False;
+  FLog.AutoLogLevelColors := True;
   FTasks := TCollections.CreateInterfaceList<ITask>;
 end;
 
 procedure TfrmThreading.BeforeDestruction;
 begin
+  TTask.WaitForAll(FTasks.ToArray);
+  FTasks := nil;
   FLog.Free;
   inherited BeforeDestruction;
+end;
+
+procedure TfrmThreading.CleanupCompletedTasks;
+var
+  T : ITask;
+  N : Integer;
+begin
+  N := FTasks.Count;
+  while N > 0 do
+  begin
+    Dec(N);
+    T := FTasks[N];
+    if T.Status = TTaskStatus.Completed then
+    begin
+      FTasks.Remove(T);
+    end;
+  end;
 end;
 {$ENDREGION}
 
@@ -172,8 +193,11 @@ procedure TfrmThreading.actStartTaskExecute(Sender: TObject);
 var
   C : Integer;
 begin
+  CleanupCompletedTasks;
   C := FTasks.Count + 1;
   FLog.LogFmt(STaskStarted, [C]);
+
+
   FTasks.Add(
     TTask.Run(procedure
       begin

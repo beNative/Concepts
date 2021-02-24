@@ -120,8 +120,8 @@ object frmThreading: TfrmThreading
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 713
-      Height = 29
+      Width = 625
+      Height = 13
       Align = alClient
       Alignment = taCenter
       Caption = 
@@ -129,8 +129,6 @@ object frmThreading: TfrmThreading
         't a.k.a. Parallel Programming Library (PPL).'
       Layout = tlCenter
       WordWrap = True
-      ExplicitWidth = 625
-      ExplicitHeight = 13
     end
   end
   object aclMain: TActionList
@@ -162,7 +160,7 @@ object frmThreading: TfrmThreading
     Left = 72
     Top = 136
     Bitmap = {
-      494C010105000900040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010105000900080010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@ unit Concepts.Indy.TCP.Form;
 interface
 
 uses
-  System.SysUtils, System.Actions, System.Classes,
+  System.SysUtils, System.Actions, System.Classes, System.ImageList,
   Vcl.Dialogs, Vcl.ActnList, Vcl.Menus, Vcl.Controls, Vcl.StdCtrls,
-  Vcl.Buttons, Vcl.ExtCtrls, Vcl.Forms, Vcl.ComCtrls,
+  Vcl.Buttons, Vcl.ExtCtrls, Vcl.Forms, Vcl.ComCtrls, Vcl.ImgList,
 
   Spring.Collections,
 
@@ -42,7 +42,7 @@ uses
 
   IdComponent, IdTCPConnection, IdTCPClient,
   IdIntercept, IdGlobal, IdIOHandler,
-  IdIOHandlerStack, IdBaseComponent, System.ImageList, Vcl.ImgList;
+  IdIOHandlerStack, IdBaseComponent;
 
 type
   TfrmIndyTCP = class(TForm)
