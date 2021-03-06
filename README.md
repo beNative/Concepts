@@ -33,3 +33,5 @@ In the [Concepts.inc](http://github.com/beNative/Concepts/blob/master/Concepts.i
 Currently compilation has only been tested in Delphi 10 Seattle and later versions, but it should not be difficult to get it compiled in  Delphi 2010 or later.
 
 Check the [releases](http://github.com/beNative/Concepts/releases) to download a precompiled executable of the project.
+
+![Concepts.BCEditor.](https://github.com/beNative/Concepts/blob/master/Images/Concepts.BCEditor.png)
