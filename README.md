@@ -34,7 +34,7 @@ Currently compilation has only been tested in Delphi 10 Seattle and later versio
 
 Check the [releases](http://github.com/beNative/Concepts/releases) to download a precompiled executable of the project.
 
-##BCEditor
+## BCEditor
 
 ![Concepts.BCEditor](https://github.com/beNative/Concepts/blob/master/Images/Concepts.BCEditor.png)
 ![Concepts.ChromeTabs](https://github.com/beNative/Concepts/blob/master/Images/Concepts.ChromeTabs.png)
