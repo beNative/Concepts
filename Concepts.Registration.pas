@@ -196,70 +196,70 @@ begin
   ConceptManager.Register(
     TfrmCollections,
     'Collections',
-    'Spring',
-    'Spring collections demo.',
+    'Spring4D',
+    'Spring4D collections.',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmMultiCastEvents,
     'Multicast events',
-    'Spring',
-    'Spring multicast events (Event<T> - IEvent<T).',
+    'Spring4D',
+    'Multicast events (Event<T> - IEvent<T).',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmLazyInstantiation,
     'Lazy instantiation',
-    'Spring',
-    'Lazy instantiation example (Lazy<T> - ILazy<T>).',
+    'Spring4D',
+    'Lazy instantiation (Lazy<T> - ILazy<T>).',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmSpringInterception,
     'Interception',
-    'Spring',
-    'Aspect Oriented Programming demo.',
+    'Spring4D',
+    'Aspect Oriented Programming.',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmObjectDataSet,
     'Persistence',
-    'Spring',
-    'TObjectDataSet demo',
+    'Spring4D',
+    'TObjectDataSet',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmSpringPersistence,
     'ORM',
-    'Spring',
-    'Spring entities',
+    'Spring4D',
+    'Spring4D Entities.',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmSpringLogging,
     'Logging',
-    'Spring',
-    'Spring Logging system',
+    'Spring4D',
+    'Spring4D Logging system.',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmSpringTypes,
     'Types',
-    'Spring',
-    'Spring utility types.',
+    'Spring4D',
+    'Spring4D Utility types.',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmSpringUtils,
     'Utils',
-    'Spring',
+    'Spring4D',
     'Utillity classes and routines.',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmClassProxy,
     'ClassProxy',
-    'Spring',
+    'Spring4D',
     'Interception',
     FCategoryColor
   );
