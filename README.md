@@ -113,6 +113,22 @@ Check the [releases](http://github.com/beNative/Concepts/releases) to download a
 
 ## System
 
+### Anonymous methods
+
+![Concepts.System.AnonymousMethods](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.AnonymousMethods.png)
+
+### Variants
+
+![Concepts.System.Variants](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.Variants.png)
+
+### TStringList
+
+![Concepts.System.TStringList](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.TStringList.png)
+
+### Livebindings
+
+![Concepts.System.LiveBindings](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.LiveBindings.png)
+
 ### Threads
 
 ![Concepts.System.Threads](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.Threads.png)
@@ -124,4 +140,6 @@ Check the [releases](http://github.com/beNative/Concepts/releases) to download a
 ### Object Interfaces
 
 ![Concepts.System.Interfaces](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.Interfaces.png)
+
+![Concepts.System.InterfaceImplmentationByAggregation](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.InterfaceImplmentationByAggregation.png)
 
