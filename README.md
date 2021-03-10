@@ -141,5 +141,5 @@ Check the [releases](http://github.com/beNative/Concepts/releases) to download a
 
 ![Concepts.System.Interfaces](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.Interfaces.png)
 
-![Concepts.System.InterfaceImplmentationByAggregation](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.InterfaceImplmentationByAggregation.png)
+![Concepts.System.InterfaceImplementationByAggregation](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.InterfaceImplementationByAggregation.png)
 
