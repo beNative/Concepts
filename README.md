@@ -139,7 +139,10 @@ Check the [releases](http://github.com/beNative/Concepts/releases) to download a
 
 ### Object Interfaces
 
+#### Interface demo
+
 ![Concepts.System.Interfaces](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.Interfaces.png)
 
-![Concepts.System.InterfaceImplementationByAggregation](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.InterfaceImplementationByAggregation.png)
+#### Interface implementation by aggregation
 
+![Concepts.System.InterfaceImplementationByAggregation](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.InterfaceImplementationByAggregation.png)
