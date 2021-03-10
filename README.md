@@ -125,6 +125,10 @@ Check the [releases](http://github.com/beNative/Concepts/releases) to download a
 
 ![Concepts.System.TStringList](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.TStringList.png)
 
+### TVirtualInterface
+
+![Concepts.System.TVirtualInterface](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.TVirtualInterface.png)
+
 ### Livebindings
 
 ![Concepts.System.LiveBindings](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.LiveBindings.png)
