@@ -107,6 +107,10 @@ Check the [releases](http://github.com/beNative/Concepts/releases) to download a
 
 ![Concepts.Indy.Telnet](https://github.com/beNative/Concepts/blob/master/Images/Concepts.Indy.Telnet.png)
 
+## Synapse serial client
+
+![Concepts.Synapse.Serial](https://github.com/beNative/Concepts/blob/master/Images/Concepts.Synapse.Serial.png)
+
 ## System
 
 ### Parallel Programming Library
