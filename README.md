@@ -156,3 +156,8 @@ Check the [releases](http://github.com/beNative/Concepts/releases) to download a
 #### Interface implementation by aggregation
 
 ![Concepts.System.InterfaceImplementationByAggregation](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.InterfaceImplementationByAggregation.png)
+
+## VCL
+
+![Concepts.Vcl.TGridPanel](https://github.com/beNative/Concepts/blob/master/Images/Concepts.Vcl.TGridPanel.png)
+
