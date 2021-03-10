@@ -159,5 +159,10 @@ Check the [releases](http://github.com/beNative/Concepts/releases) to download a
 
 ## VCL
 
+### TGridPanel
+
 ![Concepts.Vcl.TGridPanel](https://github.com/beNative/Concepts/blob/master/Images/Concepts.Vcl.TGridPanel.png)
 
+## Windows API
+
+![Concepts.Winapi.LockPaint](https://github.com/beNative/Concepts/blob/master/Images/Concepts.Winapi.LockPaint.png)
