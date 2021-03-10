@@ -93,9 +93,17 @@ Check the [releases](http://github.com/beNative/Concepts/releases) to download a
 
 ![Concepts.VirtualTreeview](https://github.com/beNative/Concepts/blob/master/Images/Concepts.VirtualTreeview.png)
 
+## Indy
+
+![Concepts.Indy.Telnet](https://github.com/beNative/Concepts/blob/master/Images/Concepts.Indy.Telnet.png)
+
 ## System
 
+### Parallel Programming Library
+
 ![Concepts.System.PPL](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.PPL.png)
+
+### Object Interfaces
 
 ![Concepts.System.Interfaces](https://github.com/beNative/Concepts/blob/master/Images/Concepts.System.Interfaces.png)
 
