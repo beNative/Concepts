@@ -95,6 +95,8 @@ Check the [releases](http://github.com/beNative/Concepts/releases) to download a
 
 ## Indy
 
+### Telnet client
+
 ![Concepts.Indy.Telnet](https://github.com/beNative/Concepts/blob/master/Images/Concepts.Indy.Telnet.png)
 
 ## System
