@@ -404,7 +404,7 @@ begin
         LDataCaret := ReadStringWithoutPrefix(LNewMsg.Data, LDataCaret,
           LPayload);
         if Assigned(FPublishEvent) then
-          OnPublish(Self, LTopic, LPayload);
+          OnPublish(Self, string(LTopic), string(LPayload));
       end;
     Ord(TMQTTMessageType.SUBACK) :
       begin
