@@ -46,8 +46,6 @@ type
   end;
 
   TNumber = class(TInterfacedObject, INumber)
-  private
-    FValue : Integer;
   public
     function One: Integer; virtual;
     function Two: Integer; dynamic;

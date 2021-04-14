@@ -119,6 +119,10 @@ object frmMQTTNode: TfrmMQTTNode
     object tsSubscriptions: TTabSheet
       Caption = 'Subscriptions'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         383
         101)
@@ -186,6 +190,10 @@ object frmMQTTNode: TfrmMQTTNode
     end
     object tsPublish: TTabSheet
       Caption = 'Publish'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         383
         101)
@@ -271,6 +279,10 @@ object frmMQTTNode: TfrmMQTTNode
     object tsReceive: TTabSheet
       Caption = 'Receive'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         383
         101)
@@ -314,7 +326,7 @@ object frmMQTTNode: TfrmMQTTNode
     Left = 130
     Top = 136
     Bitmap = {
-      494C010106000800100010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010106000800140010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000001001B09532ED308512ED100000010000000000000

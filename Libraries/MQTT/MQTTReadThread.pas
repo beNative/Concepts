@@ -63,11 +63,11 @@ type
       const AIndexStartAt : Integer;
       var AStringRead     : string
     ) : Integer;
-    function ReadMessageId(
-      const ADataStream   : TBytes;
-      const AIndexStartAt : Integer;
-      var AMessageId      : Integer
-    ) : Integer;
+//    function ReadMessageId(
+//      const ADataStream   : TBytes;
+//      const AIndexStartAt : Integer;
+//      var AMessageId      : Integer
+//    ) : Integer;
     function ReadStringWithoutPrefix(
       const ADataStream   : TBytes;
       const AIndexStartAt : Integer;
@@ -143,7 +143,6 @@ begin
   Assert(Length(ALengthBytes) = 2,
     'The MSB-LSB 2 bytes structure must be 2 Bytes in length');
 
-  Result := 0;
   Result := ALengthBytes[0] shl 8;
   Result := Result + ALengthBytes[1];
 end;
@@ -162,7 +161,6 @@ begin
 
   if ((Length(ARlBytes) > 0) and (Length(ARlBytes) <= 4)) then
   begin
-    LDigit := ARlBytes[I];
     repeat
       LDigit  := ARlBytes[I];
       Result := Result + (LDigit and 127) * LMulti;
@@ -206,13 +204,15 @@ var
   LSize    : Integer;
   LIdBuffer : TIdBytes;
   LCount   : Integer;
-  LTemp    : Integer;
   LIndex   : Integer;
   // ==============================================================================
 begin
+  LIndex := 0;
+  LCount := 0;
+  LRLInt := 0;
   while not Terminated do
   begin
-    try
+    //try
       if FPSocket.IOHandler.CheckForDataOnSource(1000) then
         if not FPSocket.IOHandler.InputBufferIsEmpty then
         begin
@@ -302,9 +302,9 @@ begin
             end;
           end;
         end;
-    except
-
-    end;
+//    except
+//
+//    end;
 
     (*
       FCSock.Acquire;
@@ -399,12 +399,10 @@ begin
     Ord(TMQTTMessageType.PUBLISH) :
       begin
         // Todo: This only applies for QoS level 0 messages.
-        LDataCaret := 0;
         LDataCaret := ReadSingleString(LNewMsg.Data, LDataCaret, LTopic);
-        LDataCaret := ReadStringWithoutPrefix(LNewMsg.Data, LDataCaret,
-          LPayload);
+        ReadStringWithoutPrefix(LNewMsg.Data, LDataCaret, LPayload);
         if Assigned(FPublishEvent) then
-          OnPublish(Self, string(LTopic), string(LPayload));
+          OnPublish(Self, UTF8String(LTopic), UTF8String(LPayload));
       end;
     Ord(TMQTTMessageType.SUBACK) :
       begin
@@ -463,13 +461,13 @@ begin
   end;
 end;
 
-function TMQTTReadThread.ReadMessageId(const ADataStream: TBytes;
-  const AIndexStartAt: Integer; var AMessageId: Integer) : Integer;
-begin
-  AMessageId := TMQTTRecvUtilities.MSBLSBToInt
-    (Copy(ADataStream, AIndexStartAt, 2));
-  Result := AIndexStartAt + 2;
-end;
+//function TMQTTReadThread.ReadMessageId(const ADataStream: TBytes;
+//  const AIndexStartAt: Integer; var AMessageId: Integer) : Integer;
+//begin
+//  AMessageId := TMQTTRecvUtilities.MSBLSBToInt
+//    (Copy(ADataStream, AIndexStartAt, 2));
+//  Result := AIndexStartAt + 2;
+//end;
 
 function TMQTTReadThread.ReadStringWithoutPrefix(const ADataStream: TBytes;
   const AIndexStartAt : Integer; var AStringRead: string): Integer;

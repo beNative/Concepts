@@ -152,7 +152,7 @@ type
 
   public
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
+    destructor Destroy; override;
 
     property Connected: Boolean
       read GetConnected;
@@ -182,11 +182,14 @@ begin
   pgcMessage.ActivePageIndex  := 0;
 end;
 
-procedure TfrmMQTTNode.BeforeDestruction;
+destructor TfrmMQTTNode.Destroy;
 begin
-  FMQTT.Disconnect;
-  FMQTT.Free;
-  inherited BeforeDestruction;
+  if Assigned(FMQTT) then
+  begin
+    FMQTT.Disconnect;
+    FMQTT.Free;
+  end;
+  inherited Destroy;
 end;
 {$ENDREGION}
 

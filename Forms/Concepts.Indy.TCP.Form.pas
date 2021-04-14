@@ -357,7 +357,7 @@ end;
 
 procedure TfrmIndyTCP.actSendExecute(Sender: TObject);
 begin
-  SendString(RawByteString(cbxSent.Text));
+  SendString(string(cbxSent.Text));
 end;
 {$ENDREGION}
 
@@ -365,7 +365,7 @@ end;
 procedure TfrmIndyTCP.IdConnectionInterceptReceive(
   ASender: TIdConnectionIntercept; var ABuffer: TIdBytes);
 begin
-  DoStringReceived(RawByteString(PAnsiChar(ABuffer)));
+  DoStringReceived(string(PAnsiChar(ABuffer)));
   UpdateControls;
   Logger.Send('InterceptReceive', string(PAnsiChar(ABuffer)));
 end;
@@ -386,7 +386,7 @@ end;
 
 procedure TfrmIndyTCP.FCommandExecute(Sender: TObject);
 begin
-  SendString(RawByteString((Sender as TContainedAction).Caption));
+  SendString(string((Sender as TContainedAction).Caption));
 end;
 
 function TfrmIndyTCP.FInspectorBeforeAddItem(Sender: TControl;

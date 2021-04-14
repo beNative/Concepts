@@ -566,6 +566,7 @@ end;
 
 function TMQTTConnectVarHeader.RebuildHeader : Boolean;
 begin
+  Result := True;
   try
     ClearField;
     AddField(TMQTTUtilities.UTF8EncodeToBytes(Self.PROTOCOL_ID));
@@ -575,7 +576,6 @@ begin
   except
     Result := False;
   end;
-  Result := True;
 end;
 
 procedure TMQTTConnectVarHeader.SetupDefaultValues;
@@ -670,7 +670,7 @@ begin
     end
     else
     begin
-      if AWithIntegerLiterals and TryStrToInt(LLine, LLineAsInt) then
+      if AWithIntegerLiterals and TryStrToInt(string(LLine), LLineAsInt) then
       begin
         AppendToByteArray(Lo(LLineAsInt), Result);
       end
@@ -710,27 +710,22 @@ function TMQTTMessage.ToBytes: TBytes;
 var
   LRemainingLength      : Integer;
   LBytesRemainingLength : TBytes;
-  I                     : Integer;
 begin
-  try
-    LRemainingLength := 0;
-    if Assigned(VariableHeader) then
-      LRemainingLength := LRemainingLength + Length(VariableHeader.ToBytes);
-    if Assigned(Payload) then
-      LRemainingLength := LRemainingLength + Length(Payload.ToBytes);
+  LRemainingLength := 0;
+  if Assigned(VariableHeader) then
+    LRemainingLength := LRemainingLength + Length(VariableHeader.ToBytes);
+  if Assigned(Payload) then
+    LRemainingLength := LRemainingLength + Length(Payload.ToBytes);
 
-    FRemainingLength     := LRemainingLength;
-    LBytesRemainingLength := TMQTTUtilities.RLIntToBytes(FRemainingLength);
+  FRemainingLength     := LRemainingLength;
+  LBytesRemainingLength := TMQTTUtilities.RLIntToBytes(FRemainingLength);
 
-    AppendToByteArray(FixedHeader.Flags, Result);
-    AppendToByteArray(LBytesRemainingLength, Result);
-    if Assigned(VariableHeader) then
-      AppendToByteArray(VariableHeader.ToBytes, Result);
-    if Assigned(Payload) then
-      AppendToByteArray(Payload.ToBytes, Result);
-  except
-    // on E:Exception do
-  end;
+  AppendToByteArray(FixedHeader.Flags, Result);
+  AppendToByteArray(LBytesRemainingLength, Result);
+  if Assigned(VariableHeader) then
+    AppendToByteArray(VariableHeader.ToBytes, Result);
+  if Assigned(Payload) then
+    AppendToByteArray(Payload.ToBytes, Result);
 end;
 {$ENDREGION}
 
