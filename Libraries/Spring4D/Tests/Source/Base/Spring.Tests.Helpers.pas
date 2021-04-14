@@ -53,6 +53,7 @@ implementation
 
 uses
   Rtti,
+  TypInfo,
   Spring.Reflection;
 
 

@@ -3514,12 +3514,8 @@ end;
 
 class function TEnumerable.DefaultIfEmpty<T>(
   const source: IEnumerable<T>): IEnumerable<T>;
-var
-  defaultItem: T;
 begin
-  // workaround for RSP-20683
-  defaultItem := Default(T);
-  Result := TDefaultIfEmptyIterator<T>.Create(source, defaultItem);
+  Result := TDefaultIfEmptyIterator<T>.Create(source, TDefaultIfEmptyIterator<T>.defaultItem);
 end;
 
 class function TEnumerable.DefaultIfEmpty<T>(const source: IEnumerable<T>;

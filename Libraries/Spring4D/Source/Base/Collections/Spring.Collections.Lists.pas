@@ -613,7 +613,6 @@ var
   oldItems: TArray<T>;
   tailCount,
   i: Integer;
-  defaultItem: T;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckRange((index >= 0) and (index < fCount), 'index');
@@ -639,25 +638,17 @@ begin
   Dec(fCount, count);
 
   if doClear then
-  begin
-    // workaround for RSP-20683
-    defaultItem := Default(T);
     Changed(defaultItem, caReseted);
-  end;
 
   for i := Low(oldItems) to High(oldItems) do
     Changed(oldItems[i], caRemoved);
 end;
 
 procedure TList<T>.Sort(const comparer: IComparer<T>; index, count: Integer);
-var
-  defaultItem: T;
 begin
   IncUnchecked(fVersion);
   TArray.Sort<T>(fItems, comparer, index, count);
 
-  // workaround for RSP-20683
-  defaultItem := Default(T);
   Changed(defaultItem, caReseted);
 end;
 
@@ -756,8 +747,6 @@ begin
 end;
 
 procedure TList<T>.Reverse(index, count: Integer);
-var
-  defaultItem: T;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckRange(index >= 0, 'index');
@@ -767,8 +756,6 @@ begin
   IncUnchecked(fVersion);
   TArray.Reverse<T>(fItems, index, count);
 
-  // workaround for RSP-20683
-  defaultItem := Default(T);
   Changed(defaultItem, caReseted);
 end;
 
@@ -1157,7 +1144,6 @@ procedure TCollectionList<T>.DeleteRangeInternal(index, count: Integer;
 var
   oldItems: array of T;
   i: Integer;
-  defaultItem: T;
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckRange((index >= 0) and (index < Self.Count), 'index');
@@ -1177,11 +1163,7 @@ begin
   end;
 
   if doClear then
-  begin
-    // workaround for RSP-20683
-    defaultItem := Default(T);
     Changed(defaultItem, caReseted);
-  end;
 
   for i := Low(oldItems) to High(oldItems) do
   begin

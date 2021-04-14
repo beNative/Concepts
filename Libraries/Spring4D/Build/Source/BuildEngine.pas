@@ -195,11 +195,13 @@ type
     Win32,
     Win64,
     OSX32,
+    OSX64,
     iOSSimulator,
     iOSDevice,
     iOSDevice32,
     iOSDevice64,
     Android,
+    Android64,
     Linux64
   );
 
@@ -455,13 +457,14 @@ const // luckily, the compiler file names have not changed over the Delphi versi
     'dcc32.exe',
     'dcc64.exe',
     'dccosx.exe',
+    'dccosx64.exe',
     'dccios32.exe',
     'dcciosarm.exe',
     'dcciosarm.exe',
     'dcciosarm64.exe',
     'dccaarm.exe',
-    'dcclinux64.exe'
-  );
+    'dccaarm64.exe',
+    'dcclinux64.exe'  );
 var
   knownPlatform: TKnownPlatforms;
   knownPlatformName: string;

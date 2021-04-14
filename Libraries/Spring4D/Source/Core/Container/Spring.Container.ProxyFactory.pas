@@ -54,7 +54,8 @@ type
 
 implementation
 
-uses     
+uses
+  Rtti,
   SysUtils,
   TypInfo;
 

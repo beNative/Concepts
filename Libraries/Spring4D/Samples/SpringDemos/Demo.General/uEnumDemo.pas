@@ -7,7 +7,7 @@ procedure DoEnumDemo;
 implementation
 
 uses
-      Spring.Utils
+      Spring
     , Types
     ;
 
@@ -17,7 +17,6 @@ type
 procedure DoEnumDemo;
 var
   Names: TStringDynArray;
-  ValueStrings: TStringDynArray;
   S: string;
   Values: TIntegerDynArray;
   i: integer;
@@ -41,13 +40,6 @@ begin
   for I in Values do
   begin
     WriteLn(I);
-  end;
-
-  WriteLn('Here are all the value strings for TNumberEnum: ');
-  ValueStrings := TEnum.GetValueStrings<TNumberEnum>;
-  for S in ValueStrings do
-  begin
-    WriteLn(S);
   end;
 
   S := 'Seven';

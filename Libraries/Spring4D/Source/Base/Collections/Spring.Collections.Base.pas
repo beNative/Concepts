@@ -119,6 +119,7 @@ type
   {$ENDREGION}
   protected
     fComparer: IComparer<T>;
+    class var defaultItem: T;
   {$REGION 'Property Accessors'}
     function GetComparer: IComparer<T>;
     function GetElementType: PTypeInfo; override;
@@ -499,7 +500,7 @@ type
 
 const
   CollectionNotificationMapping: array[TCollectionNotification] of TCollectionChangedAction = (
-{$IFDEF VER330}
+{$IF RTLVersion >= 33}
     caAdded,
     caAdded,
     caExtracted,
@@ -510,7 +511,7 @@ const
     caAdded,
     caRemoved,
     caExtracted
-{$ENDIF}
+{$IFEND}
   );
 
 implementation
@@ -820,11 +821,7 @@ begin
 end;
 
 function TEnumerableBase<T>.FirstOrDefault: T;
-var
-  defaultItem: T;
 begin
-  // workaround for RSP-20683
-  defaultItem := Default(T);
   Result := FirstOrDefault(defaultItem);
 end;
 
@@ -840,11 +837,7 @@ begin
 end;
 
 function TEnumerableBase<T>.FirstOrDefault(const predicate: TPredicate<T>): T;
-var
-  defaultItem: T;
 begin
-  // workaround for RSP-20683
-  defaultItem := Default(T);
   Result := FirstOrDefault(predicate, defaultItem);
 end;
 
@@ -940,11 +933,7 @@ begin
 end;
 
 function TEnumerableBase<T>.LastOrDefault: T;
-var
-  defaultItem: T;
 begin
-  // workaround for RSP-20683
-  defaultItem := Default(T);
   Result := LastOrDefault(defaultItem);
 end;
 
@@ -958,11 +947,7 @@ begin
 end;
 
 function TEnumerableBase<T>.LastOrDefault(const predicate: TPredicate<T>): T;
-var
-  defaultItem: T;
 begin
-  // workaround for RSP-20683
-  defaultItem := Default(T);
   Result := LastOrDefault(predicate, defaultItem);
 end;
 
@@ -1143,11 +1128,7 @@ begin
 end;
 
 function TEnumerableBase<T>.SingleOrDefault: T;
-var
-  defaultItem: T;
 begin
-  // workaround for RSP-20683
-  defaultItem := Default(T);
   Result := SingleOrDefault(defaultItem);
 end;
 
@@ -1166,11 +1147,7 @@ begin
 end;
 
 function TEnumerableBase<T>.SingleOrDefault(const predicate: TPredicate<T>): T;
-var
-  defaultItem: T;
 begin
-  // workaround for RSP-20683
-  defaultItem := Default(T);
   Result := SingleOrDefault(predicate, defaultItem);
 end;
 
