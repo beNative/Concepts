@@ -26,11 +26,11 @@
 * [SQLite](https://www.sqlite.org/)
 
 These libraries are also used in some of my open source projects:
-* [Notepas]|(https://github.com/beNative/Notepas)
-* [SnippetSource]|(https://github.com/beNative/SnippetSource)
-* [DataGrabber]|(https://github.com/beNative/DataGrabber)
-* [LogViewer]|(https://github.com/beNative/LogViewer)
-* [DDuce]|(ttps://github.com/beNative/DDuce)
+* [Notepas](https://github.com/beNative/Notepas)
+* [SnippetSource](https://github.com/beNative/SnippetSource)
+* [DataGrabber](https://github.com/beNative/DataGrabber)
+* [LogViewer](https://github.com/beNative/LogViewer)
+* [DDuce](https://github.com/beNative/DDuce)
 
 A copy of all libraries that the project depends on are included (except commercial ones of course) to avoid installation hassles for anyone who tries to compile the project. 
 In the [Concepts.inc](http://github.com/beNative/Concepts/blob/master/Concepts.inc) file you can specify which dependencies you want to have included in your build.
