@@ -1,0 +1,110 @@
+object MainForm: TMainForm
+  Left = 829
+  Height = 594
+  Top = 245
+  Width = 1055
+  Caption = 'KMemoDemo'
+  ClientHeight = 594
+  ClientWidth = 1055
+  OnCreate = FormCreate
+  OnResize = FormResize
+  Position = poScreenCenter
+  LCLVersion = '1.7'
+  Visible = True
+  object PNMain: TPanel
+    Left = 0
+    Height = 554
+    Top = 0
+    Width = 1055
+    Align = alTop
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    BevelOuter = bvNone
+    ClientHeight = 554
+    ClientWidth = 1055
+    TabOrder = 0
+    object Panel1: TPanel
+      Left = 0
+      Height = 554
+      Top = 0
+      Width = 523
+      Align = alLeft
+      BevelOuter = bvNone
+      Caption = 'Panel1'
+      TabOrder = 0
+    end
+    object Panel2: TPanel
+      Left = 528
+      Height = 554
+      Top = 0
+      Width = 527
+      Align = alClient
+      BevelOuter = bvNone
+      Caption = 'Panel2'
+      TabOrder = 1
+    end
+    object Splitter1: TSplitter
+      Left = 523
+      Height = 554
+      Top = 0
+      Width = 5
+    end
+  end
+  object BULoad: TButton
+    Left = 16
+    Height = 25
+    Top = 562
+    Width = 112
+    Anchors = [akLeft, akBottom]
+    Caption = 'Load files'
+    OnClick = BULoadClick
+    TabOrder = 1
+  end
+  object BUPreview: TButton
+    Left = 136
+    Height = 25
+    Top = 562
+    Width = 112
+    Anchors = [akLeft, akBottom]
+    Caption = 'Preview'
+    OnClick = BUPreviewClick
+    TabOrder = 2
+  end
+  object BUPrint: TButton
+    Left = 256
+    Height = 25
+    Top = 562
+    Width = 112
+    Anchors = [akLeft, akBottom]
+    Caption = 'Print'
+    OnClick = BUPrintClick
+    TabOrder = 3
+  end
+  object BUtest: TButton
+    Left = 528
+    Height = 25
+    Top = 562
+    Width = 112
+    Anchors = [akLeft, akBottom]
+    Caption = 'Run Test'
+    OnClick = BUTestClick
+    TabOrder = 4
+  end
+  object CoBTest: TComboBox
+    Left = 376
+    Height = 23
+    Top = 562
+    Width = 144
+    Anchors = [akLeft, akBottom]
+    ItemHeight = 15
+    Style = csDropDownList
+    TabOrder = 5
+  end
+  object KPrintSetupDialog1: TKPrintSetupDialog
+    left = 448
+    top = 536
+  end
+  object KPrintPreviewDialog1: TKPrintPreviewDialog
+    left = 496
+    top = 536
+  end
+end

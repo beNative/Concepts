@@ -1,0 +1,238 @@
+object KMemoTextStyleForm: TKMemoTextStyleForm
+  Left = 709
+  Height = 473
+  Top = 92
+  Width = 351
+  BorderStyle = bsDialog
+  Caption = 'Text style'
+  ClientHeight = 473
+  ClientWidth = 351
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '1.5'
+  object BUOk: TButton
+    Left = 181
+    Height = 25
+    Top = 436
+    Width = 75
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 0
+  end
+  object BUCancel: TButton
+    Left = 262
+    Height = 25
+    Top = 436
+    Width = 75
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object GBFont: TGroupBox
+    Left = 8
+    Height = 218
+    Top = 6
+    Width = 329
+    Caption = 'Font'
+    ClientHeight = 200
+    ClientWidth = 325
+    TabOrder = 2
+    object LBFontName: TLabel
+      Left = 18
+      Height = 13
+      Top = 3
+      Width = 55
+      Caption = 'Font name:'
+      ParentColor = False
+    end
+    object LBFontSize: TLabel
+      Left = 236
+      Height = 13
+      Top = 3
+      Width = 47
+      Caption = 'Font size:'
+      ParentColor = False
+    end
+    object EDFont: TEdit
+      Left = 18
+      Height = 21
+      Top = 22
+      Width = 208
+      OnChange = EDFontChange
+      TabOrder = 0
+      Text = 'EDFont'
+    end
+    object LiBFont: TListBox
+      Left = 18
+      Height = 141
+      Top = 48
+      Width = 208
+      ItemHeight = 20
+      OnClick = LiBFontClick
+      OnDrawItem = LiBFontDrawItem
+      ScrollWidth = 204
+      Style = lbOwnerDrawFixed
+      TabOrder = 1
+    end
+    object LiBFontSize: TListBox
+      Left = 236
+      Height = 141
+      Top = 48
+      Width = 75
+      ItemHeight = 0
+      OnClick = LiBFontSizeClick
+      ScrollWidth = 71
+      TabOrder = 2
+    end
+    object EDFontSize: TKNumberEdit
+      Left = 236
+      Height = 23
+      Top = 22
+      Width = 59
+      CustomSuffix = 'pt'
+      DecimalSeparator = ','
+      Max = 200
+      Min = 1
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Value = 1
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 3
+      OnChange = EDFontSizeChange
+    end
+  end
+  object GBStyle: TGroupBox
+    Left = 8
+    Height = 127
+    Top = 303
+    Width = 329
+    Caption = 'Style'
+    ClientHeight = 109
+    ClientWidth = 325
+    TabOrder = 3
+    object CBBold: TCheckBox
+      Left = 18
+      Height = 19
+      Top = 2
+      Width = 40
+      Caption = 'Bold'
+      TabOrder = 0
+    end
+    object CBItalic: TCheckBox
+      Left = 18
+      Height = 19
+      Top = 25
+      Width = 43
+      Caption = 'Italic'
+      TabOrder = 1
+    end
+    object CBUnderline: TCheckBox
+      Left = 18
+      Height = 19
+      Top = 48
+      Width = 71
+      Caption = 'Underlined'
+      TabOrder = 2
+    end
+    object CBStrikeout: TCheckBox
+      Left = 18
+      Height = 19
+      Top = 71
+      Width = 63
+      Caption = 'Strikeout'
+      TabOrder = 3
+    end
+    object CBCaps: TCheckBox
+      Left = 161
+      Height = 19
+      Top = 2
+      Width = 58
+      Caption = 'Capitals'
+      OnClick = CBCapsClick
+      TabOrder = 4
+    end
+    object CBSmallCaps: TCheckBox
+      Left = 161
+      Height = 19
+      Top = 25
+      Width = 83
+      Caption = 'Small capitals'
+      OnClick = CBSmallCapsClick
+      TabOrder = 5
+    end
+    object CBSubscript: TCheckBox
+      Left = 161
+      Height = 19
+      Top = 48
+      Width = 64
+      Caption = 'Subscript'
+      OnClick = CBSubscriptClick
+      TabOrder = 6
+    end
+    object CBSuperscript: TCheckBox
+      Left = 161
+      Height = 19
+      Top = 71
+      Width = 74
+      Caption = 'Superscript'
+      OnClick = CBSuperscriptClick
+      TabOrder = 7
+    end
+  end
+  object GBColors: TGroupBox
+    Left = 8
+    Height = 68
+    Top = 229
+    Width = 329
+    Caption = 'Colors'
+    ClientHeight = 50
+    ClientWidth = 325
+    TabOrder = 4
+    object LBTextShading: TLabel
+      Left = 161
+      Height = 13
+      Top = 8
+      Width = 42
+      Caption = 'Shading:'
+      ParentColor = False
+    end
+    object LBFontColor: TLabel
+      Left = 18
+      Height = 13
+      Top = 8
+      Width = 52
+      Caption = 'Font color:'
+      ParentColor = False
+    end
+    object CLBTextShading: TKColorButton
+      Left = 241
+      Height = 25
+      Top = 3
+      Width = 70
+      Font.Color = clBtnText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+      TabOrder = 0
+      ColorDlgOptions = []
+    end
+    object CLBFontColor: TKColorButton
+      Left = 82
+      Height = 25
+      Top = 3
+      Width = 70
+      Font.Color = clBtnText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+      TabOrder = 1
+      ColorDlgOptions = []
+    end
+  end
+end

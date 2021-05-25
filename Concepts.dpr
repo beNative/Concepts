@@ -93,7 +93,8 @@ uses
   Concepts.SynMemoEx.Form in 'Forms\Concepts.SynMemoEx.Form.pas' {frmSynMemoEx},
   Concepts.SynEdit.Form in 'Forms\Concepts.SynEdit.Form.pas' {frmSynEdit},
   Concepts.Indy.TCP.Form in 'Forms\Concepts.Indy.TCP.Form.pas' {frmIndyTCP},
-  Concepts.Vcl.Styles.Form in 'Forms\Concepts.Vcl.Styles.Form.pas' {Form1};
+  Concepts.Vcl.Styles.Form in 'Forms\Concepts.Vcl.Styles.Form.pas' {Form1},
+  Concepts.KControls.KMemo.Form in 'Forms\Concepts.KControls.KMemo.Form.pas' {frmKMemo};
 
 {$R *.res}
 
@@ -101,6 +102,7 @@ uses
   all registered concepts. }
 const
   //EXECUTE_BY_NAME = 'ClassProxy';
+  //EXECUTE_BY_NAME = 'KMemo';
   EXECUTE_BY_NAME = '';
 //  EXECUTE_BY_NAME = 'Virtual treeview';
 //  EXECUTE_BY_NAME = 'ZeroMQ';

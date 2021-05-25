@@ -1,0 +1,75 @@
+package KControls_R2009;
+
+{$include ..\..\source\kcontrols.inc}
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS ON}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST ON}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'KControls Development Suite - runtime package'}
+{$RUNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  vcl,
+  vclx,
+  vclimg
+{$IFDEF TKDBGRID_USE}
+  , dbrtl
+  , vcldb
+{$ENDIF}
+  ;
+
+contains
+  kcontrols in '..\..\source\kcontrols.pas',
+  kdialogs in '..\..\source\kdialogs.pas',
+  keditcommon in '..\..\source\keditcommon.pas',
+  kfunctions in '..\..\source\kfunctions.pas',
+  kgraphics in '..\..\source\kgraphics.pas',
+  kgrids in '..\..\source\kgrids.pas',
+  kicon in '..\..\source\kicon.pas',
+  khexeditor in '..\..\source\khexeditor.pas',
+  kprintpreview in '..\..\source\kprintpreview.pas',
+  kprintsetup in '..\..\source\kprintsetup.pas',
+  kwidewinprocs in '..\..\source\kwidewinprocs.pas',
+  kbuttons in '..\..\source\kbuttons.pas',
+  kedits in '..\..\source\kedits.pas',
+  klabels in '..\..\source\klabels.pas',
+  kmemo in '..\..\source\kmemo.pas',
+  kmessagebox in '..\..\source\kmessagebox.pas',
+  klog in '..\..\source\klog.pas',
+  kprogress in '..\..\source\kprogress.pas',
+  kres in '..\..\source\kres.pas',
+  kmemodlghyperlink in '..\..\source\kmemodlghyperlink.pas',
+  kmemodlgnumbering in '..\..\source\kmemodlgnumbering.pas',
+  kmemodlgparastyle in '..\..\source\kmemodlgparastyle.pas',
+  kmemodlgtextstyle in '..\..\source\kmemodlgtextstyle.pas',
+  kmemodlgimage in '..\..\source\kmemodlgimage.pas',
+  kmemodlgcontainer in '..\..\source\kmemodlgcontainer.pas',
+  kpagecontrol in '..\..\source\kpagecontrol.pas',
+  kmemortf in '..\..\source\kmemortf.pas',
+  kmemofrm in '..\..\source\kmemofrm.pas' {KMemoFrame: TFrame},
+  ksplitter in '..\..\source\ksplitter.pas'
+{$IFDEF TKDBGRID_USE}
+  , kdbgrids in '..\..\source\kdbgrids.pas'
+{$ENDIF}
+  ;
+end.

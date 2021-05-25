@@ -72,7 +72,7 @@
         <DCC_ExeOutput>.\Bin\$(Platform)</DCC_ExeOutput>
         <DCC_BplOutput>.\Bin\$(Platform)</DCC_BplOutput>
         <DCC_DcuOutput>.\Lib\$(Platform)\$(Config)</DCC_DcuOutput>
-        <DCC_UnitSearchPath>.\Libraries\Spring4D\Source;.\Libraries\Spring4D\Source\Base;.\Libraries\Spring4D\Source\Base\Collections;.\Libraries\Spring4D\Source\Base\Logging;.\Libraries\Spring4D\Source\Base\Patches;.\Libraries\Spring4D\Source\Core\Container;.\Libraries\Spring4D\Source\Core\Interception;.\Libraries\Spring4D\Source\Core\Logging;.\Libraries\Spring4D\Source\Core\Mocking;.\Libraries\Spring4D\Source\Core\Services;.\Libraries\Spring4D\Source\Data\ObjectDataSet;.\Libraries\Spring4D\Source\Extensions\Cryptography;.\Libraries\Spring4D\Source\Extensions\Utils;.\Libraries\Spring4D\Source\Persistence\Adapters;.\Libraries\Spring4D\Source\Persistence\Core;.\Libraries\Spring4D\Source\Persistence\Criteria;.\Libraries\Spring4D\Source\Persistence\Mapping;.\Libraries\Spring4D\Source\Persistence\SQL;.\Libraries\Spring4D\Marshmallow\External\MongoDB;.\Libraries\Spring4D\Marshmallow\External\SQLite3;.\Libraries\BTMemoryModule;.\Libraries\DDetours;.\Libraries\DDuce;.\Libraries\DDuce\Components;.\Libraries\DDuce\Factories;.\Libraries\DDuce\Logging;.\Libraries\DDuce\Modules;.\Libraries\DDuce\Modules\Editor;.\Libraries\DDuce\Modules\Logger;.\Libraries\DDuce\Modules\ObjectInspector;.\Libraries\DDuce\Modules\RTTEye;.\Libraries\DDuce\Settings;.\Libraries\DSharp;.\Libraries\FastMM;.\Libraries\firemonkey-container;.\Libraries\gnugettext;.\Libraries\SQLBuilder4Delphi\src\;.\Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\;.\Libraries\synapse;.\Libraries\TBCEditor\Source;.\Libraries\TChromeTabs\Lib;.\Libraries\TChromeTabs\GDIPlus\;.\Libraries\TzObjectInspector;.\Libraries\TzObjectInspector\FloatConv;.\Libraries\Virtual-TreeView\Source;.\Libraries\Virtual-TreeView\Contributions\GenericWrapper;.\Libraries\\ZeroMQ;.\Libraries\SynEdit\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>.\Libraries\Spring4D\Source;.\Libraries\Spring4D\Source\Base;.\Libraries\Spring4D\Source\Base\Collections;.\Libraries\Spring4D\Source\Base\Logging;.\Libraries\Spring4D\Source\Base\Patches;.\Libraries\Spring4D\Source\Core\Container;.\Libraries\Spring4D\Source\Core\Interception;.\Libraries\Spring4D\Source\Core\Logging;.\Libraries\Spring4D\Source\Core\Mocking;.\Libraries\Spring4D\Source\Core\Services;.\Libraries\Spring4D\Source\Data\ObjectDataSet;.\Libraries\Spring4D\Source\Extensions\Cryptography;.\Libraries\Spring4D\Source\Extensions\Utils;.\Libraries\Spring4D\Source\Persistence\Adapters;.\Libraries\Spring4D\Source\Persistence\Core;.\Libraries\Spring4D\Source\Persistence\Criteria;.\Libraries\Spring4D\Source\Persistence\Mapping;.\Libraries\Spring4D\Source\Persistence\SQL;.\Libraries\Spring4D\Marshmallow\External\MongoDB;.\Libraries\Spring4D\Marshmallow\External\SQLite3;.\Libraries\BTMemoryModule;.\Libraries\DDetours;.\Libraries\DDuce;.\Libraries\DDuce\Components;.\Libraries\DDuce\Factories;.\Libraries\DDuce\Logging;.\Libraries\DDuce\Modules;.\Libraries\DDuce\Modules\Editor;.\Libraries\DDuce\Modules\Logger;.\Libraries\DDuce\Modules\ObjectInspector;.\Libraries\DDuce\Modules\RTTEye;.\Libraries\DDuce\Settings;.\Libraries\DSharp;.\Libraries\FastMM;.\Libraries\firemonkey-container;.\Libraries\gnugettext;.\Libraries\SQLBuilder4Delphi\src\;.\Libraries\SQLBuilder4Delphi\dependencies\gaSQLParser\src\;.\Libraries\synapse;.\Libraries\TBCEditor\Source;.\Libraries\TChromeTabs\Lib;.\Libraries\TChromeTabs\GDIPlus\;.\Libraries\TzObjectInspector;.\Libraries\TzObjectInspector\FloatConv;.\Libraries\Virtual-TreeView\Source;.\Libraries\Virtual-TreeView\Contributions\GenericWrapper;.\Libraries\\ZeroMQ;.\Libraries\SynEdit\Source;.\Libraries\KControls\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
@@ -345,6 +345,10 @@
             <Form>Form1</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="Forms\Concepts.KControls.KMemo.Form.pas">
+            <Form>frmKMemo</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <RcItem Include="Bin\Win32\libzmq.dll">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>
@@ -371,6 +375,7 @@
                     <Source Name="MainSource">Concepts.dpr</Source>
                 </Source>
                 <Excluded_Packages>
+                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\19.0\Bpl\PngComponentsDDesign260.bpl">File C:\Users\Public\Documents\Embarcadero\Studio\19.0\Bpl\PngComponentsDDesign260.bpl not found</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcboffice2k250.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcbofficexp250.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k250.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>

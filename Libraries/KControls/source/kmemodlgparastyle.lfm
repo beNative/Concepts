@@ -1,0 +1,449 @@
+object KMemoParaStyleForm: TKMemoParaStyleForm
+  Left = 670
+  Height = 469
+  Top = 114
+  Width = 375
+  BorderStyle = bsDialog
+  Caption = 'Paragraph style'
+  ClientHeight = 469
+  ClientWidth = 375
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Position = poScreenCenter
+  LCLVersion = '1.6.0.4'
+  object BUOk: TButton
+    Left = 211
+    Height = 25
+    Top = 431
+    Width = 75
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 0
+  end
+  object BUCancel: TButton
+    Left = 292
+    Height = 25
+    Top = 431
+    Width = 75
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object GBCommon: TGroupBox
+    Left = 8
+    Height = 65
+    Top = 8
+    Width = 359
+    Caption = 'Common'
+    ClientHeight = 47
+    ClientWidth = 355
+    TabOrder = 2
+    object LBalignment: TLabel
+      Left = 18
+      Height = 13
+      Top = 4
+      Width = 51
+      Caption = 'Alignment:'
+      ParentColor = False
+    end
+    object CoBAlign: TComboBox
+      Left = 92
+      Height = 21
+      Top = 1
+      Width = 125
+      ItemHeight = 13
+      ItemIndex = 0
+      Items.Strings = (
+        'left'
+        'center'
+        'right'
+        'justify'
+      )
+      Style = csDropDownList
+      TabOrder = 0
+      Text = 'left'
+    end
+    object CBWordWrap: TCheckBox
+      Left = 232
+      Height = 19
+      Top = 3
+      Width = 69
+      Caption = 'Wrap text'
+      TabOrder = 1
+    end
+  end
+  object GBIndent: TGroupBox
+    Left = 8
+    Height = 90
+    Top = 79
+    Width = 359
+    Caption = 'Indentation'
+    ClientHeight = 72
+    ClientWidth = 355
+    TabOrder = 3
+    object LBFirstIndent: TLabel
+      Left = 180
+      Height = 13
+      Top = 5
+      Width = 37
+      Caption = 'Special:'
+      ParentColor = False
+    end
+    object LBLeftIndent: TLabel
+      Left = 18
+      Height = 13
+      Top = 11
+      Width = 56
+      Caption = 'Left indent:'
+      ParentColor = False
+    end
+    object LBRightIndent: TLabel
+      Left = 18
+      Height = 13
+      Top = 41
+      Width = 62
+      Caption = 'Right indent:'
+      ParentColor = False
+    end
+    object CoBFIrstIndent: TComboBox
+      Left = 180
+      Height = 21
+      Top = 24
+      Width = 71
+      ItemHeight = 13
+      ItemIndex = 0
+      Items.Strings = (
+        'none'
+        'first line'
+        'hanging'
+      )
+      Style = csDropDownList
+      TabOrder = 0
+      Text = 'none'
+    end
+    object EDFirstIndent: TKNumberEdit
+      Left = 257
+      Height = 23
+      Top = 24
+      Width = 55
+      AcceptedFormats = [neafDec, neafFloat]
+      CustomSuffix = 'pt'
+      DecimalSeparator = ','
+      Max = 250
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Precision = 1
+      UpDownStep = 5
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 1
+    end
+    object EDLeftIndent: TKNumberEdit
+      Left = 98
+      Height = 23
+      Top = 8
+      Width = 55
+      AcceptedFormats = [neafDec, neafFloat]
+      CustomSuffix = 'pt'
+      DecimalSeparator = ','
+      Max = 250
+      Min = -250
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Precision = 1
+      UpDownStep = 5
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 3
+    end
+    object EDRightIndent: TKNumberEdit
+      Left = 98
+      Height = 23
+      Top = 38
+      Width = 55
+      AcceptedFormats = [neafDec, neafFloat]
+      CustomSuffix = 'pt'
+      DecimalSeparator = ','
+      Max = 250
+      Min = -250
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Precision = 1
+      UpDownStep = 5
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 5
+    end
+  end
+  object GBSpacing: TGroupBox
+    Left = 8
+    Height = 93
+    Top = 175
+    Width = 359
+    Caption = 'Spacing'
+    ClientHeight = 75
+    ClientWidth = 355
+    TabOrder = 4
+    object LBSpaceAbove: TLabel
+      Left = 18
+      Height = 13
+      Top = 4
+      Width = 66
+      Caption = 'Space above:'
+      ParentColor = False
+    end
+    object LBSpaceBelow: TLabel
+      Left = 18
+      Height = 13
+      Top = 34
+      Width = 64
+      Caption = 'Space below:'
+      ParentColor = False
+    end
+    object LBLineSpacing: TLabel
+      Left = 180
+      Height = 13
+      Top = 4
+      Width = 62
+      Caption = 'Line spacing:'
+      ParentColor = False
+    end
+    object LBLineSpacingValue: TLabel
+      Left = 180
+      Height = 13
+      Top = 34
+      Width = 65
+      Caption = 'Factor/value:'
+      ParentColor = False
+    end
+    object EDSpaceAbove: TKNumberEdit
+      Left = 98
+      Height = 23
+      Top = 1
+      Width = 55
+      AcceptedFormats = [neafDec, neafFloat]
+      CustomSuffix = 'pt'
+      DecimalSeparator = ','
+      Max = 250
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Precision = 1
+      UpDownStep = 3
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 0
+    end
+    object EDSpaceBelow: TKNumberEdit
+      Left = 98
+      Height = 23
+      Top = 31
+      Width = 55
+      AcceptedFormats = [neafDec, neafFloat]
+      CustomSuffix = 'pt'
+      DecimalSeparator = ','
+      Max = 250
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Precision = 1
+      UpDownStep = 3
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 2
+    end
+    object CoBLineSpacing: TComboBox
+      Left = 248
+      Height = 21
+      Top = 1
+      Width = 95
+      ItemHeight = 13
+      Items.Strings = (
+        'single'
+        '1.5 lines'
+        'double'
+        'auto'
+        'exact'
+        'factor'
+      )
+      OnClick = CoBLineSpacingClick
+      Style = csDropDownList
+      TabOrder = 4
+    end
+    object EDLineSpacingValue: TKNumberEdit
+      Left = 271
+      Height = 23
+      Top = 31
+      Width = 55
+      AcceptedFormats = [neafDec, neafFloat]
+      DecimalSeparator = ','
+      Max = 100
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 5
+    end
+  end
+  object GBShading: TGroupBox
+    Left = 8
+    Height = 151
+    Top = 274
+    Width = 359
+    Caption = 'Borders and shading'
+    ClientHeight = 133
+    ClientWidth = 355
+    TabOrder = 5
+    object LBBorderLeft: TLabel
+      Left = 18
+      Height = 13
+      Top = 3
+      Width = 58
+      Caption = 'Left border:'
+      ParentColor = False
+    end
+    object LBBorderRight: TLabel
+      Left = 18
+      Height = 13
+      Top = 33
+      Width = 64
+      Caption = 'Right border:'
+      ParentColor = False
+    end
+    object LBBorderTop: TLabel
+      Left = 183
+      Height = 13
+      Top = 3
+      Width = 57
+      Caption = 'Top border:'
+      ParentColor = False
+    end
+    object LBBorderBottom: TLabel
+      Left = 183
+      Height = 13
+      Top = 33
+      Width = 73
+      Caption = 'Bottom border:'
+      ParentColor = False
+    end
+    object LBBorderColor: TLabel
+      Left = 18
+      Height = 13
+      Top = 63
+      Width = 62
+      Caption = 'Border color:'
+      ParentColor = False
+    end
+    object LBShading: TLabel
+      Left = 183
+      Height = 13
+      Top = 63
+      Width = 42
+      Caption = 'Shading:'
+      ParentColor = False
+    end
+    object LBBorderRadius: TLabel
+      Left = 18
+      Height = 13
+      Top = 92
+      Width = 68
+      Caption = 'Border radius:'
+      ParentColor = False
+    end
+    object EDBorderLeft: TKNumberEdit
+      Left = 98
+      Height = 23
+      Top = 0
+      Width = 55
+      AcceptedFormats = [neafDec, neafFloat]
+      CustomSuffix = 'pt'
+      DecimalSeparator = ','
+      Max = 10
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Precision = 1
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 0
+    end
+    object EDBorderRight: TKNumberEdit
+      Left = 98
+      Height = 23
+      Top = 30
+      Width = 55
+      AcceptedFormats = [neafDec, neafFloat]
+      CustomSuffix = 'pt'
+      DecimalSeparator = ','
+      Max = 10
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Precision = 1
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 2
+    end
+    object EDBorderTop: TKNumberEdit
+      Left = 271
+      Height = 23
+      Top = 0
+      Width = 55
+      AcceptedFormats = [neafDec, neafFloat]
+      CustomSuffix = 'pt'
+      DecimalSeparator = ','
+      Max = 10
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Precision = 1
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 4
+    end
+    object EDBorderBottom: TKNumberEdit
+      Left = 271
+      Height = 23
+      Top = 30
+      Width = 55
+      AcceptedFormats = [neafDec, neafFloat]
+      CustomSuffix = 'pt'
+      DecimalSeparator = ','
+      Max = 10
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Precision = 1
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 6
+    end
+    object CLBBorder: TKColorButton
+      Left = 98
+      Height = 25
+      Top = 58
+      Width = 70
+      Font.Color = clBtnText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+      TabOrder = 8
+      ColorDlgOptions = []
+    end
+    object CLBShading: TKColorButton
+      Left = 271
+      Height = 25
+      Top = 58
+      Width = 70
+      Font.Color = clBtnText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      ParentFont = False
+      TabOrder = 9
+      ColorDlgOptions = []
+    end
+    object EDBorderRadius: TKNumberEdit
+      Left = 98
+      Height = 23
+      Top = 89
+      Width = 55
+      AcceptedFormats = [neafDec, neafFloat]
+      CustomSuffix = 'pt'
+      DecimalSeparator = ','
+      Max = 10
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Precision = 1
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 10
+    end
+  end
+end

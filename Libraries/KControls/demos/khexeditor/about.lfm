@@ -1,0 +1,53 @@
+object AboutForm: TAboutForm
+  Left = 1395
+  Height = 120
+  Top = 985
+  Width = 292
+  BorderStyle = bsDialog
+  Caption = 'About'
+  ClientHeight = 120
+  ClientWidth = 292
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Position = poScreenCenter
+  LCLVersion = '1.4.2.0'
+  object LBProductName: TLabel
+    Left = 8
+    Height = 19
+    Top = 8
+    Width = 139
+    Caption = 'Hex Editor (Demo)'
+    Font.Height = -16
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object LBCopyright: TLabel
+    Left = 8
+    Height = 13
+    Top = 32
+    Width = 152
+    Caption = 'Copyright (C) 2006 Tomas Krysl'
+    ParentColor = False
+  end
+  object LBEmail: TLabel
+    Left = 8
+    Height = 13
+    Top = 53
+    Width = 105
+    Caption = 'https://github.com/kryslt/KControls'
+    ParentColor = False
+  end
+  object BUOk: TButton
+    Left = 111
+    Height = 25
+    Top = 84
+    Width = 75
+    Cancel = True
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 0
+  end
+end

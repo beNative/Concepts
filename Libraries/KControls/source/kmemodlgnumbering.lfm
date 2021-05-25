@@ -1,0 +1,208 @@
+object KMemoNumberingForm: TKMemoNumberingForm
+  Left = 0
+  Height = 402
+  Top = 0
+  Width = 375
+  BorderStyle = bsDialog
+  Caption = 'Bullets and numbering'
+  ClientHeight = 402
+  ClientWidth = 375
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poScreenCenter
+  LCLVersion = '1.6.0.4'
+  object BUOk: TButton
+    Left = 211
+    Height = 25
+    Top = 367
+    Width = 75
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 0
+  end
+  object BUCancel: TButton
+    Left = 292
+    Height = 25
+    Top = 367
+    Width = 75
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 1
+  end
+  object RGNumbering: TRadioGroup
+    Left = 8
+    Height = 161
+    Top = 8
+    Width = 359
+    AutoFill = True
+    Caption = 'Numbering style'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 143
+    ClientWidth = 355
+    Columns = 2
+    ItemIndex = 0
+    Items.Strings = (
+      'None'
+      'Bullets'
+      'Arabic (1,2,3)'
+      'Letter Lo (a,b,c)'
+      'Letter Hi (A,B,C)'
+      'Roman Lo (i,ii,iii)'
+      'Roman Hi (I,II,III)'
+    )
+    OnClick = RGNumberingClick
+    TabOrder = 2
+  end
+  object GBOptions: TGroupBox
+    Left = 8
+    Height = 98
+    Top = 175
+    Width = 359
+    Caption = 'Options'
+    ClientHeight = 80
+    ClientWidth = 355
+    TabOrder = 3
+    object LBFirstIndent: TLabel
+      Left = 10
+      Height = 13
+      Top = 5
+      Width = 58
+      Caption = 'First indent:'
+      ParentColor = False
+    end
+    object LBLeftIndent: TLabel
+      Left = 10
+      Height = 13
+      Top = 35
+      Width = 56
+      Caption = 'Left indent:'
+      ParentColor = False
+    end
+    object LBListLevel: TLabel
+      Left = 186
+      Height = 13
+      Top = 35
+      Width = 29
+      Caption = 'Level:'
+      ParentColor = False
+    end
+    object EDFirstIndent: TKNumberEdit
+      Left = 90
+      Height = 23
+      Top = 2
+      Width = 55
+      AcceptedFormats = [neafDec, neafFloat]
+      CustomSuffix = 'pt'
+      DecimalSeparator = ','
+      Max = 250
+      Min = -250
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Precision = 1
+      UpDownStep = 5
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 0
+    end
+    object EDLeftIndent: TKNumberEdit
+      Left = 90
+      Height = 23
+      Top = 32
+      Width = 55
+      AcceptedFormats = [neafDec, neafFloat]
+      CustomSuffix = 'pt'
+      DecimalSeparator = ','
+      Max = 250
+      Min = -250
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Precision = 1
+      UpDownStep = 5
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 2
+    end
+    object CoBListLevel: TComboBox
+      Left = 245
+      Height = 21
+      Top = 32
+      Width = 100
+      ItemHeight = 13
+      Items.Strings = (
+        'first'
+        'second'
+        'third'
+        'fourth'
+        'fifth'
+        'sixth'
+        'seventh'
+        'eighth'
+        'ninth'
+      )
+      OnClick = CoBListLevelClick
+      Style = csDropDownList
+      TabOrder = 4
+    end
+  end
+  object GBStartAt: TGroupBox
+    Left = 8
+    Height = 80
+    Top = 279
+    Width = 359
+    Caption = 'Starting value'
+    ClientHeight = 62
+    ClientWidth = 355
+    TabOrder = 4
+    object RBContinuous: TRadioButton
+      Left = 10
+      Height = 19
+      Top = 1
+      Width = 74
+      Caption = 'Continuous'
+      Checked = True
+      OnClick = RBContinuousClick
+      TabOrder = 0
+      TabStop = True
+    end
+    object RBStartFromOne: TRadioButton
+      Left = 10
+      Height = 19
+      Top = 24
+      Width = 107
+      Caption = 'Again start from 1'
+      OnClick = RBContinuousClick
+      TabOrder = 1
+    end
+    object RBStartAt: TRadioButton
+      Left = 185
+      Height = 19
+      Top = 1
+      Width = 106
+      Caption = 'Set custom value:'
+      OnClick = RBContinuousClick
+      TabOrder = 2
+    end
+    object EDStartAt: TKNumberEdit
+      Left = 184
+      Height = 23
+      Top = 24
+      Width = 55
+      DecimalSeparator = ','
+      Options = [neoLowerCase, neoUsePrefix, neoUseUpDown, neoWarning]
+      Value = 1
+      Font.Color = clWindowText
+      ParentFont = False
+      TabOrder = 3
+    end
+  end
+end

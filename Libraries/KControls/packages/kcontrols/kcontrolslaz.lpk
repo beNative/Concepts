@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="KControlsLaz"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Tomas Krysl"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <IncludeFiles Value="..\..\source"/>
+        <OtherUnitFiles Value="..\..\source"/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+      <Parsing>
+        <SyntaxOptions>
+          <UseAnsiStrings Value="False"/>
+        </SyntaxOptions>
+      </Parsing>
+      <Other>
+        <Verbosity>
+          <ShowHints Value="False"/>
+        </Verbosity>
+      </Other>
+    </CompilerOptions>
+    <Description Value="KControls is a freeware distribution. It contains all of my published components for Delphi and Lazarus. All controls have been written with the aim to become both cross-IDE compatible (Delphi/C++Builder VCL and Lazarus LCL) and cross-platform compatible in Lazarus. There are some exceptions as documented in source files.
+
+Package KControlsLaz: contains dependencies on LCL.
+"/>
+    <License Value="This code is licensed under BSD 3-Clause Clear License, see file License.txt or https://spdx.org/licenses/BSD-3-Clause-Clear.html.
+"/>
+    <Version Major="1" Minor="7" Release="3"/>
+    <Files Count="43">
+      <Item1>
+        <Filename Value="..\..\source\kgraphics.pas"/>
+        <UnitName Value="kgraphics"/>
+      </Item1>
+      <Item2>
+        <Filename Value="..\..\source\kcontrols.lrs"/>
+        <Type Value="LRS"/>
+      </Item2>
+      <Item3>
+        <Filename Value="..\..\source\kcontrols.pas"/>
+        <UnitName Value="kcontrols"/>
+      </Item3>
+      <Item4>
+        <Filename Value="..\..\source\kdialogs.pas"/>
+        <UnitName Value="kdialogs"/>
+      </Item4>
+      <Item5>
+        <Filename Value="..\..\source\keditcommon.pas"/>
+        <UnitName Value="keditcommon"/>
+      </Item5>
+      <Item6>
+        <Filename Value="..\..\source\kgrids.lrs"/>
+        <Type Value="LRS"/>
+      </Item6>
+      <Item7>
+        <Filename Value="..\..\source\kgrids.pas"/>
+        <UnitName Value="kgrids"/>
+      </Item7>
+      <Item8>
+        <Filename Value="..\..\source\khexeditor.pas"/>
+        <UnitName Value="khexeditor"/>
+      </Item8>
+      <Item9>
+        <Filename Value="..\..\source\kicon.pas"/>
+        <UnitName Value="kicon"/>
+      </Item9>
+      <Item10>
+        <Filename Value="..\..\source\kprintpreview.lfm"/>
+        <Type Value="LFM"/>
+      </Item10>
+      <Item11>
+        <Filename Value="..\..\source\kprintpreview.pas"/>
+        <UnitName Value="kprintpreview"/>
+      </Item11>
+      <Item12>
+        <Filename Value="..\..\source\kprintsetup.lfm"/>
+        <Type Value="LFM"/>
+      </Item12>
+      <Item13>
+        <Filename Value="..\..\source\kprintsetup.pas"/>
+        <UnitName Value="kprintsetup"/>
+      </Item13>
+      <Item14>
+        <Filename Value="..\..\source\kwidewinprocs.pas"/>
+        <UnitName Value="kwidewinprocs"/>
+      </Item14>
+      <Item15>
+        <Filename Value="kcontrolsdesign.lrs"/>
+        <Type Value="LRS"/>
+      </Item15>
+      <Item16>
+        <Filename Value="kcontrolsdesign.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="kcontrolsdesign"/>
+      </Item16>
+      <Item17>
+        <Filename Value="..\..\source\kdbgrids.pas"/>
+        <UnitName Value="kdbgrids"/>
+      </Item17>
+      <Item18>
+        <Filename Value="..\..\source\kcontrols.inc"/>
+        <Type Value="Include"/>
+      </Item18>
+      <Item19>
+        <Filename Value="..\..\source\kedits.pas"/>
+        <UnitName Value="kedits"/>
+      </Item19>
+      <Item20>
+        <Filename Value="..\..\source\kmessagebox.pas"/>
+        <UnitName Value="kmessagebox"/>
+      </Item20>
+      <Item21>
+        <Filename Value="..\..\source\kmessagebox.lrs"/>
+        <Type Value="LRS"/>
+      </Item21>
+      <Item22>
+        <Filename Value="..\..\source\klog.pas"/>
+        <UnitName Value="klog"/>
+      </Item22>
+      <Item23>
+        <Filename Value="..\..\source\kprogress.pas"/>
+        <UnitName Value="kprogress"/>
+      </Item23>
+      <Item24>
+        <Filename Value="..\..\source\klabels.pas"/>
+        <UnitName Value="klabels"/>
+      </Item24>
+      <Item25>
+        <Filename Value="..\..\source\kmemo.pas"/>
+        <UnitName Value="kmemo"/>
+      </Item25>
+      <Item26>
+        <Filename Value="..\..\source\kbuttons.pas"/>
+        <UnitName Value="kbuttons"/>
+      </Item26>
+      <Item27>
+        <Filename Value="..\..\source\kmemodlghyperlink.lfm"/>
+        <Type Value="LFM"/>
+      </Item27>
+      <Item28>
+        <Filename Value="..\..\source\kmemodlghyperlink.pas"/>
+        <UnitName Value="kmemodlghyperlink"/>
+      </Item28>
+      <Item29>
+        <Filename Value="..\..\source\kmemodlgparastyle.lfm"/>
+        <Type Value="LFM"/>
+      </Item29>
+      <Item30>
+        <Filename Value="..\..\source\kmemodlgparastyle.pas"/>
+        <UnitName Value="kmemodlgparastyle"/>
+      </Item30>
+      <Item31>
+        <Filename Value="..\..\source\kmemodlgtextstyle.lfm"/>
+        <Type Value="LFM"/>
+      </Item31>
+      <Item32>
+        <Filename Value="..\..\source\kmemodlgtextstyle.pas"/>
+        <UnitName Value="kmemodlgtextstyle"/>
+      </Item32>
+      <Item33>
+        <Filename Value="..\..\source\kmemofrm.lfm"/>
+        <Type Value="LFM"/>
+      </Item33>
+      <Item34>
+        <Filename Value="..\..\source\kmemofrm.pas"/>
+        <UnitName Value="kmemofrm"/>
+      </Item34>
+      <Item35>
+        <Filename Value="..\..\source\kmemortf.pas"/>
+        <UnitName Value="kmemortf"/>
+      </Item35>
+      <Item36>
+        <Filename Value="..\..\source\kpagecontrol.pas"/>
+        <UnitName Value="kpagecontrol"/>
+      </Item36>
+      <Item37>
+        <Filename Value="..\..\source\kmemodlgcontainer.pas"/>
+        <UnitName Value="kmemodlgcontainer"/>
+      </Item37>
+      <Item38>
+        <Filename Value="..\..\source\kmemodlgimage.pas"/>
+        <UnitName Value="kmemodlgimage"/>
+      </Item38>
+      <Item39>
+        <Filename Value="..\..\source\kmemodlgcontainer.lfm"/>
+        <Type Value="LFM"/>
+      </Item39>
+      <Item40>
+        <Filename Value="..\..\source\kmemodlgimage.lfm"/>
+        <Type Value="LFM"/>
+      </Item40>
+      <Item41>
+        <Filename Value="..\..\source\kmemodlgnumbering.dfm"/>
+        <Type Value="Text"/>
+      </Item41>
+      <Item42>
+        <Filename Value="..\..\source\ksplitter.pas"/>
+        <UnitName Value="ksplitter"/>
+      </Item42>
+      <Item43>
+        <Filename Value="..\..\source\kmemodlgnumbering.pas"/>
+        <UnitName Value="kmemodlgnumbering"/>
+      </Item43>
+    </Files>
+    <RequiredPkgs Count="4">
+      <Item1>
+        <PackageName Value="kcontrolsbase"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="Printer4Lazarus"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="DBFLaz"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="LCL"/>
+        <MinVersion Major="1" Valid="True"/>
+      </Item4>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+    <CustomOptions Items="ExternHelp" Version="2">
+      <_ExternHelp Items="Count"/>
+    </CustomOptions>
+  </Package>
+</CONFIG>

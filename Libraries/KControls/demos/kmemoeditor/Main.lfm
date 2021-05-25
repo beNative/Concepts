@@ -1,0 +1,11 @@
+object MainForm: TMainForm
+  Left = 510
+  Height = 457
+  Top = 277
+  Width = 684
+  Caption = 'KMemo editor'
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '1.7'
+end

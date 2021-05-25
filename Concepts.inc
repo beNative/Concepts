@@ -17,6 +17,7 @@
 { By (un)commenting the following defines you can customize the project's
   dependencies. }
 
+{$DEFINE KCONTROLS}      // KControls
 {$DEFINE BCEDITOR}      // TBCEditor control
 {$DEFINE CHROMETABS}    // TChromeTabs control
 {$DEFINE DDETOURS}      // DDetours unit
