@@ -37,6 +37,7 @@ type
     class procedure RegisterSystemConcepts; static;
     class procedure RegisterVclConcepts; static;
     class procedure RegisterWinApiConcepts; static;
+    class procedure RegisterIndyConcepts; static;
   public
     class procedure RegisterConcepts; static;
   end;
@@ -163,11 +164,12 @@ uses
 const
   SPRING_CATEGORY_COLOR     = $00DDFFDD;
   DSHARP_CATEGORY_COLOR     = $00B0FFFF;
-  KCONTROLS_CATEGORY_COLOR  = $00B0FFFF;
+  INDY_CATEGORY_COLOR       = $00C1D6FF;
+  KCONTROLS_CATEGORY_COLOR  = $00FEFAC5;
   DEVEXPRESS_CATEGORY_COLOR = $00C1E0FF;
   SYSTEM_CATEGORY_COLOR     = $00E1E1FF;
   VCL_CATEGORY_COLOR        = $00FFD9D9;
-  WINAPI_CATEGORY_COLOR     = clWhite;
+  WINAPI_CATEGORY_COLOR     = $00C7E2E2;
 
 procedure EnsureZMQLibExists;
 const
@@ -299,6 +301,27 @@ begin
     FCategoryColor
   );
   {$ENDIF}
+  {$ENDIF}
+end;
+
+class procedure TConcepts.RegisterIndyConcepts;
+begin
+  {$IFDEF INDY}
+  FCategoryColor := INDY_CATEGORY_COLOR;
+  ConceptManager.Register(
+    TfrmIndyTCP,
+    'TCP',
+    'Indy',
+    'Indy TCP client',
+    FCategoryColor
+  );
+  ConceptManager.Register(
+    TfrmIndyTelnet,
+    'Telnet',
+    'Indy',
+    'Indy Telnet client',
+    FCategoryColor
+  );
   {$ENDIF}
 end;
 
@@ -573,21 +596,6 @@ begin
   );
   {$ENDIF}
 
-  {$IFDEF INDY}
-  ConceptManager.Register(
-    TfrmIndyTCP,
-    'TCP',
-    'Indy',
-    'Indy TCP client'
-  );
-  ConceptManager.Register(
-    TfrmIndyTelnet,
-    'Telnet',
-    'Indy',
-    'Indy Telnet client'
-  );
-  {$ENDIF}
-
   {$IFDEF FMXCONTAINER}
   ConceptManager.Register(
     TfrmFMXContainer,
@@ -616,6 +624,7 @@ begin
   RegisterSpringConcepts;
   RegisterDSharpConcepts;
   RegisterKControlsConcepts;
+  RegisterIndyConcepts;
   RegisterDevExpressConcepts;
   RegisterSystemConcepts;
   RegisterVclConcepts;
