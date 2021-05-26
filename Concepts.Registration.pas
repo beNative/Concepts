@@ -538,7 +538,7 @@ begin
   {$IFDEF BCEDITOR}
   ConceptManager.Register(
     TfrmBCEditor,
-    'BCEditor',
+    'TBCEditor control',
     'BCEditor',
     'TBCEditor control'
   );
@@ -547,9 +547,9 @@ begin
   {$IFDEF SYNEDIT}
   ConceptManager.Register(
     TfrmSynEdit,
+    'TSynEdit control',
     'SynEdit',
-    'SynEdit',
-    'Demonstrates the TSynEdit component'
+    'Demonstrates the TSynEdit control'
   );
   {$ENDIF}
 
