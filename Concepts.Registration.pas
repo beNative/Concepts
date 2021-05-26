@@ -205,63 +205,63 @@ begin
     TfrmCollections,
     'Collections',
     'Spring4D',
-    'Spring4D collections.',
+    'Spring4D collections',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmMultiCastEvents,
     'Multicast events',
     'Spring4D',
-    'Multicast events (Event<T> - IEvent<T).',
+    'Multicast events (Event<T> - IEvent<T)',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmLazyInstantiation,
     'Lazy instantiation',
     'Spring4D',
-    'Lazy instantiation (Lazy<T> - ILazy<T>).',
+    'Lazy instantiation (Lazy<T> - ILazy<T>)',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmSpringInterception,
     'Interception',
     'Spring4D',
-    'Aspect Oriented Programming.',
+    'Aspect Oriented Programming',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmObjectDataSet,
-    'Persistence',
+    'TObjectDataSet control',
     'Spring4D',
-    'TObjectDataSet',
+    'TObjectDataSet control',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmSpringPersistence,
     'ORM',
     'Spring4D',
-    'Spring4D Entities.',
+    'Spring4D Entities',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmSpringLogging,
     'Logging',
     'Spring4D',
-    'Spring4D Logging system.',
+    'Spring4D Logging system',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmSpringTypes,
     'Types',
     'Spring4D',
-    'Spring4D Utility types.',
+    'Spring4D Utility types',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmSpringUtils,
     'Utils',
     'Spring4D',
-    'Utillity classes and routines.',
+    'Utillity classes and routines',
     FCategoryColor
   );
   ConceptManager.Register(
@@ -282,14 +282,14 @@ begin
     TfrmTreeViewPresenterList,
     'TreeViewPresenter list',
     'DSharp',
-    'TreeViewPresenter list.',
+    'TreeViewPresenter list',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmTreeViewPresenterTree,
     'TreeViewPresenter tree',
     'DSharp',
-    'TreeViewPresenter tree.',
+    'TreeViewPresenter tree',
     FCategoryColor
   );
   {$IFDEF DEVEXPRESS}
@@ -297,7 +297,7 @@ begin
     TfrmcxGridViewPresenter,
     'Presenters',
     'DSharp',
-    'Specialized presenters.',
+    'Specialized presenters',
     FCategoryColor
   );
   {$ENDIF}
@@ -331,9 +331,9 @@ begin
   FCategoryColor := KCONTROLS_CATEGORY_COLOR;
   ConceptManager.Register(
     TfrmKMemo,
-    'KMemo',
+    'TKMemo control',
     'KControls',
-    'Demonstrates the KMemo control.',
+    'Demonstrates the TKMemo control',
     FCategoryColor
   );
   {$ENDIF}
@@ -347,7 +347,7 @@ begin
     TfrmcxEditors,
     'cxEditors',
     'DevExpress',
-    'Demonstrates the DevExpress edit controls.',
+    'Demonstrates the DevExpress edit controls',
     FCategoryColor
   );
   {$ENDIF}
@@ -361,56 +361,56 @@ begin
     TfrmLibraries,
     'Libraries',
     'System',
-    'Demonstrates dynamic loading of libraries.',
+    'Demonstrates dynamic loading of libraries',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmRTTI,
     'RTTI',
     'System',
-    'Demonstrates the extended RTTI.',
+    'Demonstrates the extended RTTI',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmVariants,
     'Variants',
     'System',
-    'Demonstrates some operations on Variants.',
+    'Demonstrates some operations on Variants',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmLiveBindings,
     'LiveBindings',
     'System',
-    'Demonstrates Delphi''s LiveBindings system.',
+    'Demonstrates Delphi''s LiveBindings system',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmRegularExpressions,
     'Regular Expressions',
     'System',
-    'Demonstrates support for regular expressions in the RTL.',
+    'Demonstrates support for regular expressions in the RTL',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmThreading,
-    'Parallel library',
+    'Parallel Programming Library',
     'System',
-    'Demonstrates the System.Threading library introduced in Delphi XE7.',
+    'Demonstrates the Parallel Programming Library (PPL) introduced in Delphi XE7',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmThreads,
     'Threads',
     'System',
-    'Demonstrates some basic threading scenarios and primitives.',
+    'Demonstrates some basic threading scenarios and primitives',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmAnonymousMethods,
     'Anonymous methods',
     'System',
-    'Demonstrates anonymous methods and features like variable capturing.',
+    'Demonstrates anonymous methods and features like variable capturing',
     FCategoryColor
   );
   ConceptManager.Register(
@@ -418,41 +418,41 @@ begin
     'Interface implementation by aggregation',
     'System',
     'Demonstrates how an object can implement an interface by delegating ' +
-    'the implementation to an object property.',
+    'the implementation to an object property',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmVirtualInterfaceDemo,
-    'TVirtualInterface demo',
+    'TVirtualInterface class',
     'System',
     'Demonstrated how a TVirtualInterface object can be created that implements ' +
-    'any IInvokable ($M+) descendant at runtime.',
+    'any IInvokable ($M+) descendant at runtime',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmVirtualMethodInterceptor,
-    'TVirtualMethodInterceptor demo.',
+    'TVirtualMethodInterceptor class',
     'System',
     'TODO',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmStringList,
-    'TStringList',
+    'TStringList class',
     'System',
-    'Demonstrates some TStringList features.',
+    'Demonstrates some TStringList features',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmPublishedFields,
     'Published fields',
     'System',
-    'Demonstrates a form with components without published fields.',
+    'Demonstrates a form with components without published fields',
     FCategoryColor
   );
   ConceptManager.Register(
     TfrmInterfaces,
-    'Interfaces',
+    'Object interfaces',
     'System',
     'Demonstrates how object interfaces work.',
     FCategoryColor
@@ -466,17 +466,17 @@ begin
   FCategoryColor := VCL_CATEGORY_COLOR;
   ConceptManager.Register(
     TfrmGridPanel,
-    'Grid panel',
+    'TGridPanel control',
     'Vcl',
-    'Demonstrates the TGridPanel VCL component.',
+    'Demonstrates the TGridPanel VCL control.',
     FCategoryColor
   );
   {$IFDEF DELPHIX_SEATTLE_UP}
   ConceptManager.Register(
     TfrmRelativePanel,
-    'Relative panel',
+    'TRelativePanel control',
     'Vcl',
-    'Demonstrates the TRelativePanel VCL component.',
+    'Demonstrates the TRelativePanel VCL control',
     FCategoryColor
   );
   {$ENDIF}
@@ -491,7 +491,7 @@ begin
     TfrmLockPaint,
     'LockPaint',
     'WinApi',
-    'Demonstrates LockPaint/UnlockPaint routines.',
+    'Demonstrates LockPaint/UnlockPaint routines',
     FCategoryColor
   );
   {$ENDIF}
@@ -504,9 +504,9 @@ begin
   {$IFDEF ZOBJECTINSPECTOR}
   ConceptManager.Register(
     TfrmzObjectInspector,
+    'TzObjectInspector control',
     'TzObjectInspector',
-    'TzObjectInspector',
-    'TzObjectInspector component demo.'
+    'TzObjectInspector control demo'
   );
   {$ENDIF}
 
@@ -515,7 +515,7 @@ begin
     TfrmZMQConcept,
     'ZeroMQ',
     'ZeroMQ',
-    'ZeroMQ demo.'
+    'ZeroMQ demo'
   );
   {$ENDIF}
 
@@ -523,7 +523,7 @@ begin
     TfrmMQTTNode,
     'MQTT',
     'MQTT',
-    'MQTT demo.'
+    'MQTT demo'
   );
 
   {$IFDEF DDETOURS}
@@ -531,7 +531,7 @@ begin
     TfrmDDetours,
     'DDetours',
     'DDetours',
-    'DDetours library demo.'
+    'DDetours library demo'
   );
   {$ENDIF}
 
@@ -540,7 +540,7 @@ begin
     TfrmBCEditor,
     'BCEditor',
     'BCEditor',
-    'TBCEditor component demo.'
+    'TBCEditor control'
   );
   {$ENDIF}
 
@@ -565,18 +565,18 @@ begin
   {$IFDEF SQLBUILDER4D}
   ConceptManager.Register(
     TfrmSQLBuilder4D,
+    'SQLBuilder4D',
     'TfrmSQLBuilder4D',
-    'TfrmSQLBuilder4D',
-    'Demonstrates the SQLBuilder4D library.'
+    'Demonstrates the SQLBuilder4D library'
   );
   {$ENDIF}
 
   {$IFDEF CHROMETABS}
   ConceptManager.Register(
     TfrmChromeTabs,
-    'ChromeTabs',
+    'TChromeTabs control',
     'TChromeTabs',
-    'TChromeTabs component demo.'
+    'TChromeTabs control demo.'
   );
   {$ENDIF}
 
@@ -592,33 +592,33 @@ begin
     TfrmSynapseSerial,
     'Serial',
     'Synapse',
-    'Serial communication with the Synapse library.'
+    'Serial communication with the Synapse library'
   );
   {$ENDIF}
 
   {$IFDEF FMXCONTAINER}
   ConceptManager.Register(
     TfrmFMXContainer,
-    'TFireMonkeyContainer',
+    'TFireMonkeyContainer contol',
     'FMXContainer',
-    'Demonstrates the Parnassus TFireMonkeyContainer component.'
+    'Demonstrates the Parnassus TFireMonkeyContainer control'
   );
   {$ENDIF}
 
   {$IFDEF VIRTUALTREES}
   ConceptManager.Register(
     TfrmVirtualTreeView,
-    'Virtual treeview',
+    'Virtual treeview control',
     'TVirtualStringTree',
-    'Demonstrates the TVirtualStringTree component.'
+    'Demonstrates the TVirtualStringTree control'
   );
   {$ENDIF}
 
   ConceptManager.Register(
     TfrmSynMemoEx,
-    'SynMemoEx',
-    'TMemoEx',
-    'TMemoEx component from mORMot framework'
+    'SynMemoEx control',
+    'TSynMemoEx',
+    'TSynMemoEx control'
   );
 
   RegisterSpringConcepts;
