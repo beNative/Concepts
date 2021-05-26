@@ -6,6 +6,7 @@ object frmInterfaces: TfrmInterfaces
   ClientWidth = 878
   Color = clBtnFace
   Constraints.MinWidth = 759
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

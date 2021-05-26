@@ -5,10 +5,11 @@ object frmSpringLogging: TfrmSpringLogging
   ClientHeight = 685
   ClientWidth = 1088
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   Position = poDesktopCenter
@@ -18,21 +19,23 @@ object frmSpringLogging: TfrmSpringLogging
   TextHeight = 13
   object splVertical: TSplitter
     Left = 409
-    Top = 29
+    Top = 35
     Width = 5
-    Height = 656
+    Height = 650
     ExplicitLeft = -1
     ExplicitTop = 1
     ExplicitHeight = 683
   end
   object pnlLeft: TPanel
     Left = 0
-    Top = 29
+    Top = 35
     Width = 409
-    Height = 656
+    Height = 650
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 29
+    ExplicitHeight = 656
     object grpLogEntry: TGroupBox
       Left = 1
       Top = 50
@@ -46,7 +49,7 @@ object frmSpringLogging: TfrmSpringLogging
       object lblMessage: TLabel
         Left = 12
         Top = 26
-        Width = 46
+        Width = 48
         Height = 13
         Caption = 'Message:'
         FocusControl = edtMessage
@@ -99,11 +102,12 @@ object frmSpringLogging: TfrmSpringLogging
       Left = 0
       Top = 287
       Width = 409
-      Height = 369
+      Height = 363
       Align = alBottom
       Anchors = [akLeft, akTop, akRight, akBottom]
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitHeight = 369
       object tsMain: TTabSet
         Left = 0
         Top = 0
@@ -210,17 +214,20 @@ object frmSpringLogging: TfrmSpringLogging
   object pnlRight: TPanel
     AlignWithMargins = True
     Left = 417
-    Top = 32
+    Top = 38
     Width = 668
-    Height = 650
+    Height = 644
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitTop = 32
+    ExplicitHeight = 650
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 1088
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 1082
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -233,10 +240,13 @@ object frmSpringLogging: TfrmSpringLogging
     ParentBackground = False
     ParentFont = False
     TabOrder = 2
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 1088
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 1088
+      Width = 1082
       Height = 29
       Align = alClient
       Alignment = taCenter

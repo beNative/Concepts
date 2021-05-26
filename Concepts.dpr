@@ -93,7 +93,7 @@ uses
   Concepts.SynMemoEx.Form in 'Forms\Concepts.SynMemoEx.Form.pas' {frmSynMemoEx},
   Concepts.SynEdit.Form in 'Forms\Concepts.SynEdit.Form.pas' {frmSynEdit},
   Concepts.Indy.TCP.Form in 'Forms\Concepts.Indy.TCP.Form.pas' {frmIndyTCP},
-  Concepts.Vcl.Styles.Form in 'Forms\Concepts.Vcl.Styles.Form.pas' {Form1},
+  Concepts.Vcl.Styles.Form in 'Forms\Concepts.Vcl.Styles.Form.pas' {frmVclStyles},
   Concepts.KControls.KMemo.Form in 'Forms\Concepts.KControls.KMemo.Form.pas' {frmKMemo};
 
 {$R *.res}

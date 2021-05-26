@@ -5,10 +5,11 @@ object frmMain: TfrmMain
   ClientHeight = 562
   ClientWidth = 1007
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   Position = poDefault
@@ -30,10 +31,13 @@ object frmMain: TfrmMain
       Width = 1001
       Height = 21
       Align = alTop
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      BorderStyle = bsNone
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlue
       Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 0
@@ -92,7 +96,7 @@ object frmMain: TfrmMain
       AlignWithMargins = True
       Left = 348
       Top = 3
-      Width = 326
+      Width = 327
       Height = 28
       Action = actExecute
       Align = alClient
@@ -104,9 +108,9 @@ object frmMain: TfrmMain
     end
     object btnClose: TButton
       AlignWithMargins = True
-      Left = 680
+      Left = 681
       Top = 3
-      Width = 324
+      Width = 323
       Height = 28
       Action = actClose
       Align = alClient

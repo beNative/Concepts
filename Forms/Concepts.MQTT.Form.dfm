@@ -4,10 +4,11 @@ object frmMQTTNode: TfrmMQTTNode
   ClientHeight = 321
   ClientWidth = 391
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True
@@ -43,7 +44,7 @@ object frmMQTTNode: TfrmMQTTNode
         Width = 195
         Height = 21
         Alignment = taCenter
-        EditLabel.Width = 43
+        EditLabel.Width = 44
         EditLabel.Height = 13
         EditLabel.Caption = 'Address:'
         Font.Charset = DEFAULT_CHARSET
@@ -119,10 +120,6 @@ object frmMQTTNode: TfrmMQTTNode
     object tsSubscriptions: TTabSheet
       Caption = 'Subscriptions'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         383
         101)
@@ -132,7 +129,7 @@ object frmMQTTNode: TfrmMQTTNode
         Width = 188
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        EditLabel.Width = 29
+        EditLabel.Width = 30
         EditLabel.Height = 13
         EditLabel.Caption = 'Topic:'
         LabelPosition = lpLeft
@@ -190,10 +187,6 @@ object frmMQTTNode: TfrmMQTTNode
     end
     object tsPublish: TTabSheet
       Caption = 'Publish'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         383
         101)
@@ -235,7 +228,7 @@ object frmMQTTNode: TfrmMQTTNode
         Height = 21
         Alignment = taCenter
         Anchors = [akTop, akRight]
-        EditLabel.Width = 43
+        EditLabel.Width = 45
         EditLabel.Height = 13
         EditLabel.Caption = 'Counter:'
         LabelPosition = lpLeft
@@ -259,7 +252,7 @@ object frmMQTTNode: TfrmMQTTNode
         Width = 225
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        EditLabel.Width = 25
+        EditLabel.Width = 27
         EditLabel.Height = 13
         EditLabel.Caption = 'Topic'
         LabelPosition = lpLeft
@@ -279,10 +272,6 @@ object frmMQTTNode: TfrmMQTTNode
     object tsReceive: TTabSheet
       Caption = 'Receive'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         383
         101)
@@ -326,7 +315,7 @@ object frmMQTTNode: TfrmMQTTNode
     Left = 130
     Top = 136
     Bitmap = {
-      494C010106000800140010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010106000800040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000001001B09532ED308512ED100000010000000000000

@@ -4,10 +4,11 @@ object frmZMQConcept: TfrmZMQConcept
   ClientHeight = 261
   ClientWidth = 482
   Color = clWhite
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True
@@ -90,7 +91,7 @@ object frmZMQConcept: TfrmZMQConcept
           object lblTransport: TLabel
             Left = 14
             Top = 48
-            Width = 51
+            Width = 52
             Height = 13
             Caption = 'Transport:'
             FocusControl = cbxTransport
@@ -101,7 +102,7 @@ object frmZMQConcept: TfrmZMQConcept
             Width = 141
             Height = 21
             Alignment = taCenter
-            EditLabel.Width = 43
+            EditLabel.Width = 44
             EditLabel.Height = 13
             EditLabel.Caption = 'Address:'
             Font.Charset = DEFAULT_CHARSET
@@ -192,10 +193,6 @@ object frmZMQConcept: TfrmZMQConcept
       object tsSubscriptions: TTabSheet
         Caption = 'Subscriptions'
         ImageIndex = 4
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object grpSubscriptions: TGroupBox
           AlignWithMargins = True
           Left = 3
@@ -212,7 +209,7 @@ object frmZMQConcept: TfrmZMQConcept
             Top = 32
             Width = 99
             Height = 21
-            EditLabel.Width = 28
+            EditLabel.Width = 29
             EditLabel.Height = 13
             EditLabel.Caption = 'Filter:'
             LabelPosition = lpLeft
@@ -274,10 +271,6 @@ object frmZMQConcept: TfrmZMQConcept
       end
       object tsSend: TTabSheet
         Caption = 'Send'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         DesignSize = (
           353
           126)
@@ -327,7 +320,7 @@ object frmZMQConcept: TfrmZMQConcept
           Height = 21
           Alignment = taCenter
           Anchors = [akTop, akRight]
-          EditLabel.Width = 43
+          EditLabel.Width = 45
           EditLabel.Height = 13
           EditLabel.Caption = 'Counter:'
           LabelPosition = lpLeft
@@ -364,10 +357,6 @@ object frmZMQConcept: TfrmZMQConcept
       object tsReceive: TTabSheet
         Caption = 'Receive'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         DesignSize = (
           353
           126)
@@ -422,10 +411,6 @@ object frmZMQConcept: TfrmZMQConcept
       object tsSettings: TTabSheet
         Caption = 'Settings'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         DesignSize = (
           353
           126)
@@ -480,7 +465,7 @@ object frmZMQConcept: TfrmZMQConcept
             Top = 37
             Width = 50
             Height = 21
-            EditLabel.Width = 79
+            EditLabel.Width = 85
             EditLabel.Height = 13
             EditLabel.Caption = 'Poll timeout (ms)'
             NumbersOnly = True
@@ -767,7 +752,7 @@ object frmZMQConcept: TfrmZMQConcept
     Left = 416
     Top = 200
     Bitmap = {
-      494C0101060008005C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010106000800040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

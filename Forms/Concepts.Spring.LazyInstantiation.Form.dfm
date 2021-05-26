@@ -5,10 +5,11 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   ClientHeight = 366
   ClientWidth = 419
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True
@@ -18,10 +19,9 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   PixelsPerInch = 96
   TextHeight = 13
   object lblDescription: TLabel
-    AlignWithMargins = True
-    Left = 3
-    Top = 32
-    Width = 413
+    Left = 0
+    Top = 35
+    Width = 419
     Height = 41
     Align = alTop
     AutoSize = False
@@ -34,13 +34,13 @@ object frmLazyInstantiation: TfrmLazyInstantiation
     ParentColor = False
     Transparent = False
     WordWrap = True
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 418
+    ExplicitLeft = -2
+    ExplicitTop = 32
+    ExplicitWidth = 413
   end
   object btnAddTextToLazyMemo: TButton
     Left = 8
-    Top = 76
+    Top = 81
     Width = 130
     Height = 25
     Action = actAddTextToLazyMemo
@@ -57,7 +57,7 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   end
   object pnlCheckBox: TPanel
     Left = 8
-    Top = 311
+    Top = 313
     Width = 403
     Height = 47
     Anchors = [akLeft, akRight, akBottom]
@@ -66,24 +66,25 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   end
   object btnToggleLazyCheckbox: TButton
     Left = 144
-    Top = 76
+    Top = 81
     Width = 130
     Height = 25
     Action = actToggleLazyCheckbox
     TabOrder = 3
   end
   object btnShowClassName: TButton
-    Left = 280
-    Top = 76
+    Left = 281
+    Top = 81
     Width = 130
     Height = 25
     Action = actShowClassName
     TabOrder = 4
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 419
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 413
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -96,10 +97,13 @@ object frmLazyInstantiation: TfrmLazyInstantiation
     ParentBackground = False
     ParentFont = False
     TabOrder = 5
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 419
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 419
+      Width = 413
       Height = 29
       Align = alClient
       Alignment = taCenter

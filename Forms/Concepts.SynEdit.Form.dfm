@@ -5,19 +5,20 @@ object frmSynEdit: TfrmSynEdit
   ClientHeight = 716
   ClientWidth = 1164
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
   object splVertical: TSplitter
     Left = 329
-    Top = 29
+    Top = 35
     Width = 8
-    Height = 668
+    Height = 662
     ExplicitTop = 0
     ExplicitHeight = 580
   end
@@ -30,40 +31,48 @@ object frmSynEdit: TfrmSynEdit
   end
   object pnlLeft: TPanel
     Left = 0
-    Top = 29
+    Top = 35
     Width = 329
-    Height = 668
+    Height = 662
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitTop = 29
+    ExplicitHeight = 668
   end
   object pnlMain: TPanel
     Left = 337
-    Top = 29
+    Top = 35
     Width = 827
-    Height = 668
+    Height = 662
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitTop = 29
+    ExplicitHeight = 668
     object seMain: TSynEdit
       Left = 0
       Top = 0
       Width = 827
-      Height = 668
+      Height = 662
       Align = alClient
+      ActiveLineColor = clYellow
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -13
+      Font.Height = -15
       Font.Name = 'Consolas'
       Font.Pitch = fpFixed
       Font.Style = []
       TabOrder = 0
+      CodeFolding.GutterShapeSize = 11
       CodeFolding.CollapsedLineColor = clGrayText
       CodeFolding.FolderBarLinesColor = clGrayText
-      CodeFolding.ShowCollapsedLine = False
       CodeFolding.IndentGuidesColor = clGray
       CodeFolding.IndentGuides = True
+      CodeFolding.ShowCollapsedLine = False
+      CodeFolding.ShowHintMark = True
       UseCodeFolding = False
+      BorderStyle = bsNone
       Gutter.Font.Charset = DEFAULT_CHARSET
       Gutter.Font.Color = clWindowText
       Gutter.Font.Height = -11
@@ -72,7 +81,7 @@ object frmSynEdit: TfrmSynEdit
       Highlighter = synPAS
       Lines.Strings = (
         '{'
-        '  Copyright (C) 2013-2017 Tim Sinaeve tim.sinaeve@gmail.com'
+        '  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com'
         ''
         
           '  Licensed under the Apache License, Version 2.0 (the "License")' +
@@ -101,286 +110,131 @@ object frmSynEdit: TfrmSynEdit
         ''
         '{$I Concepts.inc}'
         ''
-        'unit Concepts.System.Threading.Form;'
-        ''
-        
-          '{ Demonstration of the new Delphi XE7 - System.Threading unit, w' +
-          'hich is also'
-        '  referenced to as the PPL (Parallel Programming Library). }'
+        'unit Concepts.ZeroMQ.Data;'
         ''
         'interface'
         ''
         'uses'
-        '  Winapi.Windows, Winapi.Messages,'
-        
-          '  System.SysUtils, System.Variants, System.Classes, System.Actio' +
-          'ns,'
-        '  System.ImageList, System.Threading,'
-        
-          '  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnLi' +
-          'st, Vcl.ImgList,'
-        '  Vcl.StdCtrls, Vcl.ExtCtrls,'
+        '  System.Classes, System.SysUtils,'
         ''
-        '  Spring, Spring.Collections,'
+        '  ZeroMQ;'
         ''
-        '  DDuce.Components.LogTree;'
+        'const'
+        '  ZMQ_DEFAULT_PORT = 5555;'
         ''
         'type'
-        '  TfrmThreading = class(TForm)'
-        '    {$REGION '#39'designer controls'#39'} '
-        '    aclMain                     : TActionList;'
-        '    actCancelTask               : TAction;'
-        '    actExecuteParallel          : TAction;'
-        '    actExecuteSequential        : TAction;'
-        '    actStartTask                : TAction;'
-        '    actTestIterationsAndStrides : TAction;'
-        '    btnCancelTask               : TButton;'
-        '    btnExecute                  : TButton;'
-        '    btnExecuteSequential        : TButton;'
-        '    btnStartTask                : TButton;'
-        '    btnTestIterationsAndStrides : TButton;'
-        '    edtIterations               : TLabeledEdit;'
-        '    edtStrides                  : TLabeledEdit;'
-        '    imlMain                     : TImageList;'
-        '    pnlLog                      : TPanel;'
+        '  TZeroMQDevice = class(TInterfacedObject)'
+        '  private'
+        '    FZMQ  : IZeroMQ;'
+        '    FPair : IZMQPair;'
+        '    FPort : Integer;'
+        '    FName : string;'
+        ''
+        '    {$REGION '#39'property access methods'#39'}'
+        '    function GetPort: Integer;'
+        '    procedure SetPort(const Value: Integer);'
+        '    function GetName: string;'
+        '    procedure SetName(const Value: string);'
         '    {$ENDREGION}'
-        ''
-        '    procedure actExecuteParallelExecute(Sender: TObject);'
-        '    procedure actExecuteSequentialExecute(Sender: TObject);'
-        '    procedure actStartTaskExecute(Sender: TObject);'
-        '    procedure actCancelTaskExecute(Sender: TObject);'
-        
-          '    procedure actTestIterationsAndStridesExecute(Sender: TObject' +
-          ');'
-        ''
-        '  strict private'
-        '    FProc      : TProc<Integer>;'
-        '    FCount     : Integer;'
-        '    FLog       : TLogTree;'
-        '    FTasks     : IList<ITask>;'
-        ''
-        '    function GetIterations: Integer;'
-        '    function GetStrides: Integer;'
-        ''
-        '  protected'
-        '    procedure ExecuteParallel('
-        '      const AProc : TProc<Integer>;'
-        '      ACount      : Integer;'
-        '      AStrides    : Integer'
-        '    );'
-        '    procedure ExecuteSequential('
-        '      const AProc : TProc<Integer>;'
-        '      ACount      : Integer'
-        '    );'
         ''
         '  public'
         '    procedure AfterConstruction; override;'
-        '    procedure BeforeDestruction; override;'
+        '    constructor Create(const AZMQ: IZeroMQ);'
         ''
-        '    property Iterations: Integer'
-        '      read GetIterations;'
+        '    function ToString: string; override;'
         ''
-        
-          '    { Amount of executions that should be executed by each threa' +
-          'd. }'
-        '    property Strides: Integer'
-        '      read GetStrides;'
+        '    property ZMQ: IZeroMQ'
+        '      read FZMQ write FZMQ;'
+        ''
+        '    property Pair: IZMQPair'
+        '      read FPair write FPair;'
+        ''
+        '    property Port: Integer'
+        '      read GetPort write SetPort default ZMQ_DEFAULT_PORT;'
+        ''
+        '    property Name: string'
+        '      read GetName write SetName;'
         '  end;'
+        ''
+        'const'
+        '  ZMQTransports : array[0..4] of string = ('
+        '    '#39'tcp'#39','
+        
+          '    '#39'inproc'#39', // every connection needs to share the same IZeroM' +
+          'Q'
+        '    '#39'ipc'#39','
+        '    '#39'pgm'#39','
+        '    '#39'egm'#39
+        '  );'
+        '  ZMQEventNames : array[ZMQEvent] of string = ('
+        '    '#39'Connected'#39','
+        '    '#39'Delayed'#39','
+        '    '#39'Retried'#39','
+        '    '#39'Listening'#39','
+        '    '#39'BindFailed'#39','
+        '    '#39'Accepted'#39','
+        '    '#39'AcceptFailed'#39','
+        '    '#39'Closed'#39','
+        '    '#39'CloseFailed'#39','
+        '    '#39'Disconnected'#39','
+        '    '#39'MonitorStopped'#39
+        '  );'
         ''
         'implementation'
         ''
-        '{$R *.dfm}'
-        ''
-        'uses'
-        '  System.Diagnostics,'
-        ''
-        '  DDuce.Components.Factories, DDuce.RandomData;'
-        ''
-        'resourcestring'
-        '  STaskStarted                  = '#39'Task %d started.'#39';'
-        '  STaskFinished                 = '#39'Task %d finished.'#39';'
-        
-          '  SFinishedParallelExecutions   = '#39'Finished %d/%d parallel execu' +
-          'tions in %dms.'#39';'
-        
-          '  SFinishedSequentialExecutions = '#39'Finished %d sequential execut' +
-          'ions in %dms.'#39';'
-        ''
         '{$REGION '#39'construction and destruction'#39'}'
-        'procedure TfrmThreading.AfterConstruction;'
+        'procedure TZeroMQDevice.AfterConstruction;'
         'begin'
         '  inherited AfterConstruction;'
-        '  FProc := procedure(AIndex: Integer)'
-        '    begin'
-        '      Sleep(1);'
-        '    end;'
-        '  FLog := TDDuceComponents.CreateLogTree(Self, pnlLog);'
-        '  FLog.DateTimeFormat := '#39'hh:nn:ss.zzz'#39';'
-        '  FLog.Images := imlMain;'
-        '  FTasks := TCollections.CreateInterfaceList<ITask>;'
+        '  FPort := ZMQ_DEFAULT_PORT;'
         'end;'
         ''
-        'procedure TfrmThreading.BeforeDestruction;'
+        'constructor TZeroMQDevice.Create(const AZMQ: IZeroMQ);'
         'begin'
-        '  FLog.Free;'
-        '  inherited BeforeDestruction;'
+        '  FZMQ := AZMQ;'
         'end;'
         '{$ENDREGION}'
         ''
         '{$REGION '#39'property access methods'#39'}'
-        'function TfrmThreading.GetIterations: Integer;'
+        'function TZeroMQDevice.GetName: string;'
         'begin'
-        '  Result := StrToIntDef(edtIterations.Text, 0);'
+        '  Result := FName;'
         'end;'
         ''
-        'function TfrmThreading.GetStrides: Integer;'
+        'procedure TZeroMQDevice.SetName(const Value: string);'
         'begin'
-        '  Result := StrToIntDef(edtStrides.Text, 0);'
-        'end;'
-        '{$ENDREGION}'
-        ''
-        '{$REGION '#39'action handlers'#39'}'
-        'procedure TfrmThreading.actCancelTaskExecute(Sender: TObject);'
-        'begin'
-        '  if FTasks.Last.Status = TTaskStatus.Running then'
-        '    FTasks.Last.Cancel;'
+        '  FName := Value;'
         'end;'
         ''
-        
-          'procedure TfrmThreading.actExecuteParallelExecute(Sender: TObjec' +
-          't);'
+        'function TZeroMQDevice.GetPort: Integer;'
         'begin'
-        '  TTask.Run(procedure'
-        '    begin'
-        '      ExecuteParallel(FProc, Iterations, Strides);'
-        '    end'
-        '  );'
+        '  Result := FPort;'
         'end;'
         ''
-        
-          'procedure TfrmThreading.actExecuteSequentialExecute(Sender: TObj' +
-          'ect);'
+        'procedure TZeroMQDevice.SetPort(const Value: Integer);'
         'begin'
-        '  TTask.Run(procedure'
-        '    begin'
-        '      ExecuteSequential(FProc, Iterations);'
-        '    end'
-        '  );'
-        'end;'
-        ''
-        'procedure TfrmThreading.actStartTaskExecute(Sender: TObject);'
-        'var'
-        '  C : Integer;'
-        'begin'
-        '  C := FTasks.Count + 1;'
-        '  FLog.LogFmt(STaskStarted, [C]);'
-        '  FTasks.Add('
-        '    TTask.Run(procedure'
-        '      begin'
-        '        Sleep(5000);'
-        '        TThread.Queue(TThread.Current, procedure'
-        '          begin'
-        '            FLog.LogFmt(STaskFinished, [C]);'
-        '          end'
-        '        );'
-        '      end'
-        '    )'
-        '  );'
-        'end;'
-        ''
-        
-          'procedure TfrmThreading.actTestIterationsAndStridesExecute(Sende' +
-          'r: TObject);'
-        'var'
-        '  N: Integer;'
-        'begin'
-        '  N := Iterations;'
-        '  TTask.Run(procedure'
-        '    begin'
-        '      ExecuteParallel(FProc, N, 10);'
-        '      ExecuteParallel(FProc, N, 20);'
-        '      ExecuteParallel(FProc, N, 50);'
-        '      ExecuteParallel(FProc, N, 100);'
-        '      ExecuteParallel(FProc, N, 200);'
-        '      ExecuteParallel(FProc, N, 500);'
-        '      ExecuteParallel(FProc, N, 1000);'
-        '      ExecuteParallel(FProc, N, 2000);'
-        '      ExecuteParallel(FProc, N, 5000);'
-        '    end'
-        '  );'
+        '  FPort := Value;'
         'end;'
         '{$ENDREGION}'
         ''
-        '{$REGION '#39'protected methods'#39'}'
-        
-          '{ Executes the given anonymous procedure ACount times in a paral' +
-          'lel for loop.'
-        
-          '  AStrides indicates how many executions of the loop are execute' +
-          'd per thread. }'
-        ''
-        
-          'procedure TfrmThreading.ExecuteParallel(const AProc: TProc<Integ' +
-          'er>;'
-        '  ACount: Integer; AStrides: Integer);'
-        'var'
-        '  SW : TStopwatch;'
+        '{$REGION '#39'public methods'#39'}'
+        'function TZeroMQDevice.ToString: string;'
         'begin'
-        '  SW := TStopwatch.Create;'
-        '  SW.Start;'
-        '  FCount := 0;'
-        '  TParallel.For(AStrides, 1, ACount, AProc);'
-        '  SW.Stop;'
-        '  TThread.Queue(TThread.CurrentThread, procedure'
-        '    begin'
-        '      FLog.LogFmt('
-        '        SFinishedParallelExecutions,'
-        '        [ACount, AStrides, SW.ElapsedMilliseconds]'
-        '      );'
-        '    end'
-        '  );'
-        'end;'
-        ''
-        
-          '{ Executes the given anonymous procedure ACount times using a no' +
-          'rmal for loop. }'
-        ''
-        
-          'procedure TfrmThreading.ExecuteSequential(const AProc: TProc<Int' +
-          'eger>;'
-        '  ACount: Integer);'
-        'var'
-        '  SW : TStopwatch;'
-        '  I  : Integer;'
-        'begin'
-        '  SW := TStopwatch.Create;'
-        '  SW.Start;'
-        '  FCount := 0;'
-        '  for I := 1 to ACount do'
-        '  begin'
-        '    FProc(I);'
-        '  end;'
-        '  SW.Stop;'
-        '  TThread.Queue(TThread.CurrentThread, procedure'
-        '    begin'
-        '      FLog.LogFmt('
-        '        SFinishedSequentialExecutions,'
-        '        [ACount, SW.ElapsedMilliseconds]'
-        '      );'
-        '    end'
-        '  );'
+        '//'
         'end;'
         '{$ENDREGION}'
         ''
         'end.')
       SearchEngine = sesSearch
-      FontSmoothing = fsmNone
+      FontSmoothing = fsmClearType
+      ExplicitHeight = 668
     end
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 1164
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 1158
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -394,6 +248,9 @@ object frmSynEdit: TfrmSynEdit
     ParentBackground = False
     ParentFont = False
     TabOrder = 3
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 1164
   end
   object scpMain: TSynCompletionProposal
     EndOfTokenChr = '()[]. '

@@ -5,18 +5,19 @@ object frmDDetours: TfrmDDetours
   ClientHeight = 78
   ClientWidth = 309
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = True
   OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 13
   object btnUnitName: TButton
-    Left = 128
-    Top = 32
+    Left = 145
+    Top = 42
     Width = 156
     Height = 25
     Action = actCallDetouredMethod
@@ -41,9 +42,10 @@ object frmDDetours: TfrmDDetours
     OnClick = chkDetour2EnabledClick
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 309
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 303
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -56,10 +58,13 @@ object frmDDetours: TfrmDDetours
     ParentBackground = False
     ParentFont = False
     TabOrder = 3
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 309
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 309
+      Width = 303
       Height = 29
       Align = alClient
       Alignment = taCenter

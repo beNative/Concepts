@@ -11,7 +11,7 @@ object frmThreads: TfrmThreads
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True
@@ -124,9 +124,10 @@ object frmThreads: TfrmThreads
     TabOrder = 8
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 459
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 453
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -139,10 +140,13 @@ object frmThreads: TfrmThreads
     ParentBackground = False
     ParentFont = False
     TabOrder = 9
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 459
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 459
+      Width = 453
       Height = 29
       Align = alClient
       Alignment = taCenter

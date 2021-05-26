@@ -5,10 +5,11 @@ object frmSpringInterception: TfrmSpringInterception
   ClientHeight = 94
   ClientWidth = 257
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   PixelsPerInch = 96
@@ -38,9 +39,10 @@ object frmSpringInterception: TfrmSpringInterception
     TabOrder = 2
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 257
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 251
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -53,10 +55,13 @@ object frmSpringInterception: TfrmSpringInterception
     ParentBackground = False
     ParentFont = False
     TabOrder = 3
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 257
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 257
+      Width = 251
       Height = 29
       Align = alClient
       Alignment = taCenter

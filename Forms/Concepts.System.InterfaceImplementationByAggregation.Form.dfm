@@ -5,10 +5,11 @@ object frmInterfaceImplementationByAggregation: TfrmInterfaceImplementationByAgg
   ClientHeight = 104
   ClientWidth = 379
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True
@@ -36,9 +37,10 @@ object frmInterfaceImplementationByAggregation: TfrmInterfaceImplementationByAgg
     TabOrder = 1
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 379
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 373
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -51,10 +53,13 @@ object frmInterfaceImplementationByAggregation: TfrmInterfaceImplementationByAgg
     ParentBackground = False
     ParentFont = False
     TabOrder = 2
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 379
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 379
+      Width = 373
       Height = 29
       Align = alClient
       Alignment = taCenter

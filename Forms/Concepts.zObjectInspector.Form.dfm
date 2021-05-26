@@ -5,10 +5,11 @@ object frmzObjectInspector: TfrmzObjectInspector
   ClientHeight = 716
   ClientWidth = 799
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True
@@ -16,17 +17,19 @@ object frmzObjectInspector: TfrmzObjectInspector
   TextHeight = 13
   object pnlMain: TPanel
     Left = 0
-    Top = 28
+    Top = 34
     Width = 799
-    Height = 688
+    Height = 682
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 28
+    ExplicitHeight = 688
     object splSplitter: TSplitter
       Left = 313
       Top = 0
       Width = 8
-      Height = 669
+      Height = 663
       ResizeStyle = rsUpdate
       ExplicitLeft = 273
       ExplicitTop = 1
@@ -36,10 +39,11 @@ object frmzObjectInspector: TfrmzObjectInspector
       Left = 0
       Top = 0
       Width = 313
-      Height = 669
+      Height = 663
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 669
       object cbxControls: TComboBox
         AlignWithMargins = True
         Left = 3
@@ -65,15 +69,16 @@ object frmzObjectInspector: TfrmzObjectInspector
       Left = 321
       Top = 0
       Width = 478
-      Height = 669
+      Height = 663
       Align = alClient
       BevelOuter = bvNone
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 1
+      ExplicitHeight = 669
       DesignSize = (
         478
-        669)
+        663)
       object btnButton: TButton
         Left = 223
         Top = 6
@@ -108,7 +113,7 @@ object frmzObjectInspector: TfrmzObjectInspector
         Left = 6
         Top = 104
         Width = 467
-        Height = 559
+        Height = 553
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvNone
         BevelKind = bkFlat
@@ -117,6 +122,7 @@ object frmzObjectInspector: TfrmzObjectInspector
         Images = dmResources.imlMain
         Items = <>
         TabOrder = 3
+        ExplicitHeight = 559
       end
       object trbTrackBar: TTrackBar
         Left = 6
@@ -144,7 +150,7 @@ object frmzObjectInspector: TfrmzObjectInspector
       object lblLink: TLinkLabel
         Left = 254
         Top = 65
-        Width = 185
+        Width = 197
         Height = 17
         Caption = 
           '<a href="http://github.com/beNative/Concepts">http://github.com/' +
@@ -155,28 +161,33 @@ object frmzObjectInspector: TfrmzObjectInspector
     end
     object sbrStatusBar: TStatusBar
       Left = 0
-      Top = 669
+      Top = 663
       Width = 799
       Height = 19
       Panels = <>
       ParentShowHint = False
       ShowHint = True
+      ExplicitTop = 669
     end
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 799
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 793
     Height = 28
     Align = alTop
     BevelOuter = bvNone
     Color = clWhite
     ParentBackground = False
     TabOrder = 1
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 799
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 799
+      Width = 793
       Height = 28
       Align = alClient
       Alignment = taCenter
@@ -193,6 +204,7 @@ object frmzObjectInspector: TfrmzObjectInspector
       ParentFont = False
       Layout = tlCenter
       WordWrap = True
+      ExplicitWidth = 799
       ExplicitHeight = 26
     end
   end

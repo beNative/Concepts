@@ -4,6 +4,7 @@
   ClientHeight = 721
   ClientWidth = 1191
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -292,15 +293,18 @@
     ParentFont = False
     TabOrder = 1
     object lblHeader: TLabel
-      Left = 0
-      Top = 0
-      Width = 1191
-      Height = 29
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 1185
+      Height = 26
       Align = alClient
       Alignment = taCenter
       Caption = 'This form demonstrates the TBCEditor control.'
       Layout = tlCenter
       WordWrap = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 261
       ExplicitHeight = 13
     end

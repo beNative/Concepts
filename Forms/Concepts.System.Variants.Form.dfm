@@ -5,10 +5,11 @@ object frmVariants: TfrmVariants
   ClientHeight = 127
   ClientWidth = 261
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True
@@ -55,9 +56,10 @@ object frmVariants: TfrmVariants
     TabOrder = 4
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 261
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 255
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -70,10 +72,13 @@ object frmVariants: TfrmVariants
     ParentBackground = False
     ParentFont = False
     TabOrder = 5
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 261
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 261
+      Width = 255
       Height = 29
       Align = alClient
       Alignment = taCenter

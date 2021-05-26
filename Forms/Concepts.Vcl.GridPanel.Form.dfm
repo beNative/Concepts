@@ -6,10 +6,11 @@ object frmGridPanel: TfrmGridPanel
   ClientHeight = 153
   ClientWidth = 536
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True
@@ -81,7 +82,7 @@ object frmGridPanel: TfrmGridPanel
         Value = 24.835050526963980000
       end
       item
-        Value = 25.029154475194180000
+        Value = 25.029154475194190000
       end>
     TabOrder = 0
     object pnl1: TPanel
@@ -110,7 +111,7 @@ object frmGridPanel: TfrmGridPanel
       Left = 0
       Top = 27
       Width = 134
-      Height = 27
+      Height = 28
       Align = alClient
       BevelKind = bkFlat
       BevelOuter = bvNone
@@ -121,7 +122,7 @@ object frmGridPanel: TfrmGridPanel
       Left = 134
       Top = 27
       Width = 135
-      Height = 27
+      Height = 28
       Align = alClient
       BevelKind = bkFlat
       BevelOuter = bvNone
@@ -130,7 +131,7 @@ object frmGridPanel: TfrmGridPanel
     end
     object pnl5: TPanel
       Left = 0
-      Top = 54
+      Top = 55
       Width = 134
       Height = 27
       Align = alClient
@@ -141,7 +142,7 @@ object frmGridPanel: TfrmGridPanel
     end
     object pnl6: TPanel
       Left = 134
-      Top = 54
+      Top = 55
       Width = 135
       Height = 27
       Align = alClient
@@ -152,9 +153,9 @@ object frmGridPanel: TfrmGridPanel
     end
     object pnl7: TPanel
       Left = 0
-      Top = 81
+      Top = 82
       Width = 134
-      Height = 28
+      Height = 27
       Align = alClient
       BevelKind = bkFlat
       BevelOuter = bvNone
@@ -163,9 +164,9 @@ object frmGridPanel: TfrmGridPanel
     end
     object pnl8: TPanel
       Left = 134
-      Top = 81
+      Top = 82
       Width = 135
-      Height = 28
+      Height = 27
       Align = alClient
       BevelKind = bkFlat
       BevelOuter = bvNone
@@ -264,19 +265,23 @@ object frmGridPanel: TfrmGridPanel
     OnClick = btnUpdateLayoutClick
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 536
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 530
     Height = 28
     Align = alTop
     BevelOuter = bvNone
     Color = clWhite
     ParentBackground = False
     TabOrder = 10
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 536
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 536
+      Width = 530
       Height = 28
       Align = alClient
       Alignment = taCenter

@@ -4,10 +4,11 @@ object frmPublishedFields: TfrmPublishedFields
   ClientHeight = 124
   ClientWidth = 259
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   PixelsPerInch = 96
@@ -15,21 +16,21 @@ object frmPublishedFields: TfrmPublishedFields
   object lbl1: TLabel
     Left = 11
     Top = 38
-    Width = 31
+    Width = 33
     Height = 13
     Caption = 'Label1'
   end
   object lbl2: TLabel
     Left = 11
     Top = 67
-    Width = 31
+    Width = 33
     Height = 13
     Caption = 'Label2'
   end
   object lbl3: TLabel
     Left = 11
     Top = 99
-    Width = 31
+    Width = 33
     Height = 13
     Caption = 'Label3'
   end
@@ -82,9 +83,10 @@ object frmPublishedFields: TfrmPublishedFields
     Text = 'Edit3'
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 259
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 253
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -98,5 +100,8 @@ object frmPublishedFields: TfrmPublishedFields
     ParentBackground = False
     ParentFont = False
     TabOrder = 6
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 259
   end
 end

@@ -341,7 +341,7 @@
             <Form>frmIndyTCP</Form>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.Vcl.Styles.Form.pas">
-            <Form>Form1</Form>
+            <Form>frmVclStyles</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Forms\Concepts.KControls.KMemo.Form.pas">
