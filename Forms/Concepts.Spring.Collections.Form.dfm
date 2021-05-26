@@ -5,10 +5,11 @@ object frmCollections: TfrmCollections
   ClientHeight = 443
   ClientWidth = 495
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   DesignSize = (
@@ -19,7 +20,7 @@ object frmCollections: TfrmCollections
   object lblRecordCount: TLabel
     Left = 265
     Top = 43
-    Width = 67
+    Width = 71
     Height = 13
     Anchors = [akLeft, akTop, akRight]
     Caption = 'RecordCount:'
@@ -152,10 +153,11 @@ object frmCollections: TfrmCollections
     ParentFont = False
     TabOrder = 10
     object lblHeader: TLabel
-      Left = 0
-      Top = 0
-      Width = 372
-      Height = 13
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 489
+      Height = 26
       Align = alClient
       Alignment = taCenter
       Caption = 
@@ -163,6 +165,10 @@ object frmCollections: TfrmCollections
         '.'
       Layout = tlCenter
       WordWrap = True
+      ExplicitLeft = 0
+      ExplicitTop = 6
+      ExplicitWidth = 495
+      ExplicitHeight = 29
     end
   end
   object aclMain: TActionList

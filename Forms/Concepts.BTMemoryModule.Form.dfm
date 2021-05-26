@@ -5,6 +5,7 @@ object frmBTMemoryModule: TfrmBTMemoryModule
   ClientHeight = 82
   ClientWidth = 236
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -38,17 +39,19 @@ object frmBTMemoryModule: TfrmBTMemoryModule
     ParentFont = False
     TabOrder = 1
     object lblHeader: TLabel
-      Left = 0
-      Top = 0
-      Width = 236
-      Height = 29
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 230
+      Height = 26
       Align = alClient
       Alignment = taCenter
       Caption = 'This form demonstrates how to use the BTMemoryModule unit.'
       Layout = tlCenter
       WordWrap = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 225
-      ExplicitHeight = 26
     end
   end
   object aclMain: TActionList

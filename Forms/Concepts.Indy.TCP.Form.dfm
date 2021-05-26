@@ -8,7 +8,7 @@ object frmIndyTCP: TfrmIndyTCP
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
@@ -150,10 +150,6 @@ object frmIndyTCP: TfrmIndyTCP
         object tsCommands: TTabSheet
           Caption = 'Commands'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnlCommands: TGridPanel
             AlignWithMargins = True
             Left = 3
@@ -170,7 +166,7 @@ object frmIndyTCP: TfrmIndyTCP
                 Value = 33.333333333333340000
               end
               item
-                Value = 33.333333333333340000
+                Value = 33.333333333333310000
               end>
             ControlCollection = <>
             ParentBackground = False
@@ -192,7 +188,7 @@ object frmIndyTCP: TfrmIndyTCP
                 Value = 16.666666666666670000
               end
               item
-                Value = 16.666666666666670000
+                Value = 16.666666666666640000
               end>
             TabOrder = 0
           end
@@ -247,7 +243,6 @@ object frmIndyTCP: TfrmIndyTCP
         Width = 615
         Height = 20
         Align = alTop
-        BevelKind = bkFlat
         BevelOuter = bvNone
         Caption = 'Sent'
         Color = clWhite
@@ -261,10 +256,10 @@ object frmIndyTCP: TfrmIndyTCP
         TabOrder = 0
         StyleElements = [seFont, seBorder]
         object btnClearSent: TSpeedButton
-          Left = 565
+          Left = 569
           Top = 0
           Width = 46
-          Height = 16
+          Height = 20
           Action = actClearSent
           Align = alRight
           Flat = True
@@ -340,10 +335,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tsSentText: TTabSheet
           Caption = 'Text'
@@ -354,10 +345,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object mmoSentText: TMemo
             Left = 0
             Top = 0
@@ -401,7 +388,6 @@ object frmIndyTCP: TfrmIndyTCP
         Width = 615
         Height = 20
         Align = alTop
-        BevelKind = bkFlat
         BevelOuter = bvNone
         Caption = 'Received'
         Color = clWhite
@@ -415,10 +401,10 @@ object frmIndyTCP: TfrmIndyTCP
         TabOrder = 0
         StyleElements = [seFont, seBorder]
         object btnClearReceived: TSpeedButton
-          Left = 565
+          Left = 569
           Top = 0
           Width = 46
-          Height = 16
+          Height = 20
           Action = actClearReceived
           Align = alRight
           Flat = True
@@ -455,10 +441,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tsReceivedText: TTabSheet
           Caption = 'Text'
@@ -469,10 +451,6 @@ object frmIndyTCP: TfrmIndyTCP
           Font.Style = []
           ImageIndex = 1
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object mmoReceivedText: TMemo
             Left = 0
             Top = 0
@@ -508,7 +486,7 @@ object frmIndyTCP: TfrmIndyTCP
     Left = 72
     Top = 136
     Bitmap = {
-      494C0101050009000C0010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010105000900040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -839,7 +817,6 @@ object frmIndyTCP: TfrmIndyTCP
   object IdTCPClient: TIdTCPClient
     Intercept = IdConnectionIntercept
     ConnectTimeout = 0
-    IPVersion = Id_IPv4
     Port = 80
     ReadTimeout = -1
     Left = 43

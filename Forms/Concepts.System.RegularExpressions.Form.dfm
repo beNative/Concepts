@@ -5,10 +5,11 @@ object frmRegularExpressions: TfrmRegularExpressions
   ClientHeight = 369
   ClientWidth = 472
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True
@@ -66,7 +67,6 @@ object frmRegularExpressions: TfrmRegularExpressions
     ScrollBars = ssVertical
     TabOrder = 0
     OnChange = mmoInputChange
-    ExplicitWidth = 548
   end
   object mmoOutput: TMemo
     Left = 8
@@ -82,8 +82,6 @@ object frmRegularExpressions: TfrmRegularExpressions
     ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 1
-    ExplicitWidth = 548
-    ExplicitHeight = 159
   end
   object edtRegExpression: TEdit
     Left = 8
@@ -100,7 +98,6 @@ object frmRegularExpressions: TfrmRegularExpressions
     TabOrder = 2
     TextHint = 'Regular expression'
     OnChange = edtRegExpressionChange
-    ExplicitWidth = 548
   end
   object edtReplace: TEdit
     Left = 8
@@ -117,7 +114,6 @@ object frmRegularExpressions: TfrmRegularExpressions
     TabOrder = 3
     TextHint = 'Replace with'
     OnChange = edtReplaceChange
-    ExplicitWidth = 548
   end
   object chkThreaded: TCheckBox
     Left = 384
@@ -127,6 +123,5 @@ object frmRegularExpressions: TfrmRegularExpressions
     Anchors = [akTop, akRight]
     Caption = 'Threaded'
     TabOrder = 4
-    ExplicitLeft = 476
   end
 end

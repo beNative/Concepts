@@ -4,10 +4,11 @@ object frmStringList: TfrmStringList
   ClientHeight = 440
   ClientWidth = 781
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True
@@ -65,7 +66,7 @@ object frmStringList: TfrmStringList
         Value = 33.333333333333340000
       end
       item
-        Value = 33.333333333333340000
+        Value = 33.333333333333310000
       end>
     ControlCollection = <
       item
@@ -122,7 +123,7 @@ object frmStringList: TfrmStringList
     object pnlDelimitedText: TPanel
       Left = 260
       Top = 0
-      Width = 260
+      Width = 261
       Height = 384
       Align = alClient
       BevelOuter = bvNone
@@ -131,7 +132,7 @@ object frmStringList: TfrmStringList
         AlignWithMargins = True
         Left = 3
         Top = 356
-        Width = 254
+        Width = 255
         Height = 25
         Action = actSetDelimitedText
         Align = alBottom
@@ -141,16 +142,16 @@ object frmStringList: TfrmStringList
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 254
+        Width = 255
         Height = 347
         Align = alClient
         TabOrder = 1
       end
     end
     object pnlNameValues: TPanel
-      Left = 520
+      Left = 521
       Top = 0
-      Width = 261
+      Width = 260
       Height = 384
       Align = alClient
       BevelOuter = bvNone
@@ -159,7 +160,7 @@ object frmStringList: TfrmStringList
         AlignWithMargins = True
         Left = 3
         Top = 356
-        Width = 255
+        Width = 254
         Height = 25
         Action = actSetNameValues
         Align = alBottom
@@ -169,15 +170,15 @@ object frmStringList: TfrmStringList
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 255
+        Width = 254
         Height = 347
         Align = alClient
         DisplayOptions = [doColumnTitles, doAutoColResize]
         KeyOptions = [keyEdit, keyAdd, keyDelete]
         TabOrder = 1
         ColWidths = (
-          121
-          128)
+          124
+          124)
         RowHeights = (
           18
           18)
@@ -185,9 +186,10 @@ object frmStringList: TfrmStringList
     end
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 781
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 775
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -200,10 +202,13 @@ object frmStringList: TfrmStringList
     ParentBackground = False
     ParentFont = False
     TabOrder = 5
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 781
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 781
+      Width = 775
       Height = 29
       Align = alClient
       Alignment = taCenter

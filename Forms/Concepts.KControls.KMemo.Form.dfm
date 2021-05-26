@@ -5,10 +5,11 @@ object frmKMemo: TfrmKMemo
   ClientHeight = 566
   ClientWidth = 845
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   PixelsPerInch = 96
@@ -110,7 +111,6 @@ object frmKMemo: TfrmKMemo
     BevelOuter = bvNone
     Color = clWhite
     TabOrder = 11
-    ExplicitTop = 2
     object KMemo: TKMemo
       Left = 0
       Top = 0
@@ -129,10 +129,6 @@ object frmKMemo: TfrmKMemo
       ParentFont = False
       TabOrder = 0
       Visible = True
-      ExplicitLeft = 112
-      ExplicitTop = 96
-      ExplicitWidth = 300
-      ExplicitHeight = 200
     end
   end
   object aclMain: TActionList

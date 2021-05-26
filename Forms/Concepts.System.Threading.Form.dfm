@@ -4,10 +4,11 @@ object frmThreading: TfrmThreading
   ClientHeight = 506
   ClientWidth = 713
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True
@@ -48,7 +49,7 @@ object frmThreading: TfrmThreading
     Height = 21
     Hint = 'Number of iterations in for loop.'
     Alignment = taCenter
-    EditLabel.Width = 51
+    EditLabel.Width = 52
     EditLabel.Height = 13
     EditLabel.Caption = 'Iterations:'
     LabelPosition = lpLeft
@@ -67,7 +68,7 @@ object frmThreading: TfrmThreading
       'The number of strides are the number of iterations executed per ' +
       'thread in a parallel for loop.'
     Alignment = taCenter
-    EditLabel.Width = 37
+    EditLabel.Width = 38
     EditLabel.Height = 13
     EditLabel.Caption = 'Strides:'
     LabelPosition = lpLeft
@@ -102,9 +103,10 @@ object frmThreading: TfrmThreading
     TabOrder = 7
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 713
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 707
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -117,11 +119,14 @@ object frmThreading: TfrmThreading
     ParentBackground = False
     ParentFont = False
     TabOrder = 8
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 713
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 625
-      Height = 13
+      Width = 707
+      Height = 29
       Align = alClient
       Alignment = taCenter
       Caption = 
@@ -129,6 +134,8 @@ object frmThreading: TfrmThreading
         't a.k.a. Parallel Programming Library (PPL).'
       Layout = tlCenter
       WordWrap = True
+      ExplicitWidth = 625
+      ExplicitHeight = 13
     end
   end
   object aclMain: TActionList
@@ -160,7 +167,7 @@ object frmThreading: TfrmThreading
     Left = 72
     Top = 136
     Bitmap = {
-      494C010105000900080010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010105000900040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

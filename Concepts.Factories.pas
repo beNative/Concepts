@@ -450,6 +450,7 @@ begin
   VST.Parent                       := AParent;
   VST.HintMode                     := hmTooltip;
   VST.Align                        := alClient;
+  VST.BorderStyle                  := bsNone;
   VST.DrawSelectionMode            := smBlendedRectangle;
   VST.Indent                       := 2;
   VST.Header.Height                := 18;

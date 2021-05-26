@@ -5,10 +5,11 @@ object frmSQLBuilder4D: TfrmSQLBuilder4D
   ClientHeight = 337
   ClientWidth = 635
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   PixelsPerInch = 96
@@ -45,9 +46,10 @@ object frmSQLBuilder4D: TfrmSQLBuilder4D
     TabOrder = 2
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 635
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 629
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -60,10 +62,13 @@ object frmSQLBuilder4D: TfrmSQLBuilder4D
     ParentBackground = False
     ParentFont = False
     TabOrder = 3
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 635
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 635
+      Width = 629
       Height = 29
       Align = alClient
       Alignment = taCenter

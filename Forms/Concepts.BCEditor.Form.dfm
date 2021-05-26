@@ -4,10 +4,11 @@
   ClientHeight = 721
   ClientWidth = 1191
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
@@ -16,17 +17,19 @@
   TextHeight = 13
   object pnlMain: TPanel
     Left = 0
-    Top = 29
+    Top = 35
     Width = 1191
-    Height = 692
+    Height = 686
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 29
+    ExplicitHeight = 692
     object splSplitter: TSplitter
       Left = 433
       Top = 0
       Width = 8
-      Height = 673
+      Height = 667
       ResizeStyle = rsUpdate
       ExplicitLeft = 273
       ExplicitTop = 1
@@ -36,13 +39,14 @@
       Left = 0
       Top = 0
       Width = 433
-      Height = 673
+      Height = 667
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 673
       object splLeftHorizontal: TSplitter
         Left = 0
-        Top = 374
+        Top = 368
         Width = 433
         Height = 5
         Cursor = crVSplit
@@ -72,12 +76,13 @@
       end
       object pnlLeftBottom: TPanel
         Left = 0
-        Top = 379
+        Top = 373
         Width = 433
         Height = 294
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitTop = 379
         object pgcLeftBottoù: TPageControl
           Left = 0
           Top = 0
@@ -116,10 +121,11 @@
       Left = 441
       Top = 0
       Width = 750
-      Height = 673
+      Height = 667
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitHeight = 673
       object spl1: TSplitter
         Left = 0
         Top = 385
@@ -259,26 +265,29 @@
         Left = 0
         Top = 391
         Width = 750
-        Height = 282
+        Height = 276
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitHeight = 282
       end
     end
     object sbrStatusBar: TStatusBar
       Left = 0
-      Top = 673
+      Top = 667
       Width = 1191
       Height = 19
       Panels = <>
       ParentShowHint = False
       ShowHint = True
+      ExplicitTop = 673
     end
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 1191
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 1185
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -291,16 +300,22 @@
     ParentBackground = False
     ParentFont = False
     TabOrder = 1
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 1191
     object lblHeader: TLabel
-      Left = 0
-      Top = 0
-      Width = 1191
-      Height = 29
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 1179
+      Height = 26
       Align = alClient
       Alignment = taCenter
       Caption = 'This form demonstrates the TBCEditor control.'
       Layout = tlCenter
       WordWrap = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
       ExplicitWidth = 261
       ExplicitHeight = 13
     end

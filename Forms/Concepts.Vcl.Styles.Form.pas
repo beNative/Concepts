@@ -10,7 +10,7 @@ uses
   Vcl.ComCtrls;
 
 type
-  TForm1 = class(TForm)
+  TfrmVclStyles = class(TForm)
     btnactCnPrefixWizard: TButton;
     lv1: TListView;
     lbl1: TLabel;
@@ -30,20 +30,20 @@ type
   end;
 
 var
-  Form1: TForm1;
+  frmVclStyles: TfrmVclStyles;
 
 implementation
 
 {$R *.dfm}
 
 {$REGION 'MyRegion'}
-procedure TForm1.AfterConstruction;
+procedure TfrmVclStyles.AfterConstruction;
 begin
   inherited AfterConstruction;
 //
 end;
 
-destructor TForm1.Destroy;
+destructor TfrmVclStyles.Destroy;
 begin
 
   inherited Destroy;

@@ -5,6 +5,7 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
   ClientHeight = 694
   ClientWidth = 1111
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -37,7 +38,6 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
       Width = 736
       Height = 20
       Align = alTop
-      BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'TVirtualStringTree'
       Color = clWhite
@@ -102,7 +102,6 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
       Width = 355
       Height = 20
       Align = alTop
-      BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'TTreeviewPresenter'
       Color = clWhite

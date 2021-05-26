@@ -8,7 +8,7 @@ object frmIndyTelnet: TfrmIndyTelnet
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
@@ -166,7 +166,7 @@ object frmIndyTelnet: TfrmIndyTelnet
                 Value = 33.333333333333340000
               end
               item
-                Value = 33.333333333333340000
+                Value = 33.333333333333310000
               end>
             ControlCollection = <>
             ParentBackground = False
@@ -188,7 +188,7 @@ object frmIndyTelnet: TfrmIndyTelnet
                 Value = 16.666666666666670000
               end
               item
-                Value = 16.666666666666670000
+                Value = 16.666666666666640000
               end>
             TabOrder = 0
           end
@@ -243,7 +243,6 @@ object frmIndyTelnet: TfrmIndyTelnet
         Width = 615
         Height = 20
         Align = alTop
-        BevelKind = bkFlat
         BevelOuter = bvNone
         Caption = 'Sent'
         Color = clWhite
@@ -257,10 +256,10 @@ object frmIndyTelnet: TfrmIndyTelnet
         TabOrder = 0
         StyleElements = [seFont, seBorder]
         object btnClearSent: TSpeedButton
-          Left = 565
+          Left = 569
           Top = 0
           Width = 46
-          Height = 16
+          Height = 20
           Action = actClearSent
           Align = alRight
           Flat = True
@@ -336,10 +335,6 @@ object frmIndyTelnet: TfrmIndyTelnet
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tsSentText: TTabSheet
           Caption = 'Text'
@@ -394,7 +389,6 @@ object frmIndyTelnet: TfrmIndyTelnet
         Width = 615
         Height = 20
         Align = alTop
-        BevelKind = bkFlat
         BevelOuter = bvNone
         Caption = 'Received'
         Color = clWhite
@@ -408,10 +402,10 @@ object frmIndyTelnet: TfrmIndyTelnet
         TabOrder = 0
         StyleElements = [seFont, seBorder]
         object btnClearReceived: TSpeedButton
-          Left = 565
+          Left = 569
           Top = 0
           Width = 46
-          Height = 16
+          Height = 20
           Action = actClearReceived
           Align = alRight
           Flat = True
@@ -448,10 +442,6 @@ object frmIndyTelnet: TfrmIndyTelnet
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object tsReceivedText: TTabSheet
           Caption = 'Text'

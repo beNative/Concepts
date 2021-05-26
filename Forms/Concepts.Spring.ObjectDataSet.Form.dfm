@@ -4,10 +4,11 @@ object frmObjectDataSet: TfrmObjectDataSet
   ClientHeight = 683
   ClientWidth = 1096
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   PopupMode = pmAuto
@@ -28,7 +29,7 @@ object frmObjectDataSet: TfrmObjectDataSet
     object lblRecordCount: TLabel
       Left = 165
       Top = 12
-      Width = 47
+      Width = 50
       Height = 13
       Caption = 'Listcount:'
     end
@@ -166,7 +167,7 @@ object frmObjectDataSet: TfrmObjectDataSet
         object lblFirstname: TLabel
           Left = 5
           Top = 26
-          Width = 51
+          Width = 53
           Height = 13
           Caption = 'Firstname:'
           FocusControl = edtDBFirstname
@@ -174,7 +175,7 @@ object frmObjectDataSet: TfrmObjectDataSet
         object lblLastname: TLabel
           Left = 133
           Top = 26
-          Width = 50
+          Width = 51
           Height = 13
           Caption = 'Lastname:'
           FocusControl = edtDBLastname
@@ -182,7 +183,7 @@ object frmObjectDataSet: TfrmObjectDataSet
         object lblEmail: TLabel
           Left = 260
           Top = 26
-          Width = 28
+          Width = 30
           Height = 13
           Caption = 'Email:'
           FocusControl = edtDBEmail
@@ -190,7 +191,7 @@ object frmObjectDataSet: TfrmObjectDataSet
         object lblCompanyName: TLabel
           Left = 5
           Top = 69
-          Width = 75
+          Width = 79
           Height = 13
           Caption = 'Companyname:'
           FocusControl = edtDBCompanyName
@@ -198,7 +199,7 @@ object frmObjectDataSet: TfrmObjectDataSet
         object lblAddress: TLabel
           Left = 132
           Top = 69
-          Width = 43
+          Width = 44
           Height = 13
           Caption = 'Address:'
           FocusControl = edtAddress
@@ -206,7 +207,7 @@ object frmObjectDataSet: TfrmObjectDataSet
         object lblNumber: TLabel
           Left = 367
           Top = 69
-          Width = 41
+          Width = 44
           Height = 13
           Caption = 'Number:'
           FocusControl = edtDBNumber
@@ -367,7 +368,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           Height = 21
           BevelInner = bvNone
           BevelOuter = bvNone
-          EditLabel.Width = 51
+          EditLabel.Width = 53
           EditLabel.Height = 13
           EditLabel.Caption = 'Firstname:'
           ParentShowHint = False
@@ -379,7 +380,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           Top = 42
           Width = 121
           Height = 21
-          EditLabel.Width = 50
+          EditLabel.Width = 51
           EditLabel.Height = 13
           EditLabel.Caption = 'Lastname:'
           TabOrder = 1
@@ -389,7 +390,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           Top = 42
           Width = 121
           Height = 21
-          EditLabel.Width = 28
+          EditLabel.Width = 30
           EditLabel.Height = 13
           EditLabel.Caption = 'Email:'
           TabOrder = 2
@@ -399,7 +400,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           Top = 85
           Width = 121
           Height = 21
-          EditLabel.Width = 76
+          EditLabel.Width = 80
           EditLabel.Height = 13
           EditLabel.Caption = 'CompanyName:'
           TabOrder = 3
@@ -409,7 +410,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           Top = 85
           Width = 233
           Height = 21
-          EditLabel.Width = 43
+          EditLabel.Width = 44
           EditLabel.Height = 13
           EditLabel.Caption = 'Address:'
           TabOrder = 4
@@ -419,7 +420,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           Top = 85
           Width = 121
           Height = 21
-          EditLabel.Width = 41
+          EditLabel.Width = 44
           EditLabel.Height = 13
           EditLabel.Caption = 'Number:'
           TabOrder = 5

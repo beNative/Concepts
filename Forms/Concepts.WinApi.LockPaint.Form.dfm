@@ -6,10 +6,11 @@ object frmLockPaint: TfrmLockPaint
   ClientHeight = 71
   ClientWidth = 323
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True

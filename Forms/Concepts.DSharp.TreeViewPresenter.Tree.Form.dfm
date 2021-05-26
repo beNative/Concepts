@@ -6,10 +6,11 @@ object frmTreeViewPresenterTree: TfrmTreeViewPresenterTree
   ClientHeight = 694
   ClientWidth = 1111
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   Position = poDesigned
@@ -45,7 +46,7 @@ object frmTreeViewPresenterTree: TfrmTreeViewPresenterTree
       Top = 8
       Width = 153
       Height = 21
-      EditLabel.Width = 105
+      EditLabel.Width = 114
       EditLabel.Height = 13
       EditLabel.Caption = 'Filter qualified names:'
       LabelPosition = lpLeft
@@ -85,7 +86,6 @@ object frmTreeViewPresenterTree: TfrmTreeViewPresenterTree
       Width = 443
       Height = 20
       Align = alTop
-      BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'TTreeviewPresenter'
       Color = clWhite

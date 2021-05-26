@@ -5,10 +5,11 @@ object frmSpringUtils: TfrmSpringUtils
   ClientHeight = 662
   ClientWidth = 939
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True
@@ -23,6 +24,7 @@ object frmSpringUtils: TfrmSpringUtils
     Align = alClient
     BevelInner = bvNone
     BevelOuter = bvNone
+    BorderStyle = bsNone
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -13
@@ -102,9 +104,9 @@ object frmSpringUtils: TfrmSpringUtils
     TabOrder = 1
     object btnFileVersionInfo: TButton
       AlignWithMargins = True
-      Left = 702
+      Left = 703
       Top = 3
-      Width = 228
+      Width = 227
       Height = 26
       Action = actApplicationVersionInfo
       Align = alClient
@@ -124,7 +126,7 @@ object frmSpringUtils: TfrmSpringUtils
       AlignWithMargins = True
       Left = 470
       Top = 3
-      Width = 226
+      Width = 227
       Height = 26
       Action = actApplicationVersion
       Align = alClient
@@ -164,7 +166,7 @@ object frmSpringUtils: TfrmSpringUtils
       AlignWithMargins = True
       Left = 470
       Top = 35
-      Width = 226
+      Width = 227
       Height = 27
       Action = actGetLogicalDrives
       Align = alClient

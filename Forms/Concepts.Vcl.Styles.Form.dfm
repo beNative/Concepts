@@ -1,14 +1,15 @@
-object Form1: TForm1
+object frmVclStyles: TfrmVclStyles
   Left = 0
   Top = 0
-  Caption = 'Form1'
+  Caption = 'VCL styles'
   ClientHeight = 486
   ClientWidth = 1189
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   DesignSize = (
@@ -19,7 +20,7 @@ object Form1: TForm1
   object lbl1: TLabel
     Left = 0
     Top = 5
-    Width = 50
+    Width = 51
     Height = 13
     Caption = 'VCL Styles'
   end
@@ -74,6 +75,7 @@ object Form1: TForm1
     Width = 525
     Height = 475
     Anchors = [akLeft, akTop, akRight, akBottom]
+    BevelOuter = bvNone
     TabOrder = 2
   end
   object actmgr1: TActionManager

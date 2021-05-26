@@ -5,10 +5,11 @@ object frmMulticastEvents: TfrmMulticastEvents
   ClientHeight = 124
   ClientWidth = 288
   Color = clBtnFace
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   ShowHint = True
@@ -67,9 +68,10 @@ object frmMulticastEvents: TfrmMulticastEvents
     OnChange = trbImageIndexChange
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 288
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 282
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -82,10 +84,13 @@ object frmMulticastEvents: TfrmMulticastEvents
     ParentBackground = False
     ParentFont = False
     TabOrder = 4
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 288
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 288
+      Width = 282
       Height = 29
       Align = alClient
       Alignment = taCenter

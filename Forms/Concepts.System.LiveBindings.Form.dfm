@@ -9,7 +9,7 @@ object frmLiveBindings: TfrmLiveBindings
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Segoe UI'
   Font.Style = []
   OldCreateOrder = False
   Position = poDesigned
@@ -22,21 +22,23 @@ object frmLiveBindings: TfrmLiveBindings
   TextHeight = 13
   object splVertical: TSplitter
     Left = 305
-    Top = 29
+    Top = 35
     Width = 6
-    Height = 484
+    Height = 478
     ExplicitLeft = 251
     ExplicitTop = 0
     ExplicitHeight = 459
   end
   object pnlLeft: TPanel
     Left = 0
-    Top = 29
+    Top = 35
     Width = 305
-    Height = 484
+    Height = 478
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 29
+    ExplicitHeight = 484
     object cbxControls: TComboBox
       AlignWithMargins = True
       Left = 3
@@ -53,9 +55,9 @@ object frmLiveBindings: TfrmLiveBindings
   end
   object pnlRight: TPanel
     Left = 311
-    Top = 29
+    Top = 35
     Width = 567
-    Height = 484
+    Height = 478
     Align = alClient
     BevelOuter = bvNone
     Font.Charset = DEFAULT_CHARSET
@@ -65,9 +67,11 @@ object frmLiveBindings: TfrmLiveBindings
     Font.Style = []
     ParentFont = False
     TabOrder = 1
+    ExplicitTop = 29
+    ExplicitHeight = 484
     DesignSize = (
       567
-      484)
+      478)
     object lblLabel: TLabel
       Left = 6
       Top = 35
@@ -258,6 +262,10 @@ object frmLiveBindings: TfrmLiveBindings
         24
         24
         24)
+      ColAligments = (
+        1
+        0
+        0)
     end
     object edtLastName: TEdit
       Left = 205
@@ -352,9 +360,10 @@ object frmLiveBindings: TfrmLiveBindings
     TabOrder = 10
   end
   object pnlHeader: TPanel
-    Left = 0
-    Top = 0
-    Width = 878
+    AlignWithMargins = True
+    Left = 3
+    Top = 3
+    Width = 872
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -367,10 +376,13 @@ object frmLiveBindings: TfrmLiveBindings
     ParentBackground = False
     ParentFont = False
     TabOrder = 11
+    ExplicitLeft = 0
+    ExplicitTop = 0
+    ExplicitWidth = 878
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 878
+      Width = 872
       Height = 29
       Align = alClient
       Alignment = taCenter
