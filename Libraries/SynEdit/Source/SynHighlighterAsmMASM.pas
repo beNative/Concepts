@@ -47,11 +47,9 @@ May experience out of memory when compiling package. Folow instructions to
 compile externally until I move the API functions externally into JSON file.
 }
 
-{$IFNDEF QSYNHIGHLIGHTERASM}
 unit SynHighlighterAsmMASM;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

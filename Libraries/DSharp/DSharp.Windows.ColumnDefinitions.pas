@@ -39,7 +39,7 @@ uses
   Graphics,
   ImgList,
   Spring,
-  Spring.Collections,
+
   SysUtils,
   Types;
 
@@ -154,6 +154,8 @@ type
     function GetAutoSizeIndex: Integer;
     function GetCount: Integer;
     function GetItem(Index: Integer): TColumnDefinition;
+    procedure Clear;                       // TS
+    procedure Delete(Index: Integer); //TS
     function GetMainColumnIndex: Integer;
     function GetOnNotify: IEvent<TCollectionNotifyEvent<TColumnDefinition>>;
     function GetOwner: TPersistent;
@@ -195,7 +197,7 @@ implementation
 
 uses
   DSharp.Bindings.Collections,
-  DSharp.Bindings.Notifications,
+
   StrUtils;
 
 { TColumnDefinition }

@@ -45,11 +45,9 @@ be specified, and there is an option to include extra keywords and operators onl
 be disabled for backwards compatibility with older ML compilers that do not have support for the Basis Library.
 }
 
-{$IFNDEF QSYNHIGHLIGHTERSML}
 unit SynHighlighterSml;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

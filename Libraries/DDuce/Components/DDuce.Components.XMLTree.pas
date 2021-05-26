@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -55,12 +55,20 @@ const
 
 const
 //  DEFAULT_BGCOLOR_UNKNOWN   = clRed;
-  DEFAULT_BGCOLOR_ROOT      = $00E8E8E8; // DOCUMENT_NODE light grey
-  DEFAULT_BGCOLOR_COMMENT   = $00C1FFFF; // COMMENT_NODE   yellow
-  DEFAULT_BGCOLOR_TEXT      = $00FFD7D7; // TEXT_NODE, CDATA_SECTION_NODE light blue navy
-  DEFAULT_BGCOLOR_ATTRIBUTE = $00E8E8FF; // ATTRIBUTE_NODE red
-  DEFAULT_BGCOLOR_ELEMENT   = $00ECFFEC; // ELEMENT_NODE without ChildNodes green
-  DEFAULT_BGCOLOR_NODE      = $00FFD7D7; // ELEMENT_NODE without ChildNodes green
+//  DEFAULT_BGCOLOR_ROOT      = $00E8E8E8; // DOCUMENT_NODE light grey
+//  DEFAULT_BGCOLOR_COMMENT   = $00C1FFFF; // COMMENT_NODE   yellow
+//  DEFAULT_BGCOLOR_TEXT      = $00FFD7D7; // TEXT_NODE, CDATA_SECTION_NODE light blue navy
+//  DEFAULT_BGCOLOR_ATTRIBUTE = $00E8E8FF; // ATTRIBUTE_NODE red
+//  DEFAULT_BGCOLOR_ELEMENT   = $00ECFFEC; // ELEMENT_NODE without ChildNodes green
+//  DEFAULT_BGCOLOR_NODE      = $00FFD7D7; // ELEMENT_NODE without ChildNodes green
+
+  DEFAULT_BGCOLOR_ROOT      = clWhite; // DOCUMENT_NODE light grey
+  DEFAULT_BGCOLOR_COMMENT   = clYellow; // COMMENT_NODE   yellow
+  DEFAULT_BGCOLOR_TEXT      = clWhite; // TEXT_NODE, CDATA_SECTION_NODE light blue navy
+  DEFAULT_BGCOLOR_ATTRIBUTE = clWhite; // ATTRIBUTE_NODE red
+  DEFAULT_BGCOLOR_ELEMENT   = clWhite; // ELEMENT_NODE without ChildNodes green
+  DEFAULT_BGCOLOR_NODE      = clWhite; // ELEMENT_NODE without ChildNodes gre
+  DEFAULT_BGCOLOR_UNKNOWN   = clWhite;
 
 {$REGION 'default VST options'}
 const
@@ -1233,7 +1241,7 @@ begin
       EraseAction := eaColor;
     end;
   end;
-  Color := clRed;
+  //Color := clRed;
   inherited DoBeforeItemErase(Canvas, Node, ItemRect, Color, EraseAction);
 end;
 
@@ -1463,53 +1471,53 @@ end;
 
 {$REGION 'protected methods'}
 procedure TXMLTree.InitializeNodeAttributes;
-//var
-//  NAI: TNodeAttributesItem;
+var
+  NAI: TNodeAttributesItem;
 begin
-//  NAI := FNodeAttributes.Add;
-//  NAI.Name     := 'Attribute';
-//  NAI.NodeType := ntAttribute;
-//  NAI.BackGroundColor := DEFAULT_BGCOLOR_ATTRIBUTE;
-//  NAI.Font.Name := 'Consolas';
-//
-//  NAI := FNodeAttributes.Add;
-//  NAI.Name     := 'Comment';
-//  NAI.NodeType := ntComment;
-//  NAI.BackGroundColor := DEFAULT_BGCOLOR_COMMENT;
-//  NAI.Font.Name  := 'Consolas';
-//  NAI.Font.Style := [fsItalic];
-//  NAI.Font.Color := clMedGray;
-//
-//  NAI := FNodeAttributes.Add;
-//  NAI.Name     := 'Element';
-//  NAI.NodeType := ntElement;
-//  NAI.BackGroundColor := DEFAULT_BGCOLOR_ELEMENT;
-//  NAI.Font.Name := 'Consolas';
-//
-//  NAI := FNodeAttributes.Add;
-//  NAI.Name     := 'Unknown';
-//  NAI.NodeType := ntUnknown;
-//  NAI.BackGroundColor := DEFAULT_BGCOLOR_ELEMENT;
-//  //NAI.BackGroundColor := DEFAULT_BGCOLOR_UNKNOWN;
-//  NAI.Font.Name := 'Consolas';
-//
-//  NAI := FNodeAttributes.Add;
-//  NAI.Name     := 'Root';
-//  NAI.NodeType := ntRoot;
-//  NAI.BackGroundColor := DEFAULT_BGCOLOR_ROOT;
-//  NAI.Font.Name := 'Consolas';
-//
-//  NAI := FNodeAttributes.Add;
-//  NAI.Name     := 'Text';
-//  NAI.NodeType := ntText;
-//  NAI.BackGroundColor := DEFAULT_BGCOLOR_TEXT;
-//  NAI.Font.Name := 'Consolas';
-//
-//  NAI := FNodeAttributes.Add;
-//  NAI.Name     := 'Node';
-//  NAI.NodeType := ntNode;
-//  NAI.BackGroundColor := DEFAULT_BGCOLOR_NODE;
-//  NAI.Font.Name := 'Consolas';
+  NAI := FNodeAttributes.Add;
+  NAI.Name     := 'Attribute';
+  NAI.NodeType := ntAttribute;
+  NAI.BackGroundColor := DEFAULT_BGCOLOR_ATTRIBUTE;
+  NAI.Font.Name := 'Consolas';
+
+  NAI := FNodeAttributes.Add;
+  NAI.Name     := 'Comment';
+  NAI.NodeType := ntComment;
+  NAI.BackGroundColor := DEFAULT_BGCOLOR_COMMENT;
+  NAI.Font.Name  := 'Consolas';
+  NAI.Font.Style := [fsItalic];
+  NAI.Font.Color := clMedGray;
+
+  NAI := FNodeAttributes.Add;
+  NAI.Name     := 'Element';
+  NAI.NodeType := ntElement;
+  NAI.BackGroundColor := DEFAULT_BGCOLOR_ELEMENT;
+  NAI.Font.Name := 'Consolas';
+
+  NAI := FNodeAttributes.Add;
+  NAI.Name     := 'Unknown';
+  NAI.NodeType := ntUnknown;
+  NAI.BackGroundColor := DEFAULT_BGCOLOR_ELEMENT;
+  //NAI.BackGroundColor := DEFAULT_BGCOLOR_UNKNOWN;
+  NAI.Font.Name := 'Consolas';
+
+  NAI := FNodeAttributes.Add;
+  NAI.Name     := 'Root';
+  NAI.NodeType := ntRoot;
+  NAI.BackGroundColor := DEFAULT_BGCOLOR_ROOT;
+  NAI.Font.Name := 'Consolas';
+
+  NAI := FNodeAttributes.Add;
+  NAI.Name     := 'Text';
+  NAI.NodeType := ntText;
+  NAI.BackGroundColor := DEFAULT_BGCOLOR_TEXT;
+  NAI.Font.Name := 'Consolas';
+
+  NAI := FNodeAttributes.Add;
+  NAI.Name     := 'Node';
+  NAI.NodeType := ntNode;
+  NAI.BackGroundColor := DEFAULT_BGCOLOR_NODE;
+  NAI.Font.Name := 'Consolas';
 end;
 
 procedure TXMLTree.InitializeHeader;

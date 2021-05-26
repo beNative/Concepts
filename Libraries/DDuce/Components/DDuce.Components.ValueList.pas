@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 {$I DDuce.inc}
 
 unit DDuce.Components.ValueList;
+
+{ TCustomVirtualStringTree descendant to display key-value pairs. }
 
 interface
 
@@ -37,8 +39,9 @@ type
 type
   TValueList = class(TCustomVirtualStringTree)
   private
-    FData : IDynamicRecord;
-    procedure SetFocusedField(const Value: IDynamicField);
+    FData        : IDynamicRecord;
+    FInitialized : Boolean;
+    FShowGutter  : Boolean;
 
   protected
     {$REGION 'property access methods'}
@@ -57,20 +60,19 @@ type
     function GetShowGutter: Boolean;
     procedure SetShowGutter(const Value: Boolean);
     function GetFocusedField: IDynamicField;
+    procedure SetFocusedField(const Value: IDynamicField);
     {$ENDREGION}
 
     procedure Initialize;
     procedure BuildTree;
 
+    function FindNode(
+      AIdx        : Integer;
+      AParentNode : PVirtualNode
+    ): PVirtualNode;
+    procedure SelectNode(ANode: PVirtualNode); overload;
+
     procedure DoGetText(var pEventArgs: TVSTGetCellTextEventArgs); override;
-    procedure DoBeforeCellPaint(
-      Canvas          : TCanvas;
-      Node            : PVirtualNode;
-      Column          : TColumnIndex;
-      CellPaintMode   : TVTCellPaintMode;
-      CellRect        : TRect;
-      var ContentRect : TRect
-    ); override;
     procedure DoNewText(
       Node       : PVirtualNode;
       Column     : TColumnIndex;
@@ -88,8 +90,14 @@ type
     procedure AfterConstruction; override;
     destructor Destroy; override;
 
+    procedure UpdateColumns;
     procedure Repaint; override;
     procedure Refresh; virtual;
+    procedure SetFocusedFieldByName(const AName: string);
+    procedure SelectNode(
+      AIdx        : Integer;
+      AParentNode : PVirtualNode = nil
+    ); overload;
 
     property Data: IDynamicRecord
       read GetData write SetData;
@@ -149,8 +157,155 @@ type
     property LineStyle;
     property Margin;
 
+    property OnAddToSelection;
+    property OnAdvancedHeaderDraw;
+    property OnAfterAutoFitColumn;
+    property OnAfterAutoFitColumns;
+    property OnAfterCellPaint;
+    property OnAfterColumnExport;
+    property OnAfterColumnWidthTracking;
+    property OnAfterGetMaxColumnWidth;
+    property OnAfterHeaderExport;
+    property OnAfterHeaderHeightTracking;
+    property OnAfterItemErase;
+    property OnAfterItemPaint;
+    property OnAfterNodeExport;
+    property OnAfterPaint;
+    property OnAfterTreeExport;
+    property OnBeforeAutoFitColumn;
+    property OnBeforeAutoFitColumns;
+    property OnBeforeCellPaint;
+    property OnBeforeColumnExport;
+    property OnBeforeColumnWidthTracking;
+    property OnBeforeDrawTreeLine;
+    property OnBeforeGetMaxColumnWidth;
+    property OnBeforeHeaderExport;
+    property OnBeforeHeaderHeightTracking;
+    property OnBeforeItemErase;
+    property OnBeforeItemPaint;
+    property OnBeforeNodeExport;
+    property OnBeforePaint;
+    property OnBeforeTreeExport;
+    property OnCanSplitterResizeColumn;
+    property OnCanSplitterResizeHeader;
+    property OnCanSplitterResizeNode;
+    property OnChange;
+    property OnChecked;
+    property OnChecking;
+    property OnClick;
+    property OnCollapsed;
+    property OnCollapsing;
+    property OnColumnClick;
+    property OnColumnDblClick;
+    property OnColumnExport;
+    property OnColumnResize;
+    property OnColumnVisibilityChanged;
+    property OnColumnWidthDblClickResize;
+    property OnColumnWidthTracking;
+    property OnCompareNodes;
+    property OnContextPopup;
+    property OnCreateDataObject;
+    property OnCreateDragManager;
+    property OnCreateEditor;
+    property OnDblClick;
+    property OnDragAllowed;
+    property OnDragOver;
+    property OnDragDrop;
+    property OnDrawHint;
+    property OnDrawText;
+    property OnEditCancelled;
+    property OnEdited;
+    property OnEditing;
+    property OnEndDock;
+    property OnEndDrag;
+    property OnEndOperation;
     property OnEnter;
     property OnExit;
+    property OnExpanded;
+    property OnExpanding;
+    property OnFocusChanged;
+    property OnFocusChanging;
+    property OnFreeNode;
+    property OnGetCellText;
+    property OnGetCellIsEmpty;
+    property OnGetCursor;
+    property OnGetHeaderCursor;
+    property OnGetText;
+    property OnPaintText;
+    property OnGetHelpContext;
+    property OnGetHintKind;
+    property OnGetHintSize;
+    property OnGetImageIndex;
+    property OnGetImageIndexEx;
+    property OnGetImageText;
+    property OnGetHint;
+    property OnGetLineStyle;
+    property OnGetNodeDataSize;
+    property OnGetPopupMenu;
+    property OnGetUserClipboardFormats;
+    property OnHeaderAddPopupItem;
+    property OnHeaderClick;
+    property OnHeaderDblClick;
+    property OnHeaderDragged;
+    property OnHeaderDraggedOut;
+    property OnHeaderDragging;
+    property OnHeaderDraw;
+    property OnHeaderDrawQueryElements;
+    property OnHeaderHeightDblClickResize;
+    property OnHeaderHeightTracking;
+    property OnHeaderMouseDown;
+    property OnHeaderMouseMove;
+    property OnHeaderMouseUp;
+    property OnHotChange;
+    property OnIncrementalSearch;
+    property OnInitChildren;
+    property OnInitNode;
+    property OnKeyAction;
+    property OnKeyDown;
+    property OnKeyPress;
+    property OnKeyUp;
+    property OnLoadNode;
+    property OnLoadTree;
+    property OnMeasureItem;
+    property OnMeasureTextWidth;
+    property OnMeasureTextHeight;
+    property OnMouseDown;
+    property OnMouseMove;
+    property OnMouseUp;
+    property OnMouseWheel;
+    property OnMouseEnter;
+    property OnMouseLeave;
+    property OnNewText;
+    property OnNodeClick;
+    property OnNodeCopied;
+    property OnNodeCopying;
+    property OnNodeDblClick;
+    property OnNodeExport;
+    property OnNodeHeightDblClickResize;
+    property OnNodeHeightTracking;
+    property OnNodeMoved;
+    property OnNodeMoving;
+    property OnPaintBackground;
+    property OnPrepareButtonBitmaps;
+    property OnRemoveFromSelection;
+    property OnRenderOLEData;
+    property OnResetNode;
+    property OnResize;
+    property OnSaveNode;
+    property OnSaveTree;
+    property OnScroll;
+    property OnShortenString;
+    property OnShowScrollBar;
+    property OnBeforeGetCheckState;
+    property OnStartDock;
+    property OnStartDrag;
+    property OnStartOperation;
+    property OnStateChange;
+    property OnStructureChange;
+    property OnUpdating;
+    property OnCanResize;
+    property OnGesture;
+    property Touch;
 
     property ParentBiDiMode;
     property ParentColor default False;
@@ -165,7 +320,6 @@ type
     property ShowHint;
 
     property TreeOptions;
-    property Touch;
 
     property StateImages;
     property StyleElements;
@@ -213,7 +367,7 @@ const
 procedure TValueList.AfterConstruction;
 begin
   inherited AfterConstruction;
-  Initialize;
+//  Initialize;
 end;
 
 destructor TValueList.Destroy;
@@ -236,6 +390,8 @@ begin
     FData := Value;
     if Assigned(FData) then
     begin
+      if not FInitialized then
+        Initialize;
       NodeDataSize := SizeOf(TValueListNode);
       BuildTree;
       Header.AutoFitColumns;
@@ -322,6 +478,7 @@ begin
       ClearSelection;
       FocusedNode := VN;
       Selected[VN] := True;
+      ScrollIntoView(VN, False);
       Break;
     end;
   end;
@@ -337,12 +494,8 @@ procedure TValueList.SetShowGutter(const Value: Boolean);
 begin
   if Value <> ShowGutter then
   begin
-    if Value then
-      Header.Columns.Items[GUTTER_COLUMN].Options :=
-        Header.Columns.Items[GUTTER_COLUMN].Options + [coVisible]
-    else
-      Header.Columns.Items[GUTTER_COLUMN].Options :=
-        Header.Columns.Items[GUTTER_COLUMN].Options - [coVisible];
+    FShowGutter := Value;
+    UpdateColumns;
   end;
 end;
 
@@ -364,39 +517,6 @@ end;
 {$ENDREGION}
 
 {$REGION 'event dispatch methods'}
-procedure TValueList.DoBeforeCellPaint(Canvas: TCanvas; Node: PVirtualNode;
-  Column: TColumnIndex; CellPaintMode: TVTCellPaintMode; CellRect: TRect;
-  var ContentRect: TRect);
-//var
-//  L : Integer;
-begin
-//  L := GetNodeLevel(Node);
-//  ContentRect.Offset(2, 0);
-//  if (Column = NAME_COLUMN) and (CellPaintMode = cpmPaint) then
-//  begin
-//    Canvas.Brush.Color := clCream;
-//    if L = 0 then
-//    begin
-//      Canvas.Pen.Color := clGray;
-//      Canvas.MoveTo(CellRect.Left + 12, CellRect.Top);
-//      Canvas.LineTo(CellRect.Left + 12, CellRect.Top + CellRect.Height);
-//      Canvas.FillRect(Rect(0, 0, 12, CellRect.Height));
-//    end
-//    else
-//    begin
-//      Canvas.FillRect(Rect(0, 0, 20, CellRect.Height));
-//      Canvas.Pen.Color := clGray;
-//      Canvas.MoveTo(CellRect.Left + 12, CellRect.Top);
-//      Canvas.LineTo(CellRect.Left + 20, CellRect.Top);
-//      Canvas.LineTo(CellRect.Left + 20, CellRect.Top + CellRect.Height - 1);
-//      Canvas.LineTo(CellRect.Left + 12, CellRect.Top + CellRect.Height - 1);
-//    end;
-//  end;
-  inherited DoBeforeCellPaint(
-    Canvas, Node, Column, CellPaintMode, CellRect, ContentRect
-  );
-end;
-
 procedure TValueList.DoFreeNode(Node: PVirtualNode);
 var
   N : TValueListNode;
@@ -489,6 +609,28 @@ begin
   EndUpdate;
 end;
 
+function TValueList.FindNode(AIdx: Integer;
+  AParentNode: PVirtualNode): PVirtualNode;
+var
+  LNode: PVirtualNode;
+begin
+  // Helper to find a Node by its index
+  Result := nil;
+  if Assigned(AParentNode) then
+    LNode := GetFirstChild(AParentNode)
+  else
+    LNode := GetFirst;
+  while Assigned(LNode) do
+  begin
+    if LNode.Index = Cardinal(AIdx) then
+    begin
+      Result := LNode;
+      Break;
+    end;
+    LNode := GetNextSibling(LNode);
+  end;
+end;
+
 procedure TValueList.Initialize;
 begin
   Header.Options := [
@@ -519,11 +661,11 @@ begin
   with Header.Columns.Add do
   begin
     Color    := clCream;
-    MaxWidth := 12;
-    MinWidth := 12;
+    MaxWidth := 14;
+    MinWidth := 14;
     Options  := [coFixed, coAllowClick, coEnabled, coParentBidiMode, coVisible];
     Position := GUTTER_COLUMN;
-    Width    := 12;
+    Width    := 14;
     Text     := '';
   end;
   with Header.Columns.Add do
@@ -560,15 +702,21 @@ begin
 
   Colors.SelectionRectangleBlendColor := clGray;
   Colors.SelectionTextColor           := clBlack;
+  Colors.GridLineColor                := clSilver;
+  FInitialized := True;
 end;
 
 procedure TValueList.Refresh;
 var
-  F : IDynamicField;
+  I : Integer;
 begin
-  F := FocusedField;
+  if Assigned(FocusedNode) then
+    I := FocusedNode.Index
+  else
+    I := -1;
   Repaint;
-  FocusedField := F;
+  if I >= 0 then
+    SelectNode(I);
 end;
 
 procedure TValueList.Repaint;
@@ -576,6 +724,45 @@ begin
   BuildTree;
   inherited Repaint;
 end;
+
+procedure TValueList.SelectNode(ANode: PVirtualNode);
+begin
+  ClearSelection;
+  FocusedNode := ANode;
+  Selected[ANode] := True;
+  ScrollIntoView(ANode, False);
+end;
+{$ENDREGION}
+
+{$REGION 'public methods'}
+procedure TValueList.SetFocusedFieldByName(const AName: string);
+begin
+  FocusedField := Data.Fields[AName];
+end;
+
+procedure TValueList.UpdateColumns;
+begin
+  if Header.Columns.Count > GUTTER_COLUMN then
+  begin
+    if FShowGutter then
+      Header.Columns.Items[GUTTER_COLUMN].Options :=
+        Header.Columns.Items[GUTTER_COLUMN].Options + [coVisible]
+    else
+      Header.Columns.Items[GUTTER_COLUMN].Options :=
+        Header.Columns.Items[GUTTER_COLUMN].Options - [coVisible];
+  end;
+end;
+
+procedure TValueList.SelectNode(AIdx: Integer; AParentNode: PVirtualNode);
+var
+  LNode : PVirtualNode;
+begin
+  // Helper to focus and highlight a node by its index
+  LNode := FindNode(AIdx, AParentNode);
+  if Assigned(LNode) then
+    SelectNode(LNode);
+end;
 {$ENDREGION}
 
 end.
+

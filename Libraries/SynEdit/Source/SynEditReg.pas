@@ -32,9 +32,7 @@ located at http://SynEdit.SourceForge.net
 Known Issues:
 -------------------------------------------------------------------------------}
 
-{$IFNDEF QSYNEDITREG}
 unit SynEditReg;
-{$ENDIF}
 
 {$I SynEdit.inc}
 
@@ -89,12 +87,14 @@ uses
   {$ifdef SYN_DELPHI_2009_UP}
   SynHighlighterDWS,
   {$endif}
+  SynHighlighterECMAScript,
   SynHighlighterEiffel,
   SynHighlighterFortran,
   SynHighlighterFoxpro,
   SynHighlighterGalaxy,
   SynHighlighterGeneral,
   SynHighlighterGo,
+  SynHighlighterGLSL,
   SynHighlighterHaskell,
   SynHighlighterHC11,
   SynHighlighterHP48, 
@@ -183,13 +183,13 @@ begin
     TSynM3Syn, TSynPasSyn, TSynVBSyn, TSynCobolSyn, TSynCSSyn, TSynGoSyn,
     // internet
     TSynCssSyn, TSynHTMLSyn, TSynJScriptSyn, TSynPHPSyn, TSynVBScriptSyn,
-    TSynXMLSyn, TSynJSONSyn, TSynVrml97Syn,
+    TSynXMLSyn, TSynJSONSyn, TSynVrml97Syn, TSynECMAScriptSyn,
     //interpreted
     TSynAWKSyn, TSynBATSyn,
     {$ifdef SYN_DELPHI_2009_UP}
     TSynDWSSyn,
     {$endif}
-    TSynKixSyn, TSynPerlSyn, TSynPythonSyn,
+    TSynKixSyn, TSynPerlSyn, TSynPythonSyn, TSynGLSLSyn,
     TSynTclTkSyn, TSynGWScriptSyn, TSynRubySyn, TSynUNIXShellScriptSyn,
     //database
     TSynCACSyn, TSynCacheSyn, TSynFoxproSyn, TSynSQLSyn, TSynSDDSyn,

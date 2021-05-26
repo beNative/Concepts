@@ -43,11 +43,9 @@ Known Issues:
 The SynHighlighterTclTk unit provides SynEdit with a TCL/Tk highlighter.
 }
 
-{$IFNDEF QSYNHIGHLIGHTERTCLTK}
 unit SynHighlighterTclTk;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

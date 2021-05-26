@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -82,11 +82,9 @@
     * RETURN in edit mode on last cell resulted in unwanted saving of #13#10
       sequences.
 
-
   TODO
     - ColumnsFullDrag property does not work
     - DefaultEditMenu property does not work
-
 }
 
 {$I DDuce.inc}
@@ -433,7 +431,7 @@ type
       read FOnChange write FOnChange;
 
     property AutoHeight: Boolean
-      read FAutoHeight write SetAutoHeight default False;
+      read FAutoHeight write SetAutoHeight default True;
 
     property AutoSynchronize: Boolean
       read FAutoSynchronize write SetAutoSynchronize default True;
@@ -711,8 +709,6 @@ type
     property WordWrap;
   end;
 
-{ TGridColumns }
-
   TGridColumns = class(TCollection)
   private
     FGrid     : TCustomGridView;
@@ -747,7 +743,6 @@ type
       read GetLayout write SetLayout;
   end;
 
-{ TCustomGridRows }
   TCustomGridRows = class(TPersistent)
   private
     FGrid       : TCustomGridView;
@@ -771,7 +766,7 @@ type
     procedure Assign(Source: TPersistent); override;
 
     property AutoHeight: Boolean
-      read FAutoHeight write SetAutoHeight default False;
+      read FAutoHeight write SetAutoHeight default True;
 
     property Count: Integer
       read FCount write SetCount default 0;
@@ -796,8 +791,6 @@ type
     property Height;
     property OnChange;
   end;
-
-{ TCustomGridFixed }
 
   TCustomGridFixed = class(TPersistent)
   private
@@ -873,8 +866,6 @@ type
     property GridFont;
     property ShowDivider;
   end;
-
-{ TGridScrollBar }
 
   TGridScrollEvent = procedure(
     Sender        : TObject;
@@ -972,8 +963,6 @@ type
 
   end;
 
-{ TGridListBox }
-
   TGridListBox = class(TCustomListBox)
   private
     FGrid       : TCustomGridView;
@@ -996,8 +985,6 @@ type
     property Grid: TCustomGridView
       read FGrid;
   end;
-
-{ TCustomGridEdit }
 
   TGridEditClass = class of TCustomGridEdit;
 
@@ -1139,8 +1126,6 @@ type
 
   TGridEdit = class(TCustomGridEdit);
 
-{ TGridTipsWindow }
-
   TGridTipsWindowClass = class of TGridTipsWindow;
 
   TGridTipsWindow = class(THintWindow)
@@ -1161,8 +1146,6 @@ type
       AData: Pointer): TRect; override;
 
   end;
-
-{ TCustomGridView }
 
 {$REGION 'Documentation'}
 {
@@ -3695,19 +3678,20 @@ end;
 constructor TCustomGridHeader.Create(AGrid: TCustomGridView);
 begin
   inherited Create;
-  FGrid := AGrid;
-  FColor := clBtnFace;
-  FSections := TGridHeaderSections.Create(Self, nil);
-  FSectionHeight := 17;
-  FSynchronized := True;
-  FAutoSynchronize := True;
-  FColor := clBtnFace;
-  FFont := TFont.Create;
-  FFont.OnChange := FontChange;
-  FGridFont := True;
-  FImagesLink := TChangeLink.Create;
+  FGrid                := AGrid;
+  FColor               := clBtnFace;
+  FSections            := TGridHeaderSections.Create(Self, nil);
+  FSectionHeight       := 17;
+  FSynchronized        := True;
+  FAutoSynchronize     := True;
+  FColor               := clBtnFace;
+  FFont                := TFont.Create;
+  FFont.OnChange       := FontChange;
+  FGridFont            := True;
+  FImagesLink          := TChangeLink.Create;
   FImagesLink.OnChange := ImagesChange;
-  FFLat := True;
+  FFlat                := True;
+  FAutoHeight          := True;
 end;
 
 destructor TCustomGridHeader.Destroy;
@@ -4499,8 +4483,8 @@ end;
 constructor TCustomGridRows.Create(AGrid: TCustomGridView);
 begin
   inherited Create;
-  FGrid := AGrid;
-  FHeight := 17;
+  FGrid       := AGrid;
+  FAutoHeight := True;
 end;
 
 destructor TCustomGridRows.Destroy;

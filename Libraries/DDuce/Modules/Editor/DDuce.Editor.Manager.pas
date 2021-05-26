@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
 }
 
 unit DDuce.Editor.Manager;
+
+interface
 
 {$REGION 'documentation'}
 {
@@ -76,8 +78,6 @@ unit DDuce.Editor.Manager;
 }
 {$ENDREGION}
 
-interface
-
 uses
   System.Classes, System.SysUtils, System.Variants, System.Actions,
   System.ImageList,
@@ -89,8 +89,7 @@ uses
   BCEditor.Editor, BCEditor.Editor.KeyCommands,
 
   DDuce.Editor.Types, DDuce.Editor.Interfaces, DDuce.Editor.Resources,
-  DDuce.Editor.View, DDuce.Editor.Highlighters,
-  DDuce.Editor.Commands,
+  DDuce.Editor.View, DDuce.Editor.Highlighters, DDuce.Editor.Commands,
 
   DDuce.Logger;
 
@@ -461,15 +460,6 @@ type
     procedure SetPersistSettings(const AValue: Boolean);
     {$ENDREGION}
 
-    function AddMenuItem(
-      AParent : TMenuItem;
-      AAction : TBasicAction = nil
-    ): TMenuItem; overload;
-    function AddMenuItem(
-      AParent : TMenuItem;
-      AMenu   : TMenu
-    ): TMenuItem; overload;
-
     // event handlers
     procedure EditorSettingsChanged(ASender: TObject);
 
@@ -508,6 +498,8 @@ type
       AToClipBoard  : Boolean = True;
       ANativeFormat : Boolean = True
     );
+
+    function AsComponent: TComponent;
 
     {$REGION 'IEditorViews'}
     function IEditorViews.Add = AddView;
@@ -699,25 +691,19 @@ uses
   System.StrUtils, System.TypInfo,
   Vcl.Clipbrd,
 
+  DDuce.Utils,
+
   DDuce.Editor.Settings, DDuce.Editor.Utils,
-
   DDuce.Editor.ToolView.Manager,
-
-  DDuce.Editor.Filter.ToolView,
-  DDuce.Editor.Search.ToolView,
-  DDuce.Editor.SortStrings.ToolView,
-  DDuce.Editor.ViewList.ToolView,
-  DDuce.Editor.ActionList.ToolView,
-  DDuce.Editor.CharacterMap.ToolView,
-  DDuce.Editor.AlignLines.ToolView,
-  DDuce.Editor.Test.ToolView,
+  DDuce.Editor.Filter.ToolView, DDuce.Editor.Search.ToolView,
+  DDuce.Editor.SortStrings.ToolView, DDuce.Editor.ViewList.ToolView,
+  DDuce.Editor.ActionList.ToolView, DDuce.Editor.CharacterMap.ToolView,
+  DDuce.Editor.AlignLines.ToolView, DDuce.Editor.Test.ToolView,
   DDuce.Editor.SelectionInfo.ToolView,
-
-  DDuce.Editor.Filter.Settings,
-  DDuce.Editor.Search.Engine.Settings,
-  DDuce.Editor.SortStrings.Settings,
-  DDuce.Editor.Search.Engine,
+  DDuce.Editor.Filter.Settings, DDuce.Editor.Search.Engine.Settings,
+  DDuce.Editor.SortStrings.Settings, DDuce.Editor.Search.Engine,
   DDuce.Editor.Events;
+
 const
   // prefixes used for naming dynamically created actions.
   ACTION_PREFIX_ENCODING       = 'actEncoding';
@@ -759,6 +745,7 @@ begin
   if PersistSettings then
     FSettings.Save;
   FSettings.OnChanged.Remove(EditorSettingsChanged);
+  FSettings := nil;
   inherited BeforeDestruction;
 end;
 {$ENDREGION}
@@ -1767,62 +1754,6 @@ end;
 {$ENDREGION}
 
 {$REGION 'private methods'}
-{$REGION 'Helpers'}
-function TdmEditorManager.AddMenuItem(AParent: TMenuItem; AAction: TBasicAction
-  ): TMenuItem;
-var
-  MI: TMenuItem;
-begin
-  if not Assigned(AAction) then
-  begin
-    MI := TMenuItem.Create(AParent.Owner);
-    MI.Caption := ('-');
-    AParent.Add(MI);
-    Result := nil;
-  end
-  else
-  begin
-    MI := TMenuItem.Create(AParent.Owner);
-    MI.Action := AAction;
-    if (AAction is TAction) and (TAction(AAction).GroupIndex > 0) then
-    begin
-      MI.RadioItem := True;
-    end;
-    AParent.Add(MI);
-    Result := MI;
-  end;
-end;
-
-function TdmEditorManager.AddMenuItem(AParent: TMenuItem; AMenu: TMenu
-  ): TMenuItem;
-var
-  MI  : TMenuItem;
-  M   : TMenuItem;
-  SM  : TMenuItem;
-  SMI : TMenuItem;
-  I   : Integer;
-begin
-  MI := TMenuItem.Create(AMenu);
-  MI.Action := AMenu.Items.Action;
-  AParent.Add(MI);
-  for M in AMenu.Items do
-  begin
-    SMI := AddMenuItem(MI, M.Action);
-    // add submenu(s)
-    if M.Count > 0 then
-    begin
-      for I := 0 to M.Count - 1 do
-      begin
-        SM := M.Items[I];
-        AddMenuItem(SMI, SM.Action);
-      end;
-    end;
-  end;
-  MI.Enabled := True;
-  Result := MI;
-end;
-{$ENDREGION}
-
 {$REGION 'Initialization'}
 procedure TdmEditorManager.InitializePopupMenus;
 begin
@@ -1929,7 +1860,6 @@ begin
   AddMenuItem(MI, actCopyRTFToClipboard);
   AddMenuItem(MI, actCopyWikiToClipboard);
 end;
-
 
 procedure TdmEditorManager.BuildEncodingPopupMenu;
 var
@@ -2283,6 +2213,11 @@ end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
+function TdmEditorManager.AsComponent: TComponent;
+begin
+  Result := Self;
+end;
+
 { Called when the active view is set to another view in the list. }
 procedure TdmEditorManager.ActiveViewChanged;
 begin

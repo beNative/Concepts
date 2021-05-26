@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
 }
 
 unit DDuce.Editor.View;
+
+interface
 
 {$REGION'documentation'}
 {
@@ -41,7 +43,6 @@ unit DDuce.Editor.View;
 }
 {$ENDREGION}
 
-interface
 uses
   Winapi.Messages,
   System.Classes, System.SysUtils, System.Types, System.ImageList,
@@ -1550,7 +1551,8 @@ begin
 
   if B then
   begin
-    Activate;
+  {TODO -oTS -cBug : This call causes a recursive call of Activate}
+  //  Activate;
   end;
   if Assigned(Actions) then
   begin
@@ -1571,7 +1573,6 @@ begin
     end;
   end;
 end;
-
 {$ENDREGION}
 
 {$REGION'public methods'}

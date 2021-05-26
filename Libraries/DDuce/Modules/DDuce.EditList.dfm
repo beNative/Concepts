@@ -3,7 +3,8 @@ object EditList: TEditList
   Top = 0
   ClientHeight = 320
   ClientWidth = 197
-  Color = clBtnFace
+  Color = clWhite
+  TransparentColorValue = clWhite
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -20,14 +21,20 @@ object EditList: TEditList
     Height = 320
     Align = alClient
     BevelOuter = bvNone
+    Color = clWhite
     TabOrder = 0
     object tlbMain: TToolBar
       Left = 0
       Top = 0
       Width = 197
       Height = 25
+      Color = clWhite
+      GradientEndColor = clWhite
+      GradientStartColor = clWhite
       Images = imlMain
+      ParentColor = False
       TabOrder = 0
+      Transparent = True
       object btnAdd: TToolButton
         Left = 0
         Top = 0
@@ -92,7 +99,7 @@ object EditList: TEditList
     Left = 83
     Top = 48
     Bitmap = {
-      494C010107000801280110001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010107000801540110001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000070702650C0C03870C0C03870C0C03870C0C03870C0C03870C0C
@@ -367,18 +374,6 @@ object EditList: TEditList
     Images = imlMain
     Left = 27
     Top = 48
-    object actMoveUp: TAction
-      Caption = 'Move up'
-      Hint = 'Move up'
-      ImageIndex = 0
-      OnExecute = actMoveUpExecute
-    end
-    object actMoveDown: TAction
-      Caption = 'Move down'
-      Hint = 'Move down.'
-      ImageIndex = 1
-      OnExecute = actMoveDownExecute
-    end
     object actAdd: TAction
       Caption = 'Add'
       Hint = 'Add a new item.'
@@ -413,6 +408,18 @@ object EditList: TEditList
       Caption = 'Edit'
       ShortCut = 113
       OnExecute = actEditExecute
+    end
+    object actMoveUp: TAction
+      Caption = 'Move up'
+      Hint = 'Move up'
+      ImageIndex = 0
+      OnExecute = actMoveUpExecute
+    end
+    object actMoveDown: TAction
+      Caption = 'Move down'
+      Hint = 'Move down.'
+      ImageIndex = 1
+      OnExecute = actMoveDownExecute
     end
   end
   object ppmMain: TPopupMenu

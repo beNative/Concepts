@@ -193,7 +193,7 @@ end;
 destructor TVTNode<T>.Destroy;
 begin
   if (GetTypekind(T) = tkClass) and OwnsObject then
-    FreeAndNil(FData);
+    TObject(Pointer(@FData)^).Free;
   FTree  := nil;
   inherited Destroy;
 end;

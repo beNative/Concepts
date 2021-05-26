@@ -154,8 +154,8 @@ end;
 
 procedure InspectApplicationComponents;
 var
-  CL    : TComponentList;
-  I, J  : Integer;
+  CL   : TComponentList;
+  I, J : Integer;
 begin
   CL := TComponentList.Create(False);
   try

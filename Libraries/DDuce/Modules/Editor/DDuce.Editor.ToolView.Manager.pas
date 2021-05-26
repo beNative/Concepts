@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 unit DDuce.Editor.ToolView.Manager;
 
-interface
-
 { TToolViewManager allows for lazy instantiation of registered toolviews. }
+
+interface
 
 uses
   System.Classes, System.SysUtils,

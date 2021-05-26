@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 }
+
+{$I DDuce.inc}
 
 unit DDuce.EditList;
 
@@ -31,7 +33,14 @@ uses
 
   VirtualTrees,
 
-  DDuce.DynamicRecord, DDuce.Components.ValueList;
+  DDuce.DynamicRecord, DDuce.Components.ValueList, DDuce.Logger;
+
+{$REGION 'documentation'}
+{  TODO :
+     - support for drag and drop
+     - Multiselect move
+}
+{$ENDREGION}
 
 type
   TEditListItemEvent = procedure(
@@ -47,9 +56,11 @@ type
     actAdd       : TAction;
     actDelete    : TAction;
     actDuplicate : TAction;
+    actEdit      : TAction;
     actExecute   : TAction;
     actMoveDown  : TAction;
     actMoveUp    : TAction;
+    actRefresh   : TAction;
     btn1         : TToolButton;
     btnAdd       : TToolButton;
     btnDelete    : TToolButton;
@@ -57,6 +68,7 @@ type
     btnExecute   : TToolButton;
     btnMoveDown  : TToolButton;
     btnMoveUp    : TToolButton;
+    btnRefresh   : TToolButton;
     btnSpacer1   : TToolButton;
     btnSpacer2   : TToolButton;
     imlMain      : TImageList;
@@ -69,13 +81,10 @@ type
     mniN1        : TMenuItem;
     mniN2        : TMenuItem;
     mniN3        : TMenuItem;
+    mniRefresh   : TMenuItem;
     pnlMain      : TPanel;
     ppmMain      : TPopupMenu;
     tlbMain      : TToolBar;
-    actRefresh   : TAction;
-    btnRefresh   : TToolButton;
-    mniRefresh   : TMenuItem;
-    actEdit: TAction;
     {$ENDREGION}
 
     {$REGION 'action handlers'}
@@ -90,22 +99,28 @@ type
     {$ENDREGION}
 
   private
-    FValueList     : TValueList;
-    FOnAdd         : Event<TEditListItemEvent>;
-    FOnDuplicate   : Event<TEditListItemEvent>;
-    FOnDelete      : Event<TEditListItemEvent>;
-    FOnDeleteItem  : Event<TEditListItemEvent>;
-    FOnExecute     : Event<TEditListItemEvent>;
-    FOnExecuteItem : Event<TEditListItemEvent>;
-    FUpdate        : Boolean;
+    FValueList       : TValueList;
+    FOnItemAdd       : Event<TEditListItemEvent>;
+    FOnItemDuplicate : Event<TEditListItemEvent>;
+    FOnItemDelete    : Event<TEditListItemEvent>;
+    FOnItemExecute   : Event<TEditListItemEvent>;
+    FOnItemMoveUp    : Event<TEditListItemEvent>;
+    FOnItemMoveDown  : Event<TEditListItemEvent>;
+    FOnDuplicate     : Event<TEditListItemEvent>;
+    FOnDelete        : Event<TEditListItemEvent>;
+    FOnExecute       : Event<TEditListItemEvent>;
+    FUpdate          : Boolean;
 
     {$REGION 'property access methods'}
     function GetOnAdd: IEvent<TEditListItemEvent>;
     function GetOnDelete: IEvent<TEditListItemEvent>;
-    function GetOnDeleteItem: IEvent<TEditListItemEvent>;
+    function GetOnItemDelete: IEvent<TEditListItemEvent>;
     function GetOnExecute: IEvent<TEditListItemEvent>;
-    function GetOnExecuteItem: IEvent<TEditListItemEvent>;
+    function GetOnItemExecute: IEvent<TEditListItemEvent>;
     function GetOnDuplicate: IEvent<TEditListItemEvent>;
+    function GetOnItemMoveUp: IEvent<TEditListItemEvent>;
+    function GetOnItemDuplicate: IEvent<TEditListItemEvent>;
+    function GetOnItemMoveDown: IEvent<TEditListItemEvent>;
     function GetValueList: TValueList;
     function GetData: IDynamicRecord;
     function GetActionAdd: TAction;
@@ -127,32 +142,39 @@ type
     procedure UpdateActions; override;
     procedure Modified;
 
-    procedure DoAdd(
+    procedure DoItemAdd(
       var AName  : string;
       var AValue : TValue
     );
-
     procedure DoDuplicate(
       var AName  : string;
       var AValue : TValue
     );
-
+    procedure DoItemDuplicate(
+      var AName  : string;
+      var AValue : TValue
+    );
     procedure DoExecute(
       var AName  : string;
       var AValue : TValue
     );
-
-    procedure DoExecuteItem(
+    procedure DoItemExecute(
       var AName  : string;
       var AValue : TValue
     );
-
     procedure DoDelete(
       var AName  : string;
       var AValue : TValue
     );
-
-    procedure DoDeleteItem(
+    procedure DoItemDelete(
+      var AName  : string;
+      var AValue : TValue
+    );
+    procedure DoItemMoveUp(
+      var AName  : string;
+      var AValue : TValue
+    );
+    procedure DoItemMoveDown(
       var AName  : string;
       var AValue : TValue
     );
@@ -202,17 +224,26 @@ type
     property OnDuplicate: IEvent<TEditListItemEvent>
       read GetOnDuplicate;
 
+    property OnItemDuplicate: IEvent<TEditListItemEvent>
+      read GetOnItemDuplicate;
+
     property OnDelete: IEvent<TEditListItemEvent>
       read GetOnDelete;
 
-    property OnDeleteItem: IEvent<TEditListItemEvent>
-      read GetOnDeleteItem;
+    property OnItemDelete: IEvent<TEditListItemEvent>
+      read GetOnItemDelete;
 
     property OnExecute: IEvent<TEditListItemEvent>
       read GetOnExecute;
 
-    property OnExecuteItem: IEvent<TEditListItemEvent>
-      read GetOnExecuteItem;
+    property OnItemExecute: IEvent<TEditListItemEvent>
+      read GetOnItemExecute;
+
+    property OnItemMoveUp: IEvent<TEditListItemEvent>
+      read GetOnItemMoveUp;
+
+    property OnItemMoveDown: IEvent<TEditListItemEvent>
+      read GetOnItemMoveDown;
   end;
 
 implementation
@@ -229,10 +260,10 @@ begin
   FValueList             := TValueList.Create(Self);
   FValueList.Parent      := pnlMain;
   FValueList.Align       := alClient;
-  FValueList.ShowGutter  := False;
-  FValueList.MultiSelect := True;
   FValueList.Data        := DynamicRecord.CreateDynamicRecord;
   FValueList.Data.OnChanged.Add(FValueListDataChanged);
+  FValueList.BorderStyle := bsNone;
+  FValueList.ShowGutter  := False;
   actAdd.Enabled         := True;
   actRefresh.Enabled     := True;
 end;
@@ -248,10 +279,31 @@ end;
 {$REGION 'action handlers'}
 procedure TEditList.actAddExecute(Sender: TObject);
 var
+  I      : Integer;
+  S      : string;
   LName  : string;
   LValue : TValue;
 begin
-  DoAdd(LName, LValue);
+  LName := 'New';
+  LValue := '';
+  I := 0;
+  S := LName;
+  while Data.ContainsField(S) do
+  begin
+    Inc(I);
+    S := Format('%s_%d', [LName, I]);
+  end;
+  LName := S;
+  DoItemAdd(LName, LValue);
+  FValueList.Data[LName] := LValue;
+  if  FValueList.Data.ContainsField(LName) then
+  begin
+    Guard.CheckNotNull(FValueList.Data.Fields[LName], LName);
+    FValueList.SelectNode(Data.Count - 1);
+    Abort;
+    FValueList.FocusedField := FValueList.Data.Fields[LName];
+  end;
+  Modified;
 end;
 
 procedure TEditList.actDeleteExecute(Sender: TObject);
@@ -264,17 +316,38 @@ begin
   begin
     LValue := LNode.Data.Value;
     LName  := LNode.Data.Name;
-    if FValueList.SelectedCount = 1 then
+    if FValueList.SelectedCount >= 1 then
       DoDelete(LName, LValue);
-    DoDeleteItem(LName, LValue);
+    DoItemDelete(LName, LValue);
     Data.DeleteField(LName);
     FValueList.DeleteNode(LNode.VNode);
   end;
 end;
 
 procedure TEditList.actDuplicateExecute(Sender: TObject);
+var
+  I      : Integer;
+  S      : string;
+  LName  : string;
+  LNode  : TValueListNode;
+  LValue : TValue;
 begin
-//
+  for LNode in FValueList.GetSelectedData<TValueListNode> do
+  begin
+    LValue := LNode.Data.Value;
+    LName  := LNode.Data.Name;
+    I      := 0;
+    S      := LName;
+    while Data.ContainsField(S) do
+    begin
+      Inc(I);
+      S := Format('%s_%d', [LName, I]);
+    end;
+    LName := S;
+    DoItemDuplicate(LName, LValue);
+    FValueList.Data[LName] := LValue;
+  end;
+  Modified;
 end;
 
 procedure TEditList.actEditExecute(Sender: TObject);
@@ -292,26 +365,38 @@ begin
   begin
     LValue := LNode.Data.Value;
     LName  := LNode.Data.Name;
-    DoExecuteItem(LName, LValue);
+    DoItemExecute(LName, LValue);
   end;
 end;
 
 procedure TEditList.actMoveDownExecute(Sender: TObject);
 var
-  LNode : TValueListNode;
+  LName  : string;
+  LNode  : TValueListNode;
+  LValue : TValue;
 begin
-  if Assigned(FValueList.FocusedField) then
+//  if Assigned(FValueList.FocusedField) then
+//  begin
+  for LNode in FValueList.GetSelectedData<TValueListNode> do
   begin
-    LNode := FValueList.GetFirstSelectedNodeData<TValueListNode>;
+    LValue := LNode.Data.Value;
+    LName  := LNode.Data.Name;
+
+    //LNode := FValueList.GetFirstSelectedNodeData<TValueListNode>;
     LNode.Data.Index := LNode.Data.Index + 1;
     FValueList.MoveTo(LNode.VNode, LNode.VNode.NextSibling, amInsertAfter, False);
     FValueList.FocusedNode := LNode.VNode;
+    LValue := LNode.Data.Value;
+    LName  := LNode.Data.Name;
+    DoItemMoveDown(LName, LValue);
   end;
 end;
 
 procedure TEditList.actMoveUpExecute(Sender: TObject);
 var
-  LNode : TValueListNode;
+  LName  : string;
+  LNode  : TValueListNode;
+  LValue : TValue;
 begin
   if Assigned(FValueList.FocusedField) then
   begin
@@ -319,6 +404,9 @@ begin
     LNode.Data.Index := LNode.Data.Index - 1;
     FValueList.MoveTo(LNode.VNode, LNode.VNode.PrevSibling, amInsertBefore, False);
     FValueList.FocusedNode := LNode.VNode;
+    LValue := LNode.Data.Value;
+    LName  := LNode.Data.Name;
+    DoItemMoveUp(LName, LValue);
   end;
 end;
 
@@ -331,32 +419,18 @@ end;
 {$REGION 'event handlers'}
 procedure TEditList.FValueListDataChanged(ASender: TObject);
 begin
+  Logger.Track(Self, 'FValueListDataChanged');
   Modified;
 end;
 {$ENDREGION}
 
 {$REGION 'event dispatch methods'}
-procedure TEditList.DoAdd(var AName: string; var AValue: TValue);
-var
-  I : Integer;
-  S : string;
+procedure TEditList.DoItemAdd(var AName: string; var AValue: TValue);
 begin
-  if FOnAdd.CanInvoke then
-  begin
-    AName := 'New';
-    AValue := '';
-    I := 0;
-    S := AName;
-    while Data.ContainsField(S) do
-    begin
-      Inc(I);
-      S := Format('%s_%d', [AName, I]);
-    end;
-    AName := S;
-    FOnAdd.Invoke(Self, AName, AValue);
-    FValueList.Data[AName] := AValue;
-    Modified;
-  end;
+  Logger.Track(Self, 'DoItemAdd');
+  if FOnItemAdd.CanInvoke then
+    FOnItemAdd.Invoke(Self, AName, AValue);
+  Modified;
 end;
 
 procedure TEditList.DoDelete(var AName: string; var AValue: TValue);
@@ -367,17 +441,24 @@ end;
 
 { Called for every selected item if MutiSelect is enabled }
 
-procedure TEditList.DoDeleteItem(var AName: string; var AValue: TValue);
+procedure TEditList.DoItemDelete(var AName: string; var AValue: TValue);
 begin
-  if FOnDeleteItem.CanInvoke then
-    FOnDeleteItem.Invoke(Self, AName, AValue);
+  if FOnItemDelete.CanInvoke then
+    FOnItemDelete.Invoke(Self, AName, AValue);
+end;
+
+procedure TEditList.DoItemDuplicate(var AName: string; var AValue: TValue);
+begin
+  if FOnItemDuplicate.CanInvoke then
+    FOnItemDuplicate.Invoke(Self, AName, AValue);
+  Modified;
 end;
 
 procedure TEditList.DoDuplicate(var AName: string; var AValue: TValue);
 begin
   if FOnDuplicate.CanInvoke then
     FOnDuplicate.Invoke(Self, AName, AValue);
-  FValueList.Repaint;
+  Modified;
 end;
 
 procedure TEditList.DoExecute(var AName: string; var AValue: TValue);
@@ -388,10 +469,25 @@ end;
 
 { Called for every selected item if MutiSelect is enabled }
 
-procedure TEditList.DoExecuteItem(var AName: string; var AValue: TValue);
+procedure TEditList.DoItemExecute(var AName: string; var AValue: TValue);
 begin
-  if FOnExecuteItem.CanInvoke then
-    FOnExecuteItem.Invoke(Self, AName, AValue);
+  if FOnItemExecute.CanInvoke then
+    FOnItemExecute.Invoke(Self, AName, AValue);
+  Modified;
+end;
+
+procedure TEditList.DoItemMoveDown(var AName: string; var AValue: TValue);
+begin
+  if FOnItemMoveDown.CanInvoke then
+    FOnItemMoveDown.Invoke(Self, AName, AValue);
+  Modified;
+end;
+
+procedure TEditList.DoItemMoveUp(var AName: string; var AValue: TValue);
+begin
+  if FOnItemMoveUp.CanInvoke then
+    FOnItemMoveUp.Invoke(Self, AName, AValue);
+  Modified;
 end;
 {$ENDREGION}
 
@@ -448,7 +544,7 @@ end;
 
 function TEditList.GetOnAdd: IEvent<TEditListItemEvent>;
 begin
-  Result := FOnAdd;
+  Result := FOnItemAdd;
 end;
 
 function TEditList.GetOnDelete: IEvent<TEditListItemEvent>;
@@ -456,9 +552,14 @@ begin
   Result := FOnDelete;
 end;
 
-function TEditList.GetOnDeleteItem: IEvent<TEditListItemEvent>;
+function TEditList.GetOnItemDelete: IEvent<TEditListItemEvent>;
 begin
-  Result := FOnDeleteItem;
+  Result := FOnItemDelete;
+end;
+
+function TEditList.GetOnItemDuplicate: IEvent<TEditListItemEvent>;
+begin
+  Result := FOnItemDuplicate;
 end;
 
 function TEditList.GetOnDuplicate: IEvent<TEditListItemEvent>;
@@ -471,19 +572,24 @@ begin
   Result := FOnExecute;
 end;
 
-function TEditList.GetOnExecuteItem: IEvent<TEditListItemEvent>;
+function TEditList.GetOnItemExecute: IEvent<TEditListItemEvent>;
 begin
-  Result := FOnExecuteItem;
+  Result := FOnItemExecute;
+end;
+
+function TEditList.GetOnItemMoveDown: IEvent<TEditListItemEvent>;
+begin
+  Result := FOnItemMoveDown;
+end;
+
+function TEditList.GetOnItemMoveUp: IEvent<TEditListItemEvent>;
+begin
+  Result := FOnItemMoveUp;
 end;
 
 function TEditList.GetValueList: TValueList;
 begin
   Result := FValueList;
-end;
-
-procedure TEditList.Modified;
-begin
-  FUpdate := True;
 end;
 {$ENDREGION}
 
@@ -504,14 +610,20 @@ begin
     Result := False;
 end;
 
+procedure TEditList.Modified;
+begin
+  FUpdate := True;
+end;
+
 procedure TEditList.UpdateActions;
 begin
   inherited UpdateActions;
   actMoveUp.Enabled    := CanMoveUp;
   actMoveDown.Enabled  := CanMoveDown;
-  actDuplicate.Enabled := not Data.IsEmpty  and FOnDuplicate.CanInvoke;
+  actDuplicate.Enabled := not Data.IsEmpty;
   actDelete.Enabled    := not Data.IsEmpty;
   actExecute.Enabled   := not Data.IsEmpty and FOnExecute.CanInvoke;
+  actEdit.Enabled      := ValueList.SelectedCount = 1;
   if FUpdate then
   begin
     Refresh;
@@ -523,7 +635,8 @@ end;
 {$REGION 'public methods'}
 procedure TEditList.Refresh;
 begin
-  FValueList.Refresh;
+  if Assigned(FValueList) then
+    FValueList.Refresh;
 end;
 {$ENDREGION}
 

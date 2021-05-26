@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 }
+
+{$I DDuce.inc}
 
 unit DDuce.AboutDialog;
 
@@ -28,8 +30,6 @@ uses
 
 type
   TfrmAboutDialog = class(TForm)
-    pnlVersionInfo: TPanel;
-
   private
     FVersionInfoList : TValueList;
 
@@ -37,6 +37,7 @@ type
 
   public
     procedure AfterConstruction; override;
+    destructor Destroy; override;
 
   end;
 
@@ -56,7 +57,7 @@ procedure ShowAboutDialog;
 var
   F : TfrmAboutDialog;
 begin
-  F := TfrmAboutDialog.Create(Application);
+  F := TfrmAboutDialog.Create(nil);
   try
     F.ShowModal;
   finally
@@ -69,17 +70,25 @@ end;
 procedure TfrmAboutDialog.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FVersionInfoList            := TValueList.Create(Self);
-  FVersionInfoList.Parent     := pnlVersionInfo;
-  FVersionInfoList.Align      := alClient;
-  FVersionInfoList.Editable   := False;
-  FVersionInfoList.ShowHeader := False;
-
+  FVersionInfoList                  := TValueList.Create(Self);
+  FVersionInfoList.Parent           := Self;
+  FVersionInfoList.Align            := alClient;
+  FVersionInfoList.BorderStyle      := bsNone;
+  FVersionInfoList.AlignWithMargins := False;
   UpdateVersionInfoDisplay;
+  FVersionInfoList.Editable         := False;
+  FVersionInfoList.ShowHeader       := False;
+  FVersionInfoList.ShowGutter       := False;
 end;
 {$ENDREGION}
 
 {$REGION 'private methods'}
+destructor TfrmAboutDialog.Destroy;
+begin
+  FreeAndNil(FVersionInfoList);
+  inherited Destroy;
+end;
+
 procedure TfrmAboutDialog.UpdateVersionInfoDisplay;
 var
   R : DynamicRecord;

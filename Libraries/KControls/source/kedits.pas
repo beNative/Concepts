@@ -946,7 +946,7 @@ begin
   FLog := nil;
   FUpDown := TUpDown.Create(Self);
   FUpDown.TabStop := False;
-  FUpDown.OnChangingEx := UpDownChangingEx;
+  //FUpDown.OnChangingEx := UpDownChangingEx;
   FUpDownStep := 1;
   FUpdownChanging := False;
   FUpdateUpDown := True;

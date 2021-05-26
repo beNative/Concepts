@@ -44,11 +44,9 @@ The SynHighlighterIni unit provides SynEdit with an Ini-files highlighter.
 Thanks to Primoz Gabrijelcic, Martin Waldenburg and Michael Hieke.
 }
 
-{$IFNDEF QSYNHIGHLIGHTERINI}
 unit SynHighlighterIni;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

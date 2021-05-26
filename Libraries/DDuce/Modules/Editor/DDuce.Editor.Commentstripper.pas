@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ unit DDuce.Editor.CommentStripper;
 
 { Comment stripper classes. }
 
-{ TODO: Implement ICommentStripper }
-
 interface
+
+{ TODO: Implement ICommentStripper }
 
 uses
   System.Classes, System.SysUtils;
@@ -117,8 +117,7 @@ type
 
 implementation
 
-{ TCustomCommentStripper }
-
+{$REGION 'construction and destruction'}
 constructor TCustomCommentStripper.Create(AOwner: TComponent);
 begin
   inherited;
@@ -132,6 +131,7 @@ begin
   FReservedItems.Free;
   inherited;
 end;
+{$ENDREGION}
 
 procedure TCustomCommentStripper.DoBlockEndProcess;
 begin

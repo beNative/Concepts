@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ unit DDuce.Editor.Highlighters;
 
 { Holds settings that are specific to each supported highlighter. }
 
+interface
+
 { REMARKS about TBCEditorHighlighter:
   - a TBCEditorHighlighter requires a TBCEditor component to be able to load
     its properties from the definition file.
@@ -27,8 +29,6 @@ unit DDuce.Editor.Highlighters;
     object that works closely with the associated editor instance to render its
     text.
 }
-
-interface
 
 uses
   System.SysUtils, System.Classes, System.Contnrs,

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ interface
 
 uses
   System.Classes,
-  Vcl.Controls,
+  Vcl.Controls, Vcl.Forms,
   Data.DB,
 
   DDuce.Components.GridView, DDuce.Components.DBGridView,
@@ -30,6 +30,12 @@ uses
 
 type
   TGridViewFactory = class sealed
+  private class var
+    FDefaultBorderStyle : TBorderStyle;
+
+  public
+    class constructor Create;
+
     class function CreateGridView(
       AOwner      : TComponent;
       AParent     : TWinControl;
@@ -48,6 +54,9 @@ type
       AParent     : TWinControl;
       const AName : string = ''
     ): TInspector; static;
+
+    class property DefaultBorderStyle: TBorderStyle
+      read FDefaultBorderStyle write FDefaultBorderStyle default bsSingle;
   end;
 
 implementation
@@ -55,6 +64,11 @@ implementation
 uses
   System.UITypes,
   Vcl.Graphics;
+
+class constructor TGridViewFactory.Create;
+begin
+  DefaultBorderStyle := bsSingle;
+end;
 
 class function TGridViewFactory.CreateDBGridView(AOwner: TComponent;
   AParent: TWinControl; ADataSource: TDataSource;
@@ -77,7 +91,7 @@ begin
   GV.ColumnClick      := True;
   GV.ShowIndicator    := True;
   GV.DataSource       := ADataSource;
-
+  GV.BorderStyle      := DefaultBorderStyle;
   GV.AutoSizeCols;
   Result := GV;
 end;
@@ -107,6 +121,7 @@ begin
   GV.ShowFocusRect            := False;
   GV.CheckStyle               := csFlat;
   GV.ColumnClick              := True;
+  GV.BorderStyle              := DefaultBorderStyle;
   Result := GV;
 end;
 
@@ -118,9 +133,10 @@ begin
   I := TInspector.Create(AOwner);
   if AName <> '' then
     I.Name := AName;
-  I.Color  := clWhite;
-  I.Parent := AParent;
-  I.Align  := alClient;
+  I.Color       := clWhite;
+  I.Parent      := AParent;
+  I.Align       := alClient;
+  I.BorderStyle := DefaultBorderStyle;
   Result := I;
 end;
 

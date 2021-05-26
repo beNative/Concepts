@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,30 +14,30 @@
   limitations under the License.
 }
 
-{$I DDuce.inc}
+{$I .\..\DDuce.inc}
 
-unit DDuce.Logger.Channels.WinIPC;
+unit DDuce.Logger.Channels.Winipc;
 
 interface
 
 uses
   System.Classes, System.SysUtils,
 
-  DDuce.WinIPC.Client,
+  DDuce.Winipc.Client,
   DDuce.Logger.Interfaces, DDuce.Logger.Channels.Base;
 
 type
-  TWinIPCChannel = class(TCustomLogChannel, ILogChannel, IWinIPCChannel)
+  TWinipcChannel = class(TCustomLogChannel, ILogChannel, IWinipcChannel)
   private
-    FClient : TWinIPCClient; // sends to the server
-    FBuffer : TMemoryStream;
+    FClient : TWinipcClient; // sends to the server
+    FBuffer : TBytesStream;
 
   protected
     function GetConnected: Boolean; override;
 
   public
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;    
+    procedure BeforeDestruction; override;
 
     function Connect: Boolean; override;
     function Disconnect: Boolean; override;
@@ -51,15 +51,15 @@ uses
   Spring.Helpers;
 
 {$REGION 'construction and destruction'}
-procedure TWinIPCChannel.AfterConstruction;
+procedure TWinipcChannel.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FBuffer := TMemoryStream.Create;
-  FClient := TWinIPCClient.Create;
+  FBuffer := TBytesStream.Create;
+  FClient := TWinipcClient.Create;
   FClient.Connect;
 end;
 
-procedure TWinIPCChannel.BeforeDestruction;
+procedure TWinipcChannel.BeforeDestruction;
 begin
   FClient.Free;
   FBuffer.Free;
@@ -68,19 +68,19 @@ end;
 {$ENDREGION}
 
 {$REGION 'property access methods'}
-function TWinIPCChannel.GetConnected: Boolean;
+function TWinipcChannel.GetConnected: Boolean;
 begin
   Result := FClient.Connected;
 end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
-function TWinIPCChannel.Connect: Boolean;
+function TWinipcChannel.Connect: Boolean;
 begin
   Result := FClient.Connect;
 end;
 
-function TWinIPCChannel.Disconnect: Boolean;
+function TWinipcChannel.Disconnect: Boolean;
 begin
   FClient.Connected := False;
   Result := True;
@@ -96,49 +96,43 @@ end;
     - Data:          DataSize bytes
 }
 
-function TWinIPCChannel.Write(const AMsg: TLogMessage): Boolean;
+function TWinipcChannel.Write(const AMsg: TLogMessage): Boolean;
 const
-  ZeroBuf : Integer = 0;
+  ZERO_BUF : Integer = 0;
 var
-  TextSize : Integer;
-  DataSize : Integer;
+  LTextSize : Integer;
+  LDataSize : Integer;
 begin
+  Result := False;
   if Enabled then
   begin
     if not Connected and AutoConnect then
       Connect;
     if Connected then
     begin
-      TextSize := Length(AMsg.Text);
+      FBuffer.Clear;
+      LTextSize := Length(AMsg.Text);
       FBuffer.Seek(0, soFromBeginning);
       FBuffer.WriteBuffer(AMsg.MsgType);
       FBuffer.WriteBuffer(AMsg.LogLevel);
       FBuffer.WriteBuffer(AMsg.Reserved1);
       FBuffer.WriteBuffer(AMsg.Reserved2);
       FBuffer.WriteBuffer(AMsg.TimeStamp);
-      FBuffer.WriteBuffer(TextSize);
-      if TextSize > 0 then
-        FBuffer.WriteBuffer(AMsg.Text[1], TextSize);
+      FBuffer.WriteBuffer(LTextSize);
+      if LTextSize > 0 then
+        FBuffer.WriteBuffer(AMsg.Text[1], LTextSize);
       if AMsg.Data <> nil then
       begin
-        DataSize := AMsg.Data.Size;
-        FBuffer.WriteBuffer(DataSize);
+        LDataSize := AMsg.Data.Size;
+        FBuffer.WriteBuffer(LDataSize);
         AMsg.Data.Position := 0;
-        FBuffer.CopyFrom(AMsg.Data, DataSize);
+        FBuffer.CopyFrom(AMsg.Data, LDataSize);
       end
       else
-        FBuffer.WriteBuffer(ZeroBuf); // indicates empty stream
+        FBuffer.WriteBuffer(ZERO_BUF); // indicates empty stream
       FClient.SendStream(FBuffer);
       Result := True;
-    end
-    else
-    begin
-      Result := False;
     end;
-  end
-  else
-  begin
-    Result := False;
   end;
 end;
 {$ENDREGION}

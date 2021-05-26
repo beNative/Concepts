@@ -67,7 +67,9 @@ implementation
 {$R *.dfm}
 
 uses
-  DDuce.Reflect, DDuce.DynamicRecord, DDuce.ScopedReference;
+  Spring,
+
+  DDuce.Reflect, DDuce.DynamicRecord;
 
 {$REGION 'action handlers'}
 procedure TfrmSpringUtils.actApplicationVersionExecute(Sender: TObject);
@@ -110,9 +112,10 @@ end;
 
 procedure TfrmSpringUtils.actGetEnvironmentVariablesExecute(Sender: TObject);
 var
-  SL : Scoped<TStringList>;
+  SL : IShared<TStringList>;
   R  : DynamicRecord;
 begin
+  SL := Shared<TStringList>.Make;
   TEnvironment.GetEnvironmentVariables(SL);
   R.FromStrings(SL);
   mmoMain.Text := R.ToString;

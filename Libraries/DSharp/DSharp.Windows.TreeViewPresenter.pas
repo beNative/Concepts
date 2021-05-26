@@ -37,7 +37,7 @@ uses
   ComCtrls,
   Controls,
   DSharp.Bindings.Collections,
-  DSharp.Bindings.Notifications,
+
   DSharp.Core.DataTemplates,
   DSharp.Windows.ColumnDefinitions,
   DSharp.Windows.CustomPresenter,
@@ -402,7 +402,8 @@ end;
 procedure TTreeViewPresenter.BeginUpdate;
 begin
   inherited;
-  FTreeView.BeginUpdate();
+  if Assigned(FTreeView) then
+    FTreeView.BeginUpdate();
 end;
 
 function TTreeViewPresenter.CalcCheckBoxRect(const Rect: TRect): TRect;
@@ -510,8 +511,6 @@ begin
     DoPropertyChanged('SelectedItem');
     DoPropertyChanged('SelectedItems');
     DoPropertyChanged('SelectedItemPath');
-
-
     if Assigned(OnSelectionChanged)
      and Assigned(Node) // added TS
 
@@ -1665,7 +1664,8 @@ end;
 procedure TTreeViewPresenter.EndUpdate;
 begin
   inherited;
-  FTreeView.EndUpdate();
+  if Assigned(FTreeView) then
+    FTreeView.EndUpdate();
 end;
 
 procedure TTreeViewPresenter.ExpandNode(Node: PVirtualNode);

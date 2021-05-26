@@ -44,11 +44,9 @@ The SynHighlighterFortran unit provides SynEdit with a Fortran syntax highlighte
 Thanks to Martin Waldenburg.
 }
 
-{$IFNDEF QSYNHIGHLIGHTERFORTRAN}
 unit SynHighlighterFortran;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

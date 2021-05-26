@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,12 +22,18 @@ interface
 
 uses
   System.Classes, System.TypInfo,
-  Vcl.Controls,
+  Vcl.Controls, Vcl.Forms,
 
   zObjInspector, zValueManager;
 
 type
   TzObjectInspectorFactory = class sealed
+  private class var
+    FDefaultBorderStyle : TBorderStyle;
+
+  public
+    class constructor Create;
+
     class function Create(
       AOwner        : TComponent;
       AParent       : TWinControl;
@@ -36,25 +42,41 @@ type
       const AName   : string = ''
     ): TzObjectInspector; static;
 
+    class property DefaultBorderStyle: TBorderStyle
+      read FDefaultBorderStyle write FDefaultBorderStyle default bsSingle;
+
   end;
 
 implementation
+
+uses
+  Vcl.Graphics;
+
+{$REGION 'construction and destruction'}
+class constructor TzObjectInspectorFactory.Create;
+begin
+  FDefaultBorderStyle := bsNone;
+end;
 
 class function TzObjectInspectorFactory.Create(AOwner: TComponent;
   AParent: TWinControl; AObject: TObject; AValueManager: TzCustomValueManager;
   const AName: string): TzObjectInspector;
 var
-  OI: TzObjectInspector;
+  OI : TzObjectInspector;
 begin
   OI                  := TzObjectInspector.Create(AOwner, AValueManager);
   OI.Parent           := AParent;
   OI.Align            := alClient;
-  OI.AlignWithMargins := True;
+  OI.AlignWithMargins := False;
   OI.Name             := AName;
   OI.Component        := AObject;
   OI.ObjectVisibility := mvPublic;
   OI.SplitterPos      := OI.ClientWidth div 2;
+  OI.BorderStyle      := DefaultBorderStyle;
+  OI.GutterEdgeColor  := clSilver;
+  OI.SplitterColor    := clSilver;
   Result := OI;
 end;
+{$ENDREGION}
 
 end.

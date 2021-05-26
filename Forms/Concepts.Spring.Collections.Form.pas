@@ -103,7 +103,7 @@ implementation
 uses
   Vcl.Dialogs,
 
-  DDuce.ScopedReference, DDuce.Utils,
+  DDuce.Utils,
 
   Concepts.Factories;
 
@@ -144,13 +144,14 @@ procedure TfrmCollections.actFirstNameIsExecute(Sender: TObject);
 begin
   HourGlass(procedure
     var
-      SL : Scoped<TStringList>;
+      SL : IShared<TStringList>;
       C  : TContact;
     begin
+      SL := Shared<TStringList>.Make;
       DefinePredicates;
       for C in FList.Where(FFirstNameIs) do
       begin
-        SL.Ref.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
+        SL.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
       end;
       mmoList.Lines.Assign(SL);
     end
@@ -161,13 +162,14 @@ procedure TfrmCollections.actLastNameIsExecute(Sender: TObject);
 begin
   HourGlass(procedure
     var
-      SL : Scoped<TStringList>;
+      SL : IShared<TStringList>;
       C  : TContact;
     begin
+      SL := Shared<TStringList>.Make;
       DefinePredicates;
       for C in FList.Where(FLastNameIs) do
       begin
-        SL.Ref.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
+        SL.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
       end;
       mmoList.Lines.Assign(SL);
     end
@@ -178,13 +180,14 @@ procedure TfrmCollections.actBothExecute(Sender: TObject);
 begin
   HourGlass(procedure
     var
-      SL : Scoped<TStringList>;
+      SL : IShared<TStringList>;
       C  : TContact;
     begin
+      SL := Shared<TStringList>.Make;
       DefinePredicates;
       for C in FList.Where(FLastNameIs).Where(FFirstNameIs) do
       begin
-        SL.Ref.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
+        SL.Add(C.Firstname + ' ' + C.Lastname + ' ' + C.Address);
       end;
       mmoList.Lines.Assign(SL);
     end

@@ -49,11 +49,9 @@ The SynHighlighterCS unit provides SynEdit with a C# syntax highlighter.
 Based on SynHighlighterCpp.pas
 }
 
-{$IFNDEF QSYNHIGHLIGHTERCS}
 unit SynHighlighterCS;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

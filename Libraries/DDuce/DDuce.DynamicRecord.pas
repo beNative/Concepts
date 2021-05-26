@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -121,14 +121,16 @@ uses
 
     http://blog.barrkel.com/2009/01/implementing-user-defined-copy-on-write.html
 
-    TODO does not work yet when mixing generic and non generic instances.
+    TODO:
+      Assignment between generic and non generic instances does not work
+      properly yet.
       A notable side effect is that assignments from/to DynamicRecord and
       IDynamicRecord variables cause copies to be made where in this case we
       just want to keep a reference.
       We tried to compensate for this by keeping a seperate reference count
       variable in the DynamicRecord instance to keep track of any external user
-      defined interface variables (IDynamicRecord) that reference the DynamicRecord
-      instance. This does not work yet.
+      defined interface variables (IDynamicRecord) that reference the
+      DynamicRecord instance. This does not work yet.
 }
 {$ENDREGION}
 
@@ -349,10 +351,9 @@ type
   {$ENDREGION}
 
   {$REGION 'DynamicRecord<T>'}
-  { DynamicRecord<T> manages a IDynamicRecord<T> instance. The data is stored in the
-    provided class type. }
-
-    { TODO: Items property }
+  { DynamicRecord<T> manages a IDynamicRecord<T> instance. The data is stored
+    in the provided class type. }
+  { TODO: Items property }
 
   DynamicRecord<T: class, constructor> = record
   private
@@ -360,11 +361,13 @@ type
     FSaveProc             : TProc;
     FLoadProc             : TProc;
 
+    {$REGION 'property access methods'}
     function GetItemValue(const AName: string): TValue;
     procedure SetItemValue(const AName: string; const AValue: TValue);
     function GetData: T;
     function GetCount: Integer;
     function GetDynamicRecord: IDynamicRecord<T>;
+    {$ENDREGION}
 
     function MutableClone: IDynamicRecord<T>;
 
@@ -510,12 +513,14 @@ type
   {$REGION 'IDynamicField'}
   IDynamicField = interface(IInvokable)
   ['{74D23797-BE4C-464A-BEF5-011BE159C8A9}']
+    {$REGION 'property access methods'}
     function GetName: string;
     procedure SetName(const AValue: string);
     function GetValue: TValue;
     procedure SetValue(const AValue: TValue);
     procedure SetIndex(Value: Integer);
     function GetIndex: Integer;
+    {$ENDREGION}
 
     function ToString: string;
 
@@ -533,6 +538,7 @@ type
   {$REGION 'IDynamicRecord'}
   IDynamicRecord = interface(IInvokable)
   ['{E3B57B88-1DB5-4663-8621-EE235233A114}']
+    {$REGION 'property access methods'}
     function GetItem(Index: Integer): IDynamicField;
     function GetField(const AName: string): IDynamicField;
     function GetItemValue(const AName: string): TValue;
@@ -541,6 +547,7 @@ type
     function GetCount: Integer;
     function GetRefCount: Integer;
     function GetOnChanged: INotifyEvent;
+    {$ENDREGION}
 
     function GetEnumerator: DynamicRecordEnumerator;
 
@@ -696,11 +703,13 @@ type
     FName  : string;
     FValue : TValue;
 
+    {$REGION 'property access methods'}
     function GetName: string;
     procedure SetName(const AValue: string);
     function GetValue: TValue;
     procedure SetValue(const AValue: TValue);
     function GetIndex: Integer;
+    {$ENDREGION}
 
     { IInterface }
     function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
@@ -767,6 +776,7 @@ type
     function _Release: Integer; stdcall;
 
   protected
+    {$REGION 'property access methods'}
     function GetData: Variant;
     function GetRefCount: Integer;
     function GetCount: Integer; reintroduce; virtual;
@@ -776,6 +786,7 @@ type
     procedure SetItemValue(const AName: string; const AValue: TValue); virtual;
     procedure SetItemName(Item: TCollectionItem); override;
     function GetOnChanged: INotifyEvent;
+    {$ENDREGION}
 
     procedure Update(AItem: TCollectionItem); override;
     function Add: IDynamicField;
@@ -927,6 +938,7 @@ type
     FDataFactory : TFunc<T>;
 
   protected
+    {$REGION 'property access methods'}
     function GetCount: Integer; override;
     function GetData: T;
     procedure SetData(AValue: T);
@@ -935,6 +947,7 @@ type
     function GetItem(Index: Integer): IDynamicField; override;
     function GetItemValue(const AName: string): TValue; override;
     procedure SetItemValue(const AName: string; const AValue: TValue); override;
+    {$ENDREGION}
 
   public
     function ToString(AAlignValues: Boolean): string; overload; override;
@@ -1806,7 +1819,7 @@ begin
                 end
                 else
                 begin
-                  //raise Exception.Create('TryGetUnderlyingValue failed.');
+                  raise Exception.Create('TryGetUnderlyingValue failed.');
                 end;
               end
               else
@@ -1866,20 +1879,20 @@ end;
 
 procedure TDynamicRecord.FromPersistent(APersistent: TPersistent);
 var
-  PropList  : PPropList;
-  PropCount : Integer;
-  I         : Integer;
-  S         : string;
+  LPropList  : PPropList;
+  LPropCount : Integer;
+  I          : Integer;
+  S          : string;
 begin
-  PropCount := GetPropList(APersistent, PropList);
+  LPropCount := GetPropList(APersistent, LPropList);
   try
-    for I := 0 to PropCount-1 do
+    for I := 0 to LPropCount-1 do
     begin
-      S := string(PropList[I].Name);
+      S := string(LPropList[I].Name);
       Values[S] :=  TValue.FromVariant(GetPropValue(APersistent, S));
     end;
   finally
-    FreeMem(PropList);
+    FreeMem(LPropList);
   end;
 end;
 
@@ -3116,7 +3129,7 @@ end;
 procedure DynamicRecord<T>.FromString(const AString: string;
   ATrimSpaces: Boolean);
 begin
-  //
+  // TODO !!!
 end;
 
 procedure DynamicRecord<T>.FromStrings(AStrings: TStrings; ATrimSpaces: Boolean);

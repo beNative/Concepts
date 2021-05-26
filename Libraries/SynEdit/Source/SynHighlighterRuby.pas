@@ -43,11 +43,9 @@ Known Issues:
 The SynHighlighterVisualLisp unit provides SynEdit with a Ruby highlighter.
 }
 
-{$IFNDEF QSYNHIGHLIGHTERRUBY}
 unit SynHighlighterRuby;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 {$I DDuce.inc}
 
-unit DDuce.WinIPC.Client;
+unit DDuce.Winipc.Client;
 
 interface
 
@@ -28,7 +28,7 @@ uses
     messages to the corresponding TWinIPCServer. }
 
 type
-  TWinIPCClient = class
+  TWinipcClient = class
   private
     FServerProcessId          : Integer;
     FServerThreadId           : Integer;
@@ -52,8 +52,7 @@ type
     );
 
     function Connect: Boolean;
-
-    procedure SendStream(AStream: TStream);
+    procedure SendStream(AStream: TBytesStream);
 
     property ServerMsgWindowClassName: string
       read FServerMsgWindowClassName write FServerMsgWindowClassName;
@@ -89,7 +88,7 @@ resourcestring
   SServerNotActive = 'Server with ID %s is not active.';
 
 {$REGION 'construction and destruction'}
-constructor TWinIPCClient.Create(const AServerMsgWindowClassName,
+constructor TWinipcClient.Create(const AServerMsgWindowClassName,
   AServerWindowName: string);
 begin
   inherited Create;
@@ -97,7 +96,7 @@ begin
   FServerWindowName         := AServerWindowName;
 end;
 
-procedure TWinIPCClient.AfterConstruction;
+procedure TWinipcClient.AfterConstruction;
 begin
   inherited AfterConstruction;
   if FServerMsgWindowClassName.IsEmpty then
@@ -108,35 +107,35 @@ end;
 {$ENDREGION}
 
 {$REGION 'property access methods'}
-function TWinIPCClient.GetConnected: Boolean;
+function TWinipcClient.GetConnected: Boolean;
 begin
   Result := ServerHandle <> 0;
 end;
 
-procedure TWinIPCClient.SetConnected(const Value: Boolean);
+procedure TWinipcClient.SetConnected(const Value: Boolean);
 begin
   if Value then
     Connect;
 end;
 
-function TWinIPCClient.GetServerHandle: THandle;
+function TWinipcClient.GetServerHandle: THandle;
 begin
   Result := FindWindow(PChar(ServerMsgWindowClassName), PChar(ServerWindowName));
 end;
 
-function TWinIPCClient.GetServerProcessId: Integer;
+function TWinipcClient.GetServerProcessId: Integer;
 begin
   Result := FServerProcessId;
 end;
 
-function TWinIPCClient.GetServerThreadId: Integer;
+function TWinipcClient.GetServerThreadId: Integer;
 begin
   Result := FServerThreadId;
 end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
-function TWinIPCClient.Connect: Boolean;
+function TWinipcClient.Connect: Boolean;
 begin
   Result := ServerHandle <> 0;
   if Result then
@@ -161,33 +160,15 @@ end;
     lpData: pointer to buffer to send (cbData bytes in size).
 }
 
-procedure TWinIPCClient.SendStream(AStream: TStream);
+procedure TWinipcClient.SendStream(AStream: TBytesStream);
 var
   CDS  : TCopyDataStruct;
-  Data : TMemoryStream;
-  MS   : TMemoryStream;
 begin
   if Connected then
   begin
-    if AStream is TMemoryStream then
-    begin
-      Data := TMemoryStream(AStream);
-      MS   := nil
-    end
-    else
-    begin
-      MS := TMemoryStream.Create;
-      try
-        Data := MS;
-        MS.CopyFrom(AStream, 0);
-        MS.Seek(0, soFromBeginning);
-      finally
-        FreeAndNil(MS);
-      end;
-    end;
     CDS.dwData := GetCurrentProcessId;
-    CDS.lpData := Data.Memory;
-    CDS.cbData := Data.Size;
+    CDS.lpData := AStream.Memory;
+    CDS.cbData := AStream.Size;
     Winapi.Windows.SendMessage(
       ServerHandle,
       WM_COPYDATA,

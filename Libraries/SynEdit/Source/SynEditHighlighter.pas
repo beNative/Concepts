@@ -1,4 +1,4 @@
-{-------------------------------------------------------------------------------
+﻿{-------------------------------------------------------------------------------
 The contents of this file are subject to the Mozilla Public License
 Version 1.1 (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
@@ -27,11 +27,9 @@ located at http://SynEdit.SourceForge.net
 Known Issues:
 -------------------------------------------------------------------------------}
 
-{$IFNDEF QSYNEDITHIGHLIGHTER}
 unit SynEditHighlighter;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 
@@ -82,8 +80,9 @@ type
       OldStyle: Boolean): Boolean; virtual;
     function LoadFromRegistry(Reg: TBetterRegistry): Boolean;
     function SaveToRegistry(Reg: TBetterRegistry): Boolean;
-    function LoadFromFile(Ini: TIniFile): Boolean;
-    function SaveToFile(Ini: TIniFile): Boolean;
+//Fix type changed to TCustomIniFile for use both TMemIniFile and TIniFile
+    function LoadFromFile(Ini: TCustomIniFile): Boolean;
+    function SaveToFile(Ini: TCustomIniFile): Boolean;
   public
     procedure SetColors(Foreground, Background: TColor);
     property FriendlyName: UnicodeString read FFriendlyName;
@@ -706,7 +705,7 @@ begin
     Result := False;
 end;
 
-function TSynHighlighterAttributes.LoadFromFile(Ini : TIniFile): Boolean;
+function TSynHighlighterAttributes.LoadFromFile(Ini : TCustomIniFile): boolean;
 var
   S: TStringList;
 begin
@@ -730,7 +729,7 @@ begin
   end;
 end;
 
-function TSynHighlighterAttributes.SaveToFile(Ini : TIniFile): Boolean;
+function TSynHighlighterAttributes.SaveToFile(Ini : TCustomIniFile): boolean;
 begin
   Ini.WriteInteger(Name, 'Background', Background);
   Ini.WriteInteger(Name, 'Foreground', Foreground);

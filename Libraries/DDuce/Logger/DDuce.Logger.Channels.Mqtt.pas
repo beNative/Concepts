@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2020 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -29,9 +29,7 @@ interface
 uses
   System.Classes, System.SysUtils,
 
-  Spring,
-
-  MQTT,
+  Spring, MQTT,
 
   DDuce.Logger.Interfaces, DDuce.Logger.Channels.Base;
 
@@ -83,7 +81,6 @@ uses
 procedure TMQTTChannel.AfterConstruction;
 begin
   inherited AfterConstruction;
-  //FBuffer := TStringStream.Create;
   if Enabled then
   begin
     Connect;
@@ -107,7 +104,7 @@ begin
   FBuffer := TStringStream.Create;
   FMQTT.Create(function: TMQTT
     begin
-      Result := TMQTT.Create(UTF8String(FBroker), FPort);
+      Result := TMQTT.Create(FBroker, FPort);
   // some brokers require these to have a value
       Result.WillTopic := 'a';
       Result.WillMsg   := 'a';

@@ -41,11 +41,9 @@ Known Issues:
 @lastmod(2001-06-29)
 }
 
-{$IFNDEF QSYNHIGHLIGHTERUNREAL}
 unit SynHighlighterUnreal;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

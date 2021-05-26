@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
 
 unit DDuce.Editor.Interfaces;
 
-{ This unit hosts all interfaces of the editor module.
-  To make an editor instance you need to use this unit in the interface section
-  and DDuce.Editor.Factories in the implementation part to let you create
-  instances supporting one or more of these interfaces. }
+{ This unit hosts all interfaces of the editor module. }
 
 interface
+
+{ To make an editor instance you need to use this unit in the interface section
+  and DDuce.Editor.Factories in the implementation part to let you create
+  instances supporting one or more of these interfaces. }
 
 uses
   System.Classes, System.Contnrs, System.Types, System.SysUtils,
@@ -908,6 +909,7 @@ type
       const AFileName : string = '';
       AShowDialog     : Boolean = False
     ): Boolean;
+    function AsComponent: TComponent;
 
     property PersistSettings: Boolean
       read GetPersistSettings write SetPersistSettings;

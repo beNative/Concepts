@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.Actions, System.Classes, System.Rtti,
   Vcl.ActnList, Vcl.StdCtrls, Vcl.Controls, Vcl.ComCtrls, Vcl.ExtCtrls,
-  Vcl.Forms;
+  Vcl.Forms, System.ImageList, Vcl.ImgList;
 
 type
   TfrmRTTEye = class(TForm)
@@ -39,6 +39,7 @@ type
     btnLoad     : TButton;
     btnSearch   : TButton;
     EditSearch  : TEdit;
+    imlMain     : TImageList;
     lvRtti      : TListView;
     pnlBottom   : TPanel;
     pnlMain     : TPanel;

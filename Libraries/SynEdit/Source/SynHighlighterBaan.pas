@@ -44,11 +44,9 @@ The SynHighlighterBaan unit provides SynEdit with a Baan syntax highlighter.
 Thanks to Martin Waldenburg.
 }
 
-{$IFNDEF QSYNHIGHLIGHTERBAAN}
 unit SynHighlighterBaan;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

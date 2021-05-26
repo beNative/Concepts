@@ -1,0 +1,46 @@
+package Spring.Data;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Spring4D Data package'}
+{$LIBSUFFIX '.Delphi10Sydney'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  dbrtl,
+  Spring.Base;
+
+contains
+  Spring.Data.ActiveX in '..\..\Source\Data\ObjectDataSet\Spring.Data.ActiveX.pas',
+  Spring.Data.ExpressionParser in '..\..\Source\Data\ObjectDataSet\Spring.Data.ExpressionParser.pas',
+  Spring.Data.ExpressionParser.Functions in '..\..\Source\Data\ObjectDataSet\Spring.Data.ExpressionParser.Functions.pas',
+  Spring.Data.IndexList in '..\..\Source\Data\ObjectDataSet\Spring.Data.IndexList.pas',
+  Spring.Data.ObjectDataSet in '..\..\Source\Data\ObjectDataSet\Spring.Data.ObjectDataSet.pas',
+  Spring.Data.ValueConverters in '..\..\Source\Data\ObjectDataSet\Spring.Data.ValueConverters.pas',
+  Spring.Data.VirtualDataSet in '..\..\Source\Data\ObjectDataSet\Spring.Data.VirtualDataSet.pas';
+
+end.

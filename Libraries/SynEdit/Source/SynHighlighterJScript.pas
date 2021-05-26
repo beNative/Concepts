@@ -44,11 +44,9 @@ The SynHighlighterJScript unit provides SynEdit with a JScript/JavaScript (.js) 
 The highlighter formats JavaScript source code highlighting keywords, strings, numbers and characters.
 }
 
-{$IFNDEF QSYNHIGHLIGHTERJSCRIPT}
 unit SynHighlighterJScript;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

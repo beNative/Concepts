@@ -44,11 +44,9 @@ Known Issues:
 The SynHighlighterPython implements a highlighter for Python for the SynEdit projects.
 }
 
-{$IFNDEF QSYNHIGHLIGHTERPYTHON}
 unit SynHighlighterPython;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

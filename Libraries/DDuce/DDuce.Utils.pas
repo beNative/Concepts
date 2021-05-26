@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ uses
   Winapi.Windows,
   System.Classes, System.SysUtils, System.UITypes, System.Rtti, System.Variants,
   System.TypInfo,
-  Vcl.Forms, Vcl.Controls, Vcl.Graphics, Vcl.ExtCtrls,
+  Vcl.Forms, Vcl.Controls, Vcl.Graphics, Vcl.ExtCtrls, Vcl.Menus, Vcl.ActnList,
   Data.DB;
 
 type
@@ -150,6 +150,22 @@ function FormatBytes(
   AFormatType : TSizeFormatType = sfAuto;
   APrecision  : Integer = 2
 ) : string;
+
+procedure ExtractFileFromResource(
+  const AResourceName : string;
+  const AFileName     : string;
+  const ADestPath     : string = ''
+);
+
+function AddMenuItem(
+  AParent : TMenuItem;
+  AAction : TBasicAction = nil
+): TMenuItem; overload;
+
+function AddMenuItem(
+  AParent : TMenuItem;
+  AMenu   : TMenu
+): TMenuItem; overload;
 
 implementation
 
@@ -1076,7 +1092,6 @@ const
 
   function BytesToKB(ASize: Int64): Int64;
   begin
-    //This is how Win Explorer calculates it
     Result := ASize div 1024;
     if (ASize mod 1024 <> 0) then Result := Result + 1;
   end;
@@ -1103,6 +1118,87 @@ begin
   if AFormatType <= sfKB then  //use the precision only for MB and GB
     APrecision := 0;
   Result := Format('%.'+ IntToStr(APrecision) + 'n ' + FormatArray[AFormatType], [D]);
+end;
+
+procedure ExtractFileFromResource(const AResourceName: string;
+  const AFileName: string; const ADestPath: string);
+var
+  LResStream  : TResourceStream;
+  LFileStream : TFileStream;
+  LDestPath   : string;
+  LPath       : string;
+begin
+  if ADestPath.IsEmpty then
+    LDestPath := ExtractFileDir(ParamStr(0))
+  else
+    LDestPath := ADestPath;
+  LPath := Format('%s\%s', [LDestPath, AFileName]);
+  if not FileExists(LPath) then
+  begin
+    LResStream := TResourceStream.Create(HInstance, AResourceName, RT_RCDATA);
+    try
+      LFileStream := TFileStream.Create(LPath, fmCreate);
+      try
+        LFileStream.CopyFrom(LResStream, 0);
+      finally
+        LFileStream.Free;
+      end;
+    finally
+      LResStream.Free;
+    end;
+  end;
+end;
+
+function AddMenuItem(AParent: TMenuItem; AAction: TBasicAction): TMenuItem;
+var
+  MI: TMenuItem;
+begin
+  if not Assigned(AAction) then
+  begin
+    MI := TMenuItem.Create(AParent.Owner);
+    MI.Caption := ('-');
+    AParent.Add(MI);
+    Result := nil;
+  end
+  else
+  begin
+    MI := TMenuItem.Create(AParent.Owner);
+    MI.Action := AAction;
+    if (AAction is TAction) and (TAction(AAction).GroupIndex > 0) then
+    begin
+      MI.RadioItem := True;
+    end;
+    AParent.Add(MI);
+    Result := MI;
+  end;
+end;
+
+function AddMenuItem(AParent: TMenuItem; AMenu: TMenu): TMenuItem;
+var
+  MI  : TMenuItem;
+  M   : TMenuItem;
+  SM  : TMenuItem;
+  SMI : TMenuItem;
+  I   : Integer;
+begin
+  MI := TMenuItem.Create(AMenu);
+  MI.Action := AMenu.Items.Action;
+  AParent.Add(MI);
+  for M in AMenu.Items do
+  begin
+    SMI := AddMenuItem(MI, M.Action);
+    // add submenu(s)
+    if M.Count > 0 then
+    begin
+      for I := 0 to M.Count - 1 do
+      begin
+        SM := M.Items[I];
+        AddMenuItem(SMI, SM.Action);
+      end;
+    end;
+  end;
+  MI.Enabled := True;
+  Result := MI;
 end;
 
 end.

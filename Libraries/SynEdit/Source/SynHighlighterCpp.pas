@@ -44,11 +44,9 @@ The SynHighlighterCpp unit provides SynEdit with a C++ syntax highlighter.
 Thanks to Martin Waldenburg.
 }
 
-{$IFNDEF QSYNHIGHLIGHTERCPP}
 unit SynHighlighterCpp;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

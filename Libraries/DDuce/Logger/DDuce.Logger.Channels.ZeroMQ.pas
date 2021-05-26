@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
   limitations under the License.
 }
 
-{$I DDuce.inc}
+{$I .\..\DDuce.inc}
 
 unit DDuce.Logger.Channels.ZeroMQ;
 
@@ -40,7 +40,7 @@ type
   TZeroMQChannel = class(TCustomLogChannel, ILogChannel, IZeroMQChannel)
   private
     FBuffer    : TStringStream;
-    FZMQ       : IZeroMQ;
+    FZmq       : IZeroMQ;
     FPublisher : IZMQPair;
     FPort      : Integer;
     FEndPoint  : string;
@@ -69,11 +69,11 @@ type
 
   public
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
     constructor Create(
       const AEndPoint : string = '';
       AActive         : Boolean = True
     ); reintroduce; overload; virtual;
+    destructor Destroy; override;
 
     function Connect: Boolean; override;
     function Disconnect: Boolean; override;
@@ -103,8 +103,8 @@ begin
     FileExists(LIBZEROMQ),
     Format('ZeroMQ library (%s) is missing!', [LIBZEROMQ])
   );
-  FBuffer := TStringStream.Create;
-  FZMQ    := TZeroMQ.Create;
+  FBuffer := TStringStream.Create('', TEncoding.ANSI);
+  FZmq    := TZeroMQ.Create;
   if FEndPoint = '' then
   begin
     FEndPoint := DEFAULT_ENDPOINT;
@@ -115,7 +115,7 @@ begin
   end;
 end;
 
-procedure TZeroMQChannel.BeforeDestruction;
+destructor TZeroMQChannel.Destroy;
 begin
   if Assigned(FBuffer) then
   begin
@@ -123,16 +123,18 @@ begin
   end;
   if Assigned(FPublisher) then
   begin
-    Disconnect;
+    FPublisher.Close;
+    FPublisher := nil;
   end;
-  inherited BeforeDestruction;
+  FZmq := nil;
+  inherited Destroy;
 end;
 {$ENDREGION}
 
 {$REGION 'property access methods'}
 function TZeroMQChannel.GetEnabled: Boolean;
 begin
-  Result := Assigned(FZMQ) and inherited GetEnabled;
+  Result := Assigned(FZmq) and inherited GetEnabled;
 end;
 
 function TZeroMQChannel.GetConnected: Boolean;
@@ -179,7 +181,8 @@ var
 begin
   if Enabled then
   begin
-    FPublisher := FZMQ.Start(ZMQSocket.Publisher);
+    FBuffer.Clear;
+    FPublisher := FZmq.Start(ZMQSocket.Publisher);
     FBound := FPublisher.Bind(FEndPoint) = 0; // 0 when successful
     // Physical connection is always a bit after Connected reports True.
     // https://stackoverflow.com/questions/11634830/zeromq-always-loses-the-first-message
@@ -205,7 +208,9 @@ begin
   Result := True;
   if Connected then
   begin
+    FBuffer.Clear;
     Result := FPublisher.Close;
+    FPublisher := nil;
     FBound := False;
   end;
 end;
@@ -214,8 +219,8 @@ function TZeroMQChannel.Write(const AMsg: TLogMessage): Boolean;
 const
   ZeroBuf: Integer = 0;
 var
-  TextSize : Integer;
-  DataSize : Integer;
+  LTextSize : Integer;
+  LDataSize : Integer;
 begin
   if Enabled then
   begin
@@ -223,24 +228,26 @@ begin
       Connect;
     if Connected then
     begin
-      TextSize := Length(AMsg.Text);
+      FBuffer.Clear;
+      FBuffer.Size := 0;
+      LTextSize := Length(AMsg.Text);
       FBuffer.Seek(0, soFromBeginning);
       FBuffer.WriteBuffer(AMsg.MsgType);
       FBuffer.WriteBuffer(AMsg.LogLevel);
       FBuffer.WriteBuffer(AMsg.Reserved1);
       FBuffer.WriteBuffer(AMsg.Reserved2);
       FBuffer.WriteBuffer(AMsg.TimeStamp);
-      FBuffer.WriteBuffer(TextSize);
-      if TextSize > 0 then
+      FBuffer.WriteBuffer(LTextSize);
+      if LTextSize > 0 then
       begin
-        FBuffer.WriteBuffer(AMsg.Text[1], TextSize);
+        FBuffer.WriteBuffer(AMsg.Text[1], LTextSize);
       end;
       if AMsg.Data <> nil then
       begin
-        DataSize := AMsg.Data.Size;
-        FBuffer.WriteBuffer(DataSize);
+        LDataSize := AMsg.Data.Size;
+        FBuffer.WriteBuffer(LDataSize);
         AMsg.Data.Position := 0;
-        FBuffer.CopyFrom(AMsg.Data, DataSize);
+        FBuffer.CopyFrom(AMsg.Data, LDataSize);
       end
       else
         FBuffer.WriteBuffer(ZeroBuf);

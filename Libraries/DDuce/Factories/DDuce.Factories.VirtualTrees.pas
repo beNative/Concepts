@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ interface
 
 uses
   System.Classes, System.UITypes,
-  Vcl.Controls,
+  Vcl.Controls, Vcl.Forms,
 
   Spring,
 
@@ -53,10 +53,14 @@ type
     FSelectionTextColor           : TColor;
     FSelectionRectangleBlendColor : TColor;
     FGridLineColor                : TColor;
+    FBorderStyle                  : TBorderStyle;
 
   public
     procedure AssignTo(Dest: TPersistent); override;
     procedure Assign(Source: TPersistent); override;
+
+    property BorderStyle: TBorderStyle
+      read FBorderStyle write FBorderStyle default bsSingle;
 
     property HeaderOptions: TVTHeaderOptions
       read FHeaderOptions write FHeaderOptions;
@@ -207,6 +211,7 @@ begin
     LineMode                     := LOptions.LineMode;
     DrawSelectionMode            := LOptions.DrawSelectionMode;
     HintMode                     := LOptions.HintMode;
+    BorderStyle                  := LOptions.BorderStyle;
     SelectionTextColor           := LOptions.SelectionTextColor;
     GridLineColor                := LOptions.GridLineColor;
     SelectionRectangleBlendColor := LOptions.SelectionRectangleBlendColor;
@@ -235,6 +240,7 @@ begin
     LTree.LineMode                            := LineMode;
     LTree.DrawSelectionMode                   := DrawSelectionMode;
     LTree.HintMode                            := HintMode;
+    LTree.BorderStyle                         := BorderStyle;
     LTree.Colors.SelectionTextColor           := SelectionTextColor;
     LTree.Colors.GridLineColor                := GridLineColor;
     LTree.Colors.SelectionRectangleBlendColor := SelectionRectangleBlendColor;
@@ -254,6 +260,7 @@ begin
     LOptions.LineMode                     := LineMode;
     LOptions.DrawSelectionMode            := DrawSelectionMode;
     LOptions.HintMode                     := HintMode;
+    LOptions.BorderStyle                  := BorderStyle;
     LOptions.SelectionTextColor           := SelectionTextColor;
     LOptions.GridLineColor                := GridLineColor;
     LOptions.SelectionRectangleBlendColor := SelectionRectangleBlendColor;

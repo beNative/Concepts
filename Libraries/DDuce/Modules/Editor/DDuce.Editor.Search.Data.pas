@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ unit DDuce.Editor.Search.Data;
 
 { Data structures used to display the search results hierarchically. }
 
-{ IEditorView -> TSearchResultGroup -> TSearchResultLine -> TSearchResult }
-
 interface
+
+{ IEditorView -> TSearchResultGroup -> TSearchResultLine -> TSearchResult }
 
 uses
   System.Classes, System.SysUtils, System.Contnrs, System.Types,

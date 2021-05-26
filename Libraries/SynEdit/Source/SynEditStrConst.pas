@@ -108,6 +108,7 @@ const
   SYNS_AttrIndirect             =  'Indirect';
   SYNS_AttrInstructions         =  'Instructions';
   SYNS_AttrInvalidSymbol        =  'InvalidSymbol';
+  SYNS_AttrInterfaceQualifier   =  'InterfaceQualifier';
   SYNS_AttrInternalFunction     =  'InternalFunction';
   SYNS_AttrKey                  =  'Key';
   SYNS_AttrLabel                =  'Label';
@@ -218,6 +219,7 @@ const
   SYNS_LangCSS                  =  'CascadingStyleSheet';
   SYNS_LangDfm                  =  'BorlandForms';
   SYNS_LangDOT                  =  'DOT_Graph_Drawing_Description_language';
+  SYNS_LangECMAScript           =  'ECMAScript';
   SYNS_LangEiffel               =  'Eiffel';
   SYNS_LangFortran              =  'Fortran';
   SYNS_LangFoxpro               =  'Foxpro';
@@ -225,6 +227,7 @@ const
   SYNS_LangGembase              =  'Gembase';
   SYNS_LangGeneral              =  'General';
   SYNS_LangGeneralMulti         =  'General_Multi-Highlighter';
+  SYNS_LangGLSL                 =  'OpenGL Shader Language';
   SYNS_LangGo                   =  'Go';
   SYNS_LangGWS                  =  'GW-TEL';
   SYNS_LangHaskell              =  'Haskell';
@@ -324,6 +327,7 @@ resourcestring
   SYNS_FriendlyAttrIndicator            =  'Indicator Area';
   SYNS_FriendlyAttrIndirect             =  'Indirect';
   SYNS_FriendlyAttrInstructions         =  'Instructions';
+  SYNS_FriendlyAttrInterfaceQualifier   =  'Interface Qualifier';
   SYNS_FriendlyAttrInternalFunction     =  'Internal Function';
   SYNS_FriendlyAttrInvalidSymbol        =  'Invalid Symbol';
   SYNS_FriendlyAttrKey                  =  'Key';
@@ -456,12 +460,14 @@ resourcestring
   SYNS_FilterDFM                =  'Borland Form Files (*.dfm;*.xfm)|*.dfm;*.xfm';
   SYNS_FilterDOT                =  'DOT Graph Drawing Description (*.dot)|*.dot';
   SYNS_FilterDWS                =  'DWScript Files (*.dws;*.pas;*.inc)|*.dws;*.pas;*.inc';
+  SYNS_FilterEcmaScript         =  'Javascript Files (*.js)|*.js';
   SYNS_FilterEiffel             =  'Eiffel (*.e;*.ace)|*.e;*.ace';
   SYNS_FilterFortran            =  'Fortran Files (*.for)|*.for';
   SYNS_FilterFoxpro             =  'Foxpro Files (*.prg)|*.prg';
   SYNS_FilterGalaxy             =  'Galaxy Files (*.gtv;*.galrep;*.txt)|*.gtv;*.galrep;*.txt';
   SYNS_FilterGembase            =  'GEMBASE Files (*.dml;*.gem)|*.dml;*.gem';
   SYNS_FilterGo                 =  'Go files (*.go)|*.go';
+  SYNS_FilterGLSL               =  'GLSL files (*.glsl)|*.glsl';
   SYNS_FilterGWS                =  'GW-TEL Scripts (*.gws)|*.gws';
   SYNS_FilterHaskell            =  'Haskell Files (*.hs;*.lhs)|*.hs;*.lhs';
   SYNS_FilterHP48               =  'HP48 Files (*.s;*.sou;*.a;*.hp)|*.s;*.sou;*.a;*.hp';
@@ -515,6 +521,7 @@ resourcestring
   SYNS_FriendlyLangCSS                  =  'Cascading Style Sheet';
   SYNS_FriendlyLangDfm                  =  'Borland Forms';
   SYNS_FriendlyLangDOT                  =  'DOT Graph Drawing Description language';
+  SYNS_FriendlyLangEcmaScript           =  'ECMA Script';
   SYNS_FriendlyLangEiffel               =  'Eiffel';
   SYNS_FriendlyLangFortran              =  'Fortran';
   SYNS_FriendlyLangFoxpro               =  'Foxpro';
@@ -523,6 +530,7 @@ resourcestring
   SYNS_FriendlyLangGeneral              =  'General';
   SYNS_FriendlyLangGeneralMulti         =  'General Multi-Highlighter';
   SYNS_FriendlyLangGo                   =  'Go';
+  SYNS_FriendlyLangGLSL                 =  'GLSL';
   SYNS_FriendlyLangGWS                  =  'GW-TEL';
   SYNS_FriendlyLangHaskell              =  'Haskell';
   SYNS_FriendlyLangHP48                 =  'HP48';
@@ -530,6 +538,7 @@ resourcestring
   SYNS_FriendlyLangINI                  =  'INI';
   SYNS_FriendlyLangInno                 =  'Inno Setup Script';
   SYNS_FriendlyLangJava                 =  'Java';
+  SYNS_FriendlyLangJavaScript           =  'JavaScript';
   SYNS_FriendlyLangJScript              =  'JavaScript';
   SYNS_FriendlyLangJSON                 =  'JSON';
   SYNS_FriendlyLangKIX                  =  'KiXtart';

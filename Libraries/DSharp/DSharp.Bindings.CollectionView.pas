@@ -165,14 +165,14 @@ end;
 function TCollectionView.GetCanMoveCurrentToNext: Boolean;
 begin
   // TODO: Implement filter support
-  Result := (not FFilter.CanInvoke) and Assigned(FItemsSource)
+  Result := not FFilter.CanInvoke and Assigned(FItemsSource)
     and (FItemIndex < Pred(FItemsSource.Count));
 end;
 
 function TCollectionView.GetCanMoveCurrentToPrevious: Boolean;
 begin
   // TODO: Implement filter support
-  Result := (not FFilter.CanInvoke) and Assigned(FItemsSource)
+  Result := not FFilter.CanInvoke and Assigned(FItemsSource)
     and (FItemIndex > 0);
 end;
 

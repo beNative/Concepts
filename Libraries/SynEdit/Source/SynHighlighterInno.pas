@@ -43,11 +43,9 @@ Check out http://www.jrsoftware.org for the free Inno Setup program,
 and http://www.wintax.nl/isx/ for My Inno Setup Extensions.
 }
 
-{$IFNDEF QSYNHIGHLIGHTERINNO}
 unit SynHighlighterInno;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

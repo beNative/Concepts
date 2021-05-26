@@ -44,11 +44,9 @@ The SynHighlighterCache unit provides SynEdit with a Cache object script files h
 Thanks to Martin Waldenburg.
 }
 
-{$IFNDEF QSYNHIGHLIGHTERCACHE}
 unit SynHighlighterCache;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

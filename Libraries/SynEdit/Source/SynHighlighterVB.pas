@@ -43,11 +43,9 @@ Known Issues:
 The SynHighlighterVB unit provides SynEdit with a Visual Basic (.bas) highlighter.
 }
 
-{$IFNDEF QSYNHIGHLIGHTERVB}
 unit SynHighlighterVB;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

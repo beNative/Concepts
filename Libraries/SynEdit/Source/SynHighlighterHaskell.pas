@@ -49,11 +49,9 @@ http://www.ashleybrown.co.uk/
 ashley@ashleybrown.co.uk
 }
 
-{$IFNDEF QSYNHIGHLIGHTERHASKELL}
 unit SynHighlighterHaskell;
-{$ENDIF}
 
-{$I SynEdit.Inc}
+{$I SynEdit.inc}
 
 interface
 

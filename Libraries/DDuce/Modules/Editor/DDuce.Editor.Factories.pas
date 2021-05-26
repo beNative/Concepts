@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
   limitations under the License.
 }
 
+unit DDuce.Editor.Factories;
+
+interface
+
 {
   TODO:
     factory for statusbar with customizable sections
     factory for custom toolbar, popup menus, etc.
 }
-
-unit DDuce.Editor.Factories;
-
-interface
 
 uses
   System.Classes, System.SysUtils,

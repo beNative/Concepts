@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2019 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 unit DDuce.Editor.Search.Engine;
 
 { Search logic to find text in one or all managed editor views. }
+
+interface
 
 {
   Refactoring notes (20/11/2013, TS)
@@ -36,8 +38,6 @@ unit DDuce.Editor.Search.Engine;
     Replace search matches
 
 }
-
-interface
 
 uses
   System.Classes, System.SysUtils, System.Types,
