@@ -24,6 +24,7 @@
 * [BTMemoryModule](http://github.com/DSPlayer/memorymodule)
 * [Chinook database](http://github.com/lerocha/chinook-database)
 * [SQLite](https://www.sqlite.org/)
+* [KControls](https://github.com/kryslt/KControls)
 
 These libraries are also used in some of my open source projects:
 * [Notepas](https://github.com/beNative/Notepas)
