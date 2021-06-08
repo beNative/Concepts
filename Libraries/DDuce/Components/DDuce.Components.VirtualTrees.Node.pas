@@ -38,11 +38,11 @@ uses
       end;
 }
 type
-  TVTNode<T> = class;
+  TVTNode<T: class> = class;
 
-  TVTNode<T> = class
+  TVTNode<T: class> = class
   public type
-    TVTNodeEnumerator<K:T> = record
+    TVTNodeEnumerator<K: T> = record
     strict private
       FCurrent : TVTNode<K>;
       FFirst   : Boolean;
@@ -67,6 +67,9 @@ type
     FCheckState : TCheckState;
     FCheckType  : TCheckType;
     FOwnsObject : Boolean;
+
+  private
+    function SearchTree(ANode: TVTNode<T>; const AData: T): TVTNode<T>;
 
   protected
     {$REGION 'property access methods'}
@@ -93,6 +96,12 @@ type
     function GetOwnsObject: Boolean;
     procedure SetOwnsObject(AValue: Boolean);
     function GetTree: TCustomVirtualStringTree;
+    function GetFocused: Boolean;
+    procedure SetFocused(const Value: Boolean);
+    function GetSelected: Boolean;
+    procedure SetSelected(const Value: Boolean);
+    function GetExpanded: Boolean;
+    procedure SetExpanded(const Value: Boolean);
     {$ENDREGION}
 
   public
@@ -114,10 +123,19 @@ type
     function GetEnumerator: TVTNodeEnumerator<T>;
 
     function Add(const AData: T; AOwnsObject: Boolean = True): TVTNode<T>;
+    function Find(const AData: T): TVTNode<T>;
+    procedure Select(
+      AScrollIntoView   : Boolean = True;
+      ACenterVertical   : Boolean = True;
+      ACenterHorizontal : Boolean = True;
+      AExpandNode       : Boolean = True
+    );
 
-    { Points to the corresponding node of the virtual treeview. }
-    property VNode: PVirtualNode
-      read GetVNode write SetVNode;
+    property CheckState: TCheckState
+      read GetCheckState write SetCheckState;
+
+    property CheckType: TCheckType
+      read GetCheckType write SetCheckType;
 
     property ChildCount: UInt32
       read GetChildCount;
@@ -126,20 +144,23 @@ type
     property Data: T
       read GetData write SetData;
 
-    property CheckState: TCheckState
-      read GetCheckState write SetCheckState;
+    property Expanded: Boolean
+      read GetExpanded write SetExpanded;
 
-    property CheckType: TCheckType
-      read GetCheckType write SetCheckType;
+    property Focused: Boolean
+      read GetFocused write SetFocused;
+
+    property Hint: string
+      read GetHint write SetHint;
 
     property ImageIndex: Integer
       read GetImageIndex write SetImageIndex;
 
-    property Items[AIndex: UInt32]: TVTNode<T>
-      read GetItem; default;
-
     property Index: Integer
       read GetIndex;
+
+    property Items[AIndex: UInt32]: TVTNode<T>
+      read GetItem; default;
 
     property Level: Integer
       read GetLevel;
@@ -149,17 +170,23 @@ type
     property OwnsObject: Boolean
       read GetOwnsObject write SetOwnsObject;
 
+    property Selected: Boolean
+      read GetSelected write SetSelected;
+
     property Text: string
       read GetText write SetText;
 
     property Tree: TCustomVirtualStringTree
       read GetTree;
 
-    property Hint: string
-      read GetHint write SetHint;
-
     property Visible: Boolean
       read GetVisible write SetVisible;
+
+    { Points to the corresponding node of the virtual treeview. }
+    property VNode: PVirtualNode
+      read GetVNode write SetVNode;
+
+
   end;
 
 implementation
@@ -175,6 +202,7 @@ begin
   FData       := AData;
   FOwnsObject := AOwnsObject;
   FText       := AText;
+  FImageIndex := -1;
   if not Assigned(AParentVNode) then // create rootnode
     FVNode := FTree.AddChild(nil, Self);
 end;
@@ -246,6 +274,39 @@ begin
   FData := Value;
 end;
 
+function TVTNode<T>.GetExpanded: Boolean;
+begin
+  Result := vsExpanded in VNode.States;
+end;
+
+procedure TVTNode<T>.SetExpanded(const Value: Boolean);
+begin
+  if Value then
+    VNode.States := VNode.States + [vsExpanded]
+  else
+    VNode.States := VNode.States - [vsExpanded];
+end;
+
+function TVTNode<T>.GetFocused: Boolean;
+begin
+  if Assigned(FTree) then
+  begin
+    Result := FTree.FocusedNode = FVNode;
+  end
+  else
+  begin
+    Result := False;
+  end;
+end;
+
+procedure TVTNode<T>.SetFocused(const Value: Boolean);
+begin
+  if Assigned(FTree) then
+  begin
+    FTree.FocusedNode := FVNode;
+  end;
+end;
+
 function TVTNode<T>.GetHint: string;
 begin
   Result := FHint;
@@ -274,6 +335,34 @@ end;
 procedure TVTNode<T>.SetOwnsObject(AValue: Boolean);
 begin
   FOwnsObject := AValue;
+end;
+
+function TVTNode<T>.GetSelected: Boolean;
+begin
+  if Assigned(FTree) then
+  begin
+    Result := FTree.Selected[FVNode];
+  end
+  else
+  begin
+    Result := False;
+  end;
+  //Result := vsSelected in VNode.States;
+end;
+
+procedure TVTNode<T>.SetSelected(const Value: Boolean);
+begin
+  if Assigned(FTree) then
+  begin
+    FTree.Selected[FVNode] := not FTree.Selected[FVNode];
+  end;
+  // remark: We do not add vsSelected to the States of VNode because
+  // it will select the node regardless of the tree's MultiSelect setting.
+//  if Value then
+//    VNode.States := VNode.States + [vsSelected]
+//  else
+//    VNode.States := VNode.States - [vsSelected];
+
 end;
 
 function TVTNode<T>.GetIndex: Integer;
@@ -312,24 +401,32 @@ begin
   Result := FText;
 end;
 
-function TVTNode<T>.GetTree: TCustomVirtualStringTree;
-begin
-  Result := FTree;
-end;
-
 procedure TVTNode<T>.SetText(const Value: string);
 begin
   FText := Value;
 end;
 
+function TVTNode<T>.GetTree: TCustomVirtualStringTree;
+begin
+  Result := FTree;
+end;
+
 function TVTNode<T>.GetVisible: Boolean;
 begin
-  Result := FTree.IsVisible[VNode];
+  if Assigned(FTree) and Assigned(FVNode) then
+  begin
+    Result := FTree.IsVisible[VNode];
+  end
+  else
+    Result := False;
 end;
 
 procedure TVTNode<T>.SetVisible(const Value: Boolean);
 begin
-  FTree.IsVisible[VNode] := Value;
+  if Assigned(FTree) and Assigned(FVNode) then
+  begin
+    FTree.IsVisible[VNode] := Value;
+  end;
 end;
 
 function TVTNode<T>.GetVNode: PVirtualNode;
@@ -351,6 +448,46 @@ begin
 end;
 {$ENDREGION}
 
+{$REGION 'private methods'}
+{ Search with recursion. }
+
+function TVTNode<T>.SearchTree(ANode: TVTNode<T>; const AData: T): TVTNode<T>;
+var
+  I      : Integer;
+  LFound : Boolean;
+  LItem  : TVTNode<T>;
+begin
+  I      := 0;
+  LFound := False;
+  Result := nil;
+  while (I < ANode.ChildCount) and not LFound do
+  begin
+    LItem := ANode.Items[I];
+    if LItem.Data = AData then
+    begin
+      Result := LItem;
+      LFound := True;
+    end
+    else
+    begin
+      LItem  := SearchTree(LItem, AData);
+      if Assigned(LItem) and (LItem.Data = AData) then
+      begin
+        Result := LItem;
+        LFound := True;
+      end
+    end;
+    Inc(I);
+  end;
+end;
+
+procedure TVTNode<T>.Select(AScrollIntoView, ACenterVertical, ACenterHorizontal,
+  AExpandNode: Boolean);
+begin
+//
+end;
+{$ENDREGION}
+
 {$REGION 'protected methods'}
 function TVTNode<T>.GetEnumerator: TVTNodeEnumerator<T>;
 begin
@@ -361,6 +498,8 @@ end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
+{ Adds a new child node with the given data. }
+
 function TVTNode<T>.Add(const AData: T; AOwnsObject: Boolean): TVTNode<T>;
 var
   LVTNode : TVTNode<T>;
@@ -370,10 +509,15 @@ begin
   begin
     VNode := FTree.AddChild(nil, Self);
   end;
-  LVTNode := TVTNode<T>.Create(FTree, AData, AOwnsObject, VNode);
-  LVNode := FTree.AddChild(VNode, LVTNode);
+  LVTNode       := TVTNode<T>.Create(FTree, AData, AOwnsObject, VNode);
+  LVNode        := FTree.AddChild(VNode, LVTNode);
   LVTNode.VNode := LVNode;
-  Result := LVTNode;
+  Result        := LVTNode;
+end;
+
+function TVTNode<T>.Find(const AData: T): TVTNode<T>;
+begin
+  Result := SearchTree(Self, AData);
 end;
 {$ENDREGION}
 

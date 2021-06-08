@@ -1812,7 +1812,7 @@ begin
                 V := P.GetValue(AInstance.GetReferenceToRawData);
               if V.Kind = tkRecord then
               begin
-                if TryGetUnderlyingValue(V, V2) then
+               if TryGetUnderlyingValue(V, V2) then
                 begin
                   if AAssignNulls or (not AAssignNulls and not V2.IsEmpty) then
                     Values[P.Name] := V2;

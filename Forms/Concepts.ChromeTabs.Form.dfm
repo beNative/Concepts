@@ -23,17 +23,12 @@ object frmChromeTabs: TfrmChromeTabs
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 29
-    ExplicitHeight = 557
     object splSplitter: TSplitter
       Left = 313
       Top = 0
       Width = 8
       Height = 532
       ResizeStyle = rsUpdate
-      ExplicitLeft = 273
-      ExplicitTop = 1
-      ExplicitHeight = 362
     end
     object pnlLeft: TPanel
       Left = 0
@@ -43,7 +38,6 @@ object frmChromeTabs: TfrmChromeTabs
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 538
     end
     object pnlRight: TPanel
       Left = 321
@@ -53,7 +47,6 @@ object frmChromeTabs: TfrmChromeTabs
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 538
       object pnlDrag: TPanel
         Left = 0
         Top = 0
@@ -63,7 +56,6 @@ object frmChromeTabs: TfrmChromeTabs
         BevelOuter = bvNone
         DockSite = True
         TabOrder = 0
-        ExplicitHeight = 538
       end
     end
     object sbrStatusBar: TStatusBar
@@ -74,7 +66,6 @@ object frmChromeTabs: TfrmChromeTabs
       Panels = <>
       ParentShowHint = False
       ShowHint = True
-      ExplicitTop = 538
     end
   end
   object pnlHeader: TPanel
@@ -94,9 +85,6 @@ object frmChromeTabs: TfrmChromeTabs
     ParentBackground = False
     ParentFont = False
     TabOrder = 1
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 947
     object lblHeader: TLabel
       AlignWithMargins = True
       Left = 3
@@ -108,8 +96,6 @@ object frmChromeTabs: TfrmChromeTabs
       Caption = 'This form demonstrates the TChromeTabs control.'
       Layout = tlCenter
       WordWrap = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
       ExplicitWidth = 285
       ExplicitHeight = 13
     end

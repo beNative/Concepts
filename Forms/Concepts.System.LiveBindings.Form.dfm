@@ -37,8 +37,6 @@ object frmLiveBindings: TfrmLiveBindings
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 29
-    ExplicitHeight = 484
     object cbxControls: TComboBox
       AlignWithMargins = True
       Left = 3
@@ -67,8 +65,6 @@ object frmLiveBindings: TfrmLiveBindings
     Font.Style = []
     ParentFont = False
     TabOrder = 1
-    ExplicitTop = 29
-    ExplicitHeight = 484
     DesignSize = (
       567
       478)
@@ -97,27 +93,27 @@ object frmLiveBindings: TfrmLiveBindings
       Layout = tlCenter
     end
     object lblCompanyName: TLabel
-      Left = 123
-      Top = 129
+      Left = 124
+      Top = 94
       Width = 76
       Height = 13
       Caption = 'CompanyName:'
       FocusControl = edtCompanyName
     end
     object lblFirstName: TLabel
-      Left = 123
-      Top = 156
+      Left = 124
+      Top = 121
       Width = 52
       Height = 13
       Caption = 'FirstName:'
       FocusControl = edtFirstName
     end
     object lblLastName: TLabel
-      Left = 123
-      Top = 183
-      Width = 47
+      Left = 124
+      Top = 148
+      Width = 51
       Height = 13
-      Caption = 'LastName'
+      Caption = 'LastName:'
       FocusControl = edtLastName
     end
     object lblButtonCaption: TLabel
@@ -147,9 +143,9 @@ object frmLiveBindings: TfrmLiveBindings
     object grdMain: TStringGrid
       Tag = 3
       Left = 6
-      Top = 240
+      Top = 201
       Width = 556
-      Height = 267
+      Height = 276
       Anchors = [akLeft, akTop, akRight]
       ColCount = 3
       DefaultColWidth = 120
@@ -262,15 +258,11 @@ object frmLiveBindings: TfrmLiveBindings
         24
         24
         24)
-      ColAligments = (
-        1
-        0
-        0)
     end
     object edtLastName: TEdit
       Left = 205
-      Top = 180
-      Width = 164
+      Top = 145
+      Width = 132
       Height = 21
       TabOrder = 2
     end
@@ -376,9 +368,6 @@ object frmLiveBindings: TfrmLiveBindings
     ParentBackground = False
     ParentFont = False
     TabOrder = 11
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 878
     object lblHeader: TLabel
       Left = 0
       Top = 0
@@ -490,7 +479,7 @@ object frmLiveBindings: TfrmLiveBindings
     AutoPost = False
     RecordCount = 100
     Options = [loptAllowInsert, loptAllowDelete, loptAllowModify]
-    Left = 672
+    Left = 816
     Top = 176
   end
   object absMain: TAdapterBindSource

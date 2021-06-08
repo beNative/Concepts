@@ -49,11 +49,14 @@ type
     tbrMain           : TTaskbar;
     {$ENDREGION}
 
+    {$REGION 'action handlers'}
     procedure actExecuteExecute(Sender: TObject);
     procedure actExecuteModalExecute(Sender: TObject);
     procedure actCloseExecute(Sender: TObject);
     procedure actCenterMainFormExecute(Sender: TObject);
+    {$ENDREGION}
 
+    {$REGION 'event handlers'}
     procedure edtFilterKeyDown(
       Sender  : TObject;
       var Key : Word;
@@ -65,12 +68,14 @@ type
       Shift   : TShiftState
     );
     procedure edtFilterChange(Sender: TObject);
+    {$ENDREGION}
 
   private
     FVKPressed : Boolean;
     FVST       : TVirtualStringTree;
     FTVP       : TTreeViewPresenter;
 
+    {$REGION 'event handlers'}
     function FTVPColumnDefinitionsCustomDrawColumn(
       Sender           : TObject;
       ColumnDefinition : TColumnDefinition;
@@ -84,6 +89,7 @@ type
     procedure FTVPFilter(Item: TObject; var Accepted: Boolean);
     procedure FTVPDoubleClick(Sender: TObject);
     procedure FVSTKeyPress(Sender: TObject; var Key: Char);
+    {$ENDREGION}
 
     procedure InitializePresenter;
     procedure ApplyFilter;
@@ -93,7 +99,6 @@ type
 
   public
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
 
   end;
 
@@ -171,12 +176,6 @@ begin
   sbrMain.SimpleText := Format(SConceptsLoaded, [ConceptManager.ItemList.Count]);
   LoadSettings;
 end;
-
-procedure TfrmMain.BeforeDestruction;
-begin
-  SaveSettings;
-  inherited BeforeDestruction;
-end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
@@ -204,29 +203,12 @@ end;
 
 procedure TfrmMain.actCloseExecute(Sender: TObject);
 begin
+  SaveSettings;
   Close;
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
-function TfrmMain.FTVPColumnDefinitionsCustomDrawColumn(Sender: TObject;
-  ColumnDefinition: TColumnDefinition; Item: TObject; TargetCanvas: TCanvas;
-  CellRect: TRect; ImageList: TCustomImageList; DrawMode: TDrawMode;
-  Selected: Boolean): Boolean;
-var
-  C : TConcept;
-begin
-  C := Item as TConcept;
-  if ColumnDefinition.Index < 2 then
-    TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsBold];
-  if DrawMode = TDrawMode.dmBeforeCellPaint then
-  begin
-    TargetCanvas.Brush.Color := C.Color;
-    TargetCanvas.FillRect(CellRect);
-  end;
-  Result := True;
-end;
-
 procedure TfrmMain.edtFilterChange(Sender: TObject);
 begin
   ApplyFilter;
@@ -265,6 +247,24 @@ begin
   FVKPressed := False;
 end;
 
+function TfrmMain.FTVPColumnDefinitionsCustomDrawColumn(Sender: TObject;
+  ColumnDefinition: TColumnDefinition; Item: TObject; TargetCanvas: TCanvas;
+  CellRect: TRect; ImageList: TCustomImageList; DrawMode: TDrawMode;
+  Selected: Boolean): Boolean;
+var
+  C : TConcept;
+begin
+  C := Item as TConcept;
+  if ColumnDefinition.Index < 2 then
+    TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsBold];
+  if DrawMode = TDrawMode.dmBeforeCellPaint then
+  begin
+    TargetCanvas.Brush.Color := C.Color;
+    TargetCanvas.FillRect(CellRect);
+  end;
+  Result := True;
+end;
+
 procedure TfrmMain.FTVPDoubleClick(Sender: TObject);
 begin
   ConceptManager.Execute(FTVP.SelectedItem, False);
@@ -272,7 +272,7 @@ end;
 
 procedure TfrmMain.FTVPFilter(Item: TObject; var Accepted: Boolean);
 var
-  C: TConcept;
+  C : TConcept;
 begin
   if edtFilter.Text <> '' then
   begin
@@ -352,7 +352,7 @@ end;
 
 procedure TfrmMain.LoadSettings;
 begin
-  Position := poDefault;
+  Position := poScreenCenter;
   Left   := Settings.ReadInteger(UnitName, 'Left', Left);
   Top    := Settings.ReadInteger(UnitName, 'Top', Top);
   Width  := Settings.ReadInteger(UnitName, 'Width', Width);
