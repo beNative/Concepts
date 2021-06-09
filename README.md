@@ -15,7 +15,7 @@
 * [MQTT](http://github.com/wizinfantry/delphi-mqtt-client)
 * [DDetours](http://github.com/MahdiSafsafi/delphi-detours-library)
 * [TzObjectInspector](http://github.com/MahdiSafsafi/zcontrols)
-* [TBCEditor](http://github.com/bonecode/TBCEditor)
+* [TBCEditor](https://github.com/beNative/TBCEditor)
 * [SynEdit](https://github.com/SynEdit/SynEdit)
 * [JsonDataObjects](http://github.com/ahausladen/JsonDataObjects)
 * [Ararat Synapse](http://sourceforge.net/projects/synalist/)
