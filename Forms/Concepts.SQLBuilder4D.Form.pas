@@ -39,7 +39,6 @@ type
 
     procedure actTest1Execute(Sender: TObject);
     procedure actTest2Execute(Sender: TObject);
-  public
 
   end;
 
