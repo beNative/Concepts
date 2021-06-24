@@ -16,9 +16,9 @@ object frmVirtualInterfaceDemo: TfrmVirtualInterfaceDemo
   PixelsPerInch = 96
   TextHeight = 13
   object lblDefinition: TLabel
-    Left = 8
-    Top = 8
-    Width = 306
+    Left = 4
+    Top = 3
+    Width = 314
     Height = 78
     BiDiMode = bdLeftToRight
     Caption = 

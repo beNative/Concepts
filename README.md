@@ -15,7 +15,7 @@
 * [MQTT](http://github.com/wizinfantry/delphi-mqtt-client)
 * [DDetours](http://github.com/MahdiSafsafi/delphi-detours-library)
 * [TzObjectInspector](http://github.com/MahdiSafsafi/zcontrols)
-* [TBCEditor](http://github.com/bonecode/TBCEditor)
+* [TBCEditor](https://github.com/beNative/TBCEditor)
 * [SynEdit](https://github.com/SynEdit/SynEdit)
 * [JsonDataObjects](http://github.com/ahausladen/JsonDataObjects)
 * [Ararat Synapse](http://sourceforge.net/projects/synalist/)
@@ -24,6 +24,7 @@
 * [BTMemoryModule](http://github.com/DSPlayer/memorymodule)
 * [Chinook database](http://github.com/lerocha/chinook-database)
 * [SQLite](https://www.sqlite.org/)
+* [KControls](https://github.com/kryslt/KControls)
 
 These libraries are also used in some of my open source projects:
 * [Notepas](https://github.com/beNative/Notepas)
