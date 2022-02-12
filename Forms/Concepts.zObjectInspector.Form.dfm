@@ -23,8 +23,6 @@ object frmzObjectInspector: TfrmzObjectInspector
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 28
-    ExplicitHeight = 688
     object splSplitter: TSplitter
       Left = 313
       Top = 0
@@ -43,7 +41,6 @@ object frmzObjectInspector: TfrmzObjectInspector
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 669
       object cbxControls: TComboBox
         AlignWithMargins = True
         Left = 3
@@ -75,7 +72,6 @@ object frmzObjectInspector: TfrmzObjectInspector
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 1
-      ExplicitHeight = 669
       DesignSize = (
         478
         663)
@@ -122,7 +118,6 @@ object frmzObjectInspector: TfrmzObjectInspector
         Images = dmResources.imlMain
         Items = <>
         TabOrder = 3
-        ExplicitHeight = 559
       end
       object trbTrackBar: TTrackBar
         Left = 6
@@ -167,7 +162,6 @@ object frmzObjectInspector: TfrmzObjectInspector
       Panels = <>
       ParentShowHint = False
       ShowHint = True
-      ExplicitTop = 669
     end
   end
   object pnlHeader: TPanel
@@ -181,9 +175,6 @@ object frmzObjectInspector: TfrmzObjectInspector
     Color = clWhite
     ParentBackground = False
     TabOrder = 1
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 799
     object lblHeader: TLabel
       Left = 0
       Top = 0

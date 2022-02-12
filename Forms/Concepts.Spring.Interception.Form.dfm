@@ -55,9 +55,6 @@ object frmSpringInterception: TfrmSpringInterception
     ParentBackground = False
     ParentFont = False
     TabOrder = 3
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 257
     object lblHeader: TLabel
       Left = 0
       Top = 0

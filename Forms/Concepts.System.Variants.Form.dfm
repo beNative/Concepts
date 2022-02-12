@@ -72,9 +72,6 @@ object frmVariants: TfrmVariants
     ParentBackground = False
     ParentFont = False
     TabOrder = 5
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 261
     object lblHeader: TLabel
       Left = 0
       Top = 0
@@ -85,7 +82,7 @@ object frmVariants: TfrmVariants
       Caption = 'This form demonstrates some features of the Variant type.'
       Layout = tlCenter
       WordWrap = True
-      ExplicitWidth = 260
+      ExplicitWidth = 238
       ExplicitHeight = 26
     end
   end

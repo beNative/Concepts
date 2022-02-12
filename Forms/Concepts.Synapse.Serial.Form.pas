@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -52,10 +52,12 @@ uses
 
 type
   TSynapseSerial = class(TBlockSerial)
+    {$REGION 'property access methods'}
     function GetDTR: Boolean;
     function GetRTS: Boolean;
     procedure SetDTRF(Value: Boolean); override;
     procedure SetRTSF(Value: Boolean); override;
+    {$ENDREGION}
 
     property RTS: Boolean
       read GetRTS write SetRTSF;
@@ -139,6 +141,7 @@ type
     pnlRing                : TPanel;
     {$ENDREGION}
 
+    {$REGION 'action handlers'}
     procedure actClearReceivedExecute(Sender: TObject);
     procedure actClearSentExecute(Sender: TObject);
     procedure actConnectExecute(Sender: TObject);
@@ -147,14 +150,17 @@ type
     procedure actSendExecute(Sender: TObject);
     procedure actAssignCommandExecute(Sender: TObject);
     procedure actClearCommandExecute(Sender: TObject);
+    procedure actSendMultiLineExecute(Sender: TObject);
+    {$ENDREGION}
 
+    {$REGION 'event handlers'}
     procedure InspectorModified(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure cbxCOMPortDropDown(Sender: TObject);
     procedure cbxCOMPortChange(Sender: TObject);
-    procedure actSendMultiLineExecute(Sender: TObject);
     procedure tmrPollTimer(Sender: TObject);
     procedure cbxBaudRateChange(Sender: TObject);
+    {$ENDREGION}
 
   private
     FLogIn     : TLogTree;

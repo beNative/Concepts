@@ -104,9 +104,9 @@ object frmSpringUtils: TfrmSpringUtils
     TabOrder = 1
     object btnFileVersionInfo: TButton
       AlignWithMargins = True
-      Left = 703
+      Left = 702
       Top = 3
-      Width = 227
+      Width = 228
       Height = 26
       Action = actApplicationVersionInfo
       Align = alClient
@@ -126,7 +126,7 @@ object frmSpringUtils: TfrmSpringUtils
       AlignWithMargins = True
       Left = 470
       Top = 3
-      Width = 227
+      Width = 226
       Height = 26
       Action = actApplicationVersion
       Align = alClient
@@ -166,7 +166,7 @@ object frmSpringUtils: TfrmSpringUtils
       AlignWithMargins = True
       Left = 470
       Top = 35
-      Width = 227
+      Width = 226
       Height = 27
       Action = actGetLogicalDrives
       Align = alClient

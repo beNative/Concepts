@@ -87,6 +87,10 @@ object frmInterfaces: TfrmInterfaces
     object tsGUIDs: TTabSheet
       Caption = '1. GUIDs'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object lbl1: TLabel
         Left = 11
         Top = 34
@@ -120,6 +124,10 @@ object frmInterfaces: TfrmInterfaces
     object tsInterfaceInternals: TTabSheet
       Caption = '2. Interface internals'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object btnExecute: TBitBtn
         Left = 16
         Top = 39
@@ -148,6 +156,10 @@ object frmInterfaces: TfrmInterfaces
     end
     object tsReferenceCounting: TTabSheet
       Caption = '3. Reference counting'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlOperations: TPanel
         Left = 0
         Top = 0
@@ -355,6 +367,10 @@ object frmInterfaces: TfrmInterfaces
     object tsImplementationByAggregation: TTabSheet
       Caption = '4. Implementation by Aggregation'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         854
         182)
@@ -461,6 +477,10 @@ object frmInterfaces: TfrmInterfaces
     object tsVirtualInterface: TTabSheet
       Caption = '5. TVirtualInterface'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object lblDefinition: TLabel
         Left = 11
         Top = 34

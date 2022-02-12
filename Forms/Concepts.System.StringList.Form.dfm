@@ -123,7 +123,7 @@ object frmStringList: TfrmStringList
     object pnlDelimitedText: TPanel
       Left = 260
       Top = 0
-      Width = 261
+      Width = 260
       Height = 384
       Align = alClient
       BevelOuter = bvNone
@@ -132,7 +132,7 @@ object frmStringList: TfrmStringList
         AlignWithMargins = True
         Left = 3
         Top = 356
-        Width = 255
+        Width = 254
         Height = 25
         Action = actSetDelimitedText
         Align = alBottom
@@ -142,16 +142,16 @@ object frmStringList: TfrmStringList
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 255
+        Width = 254
         Height = 347
         Align = alClient
         TabOrder = 1
       end
     end
     object pnlNameValues: TPanel
-      Left = 521
+      Left = 520
       Top = 0
-      Width = 260
+      Width = 261
       Height = 384
       Align = alClient
       BevelOuter = bvNone
@@ -160,7 +160,7 @@ object frmStringList: TfrmStringList
         AlignWithMargins = True
         Left = 3
         Top = 356
-        Width = 254
+        Width = 255
         Height = 25
         Action = actSetNameValues
         Align = alBottom
@@ -170,7 +170,7 @@ object frmStringList: TfrmStringList
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 254
+        Width = 255
         Height = 347
         Align = alClient
         DisplayOptions = [doColumnTitles, doAutoColResize]
@@ -178,7 +178,7 @@ object frmStringList: TfrmStringList
         TabOrder = 1
         ColWidths = (
           124
-          124)
+          125)
         RowHeights = (
           18
           18)
@@ -202,9 +202,6 @@ object frmStringList: TfrmStringList
     ParentBackground = False
     ParentFont = False
     TabOrder = 5
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 781
     object lblHeader: TLabel
       Left = 0
       Top = 0

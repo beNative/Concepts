@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -62,12 +62,14 @@ type
 
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 
+    {$REGION 'action handlers'}
     procedure actCreateAnonymousThreadsExecute(Sender: TObject);
     procedure actTerminateThreadsExecute(Sender: TObject);
     procedure actMonitorEnterExecute(Sender: TObject);
     procedure actMonitorExitExecute(Sender: TObject);
     procedure actMonitorPulseExecute(Sender: TObject);
     procedure actMonitorPulseAllExecute(Sender: TObject);
+    {$ENDREGION}
 
   private
     FThreads : IList<TThread>;

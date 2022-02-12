@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ uses
 
 type
   TfrmStringsDialog = class(TzInspDialog)
-    btnOk       : TButton;
-    btnCancel   : TButton;
-    mmoMain     : TMemo;
-    aclMain     : TActionList;
-    actOK       : TAction;
-    actCancel   : TAction;
+    btnOk     : TButton;
+    btnCancel : TButton;
+    mmoMain   : TMemo;
+    aclMain   : TActionList;
+    actOK     : TAction;
+    actCancel : TAction;
 
     procedure actOKExecute(Sender: TObject);
     procedure actCancelExecute(Sender: TObject);

@@ -22,34 +22,37 @@ uses
 type
   TfrmVirtualTreeView = class(TForm)
     {$REGION 'designer controls'}
-    splVertical       : TSplitter;
-    sbrMain           : TStatusBar;
-    pnlLeft           : TPanel;
-    pnlMain           : TPanel;
-    pnlHeader         : TPanel;
-    lblHeader         : TLabel;
-    pnlColumnSettings : TGridPanel;
-    pnlCol0           : TPanel;
-    pnlCol1           : TPanel;
-    pnlCol2           : TPanel;
-    pnlCol3           : TPanel;
-    pnlCol4           : TPanel;
-    pnlCol5           : TPanel;
-    pnlCol6: TPanel;
-    splHorizontal: TSplitter;
-    pnlTreeView: TPanel;
-    aclMain: TActionList;
-    actAutoSizeColumns: TAction;
-    btnAutoSizeColumns: TButton;
-    lblFocusedNode: TLabel;
-    procedure FormResize(Sender: TObject);
-    procedure actAutoSizeColumnsExecute(Sender: TObject);
+    aclMain            : TActionList;
+    actAutoSizeColumns : TAction;
+    btnAutoSizeColumns : TButton;
+    lblFocusedNode     : TLabel;
+    lblHeader          : TLabel;
+    pnlCol0            : TPanel;
+    pnlCol1            : TPanel;
+    pnlCol2            : TPanel;
+    pnlCol3            : TPanel;
+    pnlCol4            : TPanel;
+    pnlCol5            : TPanel;
+    pnlCol6            : TPanel;
+    pnlColumnSettings  : TGridPanel;
+    pnlHeader          : TPanel;
+    pnlLeft            : TPanel;
+    pnlMain            : TPanel;
+    pnlTreeView        : TPanel;
+    sbrMain            : TStatusBar;
+    splHorizontal      : TSplitter;
+    splVertical        : TSplitter;
     {$ENDREGION}
+
+    procedure FormResize(Sender: TObject);
+
+    procedure actAutoSizeColumnsExecute(Sender: TObject);
 
   private
     FObjectInspector   : TzObjectInspector;
     FVirtualStringTree : TVirtualStringTree;
 
+    {$REGION 'event handlers'}
     function FObjectInspectorBeforeAddItem(
       Sender : TControl;
       PItem  : PPropItem
@@ -148,6 +151,30 @@ type
       Hover, Pressed : Boolean;
       DropMark       : TVTDropMarkMode
     );
+    procedure FVirtualStringTreeBeforeItemPaint(
+      Sender         : TBaseVirtualTree;
+      TargetCanvas   : TCanvas;
+      Node           : PVirtualNode;
+      ItemRect       : TRect;
+      var CustomDraw : Boolean
+    );
+    procedure FVirtualStringTreeBeforeCellPaint(
+      Sender          : TBaseVirtualTree;
+      TargetCanvas    : TCanvas;
+      Node            : PVirtualNode;
+      Column          : TColumnIndex;
+      CellPaintMode   : TVTCellPaintMode;
+      CellRect        : TRect;
+      var ContentRect : TRect
+    );
+    procedure FVirtualStringTreePaintText(
+      Sender             : TBaseVirtualTree;
+      const TargetCanvas : TCanvas;
+      Node               : PVirtualNode;
+      Column             : TColumnIndex;
+      TextType           : TVSTTextType
+    );
+    {$ENDREGION}
 
   protected
     procedure UpdateActions; override;
@@ -238,6 +265,23 @@ procedure TfrmVirtualTreeView.FVirtualStringTreeAfterCellPaint(Sender: TBaseVirt
   CellRect: TRect);
 begin
   Logger.IncCounter('OnAfterCellPaint');
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeBeforeCellPaint(
+  Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
+  Column: TColumnIndex; CellPaintMode: TVTCellPaintMode; CellRect: TRect;
+  var ContentRect: TRect);
+begin
+  Logger.AddCheckPoint('OnBeforeCellPaint');
+  Logger.IncCounter('OnBeforeCellPaint');
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeBeforeItemPaint(
+  Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
+  ItemRect: TRect; var CustomDraw: Boolean);
+begin
+  Logger.AddCheckPoint('OnBeforeItemPaint');
+  Logger.IncCounter('OnBeforeItemPaint');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeChange(Sender: TBaseVirtualTree;
@@ -368,6 +412,15 @@ procedure TfrmVirtualTreeView.FVirtualStringTreeMouseUp(Sender: TObject;
 begin
   Logger.IncCounter('OnMouseUp');
 end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreePaintText(
+  Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode;
+  Column: TColumnIndex; TextType: TVSTTextType);
+begin
+  if Column = 0 then
+    TargetCanvas.Font.Style := [fsBold];
+end;
+
 {$ENDREGION}
 {$ENDREGION}
 
@@ -393,6 +446,9 @@ begin
     OnInitChildren            := FVirtualStringTreeInitChildren;
     OnInitNode                := FVirtualStringTreeInitNode;
     OnMouseUp                 := FVirtualStringTreeMouseUp;
+    OnBeforeItemPaint         := FVirtualStringTreeBeforeItemPaint;
+    OnBeforeCellPaint         := FVirtualStringTreeBeforeCellPaint;
+    OnPaintText               := FVirtualStringTreePaintText;
     with Header.Columns.Add do
     begin
       Color    := clWhite;
@@ -476,6 +532,9 @@ begin
     Header.Options := Header.Options + [hoOwnerDraw];
   end;
 end;
+{$ENDREGION}
+
+{$REGION 'protected methods'}
 procedure TfrmVirtualTreeView.UpdateActions;
 begin
   inherited UpdateActions;
@@ -487,9 +546,7 @@ begin
   begin
     lblFocusedNode.Caption := 'None';
   end;
-
 end;
-
 {$ENDREGION}
 
 end.

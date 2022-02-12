@@ -165,10 +165,8 @@ object frmCollections: TfrmCollections
         '.'
       Layout = tlCenter
       WordWrap = True
-      ExplicitLeft = 0
-      ExplicitTop = 6
-      ExplicitWidth = 495
-      ExplicitHeight = 29
+      ExplicitWidth = 372
+      ExplicitHeight = 13
     end
   end
   object aclMain: TActionList

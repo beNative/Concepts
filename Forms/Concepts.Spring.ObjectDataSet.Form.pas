@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -100,6 +100,7 @@ type
     splVertical             : TSplitter;
     {$ENDREGION}
 
+    {$REGION 'action handlers'}
     procedure actFillListExecute(Sender: TObject);
     procedure actConnectDataSetExecute(Sender: TObject);
     procedure actDisconnectDataSetExecute(Sender: TObject);
@@ -107,10 +108,13 @@ type
     procedure actConnectPresenterExecute(Sender: TObject);
     procedure actInspectObjectDataSetExecute(Sender: TObject);
     procedure actInspectPresenterExecute(Sender: TObject);
+    {$ENDREGION}
 
+    {$REGION 'event handlers'}
     procedure FormResize(Sender: TObject);
     procedure dscMainUpdateData(Sender: TObject);
     procedure FTVPSelectionChanged(Sender: TObject);
+    {$ENDREGION}
 
   private
     FList          : IList<TContact>;

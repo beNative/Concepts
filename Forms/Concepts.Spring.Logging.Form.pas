@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -76,14 +76,18 @@ type
     tsMain             : TTabSet;
     {$ENDREGION}
 
+    {$REGION 'action handlers'}
     procedure actTrackThisExecute(Sender: TObject);
     procedure actLogExecute(Sender: TObject);
     procedure actLogValueExecute(Sender: TObject);
+    {$ENDREGION}
 
+    {$REGION 'event handlers'}
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure tsMainChange(Sender: TObject; NewTab: Integer;
       var AllowChange: Boolean);
     procedure edtLogFileChange(Sender: TObject);
+    {$ENDREGION}
 
   private
     FController        : ILoggerController;

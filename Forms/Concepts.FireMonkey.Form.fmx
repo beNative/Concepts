@@ -7,6 +7,7 @@ object FireMonkeyForm: TFireMonkeyForm
   ClientWidth = 694
   Quality = HighQuality
   StyleLookup = 'panelstyle'
+  FormStyle = StayOnTop
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop, iPhone, iPad]
@@ -45,7 +46,7 @@ object FireMonkeyForm: TFireMonkeyForm
           item
           end>
         IsSelected = True
-        Size.Width = 70.000000000000000000
+        Size.Width = 69.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False
         StyleLookup = ''
@@ -59,7 +60,7 @@ object FireMonkeyForm: TFireMonkeyForm
           item
           end>
         IsSelected = False
-        Size.Width = 70.000000000000000000
+        Size.Width = 69.000000000000000000
         Size.Height = 26.000000000000000000
         Size.PlatformDefault = False
         StyleLookup = ''
@@ -129,7 +130,7 @@ object FireMonkeyForm: TFireMonkeyForm
     end
     object cmbExample: TComboBox
       Hint = 'TComboBox'
-      Position.X = 312.000000000000000000
+      Position.X = 344.000000000000000000
       Position.Y = 16.000000000000000000
       TabOrder = 6
     end
@@ -184,16 +185,20 @@ object FireMonkeyForm: TFireMonkeyForm
     end
     object cbxColor: TColorComboBox
       DropDownKind = Custom
-      Color = claNull
+      Color = claSpringgreen
       DisableFocusEffect = False
-      ItemIndex = 147
+      ItemIndex = 134
       Position.X = 208.000000000000000000
       Position.Y = 16.000000000000000000
+      Size.Width = 129.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'comboboxstyle'
       TabOrder = 18
     end
     object rbtRadioButton: TRadioButton
       Hint = 'TRadioButton'
-      Position.X = 424.000000000000000000
+      Position.X = 552.000000000000000000
       Position.Y = 16.000000000000000000
       TabOrder = 19
       Text = 'TRadioButton'
@@ -246,7 +251,7 @@ object FireMonkeyForm: TFireMonkeyForm
     Size.Height = 24.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 14
-    object MenuItem1: TMenuItem
+    object mni1: TMenuItem
       Text = 'MenuItem1'
       object MenuItem7: TMenuItem
         Locked = True

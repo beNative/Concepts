@@ -2,8 +2,6 @@ program Concepts;
 
 {$I Concepts.inc}
 
-{$R *.dres}
-
 uses
   Vcl.Themes,
   Vcl.Styles,
@@ -95,7 +93,8 @@ uses
   Concepts.SynEdit.Form in 'Forms\Concepts.SynEdit.Form.pas' {frmSynEdit},
   Concepts.Indy.TCP.Form in 'Forms\Concepts.Indy.TCP.Form.pas' {frmIndyTCP},
   Concepts.Vcl.Styles.Form in 'Forms\Concepts.Vcl.Styles.Form.pas' {frmVclStyles},
-  Concepts.KControls.KMemo.Form in 'Forms\Concepts.KControls.KMemo.Form.pas' {frmKMemo};
+  Concepts.KControls.KMemo.Form in 'Forms\Concepts.KControls.KMemo.Form.pas' {frmKMemo},
+  DDuce.DynamicRecord in 'Libraries\DDuce\DDuce.DynamicRecord.pas';
 
 {$R *.res}
 

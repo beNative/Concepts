@@ -459,7 +459,7 @@ object frmObjectDataSet: TfrmObjectDataSet
     Panels = <>
   end
   object btnInspectPresenter: TButton
-    Left = 453
+    Left = 448
     Top = 5
     Width = 150
     Height = 25

@@ -38,8 +38,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 28
-    ExplicitHeight = 631
   end
   object pnlMain: TPanel
     Left = 337
@@ -49,8 +47,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitTop = 28
-    ExplicitHeight = 631
     object splHorizontal: TSplitter
       Left = 0
       Top = 288
@@ -134,7 +130,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
           Value = 100.000000000000000000
         end>
       TabOrder = 0
-      ExplicitHeight = 335
       object pnlCol0: TPanel
         Left = 0
         Top = 0
@@ -262,9 +257,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     Color = clWhite
     ParentBackground = False
     TabOrder = 3
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 1342
     DesignSize = (
       1336
       28)
@@ -306,7 +298,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
       Action = actAutoSizeColumns
       Anchors = [akTop, akRight]
       TabOrder = 0
-      ExplicitLeft = 1052
     end
   end
   object aclMain: TActionList

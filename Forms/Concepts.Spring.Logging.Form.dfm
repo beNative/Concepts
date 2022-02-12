@@ -34,8 +34,6 @@ object frmSpringLogging: TfrmSpringLogging
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 29
-    ExplicitHeight = 656
     object grpLogEntry: TGroupBox
       Left = 1
       Top = 50
@@ -107,7 +105,6 @@ object frmSpringLogging: TfrmSpringLogging
       Anchors = [akLeft, akTop, akRight, akBottom]
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 369
       object tsMain: TTabSet
         Left = 0
         Top = 0
@@ -220,8 +217,6 @@ object frmSpringLogging: TfrmSpringLogging
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 32
-    ExplicitHeight = 650
   end
   object pnlHeader: TPanel
     AlignWithMargins = True
@@ -240,9 +235,6 @@ object frmSpringLogging: TfrmSpringLogging
     ParentBackground = False
     ParentFont = False
     TabOrder = 2
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 1088
     object lblHeader: TLabel
       Left = 0
       Top = 0
@@ -284,7 +276,7 @@ object frmSpringLogging: TfrmSpringLogging
     Left = 304
     Top = 544
     Bitmap = {
-      494C010104000900040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010104000900080010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -560,7 +552,7 @@ object frmSpringLogging: TfrmSpringLogging
     Left = 536
     Top = 344
     Bitmap = {
-      494C010109000D00040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010109000D00080010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

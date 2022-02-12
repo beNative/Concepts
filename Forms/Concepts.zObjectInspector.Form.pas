@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -60,12 +60,14 @@ type
     trbTrackBar          : TTrackBar;
     {$ENDREGION}
 
+    {$REGION 'event handlers'}
     procedure cbxControlsChange(Sender: TObject);
     procedure lblLinkLinkClick(
       Sender     : TObject;
       const Link : string;
       LinkType   : TSysLinkType
     );
+    {$ENDREGION}
 
   private
     FObjectInspector : TzObjectInspector;

@@ -58,9 +58,6 @@ object frmDDetours: TfrmDDetours
     ParentBackground = False
     ParentFont = False
     TabOrder = 3
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 309
     object lblHeader: TLabel
       Left = 0
       Top = 0
@@ -71,8 +68,8 @@ object frmDDetours: TfrmDDetours
       Caption = 'This form demonstrates how to use the DDetours unit.'
       Layout = tlCenter
       WordWrap = True
-      ExplicitWidth = 306
-      ExplicitHeight = 13
+      ExplicitWidth = 281
+      ExplicitHeight = 26
     end
   end
   object aclMain: TActionList

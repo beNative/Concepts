@@ -97,9 +97,6 @@ object frmLazyInstantiation: TfrmLazyInstantiation
     ParentBackground = False
     ParentFont = False
     TabOrder = 5
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 419
     object lblHeader: TLabel
       Left = 0
       Top = 0

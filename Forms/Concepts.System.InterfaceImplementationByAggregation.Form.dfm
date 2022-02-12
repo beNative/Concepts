@@ -53,9 +53,6 @@ object frmInterfaceImplementationByAggregation: TfrmInterfaceImplementationByAgg
     ParentBackground = False
     ParentFont = False
     TabOrder = 2
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 379
     object lblHeader: TLabel
       Left = 0
       Top = 0

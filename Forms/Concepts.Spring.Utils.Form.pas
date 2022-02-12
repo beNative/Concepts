@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ type
     pnlTop                     : TGridPanel;
     {$ENDREGION}
 
+    {$REGION 'action handlers'}
     procedure actOperatingSystemExecute(Sender: TObject);
     procedure actApplicationVersionInfoExecute(Sender: TObject);
     procedure actApplicationVersionExecute(Sender: TObject);
@@ -59,6 +60,7 @@ type
     procedure actGetEnvironmentVariablesExecute(Sender: TObject);
     procedure actGetCommandLineArgsExecute(Sender: TObject);
     procedure actGetLogicalDrivesExecute(Sender: TObject);
+    {$ENDREGION}
 
   end;
 

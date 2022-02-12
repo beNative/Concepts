@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -38,9 +38,11 @@ type
     chkThreaded      : TCheckBox;
     lblWorking       : TLabel;
 
+    {$REGION 'event handlers'}
     procedure edtRegExpressionChange(Sender: TObject);
     procedure edtReplaceChange(Sender: TObject);
     procedure mmoInputChange(Sender: TObject);
+    {$ENDREGION}
 
   private
     FThreadRunning : Boolean; // read/write on byte values is atomic

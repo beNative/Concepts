@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -42,11 +42,13 @@ type
     actDraw               : TAction;
     {$ENDREGION}
 
+    {$REGION 'action handlers'}
     procedure actLockPaintExecute(Sender: TObject);
     procedure actUnlockPaintExecute(Sender: TObject);
     procedure actLockWindowUpdateExecute(Sender: TObject);
     procedure actUnlockWindowUpdateExecute(Sender: TObject);
     procedure actDrawExecute(Sender: TObject);
+    {$ENDREGION}
 
   end;
 

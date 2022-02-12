@@ -37,8 +37,6 @@ object frmSynMemoEx: TfrmSynMemoEx
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 29
-    ExplicitHeight = 668
   end
   object pnlMain: TPanel
     Left = 337
@@ -48,8 +46,6 @@ object frmSynMemoEx: TfrmSynMemoEx
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitTop = 29
-    ExplicitHeight = 668
   end
   object pnlHeader: TPanel
     AlignWithMargins = True
@@ -69,8 +65,5 @@ object frmSynMemoEx: TfrmSynMemoEx
     ParentBackground = False
     ParentFont = False
     TabOrder = 3
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 1164
   end
 end

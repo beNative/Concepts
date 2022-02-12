@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ uses
 
   DDuce.Components.VirtualTrees.Node, DDuce.ObjectInspector.zObjectInspector,
 
-  kcontrols, kmemo, kgraphics;
+  kcontrols, kmemo, kgraphics, kpagecontrol, SynEdit;
 
 type
   TBlockNode = TVTNode<TKMemoBlock>;
@@ -50,7 +50,6 @@ type
     actDeleteBlock    : TAction;
     actRebuildTree    : TAction;
     pnlRichEditor     : TPanel;
-    KMemo             : TKMemo;
     pnlTree           : TPanel;
     splVertical       : TSplitter;
     imlMain           : TImageList;
@@ -104,6 +103,17 @@ type
     Button8: TButton;
     Button9: TButton;
     Button10: TButton;
+    actOpenFile: TAction;
+    dlgOpenFile: TFileOpenDialog;
+    btnOpenFile: TButton;
+    dlgSaveFile: TFileSaveDialog;
+    btnSaveFile: TButton;
+    actSaveFile: TAction;
+    pgcKMemo: TKPageControl;
+    tsKMemo: TKTabSheet;
+    tsRTF: TKTabSheet;
+    KMemo: TKMemo;
+    seRTF: TSynEdit;
     {$ENDREGION}
 
     {$REGION 'action handlers'}
@@ -125,6 +135,9 @@ type
       var Result : Boolean
     );
     procedure KMemoChange(Sender: TObject);
+    procedure actOpenFileExecute(Sender: TObject);
+    procedure actSaveFileExecute(Sender: TObject);
+    procedure tsRTFEnter(Sender: TObject);
     {$ENDREGION}
 
   private
@@ -135,10 +148,22 @@ type
     FBlocksInspector : TzObjectInspector;
     FUpdate          : Boolean;
 
+    {$REGION 'property access methods'}
+    function GetKMemoNotifier: IKMemoNotifier;
+    function GetSelectedBlock: TKMemoBlock;
+    {$ENDREGION}
+
     {$REGION 'event handlers'}
     procedure FTreeFreeNode(
       Sender : TBaseVirtualTree;
       Node   : PVirtualNode
+    );
+    procedure FTreeGetHint(
+      Sender             : TBaseVirtualTree;
+      Node               : PVirtualNode;
+      Column             : TColumnIndex;
+      var LineBreakStyle : TVTTooltipLineBreakStyle;
+      var HintText       : string
     );
     procedure FTreeGetText(
       Sender       : TBaseVirtualTree;
@@ -167,26 +192,40 @@ type
       ABlock  : TKMemoBlock;
       AParent : TKMemoBlock = nil
     ): TBlockNode;
+
+//    function AddBlockToTree(
+//      ABlock      : TKMemoBlock;
+//      AParentNode : TBlockNode = nil
+//    ): TBlockNode;
     procedure BuildTreeView(AKMemo: TKMemo);
     function AddNodes(AKMemoBlock: TKMemoContainer): Boolean;
 
-    procedure AddTextBlock;
-    procedure AddParagraphBlock;
-    procedure AddHyperLinkBlock;
-    procedure AddContainerBlock;
-    procedure AddImageBlock;
-    procedure AddTable;
+    function AddTextBlock: TKMemoTextBlock;
+    function AddParagraphBlock: TKMemoParagraph;
+    function AddHyperLinkBlock: TKMemoHyperlink;
+    function AddContainerBlock: TKMemoContainer;
+    function AddImageBlock: TKMemoImageBlock;
+    function AddTable: TKMemoTable;
+
+    procedure CreateTreeView;
+    procedure CreateInspectors;
     procedure ClearTree;
     procedure DeleteBlock;
 
     procedure Modified;
     function ActiveBlocks: TKMemoBlocks;
+    function ParentBlock: TKMemoBlock;
     procedure UpdateActions; override;
 
   public
-    procedure CreateTreeView;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+
+    property SelectedBlock: TKMemoBlock
+      read GetSelectedBlock;
+
+    property KMemoNotifier: IKMemoNotifier
+      read GetKMemoNotifier;
 
   end;
 
@@ -202,22 +241,25 @@ constructor TfrmKMemo.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   CreateTreeView;
-  FBlocksInspector := TzObjectInspectorFactory.Create(
-    Self,
-    pnlTop,
-    nil
-  );
-  FBlockInspector := TzObjectInspectorFactory.Create(
-    Self,
-    pnlBottom,
-    nil
-  );
+  //CreateInspectors;
 end;
 
 destructor TfrmKMemo.Destroy;
 begin
   FRootData.Free;
   inherited;
+end;
+{$ENDREGION}
+
+{$REGION 'property access methods'}
+function TfrmKMemo.GetKMemoNotifier: IKMemoNotifier;
+begin
+  Result := KMemo as IKMemoNotifier;
+end;
+
+function TfrmKMemo.GetSelectedBlock: TKMemoBlock;
+begin
+  Result := KMemoNotifier.GetSelectedBlock;
 end;
 {$ENDREGION}
 
@@ -234,7 +276,7 @@ end;
 
 procedure TfrmKMemo.actAddImageBlockExecute(Sender: TObject);
 begin
-  AddImageBlock;
+//  AddImageBlock;
 end;
 
 procedure TfrmKMemo.actAddParagraphExecute(Sender: TObject);
@@ -262,9 +304,25 @@ begin
   DeleteBlock;
 end;
 
+procedure TfrmKMemo.actOpenFileExecute(Sender: TObject);
+begin
+  if dlgOpenFile.Execute then
+  begin
+    KMemo.LoadFromFile(dlgOpenFile.FileName);
+  end;
+end;
+
 procedure TfrmKMemo.actRebuildTreeExecute(Sender: TObject);
 begin
   BuildTreeView(KMemo);
+end;
+
+procedure TfrmKMemo.actSaveFileExecute(Sender: TObject);
+begin
+  if dlgSaveFile.Execute then
+  begin
+    KMemo.SaveToFile(dlgSaveFile.FileName);
+  end;
 end;
 {$ENDREGION}
 
@@ -275,15 +333,15 @@ procedure TfrmKMemo.FTreeFocusChanged(Sender: TBaseVirtualTree;
 var
   LNode : TBlockNode;
 begin
-  Logger.Track(Self, 'FTreeFocusChanged');
   if Assigned(Node) then
   begin
     LNode := Sender.GetNodeData<TBlockNode>(Node);
     if Assigned(LNode) and (LNode <> FRootNode) and Assigned(LNode.Data) then
     begin
       (KMemo as IKMemoNotifier).SelectBlock(LNode.Data, sgpNone);
-      FBlockInspector.Component  := LNode.Data;
-      FBlocksInspector.Component := LNode.Data.ParentBlocks;
+
+//      FBlockInspector.Component  := LNode.Data;
+//      FBlocksInspector.Component := LNode.Data.ParentBlocks;
     end
     else
     begin
@@ -298,6 +356,20 @@ var
 begin
   LNode := Sender.GetNodeData<TBlockNode>(Node);
   LNode.Free;
+end;
+
+procedure TfrmKMemo.FTreeGetHint(Sender: TBaseVirtualTree; Node: PVirtualNode;
+  Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle;
+  var HintText: string);
+var
+  LNode : TBlockNode;
+begin
+  //Logger.Track(Self, 'FTreeGetHint');
+  LNode  := TBlockNode(Sender.GetNodeData(Node)^);
+  if LNode.Text.IsEmpty then
+  begin
+    HintText := LNode.Data.Text;
+  end
 end;
 
 procedure TfrmKMemo.FTreeGetImageIndex(Sender: TBaseVirtualTree;
@@ -322,7 +394,6 @@ begin
   LNode  := TBlockNode(Sender.GetNodeData(Node)^);
   if LNode.Text.IsEmpty then
   begin
-    //CellText := LNode.Data.Text;
     CellText := LNode.Data.ClassName;
   end
   else
@@ -330,6 +401,9 @@ begin
     CellText := LNode.Text;
   end;
 end;
+
+
+
 {$ENDREGION}
 
 {$REGION 'KMemo'}
@@ -344,8 +418,8 @@ begin
     FTree.Selected[LNode.VNode] := True;
     if Assigned(LNode.Data) then
     begin
-      FBlockInspector.Component  := LNode.Data;
-      FBlocksInspector.Component := LNode.Data.ActiveBlocks;
+//      FBlockInspector.Component  := LNode.Data;
+//      FBlocksInspector.Component := LNode.Data.ActiveBlocks;
     end;
   end;
 end;
@@ -364,13 +438,36 @@ begin
   FUpdate := True;
 end;
 
+function TfrmKMemo.ParentBlock: TKMemoBlock;
+begin
+//  if KMemo.SelectedBlock is TKMemoTableCell then
+//    Result := (KMemo.SelectedBlock as TKMemoTableCell).ParentRow
+//  else if KMemo.SelectedBlock is TKMemoTableRow then
+//    Result := (KMemo.SelectedBlock as TKMemoTableRow).ParentTable
+
+
+end;
+
+procedure TfrmKMemo.tsRTFEnter(Sender: TObject);
+var
+  LStream: TStringStream;
+begin
+  LStream := TStringStream.Create;
+  try
+    //KMemo.ActiveBlocks := KMemo.Blocks;
+    KMemo.SaveToRTFStream(LStream, False, True);
+    seRTF.Lines.Text := LStream.DataString;
+  finally
+    LStream.Free;
+  end;
+end;
+
 procedure TfrmKMemo.UpdateActions;
 begin
   inherited UpdateActions;
   if FUpdate then
   begin
     BuildTreeView(KMemo);
-
     FUpdate := False;
   end;
 end;
@@ -387,6 +484,9 @@ begin
   end;
 end;
 
+{ Creates a new treeview node and attaches it to the node associated with
+  the given parent block, or simply adds it to the root if it AParent is nil. }
+
 function TfrmKMemo.AddBlockToTree(ABlock, AParent: TKMemoBlock): TBlockNode;
 var
   LNode : TBlockNode;
@@ -395,7 +495,10 @@ begin
   LNode := nil;
   if Assigned(AParent) then
   begin
+    Logger.SendObject('AParent', AParent);
     LNode := FRootNode.Find(AParent);
+    if Assigned(LNode) then
+      Logger.SendObject('LNode', LNode.Data);
   end;
   if not Assigned(LNode) then
   begin
@@ -434,63 +537,75 @@ begin
   begin
     LNew.ImageIndex := 4;
   end;
-  FRootNode.Expanded := True;
+  //FRootNode.Expanded := True;
   Result := LNew;
 end;
 
-procedure TfrmKMemo.AddContainerBlock;
+//function TfrmKMemo.AddBlockToTree(ABlock: TKMemoBlock;
+//  AParentNode: TBlockNode): TBlockNode;
+//begin
+//  if Assigned(AParentNode) then
+//  begin
+//    AParentNode.Data.ActiveBlocks.A
+//  end;
+//end;
+
+function TfrmKMemo.AddContainerBlock: TKMemoContainer;
 var
   CO: TKMemoContainer;
 begin
   CO := ActiveBlocks.AddContainer;
   CO.Position := mbpAbsolute;
-  AddBlockToTree(CO).Expanded := True;
+  AddBlockToTree(CO, ActiveBlocks.Parent).Expanded := True;
   CO.FixedWidth := True;
   AddBlockToTree(CO.Blocks.AddTextBlock('Text in a container!'), CO);
+  Result := CO;
 end;
 
-procedure TfrmKMemo.AddHyperLinkBlock;
+function TfrmKMemo.AddHyperLinkBlock: TKMemoHyperlink;
 var
   HL : TKMemoHyperlink;
 begin
-  HL := KMemo.Blocks.AddHyperlink('testlink', 'www.test.com');
-  AddBlockToTree(HL);
+  HL := ActiveBlocks.AddHyperlink('testlink', 'www.test.com');
+  AddBlockToTree(HL, ActiveBlocks.Parent);
+  Result := HL;
 end;
 
-procedure TfrmKMemo.AddImageBlock;
+function TfrmKMemo.AddImageBlock: TKMemoImageBlock;
 var
   LBitmap     : TBitmap;
   LPicture    : TPicture;
   LImageBlock : TKMemoImageBlock;
 begin
-//  LPicture := TPicture.Create;
-//  LBitmap := GetFormImage;
-//  LBitmap.Transparent := False;
-//  LBitmap.TransparentColor := clBlack;
-//  LPicture.Assign(LBitmap);
+  LPicture := TPicture.Create;
+  LBitmap := GetFormImage;
+  LBitmap.Transparent := False;
+  LBitmap.TransparentColor := clBlack;
+  LPicture.Assign(LBitmap);
 
-//  LBitmap.SetSize(100, 100);
-//  LBitmap.Canvas.Brush.Color := clYellow;
-//  LBitmap.Transparent := False;
-//
-//  LBitmap.Canvas.Pen.Color := clBlack;
-//  LBitmap.Canvas.Pen.Style := psSolid;
-//  LBitmap.Canvas.Pen.Width := 2;
-//
-//  LBitmap.Canvas.MoveTo(0, 0);
-//  LBitmap.Canvas.LineTo(100, 100);
-//  LBitmap.Canvas.MoveTo(100, 0);
-//  LBitmap.Canvas.LineTo(0, 100);
-//  try
-//
-//    LImageBlock := ActiveBlocks.AddImageBlock(LPicture);
-//    AddBlockToTree(LImageBlock);
-//  finally
-//    LPicture.Free;
-//  end;
+  LBitmap.SetSize(100, 100);
+  LBitmap.Canvas.Brush.Color := clYellow;
+  LBitmap.Transparent := False;
+
+  LBitmap.Canvas.Pen.Color := clBlack;
+  LBitmap.Canvas.Pen.Style := psSolid;
+  LBitmap.Canvas.Pen.Width := 2;
+
+  LBitmap.Canvas.MoveTo(0, 0);
+  LBitmap.Canvas.LineTo(100, 100);
+  LBitmap.Canvas.MoveTo(100, 0);
+  LBitmap.Canvas.LineTo(0, 100);
+  try
+    LImageBlock := ActiveBlocks.AddImageBlock(LPicture);
+    AddBlockToTree(LImageBlock);
+  finally
+    LPicture.Free;
+  end;
+  Result := LImageBlock;
 end;
 
-{ Recursively adds child blocks for the given Container block. }
+{ Recursively attaches new nodes for every child block in the given
+  Container block. }
 
 function TfrmKMemo.AddNodes(AKMemoBlock: TKMemoContainer): Boolean;
 var
@@ -545,7 +660,7 @@ begin
   end;
 end;
 
-procedure TfrmKMemo.AddParagraphBlock;
+function TfrmKMemo.AddParagraphBlock: TKMemoParagraph;
 var
   TB : TKMemoTextBlock;
   PA : TKMemoParagraph;
@@ -553,10 +668,11 @@ begin
   PA := ActiveBlocks.AddParagraph;
   PA.ParaStyle.HAlign := halLeft;
   PA.ParaStyle.BottomPadding := 20;
-  AddBlockToTree(PA, KMemo.ActiveBlock);
+  AddBlockToTree(PA, ActiveBlocks.Parent);
+  Result := PA;
 end;
 
-procedure TfrmKMemo.AddTable;
+function TfrmKMemo.AddTable: TKMemoTable;
 var
   LTable     : TKMemoTable;
   X          : Integer;
@@ -564,32 +680,27 @@ var
   LTextBlock : TKMemoTextBlock;
   LNode      : TBlockNode;
 begin
-  //KMemo.LockUpdate;
-  try
-    LTable := ActiveBlocks.AddTable;
-    LNode := AddBlockToTree(LTable);
-    LTable.ColCount := 4;
-    LTable.RowCount := 4;
-    for Y := 0 to LTable.RowCount - 1 do
+  LTable := ActiveBlocks.AddTable;
+  LNode := AddBlockToTree(LTable, ActiveBlocks.Parent);
+  LTable.ColCount := 4;
+  LTable.RowCount := 4;
+  for Y := 0 to LTable.RowCount - 1 do
+  begin
+    AddBlockToTree(LTable.Rows[Y], LTable);
+    for X := 0 to LTable.ColCount - 1 do
     begin
-      AddBlockToTree(LTable.Rows[Y], LTable);
-      for X := 0 to LTable.ColCount - 1 do
-      begin
-        AddBlockToTree(LTable.Cells[X, Y], LTable.Rows[Y]);
-        LTextBlock :=
-          LTable.Cells[X, Y].Blocks.AddTextBlock(Format('Cell(%d, %d)', [X, Y]));
-        AddBlockToTree(LTextBlock, LTable.Cells[X, Y]);
-      end;
+      AddBlockToTree(LTable.Cells[X, Y], LTable.Rows[Y]);
+      LTextBlock :=
+        LTable.Cells[X, Y].Blocks.AddTextBlock(Format('Cell(%d, %d)', [X, Y]));
+      AddBlockToTree(LTextBlock, LTable.Cells[X, Y]);
     end;
-    LTable.CellStyle.BorderWidth := 2;
-    LTable.ApplyDefaultCellStyle;
-   // LNode.Expanded := True;
-  finally
-    //KMemo.UnlockUpdate;
   end;
+  LTable.CellStyle.BorderWidth := 2;
+  LTable.ApplyDefaultCellStyle;
+  Result := LTable;
 end;
 
-procedure TfrmKMemo.AddTextBlock;
+function TfrmKMemo.AddTextBlock: TKMemoTextBlock;
 var
   LTextBlock : TKMemoTextBlock;
 begin
@@ -597,13 +708,17 @@ begin
   LTextBlock.TextStyle.Font.Name := 'Arial';
   LTextBlock.TextStyle.Font.Color := clRed;
   LTextBlock.TextStyle.Font.Style := [fsBold];
-  AddBlockToTree(LTextBlock);
+  AddBlockToTree(LTextBlock, ActiveBlocks.Parent);
+  Result := LTextBlock;
 end;
+
+{ (Re)builds the treeview structure based on the contents of the given
+  TKMemo control. }
 
 procedure TfrmKMemo.BuildTreeView(AKMemo: TKMemo);
 var
-  I     : Integer;
-  LBlock: TKMemoBlock;
+  I      : Integer;
+  LBlock : TKMemoBlock;
 begin
   Logger.Track(Self, 'BuildTreeView');
   KMemo.LockUpdate;
@@ -626,7 +741,7 @@ begin
 end;
 
 { Clears all nodes in the treeview and creates a new root node holding the
-  root data. }
+  root data. It does not touch the content of the KMemo control. }
 
 procedure TfrmKMemo.ClearTree;
 begin
@@ -634,6 +749,23 @@ begin
   FRootNode := TBlockNode.Create(FTree, FRootData, False);
   FRootNode.Text := 'Document root';
 end;
+
+procedure TfrmKMemo.CreateInspectors;
+begin
+  FBlocksInspector := TzObjectInspectorFactory.Create(
+    Self,
+    pnlTop,
+    nil
+  );
+  FBlockInspector := TzObjectInspectorFactory.Create(
+    Self,
+    pnlBottom,
+    nil
+  );
+end;
+
+{ Creates the TVirtualStringTree component and root node, which is attached to
+  the tree. }
 
 procedure TfrmKMemo.CreateTreeView;
 begin
@@ -645,6 +777,7 @@ begin
   FTree.BorderStyle     := bsNone;
   FTree.OnFreeNode      := FTreeFreeNode;
   FTree.OnGetText       := FTreeGetText;
+  FTree.OnGetHint       := FTreeGetHint;
   FTree.OnGetImageIndex := FTreeGetImageIndex;
   FTree.OnFocusChanged  := FTreeFocusChanged;
   FTree.Images          := imlMain;

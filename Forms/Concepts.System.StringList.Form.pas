@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -52,14 +52,18 @@ type
     pnlText             : TPanel;
     {$ENDREGION}
 
+    {$REGION 'action handlers'}
     procedure actClearExecute(Sender: TObject);
     procedure actSetTextExecute(Sender: TObject);
     procedure actSetDelimitedTextExecute(Sender: TObject);
     procedure actSetNameValuesExecute(Sender: TObject);
+    {$ENDREGION}
 
+    {$REGION 'event handlers'}
     procedure chkCaseSensitiveClick(Sender: TObject);
     procedure chkSortedClick(Sender: TObject);
     procedure chkStrictDelimiterClick(Sender: TObject);
+    {$ENDREGION}
 
   private
     FStringList : TStringList;

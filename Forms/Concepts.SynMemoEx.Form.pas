@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -67,8 +67,9 @@ procedure TfrmSynMemoEx.AfterConstruction;
 begin
   inherited AfterConstruction;
   FMemoEx := TMemoEx.Create(Self);
-  FMemoEx.Parent := pnlMain;
-  FMemoEx.Align := alClient;
+  FMemoEx.Parent      := pnlMain;
+  FMemoEx.Align       := alClient;
+  FMemoEx.BorderStyle := bsNone;
   FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
   FObjectInspector.ObjectVisibility := mvPublic;

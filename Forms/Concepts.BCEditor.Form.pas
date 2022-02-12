@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -83,11 +83,13 @@ type
     lblHeader             : TLabel;
     {$ENDREGION}
 
+    {$REGION 'action handlers'}
     procedure actSaveHighlighterExecute(Sender: TObject);
     procedure actSaveColorMapExecute(Sender: TObject);
     procedure actCollapseAllExecute(Sender: TObject);
     procedure actExpandAllExecute(Sender: TObject);
     procedure actTestExecute(Sender: TObject);
+    {$ENDREGION}
 
   private
     FObjectInspector   : TzObjectInspector;
@@ -101,12 +103,12 @@ type
     FCMGrid            : TGridView;
     FColorGrid         : TGridView;
 
+    {$REGION 'event handlers'}
     procedure FColorGridCellText(
       Sender    : TObject;
       Cell      : TGridCell;
       var Value : string
     );
-
     procedure FColorGridCellColors(
       Sender : TObject;
       Cell   : TGridCell;
@@ -118,13 +120,11 @@ type
       Cell      : TGridCell;
       var Value : string
     );
-
     procedure FHLGridChange(
       Sender   : TObject;
       Cell     : TGridCell;
       Selected : Boolean
     );
-
     procedure FHLGridChanging(
       Sender       : TObject;
       var Cell     : TGridCell;
@@ -142,7 +142,6 @@ type
       Cell     : TGridCell;
       Selected : Boolean
     );
-
     procedure FCMGridChanging(
       Sender       : TObject;
       var Cell     : TGridCell;
@@ -153,6 +152,7 @@ type
       Sender : TControl;
       PItem  : PPropItem
     ): Boolean;
+    {$ENDREGION}
 
     procedure LoadHighlighters;
     procedure LoadColorMaps;

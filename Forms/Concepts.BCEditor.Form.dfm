@@ -23,8 +23,6 @@
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 29
-    ExplicitHeight = 692
     object splSplitter: TSplitter
       Left = 433
       Top = 0
@@ -43,7 +41,6 @@
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 673
       object splLeftHorizontal: TSplitter
         Left = 0
         Top = 368
@@ -82,7 +79,6 @@
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitTop = 379
         object pgcLeftBottoù: TPageControl
           Left = 0
           Top = 0
@@ -125,7 +121,6 @@
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 673
       object spl1: TSplitter
         Left = 0
         Top = 385
@@ -200,6 +195,10 @@
           object tsColors: TTabSheet
             Caption = 'Color mappings'
             ImageIndex = 1
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object splVerticalRight: TSplitter
               Left = 475
               Top = 0
@@ -269,7 +268,6 @@
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitHeight = 282
       end
     end
     object sbrStatusBar: TStatusBar
@@ -280,7 +278,6 @@
       Panels = <>
       ParentShowHint = False
       ShowHint = True
-      ExplicitTop = 673
     end
   end
   object pnlHeader: TPanel
@@ -300,9 +297,6 @@
     ParentBackground = False
     ParentFont = False
     TabOrder = 1
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 1191
     object lblHeader: TLabel
       AlignWithMargins = True
       Left = 3
@@ -314,8 +308,6 @@
       Caption = 'This form demonstrates the TBCEditor control.'
       Layout = tlCenter
       WordWrap = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
       ExplicitWidth = 261
       ExplicitHeight = 13
     end
