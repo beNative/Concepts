@@ -118,7 +118,9 @@ begin
   {$WARNINGS ON}
   Application.Initialize;
   TConcepts.RegisterConcepts;
+  {$IFDEF CPUX86}
   Logger.Channels.Add(TZmqChannel.Create);
+  {$ENDIF CPUX86}
   Logger.Channels.Add(TWinipcChannel.Create);
   Logger.Clear;
   Logger.Info('Concepts started.');
