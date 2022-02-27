@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,10 +26,11 @@ uses
 
 type
   TfrmSelectionInfo = class(TForm, IEditorToolView)
-    pgc1                             : TPageControl;
-    ts1                              : TTabSheet;
-    ts2                              : TTabSheet;
-    pnl1                             : TPanel;
+    {$REGION 'designer controls'}
+    pgcMain                          : TPageControl;
+    tsSelectionInfo                  : TTabSheet;
+    tsReflectedProperties            : TTabSheet;
+    pnlSelectionInfo                 : TPanel;
     lblStoredBlockBegin              : TLabel;
     lblStoredBlockEnd                : TLabel;
     lblStoredBlockBeginValue         : TLabel;
@@ -61,30 +62,31 @@ type
     lblSelEndValue                   : TLabel;
     {$ENDREGION}
 
+    {$REGION 'event handlers'}
     procedure btnRestoreClick(Sender: TObject);
     procedure btnStoreClick(Sender: TObject);
     procedure mmoBlockChange(Sender: TObject);
-
-  private
-    function GetView: IEditorView;
+    {$ENDREGION}
 
   protected
+    {$REGION 'property access methods'}
+    function GetView: IEditorView;
     function GetForm: TForm;
     function GetName: string;
     function GetVisible: Boolean;
+    {$ENDREGION}
 
     { Lets the view respond to changes. }
     procedure UpdateView;
+    procedure UpdateDisplay;
+    procedure UpdateActions; override;
 
     property View: IEditorView
       read GetView;
 
-    procedure UpdateDisplay;
-
-    procedure UpdateActions; override;
-
   public
     procedure SetVisible(AValue: Boolean);
+
   end;
 
 implementation
@@ -94,9 +96,7 @@ implementation
 uses
   System.TypInfo,
 
-  BCEditor.Editor, BCEditor.Types,
-
-  DDuce.Reflect;
+  TextEditor, TextEditor.Types;
 
 {$REGION 'property access mehods'}
 function TfrmSelectionInfo.GetView: IEditorView;
@@ -150,12 +150,12 @@ end;
 
 procedure TfrmSelectionInfo.UpdateDisplay;
 var
-  ES : TBCEditor;
+  ES : TTextEditor;
 begin
   ES := View.Editor;
 
   lblStoredBlockSelectionModeValue.Caption :=
-    GetEnumName(TypeInfo(TBCEditorSelectionMode), Ord(View.SelectionMode));
+    GetEnumName(TypeInfo(TTextEditorSelectionMode), Ord(View.SelectionMode));
 
   lblBlockBeginValue.Caption := Format(
     '(%d, %d)', [View.BlockBegin.X, View.BlockBegin.Y]

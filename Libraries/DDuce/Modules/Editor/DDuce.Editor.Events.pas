@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ uses
 
 type
   TEditorEvents = class(TInterfacedObject, IEditorEvents)
-  strict private
+  private
     FManager               : IEditorManager;
     FOnChange              : Event<TNotifyEvent>;
     FOnModified            : Event<TNotifyEvent>;
@@ -48,6 +48,7 @@ type
     FOnOpenOtherInstance   : Event<TOpenOtherInstanceEvent>;
 
   protected
+    {$REGION 'property access methods'}
     function GetOnOpen: IEvent<TStorageEvent>;
     function GetOnAfterSave: IEvent<TStorageEvent>;
     function GetOnBeforeSave: IEvent<TStorageEvent>;
@@ -65,7 +66,9 @@ type
     function GetOnActiveViewChange: IEvent<TNotifyEvent>;
     function GetOnChange: IEvent<TNotifyEvent>;
     function GetOnModified: IEvent<TNotifyEvent>;
+    {$ENDREGION}
 
+    {$REGION 'event dispatch methods'}
     { will get called by owner to trigger the events }
     procedure DoChange; virtual;
     procedure DoModified; virtual;
@@ -85,6 +88,7 @@ type
       const AName : string = '';
       const AText : string = ''
     );
+    {$ENDREGION}
 
     property OnAddEditorView: IEvent<TEditorViewEvent>
       read GetOnAddEditorView;
@@ -137,7 +141,7 @@ type
 
   public
     constructor Create(AManager: IEditorManager);
-    procedure BeforeDestruction; override;
+    destructor Destroy; override;
 
   end;
 
@@ -152,10 +156,10 @@ begin
   FManager := AManager;
 end;
 
-procedure TEditorEvents.BeforeDestruction;
+destructor TEditorEvents.Destroy;
 begin
   FManager := nil;
-  inherited BeforeDestruction;
+  inherited Destroy;
 end;
 {$ENDREGION}
 

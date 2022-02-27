@@ -3,6 +3,8 @@ inherited frmFilter: TfrmFilter
   Top = 257
   ClientHeight = 455
   ClientWidth = 530
+  DoubleBuffered = True
+  Font.Name = 'Segoe UI'
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
   ExplicitWidth = 546
@@ -32,6 +34,9 @@ inherited frmFilter: TfrmFilter
         Width = 530
         Height = 21
         Align = alTop
+        BevelInner = bvNone
+        BevelOuter = bvNone
+        BorderStyle = bsNone
         TabOrder = 0
         OnChange = edtFilterChange
         OnKeyDown = edtFilterKeyDown

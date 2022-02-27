@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ uses
   Winapi.Windows,
   System.Classes;
 
-  { A TWinIPCServer instance is used to handle received WM_COPYDATA messages
-    from one or more TWinIPCClient instances. }
+{ A TWinIPCServer instance is used to handle received WM_COPYDATA messages
+  from one or more TWinIPCClient instances. }
 
 type
   TWinipcMessageEvent = procedure(
@@ -57,11 +57,11 @@ type
 
   public
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
     constructor Create(
       const AMsgWindowClassName : string = '';
       const AWindowName         : string = ''
     );
+    destructor Destroy; override;
 
     property Active : Boolean
       read FActive write SetActive;
@@ -77,6 +77,7 @@ type
 
     property WindowName: string
       read FWindowName write FWindowName;
+
   end;
 
 implementation
@@ -86,16 +87,7 @@ uses
   System.SysUtils,
   Vcl.Forms,
 
-  DDuce.Utils, DDuce.Utils.Winapi;
-
-const
-// old name maintained for backwards compatibility
-  MSG_WND_CLASSNAME : PChar = 'FPCMsgWindowCls';
-  SERVER_WINDOWNAME : PChar = 'ipc_log_server';
-
-resourcestring
-  SFailedToRegisterWindowClass = 'Failed to register message window class';
-  SFailedToCreateWindow        = 'Failed to create message window %s';
+  DDuce.Utils, DDuce.Utils.Winapi, DDuce.Resources;
 
 {$REGION 'non-interfaced routines'}
 function MsgWndProc(AWindowHandle: THandle; AMessage, WParam, LParam: LongInt):
@@ -140,10 +132,10 @@ begin
   FMsgData := TBytesStream.Create;
 end;
 
-procedure TWinipcServer.BeforeDestruction;
+destructor TWinipcServer.Destroy;
 begin
   FreeAndNil(FMsgData);
-  inherited BeforeDestruction;
+  inherited Destroy;
 end;
 {$ENDREGION}
 
@@ -163,7 +155,6 @@ function TWinipcServer.GetMsgData: TBytesStream;
 begin
   Result := FMsgData;
 end;
-
 {$ENDREGION}
 
 {$REGION 'event dispatch methods'}

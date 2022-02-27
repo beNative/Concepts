@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@ uses
   System.Classes, System.SysUtils,
   Vcl.Controls,
 
-  Spring.Collections,
-
   DDuce.Editor.Tools.Settings, DDuce.Editor.Highlighters, DDuce.Editor.Interfaces;
 
 type
@@ -33,7 +31,7 @@ type
     procedure RegisterHighlighters(AHighlighters: THighlighters);
 
     function CreateInstance(
-            AOwner    : TComponent = nil;
+      AOwner          : TComponent = nil;
       const AFileName : string = ''
     ): IEditorSettings;
   end;
@@ -41,13 +39,12 @@ type
 implementation
 
 uses
-  System.IOUtils,
   Vcl.Forms,
 
   DDuce.Editor.CodeFormatters,
 //  DDuce.Editor.CodeFormatters.SQL,
   DDuce.Editor.AlignLines.Settings,
-  //DDuce.Editor.CodeFilter.Settings,
+//  DDuce.Editor.CodeFilter.Settings,
 //  DDuce.Editor.CodeShaper.Settings,
 //  DDuce.Editor.HexEditor.Settings,
 //  DDuce.Editor.HTMLView.Settings,
@@ -62,7 +59,7 @@ procedure TEditorSettingsFactory.RegisterToolSettings(
   ASettings: TEditorToolSettings);
 begin
   ASettings.RegisterSettings(TAlignLinesSettings, 'AlignLinesSettings');
-  //ASettings.RegisterSettings(TCodeFilterSettings, 'CodeFilterSettings');
+//  ASettings.RegisterSettings(TCodeFilterSettings, 'CodeFilterSettings');
 //  ASettings.RegisterSettings(THTMLViewSettings, 'HTMLViewSettings');
 //  ASettings.RegisterSettings(TSortStringsSettings, 'SortStringsSettings');
   //ASettings.RegisterSettings(THexEditorSettings, 'HexEditorSettings');
@@ -117,6 +114,7 @@ begin
   Reg('JavaScript',         HL_JS,   SJSDescription,   FILE_EXTENSIONS_JS);
   Reg('JSON',               HL_JSON, SJSONDescription, FILE_EXTENSIONS_JSON);
   Reg('LaTex',              HL_TEX,  STEXDescription,  FILE_EXTENSIONS_TEX);
+  Reg('Flux', 'Flux', '', '.flux');
 //  Reg('Lisp',
   Reg('Lua',                HL_LUA,  SLUADescription,  FILE_EXTENSIONS_LUA);
 //  Reg('MATLAB',

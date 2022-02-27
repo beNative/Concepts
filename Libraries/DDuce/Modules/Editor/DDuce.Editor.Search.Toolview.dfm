@@ -19,16 +19,20 @@ inherited frmSearchForm: TfrmSearchForm
     Left = 0
     Top = 0
     Width = 309
-    Height = 411
+    Height = 372
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 0
+    DesignSize = (
+      309
+      372)
     object grpSearchText: TGroupBox
       Left = 0
       Top = 0
       Width = 301
       Height = 51
+      Anchors = [akLeft, akTop, akRight]
       Caption = 'Text to find:'
       ParentShowHint = False
       ShowHint = True
@@ -36,23 +40,10 @@ inherited frmSearchForm: TfrmSearchForm
       DesignSize = (
         301
         51)
-      object imgF2Key: TImage
-        Left = 2
-        Top = 7
-        Width = 16
-        Height = 16
-        Hint = 
-          'Press the F2 function key to set '#13#10'focus to the search entry fie' +
-          'ld.'
-        AutoSize = True
-        Center = True
-        Stretch = True
-        Transparent = True
-      end
       object cbxSearchText: TComboBox
-        Left = 36
+        Left = 14
         Top = 20
-        Width = 230
+        Width = 277
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
@@ -70,15 +61,16 @@ inherited frmSearchForm: TfrmSearchForm
       Top = 55
       Width = 301
       Height = 51
+      Anchors = [akLeft, akTop, akRight]
       Caption = 'Replace with:'
       TabOrder = 1
       DesignSize = (
         301
         51)
       object cbxReplaceWith: TComboBox
-        Left = 36
+        Left = 14
         Top = 20
-        Width = 230
+        Width = 277
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
@@ -86,14 +78,15 @@ inherited frmSearchForm: TfrmSearchForm
     end
     object grpOptions: TGroupBox
       Left = 0
-      Top = 110
+      Top = 112
       Width = 301
-      Height = 92
+      Height = 71
+      Anchors = [akLeft, akTop, akRight]
       Caption = 'Options'
       TabOrder = 2
       object chkWholeWordsOnly: TCheckBox
         Left = 20
-        Top = 8
+        Top = 12
         Width = 120
         Height = 30
         Caption = 'Whole words only'
@@ -118,7 +111,7 @@ inherited frmSearchForm: TfrmSearchForm
       end
       object chkRegularExpressions: TCheckBox
         Left = 138
-        Top = 8
+        Top = 12
         Width = 135
         Height = 30
         Caption = 'Regular expressions'
@@ -143,9 +136,10 @@ inherited frmSearchForm: TfrmSearchForm
     end
     object grpScope: TGroupBox
       Left = 0
-      Top = 206
+      Top = 182
       Width = 301
       Height = 56
+      Anchors = [akLeft, akTop, akRight]
       Caption = 'Scope'
       TabOrder = 3
       object rbSelection: TRadioButton
@@ -184,9 +178,10 @@ inherited frmSearchForm: TfrmSearchForm
     end
     object grpOrigin: TGroupBox
       Left = 0
-      Top = 266
+      Top = 236
       Width = 301
       Height = 56
+      Anchors = [akLeft, akTop, akRight]
       Caption = 'Origin'
       TabOrder = 4
       object rbFromCursor: TRadioButton
@@ -214,9 +209,10 @@ inherited frmSearchForm: TfrmSearchForm
     end
     object grpDirection: TGroupBox
       Left = 0
-      Top = 326
+      Top = 292
       Width = 301
       Height = 56
+      Anchors = [akLeft, akTop, akRight]
       Caption = 'Direction'
       TabOrder = 5
       object rbBackward: TRadioButton
@@ -243,15 +239,15 @@ inherited frmSearchForm: TfrmSearchForm
     end
     object pnlButtons: TPanel
       Left = 0
-      Top = 386
-      Width = 299
-      Height = 25
+      Top = 349
+      Width = 297
+      Height = 23
       AutoSize = True
-      BevelOuter = bvSpace
+      BevelOuter = bvNone
       TabOrder = 6
       object btnFind: TBitBtn
-        Left = 1
-        Top = 1
+        Left = 0
+        Top = 0
         Width = 98
         Height = 23
         Action = actFind
@@ -269,7 +265,7 @@ inherited frmSearchForm: TfrmSearchForm
       end
       object btnReplace: TBitBtn
         Left = 101
-        Top = 1
+        Top = 0
         Width = 98
         Height = 23
         Action = actReplace
@@ -285,8 +281,8 @@ inherited frmSearchForm: TfrmSearchForm
         TabOrder = 1
       end
       object btnReplaceAll: TBitBtn
-        Left = 201
-        Top = 1
+        Left = 200
+        Top = 0
         Width = 97
         Height = 23
         Action = actReplaceAll
@@ -305,12 +301,14 @@ inherited frmSearchForm: TfrmSearchForm
   end
   object pnlResultList: TPanel
     Left = 0
-    Top = 411
+    Top = 372
     Width = 309
-    Height = 211
+    Height = 250
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitTop = 411
+    ExplicitHeight = 211
   end
   object pnlStatus: TPanel
     Left = 0

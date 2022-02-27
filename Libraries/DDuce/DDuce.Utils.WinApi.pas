@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@ interface
 
 uses
   Winapi.Windows,
-  System.Classes, System.SysUtils;
+  System.Classes, System.SysUtils,
+
+  DDuce.Logger;
 
 type
   TProcessId = DWORD;
@@ -95,7 +97,7 @@ function StartService(
 ): Boolean;
 
 function StopService(
-  const AHostName     : string;
+  const AHostName    : string;
   const AServiceName : string
 ): Boolean;
 
@@ -236,10 +238,12 @@ begin
           LProcessCpuUsage.LastProcessTimes := LProcessTimes;
           if (Int64(LSystemDiffTimes.KernelTime) +
               Int64(LSystemDiffTimes.UserTime)) > 0 then
+          begin
             Result := (Int64(LProcessDiffTimes.KernelTime) +
                 Int64(LProcessDiffTimes.UserTime)) /
               (Int64(LSystemDiffTimes.KernelTime) +
                 Int64(LSystemDiffTimes.UserTime)) * 100;
+          end;
         end;
       end;
     finally
@@ -304,21 +308,17 @@ end;
 function CheckHostExists(const AHostName: string): Boolean;
 var
   LIcmpClient : TIdIcmpClient;
-  LBytes      : Integer;
 begin
-  Result := False;
   LIcmpClient := TIdIcmpClient.Create(nil);
   try
-//    try
+    try
       LIcmpClient.Host := AHostName;
       LIcmpClient.Ping;
       Sleep(2000);
-      LBytes := LIcmpClient.ReplyStatus.BytesReceived;
-      if LBytes > 0 then
-        Result := True
-//    except
-//      //Ignore exceptions
-//    end;
+      Result := LIcmpClient.ReplyStatus.ReplyStatusType = rsEcho;
+    except
+      Result := False;
+    end;
   finally
     LIcmpClient.Free;
   end;

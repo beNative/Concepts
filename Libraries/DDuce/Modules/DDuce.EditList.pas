@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.ImageList,
   System.Actions, System.Rtti,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList, Vcl.ImgList,
-  Vcl.ComCtrls, Vcl.ToolWin, Vcl.ExtCtrls, Vcl.Menus,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList,
+  Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Menus, Vcl.ImgList, Vcl.ToolWin,
 
   Spring,
 
@@ -284,7 +284,7 @@ var
   LName  : string;
   LValue : TValue;
 begin
-  LName := 'New';
+  LName  := 'New';
   LValue := '';
   I := 0;
   S := LName;
@@ -375,14 +375,10 @@ var
   LNode  : TValueListNode;
   LValue : TValue;
 begin
-//  if Assigned(FValueList.FocusedField) then
-//  begin
   for LNode in FValueList.GetSelectedData<TValueListNode> do
   begin
     LValue := LNode.Data.Value;
     LName  := LNode.Data.Name;
-
-    //LNode := FValueList.GetFirstSelectedNodeData<TValueListNode>;
     LNode.Data.Index := LNode.Data.Index + 1;
     FValueList.MoveTo(LNode.VNode, LNode.VNode.NextSibling, amInsertAfter, False);
     FValueList.FocusedNode := LNode.VNode;

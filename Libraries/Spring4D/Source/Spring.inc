@@ -48,6 +48,10 @@
   {$DEFINE PUREPASCAL}
 {$ENDIF}
 
+{$IFDEF OSX64}
+  {$DEFINE PUREPASCAL}
+{$ENDIF}
+
 // JEDI will assert that at least CPU386 is defined
 {$IFDEF CPU386}
   // Keep this for older delphi compatibility (older than XE3)

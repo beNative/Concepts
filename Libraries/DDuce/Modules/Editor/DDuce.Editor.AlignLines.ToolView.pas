@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -77,8 +77,11 @@ type
     rgpSortDirection : TRadioGroup;
     sbrMain          : TScrollBox;
 
+    {$REGION 'action handlers'}
     procedure actExecuteExecute(Sender: TObject);
+    {$ENDREGION}
 
+    {$REGION 'event handlers'}
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FTVPDoubleClick(Sender: TObject);
@@ -88,6 +91,7 @@ type
     procedure pnlTokensResize(Sender: TObject);
     procedure rgpAlignAtClick(Sender: TObject);
     procedure rgpSortDirectionClick(Sender: TObject);
+    {$ENDREGION}
 
   strict private
     //FTVP    : TTreeViewPresenter;
@@ -120,9 +124,6 @@ implementation
 
 {$R *.dfm}
 
-uses
-  DDuce.Factories.TreeViewPresenter,
-  DDuce.Editor.Utils;
 
 resourcestring
   SToken = 'Token';

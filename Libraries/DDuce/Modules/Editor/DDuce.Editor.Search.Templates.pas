@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@ unit DDuce.Editor.Search.Templates;
 interface
 
 uses
-  System.Classes, System.SysUtils, System.Contnrs, System.Rtti,
+  System.Classes, System.SysUtils, System.Rtti,
 
   Spring.Collections,
 
   DSharp.Windows.TreeViewPresenter, DSharp.Windows.ColumnDefinitions,
-  DSharp.Windows.ControlTemplates,
-  DSharp.Core.DataTemplates, DSharp.Windows.ColumnDefinitions.ControlTemplate,
+  DSharp.Windows.ControlTemplates, DSharp.Core.DataTemplates,
+  DSharp.Windows.ColumnDefinitions.ControlTemplate,
 
   DDuce.Editor.Search.Data;
 
@@ -44,8 +44,6 @@ type
     procedure AfterConstruction; override;
   end;
 
-  { TSearchResultLineTemplate }
-
   TSearchResultLineTemplate = class(TControlTemplate<TSearchResultLine>)
   public
     function GetItemCount(const Item: TSearchResultLine): Integer; override;
@@ -56,8 +54,6 @@ type
     ) : TValue; override;
     procedure AfterConstruction; override;
   end;
-
-  { TSearchResultTemplate }
 
   TSearchResultTemplate = class(TControlTemplate<TSearchResult>)
     function GetValue(

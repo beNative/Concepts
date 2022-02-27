@@ -6,7 +6,7 @@ object EditorView: TEditorView
   BorderStyle = bsNone
   ClientHeight = 421
   ClientWidth = 630
-  Color = clBtnFace
+  Color = clWindow
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

@@ -18,6 +18,7 @@ inherited frmViewList: TfrmViewList
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 1
   end
   object pnlBottom: TPanel
     Left = 0
@@ -31,8 +32,8 @@ inherited frmViewList: TfrmViewList
       800
       37)
     object btnClose: TButton
-      Left = 672
-      Top = 4
+      Left = 676
+      Top = 7
       Width = 120
       Height = 25
       Action = actClose

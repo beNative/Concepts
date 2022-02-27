@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,12 +23,11 @@ uses
 
   DDuce.Editor.Types;
 
-const
-  DEFAULT_WIDTH = 360;
-
 type
   TSortStringsSettings = class(TComponent)
-  strict private
+  const
+    DEFAULT_WIDTH = 360;
+  private
     FCaseSensitive : Boolean;
     FIgnoreSpaces  : Boolean;
     FSortDirection : TSortDirection;
@@ -37,7 +36,6 @@ type
 
   public
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
 
     procedure AssignTo(Dest: TPersistent); override;
     procedure Assign(Source: TPersistent); override;
@@ -57,6 +55,7 @@ type
 
     property Width: Integer
       read FWidth write FWidth default DEFAULT_WIDTH;
+
   end;
 
 implementation
@@ -67,17 +66,12 @@ begin
   inherited AfterConstruction;
   FWidth := DEFAULT_WIDTH;
 end;
-
-procedure TSortStringsSettings.BeforeDestruction;
-begin
-  inherited BeforeDestruction;
-end;
 {$ENDREGION}
 
 {$REGION 'public methods'}
 procedure TSortStringsSettings.AssignTo(Dest: TPersistent);
 var
-  S: TSortStringsSettings;
+  S : TSortStringsSettings;
 begin
   if Dest is TSortStringsSettings then
   begin

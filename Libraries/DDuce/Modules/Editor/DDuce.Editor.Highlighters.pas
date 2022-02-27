@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ unit DDuce.Editor.Highlighters;
 
 interface
 
-{ REMARKS about TBCEditorHighlighter:
-  - a TBCEditorHighlighter requires a TBCEditor component to be able to load
+{ REMARKS about TTextEditorHighlighter:
+  - a TTextEditorHighlighter requires a TTextEditor component to be able to load
     its properties from the definition file.
-  - It uses a TBCEditorHighlighterJSONImporter object to load its settings. It
+  - It uses a TTextEditorHighlighterImportJSON object to load its settings. It
     is not possible to save its settings back to JSON.
   - It is not intended as a persistable settings object, but is rather a helper
     object that works closely with the associated editor instance to render its
@@ -31,16 +31,13 @@ interface
 }
 
 uses
-  System.SysUtils, System.Classes, System.Contnrs,
+  System.SysUtils, System.Classes,
 
-  DDuce.Editor.Utils, DDuce.Editor.CodeFormatters, DDuce.Editor.CodeTags,
-
-  BCEditor.Highlighter,
-
+  DDuce.Editor.CodeFormatters, DDuce.Editor.CodeTags,
   DDuce.Logger;
 
 type
-  THighlighters        = class;
+  THighlighters = class;
 
   THighlighterItem = class(TComponent)
   private
@@ -54,7 +51,7 @@ type
     FFileExtensions       : TStringList;
     FUseCommonAttributes  : Boolean;
 
-    // private property access methods
+    {$REGION 'property access methods'}
     function GetDefaultFilter: string;
     function GetFileExtensions: string;
     function GetIndex: Integer;
@@ -62,11 +59,11 @@ type
     procedure SetFileExtensions(AValue: string);
     procedure SetFormatterSupport(const AValue: Boolean);
     procedure SetSmartSelectionTags(AValue: TCodeTags);
+    {$ENDREGION}
 
   public
-    // constructors and destructors
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
+    destructor Destroy; override;
 
     procedure Assign(Source: TPersistent); override;
 
@@ -112,6 +109,7 @@ type
       FPosition     : Integer;
 
       function GetCurrent: THighlighterItem;
+
     public
       constructor Create(AHighlighters: THighlighters);
 
@@ -121,19 +119,16 @@ type
         read GetCurrent;
     end;
 
-    // property access methods
+    {$REGION 'property access methods'}
     function GetCount: Integer;
     function GetFileFilter: string;
     function GetItem(Index: Integer): THighlighterItem;
     function GetItemByName(const AName: string): THighlighterItem;
     procedure SetItem(Index: Integer; const Value: THighlighterItem);
     procedure SetItemByName(const AName: string; const AValue: THighlighterItem);
+    {$ENDREGION}
 
   public
-    // constructors and destructors
-    procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
-
     function Add: THighlighterItem;
     function Exists(const AName: string): Boolean;
 
@@ -151,7 +146,6 @@ type
       const ACodeFormatter  : ICodeFormatter = nil
     ); virtual;
 
-    // public properties
     { Provides indexed access to the list of items. }
     property Items[Index: Integer]: THighlighterItem
       read GetItem write SetItem; default;
@@ -164,12 +158,13 @@ type
 
     property FileFilter: string
       read GetFileFilter;
+
   end;
 
 implementation
 
 uses
-  System.StrUtils, System.IOUtils,
+  System.IOUtils,
   Vcl.Forms, Vcl.Dialogs;
 
 {$REGION 'THighlighterEnumerator'}
@@ -192,18 +187,6 @@ end;
 {$ENDREGION}
 
 {$REGION 'THighlighters'}
-{$REGION 'construction and destruction'}
-procedure THighlighters.AfterConstruction;
-begin
-  inherited AfterConstruction;
-end;
-
-procedure THighlighters.BeforeDestruction;
-begin
-  inherited BeforeDestruction;
-end;
-{$ENDREGION}
-
 {$REGION 'property access mehods'}
 function THighlighters.GetItem(Index: Integer): THighlighterItem;
 begin
@@ -217,8 +200,8 @@ end;
 
 function THighlighters.GetFileFilter: string;
 var
-  S: string;
-  HI: THighlighterItem;
+  S  : string;
+  HI : THighlighterItem;
 begin
   S := '';
   for HI in Self do
@@ -299,7 +282,6 @@ begin
     HI := Add;
     HI.Name        := AName;
     HI.Highlighter := AName;
-    Logger.Send('Created highlighter %s', [AName]);
   end;
   if ADescription <> '' then
     HI.Description := ADescription
@@ -312,6 +294,7 @@ begin
     HI.LayoutFileName := ALayoutFileName;
   if HI.FileExtensions = '' then
     HI.FileExtensions := AFileExtensions;
+  Logger.SendObject('Highlighter', HI);
 end;
 
 function THighlighters.Find(const AName: string): THighlighterItem;
@@ -349,7 +332,6 @@ end;
 {$ENDREGION}
 
 {$REGION 'THighlighterItem'}
-
 {$REGION 'construction and destruction'}
 procedure THighlighterItem.AfterConstruction;
 begin
@@ -361,12 +343,12 @@ begin
   FUseCommonAttributes       := True;
 end;
 
-procedure THighlighterItem.BeforeDestruction;
+destructor THighlighterItem.Destroy;
 begin
   FCodeFormatter := nil;
   FreeAndNil(FFileExtensions);
   FreeAndNil(FSmartSelectionTags);
-  inherited BeforeDestruction;
+  inherited Destroy;
 end;
 {$ENDREGION}
 

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,12 +26,11 @@ uses
 
   Spring.Collections,
 
-  DDuce.Editor.Interfaces, DDuce.Editor.Tools.Settings,
-  DDuce.Editor.ToolView.Base;
+  DDuce.Editor.Interfaces, DDuce.Editor.Tools.Settings;
 
 type
   TToolView = class(TInterfacedObject, IEditorToolView)
-  strict private
+  private
     FName          : string;
     FFormClass     : TComponentClass;
     FForm          : TForm;
@@ -39,28 +38,31 @@ type
     FSettingsClass : TComponentClass;
     FToolView      : IEditorToolView;
 
-  strict protected
+  protected
+    {$REGION 'property access methods'}
     function GetForm: TForm;
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
+    function GetName: string;
+    {$ENDREGION}
+
     procedure SetFocus;
     function Focused: Boolean;
-    function GetName: string;
 
   public
     constructor Create(
-            AManager       : IEditorManager;
-            AFormClass     : TComponentClass;
-            ASettingsClass : TComponentClass;
-      const AName          : string
+      AManager       : IEditorManager;
+      AFormClass     : TComponentClass;
+      ASettingsClass : TComponentClass;
+      const AName    : string
     );
-    procedure BeforeDestruction; override;
-
-    property Name: string
-      read GetName;
+    destructor Destroy; override;
 
     { Lets the view respond to changes. }
     procedure UpdateView;
+
+    property Name: string
+      read GetName;
 
     property Form: TForm
       read GetForm;
@@ -78,21 +80,23 @@ type
   { TToolViews }
 
   TToolViews = class(TInterfacedObject, IEditorToolViews)
-  strict private
+  private
     FItems   : IList<IEditorToolView>;
     FManager : IEditorManager;
 
-  strict protected
+  protected
+    {$REGION 'property access methods'}
     function GetView(AIndex: Integer): IEditorToolView;
     function GetViewByName(AName: string): IEditorToolView;
     function GetCount: Integer;
+    {$ENDREGION}
 
     function GetEnumerator: TEditorToolViewListEnumerator;
 
     function Register(
-            AFormClass     : TComponentClass;
-            ASettingsClass : TComponentClass;
-      const AName          : string = ''
+      AFormClass     : TComponentClass;
+      ASettingsClass : TComponentClass;
+      const AName    : string = ''
     ): Boolean;
 
     procedure Hide;
@@ -137,10 +141,10 @@ begin
 //    );
 end;
 
-procedure TToolView.BeforeDestruction;
+destructor TToolView.Destroy;
 begin
   FManager := nil;
-  inherited BeforeDestruction;
+  inherited Destroy;
 end;
 {$ENDREGION}
 
@@ -174,12 +178,6 @@ begin
   end;
 end;
 
-procedure TToolView.SetFocus;
-begin
-  if Assigned(FForm) and FForm.Visible and FForm.CanFocus then
-    FForm.SetFocus;
-end;
-
 function TToolView.GetName: string;
 begin
   Result := FName;
@@ -187,6 +185,12 @@ end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
+procedure TToolView.SetFocus;
+begin
+  if Assigned(FForm) and FForm.Visible and FForm.CanFocus then
+    FForm.SetFocus;
+end;
+
 procedure TToolView.UpdateView;
 begin
   if Assigned(FToolView) then

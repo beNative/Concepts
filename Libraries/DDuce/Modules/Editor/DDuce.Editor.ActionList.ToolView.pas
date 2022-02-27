@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,23 +19,21 @@ unit DDuce.Editor.ActionList.ToolView;
 interface
 
 uses
-  System.Classes, System.SysUtils,
+  System.Classes, System.SysUtils, System.Actions,
   Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls, Vcl.ActnList, Vcl.ComCtrls,
   Vcl.StdCtrls, Vcl.ImgList, Vcl.Graphics,
 
   Spring.Collections,
 
-  BCEditor.Editor.KeyCommands,
+  TextEditor.KeyCommands,
 
   VirtualTrees,
 
   DSharp.Windows.TreeViewPresenter, DSharp.Windows.ColumnDefinitions,
-  DSharp.Core.DataTemplates,
 
   DDuce.Editor.Interfaces;
 
 type
-
   TfrmActionListView = class(TForm, IEditorToolView)
     edtFilterActions : TEdit;
     pnlActions       : TPanel;
@@ -44,6 +42,7 @@ type
     tsCommands       : TTabSheet;
     tsActions        : TTabSheet;
 
+    {$REGION 'event handlers'}
     procedure edtFilterActionsChange(Sender: TObject);
     procedure edtFilterActionsKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -64,6 +63,7 @@ type
     ): Boolean;
     procedure FTVPActionsFilter(Item: TObject; var Accepted: Boolean);
     procedure FVSTActionsKeyPress(Sender: TObject; var Key: Char);
+    {$ENDREGION}
 
   private
     FVSTActions      : TVirtualStringTree;
@@ -75,11 +75,13 @@ type
     FVKPressed       : Boolean;
     //FTextStyle       : TTextStyle;
 
+    {$REGION 'property access methods'}
     function GetFilter: string;
     procedure SetFilter(AValue: string);
     function GetForm: TForm;
     function GetManager: IEditorManager;
     function GetName: string;
+    {$ENDREGION}
 
   protected
     procedure CreateActionsView;
@@ -124,14 +126,12 @@ implementation
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.TypInfo, System.StrUtils, System.Variants, System.Actions, System.Rtti,
-  System.UITypes,
   Vcl.GraphUtil, Vcl.Menus,
 
   DSharp.Windows.ControlTemplates,
 
   DDuce.Editor.Utils, DDuce.Editor.ActionList.Templates,
-  DDuce.Factories.TreeViewPresenter, DDuce.Factories.VirtualTrees;
+  DDuce.Factories.VirtualTrees;
 
 type
   TVKSet = set of Byte;
@@ -180,8 +180,10 @@ var
 procedure TfrmActionListView.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FActionItems    := TCollections.CreateList<TContainedAction>(False) as IObjectList;
-  FCommandItems := TCollections.CreateList<TBCEditorKeyCommand>(False) as IObjectList;
+  FActionItems  :=
+    TCollections.CreateList<TContainedAction>(False) as IObjectList;
+  FCommandItems :=
+    TCollections.CreateList<TTextEditorKeyCommand>(False) as IObjectList;
   CreateActionsView;
   CreateCommandsView;
 
@@ -249,8 +251,8 @@ function TfrmActionListView.FTVPActionsCustomDraw(Sender: TObject;
   CellRect: TRect; ImageList: TCustomImageList; DrawMode: TDrawMode;
   Selected: Boolean): Boolean;
 var
-  A : TAction;
-  Match : string;
+  A      : TAction;
+  Match  : string;
   Margin : Integer;
   Offset : Integer;
   R      : TRect;
@@ -417,7 +419,7 @@ procedure TfrmActionListView.CreateActionsView;
 var
   CD : IColumnDefinitions;
 begin
-  FVSTActions := TVirtualStringTreeFactory.CreateGrid(Self, pnlActions);
+  FVSTActions := TVirtualStringTreeFactory.CreateList(Self, pnlActions);
   FVSTActions.OnKeyPress := FVSTActionsKeyPress;
   FTVPActions := TTreeViewPresenter.Create(Self);
   FTVPActions.ListMode := True;
@@ -474,7 +476,7 @@ procedure TfrmActionListView.CreateCommandsView;
 var
   CD : IColumnDefinitions;
 begin
-  FVSTCommands := TVirtualStringTreeFactory.CreateGrid(Self, tsCommands);
+  FVSTCommands := TVirtualStringTreeFactory.CreateList(Self, tsCommands);
   FTVPCommands := TTreeViewPresenter.Create(Self);
   FTVPCommands.ListMode := True;
   CD := FTVPCommands.ColumnDefinitions;

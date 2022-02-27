@@ -12,12 +12,12 @@ uses
 
   VirtualTrees;
 
-  {
-     Required for a simple setup:
-       - OnInitNode : attach data to each node
-       - OnGetText : obtain cell content for each column based on the node data
-       - OnFreeNode : cleanup attached data for each node (if this is required)
-  }
+{
+   Required for a simple setup:
+     - OnInitNode : attach data to each node
+     - OnGetText : obtain cell content for each column based on the node data
+     - OnFreeNode : cleanup attached data for each node (if this is required)
+}
 
 type
   TfrmVirtualTreeView = class(TForm)
@@ -58,6 +58,42 @@ type
       PItem  : PPropItem
     ): Boolean;
 
+    procedure FVirtualStringTreeBeforeItemErase(
+      Sender          : TBaseVirtualTree;
+      TargetCanvas    : TCanvas;
+      Node            : PVirtualNode;
+      ItemRect        : TRect;
+      var ItemColor   : TColor;
+      var EraseAction : TItemEraseAction
+    );
+    procedure FVirtualStringTreeAfterItemErase(
+      Sender       : TBaseVirtualTree;
+      TargetCanvas : TCanvas;
+      Node         : PVirtualNode;
+      ItemRect     : TRect
+    );
+    procedure FVirtualStringTreeBeforeItemPaint(
+      Sender         : TBaseVirtualTree;
+      TargetCanvas   : TCanvas;
+      Node           : PVirtualNode;
+      ItemRect       : TRect;
+      var CustomDraw : Boolean
+    );
+    procedure FVirtualStringTreeAfterItemPaint(
+      Sender       : TBaseVirtualTree;
+      TargetCanvas : TCanvas;
+      Node         : PVirtualNode;
+      ItemRect     : TRect
+    );
+    procedure FVirtualStringTreeBeforeCellPaint(
+      Sender          : TBaseVirtualTree;
+      TargetCanvas    : TCanvas;
+      Node            : PVirtualNode;
+      Column          : TColumnIndex;
+      CellPaintMode   : TVTCellPaintMode;
+      CellRect        : TRect;
+      var ContentRect : TRect
+    );
     procedure FVirtualStringTreeAfterCellPaint(
       Sender       : TBaseVirtualTree;
       TargetCanvas : TCanvas;
@@ -70,19 +106,14 @@ type
       Node   : PVirtualNode
     );
     procedure FVirtualStringTreeDblClick(Sender : TObject);
-    procedure FVirtualStringTreeExpanded(
-      Sender : TBaseVirtualTree;
-      Node   : PVirtualNode
-    );
     procedure FVirtualStringTreeExpanding(
       Sender      : TBaseVirtualTree;
       Node        : PVirtualNode;
       var Allowed : Boolean
     );
-    procedure FVirtualStringTreeFocusChanged(
+    procedure FVirtualStringTreeExpanded(
       Sender : TBaseVirtualTree;
-      Node   : PVirtualNode;
-      Column : TColumnIndex
+      Node   : PVirtualNode
     );
     procedure FVirtualStringTreeFocusChanging(
       Sender : TBaseVirtualTree;
@@ -91,10 +122,12 @@ type
       OldColumn, NewColumn : TColumnIndex;
       var Allowed          : Boolean
     );
-    procedure FVirtualStringTreeFreeNode(
+    procedure FVirtualStringTreeFocusChanged(
       Sender : TBaseVirtualTree;
-      Node   : PVirtualNode
+      Node   : PVirtualNode;
+      Column : TColumnIndex
     );
+
     procedure FVirtualStringTreeGetHint(
       Sender             : TBaseVirtualTree;
       Node               : PVirtualNode;
@@ -121,6 +154,7 @@ type
       TextType     : TVSTTextType;
       var CellText : string
     );
+
     procedure FVirtualStringTreeInitChildren(
       Sender         : TBaseVirtualTree;
       Node           : PVirtualNode;
@@ -132,12 +166,18 @@ type
       Node : PVirtualNode;
       var InitialStates : TVirtualNodeInitStates
     );
+    procedure FVirtualStringTreeFreeNode(
+      Sender : TBaseVirtualTree;
+      Node   : PVirtualNode
+    );
+
     procedure FVirtualStringTreeMouseUp(
       Sender : TObject;
       Button : TMouseButton;
       Shift  : TShiftState;
       X, Y   : Integer
     );
+
     procedure FVirtualStringTreeHeaderDrawQueryElements(
       Sender        : TVTHeader;
       var PaintInfo : THeaderPaintInfo;
@@ -151,28 +191,18 @@ type
       Hover, Pressed : Boolean;
       DropMark       : TVTDropMarkMode
     );
-    procedure FVirtualStringTreeBeforeItemPaint(
-      Sender         : TBaseVirtualTree;
-      TargetCanvas   : TCanvas;
-      Node           : PVirtualNode;
-      ItemRect       : TRect;
-      var CustomDraw : Boolean
-    );
-    procedure FVirtualStringTreeBeforeCellPaint(
-      Sender          : TBaseVirtualTree;
-      TargetCanvas    : TCanvas;
-      Node            : PVirtualNode;
-      Column          : TColumnIndex;
-      CellPaintMode   : TVTCellPaintMode;
-      CellRect        : TRect;
-      var ContentRect : TRect
-    );
     procedure FVirtualStringTreePaintText(
       Sender             : TBaseVirtualTree;
       const TargetCanvas : TCanvas;
       Node               : PVirtualNode;
       Column             : TColumnIndex;
       TextType           : TVSTTextType
+    );
+    procedure FVirtualStringTreeMeasureItem(
+      Sender         : TBaseVirtualTree;
+      TargetCanvas   : TCanvas;
+      Node           : PVirtualNode;
+      var NodeHeight : Integer
     );
     {$ENDREGION}
 
@@ -192,6 +222,8 @@ implementation
 
 uses
   System.TypInfo, System.Rtti,
+
+  VirtualTrees.Types, VirtualTrees.Header,
 
   DDuce.Logger, DDuce.Factories.VirtualTrees, DDuce.Factories.zObjInspector,
 
@@ -260,6 +292,15 @@ begin
 end;
 
 {$REGION 'FVirtualStringTree'}
+procedure TfrmVirtualTreeView.FVirtualStringTreeBeforeCellPaint(
+  Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
+  Column: TColumnIndex; CellPaintMode: TVTCellPaintMode; CellRect: TRect;
+  var ContentRect: TRect);
+begin
+  //Logger.AddCheckPoint('OnBeforeCellPaint');
+  Logger.IncCounter('OnBeforeCellPaint');
+end;
+
 procedure TfrmVirtualTreeView.FVirtualStringTreeAfterCellPaint(Sender: TBaseVirtualTree;
   TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
   CellRect: TRect);
@@ -267,21 +308,33 @@ begin
   Logger.IncCounter('OnAfterCellPaint');
 end;
 
-procedure TfrmVirtualTreeView.FVirtualStringTreeBeforeCellPaint(
+procedure TfrmVirtualTreeView.FVirtualStringTreeBeforeItemErase(
   Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
-  Column: TColumnIndex; CellPaintMode: TVTCellPaintMode; CellRect: TRect;
-  var ContentRect: TRect);
+  ItemRect: TRect; var ItemColor: TColor; var EraseAction: TItemEraseAction);
 begin
-  Logger.AddCheckPoint('OnBeforeCellPaint');
-  Logger.IncCounter('OnBeforeCellPaint');
+  Logger.IncCounter('OnBeforeItemErase');
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeAfterItemErase(
+  Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
+  ItemRect: TRect);
+begin
+  Logger.IncCounter('OnAfterItemErase');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeBeforeItemPaint(
   Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
   ItemRect: TRect; var CustomDraw: Boolean);
 begin
-  Logger.AddCheckPoint('OnBeforeItemPaint');
+  //Logger.AddCheckPoint('OnBeforeItemPaint');
   Logger.IncCounter('OnBeforeItemPaint');
+end;
+
+procedure TfrmVirtualTreeView.FVirtualStringTreeAfterItemPaint(
+  Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
+  ItemRect: TRect);
+begin
+  Logger.IncCounter('OnAfterItemPaint');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeChange(Sender: TBaseVirtualTree;
@@ -297,6 +350,13 @@ begin
   Logger.IncCounter('OnDblClick');
 end;
 
+procedure TfrmVirtualTreeView.FVirtualStringTreeExpanding(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; var Allowed: Boolean);
+begin
+  Logger.Track(Self, 'FVirtualStringTreeExpanding');
+  Logger.IncCounter('OnExpanding');
+end;
+
 procedure TfrmVirtualTreeView.FVirtualStringTreeExpanded(Sender: TBaseVirtualTree;
   Node: PVirtualNode);
 begin
@@ -304,11 +364,12 @@ begin
   Logger.IncCounter('OnExpanded');
 end;
 
-procedure TfrmVirtualTreeView.FVirtualStringTreeExpanding(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; var Allowed: Boolean);
+procedure TfrmVirtualTreeView.FVirtualStringTreeFocusChanging(Sender: TBaseVirtualTree;
+  OldNode, NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex;
+  var Allowed: Boolean);
 begin
-  Logger.Track(Self, 'FVirtualStringTreeExpanding');
-  Logger.IncCounter('OnExpanding');
+  Logger.AddCheckPoint('OnFocusChanging');
+  Logger.IncCounter('OnFocusChanging');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeFocusChanged(Sender: TBaseVirtualTree;
@@ -318,12 +379,11 @@ begin
   Logger.IncCounter('OnFocusChanged');
 end;
 
-procedure TfrmVirtualTreeView.FVirtualStringTreeFocusChanging(Sender: TBaseVirtualTree;
-  OldNode, NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex;
-  var Allowed: Boolean);
+procedure TfrmVirtualTreeView.FVirtualStringTreeInitNode(Sender: TBaseVirtualTree;
+  ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
 begin
-  Logger.AddCheckPoint('OnFocusChanging');
-  Logger.IncCounter('OnFocusChanging');
+  Logger.IncCounter('OnInitNode');
+  Node.SetData(TConceptFactories.CreateRandomContact);
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeFreeNode(Sender: TBaseVirtualTree;
@@ -337,7 +397,6 @@ procedure TfrmVirtualTreeView.FVirtualStringTreeGetHint(Sender: TBaseVirtualTree
   Node: PVirtualNode; Column: TColumnIndex;
   var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
 begin
-  Logger.AddCheckPoint('OnGetHint');
   Logger.IncCounter('OnGetHint');
 end;
 
@@ -345,7 +404,7 @@ procedure TfrmVirtualTreeView.FVirtualStringTreeGetImageIndex(Sender: TBaseVirtu
   Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
   var Ghosted: Boolean; var ImageIndex: TImageIndex);
 begin
-//  Logger.IncCounter('OnGetImageIndex');
+  Logger.IncCounter('OnGetImageIndex');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeGetNodeDataSize(Sender: TBaseVirtualTree;
@@ -360,7 +419,6 @@ procedure TfrmVirtualTreeView.FVirtualStringTreeGetText(Sender: TBaseVirtualTree
 var
   LContact: TContact;
 begin
-  //Logger.IncCounter('OnGetText');       -> slows logger down
   LContact := Sender.GetNodeData<TContact>(Node);
   if Column = 0 then
     CellText := LContact.FirstName
@@ -378,6 +436,7 @@ begin
   begin
     CellText := '';
   end;
+  Logger.IncCounter('OnGetText');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeHeaderDraw(Sender: TVTHeader;
@@ -400,11 +459,11 @@ begin
   Logger.IncCounter('OnInitChildren');
 end;
 
-procedure TfrmVirtualTreeView.FVirtualStringTreeInitNode(Sender: TBaseVirtualTree;
-  ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+procedure TfrmVirtualTreeView.FVirtualStringTreeMeasureItem(
+  Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
+  var NodeHeight: Integer);
 begin
-  Logger.IncCounter('OnInitNode');
-  Node.SetData(TConceptFactories.CreateRandomContact);
+  Logger.IncCounter('OnMeasureItem');
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeMouseUp(Sender: TObject;
@@ -420,7 +479,6 @@ begin
   if Column = 0 then
     TargetCanvas.Font.Style := [fsBold];
 end;
-
 {$ENDREGION}
 {$ENDREGION}
 
@@ -429,26 +487,40 @@ procedure TfrmVirtualTreeView.InitializeTree;
 begin
   with FVirtualStringTree do
   begin
-    OnAfterCellPaint          := FVirtualStringTreeAfterCellPaint;
     OnChange                  := FVirtualStringTreeChange;
-    OnDblClick                := FVirtualStringTreeDblClick;
-    OnExpanded                := FVirtualStringTreeExpanded;
-    OnExpanding               := FVirtualStringTreeExpanding;
-    OnFocusChanged            := FVirtualStringTreeFocusChanged;
     OnFocusChanging           := FVirtualStringTreeFocusChanging;
-    OnFreeNode                := FVirtualStringTreeFreeNode;
+    OnFocusChanged            := FVirtualStringTreeFocusChanged;
+
+    OnExpanding               := FVirtualStringTreeExpanding;
+    OnExpanded                := FVirtualStringTreeExpanded;
+
+    OnDblClick                := FVirtualStringTreeDblClick;
+    OnMouseUp                 := FVirtualStringTreeMouseUp;
+
     OnGetText                 := FVirtualStringTreeGetText;
     OnGetImageIndex           := FVirtualStringTreeGetImageIndex;
     OnGetHint                 := FVirtualStringTreeGetHint;
     OnGetNodeDataSize         := FVirtualStringTreeGetNodeDataSize;
+
     OnHeaderDraw              := FVirtualStringTreeHeaderDraw;
     OnHeaderDrawQueryElements := FVirtualStringTreeHeaderDrawQueryElements;
+
     OnInitChildren            := FVirtualStringTreeInitChildren;
+
     OnInitNode                := FVirtualStringTreeInitNode;
-    OnMouseUp                 := FVirtualStringTreeMouseUp;
+    OnFreeNode                := FVirtualStringTreeFreeNode;
+
     OnBeforeItemPaint         := FVirtualStringTreeBeforeItemPaint;
+    OnAfterItemPaint          := FVirtualStringTreeAfterItemPaint;
     OnBeforeCellPaint         := FVirtualStringTreeBeforeCellPaint;
+    OnAfterCellPaint          := FVirtualStringTreeAfterCellPaint;
+    OnBeforeItemErase         := FVirtualStringTreeBeforeItemErase;
+    OnAfterItemErase          := FVirtualStringTreeAfterItemErase;
+
     OnPaintText               := FVirtualStringTreePaintText;
+
+    OnMeasureItem             := FVirtualStringTreeMeasureItem;
+
     with Header.Columns.Add do
     begin
       Color    := clWhite;

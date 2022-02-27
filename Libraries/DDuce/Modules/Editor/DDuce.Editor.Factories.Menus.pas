@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ uses
 
 type
   TEditorMenusFactory = class(TInterfacedObject, IEditorMenusFactory)
-  strict private
+  private
     FActions : IEditorActions;
     FMenus   : IEditorMenus;
 
@@ -35,16 +35,16 @@ type
       AAction : TBasicAction = nil
     ): TMenuItem; overload;
     function CreateMenuItem(
-            AParent     : TMenuItem;
+      AParent           : TMenuItem;
       const AActionName : string
     ): TMenuItem; overload;
 
   public
     constructor Create(
-      AActions  : IEditorActions;
-      AMenus    : IEditorMenus
+      AActions : IEditorActions;
+      AMenus   : IEditorMenus
     );
-    procedure BeforeDestruction; override;
+    destructor Destroy; override;
 
     function CreateFileMenu(AMenu : TMenu): TMenuItem;
     function CreateEditMenu(AMenu : TMenu): TMenuItem;
@@ -57,6 +57,7 @@ type
     function CreateHighlightersMenu(AMenu: TMenu): TMenuItem;
     function CreateHelpMenu(AMenu: TMenu): TMenuItem;
     function CreateMainMenu(AOwner: TComponent): TMainMenu;
+
   end;
 
 implementation
@@ -73,11 +74,11 @@ begin
   FMenus   := AMenus;
 end;
 
-procedure TEditorMenusFactory.BeforeDestruction;
+destructor TEditorMenusFactory.Destroy;
 begin
   FActions := nil;
   FMenus   := nil;
-  inherited BeforeDestruction;
+  inherited Destroy;
 end;
 {$ENDREGION}
 
@@ -85,7 +86,7 @@ end;
 function TEditorMenusFactory.CreateMenuItem(AParent: TMenuItem;
   AAction: TBasicAction): TMenuItem;
 var
-  MI: TMenuItem;
+  MI : TMenuItem;
 begin
   Guard.CheckNotNull(AParent, 'AParent');
   if not Assigned(AAction) then
@@ -228,7 +229,7 @@ end;
 
 function TEditorMenusFactory.CreateInsertMenu(AMenu: TMenu): TMenuItem;
 var
-  MI: TMenuItem;
+  MI : TMenuItem;
 begin
   Guard.CheckNotNull(AMenu, 'AMenu');
   MI := TMenuItem.Create(AMenu.Owner);
@@ -241,7 +242,7 @@ end;
 
 function TEditorMenusFactory.CreateSearchMenu(AMenu: TMenu): TMenuItem;
 var
-  MI: TMenuItem;
+  MI : TMenuItem;
 begin
   Guard.CheckNotNull(AMenu, 'AMenu');
   MI := TMenuItem.Create(AMenu.Owner);
@@ -261,7 +262,7 @@ end;
 
 function TEditorMenusFactory.CreateToolsMenu(AMenu: TMenu): TMenuItem;
 var
-  MI: TMenuItem;
+  MI : TMenuItem;
 begin
   Guard.CheckNotNull(AMenu, 'AMenu');
   MI := TMenuItem.Create(AMenu.Owner);
@@ -281,7 +282,7 @@ end;
 
 function TEditorMenusFactory.CreateViewsMenu(AMenu: TMenu): TMenuItem;
 var
-  MI: TMenuItem;
+  MI : TMenuItem;
 begin
   Guard.CheckNotNull(AMenu, 'AMenu');
   MI := TMenuItem.Create(AMenu.Owner);
@@ -298,7 +299,7 @@ end;
 
 function TEditorMenusFactory.CreateSettingsMenu(AMenu: TMenu): TMenuItem;
 var
-  MI: TMenuItem;
+  MI : TMenuItem;
 begin
   Guard.CheckNotNull(AMenu, 'AMenu');
   MI := TMenuItem.Create(AMenu.Owner);
@@ -340,7 +341,7 @@ end;
 
 function TEditorMenusFactory.CreateHelpMenu(AMenu: TMenu): TMenuItem;
 var
-  MI: TMenuItem;
+  MI : TMenuItem;
 begin
   Guard.CheckNotNull(AMenu, 'AMenu');
   MI := TMenuItem.Create(AMenu.Owner);

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,13 +26,15 @@ uses
 type
   TEditorViewInfo = class
   private
-    FView: TComponent; // TS: no interface reference here!
+    FView : TComponent; // TS: no interface reference here!
 
+    {$REGION 'property access methods'}
     function GetFileName: string;
     function GetHighlighter: string;
     function GetModified: Boolean;
     function GetPath: string;
     function GetView: IEditorView;
+    {$ENDREGION}
 
   public
     constructor Create(AView: IEditorView);
@@ -52,6 +54,7 @@ type
 
     property Modified: Boolean
       read GetModified;
+
   end;
 
 implementation

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -81,22 +81,20 @@ interface
 uses
   System.Classes, System.SysUtils, System.Variants, System.Actions,
   System.ImageList,
+
   Vcl.Controls, Vcl.ActnList, Vcl.Menus, Vcl.Dialogs, Vcl.Forms, Vcl.ImgList,
-  Vcl.ActnPopup,
 
   Spring, Spring.Collections,
 
-  BCEditor.Editor, BCEditor.Editor.KeyCommands,
+  TextEditor, TextEditor.KeyCommands,
 
   DDuce.Editor.Types, DDuce.Editor.Interfaces, DDuce.Editor.Resources,
   DDuce.Editor.View, DDuce.Editor.Highlighters, DDuce.Editor.Commands,
-
   DDuce.Logger;
 
 type
   TPopupMenu = DDuce.Editor.Interfaces.TPopupMenu;
 
-type
   TdmEditorManager = class(TDataModule, IEditorManager,
                                         IEditorActions,
                                         IEditorView,   // active view
@@ -326,7 +324,6 @@ type
     procedure actFindPreviousExecute(Sender: TObject);
     procedure actFindPrevWordExecute(Sender: TObject);
     procedure actFoldLevel0Execute(Sender: TObject);
-    procedure actFoldLevel10Execute(Sender: TObject);
     procedure actFoldLevel1Execute(Sender: TObject);
     procedure actFoldLevel2Execute(Sender: TObject);
     procedure actFoldLevel3Execute(Sender: TObject);
@@ -336,6 +333,7 @@ type
     procedure actFoldLevel7Execute(Sender: TObject);
     procedure actFoldLevel8Execute(Sender: TObject);
     procedure actFoldLevel9Execute(Sender: TObject);
+    procedure actFoldLevel10Execute(Sender: TObject);
     procedure actFormatExecute(Sender: TObject);
     procedure actHelpExecute(Sender: TObject);
     procedure actHighlighterExecute(Sender: TObject);
@@ -379,8 +377,11 @@ type
     procedure actShowFilterTestExecute(Sender: TObject);
     procedure actShowHexEditorExecute(Sender: TObject);
     procedure actShowHTMLViewerExecute(Sender: TObject);
+    procedure actShowIndentGuidesExecute(Sender: TObject);
+    procedure actShowMinimapExecute(Sender: TObject);
     procedure actShowPreviewExecute(Sender: TObject);
     procedure actShowScriptEditorExecute(Sender: TObject);
+    procedure actShowSearchmapExecute(Sender: TObject);
     procedure actShowSpecialCharactersExecute(Sender: TObject);
     procedure actShowStructureViewerExecute(Sender: TObject);
     procedure actShowTestExecute(Sender: TObject);
@@ -400,13 +401,10 @@ type
     procedure actToggleFoldLevelExecute(Sender: TObject);
     procedure actToggleHighlighterExecute(Sender: TObject);
     procedure actToggleMaximizedExecute(Sender: TObject);
-    procedure actShowMinimapExecute(Sender: TObject);
+    procedure actToggleWordWrapExecute(Sender: TObject);
     procedure actUndoExecute(Sender: TObject);
     procedure actUnindentExecute(Sender: TObject);
     procedure actUpperCaseSelectionExecute(Sender: TObject);
-    procedure actToggleWordWrapExecute(Sender: TObject);
-    procedure actShowIndentGuidesExecute(Sender: TObject);
-    procedure actShowSearchmapExecute(Sender: TObject);
     {$ENDREGION}
 
   private
@@ -434,7 +432,7 @@ type
     function GetHighlighterPopupMenu: TPopupMenu;
     function GetInsertPopupMenu: TPopupMenu;
     function GetItem(AName: string): TCustomAction;
-    function GetKeyCommands: TBCEditorKeyCommands;
+    function GetKeyCommands: TTextEditorKeyCommands;
     function GetLineBreakStylePopupMenu: TPopupMenu;
     function GetMenus: IEditorMenus;
     function GetPersistSettings: Boolean;
@@ -550,7 +548,6 @@ type
     ): IEditorView;
     {$ENDREGION}
 
-    // properties
     property ActionList: TActionList
       read GetActionList;
 
@@ -635,7 +632,7 @@ type
     property Commands: IEditorCommands
       read GetCommands implements IEditorCommands;
 
-    property KeyCommands: TBCEditorKeyCommands
+    property KeyCommands: TTextEditorKeyCommands
       read GetKeyCommands;
 
     { Delegates the implementation of IEditorSettings to an internal object. }
@@ -688,17 +685,17 @@ implementation
 
 uses
   Winapi.Windows,
-  System.StrUtils, System.TypInfo,
+  System.TypInfo,
   Vcl.Clipbrd,
 
   DDuce.Utils,
 
-  DDuce.Editor.Settings, DDuce.Editor.Utils,
+  DDuce.Editor.Settings,
   DDuce.Editor.ToolView.Manager,
   DDuce.Editor.Filter.ToolView, DDuce.Editor.Search.ToolView,
   DDuce.Editor.SortStrings.ToolView, DDuce.Editor.ViewList.ToolView,
   DDuce.Editor.ActionList.ToolView, DDuce.Editor.CharacterMap.ToolView,
-  DDuce.Editor.AlignLines.ToolView, DDuce.Editor.Test.ToolView,
+  DDuce.Editor.Test.ToolView,
   DDuce.Editor.SelectionInfo.ToolView,
   DDuce.Editor.Filter.Settings, DDuce.Editor.Search.Engine.Settings,
   DDuce.Editor.SortStrings.Settings, DDuce.Editor.Search.Engine,
@@ -729,11 +726,11 @@ begin
   { TODO -oTS : Move the construction of these objects to the outside and pass
    the instances to the constructor (dependency injection). This will allow to
    create unit tests for each module. }
-  FToolViews        := TToolViews.Create(Self);
-  FEvents           := TEditorEvents.Create(Self);
-  FCommands         := TEditorCommands.Create(Self);
-  FViewList         := TCollections.CreateInterfaceList<IEditorView>;;
-  FSearchEngine     := TSearchEngine.Create(Self);
+  FToolViews    := TToolViews.Create(Self);
+  FEvents       := TEditorEvents.Create(Self);
+  FCommands     := TEditorCommands.Create(Self);
+  FViewList     := TCollections.CreateInterfaceList<IEditorView>;;
+  FSearchEngine := TSearchEngine.Create(Self);
   RegisterToolViews;
   CreateActions;
   InitializePopupMenus;
@@ -828,7 +825,7 @@ begin
   end;
 end;
 
-function TdmEditorManager.GetKeyCommands: TBCEditorKeyCommands;
+function TdmEditorManager.GetKeyCommands: TTextEditorKeyCommands;
 begin
   Result := ActiveView.Editor.KeyCommands;
 end;
@@ -1748,7 +1745,7 @@ end;
 {$REGION 'event handlers'}
 procedure TdmEditorManager.EditorSettingsChanged(ASender: TObject);
 begin
-  if Assigned(ActiveView) then
+  if Assigned(ActiveView) and Assigned(ActiveView.Editor) then
     ActiveView.Editor.Refresh;
 end;
 {$ENDREGION}
@@ -2233,13 +2230,18 @@ var
   V : IEditorView;
 begin
   Result := False;
-  for V in (Self as IEditorViews) do
-  begin
-    if V.Modified then
+  try
+    for V in (Self as IEditorViews) do
     begin
-      Result := True;
-      Break;
+      if V.Modified then
+      begin
+        Result := True;
+        Break;
+      end;
     end;
+  except
+    on E: Exception do
+      Logger.SendException('ViewsModified', E);
   end;
 end;
 
@@ -2534,7 +2536,7 @@ var
   B : Boolean;
   V : IEditorView;
 begin
-  if Assigned(ActiveView) then
+  if Assigned(ActiveView) and Assigned(ActiveView.Editor) then
   begin
     aclActions.State := asNormal;
     V := ActiveView;
@@ -2636,7 +2638,8 @@ begin
       actStayOnTop.Checked := Settings.FormSettings.FormStyle = fsStayOnTop;
       actSingleInstance.Checked := Settings.SingleInstance;
 
-      actSaveAll.Enabled := ViewsModified;
+      // exception
+      //actSaveAll.Enabled := ViewsModified;
 
       FChanged := False;
     end;

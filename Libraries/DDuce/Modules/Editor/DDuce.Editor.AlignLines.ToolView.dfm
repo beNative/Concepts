@@ -17,13 +17,19 @@ inherited frmAlignLines: TfrmAlignLines
     Width = 360
     Height = 704
     Align = alClient
+    BevelInner = bvNone
+    BevelOuter = bvNone
     BorderStyle = bsNone
     TabOrder = 0
+    DesignSize = (
+      360
+      704)
     object rgpSortDirection: TRadioGroup
       Left = 5
       Top = 164
       Width = 352
       Height = 54
+      Anchors = [akLeft, akTop, akRight]
       Caption = 'Sort direction:'
       Columns = 2
       ItemIndex = 0
@@ -34,10 +40,11 @@ inherited frmAlignLines: TfrmAlignLines
       OnClick = rgpSortDirectionClick
     end
     object rgpAlignAt: TRadioGroup
-      Left = 0
-      Top = 224
+      Left = 5
+      Top = 222
       Width = 352
       Height = 54
+      Anchors = [akLeft, akTop, akRight]
       Caption = 'Align at:'
       Columns = 2
       ItemIndex = 0
@@ -62,7 +69,7 @@ inherited frmAlignLines: TfrmAlignLines
       360
       25)
     object btnOK: TButton
-      Left = 233
+      Left = 240
       Top = 0
       Width = 120
       Height = 25

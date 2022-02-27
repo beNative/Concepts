@@ -5,6 +5,8 @@ inherited frmCharacterMap: TfrmCharacterMap
   BorderStyle = bsSingle
   ClientHeight = 649
   ClientWidth = 369
+  DoubleBuffered = True
+  Font.Name = 'Segoe UI'
   PopupMode = pmAuto
   Position = poDefault
   ExplicitWidth = 375
@@ -21,17 +23,13 @@ inherited frmCharacterMap: TfrmCharacterMap
     TabOrder = 0
     object tsANSI: TTabSheet
       Caption = 'ANSI'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         361
         376)
       object lblCharInfo: TLabel
         Left = 6
         Top = 345
-        Width = 53
+        Width = 58
         Height = 13
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'lblCharInfo'
@@ -63,17 +61,13 @@ inherited frmCharacterMap: TfrmCharacterMap
     end
     object tsUnicode: TTabSheet
       Caption = 'Unicode'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         361
         376)
       object lblUnicodeCharInfo: TLabel
         Left = 6
         Top = 342
-        Width = 91
+        Width = 101
         Height = 13
         Caption = 'lblUnicodeCharInfo'
         Color = clBtnFace
@@ -121,26 +115,28 @@ inherited frmCharacterMap: TfrmCharacterMap
     Width = 369
     Height = 245
     Align = alBottom
-    BevelInner = bvSpace
-    BevelOuter = bvSpace
+    BevelOuter = bvNone
     Color = clWhite
     TabOrder = 1
     object shpChar: TShape
-      Left = 2
-      Top = 2
-      Width = 365
-      Height = 241
+      Left = 0
+      Top = 0
+      Width = 369
+      Height = 245
       Align = alClient
       Brush.Style = bsClear
       Pen.Color = clSilver
       Pen.Width = 2
+      ExplicitLeft = 2
+      ExplicitTop = 2
       ExplicitWidth = 357
+      ExplicitHeight = 241
     end
     object imgChar: TImage
-      Left = 2
-      Top = 2
-      Width = 365
-      Height = 241
+      Left = 0
+      Top = 0
+      Width = 369
+      Height = 245
       Align = alClient
       AutoSize = True
       Center = True

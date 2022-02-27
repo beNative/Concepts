@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ interface
 }
 
 uses
-  System.Classes, System.SysUtils, System.Contnrs, System.Actions,
+  System.Classes, System.SysUtils, System.Actions,
   Vcl.Forms, Vcl.Controls, Vcl.Graphics, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls,
   Vcl.StdCtrls, Vcl.ActnList,
 
@@ -59,6 +59,12 @@ type
     pnlMain            : TPanel;
     sbrMain            : TStatusBar;
 
+
+    {$REGION 'action handlers'}
+    procedure actFocusFilterTextExecute(Sender: TObject);
+    {$ENDREGION}
+
+    {$REGION 'event handlers'}
     function CCustomDraw(
       Sender           : TObject;
       ColumnDefinition : TColumnDefinition;
@@ -69,8 +75,6 @@ type
       DrawMode         : TDrawMode;
       Selected         : Boolean
     ) : Boolean;
-
-    procedure actFocusFilterTextExecute(Sender: TObject);
 
     procedure edtFilterChange(Sender: TObject);
     procedure edtFilterKeyDown(Sender: TObject; var Key: Word;
@@ -83,8 +87,9 @@ type
     procedure FVSTKeyPress(Sender: TObject; var Key: char);
     procedure FVSTKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FTVPSelectionChanged(Sender: TObject);
+    {$ENDREGION}
 
-  strict private
+  private
     FVST : TVirtualStringTree;
     FTVP : TTreeViewPresenter;
 
@@ -94,8 +99,10 @@ type
     FLines            : IList<TLine>;
 //    FTextStyle        : TTextFormat;
 
+    {$REGION 'property access methods'}
     function GetFilter: string;
     procedure SetFilter(AValue: string);
+    {$ENDREGION}
 
     function IsMatch(const AString : string): Boolean; overload; inline;
     function IsMatch(
@@ -200,7 +207,7 @@ var
 procedure TfrmFilter.AfterConstruction;
 begin
   inherited AfterConstruction;
-  FVST := TVirtualStringTreeFactory.CreateGrid(Self, pnlView);
+  FVST := TVirtualStringTreeFactory.CreateTree(Self, pnlView);
   FVST.OnKeyPress := FVSTKeyPress;
   FVST.OnKeyUp := FVSTKeyUp;
   FTVP := TFactories.CreateTreeViewPresenter(Self, FVST);
@@ -228,8 +235,6 @@ begin
 //  FTextStyle.Alignment  := taLeftJustify;
 //  FTextStyle.Layout     := tlCenter;
 end;
-
-
 {$ENDREGION}
 
 {$REGION 'event handlers'}

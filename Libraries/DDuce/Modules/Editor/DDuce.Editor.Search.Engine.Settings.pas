@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,12 +22,12 @@ uses
   System.Classes,
   Vcl.Forms, Vcl.Controls,
 
-  BCEditor.Editor.Search, BCEditor.Types;
+  TextEditor.Types;
 
 type
   TSearchEngineSettings = class(TComponent)
   private
-    FOptions        : TBCEditorSearchOptions;
+    FOptions        : TTextEditorSearchOptions;
     FSearchAllViews : Boolean;
 
   public
@@ -35,23 +35,22 @@ type
     procedure Assign(ASource: TPersistent); override;
 
   published
-  {
-    TBCEditorSearchOption = (
-    soBackwards,
-    soBeepIfStringNotFound,
-    soCaseSensitive,
-    soEntireScope,
-    soHighlightResults,
-    soSearchOnTyping,
-    soSelectedOnly,
-    soShowStringNotFound,
-    soShowSearchMatchNotFound,
-    soWholeWordsOnly,
-    soWrapAround
-  );
-  }
-
-    property Options : TBCEditorSearchOptions
+    {
+      TTextEditorSearchOption = (
+      soBackwards,
+      soBeepIfStringNotFound,
+      soCaseSensitive,
+      soEntireScope,
+      soHighlightResults,
+      soSearchOnTyping,
+      soSelectedOnly,
+      soShowStringNotFound,
+      soShowSearchMatchNotFound,
+      soWholeWordsOnly,
+      soWrapAround
+    );
+    }
+    property Options : TTextEditorSearchOptions
       read FOptions write FOptions;
 
     property SearchAllViews: Boolean
@@ -64,7 +63,7 @@ implementation
 {$REGION 'public methods'}
 procedure TSearchEngineSettings.AssignTo(ADest: TPersistent);
 var
-  SES: TSearchEngineSettings;
+  SES : TSearchEngineSettings;
 begin
   if ADest is TSearchEngineSettings then
   begin
@@ -78,7 +77,7 @@ end;
 
 procedure TSearchEngineSettings.Assign(ASource: TPersistent);
 var
-  SES: TSearchEngineSettings;
+  SES : TSearchEngineSettings;
 begin
   if ASource is TSearchEngineSettings then
   begin

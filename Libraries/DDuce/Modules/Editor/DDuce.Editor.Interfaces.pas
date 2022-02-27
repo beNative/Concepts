@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@ interface
   instances supporting one or more of these interfaces. }
 
 uses
-  System.Classes, System.Contnrs, System.Types, System.SysUtils,
+  System.Classes, System.Types, System.SysUtils,
   Vcl.ActnList, Vcl.Controls, Vcl.Forms, Vcl.Menus, Vcl.Graphics, Vcl.ComCtrls,
   Vcl.ActnPopup,
 
   Spring, Spring.Collections,
 
-  BCEditor.Editor, BCEditor.Types, BCEditor.Editor.KeyCommands,
+  TextEditor, TextEditor.Types, TextEditor.KeyCommands,
 
   DDuce.Settings.Form,
 
@@ -51,6 +51,8 @@ uses
 // TPopupMenu does not work with Vcl styles! This interposer class is a work-
 // around for this issue.
 // See: https://theroadtodelphi.wordpress.com/2012/03/06/adding-vcl-styles-support-to-a-tpopupmenu-in-2-lines-of-code/
+
+// => fixed in 10.3.2
 
 type
   TPopupMenu = class(Vcl.ActnPopup.TPopupActionBar);
@@ -76,6 +78,7 @@ type
 
   IControl = interface
   ['{303F3DE1-81F5-473B-812B-7DD4C306725B}']
+    {$REGION 'property access methods'}
     function GetName: string;
     function GetParent: TWinControl;
     function GetPopupMenu: TPopupMenu;
@@ -84,6 +87,7 @@ type
     procedure SetParent(AValue: TWinControl);
     procedure SetPopupMenu(AValue: TPopupMenu);
     procedure SetVisible(const AValue: Boolean);
+    {$ENDREGION}
 
     function Focused: Boolean;
     procedure SetFocus;
@@ -120,7 +124,7 @@ type
     function GetCaretY: Integer;
     function GetCurrentChar: WideChar;
     function GetCurrentWord: string;
-    function GetEditor: TBCEditor;
+    function GetEditor: TTextEditor;
     function GetEditorFont: TFont;
     function GetEncoding: TEncoding;
     function GetFileName: string;
@@ -139,12 +143,12 @@ type
     function GetModified: Boolean;
     function GetMonitorChanges: Boolean;
     function GetOnChange: TNotifyEvent;
-    function GetOnDropFiles: TBCEditorDropFilesEvent;
+    function GetOnDropFiles: TTextEditorDropFilesEvent;
     function GetReplaceHistory: TStrings;
     function GetSearchText: string;
     function GetSelectionAvailable: Boolean;
     function GetSelectionLength: Integer;
-    function GetSelectionMode: TBCEditorSelectionMode;
+    function GetSelectionMode: TTextEditorSelectionMode;
     function GetSelEnd: Integer;
     function GetSelStart: Integer;
     function GetSelectedText: string;
@@ -172,9 +176,9 @@ type
     procedure SetModified(const AValue: Boolean);
     procedure SetMonitorChanges(const AValue: Boolean);
     procedure SetOnChange(const AValue: TNotifyEvent);
-    procedure SetOnDropFiles(const AValue: TBCEditorDropFilesEvent);
+    procedure SetOnDropFiles(const AValue: TTextEditorDropFilesEvent);
     procedure SetSearchText(const AValue: string);
-    procedure SetSelectionMode(AValue: TBCEditorSelectionMode);
+    procedure SetSelectionMode(AValue: TTextEditorSelectionMode);
     procedure SetSelEnd(const AValue: Integer);
     procedure SetSelStart(const AValue: Integer);
     procedure SetSelectedText(const AValue: string);
@@ -215,8 +219,6 @@ type
     procedure SelectAll;
     procedure SelectWord;
 
-    // other commands
-
     // clipboard commands
     procedure Cut;
     procedure Copy;
@@ -231,7 +233,7 @@ type
     property ReplaceHistory: TStrings
       read GetReplaceHistory;
 
-    property Editor: TBCEditor
+    property Editor: TTextEditor
       read GetEditor;
 
     property Form: TCustomForm
@@ -271,7 +273,7 @@ type
       read GetHighlighterItem write SetHighlighterItem;
 
     { Sets the current (default) selection mode.  }
-    property SelectionMode: TBCEditorSelectionMode
+    property SelectionMode: TTextEditorSelectionMode
       read GetSelectionMode write SetSelectionMode;
 
     property SelectionAvailable: Boolean
@@ -383,7 +385,7 @@ type
       read GetEditorFont write SetEditorFont;
 
     // events
-    property OnDropFiles: TBCEditorDropFilesEvent
+    property OnDropFiles: TTextEditorDropFilesEvent
       read GetOnDropFiles write SetOnDropFiles;
 
     property OnChange: TNotifyEvent
@@ -394,20 +396,22 @@ type
 
   IEditorSearchEngine = interface
   ['{5403336C-3E81-4A1B-B2BB-170CF0EF0B84}']
+    {$REGION 'property access methods'}
     function GetCurrentIndex: Integer;
     function GetItemGroups: IList<TSearchResultGroup>;
     function GetItemList: IList<TSearchResult>;
-    function GetOptions: TBCEditorSearchOptions;
+    function GetOptions: TTextEditorSearchOptions;
     function GetReplaceText: string;
     function GetSearchAllViews: Boolean;
     function GetSearchText: string;
     procedure SetCurrentIndex(AValue: Integer);
-    procedure SetOptions(AValue: TBCEditorSearchOptions);
+    procedure SetOptions(AValue: TTextEditorSearchOptions);
     procedure SetReplaceText(AValue: string);
     procedure SetSearchAllViews(AValue: Boolean);
     procedure SetSearchText(AValue: string);
     function GetOnChange: IEvent<TNotifyEvent>;
     function GetOnExecute: IEvent<TNotifyEvent>;
+    {$ENDREGION}
 
     procedure Execute;
     procedure Replace;
@@ -418,7 +422,7 @@ type
     property CurrentIndex: Integer
       read GetCurrentIndex write SetCurrentIndex;
 
-    property Options: TBCEditorSearchOptions
+    property Options: TTextEditorSearchOptions
       read GetOptions write SetOptions;
 
     property SearchText : string
@@ -464,8 +468,8 @@ type
     function GetOnShowEditorToolView: IEvent<TEditorToolViewEvent>;
     function GetOnNew: IEvent<TNewEvent>;
 //    function GetOnStatusChange: TStatusChangeEvent;
-      function GetOnActionExecute: IEvent<TActionExecuteEvent>;
-      function GetOnCaretPositionChange: IEvent<TCaretPositionEvent>;
+    function GetOnActionExecute: IEvent<TActionExecuteEvent>;
+    function GetOnCaretPositionChange: IEvent<TCaretPositionEvent>;
     {$ENDREGION}
 
     // event dispatch methods
@@ -556,7 +560,6 @@ type
     function GetEditorOptions: TEditorOptionsSettings;
     function GetFileName: string;
     function GetFormSettings: TFormSettings;
-//    function GetHighlighterAttributes: THighlighterAttributes;
     function GetHighlighters: THighlighters;
     function GetHighlighterType: string;
     function GetLanguageCode: string;
@@ -564,7 +567,6 @@ type
     function GetSingleInstance: Boolean;
     function GetToolSettings: TEditorToolSettings;
     function GetOnChanged: IEvent<TNotifyEvent>;
-    function GetXML: string;
     procedure SetAutoFormatXML(const AValue: Boolean);
     procedure SetAutoGuessHighlighterType(const AValue: Boolean);
     procedure SetCloseWithESC(const AValue: Boolean);
@@ -575,7 +577,6 @@ type
     procedure SetEditorOptions(AValue: TEditorOptionsSettings);
     procedure SetFileName(const AValue: string);
     procedure SetFormSettings(const AValue: TFormSettings);
-//    procedure SetHighlighterAttributes(AValue: THighlighterAttributes);
     procedure SetHighlighterType(const AValue: string);
     procedure SetLanguageCode(AValue: string);
     procedure SetReadOnly(const AValue: Boolean);
@@ -633,9 +634,6 @@ type
     property SingleInstance: Boolean
       read GetSingleInstance write SetSingleInstance;
 
-    property XML: string
-      read GetXML;
-
     // Editor options
     property EditorOptions: TEditorOptionsSettings
       read GetEditorOptions write SetEditorOptions;
@@ -646,11 +644,13 @@ type
 
   IEditorViews = interface
   ['{FBFB8DC6-7663-4EA4-935D-5B9F3CD7C753}']
+    {$REGION 'property access methods'}
     function GetView(AIndex: Integer): IEditorView;
     function GetViewByFileName(AFileName: string): IEditorView;
     function GetViewByName(AName: string): IEditorView;
     function GetCount: Integer;
     function GetViewList: IList<IEditorView>;
+    {$ENDREGION}
 
     function Add(
       const AName        : string = '';
@@ -683,10 +683,13 @@ type
 
   IEditorToolView = interface
   ['{F6BEE8F6-BA4D-4B38-8FB0-79088B615DF5}']
+    {$REGION 'property access methods'}
     function GetForm: TForm;
     function GetName: string;
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
+    {$ENDREGION}
+
     { Lets the view respond to changes. }
     procedure UpdateView;
 
@@ -706,16 +709,18 @@ type
 
   IEditorToolViews = interface
   ['{A5575878-A189-4F3C-9008-61899B739DA1}']
+    {$REGION 'property access methods'}
     function GetView(AIndex: Integer): IEditorToolView;
     function GetViewByName(AName: string): IEditorToolView;
     function GetCount: Integer;
+    {$ENDREGION}
 
     function GetEnumerator: TEditorToolViewListEnumerator;
 
     function Register(
-            AFormClass     : TComponentClass;
-            ASettingsClass : TComponentClass;
-      const AName          : string = ''
+      AFormClass     : TComponentClass;
+      ASettingsClass : TComponentClass;
+      const AName    : string = ''
     ): Boolean;
     procedure Hide;
 
@@ -733,11 +738,11 @@ type
   ['{5CB77731-425D-44FD-93BA-2137875F76B5}']
     procedure AdjustFontSize(AOffset: Integer);
     procedure AlignSelection(
-      const AToken                  : string;
-            ACompressWS             : Boolean;
-            AInsertSpaceBeforeToken : Boolean;
-            AInsertSpaceAfterToken  : Boolean;
-            AAlignInParagraphs      : Boolean
+      const AToken            : string;
+      ACompressWS             : Boolean;
+      AInsertSpaceBeforeToken : Boolean;
+      AInsertSpaceAfterToken  : Boolean;
+      AAlignInParagraphs      : Boolean
     );
     procedure AssignHighlighter(const AName: string);
     procedure Base64FromSelection(ADecode: Boolean = False);
@@ -862,8 +867,10 @@ type
 
   IEditorActions = interface
   ['{E42EF2E3-A7A0-4847-B299-3C35699DC708}']
+    {$REGION 'property access methods'}
     function GetActionList: TActionList;
     function GetItem(AName: string): TCustomAction;
+    {$ENDREGION}
 
     procedure UpdateActions;
     procedure UpdateHighLighterActions;
@@ -895,15 +902,15 @@ type
     function GetActiveView: IEditorView;
     procedure SetActiveView(AValue: IEditorView);
     function GetHighlighters: THighlighters;
-    function GetKeyCommands: TBCEditorKeyCommands;
+    function GetKeyCommands: TTextEditorKeyCommands;
     {$ENDREGION}
 
     procedure UpdateActions;
     function ActivateView(const AName: string): Boolean;
     function OpenFile(const AFileName: string): IEditorView;
     function NewFile(
-      const AFileName  : string;
-      const AText      : string = ''
+      const AFileName : string;
+      const AText     : string = ''
     ): IEditorView;
     function SaveFile(
       const AFileName : string = '';
@@ -938,7 +945,7 @@ type
     property Commands: IEditorCommands
       read GetCommands;
 
-    property KeyCommands: TBCEditorKeyCommands
+    property KeyCommands: TTextEditorKeyCommands
       read GetKeyCommands;
 
     property Settings: IEditorSettings
@@ -982,8 +989,8 @@ type
   IEditorManagerFactory = interface
   ['{BE85A08D-936E-4F76-BBE1-A1999DE882B9}']
     function CreateInstance(
-            AOwner            : TComponent = nil;
-            APersistSettings  : Boolean = False;
+      AOwner                  : TComponent = nil;
+      APersistSettings        : Boolean = False;
       const ASettingsFileName : string = ''
     ): IEditorManager; overload;
 
@@ -997,7 +1004,7 @@ type
   ['{CAEF28D5-0E70-4D4E-AEC7-07BD6E743945}']
     function CreateInstance(
       AParent            : TWinControl;
-      AManager           : IEditorManager;
+      const AManager     : IEditorManager;
       const AName        : string = '';
       const AFileName    : string = '';
       const AHighlighter : string = 'TXT'

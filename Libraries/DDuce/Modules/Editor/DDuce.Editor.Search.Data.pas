@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,11 +23,12 @@ interface
 { IEditorView -> TSearchResultGroup -> TSearchResultLine -> TSearchResult }
 
 uses
-  System.Classes, System.SysUtils, System.Contnrs, System.Types,
+  System.Classes, System.SysUtils, System.Types,
 
   Spring.Collections;
 
 type
+  {$REGION 'TSearchResult'}
   TSearchResult = class(TPersistent)
   private
     FIndex      : Integer;
@@ -80,10 +81,11 @@ type
 
     property Text: string
       read GetText;
+
   end;
+  {$ENDREGION}
 
-  { TSearchResultLine }
-
+  {$REGION 'TSearchResultLine'}
   TSearchResultLine = class(TPersistent)
   private
     FLine : Integer;
@@ -102,10 +104,11 @@ type
 
     property Text: string
       read GetText;
+
   end;
+  {$ENDREGION}
 
-  { TSearchResultGroup }
-
+  {$REGION 'TSearchResultGroup'}
   TSearchResultGroup = class(TPersistent)
   private
     FLines    : IObjectList;
@@ -128,7 +131,9 @@ type
 
     property Text: string
       read GetText;
+
   end;
+  {$ENDREGION}
 
 implementation
 

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -136,7 +136,7 @@ function GetTextHeight(
 ): Integer;
 
 function SetToString(
-  ATypeInfo : PTypeInfo;
+  ATypeInfo    : PTypeInfo;
   const AValue;
   AQuoteValues : Boolean = True;
   ABrackets    : Boolean = True;
@@ -177,7 +177,7 @@ uses
   Spring;
 
 var
-  FRtti: TRttiContext;
+  FRtti : TRttiContext;
 
 {$REGION 'non-interfaced routines'}
 function TryGetUnderlyingValue(const AValue: TValue; out AInnerValue: TValue)
@@ -461,10 +461,8 @@ begin
         FixControlStylesForDrag(Controls[I]);
 end;
 
-procedure AutoSizeDisplayWidths(ADataSet : TDataSet;
-                                AFont    : TFont;
-                                ACount   : Integer;
-                                AOffset  : Integer);
+procedure AutoSizeDisplayWidths(ADataSet: TDataSet; AFont: TFont;
+  ACount: Integer; AOffset: Integer);
 var
   BM : TBookmark;
   I  : Integer;
@@ -473,26 +471,26 @@ var
 
   function GetTextWidth(const AText: string; AFont: TFont): Integer;
   var
-    Bitmap  : TBitmap;
+    LBitmap : TBitmap;
     SL      : TStringList;
     I, W, R : Integer;
   begin
     SL := TStringList.Create;
     try
       SL.Text := AText;
-      Bitmap := TBitmap.Create;
+      LBitmap := TBitmap.Create;
       try
-        Bitmap.Canvas.Font.Assign(AFont);
+        LBitmap.Canvas.Font.Assign(AFont);
         R := 0;
         for I := 0 to SL.Count - 1 do
         begin
-          W := Bitmap.Canvas.TextWidth(SL[I]);
+          W := LBitmap.Canvas.TextWidth(SL[I]);
           if W > R then
             R := W;
         end;
         Result := R div AFont.Size;
       finally
-        Bitmap.Free;
+        LBitmap.Free;
       end;
     finally
       SL.Free;
@@ -586,7 +584,7 @@ begin
         for J := 0 to ADataSet.Fields.Count - 1 do
         begin
           if ADataSet.Fields[J].DataType in
-            [ftMemo, {ftWideMemo,} ftString, ftWideString]  then
+            [ftMemo, ftWideMemo, ftString, ftWideString]  then
             L := GetTextWidth(ADataSet.Fields[J].DisplayText) + AOffset
           else
             L := Length(ADataSet.Fields[J].DisplayText) + AOffset;
@@ -606,7 +604,7 @@ end;
 
 function AskConfirmation(const AMessage: string): Boolean;
 var
-  MR: TModalResult;
+  MR : TModalResult;
 begin
   MR := MessageDlg(AMessage, mtConfirmation, [mbYes, mbNo], 0);
   if MR = mrYes then
@@ -634,14 +632,14 @@ end;
 
 function GetTextWidth(const AText: string; AFont: TFont): Integer;
 var
-  Bitmap : TBitmap;
+  LBitmap : TBitmap;
 begin
-  Bitmap := TBitmap.Create;
+  LBitmap := TBitmap.Create;
   try
-    Bitmap.Canvas.Font.Assign(AFont);
-    Result := Bitmap.Canvas.TextExtent(AText).cx;
+    LBitmap.Canvas.Font.Assign(AFont);
+    Result := LBitmap.Canvas.TextExtent(AText).cx;
   finally
-    Bitmap.Free;
+    LBitmap.Free;
   end;
 end;
 
@@ -649,7 +647,7 @@ end;
 
 procedure OptimizeWidth(APanel: TPanel);
 var
-  S: string;
+  S : string;
 begin
   S := APanel.Caption;
   if Trim(S) <> '' then
@@ -687,7 +685,7 @@ end;
 function ExtractText(const AString: string; const ADelim1, ADelim2: string)
   : string;
 var
-  P1, P2: Integer;
+  P1, P2 : Integer;
 begin
   Result := '';
   P1 := Pos(ADelim1, AString);
@@ -704,8 +702,8 @@ begin
   OutputDebugStringW(PChar(AString));
 end;
 
-procedure OutputDebugString(const AString : string; const AValues: array of const
-); overload;
+procedure OutputDebugString(const AString : string;
+  const AValues: array of const); overload;
 begin
   OutputDebugString(Format(AString, AValues));
 end;
@@ -715,7 +713,7 @@ function DrawFormattedText(const ARect: TRect; const ACanvas: TCanvas;
 
   function GetTagValue(const ATag: string): string;
   var
-    P: Integer;
+    P : Integer;
   begin
     P := Pos('=', ATag);
 
@@ -727,7 +725,7 @@ function DrawFormattedText(const ARect: TRect; const ACanvas: TCanvas;
 
   function ColorCodeToColor(const AValue: string): TColor;
   var
-    LHexValue: string;
+    LHexValue : string;
   begin
     Result := 0;
     if AValue <> '' then
@@ -1001,10 +999,10 @@ end;
 function SetToString(ATypeInfo: PTypeInfo; const AValue; AQuoteValues: Boolean;
   ABrackets: Boolean; ATrimChars: Integer): string;
 var
-  S    : TIntegerSet;
-  I    : Integer;
-  N    : Integer;
-  Name : string;
+  S     : TIntegerSet;
+  I     : Integer;
+  N     : Integer;
+  LName : string;
 
   function GetOrdValue(Info: PTypeInfo; const SetParam): Integer;
   begin
@@ -1048,20 +1046,20 @@ begin
     begin
       if Result <> '' then
         Result := Result + ',';
-      Name := GetEnumName(ATypeInfo, I);
+      LName := GetEnumName(ATypeInfo, I);
 
       if ATrimChars >= 0 then
         N := ATrimChars
       else
-        N := GetPrefixLength(Name);
+        N := GetPrefixLength(LName);
 
       if N > 0 then
-        Name := Copy(Name, N + 1, Length(Name) - N + 1);
+        LName := Copy(LName, N + 1, Length(LName) - N + 1);
 
       if AQuoteValues then
-        Name := QuotedStr(Name);
+        LName := QuotedStr(LName);
 
-      Result := Result + Name;
+      Result := Result + LName;
     end;
   end;
   if ABrackets and (Result <> '') then

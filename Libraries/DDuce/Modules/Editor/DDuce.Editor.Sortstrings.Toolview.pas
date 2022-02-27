@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,38 +19,44 @@ unit DDuce.Editor.SortStrings.ToolView;
 interface
 
 uses
-  System.Classes, System.SysUtils,
+  System.Classes, System.SysUtils, System.Actions,
   Vcl.Forms, Vcl.Controls, Vcl.Graphics, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,
   Vcl.ActnList,
 
-  DDuce.Editor.SortStrings.Settings, DDuce.Editor.ToolView.Base, System.Actions;
+  DDuce.Editor.SortStrings.Settings, DDuce.Editor.ToolView.Base;
 
 type
   TfrmSortStrings = class(TCustomEditorToolView)
+    {$REGION 'designer controls'}
     aclMain          : TActionList;
     actExecute       : TAction;
     btnOK            : TButton;
-    //gbxOptions       : TCheckGroup;
     pnlBottom        : TPanel;
     rgpSortDirection : TRadioGroup;
     rgpSortScope     : TRadioGroup;
+    {$ENDREGION}
 
+    {$REGION 'action handlers'}
     procedure actExecuteExecute(Sender: TObject);
-    procedure FormResize(Sender: TObject);
+    {$ENDREGION}
 
+    {$REGION 'event handlers'}
+    procedure FormResize(Sender: TObject);
     procedure gbxOptionsItemClick(Sender: TObject; Index: Integer);
     procedure rgpSortScopeClick(Sender: TObject);
     procedure rgpSortDirectionClick(Sender: TObject);
+    {$ENDREGION}
 
   private
+    {$REGION 'property access methods'}
     function GetSettings: TSortStringsSettings;
-
-  strict protected
-    property Settings: TSortStringsSettings
-      read GetSettings;
+    {$ENDREGION}
 
   protected
     procedure UpdateActions; override;
+
+    property Settings: TSortStringsSettings
+      read GetSettings;
 
   public
     procedure AfterConstruction; override;
@@ -62,13 +68,15 @@ implementation
 {$R *.dfm}
 
 uses
-  DDuce.Editor.Utils, DDuce.Editor.Types;
+  DDuce.Editor.Types;
 
+{$REGION 'construction and destruction'}
 procedure TfrmSortStrings.AfterConstruction;
 begin
   inherited AfterConstruction;
   Width := Settings.Width;
 end;
+{$ENDREGION}
 
 {$REGION 'property access mehods'}
 function TfrmSortStrings.GetSettings: TSortStringsSettings;

@@ -7,7 +7,7 @@ uses
   Vcl.Styles,
   Vcl.Forms,
   DDuce.Logger,
-  DDuce.Logger.Channels.ZeroMQ,
+  DDuce.Logger.Channels.Zmq,
   DDuce.Logger.Channels.WinIpc,
   Concepts.BTMemoryModule.Form in 'Forms\Concepts.BTMemoryModule.Form.pas' {frmBTMemoryModule},
   Concepts.ChromeTabs.Form in 'Forms\Concepts.ChromeTabs.Form.pas' {frmChromeTabs},
@@ -102,7 +102,7 @@ uses
   all registered concepts. }
 const
 //  EXECUTE_BY_NAME = 'TKMemo control';
-//  EXECUTE_BY_NAME = 'Virtual treeview';
+//  EXECUTE_BY_NAME = 'Virtual treeview control';
 //  EXECUTE_BY_NAME = 'ZeroMQ';
 //  EXECUTE_BY_NAME = 'FireDAC';
 //  EXECUTE_BY_NAME = 'ORM';
@@ -118,8 +118,8 @@ begin
   {$WARNINGS ON}
   Application.Initialize;
   TConcepts.RegisterConcepts;
-  Logger.Channels.Add(TZeroMQChannel.Create);
-  Logger.Channels.Add(TWinIPCChannel.Create);
+  Logger.Channels.Add(TZmqChannel.Create);
+  Logger.Channels.Add(TWinipcChannel.Create);
   Logger.Clear;
   Logger.Info('Concepts started.');
   Application.CreateForm(TdmResources, dmResources);

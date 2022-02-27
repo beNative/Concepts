@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,13 +22,10 @@ uses
   System.Classes, System.SysUtils, System.Actions, System.Rtti,
   Vcl.ActnList,
 
-  BCEditor.Editor.KeyCommands,
+  TextEditor.KeyCommands,
 
-  Spring.Collections,
-
-  DSharp.Windows.ColumnDefinitions,
-  DSharp.Core.DataTemplates, DSharp.Windows.ControlTemplates,
-  DSharp.Windows.ColumnDefinitions.ControlTemplate;
+  DSharp.Windows.ColumnDefinitions, DSharp.Windows.ControlTemplates,
+  DSharp.Core.DataTemplates, DSharp.Windows.ColumnDefinitions.ControlTemplate;
 
 {$REGION 'TActionListTemplate'}
 type
@@ -90,11 +87,11 @@ end;
 function TKeyCommandTemplate.GetValue(const Item: TObject;
   const ColumnIndex: Integer): TValue;
 var
-  KC: TBCEditorKeyCommand;
-  CD: TColumnDefinition;
-  S : string;
+  KC : TTextEditorKeyCommand;
+  CD : TColumnDefinition;
+  S  : string;
 begin
-  KC := Item as TBCEditorKeyCommand;
+  KC := Item as TTextEditorKeyCommand;
   CD := TColumnDefinition(ColumnDefinitions[ColumnIndex]);
   if CD.Caption = SCommand then
   begin

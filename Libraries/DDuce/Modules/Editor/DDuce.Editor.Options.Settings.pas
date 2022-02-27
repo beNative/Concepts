@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -64,7 +64,9 @@ type
     FShowIndentGuides      : Boolean;
     FShowMinimap           : Boolean;
     FShowSearchmap         : Boolean;
+    FShowRuler             : Boolean;
 
+    {$REGION 'property access methods'}
     function GetAlwaysVisibleCaret: Boolean;
     function GetAutoHideCursor: Boolean;
     function GetAutoIndent: Boolean;
@@ -125,13 +127,15 @@ type
     procedure SetShowMinimap(const Value: Boolean);
     function GetShowSearchmap: Boolean;
     procedure SetShowSearchmap(const Value: Boolean);
+    function GetShowRuler: Boolean;
+    procedure SetShowRuler(const Value: Boolean);
+    {$ENDREGION}
 
   protected
     procedure Changed;
 
   public
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
     procedure Assign(ASource: TPersistent); override;
 
     property OnChanged: TNotifyEvent
@@ -196,6 +200,9 @@ type
 
     property ShowMinimap: Boolean
       read GetShowMinimap write SetShowMinimap;
+
+    property ShowRuler: Boolean
+      read GetShowRuler write SetShowRuler;
 
     property ShowSearchmap: Boolean
       read GetShowSearchmap write SetShowSearchmap default True;
@@ -269,11 +276,6 @@ begin
   FShowSearchmap      := True;
   FOverwriteBlock     := True;
 end;
-
-procedure TEditorOptionsSettings.BeforeDestruction;
-begin
-  inherited BeforeDestruction;
-end;
 {$ENDREGION}
 
 {$REGION 'property access mehods'}
@@ -318,21 +320,6 @@ begin
     Changed;
   end;
 end;
-
-//function TEditorOptionsSettings.GetBracketHighlightStyle: TSynEditBracketHighlightStyle;
-//begin
-//  Result := FBracketHighlightStyle;
-//end;
-//
-//procedure TEditorOptionsSettings.SetBracketHighlightStyle(
-//  AValue: TSynEditBracketHighlightStyle);
-//begin
-//  if AValue <> BracketHighlightStyle then
-//  begin
-//    FBracketHighlightStyle := AValue;
-//    Changed;
-//  end;
-//end;
 
 function TEditorOptionsSettings.GetCaretSkipsSelection: Boolean;
 begin
@@ -526,6 +513,20 @@ begin
   if AValue <> ShowRightEdge then
   begin
     FShowRightEdge := AValue;
+    Changed;
+  end;
+end;
+
+function TEditorOptionsSettings.GetShowRuler: Boolean;
+begin
+  Result := FShowRuler;
+end;
+
+procedure TEditorOptionsSettings.SetShowRuler(const Value: Boolean);
+begin
+  if Value <> ShowRuler then
+  begin
+    FShowRuler := Value;
     Changed;
   end;
 end;

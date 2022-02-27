@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ uses
 
 type
   TCodeTagItem = class(TComponent)
-  strict private
+  private
     FEndTag   : string;
     FStartTag : string;
 
@@ -41,12 +41,11 @@ type
       read FEndTag write SetEndTag;
   end;
 
-  { TCodeTags }
-
   TCodeTags = class(TComponent)
   private
     function GetItem(Index: Integer): TCodeTagItem;
     procedure SetItem(Index: Integer; AValue: TCodeTagItem);
+
   public
     function Add: TCodeTagItem;
 
@@ -56,6 +55,14 @@ type
 
 implementation
 
+{$REGION 'public methods'}
+function TCodeTags.Add: TCodeTagItem;
+begin
+  Result := TCodeTagItem.Create(Self);
+end;
+{$ENDREGION}
+
+{$REGION 'property access mehods'}
 function TCodeTags.GetItem(Index: Integer): TCodeTagItem;
 begin
   Result := Components[Index] as TCodeTagItem;
@@ -66,12 +73,6 @@ begin
   Components[Index].Assign(AValue);
 end;
 
-function TCodeTags.Add: TCodeTagItem;
-begin
-  Result := TCodeTagItem.Create(Self);
-end;
-
-{$REGION 'property access mehods'}
 procedure TCodeTagItem.SetStartTag(AValue: string);
 begin
   if FStartTag = AValue then

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -38,6 +38,10 @@ type
 
 type
   TValueList = class(TCustomVirtualStringTree)
+  const
+    GUTTER_COLUMN = 0;
+    NAME_COLUMN   = 1;
+    VALUE_COLUMN  = 2;
   private
     FData        : IDynamicRecord;
     FInitialized : Boolean;
@@ -45,12 +49,12 @@ type
 
   protected
     {$REGION 'property access methods'}
-    procedure SetNameColumn(const Value: TVirtualTreeColumn);
-    procedure SetValueColumn(const Value: TVirtualTreeColumn);
     function GetEditable: Boolean;
     procedure SetEditable(const Value: Boolean);
     function GetNameColumn: TVirtualTreeColumn;
+    procedure SetNameColumn(const Value: TVirtualTreeColumn);
     function GetValueColumn: TVirtualTreeColumn;
+    procedure SetValueColumn(const Value: TVirtualTreeColumn);
     function GetShowHeader: Boolean;
     procedure SetShowHeader(const Value: Boolean);
     function GetData: IDynamicRecord;
@@ -63,15 +67,7 @@ type
     procedure SetFocusedField(const Value: IDynamicField);
     {$ENDREGION}
 
-    procedure Initialize;
-    procedure BuildTree;
-
-    function FindNode(
-      AIdx        : Integer;
-      AParentNode : PVirtualNode
-    ): PVirtualNode;
-    procedure SelectNode(ANode: PVirtualNode); overload;
-
+    {$REGION 'event dispatch methods'}
     procedure DoGetText(var pEventArgs: TVSTGetCellTextEventArgs); override;
     procedure DoNewText(
       Node       : PVirtualNode;
@@ -85,9 +81,18 @@ type
       DrawFormat    : Cardinal
     ); override;
     procedure DoFreeNode(Node: PVirtualNode); override;
+    {$ENDREGION}
+
+    procedure Initialize;
+    procedure BuildTree;
+
+    function FindNode(
+      AIdx        : Integer;
+      AParentNode : PVirtualNode
+    ): PVirtualNode;
+    procedure SelectNode(ANode: PVirtualNode); overload;
 
   public
-    procedure AfterConstruction; override;
     destructor Destroy; override;
 
     procedure UpdateColumns;
@@ -103,14 +108,14 @@ type
       read GetData write SetData;
 
   published
+    {$REGION 'redeclared properties'}
     property Align;
     property Alignment;
     property Anchors;
-
     property Background;
+    property BackGroundImageTransparent;
     property BackgroundOffsetX;
     property BackgroundOffsetY;
-
     property BiDiMode;
     property BevelEdges;
     property BevelInner;
@@ -126,7 +131,6 @@ type
     property ClipboardFormats;
     property Color;
     property Colors;
-
     property Constraints;
     property Ctl3D;
     property CustomCheckImages;
@@ -144,7 +148,6 @@ type
     property EditDelay;
     property Enabled;
     property Font;
-
     property HintMode;
     property HotCursor;
     property Images;
@@ -156,7 +159,6 @@ type
     property LineMode;
     property LineStyle;
     property Margin;
-
     property OnAddToSelection;
     property OnAdvancedHeaderDraw;
     property OnAfterAutoFitColumn;
@@ -306,29 +308,26 @@ type
     property OnCanResize;
     property OnGesture;
     property Touch;
-
     property ParentBiDiMode;
     property ParentColor default False;
     property ParentCtl3D;
     property ParentFont;
     property ParentShowHint;
     property PopupMenu;
-
     property ScrollBarOptions;
     property SelectionBlendFactor;
     property SelectionCurveRadius;
     property ShowHint;
-
     property TreeOptions;
-
     property StateImages;
     property StyleElements;
+    {$IF CompilerVersion >= 34}property StyleName;{$IFEND}
     property TabOrder;
     property TabStop default True;
     property TextMargin;
-
     property Visible;
     property WantTabs;
+    {$ENDREGION}
 
     property ShowHeader: Boolean
       read GetShowHeader write SetShowHeader;
@@ -356,20 +355,11 @@ implementation
 
 uses
   System.SysUtils,
-  Vcl.Forms, Vcl.Controls;
+  Vcl.Forms, Vcl.Controls,
 
-const
-  GUTTER_COLUMN = 0;
-  NAME_COLUMN   = 1;
-  VALUE_COLUMN  = 2;
+  VirtualTrees.Types, VirtualTrees.Header;
 
 {$REGION 'construction and destruction'}
-procedure TValueList.AfterConstruction;
-begin
-  inherited AfterConstruction;
-//  Initialize;
-end;
-
 destructor TValueList.Destroy;
 begin
   FData := nil;
@@ -401,7 +391,7 @@ end;
 
 function TValueList.GetEditable: Boolean;
 begin
-  Result := toEditable in TreeOptions.MiscOptions;
+  Result := not (toReadOnly in TreeOptions.MiscOptions);
 end;
 
 procedure TValueList.SetEditable(const Value: Boolean);
@@ -409,9 +399,9 @@ begin
   if Value <> Editable then
   begin
     if Value then
-      TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toEditable]
+      TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toReadOnly]
     else
-      TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toEditable];
+      TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
   end;
 end;
 
@@ -600,13 +590,16 @@ var
   LField : IDynamicField;
 begin
   BeginUpdate;
-  Clear;
-  for LField in FData do
-  begin
-    TValueListNode.Create(Self, LField);
+  try
+    Clear;
+    for LField in FData do
+    begin
+      TValueListNode.Create(Self, LField);
+    end;
+    FullExpand;
+  finally
+    EndUpdate;
   end;
-  FullExpand;
-  EndUpdate;
 end;
 
 function TValueList.FindNode(AIdx: Integer;

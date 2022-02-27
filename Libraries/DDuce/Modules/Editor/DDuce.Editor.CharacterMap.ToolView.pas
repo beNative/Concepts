@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ type
     tsUnicode          : TTabSheet;
     lblUnicodeCharInfo : TLabel;
 
+    {$REGION 'event handlers'}
     procedure cbxUnicodeRangeSelect(Sender: TObject);
     procedure grdANSIKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure grdANSIMouseDown(Sender: TObject; Button: TMouseButton;
@@ -56,6 +57,7 @@ type
       Y: Integer);
     procedure grdUnicodeSelectCell(Sender: TObject; aCol, aRow: Integer;
       var CanSelect: Boolean);
+    {$ENDREGION}
 
   protected
     procedure FillCharMap;

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,10 +22,9 @@ interface
 
 uses
   Winapi.Windows,
-  System.Classes, System.SysUtils, System.TypInfo,
+  System.Classes, System.SysUtils,
 
   DDuce.Logger,
-
   DDuce.Editor.Types;
 
 const
@@ -50,8 +49,8 @@ const
   );
 
 function CompressSpace(
-  const AString         : string;
-        APreserveIndent : Boolean = True
+  const AString   : string;
+  APreserveIndent : Boolean = True
 ): string;
 
 { Replace any number of consecutive whitespace (including newlines) with a
@@ -64,82 +63,82 @@ function CompressWhiteSpace(
 ): string;
 
 procedure AlignLines(
-        AStrings                : TStrings;
-  const AToken                  : string;
-        ACompressWS             : Boolean = True;
-        AInsertSpaceBeforeToken : Boolean = True;
-        AInsertSpaceAfterToken  : Boolean = True
+  AStrings                : TStrings;
+  const AToken            : string;
+  ACompressWS             : Boolean = True;
+  AInsertSpaceBeforeToken : Boolean = True;
+  AInsertSpaceAfterToken  : Boolean = True
 ); overload;
 
 function AlignLines(
-  const AString                 : string;
-  const AToken                  : string;
-        ACompressWS             : Boolean;
-        AInsertSpaceBeforeToken : Boolean;
-        AInsertSpaceAfterToken  : Boolean
+  const AString           : string;
+  const AToken            : string;
+  ACompressWS             : Boolean;
+  AInsertSpaceBeforeToken : Boolean;
+  AInsertSpaceAfterToken  : Boolean
 ): string; overload;
 
 function AlignLines(
-  const AString                 : string;
-  const AToken                  : string;
-        ACompressWS             : Boolean;
-        AInsertSpaceBeforeToken : Boolean;
-        AInsertSpaceAfterToken  : Boolean;
-        AAlignInParagraphs      : Boolean
+  const AString           : string;
+  const AToken            : string;
+  ACompressWS             : Boolean;
+  AInsertSpaceBeforeToken : Boolean;
+  AInsertSpaceAfterToken  : Boolean;
+  AAlignInParagraphs      : Boolean
 ): string; overload;
 
 function BreakLines(
-  const AString      : string;
-  const AToken       : string;
-        ABeforeToken : Boolean = False;
-        AIndent      : Integer = 0;
-        ATrimSpace   : Boolean = True;
-        ABreakStyle  : TTextLineBreakStyle = tlbsCRLF
+  const AString : string;
+  const AToken  : string;
+  ABeforeToken  : Boolean = False;
+  AIndent       : Integer = 0;
+  ATrimSpace    : Boolean = True;
+  ABreakStyle   : TTextLineBreakStyle = tlbsCRLF
 ): string;
 
 function JoinLines(
-  const AString     : string;
-        ABreakStyle : TTextLineBreakStyle = tlbsCRLF
+  const AString : string;
+  ABreakStyle   : TTextLineBreakStyle = tlbsCRLF
 ): string;
 
 function CompressLines(
-  const AString         : string;
-        APreserveIndent : Boolean = True
+  const AString   : string;
+  APreserveIndent : Boolean = True
 ): string;
 
 function SortStrings(
-  const AString: string;
-        ADirection: TSortDirection;
-        ASortScope: TSortScope;
-        ACaseSensitive: Boolean;
-        AIgnoreSpace: Boolean
+  const AString  : string;
+  ADirection     : TSortDirection;
+  ASortScope     : TSortScope;
+  ACaseSensitive : Boolean;
+  AIgnoreSpace   : Boolean
 ): string;
 
 function TrimLines(
   const AString : string;
-        ALeft   : Boolean;
-        ARight  : Boolean;
-        AIndent : Integer = 0;
-        AChars  : TSysCharSet = [' ']
+  ALeft         : Boolean;
+  ARight        : Boolean;
+  AIndent       : Integer = 0;
+  AChars        : TSysCharSet = [' ']
 ): string;
 
 function QuoteLines(
   const AString    : string;
   const AQuoteChar : Char = '''';
-        ATrimSpace : Boolean = False
+  ATrimSpace       : Boolean = False
 ): string;
 
 function QuoteLinesAndDelimit(
   const AString    : string;
   const AQuoteChar : Char = '''';
   const ADelimiter : string = ', ';
-        ATrimSpace : Boolean = False
+  ATrimSpace       : Boolean = False
 ): string;
 
 function DequoteLines(
   const AString    : string;
   const AQuoteChar : Char = '''';
-        ATrimSpace : Boolean = False
+  ATrimSpace       : Boolean = False
 ): string;
 
 function FormatXML(
@@ -147,8 +146,8 @@ function FormatXML(
 ): string;
 
 function PascalStringOf(
-  const AString    : string;
-        ATrimLines : Boolean = False
+  const AString : string;
+  ATrimLines    : Boolean = False
 ): string;
 
 procedure FilterLines(
@@ -161,8 +160,8 @@ procedure FilterLines(
 );
 
 procedure AddStringsPresentInString(
-        ASource       : TStrings;
-        ADest         : TStrings;
+  ASource             : TStrings;
+  ADest               : TStrings;
   const AFilterString : string
 );
 
@@ -187,8 +186,8 @@ function IsHTML(
 ): Boolean;
 
 function ChangeLineBreakStyle(
-  const AString         : string;
-        ALineBreakStyle : TTextLineBreakStyle
+  const AString   : string;
+  ALineBreakStyle : TTextLineBreakStyle
 ): string;
 
 function GuessLineBreakStyle(
@@ -200,10 +199,10 @@ function StrToLineBreakStyle(
 ): TTextLineBreakStyle;
 
 function StripChars(
-  const AString      : string;
-        AFirst       : Boolean;
-        ALast        : Boolean;
-        AIgnoreChars : TSysCharSet = [' ']
+  const AString : string;
+  AFirst        : Boolean;
+  ALast         : Boolean;
+  AIgnoreChars  : TSysCharSet = [' ']
 ): string;
 
 function StripMarkup(
@@ -223,17 +222,17 @@ function StripLastLineEnding(
 ): string;
 
 function MatchRegExpr(
-  const AString        : string;
-  const ARegExpr       : string;
-        ACaseSensitive : Boolean = True
+  const AString  : string;
+  const ARegExpr : string;
+  ACaseSensitive : Boolean = True
 ): Boolean; overload;
 
 function MatchRegExpr(
-  const AString        : string;
-  const ARegExpr       : string;
-    var AMatch         : string;
-    var AMatchPos      : Integer;
-        ACaseSensitive : Boolean = True
+  const AString  : string;
+  const ARegExpr : string;
+  var AMatch     : string;
+  var AMatchPos  : Integer;
+  ACaseSensitive : Boolean = True
 ): Boolean; overload;
 
 { Find SubString in S; do not consider case. This works exactly the same as the
@@ -245,15 +244,15 @@ function CaseInsensitivePos(
 ): Integer;
 
 function StrContains(
-  const ASubString     : string;
-  const AString        : string;
-        ACaseSensitive : Boolean = True
+  const ASubString : string;
+  const AString    : string;
+  ACaseSensitive   : Boolean = True
 ): Boolean;
 
 function StrPos(
-  const ASubString     : string;
-  const AString        : string;
-        ACaseSensitive : Boolean = True
+  const ASubString : string;
+  const AString    : string;
+  ACaseSensitive   : Boolean = True
 ): Integer;
 
 function PointToPos(
@@ -267,12 +266,12 @@ function PointToPos(
 
 function WrapText(
   const ASource : string;
-        AMaxCol : Integer
+  AMaxCol       : Integer
 ): string;
 
 function TabsToSpaces(
-  const ASource   : string;
-        ATabWidth : Integer
+  const ASource : string;
+  ATabWidth     : Integer
 ): string;
 
 { Find substring SubText within Text. Returns 0 if not found.
@@ -306,40 +305,40 @@ function TabsToSpaces(
     )
   ) }
 function FindPos(
-  const ASubString     : string;
-  const AString        : string;
-        AStartPosition : Integer;
-        ACount         : Integer;
-  const AOptions       : TSearchOptions;
-  const AWordBorders   : TSysCharSet = DefaultWordBorders
+  const ASubString   : string;
+  const AString      : string;
+  AStartPosition     : Integer;
+  ACount             : Integer;
+  const AOptions     : TSearchOptions;
+  const AWordBorders : TSysCharSet = DefaultWordBorders
 ): Integer;
 
 function IsPrefix(
-  const APrefix     : string;
-  const AString     : string;
-        AIgnoreCase : Boolean = True
+  const APrefix : string;
+  const AString : string;
+  AIgnoreCase   : Boolean = True
 ): Boolean;
 
 function IsSuffix(
-  const ASuffix     : string;
-  const AString     : string;
-        AIgnoreCase : Boolean = True
+  const ASuffix : string;
+  const AString : string;
+  AIgnoreCase   : Boolean = True
 ): Boolean;
 
 { Removes the prefix, if it is present. More precisely, if
   IsPrefix(Prefix, S, IgnoreCase) then returns S with this prefix
   removed. Else returns S. }
 function PrefixRemove(
-  const APrefix     : string;
-  const AString     : string;
-        AIgnoreCase : Boolean = True
+  const APrefix : string;
+  const AString : string;
+  AIgnoreCase   : Boolean = True
 ): string;
 
 { Like PrefixRemove, but checks for and removes Suffix. }
 function SuffixRemove(
-  const ASuffix     : string;
-  const AString     : string;
-        AIgnoreCase : Boolean = True
+  const ASuffix : string;
+  const AString : string;
+  AIgnoreCase   : Boolean = True
 ): string;
 
 { Extract file extensions from a file filter usually specified
@@ -355,7 +354,7 @@ function SuffixRemove(
   with two items: @code(['.ext1', '.ext2']). }
 procedure GetFileFilterExts(
   const AFileFilter : string;
-        AExtensions : TStringList
+  AExtensions       : TStringList
 );
 
 { Extract file filter name, from a file filter usually specified
@@ -406,16 +405,17 @@ uses
 type
   TTextBlockCompareSettings = class
   public
-    CaseSensitive: boolean;
-    IgnoreSpace: boolean;
-    Ascending: boolean;
+    CaseSensitive : Boolean;
+    IgnoreSpace   : Boolean;
+    Ascending     : Boolean;
   end;
 
   TTextBlock = class
   public
-    Settings: TTextBlockCompareSettings;
-    Start: PChar;
-    Len: integer;
+    Settings : TTextBlockCompareSettings;
+    Start    : PChar;
+    Len      : Integer;
+
     constructor Create(TheSettings: TTextBlockCompareSettings;
       NewStart: PChar; NewLen: integer);
   end;
@@ -428,9 +428,9 @@ var
 constructor TTextBlock.Create(TheSettings: TTextBlockCompareSettings;
   NewStart: PChar; NewLen: integer);
 begin
-  Settings:=TheSettings;
-  Start:=NewStart;
-  Len:=NewLen;
+  Settings := TheSettings;
+  Start    := NewStart;
+  Len      := NewLen;
 end;
 
 { Author: Mattias Gaertner (BasicCodeTools.pas) }

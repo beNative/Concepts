@@ -283,7 +283,7 @@ implementation
 uses
   System.StrUtils,
 
-  Spring, ZeroMQ.API,
+  Spring, ZeroMQ.API, VirtualTrees.Header, VirtualTrees.Types,
 
   DDuce.Logger, DDuce.Components.Factories, DDuce.RandomData,
 

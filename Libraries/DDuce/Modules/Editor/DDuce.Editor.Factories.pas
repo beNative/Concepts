@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -54,30 +54,30 @@ type
     ): IEditorView;
 
     class function CreateMainMenu(
-      AOwner   : TComponent;
-      AActions : IEditorActions;
-      AMenus   : IEditorMenus
+      AOwner         : TComponent;
+      const AActions : IEditorActions;
+      const AMenus   : IEditorMenus
     ): TMainMenu;
 
     class function CreateMainToolbar(
-      AOwner   : TComponent;
-      AParent  : TWinControl;
-      AActions : IEditorActions;
-      AMenus   : IEditorMenus
+      AOwner         : TComponent;
+      AParent        : TWinControl;
+      const AActions : IEditorActions;
+      const AMenus   : IEditorMenus
     ): TToolbar;
 
     class function CreateSelectionToolbar(
-      AOwner   : TComponent;
-      AParent  : TWinControl;
-      AActions : IEditorActions;
-      AMenus   : IEditorMenus
+      AOwner         : TComponent;
+      AParent        : TWinControl;
+      const AActions : IEditorActions;
+      const AMenus   : IEditorMenus
     ): TToolbar;
 
-    class function CreateTopRightToolbar(
-      AOwner   : TComponent;
-      AParent  : TWinControl;
-      AActions : IEditorActions;
-      AMenus   : IEditorMenus
+    class function CreateRightToolbar(
+      AOwner         : TComponent;
+      AParent        : TWinControl;
+      const AActions : IEditorActions;
+      const AMenus   : IEditorMenus
     ): TToolbar;
   end;
 
@@ -123,7 +123,7 @@ begin
 end;
 
 class function TEditorFactories.CreateMainMenu(AOwner: TComponent;
-  AActions: IEditorActions; AMenus: IEditorMenus): TMainMenu;
+  const AActions: IEditorActions; const AMenus: IEditorMenus): TMainMenu;
 var
   EMF : IEditorMenusFactory;
 begin
@@ -134,8 +134,8 @@ begin
 end;
 
 class function TEditorFactories.CreateMainToolbar(AOwner: TComponent;
-  AParent: TWinControl; AActions: IEditorActions;
-  AMenus: IEditorMenus): TToolbar;
+  AParent: TWinControl; const AActions: IEditorActions;
+  const AMenus: IEditorMenus): TToolbar;
 var
   TBF : IEditorToolbarsFactory;
 begin
@@ -146,8 +146,8 @@ begin
 end;
 
 class function TEditorFactories.CreateSelectionToolbar(AOwner: TComponent;
-  AParent: TWinControl; AActions: IEditorActions;
-  AMenus: IEditorMenus): TToolbar;
+  AParent: TWinControl; const AActions: IEditorActions;
+  const AMenus: IEditorMenus): TToolbar;
 var
   TBF : IEditorToolbarsFactory;
 begin
@@ -157,9 +157,9 @@ begin
   Result := TBF.CreateSelectionToolbar(AOwner, AParent);
 end;
 
-class function TEditorFactories.CreateTopRightToolbar(AOwner: TComponent;
-  AParent: TWinControl; AActions: IEditorActions;
-  AMenus: IEditorMenus): TToolbar;
+class function TEditorFactories.CreateRightToolbar(AOwner: TComponent;
+  AParent: TWinControl; const AActions: IEditorActions;
+  const AMenus: IEditorMenus): TToolbar;
 var
   TBF : IEditorToolbarsFactory;
 begin

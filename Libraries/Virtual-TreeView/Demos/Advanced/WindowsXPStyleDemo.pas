@@ -12,7 +12,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, VirtualTrees, ImgList, ComCtrls, ToolWin, Menus, StdCtrls, UITypes;
+  Dialogs, VirtualTrees, ImgList, ComCtrls, ToolWin, Menus, StdCtrls, UITypes,
+  System.ImageList;
 
 type
   TWindowsXPForm = class(TForm)
@@ -121,7 +122,7 @@ procedure TWindowsXPForm.FormCreate(Sender: TObject);
 
 begin
   XPTree.NodeDataSize := SizeOf(TEntry);
-
+  XPTree.HintMode := hmTooltip;
   ConvertToHighColor(LargeImages);
   ConvertToHighColor(SmallImages);
 end;
@@ -188,10 +189,10 @@ procedure TWindowsXPForm.XPTreeHeaderClick(Sender: TVTHeader; HitInfo: TVTHeader
 begin
   if HitInfo.Button = mbLeft then
   begin
-    with Sender, Treeview do
+    with Sender do
     begin
       if SortColumn > NoColumn then
-        Columns[SortColumn].Options := Columns[SortColumn].Options + [coParentColor];
+        Columns[SortColumn].Options := Columns[SortColumn].Options + [TVTColumnOption.coParentColor];
 
       // Do not sort the last column, it contains nothing to sort.
       if HitInfo.Column = 2 then
@@ -212,7 +213,7 @@ begin
         if SortColumn <> NoColumn then begin
           Columns[SortColumn].Color := GetShadowColor(ColorToRGB(XPTree.Colors.BackGroundColor), -32);
         end;
-        SortTree(SortColumn, SortDirection, True);
+        TBaseVirtualTree(Sender.Treeview).SortTree(SortColumn, SortDirection, True);
 
       end;
     end;
@@ -248,6 +249,7 @@ begin
   HintText := 'Size larger than 536 MB' + #13 +
     'Folders: addins, AppPatch, Config, Connection Wizard, ...' + #13 +
     'Files: 1280.bmp, 1280x1024.bmp, 2001 94 mars.bmp, ac3api.ini, ...';
+  LineBreakStyle := TVTTooltipLineBreakStyle.hlbForceMultiLine;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------

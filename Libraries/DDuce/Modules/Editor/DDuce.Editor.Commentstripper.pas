@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -54,9 +54,11 @@ type
     FStripReserved   : Boolean;
     FReservedItems   : TStringList;
 
+    {$REGION 'property access methods'}
     procedure SetInStream(const Value: TStream);
     procedure SetOutStream(const Value: TStream);
     procedure SetReservedItems(const Value: TStringList);
+    {$ENDREGION}
 
   protected
     procedure DoParse; virtual; abstract;
@@ -74,9 +76,10 @@ type
     procedure DoBlockEndProcess;
 
   public
-    procedure Parse;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+
+    procedure Parse;
 
   published
     property InStream: TStream
@@ -96,6 +99,7 @@ type
 
     property ReservedItems: TStringList
       read FReservedItems write SetReservedItems;
+
   end;
 
 type
@@ -177,27 +181,28 @@ end;
 
 function TCustomCommentStripper.IsReserved: Boolean;
 var
-  i: Integer;
-  OldChar: AnsiChar;
-  OldPos: Integer;
-  MaxLen: Integer;
-  PBuf: PChar;
-  SToCompare: String;
+  I             : Integer;
+  LOldChar      : AnsiChar;
+  LOldPos       : Integer;
+  LMaxLen       : Integer;
+  PBuf          : PChar;
+  LStrToCompare : string;
 begin
   Result := False;
-  if FInStream = nil then Exit;
+  if FInStream = nil
+    then Exit;
 
   PBuf := nil;
-  OldChar := FCurChar;
-  OldPos := FInStream.Position;
+  LOldChar := FCurChar;
+  LOldPos := FInStream.Position;
 
-  MaxLen := 0;
-  for i := Self.FReservedItems.Count - 1 downto 0 do
+  LMaxLen := 0;
+  for I := Self.FReservedItems.Count - 1 downto 0 do
   begin
-    if MaxLen < Length(Self.FReservedItems.Strings[i]) then
-      MaxLen := Length(Self.FReservedItems.Strings[i]);
-    if Self.FReservedItems.Strings[i] = '' then
-      Self.FReservedItems.Delete(i);
+    if LMaxLen < Length(Self.FReservedItems.Strings[I]) then
+      LMaxLen := Length(Self.FReservedItems.Strings[I]);
+    if Self.FReservedItems.Strings[I] = '' then
+      Self.FReservedItems.Delete(I);
   end;
 
   if (FCurChar = '/') or (FCurChar = '(') then
@@ -208,22 +213,22 @@ begin
   end;
 
   try
-    PBuf := StrAlloc(MaxLen + 1);
+    PBuf := StrAlloc(LMaxLen + 1);
     FillChar(PBuf^, Length(PBuf), 0);
-    FInStream.Read(PBuf^, MaxLen);
+    FInStream.Read(PBuf^, LMaxLen);
 
-    for i := 0 to Self.FReservedItems.Count - 1 do
+    for I := 0 to Self.FReservedItems.Count - 1 do
     begin
-      SToCompare := Copy(StrPas(PBuf), 1, Length(Self.FReservedItems.Strings[i]));
-      if SToCompare = Self.FReservedItems.Strings[i] then
+      LStrToCompare := Copy(StrPas(PBuf), 1, Length(Self.FReservedItems.Strings[I]));
+      if LStrToCompare = Self.FReservedItems.Strings[I] then
       begin
         Result := True;
         Exit;
       end;
     end;
   finally
-    FCurChar := OldChar;
-    FInStream.Position := OldPos;
+    FCurChar := LOldChar;
+    FInStream.Position := LOldPos;
     if PBuf <> nil then
       StrDispose(PBuf);
   end;

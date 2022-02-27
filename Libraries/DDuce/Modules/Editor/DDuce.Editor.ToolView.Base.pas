@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ type
   TCustomEditorToolView = class(TForm, IEditorToolView)
   private
     // this flag is set when there are pending updates.
-    FChange: Boolean;
+    FChange : Boolean;
 
   protected
     {$REGION 'property access methods'}
@@ -95,6 +95,7 @@ type
 
   public
     procedure AfterConstruction; override;
+
   end;
 
 implementation
@@ -127,6 +128,11 @@ begin
   end;
 end;
 
+function TCustomEditorToolView.GetVisible: Boolean;
+begin
+  Result := inherited Visible;
+end;
+
 procedure TCustomEditorToolView.SetVisible(AValue: Boolean);
 begin
   inherited Visible := AValue;
@@ -150,11 +156,6 @@ end;
 function TCustomEditorToolView.GetName: string;
 begin
   Result := inherited Name;
-end;
-
-function TCustomEditorToolView.GetVisible: Boolean;
-begin
-  Result := inherited Visible;
 end;
 
 function TCustomEditorToolView.GetManager: IEditorManager;

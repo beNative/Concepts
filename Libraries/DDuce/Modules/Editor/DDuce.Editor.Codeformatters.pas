@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,32 +28,32 @@ type
   end;
 
   TPascalFormatter = class(TInterfacedObject, ICodeFormatter)
-  strict protected
+  protected
     function Format(const AString: string): string; virtual;
   end;
 
   TCPPFormatter = class (TInterfacedObject, ICodeFormatter)
-  strict protected
+  protected
     function Format(const AString: string): string; virtual;
   end;
 
   TJavaFormatter = class (TInterfacedObject, ICodeFormatter)
-  strict protected
+  protected
     function Format(const AString: string): string; virtual;
   end;
 
   TCSharpFormatter = class (TInterfacedObject, ICodeFormatter)
-  strict protected
+  protected
     function Format(const AString: string): string; virtual;
   end;
 
   TXMLFormatter = class(TInterfacedObject, ICodeFormatter)
-  strict protected
+  protected
     function Format(const AString: string): string; virtual;
   end;
 
   THTMLFormatter = class(TInterfacedObject, ICodeFormatter)
-  strict protected
+  protected
     function Format(const AString: string): string; virtual;
   end;
 

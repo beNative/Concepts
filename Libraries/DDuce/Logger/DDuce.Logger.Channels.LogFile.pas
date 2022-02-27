@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -48,22 +48,20 @@ type
 
   protected
     {$REGION 'property access methods'}
-    procedure SetShowTime(const AValue: Boolean);
-    procedure SetShowDate(const Value: Boolean);
     function GetFileName: string;
-    procedure SetFileName(const Value: string);
     function GetShowDate: Boolean;
     function GetShowHeader: Boolean;
     function GetShowPrefix: Boolean;
     function GetShowTime: Boolean;
+    procedure SetFileName(const Value: string);
+    procedure SetShowDate(const Value: Boolean);
     procedure SetShowHeader(const Value: Boolean);
     procedure SetShowPrefix(const Value: Boolean);
+    procedure SetShowTime(const AValue: Boolean);
     {$ENDREGION}
 
   public
     constructor Create(const AFileName: string = ''); reintroduce; virtual;
-
-    procedure BeforeDestruction; override;
 
     function Write(const AMsg: TLogMessage): Boolean; override;
 
@@ -101,12 +99,12 @@ begin
   end
   else
     FFileName := AFileName;
-  FShowPrefix   := True;
-  FShowDate     := False;
-  FShowTime     := True;
-  FShowStrings  := True;
-  FShowHeader   := False;
-  Enabled       := False;
+  FShowPrefix  := True;
+  FShowDate    := False;
+  FShowTime    := True;
+  FShowStrings := True;
+  FShowHeader  := False;
+  Enabled      := False;
   FFileStream.Create(function: TFileStream
     begin
       if not FileExists(FFileName) then
@@ -132,12 +130,6 @@ begin
       UpdateIndentation;
     end
   )
-end;
-
-procedure TLogFileChannel.BeforeDestruction;
-begin
-  //FFileStream.Free;
-  inherited BeforeDestruction;
 end;
 {$ENDREGION}
 

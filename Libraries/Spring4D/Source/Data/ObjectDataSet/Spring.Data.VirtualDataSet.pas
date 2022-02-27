@@ -101,7 +101,7 @@ type
         fFieldData: Variant;
         procedure ReadBlobData;
       protected
-        function Realloc(var NewCapacity: LongInt): Pointer; override;
+        function Realloc(var NewCapacity: {$IF RTLVersion >= 35}NativeInt{$ELSE}LongInt{$IFEND}): Pointer; override;
       public
         constructor Create(Field: TBlobField; Mode: TBlobStreamMode);
         destructor Destroy; override;
@@ -1569,7 +1569,7 @@ begin
 end;
 
 function TCustomVirtualDataSet.TBlobStream.Realloc(
-  var NewCapacity: LongInt): Pointer;
+  var NewCapacity: {$IF RTLVersion >= 35}NativeInt{$ELSE}LongInt{$IFEND}): Pointer;
 
   procedure VarAlloc(var V: Variant; Field: TFieldType);
   var

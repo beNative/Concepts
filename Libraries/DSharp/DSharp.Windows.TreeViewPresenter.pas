@@ -244,6 +244,7 @@ type
 implementation
 
 uses
+  VirtualTrees.Types, VirtualTrees.Header,
   DSharp.Core.Reflection,
   DSharp.Windows.ColumnDefinitions.ControlTemplate,
   DSharp.Windows.ControlTemplates,

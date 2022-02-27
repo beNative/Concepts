@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -27,8 +27,7 @@ interface
   components are stored in a DFM/LFM file so there is no special code needed
   that handles the storage and retrieval of properties.
 
-  Reading qnd writing of the settings is handled completely by these methods,
-  which utilize the NativeXml object storage mechanism.
+  Reading and writing of the settings is handled completely by these methods:
     procedure Load;
     procedure Save;
 
@@ -61,12 +60,10 @@ uses
   Spring,
 
   DDuce.Settings.Form,
-
   DDuce.Editor.Interfaces, DDuce.Editor.Highlighters,
   DDuce.Editor.Tools.Settings, DDuce.Editor.Colors.Settings,
-  DDuce.Editor.Options.Settings,
-
-  DDuce.Editor.CodeTags, DDuce.Logger;
+  DDuce.Editor.Options.Settings, DDuce.Editor.CodeTags,
+  DDuce.Logger;
 
 const
   DEFAULT_AUTO_GUESS_HIGHLIGHTER_TYPE = True;
@@ -76,11 +73,12 @@ const
   DEFAULT_SINGLE_INSTANCE             = False;
   DEFAULT_LANGUAGE_CODE               = 'en';
   DEFAULT_FONT_NAME                   = 'Consolas';
-  DEFAULT_SETTINGS_FILE               = 'settings.xml';
+  DEFAULT_SETTINGS_FILE               = 'settings.json';
 
 type
   TEditorSettings = class(TComponent, IEditorSettings)
     procedure FEditorOptionsChanged(Sender: TObject);
+
   private
     FAutoFormatXML            : Boolean;
     FReadOnly                 : Boolean;
@@ -111,16 +109,16 @@ type
     function GetDebugMode: Boolean;
     function GetDimInactiveView: Boolean;
     function GetEditorFont: TFont;
+    function GetEditorOptions: TEditorOptionsSettings;
     function GetFileName: string;
     function GetFormSettings: TFormSettings;
     function GetHighlighters: THighlighters;
     function GetHighlighterType: string;
     function GetLanguageCode: string;
-    function GetEditorOptions: TEditorOptionsSettings;
+    function GetOnChanged: IEvent<TNotifyEvent>;
     function GetReadOnly: Boolean;
     function GetSingleInstance: Boolean;
     function GetToolSettings: TEditorToolSettings;
-    function GetXML: string;
     procedure SetAutoFormatXML(const AValue: Boolean);
     procedure SetAutoGuessHighlighterType(const AValue: Boolean);
     procedure SetCloseWithESC(const AValue: Boolean);
@@ -128,16 +126,15 @@ type
     procedure SetDebugMode(AValue: Boolean);
     procedure SetDimInactiveView(const AValue: Boolean);
     procedure SetEditorFont(AValue: TFont);
+    procedure SetEditorOptions(AValue: TEditorOptionsSettings);
     procedure SetFileName(const AValue: string);
     procedure SetFormSettings(const AValue: TFormSettings);
     procedure SetHighlighters(const AValue: THighlighters);
     procedure SetHighlighterType(const AValue: string);
     procedure SetLanguageCode(AValue: string);
-    procedure SetEditorOptions(AValue: TEditorOptionsSettings);
     procedure SetReadOnly(const AValue: Boolean);
     procedure SetSingleInstance(AValue: Boolean);
     procedure SetToolSettings(AValue: TEditorToolSettings);
-    function GetOnChanged: IEvent<TNotifyEvent>;
     {$ENDREGION}
 
   protected
@@ -147,7 +144,7 @@ type
 
   public
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
+    destructor Destroy; override;
 
     procedure Apply; // to manually force a notification
     procedure Load; virtual;
@@ -155,9 +152,6 @@ type
 
     property FileName: string
       read GetFileName write SetFileName;
-
-    property XML: string
-      read GetXML;
 
     property Highlighters: THighlighters
       read GetHighlighters write SetHighlighters;
@@ -220,7 +214,7 @@ implementation
 uses
   Vcl.Dialogs, Vcl.Forms,
 
-//  ts.Core.NativeXml, ts.Core.NativeXml.ObjectStorage, ts.Core.Utils,
+  JsonDataObjects,
 
   DDuce.Editor.Resources;
 
@@ -241,23 +235,23 @@ begin
   FHighlighters := THighLighters.Create(Self);
   FHighlighters.Name := 'Highlighters';
 
-  FFileName := DEFAULT_SETTINGS_FILE;
-  FHighlighterType := HL_TXT;
-  FAutoFormatXML := DEFAULT_AUTO_FORMAT_XML;
-  FAutoGuessHighlighterType := DEFAULT_AUTO_GUESS_HIGHLIGHTER_TYPE;
-  FSingleInstance := DEFAULT_SINGLE_INSTANCE;
-  FEditorFont := TFont.Create;
-  FEditorFont.Name := DEFAULT_FONT_NAME;
-  FEditorFont.Size := 11;
+  FFileName                      := DEFAULT_SETTINGS_FILE;
+  FHighlighterType               := HL_TXT;
+  FAutoFormatXML                 := DEFAULT_AUTO_FORMAT_XML;
+  FAutoGuessHighlighterType      := DEFAULT_AUTO_GUESS_HIGHLIGHTER_TYPE;
+  FSingleInstance                := DEFAULT_SINGLE_INSTANCE;
+  FEditorFont                    := TFont.Create;
+  FEditorFont.Name               := DEFAULT_FONT_NAME;
+  FEditorFont.Size               := 11;
 
-  FDimInactiveView := DEFAULT_DIM_ACTIVE_VIEW;
-  FLanguageCode    := DEFAULT_LANGUAGE_CODE;
+  FDimInactiveView               := DEFAULT_DIM_ACTIVE_VIEW;
+  FLanguageCode                  := DEFAULT_LANGUAGE_CODE;
   FOnChanged.UseFreeNotification := False; // test TS
 
   AssignDefaultColors;
 end;
 
-procedure TEditorSettings.BeforeDestruction;
+destructor TEditorSettings.Destroy;
 begin
   FFormSettings.OnChanged.Remove(FFormSettingsChanged);
   FToolSettings.Free;
@@ -266,12 +260,11 @@ begin
   FFormSettings.Free;
   FHighlighters.Free;
   FEditorFont.Free;
-  inherited BeforeDestruction;
+  inherited Destroy;
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
-
 procedure TEditorSettings.FColorsChanged(Sender: TObject);
 begin
   Changed;
@@ -497,11 +490,6 @@ begin
   FToolSettings.Assign(AValue);
   Changed;
 end;
-
-function TEditorSettings.GetXML: string;
-begin
-  //Result := ReadFileToString(FileName);
-end;
 {$ENDREGION}
 
 {$REGION 'protected methods'}
@@ -545,57 +533,42 @@ end;
 
 {$REGION 'public methods'}
 procedure TEditorSettings.Load;
-//var
-//  Reader : TXmlObjectReader;
-//  Doc    : TNativeXml;
-//  S      : string;
+var
+  JO : TJsonObject;
 begin
-//  Logger.EnterMethod('TEditorSettings.Load');
-//  S :=   GetApplicationPath + FFileName;
-//  if FileExistsUTF8(S) then
-//  begin
-//    Doc := TNativeXml.Create(nil);
-//    try
-//      Doc.LoadFromFile(S);
-//      Reader := TXmlObjectReader.Create;
-//      try
-//        Reader.ReadComponent(Doc.Root, Self, nil);
-//      finally
-//        FreeAndNil(Reader);
-//      end;
-//      Logger.Send('Settings loaded');
-//    finally
-//      FreeAndNil(Doc);
-//    end;
-//  end;
-//  InitializeHighlighters; // create higlighters if they cannot be loaded.
-//  InitializeHighlighterAttributes;
-//  Logger.ExitMethod('TEditorSettings.Load');
+  Logger.Track(Self, 'Load');
+  if FileExists(FFileName) then
+  begin
+    JO := TJsonObject.Create;
+    try
+      JO.LoadFromFile(FFileName);
+      JO['FormSettings'].ObjectValue.ToSimpleObject(FFormSettings);
+      JO['Colors'].ObjectValue.ToSimpleObject(FColors);
+      JO['EditorOptions'].ObjectValue.ToSimpleObject(FEditorOptions);
+      JO['EditorFont'].ObjectValue.ToSimpleObject(FEditorFont);
+      JO.ToSimpleObject(Self);
+    finally
+      JO.Free;
+    end;
+  end;
 end;
 
 procedure TEditorSettings.Save;
-//var
-//  Writer : TXmlObjectWriter;
-//  Doc    : TNativeXml;
-//  S      : string;
+var
+  JO : TJsonObject;
 begin
-//  Logger.SendCallStack('Save');
-//  Logger.EnterMethod('TEditorSettings.Save');
-//  S :=   GetApplicationPath + FFileName;
-//  Doc := TNativeXml.CreateName('Root', nil);
-//  try
-//    Writer := TXmlObjectWriter.Create;
-//    try
-//      Doc.XmlFormat := xfReadable;
-//      Writer.WriteComponent(Doc.Root, Self);
-//      Doc.SaveToFile(S);
-//    finally
-//      FreeAndNil(Writer);
-//    end;
-//  finally
-//    FreeAndNil(Doc);
-//  end;
-//  Logger.ExitMethod('TEditorSettings.Save');
+  Logger.Track(Self, 'Save');
+  JO := TJsonObject.Create;
+  try
+    JO.FromSimpleObject(Self);
+    JO['FormSettings'].ObjectValue.FromSimpleObject(FFormSettings);
+    JO['Colors'].ObjectValue.FromSimpleObject(FColors);
+    JO['EditorOptions'].ObjectValue.FromSimpleObject(FEditorOptions);
+    JO['EditorFont'].ObjectValue.FromSimpleObject(FEditorFont);
+    JO.SaveToFile(FFileName, False);
+  finally
+    JO.Free;
+  end;
 end;
 
 procedure TEditorSettings.Apply;
@@ -610,128 +583,7 @@ end;
 
 procedure TEditorSettings.InitializeHighlighterAttributes;
 begin
-//  with FHighlighterAttributes do
-//  begin
-//    RegisterItem(
-//      SYNS_XML_AttrComment, [
-//        SYNS_XML_AttrComment,
-//        SYNS_XML_AttrDocumentation,
-//        SYNS_XML_AttrRplComment,
-//        SYNS_XML_AttrSASMComment
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrString, [
-//        SYNS_XML_AttrString
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrSymbol, [
-//        SYNS_XML_AttrSymbol,
-//        SYNS_XML_AttrBrackets,
-//        SYNS_XML_AttrSquareBracket,
-//        SYNS_XML_AttrRoundBracket
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrNumber, [
-//        SYNS_XML_AttrNumber
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrKey, [
-//        SYNS_XML_AttrKey,
-//        SYNS_XML_AttrRplKey,
-//        SYNS_XML_AttrSQLKey,
-//        SYNS_XML_AttrSQLPlus,
-//        SYNS_XML_AttrTeXCommand,
-//        SYNS_XML_AttrSASMKey
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrFloat, [
-//        SYNS_XML_AttrFloat
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrHexadecimal, [
-//        SYNS_XML_AttrHexadecimal
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrReservedWord, [
-//        SYNS_XML_AttrReservedWord,
-//        SYNS_XML_AttrPLSQL,
-//        SYNS_XML_AttrSecondReservedWord
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrDirective, [
-//        SYNS_XML_AttrIDEDirective,
-//        SYNS_XML_AttrInclude,
-//        SYNS_XML_AttrPreprocessor,
-//        SYNS_XML_AttrProcessingInstr
-//      ]
-//    );  //
-//    RegisterItem(
-//      SYNS_XML_AttrCharacter, [
-//        SYNS_XML_AttrCharacter
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrVariable, [
-//        SYNS_XML_AttrSpecialVariable
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrNull, [
-//        SYNS_XML_AttrNull
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrOperator, [
-//        SYNS_XML_AttrOperator
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrAttributeName, [
-//        SYNS_XML_AttrNamespaceAttrName,
-//        SYNS_XML_AttrElementName
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrAttributeValue, [
-//        SYNS_XML_AttrValue,
-//        SYNS_XML_AttrNamespaceAttrValue,
-//        SYNS_XML_AttrCDATA,
-//        SYNS_XML_AttrDOCTYPE
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrMacro, [
-//        SYNS_XML_AttrPragma
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrText, [
-//        SYNS_XML_AttrText,
-//        SYNS_XML_AttrEmbedText
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrSection, [
-//        SYNS_XML_AttrSection,
-//        SYNS_XML_AttrASP,
-//        SYNS_XML_AttrDOCTYPESection,
-//        SYNS_XML_AttrCDATASection
-//      ]
-//    );
-//    RegisterItem(
-//      SYNS_XML_AttrDataType, [
-//        SYNS_XML_AttrDataType
-//      ]
-//    );
-//  end;
+//
 end;
 {$ENDREGION}
 

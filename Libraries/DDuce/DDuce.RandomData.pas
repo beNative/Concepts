@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2021 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ interface
 
 type
   RandomData = record
-  strict private
+  private
   type
     TGender = (
       gnMale,
@@ -2706,6 +2706,7 @@ type
     class function Bool: Boolean; static;
     class function Planet: string; static;
     class function Adjective: string; static;
+
   end;
 
 implementation
@@ -2927,30 +2928,30 @@ end;
 
 class function RandomData.AlliteratedCompanyName: string;
 var
-  List  : IList<string>;
-  A     : string;
-  S     : string;
-  C     : string;
-  I     : Integer;
-  J     : Integer;
-  List2 : IEnumerable<string>;
+  LList  : IList<string>;
+  LList2 : IEnumerable<string>;
+  A      : string;
+  S      : string;
+  C      : string;
+  I      : Integer;
+  J      : Integer;
 begin
   A := Adjective;
   C := A[1];
-  List :=  TCollections.CreateList<string>;
+  LList :=  TCollections.CreateList<string>;
   for S in CompanySuffixes do
-    List.Add(S);
-  List2 := List.Where(
+    LList.Add(S);
+  LList2 := LList.Where(
     function(const Arg: string): Boolean
     begin
       Result := StartsText(C, Arg);
     end
   );
-  I := List2.Count;
+  I := LList2.Count;
   if I > 0 then
   begin
     J := Random(I);
-    Result := A + ' ' + List2.ToArray[J] + ' ' + Str(CompanyTypes);
+    Result := A + ' ' + LList2.ToArray[J] + ' ' + Str(CompanyTypes);
   end
   else
     Result := A + ' ' + Str(CompanyTypes);

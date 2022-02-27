@@ -27,7 +27,7 @@ uses
   Vcl.Controls, Vcl.StdCtrls, Vcl.DBGrids,
   Data.DB, Data.Bind.Components,
 
-  VirtualTrees,
+  VirtualTrees, VirtualTrees.Header, VirtualTrees.Types,
 
   Spring, Spring.Collections,
 
