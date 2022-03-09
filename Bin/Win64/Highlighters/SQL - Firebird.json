@@ -1,560 +1,726 @@
 {
-   "Highlighter": {
-      "Info": {
-         "General": {
-            "Version": "1.5.2",
-            "Date": "21.03.2016",
-            "Sample": [
-               "select \"Hello world!\" from RDB$DATABASE;"
-            ]
-         },
-         "Author": {
-            "Name": "Lasse Rautiainen",
-            "Mail": "lasse@bonecode.com"
-         }
+  "Highlighter": {
+    "Sample": [
+      "SELECT \"Hello, World!\" FROM RDB$DATABASE;"
+    ],
+    "MainRules": {
+      "Attributes": {
+        "Element": "Editor"
       },
-      "MainRules": {
-         "Attributes": {
-            "Element": "Editor"
-         },
-         "SubRules": {
-            "Range": [
-               {
-                  "Type": "BlockComment",
-                  "Attributes": {
-                     "Element": "Comment"
-                  },
-                  "TokenRange": {
-                     "Open": "/*",
-                     "Close": "*/"
-                  }
-               },
-               {
-                  "Type": "LineComment",
-                  "Attributes": {
-                     "Element": "Comment"
-                  },
-                  "Properties": {
-                     "CloseOnEndOfLine": true
-                  },
-                  "TokenRange": {
-                     "Open": "--"
-                  }
-               },
-               {
-                  "Type": "String",
-                  "Attributes": {
-                     "Element": "String"
-                  },
-                  "Properties": {
-                     "CloseOnEndOfLine": true
-                  },
-                  "TokenRange": {
-                     "Open": "'",
-                     "Close": "'"
-                  }
-               },
-               {
-                  "Type": "String",
-                  "Attributes": {
-                     "Element": "String"
-                  },
-                  "Properties": {
-                     "CloseOnEndOfLine": true
-                  },
-                  "TokenRange": {
-                     "Open": "\"",
-                     "Close": "\""
-                  }
-               },
-               {
-                  "Type": "Method",
-                  "Attributes": {
-                     "Element": "MethodName"
-                  },
-                  "Properties": {
-                     "CloseOnEndOfLine": true,
-                     "CloseOnTerm": true
-                  },
-                  "TokenRange": {
-                     "Open": "rdb$"
-                  }
-               }
+      "SubRules": {
+        "Range": [
+          {
+            "Type": "BlockComment",
+            "Attributes": {
+              "Element": "Comment"
+            },
+            "TokenRange": {
+              "Open": "/*",
+              "Close": "*/"
+            }
+          },
+          {
+            "Type": "LineComment",
+            "Attributes": {
+              "Element": "Comment"
+            },
+            "Properties": {
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "--"
+            }
+          },
+          {
+            "Type": "String",
+            "Attributes": {
+              "Element": "String"
+            },
+            "Properties": {
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "'",
+              "Close": "'"
+            }
+          },
+          {
+            "Type": "String",
+            "Attributes": {
+              "Element": "String"
+            },
+            "Properties": {
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "\"",
+              "Close": "\""
+            }
+          },
+          {
+            "Type": "Method",
+            "Attributes": {
+              "Element": "MethodName"
+            },
+            "Properties": {
+              "CloseOnEndOfLine": true,
+              "CloseOnTerm": true
+            },
+            "TokenRange": {
+              "Open": "rdb$"
+            }
+          },
+          {
+            "Type": "Symbol",
+            "Attributes": {
+              "Element": "Symbol"
+            },
+            "Properties": {
+              "CloseOnEndOfLine": true,
+              "CloseOnTerm": true
+            },
+            "TokenRange": {
+              "Open": ":"
+            }
+          }
+        ],
+        "KeyList": [
+          {
+            "Type": "ReservedWord",
+            "Words": [
+              "abs",
+              "absolute",
+              "accent",
+              "acos",
+              "acosh",
+              "action",
+              "active",
+              "add",
+              "admin",
+              "after",
+              "all",
+              "alter",
+              "always",
+              "and",
+              "any",
+              "array",
+              "as",
+              "asc",
+              "ascending",
+              "ascii_char",
+              "ascii_val",
+              "asin",
+              "asinh",
+              "at",
+              "atan",
+              "atan2",
+              "atanh",
+              "auto",
+              "autonomous",
+              "avg",
+              "backup",
+              "base64_decode",
+              "base64_encode",
+              "before",
+              "begin",
+              "between",
+              "bigint",
+              "binary",
+              "bind",
+              "bin_and",
+              "bin_not",
+              "bin_or",
+              "bin_shl",
+              "bin_shr",
+              "bin_xor",
+              "bit_length",
+              "blob",
+              "block",
+              "body",
+              "boolean",
+              "both",
+              "break",
+              "by",
+              "caller",
+              "cascade",
+              "case",
+              "cast",
+              "ceil",
+              "ceiling",
+              "char",
+              "character",
+              "character_length",
+              "char_length",
+              "char_to_uuid",
+              "check",
+              "clear",
+              "close",
+              "coalesce",
+              "collate",
+              "collation",
+              "column",
+              "comment",
+              "commit",
+              "committed",
+              "common",
+              "compare_decfloat",
+              "computed",
+              "conditional",
+              "connect",
+              "connections",
+              "consistency",
+              "constraint",
+              "containing",
+              "continue",
+              "corr",
+              "cos",
+              "cosh",
+              "cot",
+              "count",
+              "counter",
+              "covar_pop",
+              "covar_samp",
+              "create",
+              "cross",
+              "crypt_hash",
+              "cstring",
+              "ctr_big_endian",
+              "ctr_length",
+              "ctr_little_endian",
+              "cume_dist",
+              "current",
+              "current_connection",
+              "current_date",
+              "current_role",
+              "current_time",
+              "current_timestamp",
+              "current_transaction",
+              "current_user",
+              "cursor",
+              "data",
+              "database",
+              "date",
+              "dateadd",
+              "datediff",
+              "day",
+              "ddl",
+              "dec",
+              "decfloat",
+              "decimal",
+              "declare",
+              "decode",
+              "decrypt",
+              "default",
+              "definer",
+              "delete",
+              "deleting",
+              "dense_rank",
+              "desc",
+              "descending",
+              "descriptor",
+              "deterministic",
+              "difference",
+              "disable",
+              "disconnect",
+              "distinct",
+              "do",
+              "domain",
+              "double",
+              "drop",
+              "else",
+              "enable",
+              "encrypt",
+              "end",
+              "engine",
+              "entry_point",
+              "escape",
+              "exception",
+              "excess",
+              "exclude",
+              "execute",
+              "exists",
+              "exit",
+              "exp",
+              "extended",
+              "external",
+              "extract",
+              "false",
+              "fetch",
+              "file",
+              "filter",
+              "first",
+              "firstname",
+              "first_day",
+              "first_value",
+              "float",
+              "floor",
+              "following",
+              "for",
+              "foreign",
+              "free_it",
+              "from",
+              "full",
+              "function",
+              "gdscode",
+              "generated",
+              "generator",
+              "gen_id",
+              "gen_uuid",
+              "global",
+              "grant",
+              "granted",
+              "group",
+              "hash",
+              "having",
+              "hex_decode",
+              "hex_encode",
+              "hour",
+              "identity",
+              "idle",
+              "if",
+              "ignore",
+              "iif",
+              "in",
+              "inactive",
+              "include",
+              "increment",
+              "index",
+              "inner",
+              "input_type",
+              "insensitive",
+              "insert",
+              "inserting",
+              "int",
+              "int128",
+              "integer",
+              "into",
+              "invoker",
+              "is",
+              "isolation",
+              "iv",
+              "join",
+              "key",
+              "lag",
+              "last",
+              "lastname",
+              "last_day",
+              "last_value",
+              "lateral",
+              "lead",
+              "leading",
+              "leave",
+              "left",
+              "legacy",
+              "length",
+              "level",
+              "lifetime",
+              "like",
+              "limbo",
+              "linger",
+              "list",
+              "ln",
+              "local",
+              "localtime",
+              "localtimestamp",
+              "lock",
+              "log",
+              "log10",
+              "long",
+              "lower",
+              "lpad",
+              "lparam",
+              "make_dbkey",
+              "manual",
+              "mapping",
+              "matched",
+              "matching",
+              "max",
+              "maximum_segment",
+              "maxvalue",
+              "merge",
+              "message",
+              "middlename",
+              "millisecond",
+              "min",
+              "minute",
+              "minvalue",
+              "mod",
+              "mode",
+              "module_name",
+              "month",
+              "name",
+              "names",
+              "national",
+              "native",
+              "natural",
+              "nchar",
+              "next",
+              "new",
+              "no",
+              "normalize_decfloat",
+              "not",
+              "now",
+              "nth_value",
+              "ntile",
+              "null",
+              "nullif",
+              "nulls",
+              "number",
+              "numeric",
+              "octet_length",
+              "of",
+              "offset",
+              "old",
+              "oldest",
+              "on",
+              "only",
+              "open",
+              "option",
+              "or",
+              "order",
+              "os_name",
+              "others",
+              "outer",
+              "output_type",
+              "over",
+              "overflow",
+              "overlay",
+              "overriding",
+              "package",
+              "pad",
+              "page",
+              "pages",
+              "page_size",
+              "parameter",
+              "partition",
+              "password",
+              "percent_rank",
+              "pi",
+              "placing",
+              "plan",
+              "plugin",
+              "pool",
+              "position",
+              "post_event",
+              "power",
+              "preceding",
+              "precision",
+              "preserve",
+              "primary",
+              "prior",
+              "privilege",
+              "privileges",
+              "procedure",
+              "protected",
+              "publication",
+              "quantize",
+              "rand",
+              "range",
+              "rank",
+              "rdb$db_key",
+              "rdb$error",
+              "rdb$get_context",
+              "rdb$get_transaction_cn",
+              "rdb$record_version",
+              "rdb$role_in_use",
+              "rdb$set_context",
+              "rdb$system_privilege",
+              "read",
+              "real",
+              "record_version",
+              "recreate",
+              "recursive",
+              "references",
+              "regr_avgx",
+              "regr_avgy",
+              "regr_count",
+              "regr_intercept",
+              "regr_r2",
+              "regr_slope",
+              "regr_sxx",
+              "regr_sxy",
+              "regr_syy",
+              "relative",
+              "release",
+              "replace",
+              "requests",
+              "reserv",
+              "reserving",
+              "reset",
+              "resetting",
+              "restart",
+              "restrict",
+              "retain",
+              "return",
+              "returning",
+              "returning_values",
+              "returns",
+              "reverse",
+              "revoke",
+              "right",
+              "role",
+              "rollback",
+              "round",
+              "row",
+              "rows",
+              "row_count",
+              "row_number",
+              "rpad",
+              "rsa_decrypt",
+              "rsa_encrypt",
+              "rsa_private",
+              "rsa_public",
+              "rsa_sign_hash",
+              "rsa_verify_hash",
+              "salt_length",
+              "savepoint",
+              "scalar_array",
+              "schema",
+              "scroll",
+              "second",
+              "security",
+              "segment",
+              "select",
+              "sensitive",
+              "sequence",
+              "serverwide",
+              "session",
+              "set",
+              "shadow",
+              "shared",
+              "sign",
+              "signature",
+              "similar",
+              "sin",
+              "singular",
+              "sinh",
+              "size",
+              "skip",
+              "smallint",
+              "snapshot",
+              "some",
+              "sort",
+              "source",
+              "space",
+              "sql",
+              "sqlcode",
+              "sqlstate",
+              "sqrt",
+              "stability",
+              "start",
+              "starting",
+              "starts",
+              "statement",
+              "statistics",
+              "stddev_pop",
+              "stddev_samp",
+              "substring",
+              "sub_type",
+              "sum",
+              "suspend",
+              "system",
+              "table",
+              "tags",
+              "tan",
+              "tanh",
+              "temporary",
+              "term",
+              "then",
+              "ties",
+              "time",
+              "timeout",
+              "timestamp",
+              "timezone_hour",
+              "timezone_minute",
+              "to",
+              "totalorder",
+              "trailing",
+              "transaction",
+              "traps",
+              "trigger",
+              "trim",
+              "true",
+              "trunc",
+              "trusted",
+              "two_phase",
+              "type",
+              "unbounded",
+              "uncommitted",
+              "undo",
+              "union",
+              "unique",
+              "unknown",
+              "update",
+              "updating",
+              "upper",
+              "usage",
+              "user",
+              "using",
+              "uuid_to_char",
+              "value",
+              "values",
+              "varbinary",
+              "varchar",
+              "variable",
+              "varying",
+              "var_pop",
+              "var_samp",
+              "view",
+              "wait",
+              "week",
+              "weekday",
+              "when",
+              "where",
+              "while",
+              "window",
+              "with",
+              "without",
+              "work",
+              "write",
+              "year",
+              "yearday",
+              "zone"
             ],
-            "KeyList": [
-               {
-                  "Type": "ReservedWord",
-                  "Words": [
-                     "abs",
-                     "accent",
-                     "acos",
-                     "action",
-                     "active",
-                     "add",
-                     "admin",
-                     "after",
-                     "all",
-                     "alter",
-                     "always",
-                     "and",
-                     "any",
-                     "as",
-                     "asc",
-                     "ascending",
-                     "ascii_char",
-                     "ascii_val",
-                     "asin",
-                     "at",
-                     "atan",
-                     "atan2",
-                     "auto",
-                     "autonomous",
-                     "backup",
-                     "before",
-                     "begin",
-                     "between",
-                     "bigint",
-                     "bin_and",
-                     "bin_not",
-                     "bin_or",
-                     "bin_shl",
-                     "bin_shr",
-                     "bin_xor",
-                     "bit_length",
-                     "blob",
-                     "block",
-                     "both",
-                     "break",
-                     "by",
-                     "caller",
-                     "cascade",
-                     "case",
-                     "cast",
-                     "ceil",
-                     "ceiling",
-                     "char",
-                     "char_length",
-                     "char_to_uuid",
-                     "character",
-                     "character_length",
-                     "check",
-                     "close",
-                     "coalesce",
-                     "collate",
-                     "collation",
-                     "column",
-                     "comment",
-                     "commit",
-                     "committed",
-                     "common",
-                     "computed",
-                     "conditional",
-                     "connect",
-                     "constraint",
-                     "containing",
-                     "cos",
-                     "cosh",
-                     "cot",
-                     "create",
-                     "cross",
-                     "cstring",
-                     "current",
-                     "current_connection",
-                     "current_date",
-                     "current_role",
-                     "current_time",
-                     "current_timestamp",
-                     "current_transaction",
-                     "current_user",
-                     "cursor",
-                     "data",
-                     "database",
-                     "date",
-                     "dateadd",
-                     "datediff",
-                     "day",
-                     "dec",
-                     "decimal",
-                     "declare",
-                     "decode",
-                     "default",
-                     "delete",
-                     "deleting",
-                     "desc",
-                     "descending",
-                     "descriptor",
-                     "difference",
-                     "disconnect",
-                     "distinct",
-                     "do",
-                     "domain",
-                     "double",
-                     "drop",
-                     "else",
-                     "end",
-                     "entry_point",
-                     "escape",
-                     "exception",
-                     "execute",
-                     "exists",
-                     "exit",
-                     "exp",
-                     "external",
-                     "extract",
-                     "fetch",
-                     "file",
-                     "filter",
-                     "firstname",
-                     "float",
-                     "floor",
-                     "for",
-                     "foreign",
-                     "free_it",
-                     "from",
-                     "full",
-                     "function",
-                     "gdscode",
-                     "gen_id",
-                     "gen_uuid",
-                     "generated",
-                     "generator",
-                     "global",
-                     "grant",
-                     "granted",
-                     "group",
-                     "hash",
-                     "having",
-                     "hour",
-                     "if",
-                     "ignore",
-                     "iif",
-                     "in",
-                     "inactive",
-                     "index",
-                     "inner",
-                     "input_type",
-                     "insensitive",
-                     "insert",
-                     "inserting",
-                     "int",
-                     "integer",
-                     "into",
-                     "is",
-                     "isolation",
-                     "join",
-                     "key",
-                     "lastname",
-                     "leading",
-                     "leave",
-                     "left",
-                     "length",
-                     "level",
-                     "like",
-                     "limbo",
-                     "list",
-                     "ln",
-                     "lock",
-                     "log",
-                     "log10",
-                     "long",
-                     "lower",
-                     "lpad",
-                     "manual",
-                     "mapping",
-                     "matched",
-                     "matching",
-                     "maximum_segment",
-                     "maxvalue",
-                     "merge",
-                     "middlename",
-                     "millisecond",
-                     "minute",
-                     "minvalue",
-                     "mod",
-                     "module_name",
-                     "month",
-                     "names",
-                     "national",
-                     "natural",
-                     "nchar",
-                     "next",
-                     "no",
-                     "not",
-                     "null",
-                     "nullif",
-                     "nulls",
-                     "numeric",
-                     "octet_length",
-                     "of",
-                     "on",
-                     "only",
-                     "open",
-                     "option",
-                     "or",
-                     "order",
-                     "os_name",
-                     "outer",
-                     "output_type",
-                     "overflow",
-                     "overlay",
-                     "pad",
-                     "page",
-                     "page_size",
-                     "pages",
-                     "parameter",
-                     "password",
-                     "pi",
-                     "placing",
-                     "plan",
-                     "position",
-                     "post_event",
-                     "power",
-                     "precision",
-                     "preserve",
-                     "primary",
-                     "privileges",
-                     "procedure",
-                     "protected",
-                     "rand",
-                     "rdb$db_key",
-                     "read",
-                     "real",
-                     "record_version",
-                     "recreate",
-                     "recursive",
-                     "references",
-                     "release",
-                     "replace",
-                     "requests",
-                     "reserv",
-                     "reserving",
-                     "restart",
-                     "restrict",
-                     "retain",
-                     "returning",
-                     "returning_values",
-                     "returns",
-                     "reverse",
-                     "revoke",
-                     "right",
-                     "role",
-                     "rollback",
-                     "round",
-                     "row_count",
-                     "rows",
-                     "rpad",
-                     "savepoint",
-                     "scalar_array",
-                     "schema",
-                     "second",
-                     "segment",
-                     "select",
-                     "sensitive",
-                     "sequence",
-                     "set",
-                     "shadow",
-                     "shared",
-                     "sign",
-                     "similar",
-                     "sin",
-                     "singular",
-                     "sinh",
-                     "size",
-                     "skip",
-                     "smallint",
-                     "snapshot",
-                     "some",
-                     "sort",
-                     "source",
-                     "space",
-                     "sqlcode",
-                     "sqlstate",
-                     "sqrt",
-                     "stability",
-                     "start",
-                     "starting",
-                     "starts",
-                     "statement",
-                     "statistics",
-                     "sub_type",
-                     "substring",
-                     "suspend",
-                     "table",
-                     "tan",
-                     "tanh",
-                     "temporary",
-                     "then",
-                     "time",
-                     "timeout",
-                     "timestamp",
-                     "to",
-                     "trailing",
-                     "transaction",
-                     "trigger",
-                     "trim",
-                     "trunc",
-                     "two_phase",
-                     "type",
-                     "uncommitted",
-                     "undo",
-                     "union",
-                     "unique",
-                     "update",
-                     "updating",
-                     "upper",
-                     "user",
-                     "using",
-                     "uuid_to_char",
-                     "value",
-                     "values",
-                     "varchar",
-                     "variable",
-                     "varying",
-                     "view",
-                     "wait",
-                     "week",
-                     "weekday",
-                     "when",
-                     "where",
-                     "while",
-                     "with",
-                     "work",
-                     "write",
-                     "year",
-                     "yearday"
-                  ],
-                  "Attributes": {
-                     "Element": "ReservedWord"
-                  }
-               },
-               {
-                  "Type": "Method",
-                  "Words": [
-									   "avg",
-									   "count",
-									   "first",
-									   "last",
-									   "max",
-									   "min",
-									   "sum",
-									   "trim"
-                  ],
-                  "Attributes": {
-                     "Element": "Method"
-                  }
-               },
-               {
-                  "Type": "Symbol",
-                  "Words": [
-                     ":",
-                     ";",
-                     "<",
-                     ">",
-                     "=",
-                     "/",
-                     "*",
-                     ".",
-                     ",",
-                     "-",
-                     "+",
-                     "(",
-                     ")",
-                     "[",
-                     "]",
-                     "{",
-                     "}",
-                     "|"
-                  ],
-                  "Attributes": {
-                     "Element": "Symbol"
-                  }
-               }
+            "Attributes": {
+              "Element": "ReservedWord"
+            }
+          },
+          {
+            "Type": "Method",
+            "Words": [
+              "avg",
+              "count",
+              "first",
+              "last",
+              "max",
+              "min",
+              "sum",
+              "trim"
             ],
-            "Set": [
-               {
-                  "Type": "Numbers",
-                  "Symbols": "0123456789",
-                  "Attributes": {
-                     "Element": "Number"
-                  }
-               },
-               {
-                  "Type": "Float",
-                  "Symbols": ".0123456789",
-                  "Attributes": {
-                     "Element": "Number"
-                  }
-               }
-            ]
-         }
+            "Attributes": {
+              "Element": "Method"
+            }
+          },
+          {
+            "Type": "Symbol",
+            "Words": [
+              ":",
+              ";",
+              "<",
+              ">",
+              "=",
+              "/",
+              "*",
+              ".",
+              ",",
+              "-",
+              "+",
+              "(",
+              ")",
+              "[",
+              "]",
+              "{",
+              "}",
+              "|"
+            ],
+            "Attributes": {
+              "Element": "Symbol"
+            }
+          }
+        ],
+        "Set": [
+          {
+            "Type": "Numbers",
+            "Symbols": "0123456789",
+            "Attributes": {
+              "Element": "Number"
+            }
+          },
+          {
+            "Type": "Float",
+            "Symbols": ".0123456789",
+            "Attributes": {
+              "Element": "Number"
+            }
+          }
+        ]
       }
-   },
-   "CodeFolding": {
-      "Ranges": [
-         {
-            "SkipRegion": [
-               {
-                  "OpenToken": "'",
-                  "CloseToken": "'",
-                  "RegionType": "String"
-               },
-               {
-                  "OpenToken": "\"",
-                  "CloseToken": "\"",
-                  "RegionType": "String"
-               },
-               {
-                  "OpenToken": "--",
-                  "RegionType": "SingleLine"
-               },
-               {
-                  "OpenToken": "/*",
-                  "CloseToken": "*/",
-                  "RegionType": "MultiLine"
-               }
-            ],
-            "FoldRegion": [
-               {
-                  "OpenToken": "BEGIN",
-                  "CloseToken": "END;"
-               }
-            ]
-         }
-      ]
-   },
-   "MatchingPair": {
-      "Pairs": [
-         {
-            "OpenToken": "(",
-            "CloseToken": ")"
-         },
-         {
-            "OpenToken": "[",
-            "CloseToken": "]"
-         }
-      ]
-   },
-   "CompletionProposal": {
-      "SkipRegion": [
-         {
+    }
+  },
+  "CodeFolding": {
+    "Ranges": [
+      {
+        "SkipRegion": [
+          {
             "OpenToken": "'",
             "CloseToken": "'",
-            "RegionType": "String"
-         },
-         {
+            "RegionType": "SingleLineString"
+          },
+          {
             "OpenToken": "\"",
             "CloseToken": "\"",
-            "RegionType": "String"
-         },
-         {
+            "RegionType": "SingleLineString"
+          },
+          {
             "OpenToken": "--",
             "RegionType": "SingleLine"
-         },
-         {
+          },
+          {
             "OpenToken": "/*",
             "CloseToken": "*/",
             "RegionType": "MultiLine"
-         }
-      ]
-   }
+          }
+        ],
+        "FoldRegion": [
+          {
+            "OpenToken": "BEGIN",
+            "CloseToken": "END"
+          }
+        ]
+      }
+    ]
+  },
+  "MatchingPair": {
+    "Pairs": [
+      {
+        "OpenToken": "'",
+        "CloseToken": "'"
+      },
+      {
+        "OpenToken": "\"",
+        "CloseToken": "\""
+      },
+      {
+        "OpenToken": "(",
+        "CloseToken": ")"
+      },
+      {
+        "OpenToken": "[",
+        "CloseToken": "]"
+      }
+    ]
+  },
+  "CompletionProposal": {
+    "SkipRegion": [
+      {
+        "OpenToken": "'",
+        "CloseToken": "'",
+        "RegionType": "SingleLineString"
+      },
+      {
+        "OpenToken": "\"",
+        "CloseToken": "\"",
+        "RegionType": "SingleLineString"
+      },
+      {
+        "OpenToken": "--",
+        "RegionType": "SingleLine"
+      },
+      {
+        "OpenToken": "/*",
+        "CloseToken": "*/",
+        "RegionType": "MultiLine"
+      }
+    ]
+  }
 }

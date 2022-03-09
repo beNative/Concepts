@@ -109,11 +109,7 @@ type
     dlgSaveFile: TFileSaveDialog;
     btnSaveFile: TButton;
     actSaveFile: TAction;
-    pgcKMemo: TKPageControl;
-    tsKMemo: TKTabSheet;
-    tsRTF: TKTabSheet;
     KMemo: TKMemo;
-    seRTF: TSynEdit;
     {$ENDREGION}
 
     {$REGION 'action handlers'}
@@ -456,7 +452,7 @@ begin
   try
     //KMemo.ActiveBlocks := KMemo.Blocks;
     KMemo.SaveToRTFStream(LStream, False, True);
-    seRTF.Lines.Text := LStream.DataString;
+    //seRTF.Lines.Text := LStream.DataString;
   finally
     LStream.Free;
   end;

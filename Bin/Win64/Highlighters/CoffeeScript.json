@@ -1,312 +1,310 @@
 {
-   "Highlighter": {
-      "Info": {
-         "General": {
-            "Version": "1.5.2",
-            "Date": "21.03.2016",
-            "Sample": [
-               "# hello world example\r\n",
-               "first_word = \"Hello\"\r\n",
-               "both_words = \"#{first_word} World\""
-            ]
-         },
-         "Author": {
-            "Name": "Lasse Rautiainen",
-            "Mail": "lasse@bonecode.com"
-         }
+  "Highlighter": {
+    "Sample": [
+      "# Hello, World! example\r\n",
+      "first_word = \"Hello\"\r\n",
+      "both_words = \"#{first_word}, World!\""
+    ],
+    "MainRules": {
+      "Attributes": {
+        "Element": "Editor"
       },
-      "MainRules": {
-         "Attributes": {
-            "Element": "Editor"
-         },
-         "SubRules": {
-            "Range": [
-               {
-                  "Type": "BlockComment",
-                  "Attributes": {
-                     "Element": "Comment"
-                  },
-                  "TokenRange": {
-                     "Open": "###",
-                     "Close": "###"
-                  }
-               },
-               {
-                  "Type": "LineComment",
-                  "Attributes": {
-                     "Element": "Comment"
-                  },
-                  "Properties": {
-                     "CloseOnEndOfLine": true
-                  },
-                  "TokenRange": {
-                     "Open": "#"
-                  }
-               },
-               {
+      "SubRules": {
+        "Range": [
+          {
+            "Type": "BlockComment",
+            "Attributes": {
+              "Element": "Comment"
+            },
+            "TokenRange": {
+              "Open": "###",
+              "Close": "###"
+            }
+          },
+          {
+            "Type": "LineComment",
+            "Attributes": {
+              "Element": "Comment"
+            },
+            "Properties": {
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "#"
+            }
+          },
+          {
+            "Type": "String",
+            "Attributes": {
+              "Element": "String"
+            },
+            "Properties": {
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "'",
+              "Close": "'"
+            },
+            "SubRules": {
+              "Range": [
+                {
                   "Type": "String",
                   "Attributes": {
-                     "Element": "String"
+                    "Element": "String"
                   },
                   "Properties": {
-                     "CloseOnEndOfLine": true
+                    "CloseOnEndOfLine": true,
+                    "CloseOnTerm": true
                   },
                   "TokenRange": {
-                     "Open": "'",
-                     "Close": "'"
-                  },
-                  "SubRules": {
-                     "Range": [
-                        {
-                           "Type": "String",
-                           "Attributes": {
-                              "Element": "String"
-                           },
-                           "Properties": {
-                              "CloseOnEndOfLine": true,
-                              "CloseOnTerm": true
-                           },
-                           "TokenRange": {
-                              "Open": "\\'",
-                              "Close": ""
-                           }
-                        },
-                        {
-                           "Type": "String",
-                           "Attributes": {
-                              "Element": "String"
-                           },
-                           "Properties": {
-                              "CloseOnEndOfLine": true,
-                              "CloseOnTerm": true
-                           },
-                           "TokenRange": {
-                              "Open": "\\\\",
-                              "Close": ""
-                           }
-                        }
-                     ]
+                    "Open": "\\'",
+                    "Close": ""
                   }
-               },
-               {
+                },
+                {
                   "Type": "String",
                   "Attributes": {
-                     "Element": "String"
+                    "Element": "String"
                   },
                   "Properties": {
-                     "CloseOnEndOfLine": true
+                    "CloseOnEndOfLine": true,
+                    "CloseOnTerm": true
                   },
                   "TokenRange": {
-                     "Open": "\"",
-                     "Close": "\""
-                  },
-                  "SubRules": {
-                     "Range": [
-                        {
-                           "Type": "String",
-                           "Attributes": {
-                              "Element": "String"
-                           },
-                           "Properties": {
-                              "CloseOnEndOfLine": true,
-                              "CloseOnTerm": true
-                           },
-                           "TokenRange": {
-                              "Open": "\\\"",
-                              "Close": ""
-                           }
-                        },
-                        {
-                           "Type": "String",
-                           "Attributes": {
-                              "Element": "String"
-                           },
-                           "Properties": {
-                              "CloseOnEndOfLine": true,
-                              "CloseOnTerm": true
-                           },
-                           "TokenRange": {
-                              "Open": "\\\\",
-                              "Close": ""
-                           }
-                        }
-                     ]
+                    "Open": "\\\\",
+                    "Close": ""
                   }
-               },
-               {
-                  "Type": "Hex",
+                }
+              ]
+            }
+          },
+          {
+            "Type": "String",
+            "Attributes": {
+              "Element": "String"
+            },
+            "Properties": {
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "\"",
+              "Close": "\""
+            },
+            "SubRules": {
+              "Range": [
+                {
+                  "Type": "String",
                   "Attributes": {
-                     "Element": "Number"
+                    "Element": "String"
                   },
-                  "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
                   "Properties": {
-                     "CloseOnTerm": true,
-                     "CloseOnEndOfLine": true
+                    "CloseOnEndOfLine": true,
+                    "CloseOnTerm": true
                   },
                   "TokenRange": {
-                     "Open": "0",
-                     "OpenBreakType": "Any"
+                    "Open": "\\\"",
+                    "Close": ""
                   }
-               }
+                },
+                {
+                  "Type": "String",
+                  "Attributes": {
+                    "Element": "String"
+                  },
+                  "Properties": {
+                    "CloseOnEndOfLine": true,
+                    "CloseOnTerm": true
+                  },
+                  "TokenRange": {
+                    "Open": "\\\\",
+                    "Close": ""
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Type": "Hex",
+            "Attributes": {
+              "Element": "Number"
+            },
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Properties": {
+              "CloseOnTerm": true,
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "0",
+              "OpenBreakType": "Any"
+            }
+          }
+        ],
+        "KeyList": [
+          {
+            "Type": "ReservedWord",
+            "Words": [
+              "and",
+              "arguments",
+              "await",
+              "break",
+              "by",
+              "case",
+              "catch",
+              "class",
+              "const",
+              "continue",
+              "debugger",
+              "default",
+              "defer",
+              "delete",
+              "do",
+              "else",
+              "enum",
+              "export",
+              "extends",
+              "false",
+              "finally",
+              "for",
+              "function",
+              "if",
+              "implements",
+              "import",
+              "in",
+              "infinity",
+              "instanceof",
+              "is",
+              "isnt",
+              "interface",
+              "let",
+              "loop",
+              "nan",
+              "native",
+              "new",
+              "no",
+              "not",
+              "null",
+              "of",
+              "off",
+              "on",
+              "or",
+              "package",
+              "private",
+              "protected",
+              "public",
+              "return",
+              "static",
+              "super",
+              "switch",
+              "then",
+              "this",
+              "throw",
+              "true",
+              "try",
+              "typeof",
+              "undefined",
+              "unless",
+              "var",
+              "void",
+              "when",
+              "while",
+              "with",
+              "yes",
+              "yield"
             ],
-            "KeyList": [
-               {
-                  "Type": "ReservedWord",
-                  "Words": [
-                     "and",
-                     "arguments",
-                     "await",
-                     "break",
-                     "by",
-                     "case",
-                     "catch",
-                     "class",
-                     "const",
-                     "continue",
-                     "debugger",
-                     "default",
-                     "defer",
-                     "delete",
-                     "do",
-                     "else",
-                     "enum",
-                     "export",
-                     "extends",
-                     "false",
-                     "finally",
-                     "for",
-                     "function",
-                     "if",
-                     "implements",
-                     "import",
-                     "in",
-                     "infinity",
-                     "instanceof",
-                     "is",
-                     "isnt",
-                     "interface",
-                     "let",
-                     "loop",
-                     "nan",
-                     "native",
-                     "new",
-                     "no",
-                     "not",
-                     "null",
-                     "of",
-                     "off",
-                     "on",
-                     "or",
-                     "package",
-                     "private",
-                     "protected",
-                     "public",
-                     "return",
-                     "static",
-                     "super",
-                     "switch",
-                     "then",
-                     "this",
-                     "throw",
-                     "true",
-                     "try",
-                     "typeof",
-                     "undefined",
-                     "unless",
-                     "var",
-                     "void",
-                     "when",
-                     "while",
-                     "with",
-                     "yes",
-                     "yield"
-                  ],
-                  "Attributes": {
-                     "Element": "ReservedWord"
-                  }
-               },
-               {
-                  "Type": "Symbol",
-                  "Words": [
-                     ":",
-                     ";",
-                     "<",
-                     ">",
-                     "=",
-                     "/",
-                     "*",
-                     ".",
-                     ",",
-                     "-",
-                     "+",
-                     "(",
-                     ")",
-                     "[",
-                     "]",
-                     "{",
-                     "}"
-                  ],
-                  "Attributes": {
-                     "Element": "Symbol"
-                  }
-               }
+            "Attributes": {
+              "Element": "ReservedWord"
+            }
+          },
+          {
+            "Type": "Symbol",
+            "Words": [
+              ":",
+              ";",
+              "<",
+              ">",
+              "=",
+              "/",
+              "*",
+              ".",
+              ",",
+              "-",
+              "+",
+              "(",
+              ")",
+              "[",
+              "]",
+              "{",
+              "}"
             ],
-            "Set": [
-               {
-                  "Type": "Numbers",
-                  "Symbols": "0123456789",
-                  "Attributes": {
-                     "Element": "Number"
-                  }
-               },
-               {
-                  "Type": "Float",
-                  "Symbols": ".0123456789",
-                  "Attributes": {
-                     "Element": "Number"
-                  }
-               }
-            ]
-         }
+            "Attributes": {
+              "Element": "Symbol"
+            }
+          }
+        ],
+        "Set": [
+          {
+            "Type": "Numbers",
+            "Symbols": "0123456789",
+            "Attributes": {
+              "Element": "Number"
+            }
+          },
+          {
+            "Type": "Float",
+            "Symbols": ".0123456789",
+            "Attributes": {
+              "Element": "Number"
+            }
+          }
+        ]
       }
-   },
-   "MatchingPair": {
-      "Pairs": [
-         {
-            "OpenToken": "(",
-            "CloseToken": ")"
-         },
-         {
-            "OpenToken": "[",
-            "CloseToken": "]"
-         },
-         {
-            "OpenToken": "{",
-            "CloseToken": "}"
-         }
-      ]
-   },
-   "CompletionProposal": {
-      "SkipRegion": [
-         {
-            "OpenToken": "'",
-            "CloseToken": "'",
-            "RegionType": "String"
-         },
-         {
-            "OpenToken": "\"",
-            "CloseToken": "\"",
-            "RegionType": "String"
-         },
-         {
-            "OpenToken": "#",
-            "RegionType": "SingleLine"
-         },
-         {
-            "OpenToken": "###",
-            "CloseToken": "###",
-            "RegionType": "MultiLine"
-         }
-      ]
-   }
+    }
+  },
+  "MatchingPair": {
+    "Pairs": [
+      {
+        "OpenToken": "'",
+        "CloseToken": "'"
+      },
+      {
+        "OpenToken": "\"",
+        "CloseToken": "\""
+      },
+      {
+        "OpenToken": "(",
+        "CloseToken": ")"
+      },
+      {
+        "OpenToken": "[",
+        "CloseToken": "]"
+      },
+      {
+        "OpenToken": "{",
+        "CloseToken": "}"
+      }
+    ]
+  },
+  "CompletionProposal": {
+    "SkipRegion": [
+      {
+        "OpenToken": "'",
+        "CloseToken": "'",
+        "RegionType": "SingleLineString"
+      },
+      {
+        "OpenToken": "\"",
+        "CloseToken": "\"",
+        "RegionType": "SingleLineString"
+      },
+      {
+        "OpenToken": "#",
+        "RegionType": "SingleLine"
+      },
+      {
+        "OpenToken": "###",
+        "CloseToken": "###",
+        "RegionType": "MultiLine"
+      }
+    ]
+  }
 }

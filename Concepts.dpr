@@ -49,7 +49,6 @@ uses
   Concepts.SQLBuilder4D.Form in 'Forms\Concepts.SQLBuilder4D.Form.pas' {frmSQLBuilder4D},
   Concepts.RTTEye.Data in 'Types\Concepts.RTTEye.Data.pas',
   Concepts.DSharp.TreeViewPresenter.List.Form in 'Forms\Concepts.DSharp.TreeViewPresenter.List.Form.pas' {frmTreeViewPresenterList},
-  Concepts.BCEditor.Form in 'Forms\Concepts.BCEditor.Form.pas' {frmBCEditor},
   Concepts.RTTEye.RttiTemplates in 'Types\Concepts.RTTEye.RttiTemplates.pas',
   Concepts.ZeroMQ.Form in 'Forms\Concepts.ZeroMQ.Form.pas',
   Concepts.Spring.ClassProxy.Form in 'Forms\Concepts.Spring.ClassProxy.Form.pas' {frmClassProxy},
@@ -94,7 +93,8 @@ uses
   Concepts.Indy.TCP.Form in 'Forms\Concepts.Indy.TCP.Form.pas' {frmIndyTCP},
   Concepts.Vcl.Styles.Form in 'Forms\Concepts.Vcl.Styles.Form.pas' {frmVclStyles},
   Concepts.KControls.KMemo.Form in 'Forms\Concepts.KControls.KMemo.Form.pas' {frmKMemo},
-  DDuce.DynamicRecord in 'Libraries\DDuce\DDuce.DynamicRecord.pas';
+  DDuce.DynamicRecord in 'Libraries\DDuce\DDuce.DynamicRecord.pas',
+  Concepts.TextEditor.Form in 'Forms\Concepts.TextEditor.Form.pas' {frmTextEditor};
 
 {$R *.res}
 

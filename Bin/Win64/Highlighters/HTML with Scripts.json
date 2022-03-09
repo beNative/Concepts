@@ -1,564 +1,351 @@
 {
-   "Highlighter": {
-      "Info": {
-         "General": {
-            "MultiHighlighter": true,
-            "Version": "1.5.2",
-            "Date": "21.03.2016",
-            "Sample": [
-               "<!DOCTYPE HTML>\r\n",
-               "<!-- Hello World in HTML -->\r\n",
-               "<html>\r\n",
-               "    <head>\r\n",
-               "        <title>Hello world example</title>\r\n",
-               "    </head>\r\n",
-               "    <body>\r\n",
-               "        <span>Hello, world!</span>\r\n",
-               "    </body>\r\n",
-               "</html>"
-            ]
-         },
-         "Author": {
-            "Name": "Lasse Rautiainen",
-            "Mail": "lasse@bonecode.com"
-         }
+  "Highlighter": {
+    "MultiHighlighter": true,
+    "Sample": [
+      "<!DOCTYPE HTML>\r\n",
+      "<!-- Hello, World! in HTML -->\r\n",
+      "<html>\r\n",
+      "    <head>\r\n",
+      "        <title>Hello, World! Example</title>\r\n",
+      "    </head>\r\n",
+      "    <body>\r\n",
+      "        <span>Hello, World!</span>\r\n",
+      "    </body>\r\n",
+      "</html>"
+    ],
+    "MainRules": {
+      "Attributes": {
+        "Element": "Editor"
       },
-      "MainRules": {
-         "Attributes": {
-            "Element": "Editor"
-         },
-         "SubRules": {
-            "Range": [
-               {
-                  "Type": "BlockComment",
-                  "Attributes": {
-                     "Element": "Comment"
-                  },
-                  "TokenRange": {
-                     "Open": "<!--",
-                     "Close": "-->"
-                  }
-               },
-               {
-                  "File": "PHP.json",
-                  "IncludeRange": "PHP"
-               },
-               {
-                  "Type": "Directive",
-                  "Attributes": {
-                     "Element": "Directive"
-                  },
-                  "TokenRange": {
-                     "Open": "<!",
-                     "Close": ">"
-                  }
-               },
-               {
-                  "Type": "Entity",
-                  "Attributes": {
-                     "Element": "Number"
-                  },
-                  "Properties": {
-                     "AlternativeClose": [
-                        " "
-                     ],
-                     "CloseOnEndOfLine": true
-                  },
-                  "TokenRange": {
-                     "Open": "&",
-                     "Close": ";"
-                  },
-                  "SubRules": {
-                     "KeyList": [
-                        {
-                           "Type": "Symbol",
-                           "Words": [
-                              ";"
-                           ],
-                           "Attributes": {
-                              "Element": "Number"
-                           }
-                        }
-                     ]
-                  }
-               },
-               {
-                  "Name": "HTML",
-                  "Type": "Tag",
-                  "Attributes": {
-                     "Element": "Editor"
-                  },
-                  "TokenRange": {
-                     "Open": "<",
-                     "Close": ">"
-                  },
-                  "SubRules": {
-                     "Range": [
-                        {
-                           "File": "PHP.json",
-                           "IncludeRange": "PHP"
-                        },
-                        {
-                           "Type": "BlockComment",
-                           "Attributes": {
-                              "Element": "Comment"
-                           },
-                           "TokenRange": {
-                              "Open": "<!--",
-                              "Close": "-->"
-                           }
-                        },
-                        {
-                           "Type": "String",
-                           "Attributes": {
-                              "Element": "String"
-                           },
-                           "Properties": {
-                              "CloseOnEndOfLine": true
-                           },
-                           "TokenRange": {
-                              "Open": "\"",
-                              "Close": "\""
-                           },
-                           "SubRules": {
-                              "Range": [
-                                 {
-                                    "File": "PHP.json",
-                                    "IncludeRange": "PHP"
-                                 }
-                              ],
-                              "KeyList": [
-                                 {
-                                    "Type": "Symbol",
-                                    "Words": [
-                                       "<?"
-                                    ],
-                                    "Attributes": {
-                                       "Element": "Symbol",
-                                       "ParentBackground": false
-                                    }
-                                 }
-                              ]
-                           }
-                        },
-                        {
-                           "Type": "String",
-                           "Attributes": {
-                              "Element": "String"
-                           },
-                           "Properties": {
-                              "CloseOnEndOfLine": true
-                           },
-                           "TokenRange": {
-                              "Open": "'",
-                              "Close": "'"
-                           }
-                        },
-                        {
-                           "Type": "Character",
-                           "Attributes": {
-                              "Element": "Character"
-                           },
-                           "Properties": {
-                              "CloseOnTerm": true,
-                              "CloseOnEndOfLine": true
-                           },
-                           "TokenRange": {
-                              "Open": "$",
-                              "Close": " "
-                           }
-                        },
-                        {
-                           "Name": "JavaScript",
-                           "Type": "Tag",
-                           "Attributes": {
-                              "Element": "Editor"
-                           },
-                           "Properties": {
-                              "AlternativeClose1": "/>"
-                           },
-                           "TokenRange": {
-                              "Open": "script",
-                              "Close": "/script"
-                           },
-                           "SubRules": {
-                              "Range": [
-                                 {
-                                    "File": "JavaScript.json",
-                                    "IncludeRange": "JavaScript"
-                                 }
-                              ]
-                           }
-                        },
-                        {
-                           "Name": "Style",
-                           "Type": "Tag",
-                           "Attributes": {
-                              "Element": "Editor"
-                           },
-                           "TokenRange": {
-                              "Open": "style",
-                              "Close": "/style"
-                           },
-                           "SubRules": {
-                              "Range": [
-                                 {
-                                    "File": "PHP.json",
-                                    "IncludeRange": "PHP"
-                                 },
-                                 {
-                                    "File": "CSS.json",
-                                    "IncludeRange": "CSS"
-                                 }
-                              ]
-                           }
-                        }
-                     ],
-                     "KeyList": [
-                        {
-                           "Name": "HTML Keywords",
-                           "Type": "ReservedWord",
-                           "Words": [
-                              "!doctype",
-                              "a",
-                              "abbr",
-                              "address",
-                              "area",
-                              "article",
-                              "aside",
-                              "audio",
-                              "b",
-                              "base",
-                              "bdi",
-                              "bdo",
-                              "blockquote",
-                              "body",
-                              "br",
-                              "button",
-                              "canvas",
-                              "caption",
-                              "cite",
-                              "code",
-                              "col",
-                              "colgroup",
-                              "command",
-                              "datalist",
-                              "dd",
-                              "del",
-                              "details",
-                              "dfn",
-                              "dir",
-                              "div",
-                              "dl",
-                              "dt",
-                              "em",
-                              "embed",
-                              "fieldset",
-                              "figcaption",
-                              "figure",
-                              "footer",
-                              "form",
-                              "h1",
-                              "h2",
-                              "h3",
-                              "h4",
-                              "h5",
-                              "h6",
-                              "head",
-                              "header",
-                              "hgroup",
-                              "hr",
-                              "html",
-                              "i",
-                              "iframe",
-                              "img",
-                              "input",
-                              "ins",
-                              "kbd",
-                              "keygen",
-                              "label",
-                              "legend",
-                              "li",
-                              "link",
-                              "map",
-                              "mark",
-                              "menu",
-                              "meta",
-                              "meter",
-                              "nav",
-                              "noscript",
-                              "object",
-                              "ol",
-                              "optgroup",
-                              "option",
-                              "output",
-                              "p",
-                              "param",
-                              "pre",
-                              "progress",
-                              "q",
-                              "rp",
-                              "rt",
-                              "ruby",
-                              "s",
-                              "samp",
-                              "script",
-                              "section",
-                              "select",
-                              "small",
-                              "source",
-                              "span",
-                              "strong",
-                              "style",
-                              "sub",
-                              "summary",
-                              "sup",
-                              "table",
-                              "tbody",
-                              "td",
-                              "textarea",
-                              "tfoot",
-                              "th",
-                              "thead",
-                              "time",
-                              "title",
-                              "tr",
-                              "track",
-                              "u",
-                              "ul",
-                              "var",
-                              "video",
-                              "wbr"
-                           ],
-                           "Attributes": {
-                              "Element": "ReservedWord"
-                           }
-                        },
-                        {
-                           "Name": "HTML Attributes",
-                           "Type": "Attribute",
-                           "Words": [
-                              "abbr",
-                              "accept",
-                              "accept-charset",
-                              "accesskey",
-                              "action",
-                              "async",
-                              "autocomplete",
-                              "alt",
-                              "autofocus",
-                              "autoplay",
-                              "challenge",
-                              "charset",
-                              "checked",
-                              "cite=",
-                              "class",
-                              "cols",
-                              "colspan",
-                              "command",
-                              "content",
-                              "contenteditable",
-                              "contextmenu",
-                              "controls",
-                              "coords",
-                              "crossorigin",
-                              "data-",
-                              "datetime",
-                              "default",
-                              "defer",
-                              "dir=",
-                              "disabled",
-                              "download",
-                              "draggable",
-                              "dropzone",
-                              "enctype",
-                              "for",
-                              "form=",
-                              "formaction",
-                              "formenctype",
-                              "formmethod",
-                              "formnovalidate",
-                              "formtarget",
-                              "headers",
-                              "height",
-                              "hidden",
-                              "high",
-                              "href",
-                              "hreflang",
-                              "http-equiv",
-                              "icon",
-                              "id",
-                              "ismap",
-                              "keytype",
-                              "kind",
-                              "label=",
-                              "lang",
-                              "list",
-                              "loop",
-                              "low",
-                              "manifest",
-                              "max",
-                              "maxlength",
-                              "media",
-                              "method",
-                              "min",
-                              "muted",
-                              "multiple",
-                              "name",
-                              "novalidate",
-                              "open",
-                              "optimum",
-                              "pattern",
-                              "placeholder",
-                              "poster",
-                              "preload",
-                              "radiogroup",
-                              "readonly",
-                              "rel",
-                              "required",
-                              "reversed",
-                              "rows",
-                              "sandbox",
-                              "scope",
-                              "scoped",
-                              "seamless",
-                              "selected",
-                              "shape",
-                              "size",
-                              "sizes",
-                              "sortable",
-                              "sorted",
-                              "span=",
-                              "spellcheck",
-                              "src",
-                              "srcdoc",
-                              "start",
-                              "step",
-                              "style=",
-                              "tabindex",
-                              "target",
-                              "title=",
-                              "translate",
-                              "type",
-                              "usemap",
-                              "value",
-                              "width",
-                              "wrap",
-                              "xmlns"
-                           ],
-                           "Attributes": {
-                              "Element": "Attribute"
-                           }
-                        },
-                        {
-                           "Type": "Symbol",
-                           "Words": [
-                              "/",
-                              "<?"
-                           ],
-                           "Attributes": {
-                              "Element": "ReservedWord",
-                              "ParentBackground": false
-                           }
-                        }
-                     ],
-                     "KeyList": [
-                        {
-                           "Type": "Symbol",
-                           "Words": [
-                              "<?"
-                           ],
-                           "Attributes": {
-                              "Element": "Symbol",
-                              "ParentBackground": false
-                           }
-                        }
-                     ]
-                  }
-               }
-            ],
-            "KeyList": [
-               {
+      "SubRules": {
+        "Range": [
+          {
+            "Type": "BlockComment",
+            "Attributes": {
+              "Element": "Comment"
+            },
+            "TokenRange": {
+              "Open": "<!--",
+              "Close": "-->"
+            }
+          },
+          {
+            "File": "PHP",
+            "IncludeRange": "PHP"
+          },
+          {
+            "Type": "Directive",
+            "Attributes": {
+              "Element": "Directive"
+            },
+            "TokenRange": {
+              "Open": "<!",
+              "Close": ">"
+            }
+          },
+          {
+            "Type": "Entity",
+            "Attributes": {
+              "Element": "Number"
+            },
+            "Properties": {
+              "AlternativeClose": [
+                " "
+              ],
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "&",
+              "Close": ";"
+            },
+            "SubRules": {
+              "KeyList": [
+                {
                   "Type": "Symbol",
                   "Words": [
-                     "&&"
+                    ";"
                   ],
                   "Attributes": {
-                     "Element": "Symbol",
-                     "ParentBackground": false
+                    "Element": "Number"
                   }
-               }
-            ]
-         }
+                }
+              ]
+            }
+          },
+          {
+            "Name": "HTML",
+            "Type": "Tag",
+            "Attributes": {
+              "Element": "ReservedWord"
+            },
+            "TokenRange": {
+              "Open": "<",
+              "Close": ">"
+            },
+            "SubRules": {
+              "Range": [
+                {
+                  "File": "PHP",
+                  "IncludeRange": "PHP"
+                },
+                {
+                  "Type": "BlockComment",
+                  "Attributes": {
+                    "Element": "Comment"
+                  },
+                  "TokenRange": {
+                    "Open": "<!--",
+                    "Close": "-->"
+                  }
+                },
+                {
+                  "Type": "String",
+                  "Attributes": {
+                    "Element": "String"
+                  },
+                  "Properties": {
+                    "CloseOnEndOfLine": true
+                  },
+                  "TokenRange": {
+                    "Open": "\"",
+                    "Close": "\""
+                  },
+                  "SubRules": {
+                    "Range": [
+                      {
+                        "File": "PHP",
+                        "IncludeRange": "PHP"
+                      }
+                    ],
+                    "KeyList": [
+                      {
+                        "Type": "Symbol",
+                        "Words": [
+                          "<?"
+                        ],
+                        "Attributes": {
+                          "Element": "Symbol",
+                          "ParentBackground": false
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Type": "String",
+                  "Attributes": {
+                    "Element": "String"
+                  },
+                  "Properties": {
+                    "CloseOnEndOfLine": true
+                  },
+                  "TokenRange": {
+                    "Open": "'",
+                    "Close": "'"
+                  }
+                },
+                {
+                  "Type": "Character",
+                  "Attributes": {
+                    "Element": "Character"
+                  },
+                  "Properties": {
+                    "CloseOnTerm": true,
+                    "CloseOnEndOfLine": true
+                  },
+                  "TokenRange": {
+                    "Open": "$",
+                    "Close": " "
+                  }
+                },
+                {
+                  "Name": "JavaScript",
+                  "Type": "Tag",
+                  "Attributes": {
+                    "Element": "Editor"
+                  },
+                  "Properties": {
+                    "AlternativeClose": [
+                      "/>"
+                    ]
+                  },
+                  "TokenRange": {
+                    "Open": "script",
+                    "Close": "/script"
+                  },
+                  "SubRules": {
+                    "Range": [
+                      {
+                        "File": "JavaScript",
+                        "IncludeRange": "JavaScript"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Name": "Style",
+                  "Type": "Tag",
+                  "Attributes": {
+                    "Element": "Editor"
+                  },
+                  "TokenRange": {
+                    "Open": "style",
+                    "Close": "/style"
+                  },
+                  "SubRules": {
+                    "Range": [
+                      {
+                        "File": "PHP",
+                        "IncludeRange": "PHP"
+                      },
+                      {
+                        "File": "CSS",
+                        "IncludeRange": "CSS"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Type": "Attribute",
+                  "Attributes": {
+                    "Element": "MethodName"
+                  },
+                  "Properties": {
+                    "AlternativeClose": [
+                      ">",
+                      "<"
+                    ]
+                  },
+                  "TokenRange": {
+                    "Open": " ",
+                    "Close": "="
+                  },
+                  "SubRules": {
+                    "KeyList": [
+                      {
+                        "Type": "Symbol",
+                        "Words": [
+                          "="
+                        ],
+                        "Attributes": {
+                          "Element": "Symbol"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "KeyList": [
+                {
+                  "Name": "HTML Keywords",
+                  "Type": "ReservedWord",
+                  "Words": [
+                    "script",
+                    "style"
+                  ],
+                  "Attributes": {
+                    "Element": "ReservedWord"
+                  }
+                },
+                {
+                  "Type": "Symbol",
+                  "Words": [
+                    ">",
+                    "/",
+                    "=",
+                    "?"
+                  ],
+                  "Attributes": {
+                    "Element": "Symbol"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "KeyList": [
+          {
+            "Type": "Symbol",
+            "Words": [
+              "<",
+              "&&"
+            ],
+            "Attributes": {
+              "Element": "Symbol",
+              "ParentBackground": false
+            }
+          }
+        ]
       }
-   },
-   "CodeFolding": {
-      "Ranges": [
-         {
-            "SkipRegion": [
+    }
+  },
+  "CodeFolding": {
+    "Ranges": [
+      {
+        "SkipRegion": [
 
-            ],
-            "FoldRegion": [
+        ],
+        "FoldRegion": [
 
-            ]
-         },
-         {
-            "Options": {
-               "OpenToken": "<SCRIPT",
-               "CloseToken": "</SCRIPT",
-               "StringEscapeChar": "\\"
-            },
-            "SkipRegion": [
-               {
-                  "File": "JavaScript.json"
-               }
-            ],
-            "FoldRegion": [
-               {
-                  "File": "JavaScript.json"
-               }
-            ]
-         },
-         {
-            "Options": {
-               "OpenToken": "<?",
-               "CloseToken": "?>",
-               "StringEscapeChar": "\\"
-            },
-            "SkipRegion": [
-               {
-                  "File": "PHP.json"
-               }
-            ],
-            "FoldRegion": [
-               {
-                  "File": "PHP.json"
-               }
-            ]
-         }
-      ]
-   },
-   "MatchingPair": {
-      "Pairs": [
-         {
-            "File": "PHP.json"
-         },
-         {
-            "OpenToken": "<",
-            "CloseToken": ">"
-         }
-      ]
-   },
-   "CompletionProposal": {
-      "SkipRegion": [
-         {
-            "File": "PHP.json"
-         },
-         {
-            "OpenToken": "<!--",
-            "CloseToken": "-->",
-            "RegionType": "MultiLine"
-         }
-      ]
-   }
+        ]
+      },
+      {
+        "Options": {
+          "OpenToken": "<SCRIPT",
+          "CloseToken": "</SCRIPT",
+          "StringEscapeChar": "\\"
+        },
+        "SkipRegion": [
+          {
+            "File": "JavaScript"
+          }
+        ],
+        "FoldRegion": [
+          {
+            "File": "JavaScript"
+          }
+        ]
+      },
+      {
+        "Options": {
+          "OpenToken": "<?",
+          "CloseToken": "?>",
+          "StringEscapeChar": "\\"
+        },
+        "SkipRegion": [
+          {
+            "File": "PHP"
+          }
+        ],
+        "FoldRegion": [
+          {
+            "File": "PHP"
+          }
+        ]
+      }
+    ]
+  },
+  "MatchingPair": {
+    "Pairs": [
+      {
+        "File": "PHP"
+      },
+      {
+        "OpenToken": "<",
+        "CloseToken": ">"
+      }
+    ]
+  },
+  "CompletionProposal": {
+    "SkipRegion": [
+      {
+        "File": "PHP"
+      },
+      {
+        "OpenToken": "<!--",
+        "CloseToken": "-->",
+        "RegionType": "MultiLine"
+      }
+    ]
+  }
 }

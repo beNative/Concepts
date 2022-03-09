@@ -1,196 +1,204 @@
 {
-   "Highlighter": {
-      "Info": {
-         "General": {
-            "Version": "1.5.2",
-            "Date": "21.03.2016",
-            "Sample": [
-               "<!-- Hello World in XML -->\r\n",
-               "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n",
-               "<?xml-stylesheet type=\"text/xsl\" href=\"HelloWorld.xsl\" ?>\r\n",
-               "<text>\r\n",
-               "  <string>Hello, world!</string>\r\n",
-               "</text>"
-            ]
-         },
-         "Author": {
-            "Name": "Lasse Rautiainen",
-            "Mail": "lasse@bonecode.com"
-         }
+  "Highlighter": {
+    "Sample": [
+      "<!-- Hello, World! in XML -->\r\n",
+      "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n",
+      "<?xml-stylesheet type=\"text/xsl\" href=\"HelloWorld.xsl\" ?>\r\n",
+      "<text>\r\n",
+      "  <string>Hello, World!</string>\r\n",
+      "</text>"
+    ],
+    "MainRules": {
+      "Attributes": {
+        "Element": "Editor"
       },
-      "MainRules": {
-         "Attributes": {
-            "Element": "Editor"
-         },
-         "SubRules": {
-            "Range": [
-               {
+      "SubRules": {
+        "Range": [
+          {
+            "Type": "BlockComment",
+            "Attributes": {
+              "Element": "Comment"
+            },
+            "TokenRange": {
+              "Open": "<!--",
+              "Close": "-->"
+            }
+          },
+          {
+            "Type": "String",
+            "Attributes": {
+              "Element": "Editor"
+            },
+            "TokenRange": {
+              "Open": "{",
+              "Close": "}"
+            }
+          },
+          {
+            "Name": "XML",
+            "Type": "Tag",
+            "Attributes": {
+              "Element": "ReservedWord"
+            },
+            "TokenRange": {
+              "Open": "<",
+              "Close": ">"
+            },
+            "SubRules": {
+              "Range": [
+                {
                   "Type": "BlockComment",
                   "Attributes": {
-                     "Element": "Comment"
+                    "Element": "Comment"
                   },
                   "TokenRange": {
-                     "Open": "<!--",
-                     "Close": "-->"
+                    "Open": "<!--",
+                    "Close": "-->"
                   }
-               },
-               {
+                },
+                {
                   "Type": "String",
                   "Attributes": {
-                     "Element": "Editor"
+                    "Element": "String"
                   },
                   "TokenRange": {
-                     "Open": "{",
-                     "Close": "}"
+                    "Open": "\"",
+                    "Close": "\""
                   }
-               },
-               {
-                  "Name": "XML",
-                  "Type": "Tag",
+                },
+                {
+                  "Type": "String",
                   "Attributes": {
-                     "Element": "ReservedWord"
+                    "Element": "String"
+                  },
+                  "Properties": {
+                    "CloseOnEndOfLine": true
                   },
                   "TokenRange": {
-                     "Open": "<",
-                     "Close": ">"
+                    "Open": "'",
+                    "Close": "'"
+                  }
+                },
+                {
+                  "Type": "Attribute",
+                  "Attributes": {
+                    "Element": "MethodName"
+                  },
+                  "Properties": {
+                    "AlternativeClose": [
+                      ">",
+                      "<"
+                    ]
+                  },
+                  "TokenRange": {
+                    "Open": " ",
+                    "Close": "="
                   },
                   "SubRules": {
-                     "Range": [
-                        {
-                           "Type": "BlockComment",
-                           "Attributes": {
-                              "Element": "Comment"
-                           },
-                           "TokenRange": {
-                              "Open": "<!--",
-                              "Close": "-->"
-                           }
-                        },
-                        {
-                           "Type": "String",
-                           "Attributes": {
-                              "Element": "String"
-                           },
-                           "TokenRange": {
-                              "Open": "\"",
-                              "Close": "\""
-                           }
-                        },
-                        {
-                           "Type": "String",
-                           "Attributes": {
-                              "Element": "String"
-                           },
-                           "Properties": {
-                              "CloseOnEndOfLine": true
-                           },
-                           "TokenRange": {
-                              "Open": "'",
-                              "Close": "'"
-                           }
-                        },
-                        {
-                           "Type": "Attribute",
-                           "Attributes": {
-                              "Element": "MethodName"
-                           },
-                           "Properties": {
-                              "AlternativeClose": [
-                                 ">",
-                                 "<"
-                              ]
-                           },
-                           "TokenRange": {
-                              "Open": " ",
-                              "Close": "="
-                           },
-                           "SubRules": {
-                              "KeyList": [
-                                 {
-                                    "Type": "Symbol",
-                                    "Words": [
-                                       "="
-                                    ],
-                                    "Attributes": {
-                                       "Element": "Symbol"
-                                    }
-                                 }
-                              ]
-                           }
+                    "KeyList": [
+                      {
+                        "Type": "Symbol",
+                        "Words": [
+                          "="
+                        ],
+                        "Attributes": {
+                          "Element": "Symbol"
                         }
-                     ],
-                     "KeyList": [
-                        {
-                           "Type": "Symbol",
-                           "Words": [
-                              ">",
-                              "/",
-                              "=",
-                              "?"
-                           ],
-                           "Attributes": {
-                              "Element": "Symbol"
-                           }
-                        }
-                     ]
+                      }
+                    ]
                   }
-               }
-            ],
-            "KeyList": [
-               {
+                }
+              ],
+              "KeyList": [
+                {
                   "Type": "Symbol",
                   "Words": [
-                     "<"
+                    ">",
+                    "/",
+                    "=",
+                    "?"
                   ],
                   "Attributes": {
-                     "Element": "Symbol"
+                    "Element": "Symbol"
                   }
-               }
+                }
+              ]
+            }
+          }
+        ],
+        "KeyList": [
+          {
+            "Type": "Symbol",
+            "Words": [
+              "<"
             ],
-            "Set": [
-               {
-                  "Type": "Number",
-                  "Symbols": "0123456789",
-                  "Attributes": {
-                     "Element": "Number"
-                  }
-               },
-               {
-                  "Type": "Float",
-                  "Symbols": ".0123456789",
-                  "Attributes": {
-                     "Element": "Number"
-                  }
-               }
-            ]
-         }
+            "Attributes": {
+              "Element": "Symbol"
+            }
+          }
+        ]
       }
-   },
-   "MatchingPair": {
-      "Pairs": [
-         {
-            "OpenToken": "<",
-            "CloseToken": ">"
-         }
-      ]
-   },
-   "CompletionProposal": {
-      "SkipRegion": [
-         {
+    }
+  },
+  "CodeFolding": {
+    "Ranges": [
+      {
+        "Options": {
+          "FoldTags": "true"
+        },
+        "SkipRegion": [
+          {
             "OpenToken": "'",
             "CloseToken": "'",
-            "RegionType": "String"
-         },
-         {
+            "RegionType": "SingleLineString"
+          },
+          {
             "OpenToken": "\"",
             "CloseToken": "\"",
-            "RegionType": "String"
-         },
-         {
+            "RegionType": "SingleLineString"
+          },
+          {
             "OpenToken": "<!--",
             "CloseToken": "-->",
             "RegionType": "MultiLine"
-         }
-      ]
-   }
+          }
+        ]
+      }
+    ]
+  },
+  "MatchingPair": {
+    "Pairs": [
+      {
+        "OpenToken": "'",
+        "CloseToken": "'"
+      },
+      {
+        "OpenToken": "\"",
+        "CloseToken": "\""
+      },
+      {
+        "OpenToken": "<",
+        "CloseToken": ">"
+      }
+    ]
+  },
+  "CompletionProposal": {
+    "SkipRegion": [
+      {
+        "OpenToken": "'",
+        "CloseToken": "'",
+        "RegionType": "SingleLineString"
+      },
+      {
+        "OpenToken": "\"",
+        "CloseToken": "\"",
+        "RegionType": "SingleLineString"
+      },
+      {
+        "OpenToken": "<!--",
+        "CloseToken": "-->",
+        "RegionType": "MultiLine"
+      }
+    ]
+  }
 }

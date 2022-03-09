@@ -116,8 +116,8 @@ uses
   Concepts.ChromeTabs.Form,
   {$ENDIF}
 
-  {$IFDEF BCEDITOR}
-  Concepts.BCEditor.Form,
+  {$IFDEF TEXTEDITOR}
+  Concepts.TextEditor.Form,
   {$ENDIF}
 
   {$IFDEF DDETOURS}
@@ -535,12 +535,12 @@ begin
   );
   {$ENDIF}
 
-  {$IFDEF BCEDITOR}
+  {$IFDEF TEXTEDITOR}
   ConceptManager.Register(
-    TfrmBCEditor,
-    'TBCEditor control',
-    'BCEditor',
-    'TBCEditor control'
+    TfrmTextEditor,
+    'TTextEditor control',
+    'TextEditor',
+    'TTextEditor control'
   );
   {$ENDIF}
 

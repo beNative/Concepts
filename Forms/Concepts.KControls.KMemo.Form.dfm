@@ -41,6 +41,26 @@ object frmKMemo: TfrmKMemo
     BevelOuter = bvNone
     Color = clWhite
     TabOrder = 0
+    object KMemo: TKMemo
+      Left = 0
+      Top = 0
+      Width = 443
+      Height = 578
+      Align = alClient
+      BorderStyle = bsNone
+      ContentPadding.Left = 5
+      ContentPadding.Top = 5
+      ContentPadding.Right = 5
+      ContentPadding.Bottom = 5
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      Visible = True
+    end
   end
   object pnlTree: TPanel
     Left = 153

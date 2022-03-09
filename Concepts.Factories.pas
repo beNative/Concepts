@@ -43,8 +43,8 @@ uses
   cxGridCustomView, cxTLData,
   {$ENDIF}
 
-  {$IFDEF BCEDITOR}
-  BCEditor.Editor.Base, BCEditor.Editor,
+  {$IFDEF TEXTEDITOR}
+  TextEditor,
   {$ENDIF}
 
   Concepts.Types.Contact;
@@ -117,14 +117,14 @@ type
       ASpecial: Boolean = False
     ): TContact; static;
 
-    {$IFDEF BCEDITOR}
-    class function CreateBCEditor(
+    {$IFDEF TEXTEDITOR}
+    class function CreateTextEditor(
       AOwner             : TComponent;
       AParent            : TWinControl;
       const AFileName    : string = '';
       const AHighlighter : string = '';
-      const AColorMap    : string = ''
-    ): TBCEditor; static;
+      const ATheme       : string = ''
+    ): TTextEditor; static;
     {$ENDIF}
   end;
 
@@ -160,7 +160,7 @@ uses
   System.Rtti, System.TypInfo,
   Vcl.Forms, Vcl.Graphics,
 
-  BCEditor.Types,
+  TextEditor.Types,
 
   DDuce.RandomData,
 
@@ -464,35 +464,35 @@ begin
   Result := VST;
 end;
 
-{$IFDEF BCEDITOR}
-class function TConceptFactories.CreateBCEditor(AOwner: TComponent;
-  AParent: TWinControl; const AFileName : string; const AHighlighter: string;
-  const AColorMap: string): TBCEditor;
+{$IFDEF TEXTEDITOR}
+class function TConceptFactories.CreateTextEditor(AOwner: TComponent;
+  AParent: TWinControl; const AFileName: string; const AHighlighter: string;
+  const ATheme: string): TTextEditor;
 var
-  BCE : TBCEditor;
+  LEditor : TTextEditor;
 begin
-  BCE := TBCEditor.Create(AOwner);
-  BCE.Parent := AParent;
-  BCE.Align := alClient;
-  BCE.AlignWithMargins := True;
+  LEditor := TTextEditor.Create(AOwner);
+  LEditor.Parent := AParent;
+  LEditor.Align := alClient;
+  LEditor.AlignWithMargins := True;
 
   if AFileName <> '' then
-    BCE.LoadFromFile(AFileName);
+    LEditor.LoadFromFile(AFileName);
   if AHighlighter <> '' then
-    BCE.Highlighter.LoadFromFile(AHighlighter + '.json');
-  if AColorMap <> '' then
-    BCE.Highlighter.Colors.LoadFromFile(AColorMap + '.json');
+    LEditor.Highlighter.LoadFromFile(AHighlighter + '.json');
+  if ATheme <> '' then
+    LEditor.Highlighter.Colors.LoadFromFile(ATheme + '.json');
 
-  BCE.CodeFolding.Options := BCE.CodeFolding.Options + [cfoFoldMultilineComments];
+  LEditor.CodeFolding.Options := LEditor.CodeFolding.Options + [cfoFoldMultilineComments];
 
-  BCE.Tabs.Options := BCE.Tabs.Options + [toPreviousLineIndent];
-  BCE.Selection.Options := BCE.Selection.Options + [soALTSetsColumnMode];
+  LEditor.Tabs.Options := LEditor.Tabs.Options + [toPreviousLineIndent];
+  LEditor.Selection.Options := LEditor.Selection.Options + [soALTSetsColumnMode];
 
-  BCE.Font.Name := 'Consolas';
-  BCE.CodeFolding.Visible := True;
-  BCE.URIOpener := True;
+  LEditor.Font.Name := 'Consolas';
+  LEditor.CodeFolding.Visible := True;
+  LEditor.URIOpener := True;
 
-  Result := BCE;
+  Result := LEditor;
 end;
 {$ENDIF}
 

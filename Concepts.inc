@@ -18,7 +18,7 @@
   dependencies. }
 
 {$DEFINE KCONTROLS}      // KControls
-{$DEFINE BCEDITOR}      // TBCEditor control
+{$DEFINE TEXTEDITOR}    // TTextEditor control
 {$DEFINE CHROMETABS}    // TChromeTabs control
 {$DEFINE DDETOURS}      // DDetours unit
 {$DEFINE DDUCE}         // DDuce - http://github.com/beNative/dduce
