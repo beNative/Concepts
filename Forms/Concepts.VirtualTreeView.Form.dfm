@@ -3,7 +3,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
   Top = 0
   Caption = 'Virtual treeview'
   ClientHeight = 678
-  ClientWidth = 1342
+  ClientWidth = 1341
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -26,7 +26,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
   object sbrMain: TStatusBar
     Left = 0
     Top = 659
-    Width = 1342
+    Width = 1341
     Height = 19
     Panels = <>
   end
@@ -42,7 +42,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
   object pnlMain: TPanel
     Left = 337
     Top = 34
-    Width = 1005
+    Width = 1004
     Height = 625
     Align = alClient
     BevelOuter = bvNone
@@ -50,16 +50,17 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     object splHorizontal: TSplitter
       Left = 0
       Top = 288
-      Width = 1005
+      Width = 1004
       Height = 8
       Cursor = crVSplit
       Align = alTop
       ExplicitTop = 287
+      ExplicitWidth = 1005
     end
     object pnlColumnSettings: TGridPanel
       Left = 0
       Top = 296
-      Width = 1005
+      Width = 1004
       Height = 329
       Align = alClient
       BevelOuter = bvNone
@@ -133,7 +134,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
       object pnlCol0: TPanel
         Left = 0
         Top = 0
-        Width = 144
+        Width = 143
         Height = 20
         Align = alClient
         BevelOuter = bvNone
@@ -146,7 +147,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         TabOrder = 0
       end
       object pnlCol1: TPanel
-        Left = 144
+        Left = 143
         Top = 0
         Width = 143
         Height = 20
@@ -161,9 +162,9 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         TabOrder = 1
       end
       object pnlCol2: TPanel
-        Left = 287
+        Left = 286
         Top = 0
-        Width = 144
+        Width = 143
         Height = 20
         Align = alClient
         BevelOuter = bvNone
@@ -176,7 +177,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         TabOrder = 2
       end
       object pnlCol3: TPanel
-        Left = 431
+        Left = 429
         Top = 0
         Width = 143
         Height = 20
@@ -191,9 +192,9 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         TabOrder = 3
       end
       object pnlCol4: TPanel
-        Left = 574
+        Left = 572
         Top = 0
-        Width = 144
+        Width = 143
         Height = 20
         Align = alClient
         BevelOuter = bvNone
@@ -206,7 +207,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         TabOrder = 4
       end
       object pnlCol5: TPanel
-        Left = 718
+        Left = 715
         Top = 0
         Width = 143
         Height = 20
@@ -221,9 +222,9 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         TabOrder = 5
       end
       object pnlCol6: TPanel
-        Left = 861
+        Left = 858
         Top = 0
-        Width = 144
+        Width = 146
         Height = 20
         Align = alClient
         BevelOuter = bvNone
@@ -239,7 +240,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     object pnlTreeView: TPanel
       Left = 0
       Top = 0
-      Width = 1005
+      Width = 1004
       Height = 288
       Align = alTop
       BevelOuter = bvNone
@@ -250,7 +251,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 1336
+    Width = 1335
     Height = 28
     Align = alTop
     BevelOuter = bvNone
@@ -258,12 +259,12 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     ParentBackground = False
     TabOrder = 3
     DesignSize = (
-      1336
+      1335
       28)
     object lblHeader: TLabel
       Left = 0
       Top = 0
-      Width = 1041
+      Width = 361
       Height = 28
       Align = alLeft
       Alignment = taCenter
@@ -280,7 +281,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
       WordWrap = True
     end
     object lblFocusedNode: TLabel
-      Left = 1251
+      Left = 1250
       Top = 7
       Width = 75
       Height = 13
@@ -291,13 +292,36 @@ object frmVirtualTreeView: TfrmVirtualTreeView
       ExplicitLeft = 1257
     end
     object btnAutoSizeColumns: TButton
-      Left = 1046
-      Top = 2
-      Width = 185
+      Left = 608
+      Top = 0
+      Width = 120
       Height = 25
       Action = actAutoSizeColumns
-      Anchors = [akTop, akRight]
       TabOrder = 0
+    end
+    object btnSelectFirstNode: TButton
+      Left = 356
+      Top = 0
+      Width = 120
+      Height = 25
+      Action = actSelectFirstNode
+      TabOrder = 1
+    end
+    object btnSelectLastNode: TButton
+      Left = 482
+      Top = 0
+      Width = 120
+      Height = 25
+      Action = actSelectLastNode
+      TabOrder = 2
+    end
+    object btnListHeights: TButton
+      Left = 734
+      Top = 0
+      Width = 120
+      Height = 25
+      Action = actListHeights
+      TabOrder = 3
     end
   end
   object aclMain: TActionList
@@ -306,6 +330,18 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     object actAutoSizeColumns: TAction
       Caption = 'AutoSizeColumns'
       OnExecute = actAutoSizeColumnsExecute
+    end
+    object actSelectFirstNode: TAction
+      Caption = 'Select First Node'
+      OnExecute = actSelectFirstNodeExecute
+    end
+    object actSelectLastNode: TAction
+      Caption = 'Select Last Node'
+      OnExecute = actSelectLastNodeExecute
+    end
+    object actListHeights: TAction
+      Caption = 'List Heights'
+      OnExecute = actListHeightsExecute
     end
   end
 end

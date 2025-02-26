@@ -1,3 +1,22 @@
+{
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+}
+
+{$I Concepts.inc}
+
+
 unit Concepts.VirtualTreeView.Form;
 
 interface
@@ -5,6 +24,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
+  System.Generics.Collections,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls,
   Vcl.StdCtrls, Vcl.ActnList,
 
@@ -47,15 +67,25 @@ type
     sbrMain            : TStatusBar;
     splHorizontal      : TSplitter;
     splVertical        : TSplitter;
+    actSelectFirstNode : TAction;
+    actSelectLastNode  : TAction;
+    btnSelectFirstNode : TButton;
+    btnSelectLastNode  : TButton;
+    actListHeights     : TAction;
+    btnListHeights     : TButton;
     {$ENDREGION}
 
     procedure FormResize(Sender: TObject);
 
     procedure actAutoSizeColumnsExecute(Sender: TObject);
+    procedure actSelectFirstNodeExecute(Sender: TObject);
+    procedure actSelectLastNodeExecute(Sender: TObject);
+    procedure actListHeightsExecute(Sender: TObject);
 
   private
     FObjectInspector   : TzObjectInspector;
     FVirtualStringTree : TVirtualStringTree;
+    FHeights           : TList<Integer>;
 
     {$REGION 'event handlers'}
     function FObjectInspectorBeforeAddItem(
@@ -120,7 +150,6 @@ type
       Column       : TColumnIndex;
       CellRect     : TRect
     );
-
     procedure FVirtualStringTreeBeforeDrawTreeLine(
       Sender   : TBaseVirtualTree;
       Node     : PVirtualNode;
@@ -239,11 +268,16 @@ type
     procedure CreateInspectors;
     procedure InitializeTree;
     procedure UpdateActions; override;
+    procedure LogNodeHeights;
 
   public
     procedure AfterConstruction; override;
+    destructor Destroy; override;
 
   end;
+
+const
+  NODE_COUNT = 100000;
 
 implementation
 
@@ -289,18 +323,20 @@ const
   ];
 
 {$REGION 'construction and destruction'}
-procedure TfrmVirtualTreeView.actAutoSizeColumnsExecute(Sender: TObject);
-begin
-  FVirtualStringTree.Header.AutoFitColumns(
-    True,
-    smaUseColumnOption
-  );
-end;
-
 procedure TfrmVirtualTreeView.AfterConstruction;
+var
+  I: Integer;
 begin
   inherited AfterConstruction;
   FVirtualStringTree := TVirtualStringTreeFactory.CreateList(Self, pnlTreeView);
+
+  FHeights := TList<Integer>.Create;
+  // Ensure randomness
+  Randomize;
+  // Fill the list with 200 random numbers (range 1 to 1000, for example)
+  for I := 0 to NODE_COUNT - 1 do
+    FHeights.Add(Random(100) + 10); // Random numbers between 1 and 1000
+
   InitializeTree;
   FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
   FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
@@ -327,6 +363,42 @@ begin
     P := pnlColumnSettings.ControlCollection.Controls[I, 0] as TPanel;
     P.Caption := FVirtualStringTree.Header.Columns[I].Text;
   end;
+end;
+destructor TfrmVirtualTreeView.Destroy;
+begin
+  inherited;
+  FHeights.Free;
+end;
+{$ENDREGION}
+
+{$REGION 'action handlers'}
+procedure TfrmVirtualTreeView.actAutoSizeColumnsExecute(Sender: TObject);
+begin
+  FVirtualStringTree.Header.AutoFitColumns(
+    True,
+    smaUseColumnOption
+  );
+end;
+
+procedure TfrmVirtualTreeView.actSelectFirstNodeExecute(Sender: TObject);
+begin
+  FVirtualStringTree.FocusedNode := FVirtualStringTree.GetFirst;
+  FVirtualStringTree.Selected[FVirtualStringTree.FocusedNode] := True;
+end;
+
+procedure TfrmVirtualTreeView.actSelectLastNodeExecute(Sender: TObject);
+begin
+  FVirtualStringTree.FocusedNode := FVirtualStringTree.GetLast;
+  FVirtualStringTree.Selected[FVirtualStringTree.FocusedNode] := True;
+  FVirtualStringTree.TreeOptions.MiscOptions :=
+    FVirtualStringTree.TreeOptions.MiscOptions - [toVariableNodeHeight];
+  //toVariableNodeHeight
+  //FVirtualStringTree.OnMeasureItem := nil;
+end;
+
+procedure TfrmVirtualTreeView.actListHeightsExecute(Sender: TObject);
+begin
+  LogNodeHeights;
 end;
 {$ENDREGION}
 
@@ -477,6 +549,7 @@ procedure TfrmVirtualTreeView.FVirtualStringTreeInitNode(Sender: TBaseVirtualTre
 begin
   Logger.IncCounter('OnInitNode');
   Node.SetData(TConceptFactories.CreateRandomContact);
+  Node.States := Node.States + [vsMultiline] - [vsHeightMeasured];
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeFreeNode(Sender: TBaseVirtualTree;
@@ -556,7 +629,10 @@ procedure TfrmVirtualTreeView.FVirtualStringTreeMeasureItem(
   Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
   var NodeHeight: Integer);
 begin
+  //Logger.AddCheckPoint('OnMeasureItem');
+//  NodeHeight := FHeights[Node.Index];
   Logger.IncCounter('OnMeasureItem');
+  Node.States := Node.States + [vsHeightMeasured];
 end;
 
 procedure TfrmVirtualTreeView.FVirtualStringTreeMouseUp(Sender: TObject;
@@ -725,9 +801,23 @@ begin
       Text := 'Active';
     end;
     ConnectEventHandlers;
-    RootNodeCount := 2;
+    RootNodeCount := NODE_COUNT;
+    DefaultNodeHeight := 18;
     Header.AutoFitColumns;
     Header.Options := Header.Options + [hoOwnerDraw];
+  end;
+end;
+
+procedure TfrmVirtualTreeView.LogNodeHeights;
+var
+  LNode : PVirtualNode;
+begin
+  LNode := FVirtualStringTree.GetFirst;
+  while Assigned(LNode) do
+  begin
+    //Logger.Info(Format('Node %d Height: %d', [LNode.Index, LNode.NodeHeight]));
+    Logger.Send('States', TValue.From(LNode.States));
+    LNode := FVirtualStringTree.GetNext(LNode);
   end;
 end;
 
@@ -737,10 +827,6 @@ begin
   if Assigned(FVirtualStringTree) and Assigned(FVirtualStringTree.FocusedNode) then
   begin
     lblFocusedNode.Caption := FVirtualStringTree.FocusedNode.Index.ToString;
-  end
-  else
-  begin
-    lblFocusedNode.Caption := 'None';
   end;
 end;
 {$ENDREGION}
