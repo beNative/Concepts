@@ -150,19 +150,19 @@ begin
 end;
 
 function TRttiMemberTemplate.GetItems(const Item: TRttiMember): IObjectList;
-//var
-//  EP : Enumerable<TRttiParameter>;
+var
+  EP : IEnumerable<TRttiParameter>;
 begin
-//  Logger.Track('TRttiMemberTemplate.GetItems');
-//  if Item is TRttiMethod then
-//  begin
-//    EP := TRttiMethod(Item).Parameters;
-//    Result :=  EP.ToList as IObjectList;
-//  end
-//  else
-//  begin
-//    Result := inherited GetItems(Item);
-//  end;
+  Logger.Track('TRttiMemberTemplate.GetItems');
+  if Item is TRttiMethod then
+  begin
+    EP := TRttiMethod(Item).Parameters;
+    Result :=  EP as IObjectList;
+  end
+  else
+  begin
+    Result := inherited GetItems(Item);
+  end;
 end;
 
 function TRttiMemberTemplate.GetValue(const Item: TRttiMember;

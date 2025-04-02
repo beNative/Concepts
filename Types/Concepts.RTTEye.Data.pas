@@ -200,10 +200,7 @@ begin
   begin
     FMembers.Add(TMemberData.Create(IP));
   end;
-
-
 end;
-
 
 function TTypeData.GetMembers: IObjectList;
 begin
