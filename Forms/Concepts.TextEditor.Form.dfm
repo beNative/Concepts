@@ -231,7 +231,7 @@
                 object btnSaveColorMap: TToolButton
                   Left = 0
                   Top = 0
-                  Action = actSaveColorMap
+                  Action = actSaveTheme
                 end
               end
             end
@@ -297,15 +297,13 @@
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 1179
-      Height = 26
+      Width = 273
+      Height = 13
       Align = alClient
       Alignment = taCenter
       Caption = 'This form demonstrates the TTextEditor control.'
       Layout = tlCenter
       WordWrap = True
-      ExplicitWidth = 273
-      ExplicitHeight = 13
     end
   end
   object aclMain: TActionList
@@ -313,16 +311,16 @@
     Left = 488
     Top = 320
     object actSaveHighlighter: TAction
-      Caption = 'actSaveHighlighter'
+      Caption = 'Save highlighter'
       ImageIndex = 336
       ShortCut = 16467
       OnExecute = actSaveHighlighterExecute
     end
-    object actSaveColorMap: TAction
-      Caption = 'actSaveColorMap'
+    object actSaveTheme: TAction
+      Caption = 'Save theme'
       ImageIndex = 336
       ShortCut = 16467
-      OnExecute = actSaveColorMapExecute
+      OnExecute = actSaveThemeExecute
     end
     object actCollapseAll: TAction
       Caption = 'Collapse all'

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -119,14 +119,11 @@ begin
   for I := 0 to ComponentCount - 1 do
   begin
     C := Components[I];
-    //FObjectHost.AddObject(C, C.Name);
     cbxControls.AddItem(Format('%s: %s', [C.Name, C.ClassName]), C);
   end;
   for I := 0 to bgMain.Images.Count - 1 do
     with bgMain.Items.Add do
       ImageIndex := I;
-//  FObjectHost.AddObject(FObjectInspector, 'ObjectInspector');
-//  FObjectHost.AddObject(FContact, 'FContact');
 
   FObjectInspector.Component      := FObjectInspector;
   FObjectInspector.SplitterPos    := FObjectInspector.Width div 2;
@@ -146,8 +143,14 @@ end;
 {$REGION 'event handlers'}
 function TfrmzObjectInspector.FObjectInspectorBeforeAddItem(Sender: TControl;
   PItem: PPropItem): Boolean;
+var
+  LName : string;
 begin
-  Result := True;
+  LName := PItem.QualifiedName;
+  LName := LName.Split(['.'], 2)[1];
+  Result := not LName.Contains('ComObject')
+    and (not (PItem.Prop.PropertyType is TRttiMethodType));
+
   if PItem.Component = FContact then
     Logger.Send('PItem', TValue.From(PItem^));
 end;
@@ -166,9 +169,7 @@ begin
   CBX := Sender as TComboBox;
   if CBX.ItemIndex > -1 then
   begin
-    // this assignment will destroy the assigned ObjectHost object!!
     FObjectInspector.Component := CBX.Items.Objects[CBX.ItemIndex];
-    //FObjectHost := nil;
     FObjectInspector.SortByCategory := False;
   end;
 end;

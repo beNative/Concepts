@@ -10,10 +10,8 @@ object frmMQTTNode: TfrmMQTTNode
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   ShowHint = True
   OnClose = FormClose
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlLogging: TPanel
     Left = 0
@@ -23,6 +21,8 @@ object frmMQTTNode: TfrmMQTTNode
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 385
+    ExplicitHeight = 175
   end
   object pgcMessage: TPageControl
     Left = 0
@@ -32,6 +32,7 @@ object frmMQTTNode: TfrmMQTTNode
     ActivePage = tsEndpoints
     Align = alTop
     TabOrder = 1
+    ExplicitWidth = 385
     object tsEndpoints: TTabSheet
       Caption = 'MQTT broker'
       ImageIndex = 3
@@ -45,7 +46,7 @@ object frmMQTTNode: TfrmMQTTNode
         Height = 21
         Alignment = taCenter
         EditLabel.Width = 44
-        EditLabel.Height = 13
+        EditLabel.Height = 21
         EditLabel.Caption = 'Address:'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -95,6 +96,7 @@ object frmMQTTNode: TfrmMQTTNode
         Caption = 'Autoconnect to broker on startup'
         TabOrder = 4
         WordWrap = True
+        ExplicitWidth = 114
       end
       object edtPort: TLabeledEdit
         Left = 280
@@ -103,7 +105,7 @@ object frmMQTTNode: TfrmMQTTNode
         Height = 21
         Alignment = taCenter
         EditLabel.Width = 24
-        EditLabel.Height = 13
+        EditLabel.Height = 21
         EditLabel.Caption = 'Port:'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -129,11 +131,12 @@ object frmMQTTNode: TfrmMQTTNode
         Width = 188
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        EditLabel.Width = 30
-        EditLabel.Height = 13
+        EditLabel.Width = 29
+        EditLabel.Height = 21
         EditLabel.Caption = 'Topic:'
         LabelPosition = lpLeft
         TabOrder = 0
+        Text = ''
       end
       object lbxTopics: TListBox
         Left = 3
@@ -229,7 +232,7 @@ object frmMQTTNode: TfrmMQTTNode
         Alignment = taCenter
         Anchors = [akTop, akRight]
         EditLabel.Width = 45
-        EditLabel.Height = 13
+        EditLabel.Height = 21
         EditLabel.Caption = 'Counter:'
         LabelPosition = lpLeft
         NumbersOnly = True
@@ -252,11 +255,12 @@ object frmMQTTNode: TfrmMQTTNode
         Width = 225
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        EditLabel.Width = 27
-        EditLabel.Height = 13
+        EditLabel.Width = 26
+        EditLabel.Height = 21
         EditLabel.Caption = 'Topic'
         LabelPosition = lpLeft
         TabOrder = 4
+        Text = ''
       end
       object btnClearPublishList: TButton
         Left = 261
@@ -315,7 +319,7 @@ object frmMQTTNode: TfrmMQTTNode
     Left = 130
     Top = 136
     Bitmap = {
-      494C010106000800080010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
+      494C010106000800040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002000000001002000000000000020
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000001001B09532ED308512ED100000010000000000000

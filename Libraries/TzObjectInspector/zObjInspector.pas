@@ -2026,16 +2026,19 @@ var
   R: TRect;
 begin
   Result := TRect.Empty;
-  PItem := FVisibleItems[Index];
-  w := FValueManager.GetExtraRectWidth(PItem);
-  if w > 0 then
+  if Items.Count > 0 then
   begin
-    R := ValueRect[Index];
-    Result := Rect(0, 0, w, w);
-    Result := RectVCenter(Result, R);
-    Result.Width := w;
-    Result.Height := w;
-    OffsetRect(Result, FSepTxtDis, 0);
+    PItem := FVisibleItems[Index];
+    w := FValueManager.GetExtraRectWidth(PItem);
+    if w > 0 then
+    begin
+      R := ValueRect[Index];
+      Result := Rect(0, 0, w, w);
+      Result := RectVCenter(Result, R);
+      Result.Width := w;
+      Result.Height := w;
+      OffsetRect(Result, FSepTxtDis, 0);
+    end;
   end;
 end;
 
@@ -3080,7 +3083,7 @@ begin
     end else begin
       if not FInspector.ValueManager.ValueHasOpenProbabilities(FPropItem) then
       begin
-        raise InvalidPropValueError.CreateRes(@SInvalidPropValueErr);
+         raise InvalidPropValueError.CreateRes(@SInvalidPropValueErr);
         Exit;
       end;
     end

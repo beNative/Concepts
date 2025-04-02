@@ -11,11 +11,9 @@ object frmVclStyles: TfrmVclStyles
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   DesignSize = (
     1189
     486)
-  PixelsPerInch = 96
   TextHeight = 13
   object lbl1: TLabel
     Left = 0
@@ -33,6 +31,7 @@ object frmVclStyles: TfrmVclStyles
     Anchors = [akLeft, akBottom]
     Caption = 'Apply Style'
     TabOrder = 0
+    ExplicitTop = 441
   end
   object lv1: TListView
     Left = 0
@@ -77,6 +76,8 @@ object frmVclStyles: TfrmVclStyles
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitWidth = 519
+    ExplicitHeight = 458
   end
   object actmgr1: TActionManager
     Left = 288

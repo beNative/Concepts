@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -488,7 +488,7 @@ begin
   LEditor.Tabs.Options := LEditor.Tabs.Options + [toPreviousLineIndent];
   LEditor.Selection.Options := LEditor.Selection.Options + [soALTSetsColumnMode];
 
-  LEditor.Font.Name := 'Consolas';
+//  LEditor.Font.Name := 'Consolas';
   LEditor.CodeFolding.Visible := True;
   LEditor.URIOpener := True;
 

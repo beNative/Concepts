@@ -2,8 +2,8 @@ object frmKMemo: TfrmKMemo
   Left = 0
   Top = 0
   Caption = 'KMemo'
-  ClientHeight = 578
-  ClientWidth = 1224
+  ClientHeight = 929
+  ClientWidth = 1504
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -11,41 +11,41 @@ object frmKMemo: TfrmKMemo
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   ShowHint = True
-  PixelsPerInch = 96
   TextHeight = 13
   object splVertical: TSplitter
-    Left = 776
+    Left = 1113
     Top = 0
     Width = 5
-    Height = 578
+    Height = 929
     ExplicitLeft = 460
     ExplicitHeight = 726
   end
   object spl1: TSplitter
-    Left = 462
+    Left = 393
     Top = 0
     Width = 5
-    Height = 578
+    Height = 929
     ExplicitLeft = 376
     ExplicitTop = 48
     ExplicitHeight = 933
   end
   object pnlRichEditor: TPanel
-    Left = 781
+    Left = 1118
     Top = 0
-    Width = 443
-    Height = 578
+    Width = 386
+    Height = 929
     Align = alClient
     BevelOuter = bvNone
     Color = clWhite
     TabOrder = 0
+    ExplicitWidth = 380
+    ExplicitHeight = 912
     object KMemo: TKMemo
       Left = 0
       Top = 0
-      Width = 443
-      Height = 578
+      Width = 386
+      Height = 929
       Align = alClient
       BorderStyle = bsNone
       ContentPadding.Left = 5
@@ -60,25 +60,29 @@ object frmKMemo: TfrmKMemo
       ParentFont = False
       TabOrder = 0
       Visible = True
+      ExplicitWidth = 380
+      ExplicitHeight = 912
     end
   end
   object pnlTree: TPanel
     Left = 153
     Top = 0
-    Width = 309
-    Height = 578
+    Width = 240
+    Height = 929
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitHeight = 912
   end
   object pnlButtons: TPanel
     Left = 0
     Top = 0
     Width = 153
-    Height = 578
+    Height = 929
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitHeight = 912
     object btnDeleteObject: TButton
       Left = 3
       Top = 394
@@ -184,14 +188,15 @@ object frmKMemo: TfrmKMemo
       Left = 0
       Top = 0
       Width = 153
-      Height = 578
+      Height = 929
       Align = alLeft
       BevelOuter = bvNone
       ParentBackground = False
       TabOrder = 10
+      ExplicitHeight = 912
       object Button1: TButton
         Left = 1
-        Top = 192
+        Top = 206
         Width = 150
         Height = 25
         Action = actDeleteBlock
@@ -202,7 +207,7 @@ object frmKMemo: TfrmKMemo
       end
       object Button2: TButton
         Left = 1
-        Top = 220
+        Top = 236
         Width = 150
         Height = 25
         Action = actClear
@@ -211,7 +216,7 @@ object frmKMemo: TfrmKMemo
       end
       object Button3: TButton
         Left = 1
-        Top = 269
+        Top = 265
         Width = 150
         Height = 25
         Action = actRebuildTree
@@ -222,7 +227,7 @@ object frmKMemo: TfrmKMemo
       end
       object Button4: TButton
         Left = 1
-        Top = 147
+        Top = 177
         Width = 150
         Height = 25
         Action = actAddTable
@@ -233,7 +238,7 @@ object frmKMemo: TfrmKMemo
       end
       object Button5: TButton
         Left = 1
-        Top = 118
+        Top = 119
         Width = 150
         Height = 25
         Action = actAddParagraph
@@ -296,7 +301,7 @@ object frmKMemo: TfrmKMemo
       end
       object btnOpenFile: TButton
         Left = 1
-        Top = 296
+        Top = 294
         Width = 150
         Height = 25
         Action = actOpenFile
@@ -316,33 +321,251 @@ object frmKMemo: TfrmKMemo
         Images = imlMain
         TabOrder = 11
       end
+      object Button11: TButton
+        Left = 1
+        Top = 148
+        Width = 150
+        Height = 25
+        Action = actAddBulletList
+        ImageMargins.Left = 6
+        ImageMargins.Top = 3
+        Images = imlMain
+        TabOrder = 12
+      end
     end
   end
   object pnlInspectors: TPanel
-    Left = 467
+    Left = 398
     Top = 0
-    Width = 309
-    Height = 578
+    Width = 715
+    Height = 929
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 3
-    object pnlTop: TPanel
+    ExplicitHeight = 912
+    object pnlGrid: TGridPanel
       Left = 0
       Top = 0
-      Width = 309
-      Height = 294
-      Align = alTop
-      BevelOuter = bvNone
-      TabOrder = 0
-    end
-    object pnlBottom: TPanel
-      Left = 0
-      Top = 294
-      Width = 309
-      Height = 284
+      Width = 715
+      Height = 929
       Align = alClient
       BevelOuter = bvNone
-      TabOrder = 1
+      Caption = 'pnlGrid'
+      ColumnCollection = <
+        item
+          Value = 33.333333333333340000
+        end
+        item
+          Value = 33.333333333333340000
+        end
+        item
+          Value = 33.333333333333310000
+        end>
+      ControlCollection = <
+        item
+          Column = 0
+          Control = pnlInspector00
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = pnlInspector01
+          Row = 0
+        end
+        item
+          Column = 0
+          Control = pnlInspector10
+          Row = 1
+        end
+        item
+          Column = 1
+          Control = pnlInspector11
+          Row = 1
+        end
+        item
+          Column = 0
+          Control = pnlInspector20
+          Row = 2
+        end
+        item
+          Column = 1
+          Control = pnlInspector21
+          Row = 2
+        end
+        item
+          Column = 2
+          Control = pnlInspector02
+          Row = 0
+        end
+        item
+          Column = 2
+          Control = pnlInspector12
+          Row = 1
+        end>
+      RowCollection = <
+        item
+          Value = 33.333333333333340000
+        end
+        item
+          Value = 33.333333333333340000
+        end
+        item
+          Value = 33.333333333333310000
+        end>
+      TabOrder = 0
+      ExplicitHeight = 912
+      object pnlInspector00: TPanel
+        Left = 0
+        Top = 0
+        Width = 238
+        Height = 310
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 0
+        object pnlSelectedBlockTitle: TPanel
+          Left = 0
+          Top = 0
+          Width = 238
+          Height = 26
+          Align = alTop
+          BevelOuter = bvNone
+          Caption = 'SelectedBlock'
+          TabOrder = 0
+        end
+      end
+      object pnlInspector01: TPanel
+        Left = 238
+        Top = 0
+        Width = 239
+        Height = 310
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 1
+        object pnlActiveBlockTitle: TPanel
+          Left = 0
+          Top = 0
+          Width = 239
+          Height = 26
+          Align = alTop
+          BevelOuter = bvNone
+          Caption = 'ActiveBlock'
+          TabOrder = 0
+        end
+      end
+      object pnlInspector10: TPanel
+        Left = 0
+        Top = 310
+        Width = 238
+        Height = 309
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 2
+        object pnlBlocksTitle: TPanel
+          Left = 0
+          Top = 0
+          Width = 238
+          Height = 25
+          Align = alTop
+          BevelOuter = bvNone
+          Caption = 'Blocks'
+          TabOrder = 0
+        end
+      end
+      object pnlInspector11: TPanel
+        Left = 238
+        Top = 310
+        Width = 239
+        Height = 309
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 3
+        object pnlActiveBlocksTitle: TPanel
+          Left = 0
+          Top = 0
+          Width = 239
+          Height = 25
+          Align = alTop
+          BevelOuter = bvNone
+          Caption = 'ActiveBlocks'
+          TabOrder = 0
+        end
+      end
+      object pnlInspector20: TPanel
+        Left = 0
+        Top = 619
+        Width = 238
+        Height = 310
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 4
+        object pnlTextStyleTitle: TPanel
+          Left = 0
+          Top = 0
+          Width = 238
+          Height = 25
+          Align = alTop
+          BevelOuter = bvNone
+          Caption = 'TextStyle'
+          TabOrder = 0
+        end
+      end
+      object pnlInspector21: TPanel
+        Left = 238
+        Top = 619
+        Width = 239
+        Height = 310
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 5
+        object pnlParaStyleTitle: TPanel
+          Left = 0
+          Top = 0
+          Width = 239
+          Height = 25
+          Align = alTop
+          BevelOuter = bvNone
+          Caption = 'ParaStyle'
+          TabOrder = 0
+        end
+      end
+      object pnlInspector02: TPanel
+        Left = 477
+        Top = 0
+        Width = 238
+        Height = 310
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 6
+        object pnlActiveInnerBlockTitle: TPanel
+          Left = 0
+          Top = 0
+          Width = 238
+          Height = 25
+          Align = alTop
+          BevelOuter = bvNone
+          Caption = 'ActiveInnerBlock'
+          TabOrder = 0
+        end
+      end
+      object pnlInspector12: TPanel
+        Left = 477
+        Top = 310
+        Width = 238
+        Height = 309
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 7
+        object pnlActiveInnerBlocksTitle: TPanel
+          Left = 0
+          Top = 0
+          Width = 238
+          Height = 25
+          Align = alTop
+          BevelOuter = bvNone
+          Caption = 'ActiveInnerBlocks'
+          TabOrder = 0
+        end
+      end
     end
   end
   object aclMain: TActionList
@@ -386,6 +609,7 @@ object frmKMemo: TfrmKMemo
     object actDeleteBlock: TAction
       Caption = 'Delete block'
       ImageIndex = 9
+      ShortCut = 16430
       OnExecute = actDeleteBlockExecute
     end
     object actRebuildTree: TAction
@@ -402,6 +626,23 @@ object frmKMemo: TfrmKMemo
       Caption = 'Save file'
       ImageIndex = 10
       OnExecute = actSaveFileExecute
+    end
+    object actAddBulletList: TAction
+      Caption = 'Add bulletlist'
+      ImageIndex = 0
+      OnExecute = actAddBulletListExecute
+    end
+    object actCut: TAction
+      Caption = 'Cut'
+      OnExecute = actCutExecute
+    end
+    object actCopy: TAction
+      Caption = 'Copy'
+      OnExecute = actCopyExecute
+    end
+    object actPaste: TAction
+      Caption = 'Paste'
+      OnExecute = actPasteExecute
     end
   end
   object imlMain: TImageList
@@ -1025,6 +1266,15 @@ object frmKMemo: TfrmKMemo
         Action = actAddTextBlock
         Caption = 'text block'
       end
+    end
+    object Cut1: TMenuItem
+      Action = actCut
+    end
+    object Copy1: TMenuItem
+      Action = actCopy
+    end
+    object Paste1: TMenuItem
+      Action = actPaste
     end
   end
   object dlgOpenFile: TFileOpenDialog

@@ -29,7 +29,7 @@
 {$DEFINE SPRING}        // Spring4D - http://bitbucket.org/sglienke/spring4d
 {$DEFINE SQLBUILDER4D}  // SQLBuilder4D.pas
 {$DEFINE SYNAPSE}       // Synapse library
-{$DEFINE SYNEDIT}       // SynEdit control
+{.$DEFINE SYNEDIT}       // SynEdit control
 {$DEFINE SYSTEM}        // Delphi RTL units ('System' prefix)
 {$DEFINE VCL}           // Delphi VCL units ('Vcl' prefix)
 {$DEFINE VIRTUALTREES}  // Virtual Treeview - http://github.com/Virtual-TreeView/Virtual-TreeView

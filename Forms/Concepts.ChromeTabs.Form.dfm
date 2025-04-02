@@ -11,9 +11,7 @@ object frmChromeTabs: TfrmChromeTabs
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   ShowHint = True
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlMain: TPanel
     Left = 0
@@ -23,6 +21,8 @@ object frmChromeTabs: TfrmChromeTabs
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 941
+    ExplicitHeight = 534
     object splSplitter: TSplitter
       Left = 313
       Top = 0
@@ -38,6 +38,7 @@ object frmChromeTabs: TfrmChromeTabs
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 515
     end
     object pnlRight: TPanel
       Left = 321
@@ -47,6 +48,8 @@ object frmChromeTabs: TfrmChromeTabs
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitWidth = 620
+      ExplicitHeight = 515
       object pnlDrag: TPanel
         Left = 0
         Top = 0
@@ -56,6 +59,8 @@ object frmChromeTabs: TfrmChromeTabs
         BevelOuter = bvNone
         DockSite = True
         TabOrder = 0
+        ExplicitWidth = 620
+        ExplicitHeight = 515
       end
     end
     object sbrStatusBar: TStatusBar
@@ -66,6 +71,8 @@ object frmChromeTabs: TfrmChromeTabs
       Panels = <>
       ParentShowHint = False
       ShowHint = True
+      ExplicitTop = 515
+      ExplicitWidth = 941
     end
   end
   object pnlHeader: TPanel
@@ -85,6 +92,7 @@ object frmChromeTabs: TfrmChromeTabs
     ParentBackground = False
     ParentFont = False
     TabOrder = 1
+    ExplicitWidth = 935
     object lblHeader: TLabel
       AlignWithMargins = True
       Left = 3

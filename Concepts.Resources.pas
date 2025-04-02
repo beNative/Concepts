@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,11 +22,12 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.ImageList,
-  Vcl.ImgList, Vcl.Controls;
+  Vcl.ImgList, Vcl.Controls, Vcl.BaseImageCollection, Vcl.ImageCollection;
 
 type
   TdmResources = class(TDataModule)
     imlMain : TImageList;
+    imcMain: TImageCollection;
 
   end;
 

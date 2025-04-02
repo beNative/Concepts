@@ -11,9 +11,7 @@ object frmzObjectInspector: TfrmzObjectInspector
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   ShowHint = True
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlMain: TPanel
     Left = 0
@@ -23,6 +21,8 @@ object frmzObjectInspector: TfrmzObjectInspector
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 793
+    ExplicitHeight = 665
     object splSplitter: TSplitter
       Left = 313
       Top = 0
@@ -41,6 +41,7 @@ object frmzObjectInspector: TfrmzObjectInspector
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 646
       object cbxControls: TComboBox
         AlignWithMargins = True
         Left = 3
@@ -72,6 +73,8 @@ object frmzObjectInspector: TfrmzObjectInspector
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 1
+      ExplicitWidth = 472
+      ExplicitHeight = 646
       DesignSize = (
         478
         663)
@@ -96,6 +99,7 @@ object frmzObjectInspector: TfrmzObjectInspector
         Caption = 'TCheckBox'
         State = cbGrayed
         TabOrder = 2
+        ExplicitWidth = 212
       end
       object edtEdit: TEdit
         Left = 6
@@ -118,6 +122,8 @@ object frmzObjectInspector: TfrmzObjectInspector
         Images = dmResources.imlMain
         Items = <>
         TabOrder = 3
+        ExplicitWidth = 461
+        ExplicitHeight = 536
       end
       object trbTrackBar: TTrackBar
         Left = 6
@@ -128,6 +134,7 @@ object frmzObjectInspector: TfrmzObjectInspector
         PositionToolTip = ptTop
         ShowSelRange = False
         TabOrder = 4
+        ExplicitWidth = 461
       end
       object edtButtonedEdit: TButtonedEdit
         Left = 119
@@ -162,6 +169,8 @@ object frmzObjectInspector: TfrmzObjectInspector
       Panels = <>
       ParentShowHint = False
       ShowHint = True
+      ExplicitTop = 646
+      ExplicitWidth = 793
     end
   end
   object pnlHeader: TPanel
@@ -175,6 +184,7 @@ object frmzObjectInspector: TfrmzObjectInspector
     Color = clWhite
     ParentBackground = False
     TabOrder = 1
+    ExplicitWidth = 787
     object lblHeader: TLabel
       Left = 0
       Top = 0

@@ -18,7 +18,7 @@ object frmVirtualInterfaceDemo: TfrmVirtualInterfaceDemo
   object lblDefinition: TLabel
     Left = 4
     Top = 3
-    Width = 314
+    Width = 306
     Height = 78
     BiDiMode = bdLeftToRight
     Caption = 

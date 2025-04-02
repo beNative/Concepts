@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ uses
   System.ImageList,
 
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList,
-  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.ImgList,
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.ImgList, Vcl.Mask,
 
   MQTT,
 
@@ -135,12 +135,12 @@ type
 
     {$REGION 'property access methods'}
     function GetTopics: TStrings;
-    procedure Connect;
     function GetConnected: Boolean;
     procedure SubscribeToAllTopics;
     {$ENDREGION}
 
   protected
+    procedure Connect;
     procedure UpdateActions; override;
 
     function GenerateRandomData(ALineCount: Integer): string;

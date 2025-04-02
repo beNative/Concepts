@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ type
     aclMain               : TActionList;
     actCollapseAll        : TAction;
     actExpandAll          : TAction;
-    actSaveColorMap       : TAction;
+    actSaveTheme          : TAction;
     actSaveHighlighter    : TAction;
     actTest               : TAction;
     btnCollapseAll        : TToolButton;
@@ -85,7 +85,7 @@ type
 
     {$REGION 'action handlers'}
     procedure actSaveHighlighterExecute(Sender: TObject);
-    procedure actSaveColorMapExecute(Sender: TObject);
+    procedure actSaveThemeExecute(Sender: TObject);
     procedure actCollapseAllExecute(Sender: TObject);
     procedure actExpandAllExecute(Sender: TObject);
     procedure actTestExecute(Sender: TObject);
@@ -222,7 +222,6 @@ begin
   FThemesGrid.OnGetCellText := FThemesGridCellText;
   FThemesGrid.OnChanging    := FThemesGridChanging;
   FThemesGrid.OnChange      := FThemesGridChange;
-
   FTextEditor := TConceptFactories.CreateTextEditor(
     Self,
     pnlRightBottom,
@@ -230,6 +229,7 @@ begin
     'Object Pascal',
     'tsColors'
   );
+  FTextEditor.Fonts.Text.Size := 11;
   FHighlighterEditor := TConceptFactories.CreateTextEditor(
     Self,
     pnlHLRight,
@@ -238,6 +238,7 @@ begin
     'JSON',
     'tsColors'
   );
+  FHighlighterEditor.Fonts.Text.Size := 11;
   FThemeEditor := TConceptFactories.CreateTextEditor(
     Self,
     tsThemes,
@@ -246,6 +247,7 @@ begin
     'JSON',
     'tsColors'
   );
+  FThemeEditor.Fonts.Text.Size := 11;
   FExampleCodeEditor := TConceptFactories.CreateTextEditor(
     Self,
     tsSampleCode,
@@ -253,6 +255,7 @@ begin
     'Object Pascal',
     'tsColors'
   );
+  FExampleCodeEditor.Fonts.Text.Size := 11;
 
   FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
 
@@ -280,11 +283,11 @@ begin
   FObjectInspector.ExpandAll;
 end;
 
-procedure TfrmTextEditor.actSaveColorMapExecute(Sender: TObject);
+procedure TfrmTextEditor.actSaveThemeExecute(Sender: TObject);
 var
   S : string;
 begin
-  S := FTextEditor.Highlighter.Colors.FileName;
+  S := FThemes[FThemesGrid.CellFocused.Row];
   FThemeEditor.SaveToFile(S);
   FTextEditor.Highlighter.Colors.LoadFromFile(S);
 end;
@@ -293,7 +296,7 @@ procedure TfrmTextEditor.actSaveHighlighterExecute(Sender: TObject);
 var
   S : string;
 begin
-  //S := FTextEditor.Highlighter.FileName;
+  S := FHighlighters[FHighlightersGrid.CellFocused.Row];
   FHighlighterEditor.SaveToFile(S);
   FTextEditor.Highlighter.LoadFromFile(S);
 end;
@@ -309,7 +312,7 @@ end;
 procedure TfrmTextEditor.FThemesGridCellText(Sender: TObject; Cell: TGridCell;
   var Value: string);
 begin
-  Value := TPath.GetFileNameWithoutExtension(FThemes[Cell.Row]);//
+  Value := TPath.GetFileNameWithoutExtension(FThemes[Cell.Row]);
 end;
 
 procedure TfrmTextEditor.FThemesGridChange(Sender: TObject; Cell: TGridCell;
@@ -320,7 +323,6 @@ begin
   if not FThemeEditor.Modified then
   begin
     S := FThemes[Cell.Row];
-    //S := FTextEditor.           //GetColorsFileName(S);
     FThemeEditor.LoadFromFile(S);
     FTextEditor.Highlighter.Colors.LoadFromFile(S);
     FExampleCodeEditor.Highlighter.Colors.LoadFromFile(S);
@@ -335,7 +337,7 @@ begin
   begin
     if AskConfirmation('Save?') then
     begin
-      actSaveColorMap.Execute;
+      actSaveTheme.Execute;
     end
     else
     begin
@@ -362,28 +364,27 @@ begin
   end;
 end;
 
-procedure TfrmTextEditor.FHighlightersGridCellText(Sender: TObject; Cell: TGridCell;
-  var Value: string);
+procedure TfrmTextEditor.FHighlightersGridCellText(Sender: TObject;
+  Cell: TGridCell; var Value: string);
 begin
   Value := TPath.GetFileNameWithoutExtension(FHighlighters[Cell.Row]);
 end;
 
-procedure TfrmTextEditor.FHighlightersGridChange(Sender: TObject; Cell: TGridCell;
-  Selected: Boolean);
+procedure TfrmTextEditor.FHighlightersGridChange(Sender: TObject;
+  Cell: TGridCell; Selected: Boolean);
 var
   S : string;
 begin
   S := FHighlighters[Cell.Row];
-  //S := FTextEditor.GetHighlighterFileName(S);
   FHighlighterEditor.LoadFromFile(S);
   FTextEditor.Highlighter.LoadFromFile(S);
   FExampleCodeEditor.Highlighter.LoadFromFile(S);
-  //FExampleCodeEditor.Text := FTextEditor.Highlighter.Info.General.Sample;
+  FExampleCodeEditor.Text := FTextEditor.Highlighter.Sample;
   FHighlightersGrid.SetFocus;
 end;
 
-procedure TfrmTextEditor.FHighlightersGridChanging(Sender: TObject; var Cell: TGridCell;
-  var Selected: Boolean);
+procedure TfrmTextEditor.FHighlightersGridChanging(Sender: TObject;
+  var Cell: TGridCell; var Selected: Boolean);
 begin
   if FHighlighterEditor.Modified then
   begin
@@ -409,7 +410,7 @@ end;
 {$REGION 'protected methods'}
 procedure TfrmTextEditor.LoadThemes;
 begin
-  //FColorMaps.AddRange(TDirectory.GetFiles(FTextEditor.Directories.Colors, '*.json'));
+  FThemes.AddRange(TDirectory.GetFiles('.\Themes', '*.json'));
   FThemesGrid.Rows.Count := FThemes.Count;
   FThemesGrid.Refresh;
   FThemesGrid.AutoSizeCols;
@@ -417,7 +418,7 @@ end;
 
 procedure TfrmTextEditor.LoadHighlighters;
 begin
-  //FHighlighters.AddRange(TDirectory.GetFiles(FTextEditor.Directories.Highlighters, '*.json'));
+  FHighlighters.AddRange(TDirectory.GetFiles('.\Highlighters', '*.json'));
   FHighlightersGrid.Rows.Count := FHighlighters.Count;
   FHighlightersGrid.Refresh;
   FHighlightersGrid.AutoSizeCols;
@@ -428,7 +429,7 @@ begin
   inherited UpdateActions;
   actSaveHighlighter.Enabled :=
     tsHighlighter.Visible and FHighlighterEditor.Modified;
-  actSaveColorMap.Enabled    :=
+  actSaveTheme.Enabled       :=
     tsThemes.Visible and FThemeEditor.Modified;
 end;
 {$ENDREGION}

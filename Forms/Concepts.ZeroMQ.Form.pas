@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ uses
 
   VirtualTrees,
 
-  DDuce.Components.LogTree;
+  DDuce.Components.LogTree, Vcl.Mask;
 
 { IZeroMQ
     .Start(ZMQSocket) => IZMQPair  Creates a IZMQPair which supports the given
@@ -931,7 +931,8 @@ begin
         pgcMessage.ActivePage := tsReceive;
         if Assigned(Pair) then
         begin
-          mmoReceive.Lines.Add(Pair.ReceiveString);
+          mmoReceive.Lines.Text := mmoReceive.Lines.Text + Pair.ReceiveString;
+         // mmoReceive.Lines.Add(Pair.ReceiveString);
         end;
       end
     );

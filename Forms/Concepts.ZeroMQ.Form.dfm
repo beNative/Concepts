@@ -10,10 +10,8 @@ object frmZMQConcept: TfrmZMQConcept
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   ShowHint = True
   OnClose = FormClose
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlClient: TPanel
     Left = 121
@@ -23,6 +21,8 @@ object frmZMQConcept: TfrmZMQConcept
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 357
+    ExplicitHeight = 241
     object btnSend1000Messages: TButton
       Left = 15
       Top = 132
@@ -47,6 +47,7 @@ object frmZMQConcept: TfrmZMQConcept
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 2
+      ExplicitWidth = 357
       object edtConnectionString: TEdit
         Left = 0
         Top = 5
@@ -74,6 +75,7 @@ object frmZMQConcept: TfrmZMQConcept
       ActivePage = tsEndpoints
       Align = alTop
       TabOrder = 3
+      ExplicitWidth = 357
       object tsEndpoints: TTabSheet
         Caption = 'Endpoints'
         ImageIndex = 3
@@ -85,6 +87,7 @@ object frmZMQConcept: TfrmZMQConcept
           Height = 120
           Align = alClient
           TabOrder = 0
+          ExplicitWidth = 343
           DesignSize = (
             347
             120)
@@ -187,6 +190,7 @@ object frmZMQConcept: TfrmZMQConcept
             Anchors = [akLeft, akTop, akRight, akBottom]
             ItemHeight = 13
             TabOrder = 5
+            ExplicitWidth = 190
           end
         end
       end
@@ -210,10 +214,11 @@ object frmZMQConcept: TfrmZMQConcept
             Width = 99
             Height = 21
             EditLabel.Width = 29
-            EditLabel.Height = 13
+            EditLabel.Height = 21
             EditLabel.Caption = 'Filter:'
             LabelPosition = lpLeft
             TabOrder = 0
+            Text = ''
           end
           object lbxSubscriptions: TListBox
             Left = 145
@@ -321,7 +326,7 @@ object frmZMQConcept: TfrmZMQConcept
           Alignment = taCenter
           Anchors = [akTop, akRight]
           EditLabel.Width = 45
-          EditLabel.Height = 13
+          EditLabel.Height = 21
           EditLabel.Caption = 'Counter:'
           LabelPosition = lpLeft
           NumbersOnly = True
@@ -429,7 +434,6 @@ object frmZMQConcept: TfrmZMQConcept
             Top = 18
             Width = 189
             Height = 97
-            OnClickCheck = lbxEventsClickCheck
             Align = alClient
             AutoComplete = False
             BevelInner = bvNone
@@ -449,6 +453,7 @@ object frmZMQConcept: TfrmZMQConcept
               'Disconnected'
               'MonitorStopped')
             TabOrder = 0
+            OnClickCheck = lbxEventsClickCheck
           end
         end
         object grpPollingSettings: TGroupBox
@@ -483,6 +488,8 @@ object frmZMQConcept: TfrmZMQConcept
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 4
+      ExplicitWidth = 357
+      ExplicitHeight = 65
     end
   end
   object sbrMain: TStatusBar
@@ -493,6 +500,8 @@ object frmZMQConcept: TfrmZMQConcept
     Panels = <>
     SimplePanel = True
     OnDblClick = sbrMainDblClick
+    ExplicitTop = 241
+    ExplicitWidth = 478
   end
   object pnlLeft: TPanel
     Left = 0
@@ -502,6 +511,7 @@ object frmZMQConcept: TfrmZMQConcept
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitHeight = 241
     object pnlSocketConfiguration: TPanel
       Left = 0
       Top = 0
@@ -510,6 +520,7 @@ object frmZMQConcept: TfrmZMQConcept
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 241
       object mmoIPs: TMemo
         AlignWithMargins = True
         Left = 6
@@ -531,6 +542,7 @@ object frmZMQConcept: TfrmZMQConcept
         ParentFont = False
         ReadOnly = True
         TabOrder = 0
+        ExplicitHeight = 52
       end
       object grp1: TGroupBox
         Left = 0

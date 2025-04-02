@@ -155,6 +155,12 @@ type
     function GetParentNode: TVTNode<T>;
     function GetPrevSiblingData: T;
     function GetPrevSiblingNode: TVTNode<T>;
+    function GetNextNode: TVTNode<T>;
+    function GetNextData: T;
+    function GetPrevData: T;
+    function GetPrevNode: TVTNode<T>;
+    function GetEnabled: Boolean;
+    procedure SetEnabled(const Value: Boolean);
     {$ENDREGION}
 
   public
@@ -212,6 +218,9 @@ type
 
     property Focused: Boolean
       read GetFocused write SetFocused;
+
+    property Enabled: Boolean
+      read GetEnabled write SetEnabled;
 
     property ImageIndex: Integer
       read GetImageIndex write SetImageIndex;
@@ -284,6 +293,12 @@ type
     property LastChildNode: TVTNode<T>
       read GetLastChildNode;
 
+    property NextNode: TVTNode<T>
+      read GetNextNode;
+
+    property PrevNode: TVTNode<T>
+      read GetPrevNode;
+
     property ParentData: T
       read GetParentData;
 
@@ -298,6 +313,12 @@ type
 
     property LastChildData: T
       read GetLastChildData;
+
+    property NextData: T
+      read GetNextData;
+
+    property PrevData: T
+      read GetPrevData;
 
   end;
 
@@ -414,6 +435,24 @@ begin
   end;
 end;
 
+function TVTNode<T>.GetEnabled: Boolean;
+begin
+  if Assigned(FTree) and Assigned(FVNode) then
+  begin
+    Result := not FTree.IsDisabled[VNode];
+  end
+  else
+    Result := False;
+end;
+
+procedure TVTNode<T>.SetEnabled(const Value: Boolean);
+begin
+  if Assigned(FTree) and Assigned(FVNode) then
+  begin
+    FTree.IsDisabled[VNode] := not Value;
+  end;
+end;
+
 function TVTNode<T>.GetFirstChildData: T;
 begin
   if Assigned(FirstChildNode) then
@@ -504,6 +543,23 @@ begin
     Result := 0;
 end;
 
+function TVTNode<T>.GetNextData: T;
+begin
+  Result := NextNode.Data;
+end;
+
+function TVTNode<T>.GetNextNode: TVTNode<T>;
+begin
+  if Assigned(NextSiblingNode) then
+    Result := NextSiblingNode
+  else if Assigned(PrevSiblingNode) then
+    Result := PrevSiblingNode
+  else if Assigned(ParentNode) then
+    Result := ParentNode
+  else
+    Result := nil;
+end;
+
 function TVTNode<T>.GetNextSiblingData: T;
 begin
   if Assigned(NextSiblingNode) then
@@ -567,6 +623,23 @@ function TVTNode<T>.GetParentNode: TVTNode<T>;
 begin
   if Assigned(VNode) then
     Result := VTNodeFromVNode(VNode.Parent)
+  else
+    Result := nil;
+end;
+
+function TVTNode<T>.GetPrevData: T;
+begin
+  Result := PrevNode.Data;
+end;
+
+function TVTNode<T>.GetPrevNode: TVTNode<T>;
+begin
+  if Assigned(PrevSiblingNode) then
+    Result := PrevSiblingNode
+  else if Assigned(ParentNode) then
+    Result := ParentNode
+  else if Assigned(NextSiblingNode) then
+    Result := NextSiblingNode
   else
     Result := nil;
 end;

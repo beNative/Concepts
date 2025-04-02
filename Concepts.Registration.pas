@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -156,6 +156,7 @@ uses
 
   Concepts.SynMemoEx.Form,
   Concepts.MQTT.Form,
+  Concepts.Nats.Form,
 
   Concepts.FMXContainer.Form,
 
@@ -524,6 +525,13 @@ begin
     'MQTT',
     'MQTT',
     'MQTT demo'
+  );
+
+  ConceptManager.Register(
+    TfrmNats,
+    'NATS',
+    'NATS',
+    'NATS demo'
   );
 
   {$IFDEF DDETOURS}

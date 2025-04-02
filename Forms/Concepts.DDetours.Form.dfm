@@ -11,9 +11,7 @@ object frmDDetours: TfrmDDetours
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = True
   OnClose = FormClose
-  PixelsPerInch = 96
   TextHeight = 13
   object btnUnitName: TButton
     Left = 145
@@ -26,7 +24,7 @@ object frmDDetours: TfrmDDetours
   object chkDetour1Enabled: TCheckBox
     Left = 8
     Top = 32
-    Width = 97
+    Width = 131
     Height = 17
     Caption = 'Detour1 enabled'
     TabOrder = 1
@@ -35,8 +33,8 @@ object frmDDetours: TfrmDDetours
   object chkDetour2Enabled: TCheckBox
     Left = 8
     Top = 55
-    Width = 97
-    Height = 17
+    Width = 121
+    Height = 18
     Caption = 'Detour2 enabled'
     TabOrder = 2
     OnClick = chkDetour2EnabledClick
@@ -58,6 +56,7 @@ object frmDDetours: TfrmDDetours
     ParentBackground = False
     ParentFont = False
     TabOrder = 3
+    ExplicitWidth = 297
     object lblHeader: TLabel
       Left = 0
       Top = 0

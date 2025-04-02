@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ type
 
   public
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
+    destructor Destroy; override;
 
   end;
 
@@ -50,9 +50,9 @@ begin
   inherited AfterConstruction;
 end;
 
-procedure TfrmVirtualMethodInterceptor.BeforeDestruction;
+destructor TfrmVirtualMethodInterceptor.Destroy;
 begin
-  inherited BeforeDestruction;
+  inherited Destroy;
 end;
 {$ENDREGION}
 

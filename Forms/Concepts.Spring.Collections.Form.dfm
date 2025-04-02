@@ -2,8 +2,8 @@ object frmCollections: TfrmCollections
   Left = 0
   Top = 0
   Caption = 'Spring collections'
-  ClientHeight = 443
-  ClientWidth = 495
+  ClientHeight = 426
+  ClientWidth = 489
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -11,21 +11,20 @@ object frmCollections: TfrmCollections
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   DesignSize = (
-    495
-    443)
-  PixelsPerInch = 96
+    489
+    426)
   TextHeight = 13
   object lblRecordCount: TLabel
     Left = 265
     Top = 43
-    Width = 71
+    Width = 65
     Height = 13
     Anchors = [akLeft, akTop, akRight]
     Caption = 'RecordCount:'
     FocusControl = trbRecordCount
     OnClick = lblRecordCountClick
+    ExplicitWidth = 71
   end
   object btnFirstNameIs: TButton
     Left = 8
@@ -40,8 +39,8 @@ object frmCollections: TfrmCollections
   object mmoList: TMemo
     Left = 8
     Top = 160
-    Width = 479
-    Height = 258
+    Width = 473
+    Height = 241
     Anchors = [akLeft, akTop, akRight, akBottom]
     ReadOnly = True
     ScrollBars = ssVertical
@@ -70,7 +69,7 @@ object frmCollections: TfrmCollections
   object edtFirstName: TEdit
     Left = 264
     Top = 102
-    Width = 223
+    Width = 217
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 4
@@ -79,7 +78,7 @@ object frmCollections: TfrmCollections
   object edtLastName: TEdit
     Left = 264
     Top = 133
-    Width = 223
+    Width = 217
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 5
@@ -98,7 +97,7 @@ object frmCollections: TfrmCollections
   object trbRecordCount: TTrackBar
     Left = 338
     Top = 38
-    Width = 149
+    Width = 143
     Height = 27
     Anchors = [akLeft, akTop, akRight]
     Max = 6000000
@@ -113,8 +112,8 @@ object frmCollections: TfrmCollections
   end
   object sbrMain: TStatusBar
     Left = 0
-    Top = 424
-    Width = 495
+    Top = 407
+    Width = 489
     Height = 19
     Panels = <>
   end
@@ -139,7 +138,7 @@ object frmCollections: TfrmCollections
   object pnlHeader: TPanel
     Left = 0
     Top = 0
-    Width = 495
+    Width = 489
     Height = 29
     Align = alTop
     BevelOuter = bvNone
@@ -156,7 +155,7 @@ object frmCollections: TfrmCollections
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 489
+      Width = 483
       Height = 26
       Align = alClient
       Alignment = taCenter

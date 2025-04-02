@@ -249,8 +249,7 @@ type
 var
   S    : TIntegerSet;
   I    : Integer;
-  N    : Integer;
-  Name : string;
+  LName : string;
 begin
   Result := '';
   Integer(S) := GetOrdValue(TypeInfo(T), AArg);
@@ -260,8 +259,8 @@ begin
     begin
       if Result <> '' then
         Result := Result + ',';
-      Name := EnumName(I);
-      Result := Result + Name;
+      LName := EnumName(I);
+      Result := Result + LName;
     end;
   end;
 end;

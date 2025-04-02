@@ -11,18 +11,16 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   ShowHint = True
   DesignSize = (
     419
     366)
-  PixelsPerInch = 96
   TextHeight = 13
   object lblDescription: TLabel
     Left = 0
     Top = 35
     Width = 419
-    Height = 41
+    Height = 52
     Align = alTop
     AutoSize = False
     Caption = 
@@ -34,13 +32,10 @@ object frmLazyInstantiation: TfrmLazyInstantiation
     ParentColor = False
     Transparent = False
     WordWrap = True
-    ExplicitLeft = -2
-    ExplicitTop = 32
-    ExplicitWidth = 413
   end
   object btnAddTextToLazyMemo: TButton
     Left = 8
-    Top = 81
+    Top = 97
     Width = 130
     Height = 25
     Action = actAddTextToLazyMemo
@@ -48,12 +43,14 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   end
   object pnlMemo: TPanel
     Left = 8
-    Top = 112
+    Top = 136
     Width = 403
-    Height = 193
+    Height = 169
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 397
+    ExplicitHeight = 152
   end
   object pnlCheckBox: TPanel
     Left = 8
@@ -63,10 +60,12 @@ object frmLazyInstantiation: TfrmLazyInstantiation
     Anchors = [akLeft, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitTop = 296
+    ExplicitWidth = 397
   end
   object btnToggleLazyCheckbox: TButton
     Left = 144
-    Top = 81
+    Top = 97
     Width = 130
     Height = 25
     Action = actToggleLazyCheckbox
@@ -74,7 +73,7 @@ object frmLazyInstantiation: TfrmLazyInstantiation
   end
   object btnShowClassName: TButton
     Left = 281
-    Top = 81
+    Top = 97
     Width = 130
     Height = 25
     Action = actShowClassName
@@ -97,6 +96,7 @@ object frmLazyInstantiation: TfrmLazyInstantiation
     ParentBackground = False
     ParentFont = False
     TabOrder = 5
+    ExplicitWidth = 407
     object lblHeader: TLabel
       Left = 0
       Top = 0

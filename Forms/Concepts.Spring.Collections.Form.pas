@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -226,10 +226,11 @@ begin
     Result := AC.Lastname = edtLastName.Text;
   end;
 end;
+
 procedure TfrmCollections.lblRecordCountClick(Sender: TObject);
 begin
-  FDict.AddOrSetValue('Test', 5);
-  FDict.AddOrSetValue('Test', 6);
+  FDict['Test'] := 5;
+  FDict['Test'] := 6;
 
   if FDict.ContainsKey('Test') then
     ShowMessage(FDict.Count.ToString);

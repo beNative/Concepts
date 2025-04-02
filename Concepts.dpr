@@ -89,12 +89,21 @@ uses
   MQTTReadThread in 'Libraries\MQTT\MQTTReadThread.pas',
   SynMemoEx in 'Libraries\SynMemoEx\SynMemoEx.pas',
   Concepts.SynMemoEx.Form in 'Forms\Concepts.SynMemoEx.Form.pas' {frmSynMemoEx},
-  Concepts.SynEdit.Form in 'Forms\Concepts.SynEdit.Form.pas' {frmSynEdit},
   Concepts.Indy.TCP.Form in 'Forms\Concepts.Indy.TCP.Form.pas' {frmIndyTCP},
   Concepts.Vcl.Styles.Form in 'Forms\Concepts.Vcl.Styles.Form.pas' {frmVclStyles},
   Concepts.KControls.KMemo.Form in 'Forms\Concepts.KControls.KMemo.Form.pas' {frmKMemo},
   DDuce.DynamicRecord in 'Libraries\DDuce\DDuce.DynamicRecord.pas',
-  Concepts.TextEditor.Form in 'Forms\Concepts.TextEditor.Form.pas' {frmTextEditor};
+  Concepts.TextEditor.Form in 'Forms\Concepts.TextEditor.Form.pas' {frmTextEditor},
+  Nats.Classes in 'Libraries\NATS\Nats.Classes.pas',
+  Nats.Connection in 'Libraries\NATS\Nats.Connection.pas',
+  Nats.Consts in 'Libraries\NATS\Nats.Consts.pas',
+  Nats.Entities in 'Libraries\NATS\Nats.Entities.pas',
+  Nats.Exceptions in 'Libraries\NATS\Nats.Exceptions.pas',
+  Nats.Monitor in 'Libraries\NATS\Nats.Monitor.pas',
+  Nats.Parser in 'Libraries\NATS\Nats.Parser.pas',
+  Nats.Socket.Indy in 'Libraries\NATS\Nats.Socket.Indy.pas',
+  Nats.Socket in 'Libraries\NATS\Nats.Socket.pas',
+  Concepts.Nats.Form in 'Forms\Concepts.Nats.Form.pas' {frmNats};
 
 {$R *.res}
 

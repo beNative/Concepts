@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -2494,7 +2494,6 @@ end;
 procedure DynamicRecord.FromArray<T>(const AArray: TArray<T>;
   const ABracketedIndexNames : Boolean = False);
 var
-  N : T;
   I : Integer;
   S : string;
 begin

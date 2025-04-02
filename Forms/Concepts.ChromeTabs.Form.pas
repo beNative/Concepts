@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ type
 implementation
 
 uses
-  System.TypInfo, System.Rtti,
+  System.TypInfo, System.Rtti, System.SysUtils,
 
   DDuce.Factories.zObjInspector;
 
@@ -121,8 +121,13 @@ end;
 
 function TfrmChromeTabs.FObjectInspectorBeforeAddItem(Sender: TControl;
   PItem: PPropItem): Boolean;
+var
+  LName : string;
 begin
-  Result := not (PItem.Prop.PropertyType is TRttiMethodType);
+  LName := PItem.QualifiedName;
+  LName := LName.Split(['.'], 2)[1];
+  Result := not LName.Contains('ComObject')
+    and (not (PItem.Prop.PropertyType is TRttiMethodType));
 end;
 {$ENDREGION}
 
