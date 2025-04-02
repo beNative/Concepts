@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -25,9 +25,7 @@
 unit Spring.Tests.Base;
 
 {$I Spring.inc}
-{$IFDEF UNSAFE_NULLABLE}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
+{$WARN SYMBOL_DEPRECATED OFF}
 
 {$IF Defined(MACOS) AND NOT Defined(IOS)}
   {$DEFINE LogConsole}
@@ -37,13 +35,14 @@ interface
 
 uses
   Classes,
+  Generics.Defaults,
   TypInfo,
   TestFramework,
   Spring.TestUtils,
   Spring,
   Spring.Collections,
   Spring.Events,
-  Spring.Utils;
+  Spring.Testing;
 
 type
   TTestNullableInteger = class(TTestCase)
@@ -84,9 +83,7 @@ type
     procedure TearDown; override;
   published
     procedure TestFromVariantSQLTimestamp;
-{$IFNDEF DELPHI2010}
     procedure TestFromVariantSQLTimestampOffset;
-{$ENDIF}
   end;
 
   TTestNullableInt64 = class(TTestCase)
@@ -96,6 +93,17 @@ type
     procedure TearDown; override;
   published
     procedure TestFromVariantFmtBcd;
+  end;
+
+  TCustomRecord = record
+    x, y: Byte;
+    constructor Create(x, y: Integer);
+    class operator Equal(const left, right: TCustomRecord): Boolean;
+  end;
+
+  TTestNullableCustomRecord = class(TTestCase)
+  published
+    procedure TestEqualsUsingOperatorOverload;
   end;
 
   TTestGuard = class(TTestCase)
@@ -118,6 +126,7 @@ type
     procedure TestByValue;
     procedure Test_Initializer_RaisesArgumentException_NotReferenceType;
     procedure TestIsLazyType;
+    procedure Issue375;
   end;
 
   {$M+}
@@ -127,21 +136,26 @@ type
   TTestMulticastEvent = class(TTestCase)
   strict private
     type
+      TEventArgs = record i: Integer; s: string; v: Variant; end;
       TEventInt64 = procedure(const Value: Int64) of object;
       TEventSingle = procedure(const Value: Single) of object;
       TEventDouble = procedure(const Value: Double) of object;
       TEventExtended = procedure(const Value: Extended) of object;
+      TEventWithStackParams = procedure(const Value1: Int64; const Value2: Single;
+        const Value3: Double; const Value4: Extended; const Value5: TEventArgs) of object;
+      TEventWithRegisterParams = procedure(const Value1, Value2, Value3: NativeInt) of object;
+      TEventWithFloatParams = procedure(const Value1, Value2, Value3: Double) of object;
     const
       CNumber = 5;
       CText = 'test';
   strict private
-    fEvent: IMulticastNotifyEvent;
+    fEvent: IInvokableNotifyEvent;
     fASender: TObject;
     fAInvoked: Boolean;
     fBSender: TObject;
     fBInvoked: Boolean;
     fHandlerInvokeCount: Integer;
-    fProc: TProc<Integer, string>;
+    fProc: Action<Integer, string>;
   strict protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -152,7 +166,10 @@ type
     procedure HandlerSingle(const value: Single);
     procedure HandlerDouble(const value: Double);
     procedure HandlerExtended(const value: Extended);
-
+    procedure HandlerWithStackParams(const value1: Int64; const value2: Single;
+      const value3: Double; const value4: Extended; const value5: TEventArgs);
+    procedure HandlerWithRegisterParams(const value1, value2, value3: NativeInt);
+    procedure HandlerWithFloatParams(const value1, value2, value3: Double);
     procedure HandleChanged(Sender: TObject);
   published
     procedure TestInvoke;
@@ -162,6 +179,9 @@ type
     procedure TestIssue58;
     procedure TestDelegate;
     procedure TestIssue60;
+    procedure TestStackParams;
+    procedure TestRegisterParams;
+    procedure TestFloatParams;
     procedure TestNotify;
     procedure TestNotifyDelegate;
     procedure TestRemove;
@@ -239,10 +259,8 @@ type
     ///   Make sure this method is named so it will be run last
     /// </summary>
     procedure Test_EnsureAllTTypeKindsCoveredByCallsTo_Test_GetTypeSize_;
-{$IFNDEF NEXTGEN}
     procedure Test_GetTypeSize_AnsiChar;
     procedure Test_GetTypeSize_AnsiString;
-{$ENDIF}
     procedure Test_GetTypeSize_Array;
     procedure Test_GetTypeSize_Boolean;
     procedure Test_GetTypeSize_Byte;
@@ -267,9 +285,7 @@ type
     procedure Test_GetTypeSize_NativeInt;
     procedure Test_GetTypeSize_NativeUInt;
     procedure Test_GetTypeSize_OleVariant;
-{$IFNDEF NEXTGEN}
     procedure Test_GetTypeSize_PAnsiChar;
-{$ENDIF}
     procedure Test_GetTypeSize_PChar;
     procedure Test_GetTypeSize_Pointer;
     procedure Test_GetTypeSize_Proc;
@@ -279,23 +295,19 @@ type
     procedure Test_GetTypeSize_Set;
     procedure Test_GetTypeSize_SetOfByte;
     procedure Test_GetTypeSize_ShortInt;
-{$IFNDEF NEXTGEN}
     procedure Test_GetTypeSize_ShortString;
     procedure Test_GetTypeSize_ShortString0;
     procedure Test_GetTypeSize_ShortString1;
     procedure Test_GetTypeSize_ShortString2;
     procedure Test_GetTypeSize_ShortString255;
     procedure Test_GetTypeSize_ShortString7;
-{$ENDIF}
     procedure Test_GetTypeSize_Single;
     procedure Test_GetTypeSize_SmallInt;
     procedure Test_GetTypeSize_string;
     procedure Test_GetTypeSize_UnicodeString;
     procedure Test_GetTypeSize_Variant;
     procedure Test_GetTypeSize_WideChar;
-{$IFNDEF NEXTGEN}
     procedure Test_GetTypeSize_WideString;
-{$ENDIF}
     procedure Test_GetTypeSize_Word;
     procedure Test_GetTypeSize_WordBool;
 {$IF Declared(tkMRecord)}
@@ -428,6 +440,9 @@ type
     procedure Test_AsPointer_Interface;
     procedure Test_AsPointer_OtherWillRaise;
 
+    procedure Test_CurrencyToCurrency_Compare;
+    procedure Test_CurrencyToCurrency_Equals;
+
     procedure Test_Equals_ByteToInt_ValuesAreNotEqual_ReturnsFalse;
     procedure Test_Equals_ShortIntToInt_ValuesAreEqual_ReturnsTrue;
     procedure Test_Equals_IntToInt_ValuesAreEqual_ReturnsTrue;
@@ -458,6 +473,8 @@ type
 
     procedure EqualsReturnsTrueForEqualTValue;
 
+    procedure EqualsReturnsTrueForEqualArrays;
+
     procedure FromVariantProperlyHandlesVariantArrays;
 
     procedure ConvertStringToIntegerFailsForInvalidString;
@@ -471,9 +488,7 @@ type
     procedure TryToType_ConvertIntegerToNullableEnum;
     procedure TryToType_ConvertInvalidStringToBoolean;
     procedure TryToType_ConvertVariantToBoolean;
-{$IFNDEF DELPHI2010}
     procedure TryToType_ConvertVariantToString;
-{$ENDIF}
     procedure TryToType_ConvertStringToIntegerArray;
     procedure TryToType_ConvertStringArrayToIntegerArray;
 
@@ -486,10 +501,30 @@ type
 
   TEnumeration = (teFirst, teSecond, teLast);
 
-{$IFNDEF DELPHI2010}
   TTestManagedObject = class(TTestCase)
   published
     procedure TestInitialization;
+    procedure TestDefaultOverride;
+  end;
+
+  TTestObjectBase = class(TManagedObject)
+  protected
+    [Default(42)]
+    fIntValue: Integer;
+  end;
+
+  TTestObjectDerivedA = class(TTestObjectBase)
+  public
+    [Default(45)]
+    property IntValueB: Integer read fIntValue;
+    [Default(43)]
+    property IntValue: Integer read fIntValue;
+  end;
+
+  TTestObjectDerivedB = class(TTestObjectDerivedA)
+  public
+    [Default(44)]
+    property IntValue;
   end;
 
   TTestObject = class(TManagedObject)
@@ -522,10 +557,8 @@ type
     fObjValue2: TObject;
     [Managed(False)]
     fObjValue3: TObject;
-  {$IFNDEF NEXTGEN}
     [Default('x')]
     fAnsiCharValue: AnsiChar;
-  {$ENDIF}
     [Default('y')]
     fWideCharValue: WideChar;
     [Default('z')]
@@ -549,15 +582,111 @@ type
     [Default('hello')]
     property StrValue: string read fStrValue_Prop write SetStrValue_Prop;
   end;
-{$ENDIF}
 
   TArrayTest = class(TTestCase)
+  private const
+    TestData: array[0..9] of Integer = (1, 2, 3, 4, 5, 5, 5, 6, 7, 9);
+    ExpectedResults: array[0..9] of ShortInt = (0, 1, 1, 1, 1, 1, 1, 1, 0, 1);
+    ExpectedIndexesLowerBound: array[0..9] of Integer = (0, 0, 1, 2, 3, 4, 7, 8, 9, 9);
+    ExpectedIndexesUpperBound: array[0..9] of Integer = (0, 0, 1, 2, 3, 6, 7, 8, 9, 9);
   published
+    procedure TestBinarySearch;
+    procedure TestBinarySearchSubRange;
     procedure TestBinarySearchUpperBound;
     procedure TestBinarySearchUpperBoundSubRange;
 
     procedure TestLastIndexOf;
     procedure TestLastIndexOfSubRange;
+
+{$IFDEF DELPHIXE7_UP}
+    procedure TestStableSortOrdering;
+    procedure TestStableSortStability;
+    procedure TestStableSortSubrangeSort;
+    procedure TestStableSortOrderedInput;
+    procedure TestStableSortLongRuns;
+    procedure TestStableSortString;
+    procedure TestStableSortInterface;
+    procedure TestStableSortUnmanagedRecord;
+    procedure TestStableSortManagedRecord;
+    procedure TestTimSortArrayIndexOutOfBoundsBugFix;
+{$ENDIF}
+  end;
+
+  TSortTest = class(TTestCase)
+  private type
+    TString1 = string[1];
+    TString2 = string[2];
+    TString3 = string[3];
+    TString4 = string[4];
+    TString7 = string[7];
+    {$SCOPEDENUMS ON}
+    TEnum8 =  (x00, x01, x02, x03, x04, x05, x06, x07);
+    TEnum16 = (x00, x01, x02, x03, x04, x05, x06, x07,
+              x08, x09, x0a, x0b, x0c, x0d, x0e, x0f);
+    TEnum32 = (x00, x01, x02, x03, x04, x05, x06, x07,
+              x08, x09, x0a, x0b, x0c, x0d, x0e, x0f,
+              x10, x11, x12, x13, x14, x15, x16, x17,
+              x18, x19, x1a, x1b, x1c, x1d, x1e, x1f);
+    TEnum64 = (x00, x01, x02, x03, x04, x05, x06, x07,
+              x08, x09, x0a, x0b, x0c, x0d, x0e, x0f,
+              x10, x11, x12, x13, x14, x15, x16, x17,
+              x18, x19, x1a, x1b, x1c, x1d, x1e, x1f,
+              x20, x21, x22, x23, x24, x25, x26, x27,
+              x28, x29, x2a, x2b, x2c, x2d, x2e, x2f,
+              x30, x31, x32, x33, x34, x35, x36, x37,
+              x38, x39, x3a, x3b, x3c, x3d, x3e, x3f);
+    TSet8 = set of TEnum8;
+    TSet16 = set of TEnum16;
+    TSet32 = set of TEnum32;
+    TSet64 = set of TEnum64;
+    TSet256 = set of Byte;
+    {$SCOPEDENUMS OFF}
+    TArray1 = array[0..0] of Byte;
+    TArray2 = array[0..1] of Byte;
+    TArray3 = array[0..2] of Byte;
+    TArray4 = array[0..3] of Byte;
+    TArray5 = array[0..4] of Byte;
+    TArray8 = array[0..7] of Byte;
+    TRec1 = packed record
+      a: Byte;
+    end;
+    TRec2 = packed record
+      a, b: Byte;
+    end;
+    TRec3 = packed record
+      a, b, c: Byte;
+    end;
+    TRec4 = packed record
+      a, b, c, d: Byte;
+    end;
+    TRec5 = packed record
+      a, b, c, d, e: Byte;
+    end;
+    TRec8 = packed record
+      a, b: Integer;
+    end;
+    TRec12 = packed record
+      a, b, c: Integer;
+    end;
+  private const Count = 10000;
+    class procedure TestPassing<T>(const value: T); static;
+    procedure TestSort<T>(const genvalue: Func<T>);
+    class function RandomChar: AnsiChar; static;
+  published
+    procedure Test_Int8;
+    procedure Test_Int16;
+    procedure Test_Int32;
+    procedure Test_Int64;
+    procedure Test_Single;
+    procedure Test_Double;
+    procedure Test_Extended;
+    procedure Test_Comp;
+    procedure Test_Currency;
+    procedure Test_String;
+    procedure Test_Set;
+    procedure Test_Array;
+    procedure Test_Variant;
+    procedure Test_Record;
   end;
 
   TWeakTest = class(TTestCase)
@@ -585,12 +714,23 @@ type
     procedure TestParseStringException;
   end;
 
+  TTestBaseRoutines = class(TTestCase)
+  published
+    procedure TestNextPowerOf2;
+  end;
+
+  THashKind = (xxHash32, Murmur3Hash);
+
+  TTestHash = class(TTestCase)
+  published
+    procedure TestHash([Values] hashKind: THashKind; [Range(0, 64)] len: Cardinal);
+  end;
+
 implementation
 
 uses
   DateUtils,
   FmtBcd,
-  Generics.Defaults,
   SqlTimSt,
   SysUtils,
   Variants,
@@ -598,6 +738,8 @@ uses
   StrUtils,
   TimeSpan,
   Types,
+  Spring.Comparers,
+  Spring.Hash,
   Spring.VirtualClass;
 
 
@@ -633,11 +775,7 @@ end;
 procedure TTestNullableInteger.TestAssignFloat;
 begin
   ExpectedException := EInvalidCast;
-{$IFDEF UNSAFE_NULLABLE}
-  fInteger := 99.9;
-{$ELSE}
   fInteger := Nullable<Integer>(99.9);
-{$ENDIF}
 end;
 
 procedure TTestNullableInteger.TestAssignNull;
@@ -653,21 +791,13 @@ procedure TTestNullableInteger.TestAssignStringInt;
 begin
   // Nullable does NOT do a variant type conversion but is strict about the underlying type
   ExpectedException := EInvalidCast;
-{$IFDEF UNSAFE_NULLABLE}
-  fInteger := '5';
-{$ELSE}
   fInteger := Nullable<Integer>('5');
-{$ENDIF}
 end;
 
 procedure TTestNullableInteger.TestAssignStringNonInt;
 begin
   ExpectedException := EInvalidCast;
-{$IFDEF UNSAFE_NULLABLE}
-  fInteger := '5x';
-{$ELSE}
   fInteger := Nullable<Integer>('5x');
-{$ENDIF}
 end;
 
 procedure TTestNullableInteger.TestDefaultReturnsInitialValue;
@@ -725,11 +855,7 @@ begin
   fInteger := Nullable<Integer>.Create(value);
   CheckFalse(fInteger.HasValue);
 
-{$IFDEF UNSAFE_NULLABLE}
-  fInteger := value;
-{$ELSE}
   fInteger := Nullable<Integer>(value);
-{$ENDIF}
   CheckFalse(fInteger.HasValue);
 
   value := ExpectedInteger;
@@ -775,12 +901,41 @@ var
   v: Variant;
 begin
   fBoolean := True;
-{$IFDEF UNSAFE_NULLABLE}
-  v := fBoolean;
-{$ELSE}
   v := fBoolean.ToVariant;
-{$ENDIF}
   CheckTrue(v);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TCustomRecord'}
+
+constructor TCustomRecord.Create(x, y: Integer);
+begin
+  Self.x := x;
+  Self.y := y;
+end;
+
+class operator TCustomRecord.Equal(const left, right: TCustomRecord): Boolean;
+begin
+  Result := (left.x = right.y) and (left.y = right.x);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestNullableCustomRecord'}
+
+procedure TTestNullableCustomRecord.TestEqualsUsingOperatorOverload;
+var
+  x, y: Nullable<TCustomRecord>;
+begin
+  x := TCustomRecord.Create(1, 2);
+  y := TCustomRecord.Create(1, 2);
+  CheckFalse(x = y);
+
+  y := TCustomRecord.Create(2, 1);
+  CheckTrue(x = y);
 end;
 
 {$ENDREGION}
@@ -791,9 +946,9 @@ end;
 procedure TTestMulticastEvent.SetUp;
 begin
   inherited;
-  fEvent := TMulticastNotifyEvent.Create();
+  fEvent := TNotifyEventImpl.Create();
   fProc :=
-    procedure(i: Integer; s: string)
+    procedure(const i: Integer; const s: string)
     begin
       Inc(fHandlerInvokeCount, i);
       CheckEquals(CText, s);
@@ -849,6 +1004,36 @@ begin
   Inc(fHandlerInvokeCount);
 end;
 
+procedure TTestMulticastEvent.HandlerWithRegisterParams(const value1, value2, value3: NativeInt);
+begin
+  CheckEquals(42, value1);
+  CheckEquals(43, value2);
+  CheckEquals(44, value3);
+  Inc(fHandlerInvokeCount);
+end;
+
+procedure TTestMulticastEvent.HandlerWithFloatParams(const value1, value2, value3: Double);
+begin
+  CheckEquals(42, value1);
+  CheckEquals(43, value2);
+  CheckEquals(44, value3);
+  Inc(fHandlerInvokeCount);
+end;
+
+procedure TTestMulticastEvent.HandlerWithStackParams(const value1: Int64;
+  const value2: Single; const value3: Double; const value4: Extended;
+  const value5: TEventArgs);
+begin
+  CheckEquals(42, value1);
+  CheckEquals(43, value2);
+  CheckEquals(44, value3);
+  CheckEquals(45, value4);
+  CheckEquals(46, value5.i);
+  CheckEquals('47', value5.s);
+  CheckEquals(48, value5.v);
+  Inc(fHandlerInvokeCount);
+end;
+
 procedure TTestMulticastEvent.TestAddNil;
 var
   e: Event<TNotifyEvent>;
@@ -886,7 +1071,7 @@ end;
 
 procedure TTestMulticastEvent.TestDelegate;
 var
-  e: Event<TProc<Integer, string>>;
+  e: Event<Action<Integer, string>>;
 begin
   e.Add(fProc);
   e.Invoke(CNumber, CText);
@@ -902,10 +1087,13 @@ var
   t: TEventHandler;
 begin
   t := TEventHandler.Create;
-  e.Add(t.HandleInt64);
-  e.Invoke(42);
-  CheckTrue(t.fClassHandlerInvoked);
-  t.Free;
+  try
+    e.Add(t.HandleInt64);
+    e.Invoke(42);
+    CheckTrue(t.fClassHandlerInvoked);
+  finally
+    t.Free;
+  end;
 end;
 
 procedure TTestMulticastEvent.TestInvoke;
@@ -1019,7 +1207,7 @@ end;
 
 procedure TTestMulticastEvent.TestNotifyDelegate;
 var
-  event2: Event<TProc<Integer, string>>;
+  event2: Event<Action<Integer, string>>;
 begin
   event2.OnChanged := HandleChanged;
   event2.Add(fProc);
@@ -1111,6 +1299,52 @@ begin
   CheckTrue(fEvent.UseFreeNotification);
 end;
 
+procedure TTestMulticastEvent.TestStackParams;
+var
+  event: Event<TEventWithStackParams>;
+  expected: Integer;
+  args: TEventArgs;
+begin
+  expected := 1;
+  args.i := 46;
+  args.s := '47';
+  args.v := 48;
+
+  event.Add(HandlerWithStackParams);
+  HandlerWithStackParams(42, 43, 44, 45, args);
+  event.Invoke(42, 43, 44, 45, args); Inc(expected);
+
+  CheckEquals(expected, fHandlerInvokeCount);
+end;
+
+procedure TTestMulticastEvent.TestRegisterParams;
+var
+  event: Event<TEventWithRegisterParams>;
+  expected: Integer;
+begin
+  expected := 1;
+
+  event.Add(HandlerWithRegisterParams);
+  HandlerWithRegisterParams(42, 43, 44);
+  event.Invoke(42, 43, 44); Inc(expected);
+
+  CheckEquals(expected, fHandlerInvokeCount);
+end;
+
+procedure TTestMulticastEvent.TestFloatParams;
+var
+  event: Event<TEventWithFloatParams>;
+  expected: Integer;
+begin
+  expected := 1;
+
+  event.Add(HandlerWithFloatParams);
+  HandlerWithFloatParams(42, 43, 44);
+  event.Invoke(42, 43, 44); Inc(expected);
+
+  CheckEquals(expected, fHandlerInvokeCount);
+end;
+
 procedure TEventHandler.HandleInt64(const value: Int64);
 begin
   fClassHandlerInvoked := value = 42;
@@ -1128,14 +1362,14 @@ end;
 
 procedure TTestLazy.TestByValueFactory;
 var
-  factory: TFunc<Integer>;
+  factory: Func<Integer>;
 begin
   factory :=
     function: Integer
     begin
       Result := CExpectedBalance;
     end;
-  fBalance := TLazy<Integer>.Create(factory);
+  fBalance := Lazy<Integer>(factory);
 
   CheckFalse(fBalance.IsValueCreated);
 
@@ -1150,8 +1384,11 @@ begin
   CheckTrue(IsLazyType(TypeInfo(Lazy<Integer>)));
   CheckTrue(IsLazyType(TypeInfo(ILazy<Integer>)));
   CheckTrue(IsLazyType(TypeInfo(TFunc<Integer>)));
+  CheckTrue(IsLazyType(TypeInfo(Func<Integer>)));
   CheckFalse(IsLazyType(TypeInfo(TFunc<string,Integer>)));
   CheckTrue(IsLazyType(TypeInfo(TFunc<TFunc<string,Integer>>)));
+  CheckTrue(IsLazyType(TypeInfo(Func<TFunc<string,Integer>>)));
+  CheckTrue(IsLazyType(TypeInfo(TFunc<Func<string,Integer>>)));
 end;
 
 procedure TTestLazy.Test_Initializer_RaisesArgumentException_NotReferenceType;
@@ -1162,6 +1399,25 @@ begin
   TLazyInitializer.EnsureInitialized<Integer>(i, function: Integer begin Exit(42) end);
 end;
 
+procedure TTestLazy.Issue375;
+var
+  lazyType: Lazy<TStringStream>;
+  lazyTypeValue: TValue;
+  lazyValue: TValue;
+begin
+  lazyType := Lazy<TStringStream>.Create(
+    function: TStringStream
+    begin
+      Result := TStringStream.Create;
+    end, True);
+  lazyType.Value.WriteString('Some text');
+  lazyType.Value.WriteString('Some text');
+
+  lazyTypeValue := TValue.From<Lazy<TStringStream>>(lazyType);
+  CheckTrue(IsLazyType(lazyTypeValue.TypeInfo));
+  CheckTrue(lazyTypeValue.TryGetLazyValue(lazyValue));
+end;
+
 procedure TTestLazy.TearDown;
 begin
   inherited;
@@ -1170,7 +1426,7 @@ end;
 
 procedure TTestLazy.TestByValue;
 begin
-  fBalance := TLazy<Integer>.CreateFrom(CExpectedBalance);
+  fBalance := Lazy<Integer>.CreateFrom(CExpectedBalance);
 
   CheckTrue(fBalance.IsValueCreated);
 
@@ -1291,29 +1547,23 @@ procedure TTestGuard.TestIsNullReference;
 var
   obj: TObject;
   intf: IInterface;
-{$IFNDEF NEXTGEN}
   e: TNotifyEvent;
-{$ENDIF}
 begin
   obj := nil;
   CheckTrue(Guard.IsNullReference(obj, TypeInfo(TObject)));
   CheckTrue(Guard.IsNullReference(intf, TypeInfo(IInterface)));
-{$IFNDEF NEXTGEN}
   e := nil;
   CheckTrue(Guard.IsNullReference(e, TypeInfo(TNotifyEvent)));
   TMethod(e).Data := Self;
   CheckFalse(Assigned(e));
   CheckFalse(Guard.IsNullReference(e, TypeInfo(TNotifyEvent)));
-{$ELSE}
-//  {$MESSAGE WARN 'Delphi problem'}
-{$ENDIF}
 end;
 
 procedure TTestGuard.TestNotNull;
 var
   intf: IInterface;
 begin
-  StartExpectingException(EArgumentNullException);
+  StartExpectingException(EArgumentNilException);
   Guard.CheckNotNull(intf, 'intf');
   StopExpectingException();
 end;
@@ -1549,14 +1799,12 @@ end;
 
 {$REGION 'TTestSpringEventsMethods'}
 
-{$IFNDEF NEXTGEN}
 type
   TShortString0 = String[0];
   TShortString1 = String[1];
   TShortString2 = String[2];
   TShortString255 = String[255];
   TShortString7 = String[7];
-{$ENDIF}
 
 // for reference see http://www.guidogybels.eu/asmtable3.html
 procedure TTestSpringEventsMethods.MatchType(const aTypeInfo: PTypeInfo;
@@ -1585,16 +1833,9 @@ begin
 end;
 
 procedure TTestSpringEventsMethods.SetUp;
-{$IFDEF NEXTGEN}
-const NextGenExcludedTypeKinds = [tkChar, tkString, tkLString, tkWString];
-{$ENDIF}
 begin
   inherited;
   fRemainingTypeKinds := tkAny - [tkUnknown];
-{$IFDEF NEXTGEN}
-  // NextGen does not support these types by default (unless DCU hacking is used)
-  fRemainingTypeKinds := fRemainingTypeKinds - NextGenExcludedTypeKinds;
-{$ENDIF}
   fTestedTypeKinds := [];
 end;
 
@@ -1708,7 +1949,6 @@ begin
   MatchType(TypeInfo(SmallInt), tkInteger, SizeOf(SmallInt));
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestSpringEventsMethods.Test_GetTypeSize_AnsiChar;
 begin
   MatchType(TypeInfo(AnsiChar), tkChar, SizeOf(AnsiChar));
@@ -1718,7 +1958,6 @@ procedure TTestSpringEventsMethods.Test_GetTypeSize_AnsiString;
 begin
   MatchType(TypeInfo(AnsiString), tkLString, PointerSize);
 end;
-{$ENDIF}
 
 procedure TTestSpringEventsMethods.Test_GetTypeSize_Array;
 begin
@@ -1851,7 +2090,6 @@ begin
   MatchType(TypeInfo(Single), tkFloat, SizeOf(Single));
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestSpringEventsMethods.Test_GetTypeSize_ShortString;
 begin
   MatchType(TypeInfo(ShortString), tkString, PointerSize);
@@ -1871,7 +2109,6 @@ procedure TTestSpringEventsMethods.Test_GetTypeSize_ShortString2;
 begin
   MatchType(TypeInfo(TShortString2), tkString, PointerSize);
 end;
-{$ENDIF}
 
 procedure TTestSpringEventsMethods.Test_GetTypeSize_Interface;
 begin
@@ -1883,12 +2120,10 @@ begin
   MatchType(TypeInfo(TNotifyEvent), tkMethod, PointerSize * 2);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestSpringEventsMethods.Test_GetTypeSize_PAnsiChar;
 begin
   MatchType(TypeInfo(PAnsiChar), tkPointer, PointerSize);
 end;
-{$ENDIF}
 
 procedure TTestSpringEventsMethods.Test_GetTypeSize_PChar;
 begin
@@ -1910,7 +2145,6 @@ begin
   MatchType(TypeInfo(PWideChar), tkPointer, PointerSize);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestSpringEventsMethods.Test_GetTypeSize_ShortString255;
 begin
   MatchType(TypeInfo(TShortString255), tkString, PointerSize);
@@ -1920,7 +2154,6 @@ procedure TTestSpringEventsMethods.Test_GetTypeSize_ShortString7;
 begin
   MatchType(TypeInfo(TShortString7), tkString, PointerSize);
 end;
-{$ENDIF}
 
 procedure TTestSpringEventsMethods.Test_GetTypeSize_string;
 begin
@@ -1942,12 +2175,10 @@ begin
   MatchType(TypeInfo(WideChar), tkWChar, SizeOf(WideChar));
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestSpringEventsMethods.Test_GetTypeSize_WideString;
 begin
   MatchType(TypeInfo(WideString), tkWString, PointerSize);
 end;
-{$ENDIF}
 
 procedure TTestSpringEventsMethods.Test_GetTypeSize_WordBool;
 begin
@@ -2431,9 +2662,6 @@ begin
   p := Shared<TTestClass>.Make;
   t := p;
   t.DestroyCalled := @destroyCalled;
-{$IFDEF AUTOREFCOUNT}
-  t := nil;
-{$ENDIF}
   destroyCalled := False;
   p := nil;
   CheckTrue(destroyCalled);
@@ -2448,9 +2676,6 @@ begin
   t := TTestClass.Create;
   t.DestroyCalled := @destroyCalled;
   p := Shared.Make<TTestClass>(t);
-{$IFDEF AUTOREFCOUNT}
-  t := nil;
-{$ENDIF}
   destroyCalled := False;
   p := nil;
   CheckTrue(destroyCalled);
@@ -2486,9 +2711,6 @@ begin
   t := TTestClass.Create;
   t.DestroyCalled := @destroyCalled;
   p := t;
-{$IFDEF AUTOREFCOUNT}
-  t := nil;
-{$ENDIF}
   destroyCalled := False;
   p := Default(Shared<TTestClass>);
   CheckTrue(destroyCalled);
@@ -2870,6 +3092,30 @@ begin
   DoCheckEquals;
 end;
 
+procedure TTestValueHelper.EqualsReturnsTrueForEqualArrays;
+type
+  TCharArray8 = array[0..7] of Char;
+var
+  chars: TArray<Char>;
+begin
+  fSUT := TValue.From<TCharArray8>('abcdefgh');
+  fValue := TValue.From<TCharArray8>('abcdefgh');
+  DoCheckEquals;
+
+  chars := TArray<Char>.Create('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h');
+  fValue := TValue.From<TArray<Char>>(chars);
+  DoCheckEquals;
+
+  fSUT := TValue.From<TArray<Char>>(chars);
+  DoCheckEquals;
+
+  fValue := TValue.From<TCharArray8>('abcdefgh');
+  DoCheckEquals;
+
+  fValue := TValue.From<TCharArray8>('abcdefg');
+  DoCheckEquals(False);
+end;
+
 procedure TTestValueHelper.EqualsReturnsTrueForEqualTValue;
 var
   nums: TArray<Integer>;
@@ -2984,6 +3230,7 @@ end;
 procedure TTestValueHelper.FromCustomVariantFmtBcd;
 var
   v: Variant;
+  fmt: TFormatSettings;
 begin
   v := VarFMTBcdCreate('999999999999999999', 19, 0);
   fSUT := TValue.FromVariant(v);
@@ -2994,6 +3241,19 @@ begin
   fSUT := TValue.FromVariant(v);
   Check(fSUT.Kind = tkFloat);
   CheckEquals(12.5, fSUT.AsType<Double>);
+
+  fmt.DecimalSeparator := '.';
+  v := VarFMTBcdCreate(StrToBcd('12.3456789', fmt));
+  fSUT := TValue.FromVariant(v);
+  CheckEquals(string(v), fSUT.ToString);
+
+  v := VarFMTBcdCreate(StrToBcd('12345678901234.56', fmt));
+  fSUT := TValue.FromVariant(v);
+  CheckEquals(string(v), fSUT.ToString);
+
+  v := VarFMTBcdCreate(StrToBcd('12345678901234.12345', fmt));
+  fSUT := TValue.FromVariant(v);
+  CheckEquals(string(v), fSUT.ToString);
 end;
 
 procedure TTestValueHelper.FromVariantProperlyHandlesVariantArrays;
@@ -3101,6 +3361,28 @@ begin
   fSUT := '42';
   fValue := '42';
   DoCheckCompare;
+end;
+
+procedure TTestValueHelper.Test_CurrencyToCurrency_Equals;
+var
+  value: Currency;
+begin
+  value := 12345678901234.56;
+  fSUT := value;
+  value := 12345678901234.5606;
+  fValue := value;
+  DoCheckEquals(False);
+end;
+
+procedure TTestValueHelper.Test_CurrencyToCurrency_Compare;
+var
+  value: Currency;
+begin
+  value := 12345678901234.56;
+  fSUT := value;
+  value := 12345678901234.5606;
+  fValue := value;
+  DoCheckCompare(-1);
 end;
 
 procedure TTestValueHelper.Test_Equals_ByteToInt_ValuesAreNotEqual_ReturnsFalse;
@@ -3230,7 +3512,6 @@ begin
   CheckTrue(not fSUT.TryToType<TTypeKind>(value3));
 end;
 
-{$IFNDEF DELPHI2010}
 procedure TTestValueHelper.TryToType_ConvertVariantToString;
 var
   value: string;
@@ -3239,7 +3520,6 @@ begin
   CheckTrue(fSUT.TryToType<string>(value));
   CheckTrue(value = 'foo');
 end;
-{$ENDIF}
 
 {$ENDREGION}
 
@@ -3259,15 +3539,10 @@ var
 begin
   dt := EncodeDateTime(2015, 1, 1, 12, 0, 0, 0);
   v := VarSQLTimeStampCreate(dt);
-{$IFDEF UNSAFE_NULLABLE}
-  fDateTime := v;
-{$ELSE}
   fDateTime := Nullable<TDateTime>(v);
-{$ENDIF}
   CheckEquals(dt, fDateTime.Value);
 end;
 
-{$IFNDEF DELPHI2010}
 procedure TTestNullableDateTime.TestFromVariantSQLTimestampOffset;
 var
   dt: TDateTime;
@@ -3281,14 +3556,9 @@ begin
   VarSQLTimeStampOffsetCreate(v, DateTimeToSQLTimeStampOffset(dt,
     TTimeZone.Local.GetUtcOffset(dt).Hours,
     TTimeZone.Local.GetUtcOffset(dt).Minutes));
-{$IFDEF UNSAFE_NULLABLE}
-  fDateTime := v;
-{$ELSE}
   fDateTime := Nullable<TDateTime>(v);
-{$ENDIF}
   CheckEquals(dt, fDateTime.Value);
 end;
-{$ENDIF}
 
 {$ENDREGION}
 
@@ -3306,11 +3576,7 @@ var
   v: Variant;
 begin
   v := VarFMTBcdCreate('8123456789012345678', 19, 0);
-{$IFDEF UNSAFE_NULLABLE}
-  fInt64 := v;
-{$ELSE}
   fInt64 := Nullable<Int64>(v);
-{$ENDIF}
   CheckEquals(8123456789012345678, fInt64.Value);
 end;
 
@@ -3319,7 +3585,6 @@ end;
 
 {$REGION 'TTestManagedObject'}
 
-{$IFNDEF DELPHI2010}
 constructor TTestObject.Create;
 begin
   // no inherited here for testing (initialization is done within NewInstance)
@@ -3334,6 +3599,32 @@ end;
 procedure TTestObject.SetStrValue_Prop(const Value: string);
 begin
   fStrValue_Prop := Value;
+end;
+
+procedure TTestManagedObject.TestDefaultOverride;
+var
+  obj: TTestObjectBase;
+begin
+  obj := TTestObjectBase.Create;
+  try
+    CheckEquals(42, obj.fIntValue);
+  finally
+    obj.Free;
+  end;
+
+  obj := TTestObjectDerivedA.Create;
+  try
+    CheckEquals(43, obj.fIntValue);
+  finally
+    obj.Free;
+  end;
+
+  obj := TTestObjectDerivedB.Create;
+  try
+    CheckEquals(44, obj.fIntValue);
+  finally
+    obj.Free;
+  end;
 end;
 
 procedure TTestManagedObject.TestInitialization;
@@ -3357,9 +3648,7 @@ begin
     CheckIs(obj.fObjValue, TObject);
     CheckIs(obj.fObjValue2, TPersistent);
     CheckIs(obj.fObjValue3, TObject);
-  {$IFNDEF NEXTGEN}
     CheckEquals('x', Char(obj.fAnsiCharValue));
-  {$ENDIF}
     CheckEquals('y', Char(obj.fWideCharValue));
     CheckEquals('z', Char(obj.fCharValue));
 
@@ -3376,53 +3665,505 @@ begin
     obj.Free;
   end;
 end;
-{$ENDIF}
 
 {$ENDREGION}
 
 
 {$REGION 'TArrayTest'}
 
-procedure TArrayTest.TestBinarySearchUpperBound;
+procedure TArrayTest.TestBinarySearch;
 var
-  values: TArray<Integer>;
+  i, index: Integer;
+begin
+  for i := 0 to High(ExpectedResults) do
+  begin
+    CheckEquals(ExpectedResults[i], Ord(TArray.BinarySearch<Integer>(TestData, i, index)));
+    CheckEquals(ExpectedIndexesLowerBound[i], index);
+  end;
+end;
+
+procedure TArrayTest.TestBinarySearchSubRange;
+var
   index: Integer;
 begin
-  values := TArray<Integer>.Create(1, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9);
-  CheckTrue(TArray.BinarySearchUpperBound<Integer>(values, 5, index));
+  CheckFalse(TArray.BinarySearch<Integer>(TestData, 5, index, 0, 0));
+  CheckEquals(0, index);
+  CheckFalse(TArray.BinarySearch<Integer>(TestData, 5, index, 9, 0));
+  CheckEquals(9, index);
+  CheckTrue(TArray.BinarySearch<Integer>(TestData, 5, index, 2, 8));
+  CheckEquals(4, index);
+  CheckTrue(TArray.BinarySearch<Integer>(TestData, 5, index, 5, 5));
+  CheckEquals(5, index);
+  CheckTrue(TArray.BinarySearch<Integer>(TestData, 5, index, 6, 4));
   CheckEquals(6, index);
+  CheckFalse(TArray.BinarySearch<Integer>(TestData, 5, index, 7, 3));
+  CheckEquals(7, index);
+  CheckFalse(TArray.BinarySearch<Integer>(TestData, 8, index, 2, 8));
+  CheckEquals(9, index);
+end;
+
+procedure TArrayTest.TestBinarySearchUpperBound;
+var
+  i, index: Integer;
+begin
+  for i := 0 to High(ExpectedResults) do
+  begin
+    CheckEquals(ExpectedResults[i], Ord(TArray.BinarySearchUpperBound<Integer>(TestData, i, index)));
+    CheckEquals(ExpectedIndexesUpperBound[i], index);
+  end;
 end;
 
 procedure TArrayTest.TestBinarySearchUpperBoundSubRange;
 var
-  values: TArray<Integer>;
   index: Integer;
 begin
-  values := TArray<Integer>.Create(1, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9);
-  CheckTrue(TArray.BinarySearchUpperBound<Integer>(values, 5, index,
-    TComparer<Integer>.Default(), 0, 6));
+  CheckFalse(TArray.BinarySearchUpperBound<Integer>(TestData, 5, index, 0, 0));
+  CheckEquals(0, index);
+  CheckFalse(TArray.BinarySearchUpperBound<Integer>(TestData, 5, index, 9, 0));
+  CheckEquals(9, index);
+  CheckTrue(TArray.BinarySearchUpperBound<Integer>(TestData, 5, index, 2, 8));
+  CheckEquals(6, index);
+  CheckTrue(TArray.BinarySearchUpperBound<Integer>(TestData, 5, index, 2, 4));
   CheckEquals(5, index);
+  CheckTrue(TArray.BinarySearchUpperBound<Integer>(TestData, 5, index, 2, 3));
+  CheckEquals(4, index);
+  CheckFalse(TArray.BinarySearchUpperBound<Integer>(TestData, 5, index, 7, 3));
+  CheckEquals(7, index);
+  CheckFalse(TArray.BinarySearchUpperBound<Integer>(TestData, 8, index, 2, 8));
+  CheckEquals(9, index);
 end;
 
 procedure TArrayTest.TestLastIndexOf;
 var
-  values: TArray<Integer>;
   index: Integer;
 begin
-  values := TArray<Integer>.Create(1, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9);
-  index := TArray.LastIndexOf<Integer>(values, 5);
+  index := TArray.LastIndexOf<Integer>(TestData, 5);
   CheckEquals(6, index);
 end;
 
 procedure TArrayTest.TestLastIndexOfSubRange;
 var
-  values: TArray<Integer>;
   index: Integer;
 begin
-  values := TArray<Integer>.Create(1, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9);
-  index := TArray.LastIndexOf<Integer>(values, 5, 0, 6);
+  index := TArray.LastIndexOf<Integer>(TestData, 5, 5, 6);
   CheckEquals(5, index);
 end;
+
+{$IFDEF DELPHIXE7_UP}
+procedure TArrayTest.TestStableSortOrdering;
+
+  procedure CheckArraysEqual(const values1, values2: array of Integer);
+  var
+    i: Integer;
+  begin
+    CheckEquals(Length(values1), Length(values2));
+    for i := 0 to High(values1) do
+      CheckEquals(values1[i], values2[i]);
+  end;
+
+var
+  i, j: Integer;
+  values1, values2: TArray<Integer>;
+begin
+  for i := 0 to 100 do
+  begin
+    SetLength(values1, i);
+    for j := 0 to i - 1 do
+      values1[j] := j;
+    values2 := Copy(values1);
+    for j := 0 to i do
+    begin
+      TArray.Shuffle<Integer>(values1);
+      TArray.StableSort<Integer>(values1);
+      CheckArraysEqual(values1, values2);
+    end;
+  end;
+end;
+
+procedure TArrayTest.TestStableSortStability;
+
+type
+  TRec = record
+    Value: Integer;
+    Index: Integer;
+  end;
+
+var
+  i, j, k: Integer;
+  values: TArray<TRec>;
+  comparison: TComparison<TRec>;
+begin
+  comparison :=
+    function(const Left, Right: TRec): Integer
+    begin
+      if Left.Value < Right.Value then
+        Result := -1
+      else if Left.Value > Right.Value then
+        Result := 1
+      else
+        Result := 0;
+    end;
+
+  for i := 0 to 100 do
+  begin
+    SetLength(values, i);
+    for j := 0 to i - 1 do
+      values[j].Value := j div (1 + i div 7);
+    for j := 0 to i do
+    begin
+      TArray.Shuffle<TRec>(values);
+      for k := 0 to i - 1 do
+        values[k].Index := k;
+      TArray.StableSort<TRec>(values, comparison);
+      for k := 1 to i - 1 do
+      begin
+        CheckTrue(values[k - 1].Value <= values[k].Value);
+        if values[k - 1].Value = values[k].Value then
+          CheckTrue(values[k - 1].Index < values[k].Index);
+      end;
+    end;
+  end;
+end;
+
+procedure TArrayTest.TestStableSortSubrangeSort;
+
+  procedure CheckSubRange(values: TArray<Integer>; index, count: Integer);
+  var
+    i: Integer;
+    originalValues, subRange: TArray<Integer>;
+  begin
+    TArray.Shuffle<Integer>(values);
+    originalValues := Copy(values);
+    TArray.StableSort<Integer>(values, index, count);
+    subRange := Copy(originalValues, index, count);
+    TArray.Sort<Integer>(subRange); // may as well mix this up and use Sort since test does not require stability
+    for i := Low(values) to High(values) do
+    begin
+      if (i >= index) and (i < index + count) then
+        CheckTrue(values[i] = subRange[i - index])
+      else
+        CheckTrue(values[i] = originalValues[i]);
+    end;
+  end;
+
+var
+  i: Integer;
+  values: TArray<Integer>;
+begin
+  SetLength(values, 10000);
+  for i := Low(values) to High(values) do
+    values[i] := i div 3;
+
+  for i := 0 to 250 do
+  begin
+    CheckSubRange(Values, 0, i);
+    CheckSubRange(Values, 1, i);
+    CheckSubRange(Values, 25, i);
+    CheckSubRange(Values, 8000, i);
+    CheckSubRange(Values, Length(Values) - i, i);
+  end;
+end;
+
+procedure TArrayTest.TestStableSortOrderedInput;
+var
+  i, j: Integer;
+  values: TArray<Integer>;
+begin
+  for i := 0 to 1000 do
+  begin
+    SetLength(values, i);
+    for j := Low(values) to High(values) do
+      values[j] := j;
+    TArray.StableSort<Integer>(values);
+    for j := Low(values) + 1 to High(values) do
+      CheckTrue(values[j - 1] < values[j]);
+
+    TArray.Reverse<Integer>(values);
+    TArray.StableSort<Integer>(values);
+    for j := Low(values) + 1 to High(values) do
+      CheckTrue(values[j - 1] < values[j]);
+  end;
+end;
+
+procedure TArrayTest.TestStableSortLongRuns;
+var
+  i: Integer;
+  values: TArray<Integer>;
+begin
+  SetLength(values, 100000);
+  for i := Low(values) to High(values) do
+    values[i] := i;
+  for i := 1 to 5 do
+    TArray.Swap<Integer>(@values[Random(Length(values))], @values[Random(Length(values))]);
+  TArray.StableSort<Integer>(values);
+  for i := Low(values) + 1 to High(values) do
+    CheckTrue(values[i - 1] < values[i]);
+end;
+
+procedure TArrayTest.TestStableSortString;
+var
+  i, j: Integer;
+  values1, values2: TArray<string>;
+begin
+  for i := 0 to 1000 do
+  begin
+    SetLength(values1, i);
+    for j := 0 to i - 1 do
+      values1[j] := IntToStr(j);
+    TArray.Shuffle<string>(values1);
+    values2 := Copy(values1);
+    TArray.StableSort<string>(values1);
+    TArray.Sort<string>(values2);
+    for j := 0 to i - 1 do
+      CheckEquals(values1[j], values2[j]);
+  end;
+end;
+
+procedure TArrayTest.TestStableSortInterface;
+
+  function MakeIntWrapper(i: Integer): TFunc<Integer>;
+  begin
+    Result := function: Integer begin Result := i; end;
+  end;
+
+var
+  i, j: Integer;
+  values: TArray<TFunc<Integer>>;
+  comparison: TComparison<TFunc<Integer>>;
+begin
+  comparison :=
+    function(const left, right: TFunc<Integer>): Integer
+    begin
+      Result := left() - right();
+    end;
+
+  for i := 0 to 1000 do
+  begin
+    SetLength(values, i);
+    for j := 0 to i - 1 do
+      values[j] := MakeIntWrapper(j);
+    TArray.Shuffle<TFunc<Integer>>(values);
+    TArray.StableSort<TFunc<Integer>>(values, comparison);
+    for j := 0 to i - 1 do
+      CheckEquals(j, values[j]());
+  end;
+end;
+
+procedure TArrayTest.TestStableSortUnmanagedRecord;
+
+type
+  TUnmanagedRec = record
+    HashCode: Integer;
+    Value: Integer;
+    DoubleValue: Double;
+    Stuff: array [0..15] of Byte;
+  end;
+
+var
+  i, j: Integer;
+  values: TArray<TUnmanagedRec>;
+  comparison: TComparison<TUnmanagedRec>;
+begin
+  comparison :=
+    function(const left, right: TUnmanagedRec): Integer
+    begin
+      Result := Round(left.DoubleValue - right.DoubleValue);
+    end;
+
+  for i := 0 to 1000 do
+  begin
+    SetLength(values, i);
+    for j := 0 to i - 1 do
+    begin
+      values[j].HashCode := DefaultHashFunction(j, SizeOf(j), 666);
+      values[j].Value := j;
+      values[j].DoubleValue :=j;
+      PDouble(@values[j].Stuff[0])^ := 2 * j;
+      PDouble(@values[j].Stuff[8])^ := -3 * j;
+    end;
+    TArray.Shuffle<TUnmanagedRec>(values);
+    TArray.StableSort<TUnmanagedRec>(values, comparison);
+    for j := 0 to i - 1 do
+    begin
+      CheckEquals(DefaultHashFunction(j, SizeOf(j), 666), values[j].HashCode);
+      CheckEquals(j, values[j].Value);
+      CheckEquals(j, values[j].DoubleValue);
+      CheckEquals(2 * j, PDouble(@values[j].Stuff[0])^);
+      CheckEquals(-3 * j, PDouble(@values[j].Stuff[8])^);
+    end;
+  end;
+end;
+
+procedure TArrayTest.TestStableSortManagedRecord;
+
+type
+  TManagedRec = record
+    HashCode: Integer;
+    Value: Integer;
+    DoubleValue: Double;
+    Stuff: array [0..15] of Byte;
+    Text: string;
+  end;
+
+var
+  i, j: Integer;
+  values: TArray<TManagedRec>;
+  comparison: TComparison<TManagedRec>;
+begin
+  comparison :=
+    function(const left, right: TManagedRec): Integer
+    begin
+      Result := Round(left.DoubleValue - right.DoubleValue);
+    end;
+
+  for i := 0 to 1000 do
+  begin
+    SetLength(values, i);
+    for j := 0 to i - 1 do
+    begin
+      values[j].HashCode := DefaultHashFunction(j, SizeOf(j), 666);
+      values[j].Value := j;
+      values[j].DoubleValue :=j;
+      PDouble(@values[j].Stuff[0])^ := 2 * j;
+      PDouble(@values[j].Stuff[8])^ := -3 * j;
+      values[j].Text := IntToStr(6 * j + 2);
+    end;
+    TArray.Shuffle<TManagedRec>(values);
+    TArray.StableSort<TManagedRec>(values, comparison);
+    for j := 0 to i - 1 do
+    begin
+      CheckEquals(DefaultHashFunction(j, SizeOf(j), 666), values[j].HashCode);
+      CheckEquals(j, values[j].Value);
+      CheckEquals(j, values[j].DoubleValue);
+      CheckEquals(2 * j, PDouble(@values[j].Stuff[0])^);
+      CheckEquals(-3 * j, PDouble(@values[j].Stuff[8])^);
+      CheckEquals(IntToStr(6 * j + 2), values[j].Text);
+    end;
+  end;
+end;
+
+procedure TArrayTest.TestTimSortArrayIndexOutOfBoundsBugFix;
+// see https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8072909
+// this test is only useful if the TimSort code is compiled with range checking enabled
+
+const
+  MIN_MERGE = 32;
+  len = 67108864;
+
+  function MinRunLength(n: Integer): Integer;
+  var
+    r: Integer;
+  begin
+    Assert(n >= 0);
+    r := 0; // becomes 1 if any 1 bits are shifted off
+    while n >= MIN_MERGE do
+    begin
+      r := r or (n and 1);
+      n := n shr 1;
+    end;
+    Result := n + r;
+  end;
+
+  (* Adds a sequence x_1, ..., x_n of run lengths to <code>runs</code> such that:
+     1. X = x_1 + ... + x_n
+     2. x_j >= minRun for all j
+     3. x_1 + ... + x_{j-2}  <  x_j  <  x_1 + ... + x_{j-1} for all j
+     These conditions guarantee that TimSort merges all x_j's one by one
+     (resulting in X) using only merges on the second-to-last element.
+     @param X  The sum of the sequence that should be added to runs. *)
+  procedure GenerateJDKWrongElem(const runs: IList<Integer>; minRun, X: Integer);
+  var
+    newTotal: Integer;
+  begin
+    while X >= 2 * minRun + 1 do
+    begin
+      //Default strategy
+      newTotal := X div 2 + 1;
+
+      //Specialized strategies
+      if (3 * minRun + 3 <= X) and (X <= 4 * minRun + 1) then
+        // add x_1=MIN+1, x_2=MIN, x_3=X-newTotal  to runs
+        newTotal := 2 * minRun + 1
+      else if (5 * minRun + 5 <= X) and (X <= 6 * minRun + 5) then
+        // add x_1=MIN+1, x_2=MIN, x_3=MIN+2, x_4=X-newTotal  to runs
+        newTotal := 3 * minRun + 3
+      else if (8 * minRun + 9 <= X) and (X <= 10 * minRun + 9) then
+        // add x_1=MIN+1, x_2=MIN, x_3=MIN+2, x_4=2MIN+2, x_5=X-newTotal  to runs
+        newTotal := 5 * minRun + 5
+      else if (13 * minRun + 15 <= X) and (X <= 16 * minRun + 17) then
+        // add x_1=MIN+1, x_2=MIN, x_3=MIN+2, x_4=2MIN+2, x_5=3MIN+4, x_6=X-newTotal  to runs
+        newTotal := 8 * minRun + 9;
+      runs.Insert(0, X - newTotal);
+      X := newTotal;
+    end;
+    runs.Insert(0, X);
+  end;
+
+  (* Fills <code>runs</code> with a sequence of run lengths of the form
+     Y_n     x_{n,1}   x_{n,2}   ... x_{n,l_n}
+     Y_{n-1} x_{n-1,1} x_{n-1,2} ... x_{n-1,l_{n-1}}
+     ...
+     Y_1     x_{1,1}   x_{1,2}   ... x_{1,l_1}
+     The Y_i's are chosen to satisfy the invariant throughout execution,
+     but the x_{i,j}'s are merged (by TimSort.mergeCollapse)
+     into an X_i that violates the invariant.
+     @param X  The sum of all run lengths that will be added to runs. *)
+  procedure RunsJDKWorstCase(const runs: IList<Integer>; minRun: Integer);
+  var
+    runningTotal, Y, X: Integer;
+  begin
+    runningTotal := 0;
+    Y := minRun + 4;
+    X := minRun;
+    while runningTotal + Y + X <= len do
+    begin
+      Inc(runningTotal, X + Y);
+      GenerateJDKWrongElem(runs, minRun, X);
+      runs.Insert(0, Y);
+
+      // X_{i+1} = Y_i + x_{i,1} + 1, since runs.get(1) = x_{i,1}
+      X := Y + runs[1] + 1;
+
+      // Y_{i+1} = X_{i+1} + Y_i + 1
+      Inc(Y, X + 1);
+    end;
+
+    if runningTotal + X <= len then
+    begin
+      Inc(runningTotal, X);
+      GenerateJDKWrongElem(runs, minRun, X);
+    end;
+
+    runs.Add(len - runningTotal);
+  end;
+
+  function CreateArray(const runs: IList<Integer>): TArray<Integer>;
+  var
+    endRun, runLen: Integer;
+  begin
+    SetLength(Result, len);
+    endRun := -1;
+    for runLen in runs do
+    begin
+      Inc(endRun, runLen);
+      Result[endRun] := 1;
+    end;
+    Result[len - 1] := 0;
+  end;
+
+var
+  minRun: Integer;
+  runs: IList<Integer>;
+  values: TArray<Integer>;
+begin
+  minRun := MinRunLength(len);
+  runs := TCollections.CreateList<Integer>;
+  RunsJDKWorstCase(runs, minRun);
+  values := CreateArray(runs);
+  TArray.StableSort<Integer>(values);
+  Pass;
+end;
+{$ENDIF}
 
 {$ENDREGION}
 
@@ -3636,6 +4377,319 @@ procedure TTestEnum.TestParseStringException;
 begin
   ExpectedException := EFormatException;
   TEnum.Parse<TSeekOrigin>('dummy');
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestBaseRoutines'}
+
+procedure TTestBaseRoutines.TestNextPowerOf2;
+
+  procedure TestRange(Low, High, Power: NativeInt);
+  var
+    i: NativeInt;
+  begin
+    for i := Low to High do
+      CheckEquals(Power, NextPowerOf2(i), Format('NextPowerOf2(%d) did not return %d', [i, Power]));
+  end;
+
+const
+  Pow_2_30 = 1 shl 30;
+begin
+  TestRange(-50,  0,  1);
+  TestRange(  1,  1,  2);
+  TestRange(  2,  3,  4);
+  TestRange(  4,  7,  8);
+  TestRange(  8, 15, 16);
+  TestRange( 16, 31, 32);
+
+  TestRange(Pow_2_30 - 50, Pow_2_30 - 1, Pow_2_30);
+  TestRange(High(NativeInt) div 2 + 1, High(NativeInt) div 2 + 2, Low(NativeInt));
+  TestRange(High(NativeInt) - 1, High(NativeInt), Low(NativeInt));
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TSortTest'}
+
+class function TSortTest.RandomChar: AnsiChar;
+begin
+  Result := AnsiChar(Chr(65 + Random(26)));
+end;
+
+class procedure TSortTest.TestPassing<T>(const value: T);
+begin
+end;
+
+procedure TSortTest.TestSort<T>(const genvalue: Func<T>);
+var
+  data: TArray<T>;
+  i: Integer;
+  comparer: IComparer<T>;
+begin
+  SetLength(data, Count);
+  for i := 0 to High(data) do
+    data[i] := genValue;
+  TestPassing<T>(data[0]);
+  TArray.Sort<T>(data);
+  comparer := TComparer<T>.Default;
+  for i := 1 to High(data) do
+    Check(comparer.Compare(data[i-1], data[i]) <= 0);
+end;
+
+procedure TSortTest.Test_Int8;
+begin
+  TestSort<Int8>(function: Int8 begin Result := Random(High(Int8)) end);
+end;
+
+procedure TSortTest.Test_Int16;
+begin
+  TestSort<Int16>(function: Int16 begin Result := Random(High(Int16)) end);
+end;
+
+procedure TSortTest.Test_Int32;
+begin
+  TestSort<Int32>(function: Int32 begin Result := Random(High(Int32)) end);
+end;
+
+procedure TSortTest.Test_Int64;
+begin
+  TestSort<Int64>(function: Int64 begin Result := Random(High(Int32)) end);
+end;
+
+procedure TSortTest.Test_Single;
+begin
+  TestSort<Single>(function: Single begin Result := Random() * 1000 end);
+end;
+
+procedure TSortTest.Test_Double;
+begin
+  TestSort<Double>(function: Double begin Result := Random() * 1000 end);
+end;
+
+procedure TSortTest.Test_Extended;
+begin
+  TestSort<Extended>(function: Extended begin Result := Random() * 1000 end);
+end;
+
+procedure TSortTest.Test_Comp;
+begin
+  TestSort<Comp>(function: Comp begin Result := Random() * 1000 end);
+end;
+
+procedure TSortTest.Test_Currency;
+begin
+  TestSort<Currency>(function: Currency begin Result := Random() * 1000 end);
+end;
+
+procedure TSortTest.Test_String;
+begin
+  TestSort<TString1>(function: TString1 begin
+    Result[1] := RandomChar;
+  end);
+  TestSort<TString2>(function: TString2 begin
+    Result[1] := RandomChar;
+    Result[2] := RandomChar;
+  end);
+  TestSort<TString3>(function: TString3 begin
+    Result[1] := RandomChar;
+    Result[2] := RandomChar;
+    Result[3] := RandomChar;
+  end);
+  TestSort<TString4>(function: TString4 begin
+    Result[1] := RandomChar;
+    Result[2] := RandomChar;
+    Result[3] := RandomChar;
+    Result[4] := RandomChar;
+  end);
+  TestSort<TString7>(function: TString7 var i: Integer; begin
+    for i := 1 to 7 do
+      Result[i] := RandomChar;
+  end);
+end;
+
+procedure TSortTest.Test_Set;
+begin
+  TestSort<TSet8>(function: TSet8 var i: TEnum8; begin
+    Result := [];
+    for i := Low(TEnum8) to High(TEnum8) do
+      if Random(2) = 0 then
+        Include(Result, i);
+  end);
+  TestSort<TSet16>(function: TSet16 var i: TEnum16; begin
+    Result := [];
+    for i := Low(TEnum16) to High(TEnum16) do
+      if Random(2) = 0 then
+        Include(Result, i);
+  end);
+  TestSort<TSet32>(function: TSet32 var i: TEnum32; begin
+    Result := [];
+    for i := Low(TEnum32) to High(TEnum32) do
+      if Random(2) = 0 then
+        Include(Result, i);
+  end);
+  TestSort<TSet64>(function: TSet64 var i: TEnum64; begin
+    Result := [];
+    for i := Low(TEnum64) to High(TEnum64) do
+      if Random(2) = 0 then
+        Include(Result, i);
+  end);
+  TestSort<TSet256>(function: TSet256 var i: Byte; begin
+    Result := [];
+    for i := Low(Byte) to High(Byte) do
+      if Random(2) = 0 then
+        Include(Result, i);
+  end);
+end;
+
+procedure TSortTest.Test_Array;
+begin
+  TestSort<TArray1>(function: TArray1 begin
+    Result[0] := Random(High(Byte));
+  end);
+  TestSort<TArray2>(function: TArray2 begin
+    Result[0] := Random(High(Byte));
+    Result[1] := Random(High(Byte));
+  end);
+  TestSort<TArray3>(function: TArray3 begin
+    Result[0] := Random(High(Byte));
+    Result[1] := Random(High(Byte));
+    Result[2] := Random(High(Byte));
+  end);
+  TestSort<TArray4>(function: TArray4 begin
+    Result[0] := Random(High(Byte));
+    Result[1] := Random(High(Byte));
+    Result[2] := Random(High(Byte));
+    Result[3] := Random(High(Byte));
+  end);
+  TestSort<TArray5>(function: TArray5 var i: Integer; begin
+    for i := 0 to 4 do
+      Result[i] := Random(High(Byte));
+  end);
+  TestSort<TArray8>(function: TArray8 var i: Integer; begin
+    for i := 0 to 7 do
+      Result[i] := Random(High(Byte));
+  end);
+end;
+
+procedure TSortTest.Test_Variant;
+begin
+  TestSort<Variant>(function: Variant begin
+    Result := Random(High(Integer));
+  end);
+end;
+
+procedure TSortTest.Test_Record;
+begin
+  TestSort<TRec1>(function: TRec1 begin
+    Result.a := Random(High(Byte));
+  end);
+  TestSort<TRec2>(function: TRec2 begin
+    Result.a := Random(High(Byte));
+    Result.b := Random(High(Byte));
+  end);
+  TestSort<TRec3>(function: TRec3 begin
+    Result.a := Random(High(Byte));
+    Result.b := Random(High(Byte));
+    Result.c := Random(High(Byte));
+  end);
+  TestSort<TRec4>(function: TRec4 begin
+    Result.a := Random(High(Byte));
+    Result.b := Random(High(Byte));
+    Result.c := Random(High(Byte));
+    Result.d := Random(High(Byte));
+  end);
+  TestSort<TRec5>(function: TRec5 begin
+    Result.a := Random(High(Byte));
+    Result.b := Random(High(Byte));
+    Result.c := Random(High(Byte));
+    Result.d := Random(High(Byte));
+    Result.e := Random(High(Byte));
+  end);
+  TestSort<TRec8>(function: TRec8 begin
+    Result.a := Random(High(Integer));
+    Result.b := Random(High(Integer));
+  end);
+  TestSort<TRec12>(function: TRec12 begin
+    Result.a := Random(High(Integer));
+    Result.b := Random(High(Integer));
+    Result.c := Random(High(Integer));
+  end);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTestHash'}
+
+procedure TTestHash.TestHash(hashKind: THashKind; len: Cardinal);
+const
+  // test data generated using Python mmh3 and xxhash modules
+  Data: array [0..63] of Byte = (
+    208, 117, 92, 62, 156, 212, 232, 10, 35, 8, 31, 230, 228, 102, 224, 58,
+    53, 25, 103, 147, 179, 175, 210, 84, 17, 158, 140, 126, 98, 98, 25, 120,
+    107, 167, 23, 87, 158, 237, 185, 74, 200, 146, 231, 119, 143, 138, 200,
+    172, 241, 93, 30, 70, 178, 63, 21, 44, 83, 159, 38, 242, 19, 166, 62, 97
+  );
+
+  // results generated using Python mmh3 and xxhash modules
+  (*
+    import mmh3
+    import xxhash
+
+    data = bytes([
+        208, 117, 92, 62, 156, 212, 232, 10, 35, 8, 31, 230, 228, 102, 224, 58,
+        53, 25, 103, 147, 179, 175, 210, 84, 17, 158, 140, 126, 98, 98, 25, 120,
+        107, 167, 23, 87, 158, 237, 185, 74, 200, 146, 231, 119, 143, 138, 200,
+        172, 241, 93, 30, 70, 178, 63, 21, 44, 83, 159, 38, 242, 19, 166, 62, 97
+    ])
+    print('input data')
+    print(', '.join([str(byte) for byte in data]))
+
+    mmh3h = [mmh3.hash(data[:len], 0xDEADBEEF) for len in range(65)]
+    print('mmh3')
+    print(', '.join('${:x}'.format(hash & 0xFFFFFFFF) for hash in mmh3h))
+
+    xxhash32h = [xxhash.xxh32(data[:len], 0xDEADBEEF) for len in range(65)]
+    print('xxhash32')
+    print(', '.join('${:x}'.format(hash.intdigest() & 0xFFFFFFFF) for hash in xxhash32h))
+  *)
+  ExpectedResults: array[THashKind, 0..64] of Cardinal = (
+    // xxHash32
+    (
+      $c372c6cb,
+      $e5f216a3, $0af6a55a, $40a90440, $03a549c5, $3b99221e, $fa164638, $7bcbf3c7, $e83a09d9,
+      $106efc1d, $8a9ce6e6, $fe5b8b51, $c8827864, $a5242ac6, $ab86ba02, $eeea2f7f, $5ae17b66,
+      $f8941f27, $aff57b0d, $9d039176, $43f5a52f, $5ca7d512, $77e0f040, $5ab1b93a, $46733668,
+      $534b5035, $d48af9d6, $7bbfc89d, $028abc3a, $267414eb, $1707db61, $7090c40b, $b36235df,
+      $68c68326, $a991ecd9, $335e17a0, $6a3fafd2, $51ebc2f5, $cbf1407e, $5ce8404b, $711181d5,
+      $b6b13b3f, $bdc248ed, $2c0d8235, $a33ce951, $0aba04ea, $295420b0, $d5b42bc0, $285d177f,
+      $5ce588c2, $fbeadfa1, $9b187c03, $4769a55b, $50f2669d, $e2e281ae, $89bf3044, $411c7bb3,
+      $d2173590, $43553094, $14b0d583, $07d1fe61, $e55f8855, $ab440b8e, $b5b7652a, $d3b4aa34
+    ),
+    // MurmurHash3
+    (
+      $0de5c6a9,
+      $42e92f47, $9eaac96c, $c48ae3bd, $2dafc77c, $fef89a7f, $e1241ce9, $cd21f3c5, $57ac4e2a,
+      $a4dee050, $49f322e2, $0bf78fbe, $5cd88bbe, $5c6bf74c, $e1e36aa6, $2a338652, $a51e1300,
+      $c04472ea, $5d553691, $f1ce041e, $97a46b33, $716ffc60, $e9a8a4df, $9634b6ff, $d644ecc4,
+      $431edce0, $111f82c5, $9bb9fd33, $7faad2cc, $3c3edc99, $c63467b2, $33cbe27e, $a6af9905,
+      $d7a690bd, $debaaeab, $be8cee99, $8339ee23, $86c4ec4d, $4bd40901, $c0ea88c6, $a8b4420b,
+      $0f7c34b0, $697a2423, $452acf1a, $803074d6, $add9a248, $69ab4d82, $b87c8b80, $2bdd6015,
+      $9ddce451, $139e2db6, $35105699, $4c8678c6, $4ba58bb0, $04478d61, $6906fea6, $7f8f1b82,
+      $6a89407a, $22dca392, $e33c5839, $13a53c29, $19872049, $92529e7b, $4aeb837f, $98258a10
+    )
+  );
+
+  HashFunction: array[THashKind] of THashFunction = (
+    Spring.Hash.xxHash32, Spring.Hash.MurmurHash3
+  );
+
+  Seed = Integer($deadbeef);
+begin
+  CheckEquals(ExpectedResults[hashKind, len], Cardinal(HashFunction[hashKind](Data[0], len, Seed)));
 end;
 
 {$ENDREGION}

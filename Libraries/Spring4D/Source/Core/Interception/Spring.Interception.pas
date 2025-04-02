@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -111,7 +111,8 @@ type
   IDynamicProxy = interface
     ['{7DDA3562-3F82-4FA0-9869-9FB27E0CF89D}']
     procedure AddAdditionalInterface(typeInfo: PTypeInfo;
-      const options: TProxyGenerationOptions);
+      const options: TProxyGenerationOptions;
+      const interceptors: array of IInterceptor);
   end;
 
   TProxyGenerator = record
@@ -409,7 +410,7 @@ end;
 
 class function TProxyGenerationOptions.Default: TProxyGenerationOptions;
 begin
-  Result := TProxyGenerationOptions.Create(TAllMethodsHook.Create);
+  Result := TProxyGenerationOptions.Create(TAllMethodsHook.Create); //FI:W536
   Result.Selector := TAllInterceptorsSelector.Create;
 end;
 

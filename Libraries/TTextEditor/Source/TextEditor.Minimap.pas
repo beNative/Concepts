@@ -3,8 +3,7 @@
 interface
 
 uses
-  System.Classes, System.UITypes, Vcl.Graphics, TextEditor.Minimap.Colors, TextEditor.Minimap.Indicator,
-  TextEditor.Minimap.Shadow, TextEditor.Types;
+  System.Classes, System.UITypes, TextEditor.Minimap.Indicator, TextEditor.Minimap.Shadow, TextEditor.Types;
 
 type
   TTextEditorMinimap = class(TPersistent)
@@ -12,10 +11,8 @@ type
     FAlign: TTextEditorMinimapAlign;
     FCharHeight: Integer;
     FClicked: Boolean;
-    FColors: TTextEditorMinimapColors;
     FCursor: TCursor;
     FDragging: Boolean;
-    FFont: TFont;
     FIndicator: TTextEditorMinimapIndicator;
     FOnChange: TNotifyEvent;
     FOptions: TTextEditorMinimapOptions;
@@ -26,8 +23,6 @@ type
     FWidth: Integer;
     procedure DoChange;
     procedure SetAlign(const AValue: TTextEditorMinimapAlign);
-    procedure SetColors(const AValue: TTextEditorMinimapColors);
-    procedure SetFont(AValue: TFont);
     procedure SetOnChange(const AValue: TNotifyEvent);
     procedure SetVisible(const AValue: Boolean);
     procedure SetWidth(const AValue: Integer);
@@ -46,9 +41,7 @@ type
     property VisibleLineCount: Integer read FVisibleLineCount write FVisibleLineCount;
   published
     property Align: TTextEditorMinimapAlign read FAlign write SetAlign default maRight;
-    property Colors: TTextEditorMinimapColors read FColors write SetColors;
     property Cursor: TCursor read FCursor write FCursor default crArrow;
-    property Font: TFont read FFont write SetFont;
     property Indicator: TTextEditorMinimapIndicator read FIndicator write FIndicator;
     property Options: TTextEditorMinimapOptions read FOptions write FOptions default [];
     property Shadow: TTextEditorMinimapShadow read FShadow write FShadow;
@@ -66,32 +59,21 @@ begin
   inherited;
 
   FAlign := maRight;
-
-  FFont := TFont.Create;
-  FFont.Name := 'Courier New';
-  FFont.Size := 1;
-  FFont.Style := [];
-
-  FVisible := False;
-  FWidth := 140;
+  FClicked := False;
+  FCursor := crArrow;
   FDragging := False;
   FOptions := [];
-  FCursor := crArrow;
-
-  FClicked := False;
-
   FTopLine := 1;
+  FVisible := False;
+  FWidth := 140;
 
   FIndicator := TTextEditorMinimapIndicator.Create;
-  FColors := TTextEditorMinimapColors.Create;
   FShadow := TTextEditorMinimapShadow.Create;
 end;
 
 destructor TTextEditorMinimap.Destroy;
 begin
-  FFont.Free;
   FIndicator.Free;
-  FColors.Free;
   FShadow.Free;
 
   inherited Destroy;
@@ -103,13 +85,12 @@ begin
   with ASource as TTextEditorMinimap do
   begin
     Self.FAlign := FAlign;
-    Self.FColors.Assign(FColors);
     Self.FShadow.Assign(FShadow);
-    Self.FFont.Assign(FFont);
     Self.FOptions := FOptions;
     Self.FVisible := FVisible;
     Self.FWidth := FWidth;
     Self.FCursor := FCursor;
+
     Self.DoChange;
   end
   else
@@ -119,14 +100,12 @@ end;
 procedure TTextEditorMinimap.ChangeScale(const AMultiplier, ADivider: Integer);
 begin
   FWidth := MulDiv(FWidth, AMultiplier, ADivider);
-  FFont.Height := MulDiv(FFont.Height, AMultiplier, ADivider);
   DoChange;
 end;
 
 procedure TTextEditorMinimap.SetOnChange(const AValue: TNotifyEvent);
 begin
   FOnChange := AValue;
-  FFont.OnChange := AValue;
   FIndicator.OnChange := AValue;
   FShadow.OnChange := AValue;
 end;
@@ -150,18 +129,9 @@ begin
   if FAlign <> AValue then
   begin
     FAlign := AValue;
+
     DoChange;
   end;
-end;
-
-procedure TTextEditorMinimap.SetColors(const AValue: TTextEditorMinimapColors);
-begin
-  FColors.Assign(AValue);
-end;
-
-procedure TTextEditorMinimap.SetFont(AValue: TFont);
-begin
-  FFont.Assign(AValue);
 end;
 
 procedure TTextEditorMinimap.SetWidth(const AValue: Integer);
@@ -169,9 +139,11 @@ var
   LValue: Integer;
 begin
   LValue := Max(0, AValue);
+
   if FWidth <> LValue then
   begin
     FWidth := LValue;
+
     DoChange;
   end;
 end;

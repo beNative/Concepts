@@ -3,7 +3,7 @@
 interface
 
 uses
-  System.Classes, System.Types, TextEditor.Caret.MultiEdit, TextEditor.Caret.NonBlinking, TextEditor.Caret.Offsets,
+  System.Classes, TextEditor.Caret.MultiEdit, TextEditor.Caret.NonBlinking, TextEditor.Caret.Offsets,
   TextEditor.Caret.Styles, TextEditor.Types;
 
 type
@@ -34,7 +34,7 @@ type
     property MultiEdit: TTextEditorCaretMultiEdit read FMultiEdit write SetMultiEdit;
     property NonBlinking: TTextEditorCaretNonBlinking read FNonBlinking write SetNonBlinking;
     property Offsets: TTextEditorCaretOffsets read FOffsets write SetOffsets;
-    property Options: TTextEditorCaretOptions read FOptions write SetOptions;
+    property Options: TTextEditorCaretOptions read FOptions write SetOptions default [];
     property Styles: TTextEditorCaretStyles read FStyles write SetStyles;
     property Visible: Boolean read FVisible write SetVisible default True;
   end;
@@ -50,6 +50,7 @@ begin
   FOffsets := TTextEditorCaretOffsets.Create;
   FStyles := TTextEditorCaretStyles.Create;
   FVisible := True;
+  FOptions := [];
 end;
 
 destructor TTextEditorCaret.Destroy;
@@ -73,6 +74,7 @@ begin
     Self.FOffsets.Assign(FOffsets);
     Self.FOptions := FOptions;
     Self.FVisible := FVisible;
+
     Self.DoChange(Self);
   end
   else
@@ -114,6 +116,7 @@ begin
   if FVisible <> AValue then
   begin
     FVisible := AValue;
+
     DoChange(Self);
   end;
 end;
@@ -136,6 +139,7 @@ begin
   if FOptions <> AValue then
   begin
     FOptions := AValue;
+
     DoChange(Self);
   end;
 end;

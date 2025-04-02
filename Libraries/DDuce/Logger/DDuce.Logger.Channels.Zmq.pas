@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ type
     function GetEnabled: Boolean; override;
     function GetEndPoint: string;
     procedure SetEndPoint(const Value: string);
-    function GetPort: Integer; override;
+    function GetPort: Integer; virtual;
     function GetConnected: Boolean; override;
     {$ENDREGION}
 
@@ -87,7 +87,9 @@ implementation
 uses
   Spring, Spring.Helpers, Spring.SystemUtils,
 
-  ZeroMQ.API;
+  ZeroMQ.API,
+
+  DDuce.Logger;
 
 {$REGION 'construction and destruction'}
 constructor TZmqChannel.Create(const AEndPoint: string; AActive: Boolean);
@@ -221,6 +223,17 @@ const
 var
   LTextSize : Integer;
   LDataSize : Integer;
+  S         : string;
+
+  function ToHexString(const S: string): string;
+  var
+    I: Integer;
+  begin
+    Result := '';
+    for I := 1 to Length(S) do
+      Result := Result + IntToHex(Ord(S[I]), 2);
+  end;
+
 begin
   if Enabled then
   begin
@@ -252,6 +265,8 @@ begin
       else
         FBuffer.WriteBuffer(ZERO_BUFFER);
       Result := FPublisher.SendString(FBuffer.DataString) > 0;
+      S := ToHexString(FBuffer.DataString);
+      Logger.Send(S);
     end
     else
     begin

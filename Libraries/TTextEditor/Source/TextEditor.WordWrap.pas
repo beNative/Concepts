@@ -3,20 +3,18 @@
 interface
 
 uses
-  System.Classes, Vcl.Graphics, TextEditor.Glyph, TextEditor.Types, TextEditor.WordWrap.Colors;
+  System.Classes, Vcl.Graphics, TextEditor.Glyph, TextEditor.Types;
 
 type
   TTextEditorWordWrap = class(TPersistent)
   strict private
     FActive: Boolean;
     FBitmap: Vcl.Graphics.TBitmap;
-    FColors: TTextEditorWordWrapColors;
     FIndicator: TTextEditorGlyph;
     FOnChange: TNotifyEvent;
     FWidth: TTextEditorWordWrapWidth;
     procedure DoChange;
     procedure SetActive(const AValue: Boolean);
-    procedure SetColors(const AValue: TTextEditorWordWrapColors);
     procedure SetIndicator(const AValue: TTextEditorGlyph);
     procedure SetOnChange(const AValue: TNotifyEvent);
     procedure SetWidth(const AValue: TTextEditorWordWrapWidth);
@@ -24,11 +22,11 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Assign(ASource: TPersistent); override;
-    procedure CreateInternalBitmap;
+    procedure CreateIndicatorBitmap(const AArrowColor: TColor; const ALineColor: TColor);
+    procedure FreeIndicatorBitmap;
     property OnChange: TNotifyEvent read FOnChange write SetOnChange;
   published
     property Active: Boolean read FActive write SetActive default False;
-    property Colors: TTextEditorWordWrapColors read FColors write SetColors;
     property Indicator: TTextEditorGlyph read FIndicator write SetIndicator;
     property Width: TTextEditorWordWrapWidth read FWidth write SetWidth default wwwPage;
   end;
@@ -43,18 +41,16 @@ begin
   inherited;
 
   FActive := False;
-  FColors := TTextEditorWordWrapColors.Create;
   FIndicator := TTextEditorGlyph.Create(HInstance, '', TColors.Fuchsia);
   FWidth := wwwPage;
-
-  CreateInternalBitmap;
+  FBitmap := nil;
 end;
 
 destructor TTextEditorWordWrap.Destroy;
 begin
-  FBitmap.Free;
+  FreeIndicatorBitmap;
+
   FIndicator.Free;
-  FColors.Free;
 
   inherited;
 end;
@@ -64,31 +60,38 @@ begin
   if Assigned(ASource) and (ASource is TTextEditorWordWrap) then
   with ASource as TTextEditorWordWrap do
   begin
-    Self.FColors.Assign(FColors);
     Self.FActive := FActive;
     Self.FWidth := FWidth;
     Self.FIndicator.Assign(FIndicator);
+
     Self.DoChange;
   end
   else
     inherited Assign(ASource);
 end;
 
-procedure TTextEditorWordWrap.CreateInternalBitmap;
+procedure TTextEditorWordWrap.FreeIndicatorBitmap;
 begin
   if Assigned(FBitmap) then
   begin
     FBitmap.Free;
     FBitmap := nil;
   end;
+end;
+
+procedure TTextEditorWordWrap.CreateIndicatorBitmap(const AArrowColor: TColor; const ALineColor: TColor);
+begin
+  if Assigned(FBitmap) then
+    Exit;
 
   FBitmap := Vcl.Graphics.TBitmap.Create;
+
   with FBitmap do
   begin
     Canvas.Brush.Color := TColors.Fuchsia;
     Width := 15;
     Height := 14;
-    Canvas.Pen.Color := FColors.Arrow;
+    Canvas.Pen.Color := AArrowColor;
     Canvas.MoveTo(6, 4);
     Canvas.LineTo(13, 4);
     Canvas.MoveTo(13, 5);
@@ -99,7 +102,7 @@ begin
     Canvas.LineTo(10, 12);
     Canvas.MoveTo(9, 8);
     Canvas.LineTo(9, 11);
-    Canvas.Pen.Color := FColors.Lines;
+    Canvas.Pen.Color := ALineColor;
     Canvas.MoveTo(2, 6);
     Canvas.LineTo(7, 6);
     Canvas.MoveTo(2, 8);
@@ -131,6 +134,7 @@ begin
   if FActive <> AValue then
   begin
     FActive := AValue;
+
     DoChange;
   end;
 end;
@@ -145,13 +149,9 @@ begin
   if FWidth <> AValue then
   begin
     FWidth := AValue;
+
     DoChange;
   end;
-end;
-
-procedure TTextEditorWordWrap.SetColors(const AValue: TTextEditorWordWrapColors);
-begin
-  FColors.Assign(AValue);
 end;
 
 end.

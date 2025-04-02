@@ -1,8 +1,8 @@
 object frmSelectionInfo: TfrmSelectionInfo
-  Left = -652
-  Top = 203
+  Left = 304
+  Top = 304
   ClientHeight = 615
-  ClientWidth = 434
+  ClientWidth = 446
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -10,13 +10,11 @@ object frmSelectionInfo: TfrmSelectionInfo
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = True
-  PixelsPerInch = 96
   TextHeight = 13
   object pgcMain: TPageControl
     Left = 0
     Top = 0
-    Width = 434
+    Width = 446
     Height = 615
     ActivePage = tsSelectionInfo
     Align = alClient
@@ -26,18 +24,19 @@ object frmSelectionInfo: TfrmSelectionInfo
       object pnlSelectionInfo: TPanel
         Left = 0
         Top = 0
-        Width = 426
-        Height = 587
+        Width = 441
+        Height = 590
         Align = alClient
         TabOrder = 0
         DesignSize = (
-          426
+          438
           587)
         object lblStoredBlockBegin: TLabel
           Left = 8
           Top = 8
           Width = 93
           Height = 13
+          Margins.Bottom = 2
           Caption = 'StoredBlockBegin:'
           Color = clBtnFace
           ParentColor = False
@@ -47,6 +46,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 33
           Width = 84
           Height = 13
+          Margins.Bottom = 2
           Caption = 'StoredBlockEnd:'
           Color = clBtnFace
           ParentColor = False
@@ -56,6 +56,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 8
           Width = 131
           Height = 13
+          Margins.Bottom = 2
           Caption = 'lblStoredBlockBeginValue'
           Color = clBtnFace
           ParentColor = False
@@ -65,6 +66,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 33
           Width = 122
           Height = 13
+          Margins.Bottom = 2
           Caption = 'lblStoredBlockEndValue'
           Color = clBtnFace
           ParentColor = False
@@ -74,6 +76,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 304
           Width = 114
           Height = 13
+          Margins.Bottom = 2
           Caption = 'lblStoredBlockLines'
           Color = clWhite
           Font.Charset = DEFAULT_CHARSET
@@ -90,6 +93,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 83
           Width = 141
           Height = 13
+          Margins.Bottom = 2
           Caption = 'StoredBlockSelectionMode:'
           Color = clBtnFace
           ParentColor = False
@@ -99,6 +103,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 83
           Width = 179
           Height = 13
+          Margins.Bottom = 2
           Caption = 'lblStoredBlockSelectionModeValue'
           Color = clBtnFace
           ParentColor = False
@@ -108,6 +113,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 108
           Width = 59
           Height = 13
+          Margins.Bottom = 2
           Caption = 'BlockBegin:'
           Color = clBtnFace
           ParentColor = False
@@ -117,6 +123,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 133
           Width = 50
           Height = 13
+          Margins.Bottom = 2
           Caption = 'BlockEnd:'
           Color = clBtnFace
           ParentColor = False
@@ -126,6 +133,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 108
           Width = 97
           Height = 13
+          Margins.Bottom = 2
           Caption = 'lblBlockBeginValue'
           Color = clBtnFace
           ParentColor = False
@@ -135,6 +143,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 133
           Width = 88
           Height = 13
+          Margins.Bottom = 2
           Caption = 'lblBlockEndValue'
           Color = clBtnFace
           ParentColor = False
@@ -144,6 +153,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 158
           Width = 41
           Height = 13
+          Margins.Bottom = 2
           Caption = 'CaretXY:'
           Color = clBtnFace
           ParentColor = False
@@ -153,6 +163,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 158
           Width = 79
           Height = 13
+          Margins.Bottom = 2
           Caption = 'lblCaretXYValue'
           Color = clBtnFace
           ParentColor = False
@@ -162,6 +173,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 183
           Width = 77
           Height = 13
+          Margins.Bottom = 2
           Caption = 'LogicalCaretXY:'
           Color = clBtnFace
           ParentColor = False
@@ -171,6 +183,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 183
           Width = 115
           Height = 13
+          Margins.Bottom = 2
           Caption = 'lblLogicalCaretXYValue'
           Color = clBtnFace
           ParentColor = False
@@ -180,6 +193,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 58
           Width = 75
           Height = 13
+          Margins.Bottom = 2
           Caption = 'StoredCaretXY:'
           Color = clBtnFace
           ParentColor = False
@@ -189,6 +203,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 58
           Width = 113
           Height = 13
+          Margins.Bottom = 2
           Caption = 'lblStoredCaretXYValue'
           Color = clBtnFace
           ParentColor = False
@@ -198,6 +213,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 208
           Width = 56
           Height = 13
+          Margins.Bottom = 2
           Caption = 'LineCount:'
           Color = clBtnFace
           ParentColor = False
@@ -207,6 +223,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 208
           Width = 94
           Height = 13
+          Margins.Bottom = 2
           Caption = 'lblLineCountValue'
           Color = clBtnFace
           ParentColor = False
@@ -216,6 +233,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 336
           Width = 39
           Height = 13
+          Margins.Bottom = 2
           Caption = 'SelStart'
         end
         object lblSelEnd: TLabel
@@ -223,6 +241,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 376
           Width = 35
           Height = 13
+          Margins.Bottom = 2
           Caption = 'SelEnd'
         end
         object lblSelStartValue: TLabel
@@ -230,6 +249,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 336
           Width = 52
           Height = 13
+          Margins.Bottom = 2
           Caption = 'lblSelStart'
         end
         object lblSelEndValue: TLabel
@@ -237,6 +257,7 @@ object frmSelectionInfo: TfrmSelectionInfo
           Top = 376
           Width = 48
           Height = 13
+          Margins.Bottom = 2
           Caption = 'lblSelEnd'
         end
         object btnStore: TButton
@@ -278,14 +299,16 @@ object frmSelectionInfo: TfrmSelectionInfo
         object mmoBlock: TMemo
           Left = 0
           Top = 437
-          Width = 423
-          Height = 146
+          Width = 432
+          Height = 143
           Anchors = [akLeft, akTop, akRight, akBottom]
           BevelInner = bvNone
           BevelOuter = bvNone
           BorderStyle = bsNone
           TabOrder = 4
           OnChange = mmoBlockChange
+          ExplicitWidth = 435
+          ExplicitHeight = 146
         end
       end
     end

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -375,12 +375,12 @@ end;
 
 procedure TProxyTest.Should_be_able_to_wrap_interface_with_one_method;
 var
-  len: TFunc<string, Integer>;
+  len: Func<string, Integer>;
   wrapped: IAnsweringEngine;
   i: Integer;
 begin
   len :=
-    function(s: string): Integer
+    function(const s: string): Integer
     begin
       Result := Length(s);
     end;
@@ -692,7 +692,7 @@ procedure TTestInterception.TestByRegistrationOfInterface;
 var
   service: IService;
 begin
-  fContainer.RegisterType<IService>.DelegateTo(
+  fContainer.RegisterType<IService>(
     function: IService
     begin
       Result := TService.Create;
@@ -708,7 +708,7 @@ procedure TTestInterception.TestByRegistrationWithSelector;
 var
   service: IService;
 begin
-  fContainer.Kernel.ProxyFactory.AddInterceptorSelector(
+  fContainer.ProxyFactory.AddInterceptorSelector(
     TMyInterceptorSelector.Create as IModelInterceptorsSelector);
   fContainer.RegisterType<TService>;
   fContainer.Build;

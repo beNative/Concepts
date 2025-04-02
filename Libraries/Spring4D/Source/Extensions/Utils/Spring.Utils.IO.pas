@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -35,8 +35,6 @@ uses
   SysUtils,
 {$IFDEF MSWINDOWS}
   ActiveX,
-  ComObj,
-  ShellAPI,
   Windows,
 {$ENDIF MSWINDOWS}
   Spring,
@@ -349,10 +347,13 @@ type
     // property SizeOnDisk: TSize read GetSizeOnDisk;
     property CreationTime: TDateTime read GetCreationTime;
     property CreationTimeUtc: TDateTime read GetCreationTimeUtc;
+    property CreationTimeRaw: TFileTime read fCreationTime;
     property LastAccessTime: TDateTime read GetLastAccessTime;
     property LastAccessTimeUtc: TDateTime read GetLastAccessTimeUtc;
+    property LastAccessTimeRaw: TFileTime read fLastAccessTime;
     property LastWriteTime: TDateTime read GetLastWriteTime;
     property LastWriteTimeUtc: TDateTime read GetLastWriteTimeUtc;
+    property LastWriteTimeRaw: TFileTime read fLastWriteTime;
     property AttributeFlags: Cardinal read fAttributeFlags;
 
     /// <summary>
@@ -477,8 +478,7 @@ type
 
 
 {$IFDEF MSWINDOWS}
-  // Spring.TPredicate<TFileSystemEntry>
-  TFileSystemEntryPredicate = reference to function (const entry:TFileSystemEntry): Boolean;
+  TFileSystemEntryPredicate = Predicate<TFileSystemEntry>;
 
   /// <summary>
   ///   Inspects a file enumerator.
@@ -495,7 +495,7 @@ type
     procedure Initialize(const inspector: IFileEnumeratorInspector);
   end;
 
-  TFileEnumerable = class(TEnumerableBase<TFileSystemEntry>)
+  TFileEnumerable = class(TEnumerableBase<TFileSystemEntry>, IFileEnumerable)
   private
     fPath: string;
     fSearchPattern: string;
@@ -508,10 +508,10 @@ type
   public
     constructor Create(const path, searchPattern: string; attributes: Cardinal;
       includeSubfolders: Boolean);
-    function GetEnumerator: IEnumerator<TFileSystemEntry>; override;
+    function GetEnumerator: IEnumerator<TFileSystemEntry>;
   end;
 
-  TFileEnumeratorBase = class abstract(TEnumeratorBase<TFileSystemEntry>, ISupportFileEnumeratorInspector)
+  TFileEnumeratorBase = class abstract(TInterfacedObject, ISupportFileEnumeratorInspector)
   private
     fInspector: IFileEnumeratorInspector;
     function GetIsTerminated: Boolean;
@@ -524,7 +524,7 @@ type
     procedure Initialize(const inspector: IFileEnumeratorInspector); virtual;
   end;
 
-  TFileEnumerator = class(TFileEnumeratorBase)
+  TFileEnumerator = class(TFileEnumeratorBase, IEnumerator<TFileSystemEntry>)
   protected
     type
       PSearchContext = ^TSearchContext;
@@ -571,14 +571,14 @@ type
     function Accept(const entry: TFileSystemEntry): Boolean; virtual;
     property Stacks: TStack<TSearchContext> read fStacks;
   protected
-    function GetCurrent: TFileSystemEntry; override;
+    function GetCurrent: TFileSystemEntry;
     { ISupportFileEnumeratorInspector }
     procedure Initialize(const inspector: IFileEnumeratorInspector); override;
   public
     constructor Create(const path, searchPattern: string;
       attributes: Cardinal; includeSubfolders: Boolean); overload;
     destructor Destroy; override;
-    function MoveNext: Boolean; override;
+    function MoveNext: Boolean;
   end;
 
   /// <summary>
@@ -589,22 +589,22 @@ type
     fFiles: TStrings;
   public
     constructor Create(files: TStrings);
-    function GetEnumerator: IEnumerator<TFileSystemEntry>; override;
+    function GetEnumerator: IEnumerator<TFileSystemEntry>;
   end;
 
-  TFileListEnumerator = class(TFileEnumeratorBase)
+  TFileListEnumerator = class(TFileEnumeratorBase, IFileEnumerator)
   private
     fFiles: TStrings;
     fIndex: Integer;
     fEntry: TFileSystemEntry;
   protected
     procedure GetFileSystemEntry(const path: string; out entry: TFileSystemEntry); virtual;
-    function GetCurrent: TFileSystemEntry; override;
+    function GetCurrent: TFileSystemEntry;
   public
     constructor Create(files: TStrings);
 //    constructor Create(files: TStrings; const searchPattern: string;
 //      attributes: Cardinal; includeSubfolders: Boolean);
-    function MoveNext: Boolean; override;
+    function MoveNext: Boolean;
   end;
 
   /// <summary>
@@ -618,7 +618,7 @@ type
     constructor Create(dropHandle: THandle); overload;
     constructor Create(const dataObject: IDataObject); overload;
     destructor Destroy; override;
-    function GetEnumerator: IEnumerator<TFileSystemEntry>; override;
+    function GetEnumerator: IEnumerator<TFileSystemEntry>;
   end;
 
   {$REGION 'TFileSearcher'}
@@ -849,6 +849,8 @@ implementation
 uses
   IOUtils,
 {$IFDEF MSWINDOWS}
+  ComObj,
+  ShellAPI,
   Spring.Utils.WinAPI,
 {$ENDIF MSWINDOWS}
   Spring.Collections.Extensions,
@@ -1337,7 +1339,7 @@ begin
     Result := TFileEnumerable.Create(FullName, searchPattern, attributes, includeSubfolders);
   end
   else
-    Result := TEmptyEnumerable<TFileSystemEntry>.Create;
+    Result := TEnumerable.Empty<TFileSystemEntry>;
 end;
 
 procedure TFileSystemEntry.Refresh;
@@ -1569,7 +1571,7 @@ begin
   end
   else
   begin
-    fMasks := TCollections.CreateList<TMask>(True);
+    fMasks := TCollections.CreateObjectList<TMask>;
     for pattern in patterns do
       fMasks.Add(TMask.Create(pattern));
     Result :=

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ uses
   System.Classes, System.SysUtils, System.Types,
   Vcl.Graphics, Vcl.ImgList, Vcl.Menus,
 
-  VirtualTrees;
+  VirtualTrees, VirtualTrees.BaseTree, VirtualTrees.Types;
 
 const
   DEFAULT_DATETIMEFORMAT = 'dd-mm-yyyy hh:nn:ss.zzz';
@@ -221,7 +221,7 @@ uses
   System.UITypes,
   Vcl.Dialogs, Vcl.Clipbrd,
 
-  VirtualTrees.Types, VirtualTrees.Header,
+  VirtualTrees.Header,
 
   DDuce.Utils;
 
@@ -346,7 +346,7 @@ begin
       if H > NodeHeight then
         NodeHeight := H;
     end;
-    if Cardinal(NodeHeight) > DefaultNodeHeight then
+    if NodeHeight > DefaultNodeHeight then
       NodeHeight := NodeHeight + 4; // needed to avoid multiline text drawing issues
   end;
 end;

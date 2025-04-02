@@ -3,7 +3,7 @@
 interface
 
 uses
-  System.Classes, Vcl.Controls, Vcl.Graphics, Vcl.ImgList;
+  System.Classes, Vcl.ImgList;
 
 type
   TTextEditorLeftMarginMarks = class(TPersistent)
@@ -60,6 +60,7 @@ begin
     Self.FOverlappingOffset := FOverlappingOffset;
     Self.FShortCuts := FShortCuts;
     Self.FVisible := FVisible;
+
     if Assigned(Self.FOnChange) then
       Self.FOnChange(Self);
   end
@@ -87,8 +88,10 @@ begin
   if FImages <> AValue then
   begin
     FImages := AValue;
+
     if Assigned(FImages) then
       FImages.FreeNotification(FOwner);
+
     DoChange;
   end;
 end;
@@ -98,6 +101,7 @@ begin
   if FVisible <> AValue then
   begin
     FVisible := AValue;
+
     DoChange;
   end;
 end;

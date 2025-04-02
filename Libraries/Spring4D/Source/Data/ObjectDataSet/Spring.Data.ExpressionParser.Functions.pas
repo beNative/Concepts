@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,17 +29,14 @@ unit Spring.Data.ExpressionParser.Functions;
 interface
 
 uses
-  Spring.Collections,
-  SysUtils;
+  Spring.Collections;
 
 type
   TGetValueFunc = reference to function(const args: Variant): Variant;
 
   TFilterFunctions = record
-  private
-    class var
-      fFunctions: IDictionary<string,TGetValueFunc>;
-      fIsoFormatSettings: TFormatSettings;
+  private class var
+    fFunctions: IDictionary<string,TGetValueFunc>;
   private
     class procedure Initialize; static;
     class constructor Create;
@@ -57,7 +54,9 @@ uses
   DateUtils,
   Math,
   StrUtils,
-  Variants;
+  SysUtils,
+  Variants,
+  Spring;
 
 function VarArrayLength(AValue: Variant): Integer;
 begin
@@ -73,11 +72,6 @@ end;
 
 class constructor TFilterFunctions.Create;
 begin
-  fIsoFormatSettings := TFormatSettings.Create;
-  fIsoFormatSettings.ShortDateFormat := 'YYYY-MM-DD';
-  fIsoFormatSettings.DateSeparator := '-';
-  fIsoFormatSettings.DecimalSeparator := '.';
-
   fFunctions := TCollections.CreateDictionary<string, TGetValueFunc>(
     50, TStringComparer.OrdinalIgnoreCase);
 end;
@@ -85,7 +79,7 @@ end;
 class procedure TFilterFunctions.RegisterFunction(const name: string;
   const func: TGetValueFunc);
 begin
-  fFunctions.AddOrSetValue(name, func);
+  fFunctions[name] := func;
 end;
 
 class function TFilterFunctions.TryGetFunction(const name: string;
@@ -224,7 +218,7 @@ begin
     function(const args: Variant): Variant
     begin
       Assert(VarArrayLength(Args) = 1, 'Date requires 1 argument');
-      Result := StrToDate(Args[0], fIsoFormatSettings);
+      Result := StrToDate(Args[0], ISO8601FormatSettings);
     end);
 end;
 

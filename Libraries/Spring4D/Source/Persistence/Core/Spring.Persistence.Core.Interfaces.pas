@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -30,7 +30,6 @@ interface
 
 uses
   Rtti,
-  Variants,
   Spring,
   Spring.Collections,
   Spring.Persistence.Core.EntityCache,
@@ -53,6 +52,7 @@ const
   dtZeos    = 'DRIVER_TYPE_ZEOS';
   dtMongo   = 'DRIVER_TYPE_MONGO';
   dtFireDAC = 'DRIVER_TYPE_FIREDAC';
+  dtUniDAC  = 'DRIVER_TYPE_UNIDAC';
 
 type
   TDBDriverType = type string;
@@ -87,7 +87,7 @@ type
     QueryOperation: TDMLCommandType;
     TableName: string;
   public
-    class function GetQueryType(const query: Variant): TQueryType; inline; static;
+    class function GetQueryType(const query: Variant): TQueryType; static; inline;
   end;
 
   /// <summary>
@@ -377,7 +377,7 @@ implementation
 
 class function TQueryMetadata.GetQueryType(const query: Variant): TQueryType;
 begin
-  case VarType(query) of
+  case TVarData(query).VType of
     varUString, varString, varStrArg, varOleStr: Result := qtQueryText
   else
     Result := qtQueryEntity;

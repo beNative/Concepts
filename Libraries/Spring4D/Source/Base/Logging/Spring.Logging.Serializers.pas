@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -30,8 +30,6 @@ interface
 
 uses
   Rtti,
-  StrUtils,
-  SysUtils,
   TypInfo,
   Spring,
   Spring.Logging,
@@ -43,7 +41,7 @@ type
 
   TSerializerBase = class abstract(TLogEventConverterBase, ITypeSerializer)
   strict protected
-    class function ValueToStr(const value: TValue): string; inline; static;
+    class function ValueToStr(const value: TValue): string; static; inline;
     function CanHandleEvent(const event: TLogEvent): Boolean; override;
     function Execute(const controller: ILoggerController;
       const event: TLogEvent): string; override;
@@ -144,6 +142,9 @@ type
 
 
 implementation
+
+uses
+  StrUtils;
 
 
 {$REGION 'TSerializerBase'}

@@ -3,12 +3,15 @@
 interface
 
 uses
-  System.Classes;
+  System.Classes, TextEditor.Types;
 
 type
   TTextEditorLeftMarginLineState = class(TPersistent)
   strict private
+    FAlign: TTextEditorLeftMarginLineStateAlign;
+    FOffset: Integer;
     FOnChange: TNotifyEvent;
+    FShowOnlyModified: Boolean;
     FVisible: Boolean;
     FWidth: Integer;
     procedure DoChange;
@@ -21,6 +24,9 @@ type
     procedure ChangeScale(const AMultiplier, ADivider: Integer);
     property OnChange: TNotifyEvent read FOnChange write SetOnChange;
   published
+    property Align: TTextEditorLeftMarginLineStateAlign read FAlign write FAlign default lsLeft;
+    property Offset: Integer read FOffset write FOffset default 0;
+    property ShowOnlyModified: Boolean read FShowOnlyModified write FShowOnlyModified default True;
     property Visible: Boolean read FVisible write SetVisible default True;
     property Width: Integer read FWidth write SetWidth default 2;
   end;
@@ -34,6 +40,9 @@ constructor TTextEditorLeftMarginLineState.Create;
 begin
   inherited;
 
+  FAlign := lsLeft;
+  FOffset := 0;
+  FShowOnlyModified := True;
   FVisible := True;
   FWidth := 2;
 end;
@@ -43,8 +52,12 @@ begin
   if Assigned(ASource) and (ASource is TTextEditorLeftMarginLineState) then
   with ASource as TTextEditorLeftMarginLineState do
   begin
+    Self.FAlign := FAlign;
+    Self.FOffset := FOffset;
+    Self.FShowOnlyModified := FShowOnlyModified;
     Self.FVisible := FVisible;
     Self.FWidth := FWidth;
+
     Self.DoChange;
   end
   else
@@ -52,11 +65,9 @@ begin
 end;
 
 procedure TTextEditorLeftMarginLineState.ChangeScale(const AMultiplier, ADivider: Integer);
-var
-  LNumerator: Integer;
 begin
-  LNumerator := (AMultiplier div ADivider) * ADivider;
-  FWidth := MulDiv(FWidth, LNumerator, ADivider);
+  FOffset := MulDiv(FOffset, AMultiplier, ADivider);
+  FWidth := MulDiv(FWidth, AMultiplier, ADivider);
 end;
 
 procedure TTextEditorLeftMarginLineState.SetOnChange(const AValue: TNotifyEvent);
@@ -75,6 +86,7 @@ begin
   if FVisible <> AValue then
   begin
     FVisible := AValue;
+
     DoChange
   end;
 end;
@@ -84,6 +96,7 @@ begin
   if FWidth <> AValue then
   begin
     FWidth := AValue;
+
     DoChange
   end;
 end;

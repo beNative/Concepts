@@ -4,13 +4,13 @@ unit TextEditor.Highlighter;
 interface
 
 uses
-  System.Classes, System.SysUtils, Vcl.Controls, Vcl.Graphics, TextEditor.CodeFolding.Regions, TextEditor.Consts,
+  System.Classes, System.SysUtils, Vcl.Controls, TextEditor.CodeFolding.Regions, TextEditor.Consts,
   TextEditor.Highlighter.Attributes, TextEditor.Highlighter.Colors, TextEditor.Highlighter.Comments,
   TextEditor.Highlighter.Rules, TextEditor.Highlighter.Token, TextEditor.Lines, TextEditor.SkipRegions,
   TextEditor.Types;
 
 type
-  TTextEditorHighlighter = class(TObject)
+  TTextEditorHighlighter = class(TPersistent)
   strict private
     FAllDelimiters: TTextEditorCharSet;
     FAttributes: TStringList;
@@ -19,6 +19,7 @@ type
     FChanged: Boolean;
     FCodeFoldingRangeCount: Integer;
     FCodeFoldingRegions: TTextEditorCodeFoldingRegions;
+    FCodeFoldingVoidElements: TStringList;
     FColors: TTextEditorHighlighterColors;
     FComments: TTextEditorHighlighterComments;
     FCompletionProposalSkipRegions: TTextEditorSkipRegions;
@@ -29,6 +30,8 @@ type
     FFoldKeyChars: TTextEditorCharSet;
     FFoldOpenKeyChars: TTextEditorCharSet;
     FFoldTags: Boolean;
+    FIsSharedCloseFound: Boolean;
+    FJSON: TStrings;
     FLine: PChar;
     FLines: TTextEditorLines;
     FLoaded: Boolean;
@@ -36,6 +39,7 @@ type
     FMainRules: TTextEditorRange;
     FMatchingPairHighlight: Boolean;
     FMatchingPairs: TList;
+    FMaxLengthOfContinuousString: Integer;
     FName: string;
     FOptions: TTextEditorHighlighterOptions;
     FPreviousEndOfLine: Boolean;
@@ -45,12 +49,17 @@ type
     FSample: string;
     FSkipCloseKeyChars: TTextEditorCharSet;
     FSkipOpenKeyChars: TTextEditorCharSet;
+    FSkipWhitespace: Boolean;
     FTemporaryTokens: TList;
     FToken: TTextEditorToken;
     FTokenPosition: Integer;
+    function GetLoad: TFileName;
     procedure AddAllAttributes(const ARange: TTextEditorRange);
+    procedure AddKeywords(const AKeywords: TStringList);
     procedure FreeTemporaryTokens;
-    procedure UpdateAttributes(const ARange: TTextEditorRange; const AParentRange: TTextEditorRange);
+    procedure SetJSON(const AValue: TStrings);
+    procedure SetLoad(const AFileName: TFileName);
+    procedure UpdateAttributes(const ARange: TTextEditorRange; const AParentRange: TTextEditorRange); overload;
   protected
     function GetAttribute(const AIndex: Integer): TTextEditorHighlighterAttribute;
     procedure AddAttribute(const AHighlighterAttribute: TTextEditorHighlighterAttribute);
@@ -60,16 +69,20 @@ type
   public
     constructor Create(AOwner: TWinControl);
     destructor Destroy; override;
+    function InCodeFoldingVoidElements(const AName: string): Boolean;
     function RangeAttribute: TTextEditorHighlighterAttribute;
     function TokenAttribute: TTextEditorHighlighterAttribute;
     function TokenLength: Integer;
     function TokenType: TTextEditorRangeType;
     procedure AddKeyChar(const AKeyCharType: TTextEditorKeyCharType; const AChar: Char);
+    procedure Assign(ASource: TPersistent); override;
     procedure Clear;
+    procedure CreateCodeFoldingVoidElements;
     procedure GetKeywords(var AStringList: TStringList);
     procedure GetToken(var AResult: string);
-    procedure LoadFromFile(const AFilename: string);
-    procedure LoadFromStream(const AStream: TStream);
+    procedure LoadFromFile(const AFileName: string);
+    procedure LoadFromJSON;
+    procedure LoadFromStream(const AStream: TStream; const AName: string = '');
     procedure Next;
     procedure NextToEndOfLine;
     procedure PrepareYAMLHighlighter;
@@ -77,13 +90,14 @@ type
     procedure SetLine(const AValue: string);
     procedure SetOption(const AOption: TTextEditorHighlighterOption; const AEnabled: Boolean);
     procedure SetRange(const AValue: Pointer);
-    procedure UpdateColors;
+    procedure UpdateAttributes; overload;
     property Attribute[const AIndex: Integer]: TTextEditorHighlighterAttribute read GetAttribute;
     property Attributes: TStringList read FAttributes;
     property BeforePrepare: TTextEditorHighlighterPrepare read FBeforePrepare write FBeforePrepare;
     property Changed: Boolean read FChanged write FChanged default False;
     property CodeFoldingRangeCount: Integer read FCodeFoldingRangeCount write SetCodeFoldingRangeCount;
     property CodeFoldingRegions: TTextEditorCodeFoldingRegions read FCodeFoldingRegions write FCodeFoldingRegions;
+    property CodeFoldingVoidElements: TStringList read FCodeFoldingVoidElements write FCodeFoldingVoidElements;
     property Colors: TTextEditorHighlighterColors read FColors write FColors;
     property Comments: TTextEditorHighlighterComments read FComments write FComments;
     property CompletionProposalSkipRegions: TTextEditorSkipRegions read FCompletionProposalSkipRegions write FCompletionProposalSkipRegions;
@@ -94,12 +108,14 @@ type
     property FoldKeyChars: TTextEditorCharSet read FFoldKeyChars write FFoldKeyChars;
     property FoldOpenKeyChars: TTextEditorCharSet read FFoldOpenKeyChars write FFoldOpenKeyChars;
     property FoldTags: Boolean read FFoldTags write FFoldTags default False;
+    property IsSharedCloseFound: Boolean read FIsSharedCloseFound write FIsSharedCloseFound;
     property Lines: TTextEditorLines read FLines write FLines;
     property Loaded: Boolean read FLoaded write FLoaded;
     property Loading: Boolean read FLoading write FLoading;
     property MainRules: TTextEditorRange read FMainRules;
     property MatchingPairHighlight: Boolean read FMatchingPairHighlight write FMatchingPairHighlight default True;
     property MatchingPairs: TList read FMatchingPairs write FMatchingPairs;
+    property MaxLengthOfContinuousString: Integer read FMaxLengthOfContinuousString write FMaxLengthOfContinuousString default 500;
     property Name: string read FName write FName;
     property Options: TTextEditorHighlighterOptions read FOptions write FOptions;
     property Range: TTextEditorRange read FRange;
@@ -108,12 +124,88 @@ type
     property SkipCloseKeyChars: TTextEditorCharSet read FSkipCloseKeyChars write FSkipCloseKeyChars;
     property SkipOpenKeyChars: TTextEditorCharSet read FSkipOpenKeyChars write FSkipOpenKeyChars;
     property TokenPosition: Integer read FTokenPosition;
+  published
+    property JSON: TStrings read FJSON write SetJSON;
+    property Load: TFileName read GetLoad write SetLoad stored False;
+  end;
+
+  TTextEditorTheme = class(TPersistent)
+  strict private
+    FHighlighter: TTextEditorHighlighter;
+    function GetLoad: TFileName;
+    function GetSave: TFileName;
+    procedure SetLoad(const AFileName: TFileName);
+    procedure SetSave(const AFileName: TFileName);
+  public
+    constructor Create(const AHighlighter: TTextEditorHighlighter); overload;
+  published
+    property Load: TFileName read GetLoad write SetLoad stored False;
+    property Save: TFileName read GetSave write SetSave stored False;
   end;
 
 implementation
 
 uses
-  System.Types, TextEditor, TextEditor.Highlighter.Import.JSON, TextEditor.Utils;
+  System.Types, TextEditor, TextEditor.Highlighter.Import.JSON, TextEditor.Language, TextEditor.Utils;
+
+{ TTextEditorHighlighter }
+
+constructor TTextEditorHighlighter.Create(AOwner: TWinControl);
+begin
+  inherited Create;
+
+  FAllDelimiters := TCharacterSets.DefaultDelimiters + TCharacterSets.AbsoluteDelimiters;
+  FBeginningOfLine := True;
+  FChanged := False;
+  FCodeFoldingRangeCount := 0;
+  FEditor := AOwner;
+  FEndOfLine := False;
+  FExludedWordBreakCharacters := [];
+  FLoaded := False;
+  FLoading := False;
+  FMaxLengthOfContinuousString := 500;
+  FPreviousEndOfLine := False;
+  FRange := MainRules;
+  FRightToLeftToken := False;
+
+  FAttributes := TStringList.Create;
+  FAttributes.Duplicates := dupIgnore;
+  FAttributes.Sorted := False;
+
+  FColors := TTextEditorHighlighterColors.Create(Self);
+
+  FComments := TTextEditorHighlighterComments.Create;
+
+  FCompletionProposalSkipRegions := TTextEditorSkipRegions.Create(TTextEditorSkipRegionItem);
+
+  FJSON := TStringList.Create;
+  FJSON.TrailingLineBreak := False;
+
+  FMainRules := TTextEditorRange.Create;
+  FMainRules.Parent := FMainRules;
+
+  FMatchingPairs := TList.Create;
+  FTemporaryTokens := TList.Create;
+end;
+
+destructor TTextEditorHighlighter.Destroy;
+begin
+  Clear;
+
+  FComments.Free;
+  FMainRules.Free;
+  FAttributes.Free;
+  FCompletionProposalSkipRegions.Free;
+  FMatchingPairs.Free;
+  FColors.Free;
+
+  FreeTemporaryTokens;
+
+  FTemporaryTokens.Free;
+  FJSON.Free;
+
+  inherited Destroy;
+end;
 
 procedure TTextEditorHighlighter.AddKeyChar(const AKeyCharType: TTextEditorKeyCharType; const AChar: Char);
 begin
@@ -128,71 +220,46 @@ begin
         FFoldCloseKeyChars := FFoldCloseKeyChars + [AChar];
         FFoldKeyChars := FFoldKeyChars + [AChar];
       end;
-    ctSkipOpen: FSkipOpenKeyChars := FSkipOpenKeyChars + [AChar];
-    ctSkipClose: FSkipCloseKeyChars := FSkipCloseKeyChars + [AChar];
+    ctSkipOpen:
+      FSkipOpenKeyChars := FSkipOpenKeyChars + [AChar];
+    ctSkipClose:
+      FSkipCloseKeyChars := FSkipCloseKeyChars + [AChar];
   end;
 end;
 
-constructor TTextEditorHighlighter.Create(AOwner: TWinControl);
+procedure TTextEditorHighlighter.AddKeywords(const AKeywords: TStringList);
+var
+  LIndex: Integer;
+  LKeyList: TTextEditorKeyList;
 begin
-  inherited Create;
+  LKeyList := TTextEditorKeyList.Create;
+  LKeyList.TokenType := ttReservedWord;
 
-  FEditor := AOwner;
-  FChanged := False;
-  FRightToLeftToken := False;
+  for LIndex := 0 to AKeywords.Count - 1 do
+    LKeyList.KeyList.Add(Trim(AKeywords[LIndex]));
 
-  FAttributes := TStringList.Create;
-  FAttributes.Duplicates := dupIgnore;
-  FAttributes.Sorted := False;
+  LKeyList.Attribute.Element := 'ReservedWord';
+  LKeyList.Attribute.ParentForeground := False;
+  LKeyList.Attribute.ParentBackground := True;
 
-  FCodeFoldingRangeCount := 0;
-
-  FComments := TTextEditorHighlighterComments.Create;
-
-  FCompletionProposalSkipRegions := TTextEditorSkipRegions.Create(TTextEditorSkipRegionItem);
-
-  FMainRules := TTextEditorRange.Create;
-  FMainRules.Parent := FMainRules;
-
-  FEndOfLine := False;
-  FBeginningOfLine := True;
-  FPreviousEndOfLine := False;
-  FRange := MainRules;
-
-  FColors := TTextEditorHighlighterColors.Create(Self);
-  FMatchingPairs := TList.Create;
-
-  FTemporaryTokens := TList.Create;
-
-  FAllDelimiters := TCharacterSets.DefaultDelimiters + TCharacterSets.AbsoluteDelimiters;
-
-  FLoading := False;
-  FLoaded := False;
-
-  FExludedWordBreakCharacters := [];
+  FMainRules.AddKeyList(LKeyList);
 end;
 
-destructor TTextEditorHighlighter.Destroy;
+procedure TTextEditorHighlighter.Assign(ASource: TPersistent);
 begin
-  Clear;
+  if Assigned(ASource) and (ASource is TTextEditorHighlighter) then
+  with ASource as TTextEditorHighlighter do
+    Self.FJSON.Assign(FJSON)
+  else
+    inherited Assign(ASource);
+end;
 
-  FComments.Free;
-  FComments := nil;
-  FMainRules.Free;
-  FMainRules := nil;
-  FAttributes.Free;
-  FAttributes := nil;
-  FCompletionProposalSkipRegions.Free;
-  FCompletionProposalSkipRegions := nil;
-  FMatchingPairs.Free;
-  FMatchingPairs := nil;
-  FColors.Free;
-  FColors := nil;
-  FreeTemporaryTokens;
-  FTemporaryTokens.Free;
-  FTemporaryTokens := nil;
+function TTextEditorHighlighter.InCodeFoldingVoidElements(const AName: string): Boolean;
+begin
+  Result := False;
 
-  inherited;
+  if Assigned(FCodeFoldingVoidElements) and (FCodeFoldingVoidElements.Count > 0) then
+    Result := FCodeFoldingVoidElements.IndexOf(AName) <> -1;
 end;
 
 procedure TTextEditorHighlighter.AddAllAttributes(const ARange: TTextEditorRange);
@@ -200,10 +267,13 @@ var
   LIndex: Integer;
 begin
   AddAttribute(ARange.Attribute);
+
   for LIndex := 0 to ARange.KeyListCount - 1 do
     AddAttribute(ARange.KeyList[LIndex].Attribute);
+
   for LIndex := 0 to ARange.SetCount - 1 do
     AddAttribute(ARange.Sets[LIndex].Attribute);
+
   for LIndex := 0 to ARange.RangeCount - 1 do
     AddAllAttributes(ARange.Ranges[LIndex]);
 end;
@@ -214,12 +284,12 @@ begin
   begin
     if Assigned(FBeforePrepare) then
       FBeforePrepare;
+
     Prepare;
   end
   else
-  if Assigned(FRange) then
-    if not FRange.Prepared then
-      Prepare;
+  if Assigned(FRange) and not FRange.Prepared then
+    Prepare;
 
   FLine := PChar(AValue);
   FRunPosition := 0;
@@ -229,7 +299,25 @@ begin
   FPreviousEndOfLine := False;
   FRightToLeftToken := False;
   FToken := nil;
+
   Next;
+end;
+
+procedure TTextEditorHighlighter.SetJSON(const AValue: TStrings);
+begin
+  FJSON.Assign(AValue);
+end;
+
+procedure TTextEditorHighlighter.SetLoad(const AFileName: TFileName);
+var
+  LFileStream: TFileStream;
+begin
+  LFileStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyNone);
+  try
+    FJSON.LoadFromStream(LFileStream);
+  finally
+    LFileStream.Free;
+  end;
 end;
 
 procedure TTextEditorHighlighter.FreeTemporaryTokens;
@@ -240,7 +328,7 @@ begin
   for LIndex := FTemporaryTokens.Count - 1 downto 0 do
   begin
     LToken := TTextEditorToken(FTemporaryTokens[LIndex]);
-    LToken.Free;
+    FreeAndNil(LToken);
     FTemporaryTokens.Delete(LIndex);
   end;
 end;
@@ -252,6 +340,7 @@ var
   LKeyword: PChar;
   LCloseParent: Boolean;
   LDelimiters: TTextEditorCharSet;
+  LStartPosition: Integer;
 begin
   FreeTemporaryTokens;
 
@@ -261,7 +350,6 @@ begin
       FRange := FRange.Parent;
 
     FEndOfLine := True;
-
     Exit;
   end;
 
@@ -280,7 +368,6 @@ begin
     if LKeyword^ = TControlCharacters.Null then
     begin
       FRange := FRange.Parent;
-
       Break;
     end;
   end;
@@ -290,28 +377,30 @@ begin
   if Assigned(FRange) then
   begin
     LCloseParent := FRange.CloseParent;
-    if FRange.CloseOnTerm and (FLine[FRunPosition] in FRange.Delimiters) and
-      not (FRange.SkipWhitespace and (FLine[FRunPosition] in TCharacterSets.AbsoluteDelimiters)) then
+
+    if not FSkipWhitespace and FRange.CloseOnTerm and (FLine[FRunPosition] in FRange.Delimiters) and
+      not (FRange.SkipWhitespace and (FLine[FRunPosition] in TCharacterSets.AbsoluteDelimiters)) or
+      FRange.CloseOnAnyTerm then
     begin
       FRange := FRange.Parent;
-      if Assigned(FRange) then
-        if LCloseParent then
-          FRange := FRange.Parent;
+
+      if Assigned(FRange) and LCloseParent then
+        FRange := FRange.Parent;
     end;
 
     if Ord(FLine[FRunPosition]) < TCharacters.AnsiCharCount then
       LParser := FRange.SymbolList[AnsiChar(FRange.CaseFunct(FLine[FRunPosition]))]
     else
     case FLine[FRunPosition] of
-    { Turkish special characters }
+      { Turkish special characters }
       'ç', 'Ç':
-        LParser := FRange.SymbolList['C'];
+         LParser := FRange.SymbolList['C'];
       'ı', 'İ':
-        LParser := FRange.SymbolList['I'];
+         LParser := FRange.SymbolList['I'];
       'ş', 'Ş':
-        LParser := FRange.SymbolList['S'];
+         LParser := FRange.SymbolList['S'];
       'ğ', 'Ğ':
-        LParser := FRange.SymbolList['G'];
+         LParser := FRange.SymbolList['G'];
     else
       LParser := FRange.SymbolList['a'];
     end;
@@ -324,11 +413,7 @@ begin
     if not LParser.GetToken(FRange, FLine, FRunPosition, FToken) then
     begin
       FToken := FRange.DefaultToken;
-
-      if FRange.UseDelimitersForText then
-        LDelimiters := FRange.Delimiters + [TControlCharacters.Null]
-      else
-        LDelimiters := FAllDelimiters;
+      FSkipWhitespace := False;
 
       if IsRightToLeftCharacter(FLine[FRunPosition], False) then
       begin
@@ -341,8 +426,21 @@ begin
           Dec(FRunPosition);
       end
       else
-      while not (FLine[FRunPosition] in LDelimiters) do
-        Inc(FRunPosition);
+      begin
+        if FRange.UseDelimitersForText then
+          LDelimiters := FRange.Delimiters + [TControlCharacters.Null]
+        else
+          LDelimiters := FAllDelimiters;
+
+        LStartPosition := FRunPosition;
+
+        if (FRunPosition > 0) and (FLine[FRunPosition - 1] > TControlCharacters.UnitSeparator) then
+        while not (FLine[FRunPosition] in LDelimiters) and
+          (FLine[FRunPosition] > TControlCharacters.UnitSeparator) and
+          ((Ord(FLine[FRunPosition - 1]) < TCharacters.AnsiCharCount) = (Ord(FLine[FRunPosition]) < TCharacters.AnsiCharCount)) and
+          (FRunPosition - LStartPosition < FMaxLengthOfContinuousString) do
+          Inc(FRunPosition);
+      end;
     end
     else
     if FRange.ClosingToken = FToken then
@@ -352,17 +450,30 @@ begin
     begin
       FRange := TTextEditorRange(FToken.OpenRule);
       FRange.ClosingToken := FToken.ClosingToken;
+      FSkipWhitespace := FRange.SkipWhitespaceOnce;
 
-      if FRange.OpenBeginningOfLine and not FBeginningOfLine then
+      if FRange.AllowedCharacters <> [] then
+      begin
+        while FLine[FRunPosition] in FRange.AllowedCharacters do
+          Inc(FRunPosition);
+
+        FRange := FRange.Parent;
+      end
+      else
+      if FRange.OpenBeginningOfLine and not FBeginningOfLine or
+        FRange.OpenEndOfLine and (FLine[FRunPosition] <> TControlCharacters.Null) then
       begin
         FRange := FRange.Parent;
         FToken := FRange.DefaultToken;
-      end;
+      end
     end;
 
     if Assigned(FToken) and FToken.Temporary then
       FTemporaryTokens.Add(FToken);
-  end;
+  end
+  else
+  if FLine <> '' then
+    Inc(FRunPosition);
 
   if FBeginningOfLine and (FRunPosition >= 1) and not (FLine[FRunPosition - 1] in TCharacterSets.AbsoluteDelimiters) then
     FBeginningOfLine := False;
@@ -374,6 +485,7 @@ end;
 function TTextEditorHighlighter.RangeAttribute: TTextEditorHighlighterAttribute;
 begin
   Result := nil;
+
   if Assigned(FRange) then
     Result := FRange.Attribute;
 end;
@@ -413,6 +525,8 @@ begin
   if not Assigned(AStringList) then
     Exit;
 
+  AStringList.BeginUpdate;
+
   for LIndex := 0 to FMainRules.KeyListCount - 1 do
   begin
     LKeyList := FMainRules.KeyList[LIndex];
@@ -420,6 +534,13 @@ begin
     for LIndex2 := 0 to LKeyList.KeyList.Count - 1 do
       AStringList.Add(LKeyList.KeyList[LIndex2]);
   end;
+
+  AStringList.EndUpdate;
+end;
+
+function TTextEditorHighlighter.GetLoad: TFileName;
+begin
+  Result := STextEditorHighlighterLoadFromFile;
 end;
 
 procedure TTextEditorHighlighter.GetToken(var AResult: string);
@@ -442,6 +563,11 @@ var
   LTokenType: TTextEditorRangeType;
   LRangeKeyList: TTextEditorKeyList;
 begin
+  Result := ttUnspecified;
+
+  if not Assigned(FRange) then
+    Exit;
+
   LTokenType := FRange.TokenType;
 
   if LTokenType <> ttUnspecified then
@@ -458,14 +584,13 @@ begin
       if LRangeKeyList.KeyList.IndexOf(LToken) <> -1 then
         Exit(LRangeKeyList.TokenType);
     end;
-
-    Result := ttUnspecified
   end;
 end;
 
 procedure TTextEditorHighlighter.Clear;
 var
   LIndex: Integer;
+  LEditor: TCustomTextEditor;
 begin
   FFoldTags := False;
   FMatchingPairHighlight := True;
@@ -484,22 +609,39 @@ begin
 
   FMatchingPairs.Clear;
 
-  for LIndex := 0 to FCodeFoldingRangeCount - 1 do
+  for LIndex := FCodeFoldingRangeCount - 1 downto 0 do
   begin
     FCodeFoldingRegions[LIndex].Free;
     FCodeFoldingRegions[LIndex] := nil;
   end;
 
+  SetLength(FCodeFoldingRegions, 0);
+
   CodeFoldingRangeCount := 0;
 
-  if Assigned(Editor) then
-    TCustomTextEditor(Editor).ClearMatchingPair;
+  LEditor := FEditor as TCustomTextEditor;
+  LEditor.ClearMatchingPair;
+  LEditor.ClearHighlightLine;
+
+  if Assigned(FCodeFoldingVoidElements) then
+    FreeAndNil(FCodeFoldingVoidElements);
+end;
+
+procedure TTextEditorHighlighter.CreateCodeFoldingVoidElements;
+begin
+  if not Assigned(FCodeFoldingVoidElements) then
+  begin
+    FCodeFoldingVoidElements := TStringList.Create;
+    FCodeFoldingVoidElements.Sorted := True;
+  end;
 end;
 
 procedure TTextEditorHighlighter.Prepare;
 begin
   FAttributes.Clear;
+
   AddAllAttributes(MainRules);
+
   FMainRules.Reset;
   FMainRules.Prepare;
 end;
@@ -510,22 +652,21 @@ var
 
   procedure SetAttributes(const AAttribute: TTextEditorHighlighterAttribute; const AParentRange: TTextEditorRange);
   var
-    LElement: PTextEditorHighlighterElement;
+    LElement: TTextEditorHighlighterElement;
   begin
-    LElement := FColors.GetElement(AAttribute.Element);
+    FColors.Elements.TryGetValue(AAttribute.Element, LElement);
 
     if AAttribute.ParentBackground and Assigned(AParentRange) then
       AAttribute.Background := AParentRange.Attribute.Background
     else
-    if Assigned(LElement) then
       AAttribute.Background := LElement.Background;
+
     if AAttribute.ParentForeground and Assigned(AParentRange) then
       AAttribute.Foreground := AParentRange.Attribute.Foreground
     else
-    if Assigned(LElement) then
       AAttribute.Foreground := LElement.Foreground;
-    if Assigned(LElement) then
-      AAttribute.FontStyles := LElement.FontStyles;
+
+    AAttribute.FontStyles := LElement.FontStyles;
   end;
 
 begin
@@ -533,33 +674,17 @@ begin
 
   for LIndex := 0 to ARange.KeyListCount - 1 do
     SetAttributes(ARange.KeyList[LIndex].Attribute, ARange);
+
   for LIndex := 0 to ARange.SetCount - 1 do
     SetAttributes(ARange.Sets[LIndex].Attribute, ARange);
+
   for LIndex := 0 to ARange.RangeCount - 1 do
     UpdateAttributes(ARange.Ranges[LIndex], ARange);
 end;
 
-procedure TTextEditorHighlighter.UpdateColors;
-var
-  LEditor: TCustomTextEditor;
-  LFontDummy: TFont;
+procedure TTextEditorHighlighter.UpdateAttributes;
 begin
   UpdateAttributes(MainRules, nil);
-
-  LEditor := TCustomTextEditor(FEditor);
-  if Assigned(LEditor) then
-  begin
-    LFontDummy := TFont.Create;
-    try
-      LFontDummy.Name := LEditor.Font.Name;
-      LFontDummy.Size := LEditor.Font.Size;
-      FChanged := True;
-      LEditor.Font.Assign(LFontDummy);
-      LEditor.SizeOrFontChanged(True);
-    finally
-      LFontDummy.Free;
-    end;
-  end;
 end;
 
 procedure TTextEditorHighlighter.PrepareYAMLHighlighter;
@@ -575,45 +700,51 @@ begin
   begin
     { Parse keywords from text }
     MainRules.ClearReservedWords;
+
     LKeyList := TTextEditorKeyList.Create;
     try
       LKeyList.TokenType := ttReservedWord;
       LKeyList.Attribute.Element := 'ReservedWord';
       LKeyList.Attribute.ParentBackground := True;
       LKeyList.Attribute.ParentForeground := False;
+
       for LLine := FLines.Count - 1 downto 0 do
       begin
         LTextLine := FLines[LLine];
+
         LPText := PChar(LTextLine);
         LPStart := LPText;
         Inc(LPText, Length(LTextLine));
         LInside := False;
+
         while LPText > LPStart do
         begin
           if (LPText^ = '"') or (LPText^ = '`') and ((LPText - 1)^ = '`') then
             LInside := not LInside;
 
-          if not LInside then
-            if LPText^ = ':' then
-            begin
-              Dec(LPText);
-              { Space or tab characters }
-              LKeyWord := ':';
-              while (LPText >= LPStart) and (LPText^ in [TCharacters.Space, TControlCharacters.Tab]) do
-              begin
-                LKeyWord := LPText^ + LKeyWord;
-                Dec(LPText);
-              end;
-              { Keyword }
-              while (LPText >= LPStart) and not (LPText^ in [TCharacters.Space, TControlCharacters.Tab, '{', '(']) do
-              begin
-                LKeyWord := LPText^ + LKeyWord;
-                Dec(LPText);
-              end;
+          if not LInside and (LPText^ = ':') then
+          begin
+            Dec(LPText);
+            { Space or tab characters }
+            LKeyWord := ':';
 
-              if TextEditor.Utils.Trim(LKeyWord) <> ':' then
-                LKeyList.KeyList.Add(LKeyWord);
+            while (LPText >= LPStart) and (LPText^ in [TCharacters.Space, TControlCharacters.Tab]) do
+            begin
+              LKeyWord := LPText^ + LKeyWord;
+              Dec(LPText);
             end;
+
+            { Keyword }
+            while (LPText >= LPStart) and not (LPText^ in [TCharacters.Space, TControlCharacters.Tab, '{', '(']) do
+            begin
+              LKeyWord := LPText^ + LKeyWord;
+              Dec(LPText);
+            end;
+
+            if TextEditor.Utils.Trim(LKeyWord) <> ':' then
+              LKeyList.KeyList.Add(LKeyWord);
+          end;
+
           Dec(LPText);
         end;
       end;
@@ -621,7 +752,7 @@ begin
       if LKeyList.KeyList.Count > 0 then
       begin
         MainRules.AddKeyList(LKeyList);
-        UpdateAttributes(MainRules, nil);
+        UpdateAttributes;
       end
       else
         LKeyList.Free;
@@ -631,11 +762,13 @@ begin
   end;
 end;
 
-procedure TTextEditorHighlighter.LoadFromFile(const AFilename: string);
+procedure TTextEditorHighlighter.LoadFromFile(const AFileName: string);
 var
   LFileStream: TFileStream;
 begin
-  LFileStream := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyNone);
+  FName := ChangeFileExt(ExtractFileName(AFileName), '');
+
+  LFileStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyNone);
   try
     LoadFromStream(LFileStream);
   finally
@@ -643,60 +776,75 @@ begin
   end;
 end;
 
-procedure TTextEditorHighlighter.LoadFromStream(const AStream: TStream);
+procedure TTextEditorHighlighter.LoadFromJSON;
+var
+  LStringStream: TStringStream;
+begin
+  if Assigned(FJSON) and FJSON.Text.Trim.IsEmpty then
+    Exit;
+
+  LStringStream := TStringStream.Create;
+  try
+    FJSON.SaveToStream(LStringStream);
+    LoadFromStream(LStringStream);
+  finally
+    LStringStream.Free;
+  end;
+end;
+
+procedure TTextEditorHighlighter.LoadFromStream(const AStream: TStream; const AName: string = '');
 var
   LEditor: TCustomTextEditor;
-  LTempLines: TStringList;
-  LTopLine: Integer;
-  LIndex: Integer;
-  LTextPosition: TTextEditorTextPosition;
+  LEditorIsEmpty: Boolean;
+  LKeywords: TStringList;
 begin
-  Clear;
+  LEditor := FEditor as TCustomTextEditor;
+  LEditorIsEmpty := LEditor.Text.IsEmpty;
 
-  LEditor := TCustomTextEditor(FEditor);
-  if Assigned(LEditor) then
-  begin
-    FLoading := True;
-    LTempLines := TStringList.Create;
-    try
-      if LEditor.Visible then
-        LTextPosition := LEditor.TextPosition;
+  FName := AName;
+  FLoading := True;
 
-      LTopLine := LEditor.TopLine;
+  AStream.Position := 0;
 
-      for LIndex := 0 to FLines.Count - 1 do
-      if not (sfEmptyLine in FLines.Items^[LIndex].Flags) then
-        LTempLines.Add(FLines.Items^[LIndex].TextLine);
-
-      FLines.Clear;
-      with TTextEditorHighlighterImportJSON.Create(Self) do
-      try
-        ImportFromStream(AStream);
-      finally
-        Free;
-      end;
-      FLines.LoadFromStrings(LTempLines);
-
-      LEditor.TopLine := LTopLine;
-      if LEditor.Visible then
-        LEditor.TextPosition := LTextPosition;
-    finally
-      LTempLines.Free;
-    end;
-
-    UpdateColors;
-
-    if Assigned(FBeforePrepare) then
-      SetOption(hoExecuteBeforePrepare, True);
-
-    FLoading := False;
-    FLoaded := True;
+  with TTextEditorHighlighterImportJSON.Create(Self) do
+  try
+    ImportFromStream(AStream);
+  finally
+    Free;
   end;
+
+  if Assigned(LEditor.OnAdditionalKeywords) then
+  begin
+    LKeywords := TStringList.Create;
+    try
+      LEditor.OnAdditionalKeywords(LEditor, FName, LKeywords);
+
+      if not Trim(LKeywords.Text).IsEmpty then
+        AddKeywords(LKeywords);
+    finally
+      LKeywords.Free;
+    end;
+  end;
+
+  UpdateAttributes;
+
+  if Assigned(FBeforePrepare) then
+    SetOption(hoExecuteBeforePrepare, True);
+
+  if not LEditorIsEmpty then
+  begin
+    LEditor.RescanHighlighterRanges;
+    LEditor.RescanCodeFoldingRanges;
+  end;
+
+  FLoading := False;
+  FLoaded := True;
 end;
 
 function TTextEditorHighlighter.GetAttribute(const AIndex: Integer): TTextEditorHighlighterAttribute;
 begin
   Result := nil;
+
   if (AIndex >= 0) and (AIndex < FAttributes.Count) then
     Result := TTextEditorHighlighterAttribute(FAttributes.Objects[AIndex]);
 end;
@@ -723,6 +871,37 @@ end;
 function TTextEditorHighlighter.TokenLength: Integer;
 begin
   Result := FRunPosition - FTokenPosition;
+end;
+
+{ TTextEditorTheme }
+
+constructor TTextEditorTheme.Create(const AHighlighter: TTextEditorHighlighter);
+begin
+  inherited Create;
+
+  FHighlighter := AHighlighter;
+end;
+
+function TTextEditorTheme.GetLoad: TFileName;
+begin
+  Result := STextEditorThemeLoadFromFile;
+end;
+
+function TTextEditorTheme.GetSave: TFileName;
+begin
+  Result := STextEditorThemeSaveToFile;
+end;
+
+procedure TTextEditorTheme.SetLoad(const AFileName: TFileName);
+begin
+  if Assigned(FHighlighter) then
+    FHighlighter.Colors.LoadFromFile(AFileName);
+end;
+
+procedure TTextEditorTheme.SetSave(const AFileName: TFileName);
+begin
+  if Assigned(FHighlighter) then
+    FHighlighter.Colors.SaveToFile(AFileName);
 end;
 
 end.

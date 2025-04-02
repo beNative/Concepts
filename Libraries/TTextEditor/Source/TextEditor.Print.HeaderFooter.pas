@@ -24,7 +24,7 @@ type
   public
     property Alignment: TAlignment read FAlignment write FAlignment;
     property Font: TFont read FFont write SetFont;
-    property Index: Integer read FIndex write FIndex;
+    property &Index: Integer read FIndex write FIndex;
     property LineNumber: Integer read FLineNumber write FLineNumber;
     property Text: string read FText write FText;
   end;
@@ -102,19 +102,21 @@ type
 implementation
 
 uses
-  System.Math, TextEditor.Consts;
+  System.Math, System.Types, TextEditor.Consts;
 
 { TTextEditorSectionItem }
 
 constructor TTextEditorSectionItem.Create;
 begin
   inherited;
+
   FFont := TFont.Create;
 end;
 
 destructor TTextEditorSectionItem.Destroy;
 begin
   inherited;
+
   FFont.Free;
 end;
 
@@ -137,72 +139,174 @@ var
     end;
   end;
 
+  function IntToRoman(const AValue: Integer): string;
+  var
+    LValue: Integer;
+  begin
+    Result := '';
+
+    LValue := AValue;
+    while LValue >= 1000 do
+    begin
+      Result := Result + 'M';
+      Dec(LValue, 1000);
+    end;
+
+    if LValue >= 900 then
+    begin
+      Result := Result + 'CM';
+      Dec(LValue, 900);
+    end;
+
+    while LValue >= 500 do
+    begin
+      Result := Result + 'D';
+      Dec(LValue, 500);
+    end;
+
+    if LValue >= 400 then
+    begin
+      Result := Result + 'CD';
+      Dec(LValue, 400);
+    end;
+
+    while LValue >= 100 do
+    begin
+      Result := Result + 'C';
+      Dec(LValue, 100);
+    end;
+
+    if LValue >= 90 then
+    begin
+      Result := Result + 'XC';
+      Dec(LValue, 90);
+    end;
+
+    while LValue >= 50 do
+    begin
+      Result := Result + 'L';
+      Dec(LValue, 50);
+    end;
+
+    if LValue >= 40 then
+    begin
+      Result := Result + 'XL';
+      Dec(LValue, 40);
+    end;
+
+    while LValue >= 10 do
+    begin
+      Result := Result + 'X';
+      Dec(LValue, 10);
+    end;
+
+    if LValue >= 9 then
+    begin
+      Result := Result + 'IX';
+      Dec(LValue, 9);
+    end;
+
+    while LValue >= 5 do
+    begin
+      Result := Result + 'V';
+      Dec(LValue, 5);
+    end;
+
+    if LValue >= 4 then
+    begin
+      Result := Result + 'IV';
+      Dec(LValue, 4);
+    end;
+
+    while LValue > 0 do
+    begin
+      Result := Result + 'I';
+      Dec(LValue);
+    end;
+  end;
+
   function TryExecuteMacro: Boolean;
   var
     Macro: string;
   begin
     Result := True;
     Macro := AnsiUpperCase(Copy(FText, Start, Run - Start + 1));
+
     if Macro = '$PAGENUM$' then
     begin
       if ARoman then
         DoAppend(IntToRoman(APageNumber))
       else
         DoAppend(IntToStr(APageNumber));
+
       Exit;
     end;
+
     if Macro = '$PAGECOUNT$' then
     begin
       if ARoman then
         DoAppend(IntToRoman(ANumberOfPages))
       else
         DoAppend(IntToStr(ANumberOfPages));
+
       Exit;
     end;
+
     if Macro = '$TITLE$' then
     begin
       DoAppend(ATitle);
       Exit;
     end;
+
     if Macro = '$DATE$' then
     begin
       DoAppend(ADate);
       Exit;
     end;
+
     if Macro = '$TIME$' then
     begin
       DoAppend(ATime);
       Exit;
     end;
+
     if Macro = '$DATETIME$' then
     begin
       DoAppend(ADate + ' ' + ATime);
       Exit;
     end;
+
     if Macro = '$TIMEDATE$' then
     begin
       DoAppend(ATime + ' ' + ADate);
       Exit;
     end;
+
     Result := False;
   end;
 
 begin
   Result := '';
+
   LString := FText;
-  if TextEditor.Utils.Trim(LString) = '' then
+
+  if TextEditor.Utils.Trim(LString).IsEmpty then
     Exit;
+
   LLength := Length(LString);
+
   if LLength > 0 then
   begin
     Start := 1;
     Run := 1;
+
     while Run <= LLength do
     begin
       if LString[Run] = '$' then
       begin
         TryAppend(Start, Run);
         Inc(Run);
+
         while Run <= LLength do
         begin
           if LString[Run] = '$' then
@@ -211,7 +315,7 @@ begin
             begin
               Inc(Run);
               Start := Run;
-              break;
+              Break;
             end
             else
             begin
@@ -226,6 +330,7 @@ begin
       else
         Inc(Run);
     end;
+
     TryAppend(Start, Run);
   end;
 end;
@@ -247,6 +352,7 @@ begin
     Read(LLength, SizeOf(LLength));
     BufferSize := LLength * SizeOf(Char);
     GetMem(LBuffer, BufferSize + SizeOf(Char));
+
     try
       Read(LBuffer^, BufferSize);
       PChar(LBuffer)[BufferSize div SizeOf(Char)] := TControlCharacters.Null;
@@ -254,12 +360,14 @@ begin
     finally
       FreeMem(LBuffer);
     end;
+
     Read(FLineNumber, SizeOf(FLineNumber));
     Read(LCharset, SizeOf(lCharset));
     Read(LColor, SizeOf(LColor));
     Read(LHeight, SizeOf(LHeight));
     Read(BufferSize, SizeOf(BufferSize));
     GetMem(LBuffer, BufferSize + 1);
+
     try
       Read(LBuffer^, BufferSize);
       PAnsiChar(LBuffer)[BufferSize div SizeOf(AnsiChar)] := TControlCharacters.Null;
@@ -267,6 +375,7 @@ begin
     finally
       FreeMem(LBuffer);
     end;
+
     Read(LPitch, SizeOf(LPitch));
     Read(LSize, SizeOf(LSize));
     Read(LStyle, SizeOf(LStyle));
@@ -294,7 +403,7 @@ var
 begin
   with AStream do
   begin
-    LLength := Length(FText);
+    LLength := FText.Length;
     Write(LLength, SizeOf(LLength));
     Write(PChar(FText)^, LLength * SizeOf(Char));
     Write(FLineNumber, SizeOf(FLineNumber));
@@ -328,6 +437,7 @@ end;
 constructor TTextEditorSection.Create;
 begin
   inherited;
+
   FFrameTypes := [ftLine];
   FShadedColor := TColors.Silver;
   FLineColor := TColors.Black;
@@ -339,6 +449,7 @@ begin
   FRomanNumbers := False;
   FMirrorPosition := False;
   FLineInfo := TList.Create;
+
   with FDefaultFont do
   begin
     Name := 'Courier New';
@@ -352,14 +463,18 @@ var
   LIndex: Integer;
 begin
   Clear;
+
   FItems.Free;
   FDefaultFont.Free;
   FOldPen.Free;
   FOldBrush.Free;
   FOldFont.Free;
+
   for LIndex := 0 to FLineInfo.Count - 1 do
     TTextEditorLineInfo(FLineInfo[LIndex]).Free;
+
   FLineInfo.Free;
+
   inherited;
 end;
 
@@ -368,14 +483,17 @@ var
   LSectionItem: TTextEditorSectionItem;
 begin
   LSectionItem := TTextEditorSectionItem.Create;
+
   if not Assigned(AFont) then
     LSectionItem.Font := FDefaultFont
   else
     LSectionItem.Font := AFont;
+
   LSectionItem.Alignment := AAlignment;
   LSectionItem.LineNumber := ALineNumber;
   LSectionItem.Index := FItems.Add(LSectionItem);
   LSectionItem.Text := AText;
+
   Result := LSectionItem.Index;
 end;
 
@@ -397,6 +515,7 @@ var
 begin
   for LIndex := 0 to FItems.Count - 1 do
     TTextEditorSectionItem(FItems[LIndex]).Free;
+
   FItems.Clear;
 end;
 
@@ -407,24 +526,30 @@ end;
 
 procedure TTextEditorSection.FixLines;
 var
-  i, LCurrentLine: Integer;
+  LIndex, LCurrentLine: Integer;
   LLineInfo: TTextEditorLineInfo;
+  LSectionItem: TTextEditorSectionItem;
 begin
-  for i := 0 to FLineInfo.Count - 1 do
-    TTextEditorLineInfo(FLineInfo[i]).Free;
+  for LIndex := 0 to FLineInfo.Count - 1 do
+    TTextEditorLineInfo(FLineInfo[LIndex]).Free;
+
   FLineInfo.Clear;
   LCurrentLine := 0;
   FLineCount := 0;
-  for i := 0 to FItems.Count - 1 do
+
+  for LIndex := 0 to FItems.Count - 1 do
   begin
-    if TTextEditorSectionItem(FItems[i]).LineNumber <> LCurrentLine then
+    LSectionItem := TTextEditorSectionItem(FItems[LIndex]);
+
+    if LSectionItem.LineNumber <> LCurrentLine then
     begin
-      LCurrentLine := TTextEditorSectionItem(FItems[i]).LineNumber;
+      LCurrentLine := LSectionItem.LineNumber;
       FLineCount := FLineCount + 1;
       LLineInfo := TTextEditorLineInfo.Create;
       FLineInfo.Add(LLineInfo);
     end;
-    TTextEditorSectionItem(FItems[i]).LineNumber := FLineCount;
+
+    LSectionItem.LineNumber := FLineCount;
   end;
 end;
 
@@ -436,29 +561,36 @@ var
   LTextMetric: TTextMetric;
 begin
   FFrameHeight := -1;
+
   if FItems.Count <= 0 then
     Exit;
 
   LCurrentLine := 1;
   FFrameHeight := 0;
   LOrginalHeight := FFrameHeight;
+
   for LIndex := 0 to FItems.Count - 1 do
   begin
     LSectionItem := TTextEditorSectionItem(FItems[LIndex]);
+
     if LSectionItem.LineNumber <> LCurrentLine then
     begin
       LCurrentLine := LSectionItem.LineNumber;
       LOrginalHeight := FFrameHeight;
     end;
+
     ACanvas.Font.Assign(LSectionItem.Font);
     GetTextMetrics(ACanvas.Handle, LTextMetric);
+
     with TTextEditorLineInfo(FLineInfo[LCurrentLine - 1]), LTextMetric do
     begin
       LineHeight := Max(LineHeight, TextHeight(ACanvas, 'W'));
       MaxBaseDistance := Max(MaxBaseDistance, tmHeight - tmDescent);
     end;
+
     FFrameHeight := Max(FFrameHeight, LOrginalHeight + TextHeight(ACanvas, 'W'));
   end;
+
   FFrameHeight := FFrameHeight + 2 * FMargins.PixelInternalMargin;
 end;
 
@@ -521,6 +653,7 @@ begin
   begin
     Pen.Color := LineColor;
     Brush.Color := ShadedColor;
+
     if ftShaded in FrameTypes then
       Brush.Style := bsSolid
     else
@@ -542,6 +675,7 @@ begin
     if ftLine in FrameTypes then
     begin
       Pen.Style := psSolid;
+
       if FSectionType = stHeader then
       begin
         MoveTo(PixelLeft, PixelHeader);
@@ -567,49 +701,57 @@ begin
   SaveFontPenBrush(ACanvas);
   DrawFrame(ACanvas);
   ACanvas.Brush.Style := bsClear;
+
   if FSectionType = stHeader then
     LY := FMargins.PixelHeader - FFrameHeight
   else
     LY := FMargins.PixelFooter;
+
   LY := LY + FMargins.PixelInternalMargin;
 
   LCurrentLine := 1;
+
   for LIndex := 0 to FItems.Count - 1 do
   begin
     LSectionItem := TTextEditorSectionItem(FItems[LIndex]);
     ACanvas.Font := LSectionItem.Font;
     ACanvas.Font.Color := TColors.Black;
+
     if LSectionItem.LineNumber <> LCurrentLine then
     begin
       LY := LY + TTextEditorLineInfo(FLineInfo[LCurrentLine - 1]).LineHeight;
       LCurrentLine := LSectionItem.LineNumber;
     end;
+
     LText := LSectionItem.GetText(FNumberOfPages, PageNum, FRomanNumbers, FTitle, FTime, FDate);
     LAlignment := LSectionItem.Alignment;
+
     if MirrorPosition and ((PageNum mod 2) = 0) then
-    begin
-      case LSectionItem.Alignment of
-        taRightJustify:
-          LAlignment := taLeftJustify;
-        taLeftJustify:
-          LAlignment := taRightJustify;
-      end;
+    case LSectionItem.Alignment of
+      taRightJustify:
+        LAlignment := taLeftJustify;
+      taLeftJustify:
+        LAlignment := taRightJustify;
     end;
+
     with FMargins do
     begin
       LX := PixelLeftTextIndent;
+
       case LAlignment of
         taRightJustify:
           LX := PixelRightTextIndent - TextWidth(ACanvas, LText);
         taCenter:
-          LX := (PixelLeftTextIndent + PixelRightTextIndent - TextWidth(ACanvas, LText)) div 2;
+          LX := (PixelLeftTextIndent + PixelRightTextIndent - TextWidth(ACanvas, LText)) shr 1;
       end;
     end;
+
     LOldAlign := SetTextAlign(ACanvas.Handle, TA_BASELINE);
     Winapi.Windows.ExtTextOut(ACanvas.Handle, LX, LY + TTextEditorLineInfo(FLineInfo[LCurrentLine - 1]).MaxBaseDistance,
       0, nil, PChar(LText), Length(LText), nil);
     SetTextAlign(ACanvas.Handle, LOldAlign);
   end;
+
   RestoreFontPenBrush(ACanvas);
 end;
 
@@ -626,11 +768,13 @@ begin
     Self.FFrameTypes := FFrameTypes;
     Self.FShadedColor := FShadedColor;
     Self.FLineColor := FLineColor;
+
     for LIndex := 0 to FItems.Count - 1 do
     begin
       LSectionItem := TTextEditorSectionItem(FItems[LIndex]);
       Self.Add(LSectionItem.Text, LSectionItem.Font, LSectionItem.Alignment, LSectionItem.LineNumber);
     end;
+
     Self.FDefaultFont.Assign(FDefaultFont);
     Self.FRomanNumbers := FRomanNumbers;
     Self.FMirrorPosition := FMirrorPosition;
@@ -674,6 +818,7 @@ begin
     Read(LHeight, SizeOf(LHeight));
     Read(LBufferSize, SizeOf(LBufferSize));
     GetMem(LBuffer, LBufferSize + 1);
+
     try
       Read(LBuffer^, LBufferSize);
       LBuffer[LBufferSize] := TControlCharacters.Null;
@@ -681,6 +826,7 @@ begin
     finally
       FreeMem(LBuffer);
     end;
+
     Read(LPitch, SizeOf(LPitch));
     Read(LSize, SizeOf(LSize));
     Read(LStyle, SizeOf(LStyle));
@@ -692,6 +838,7 @@ begin
     FDefaultFont.Size := LSize;
     FDefaultFont.Style := LStyle;
     Read(LCount, SizeOf(LCount));
+
     while LCount > 0 do
     begin
       LIndex := Add('', nil, taLeftJustify, 1);
@@ -738,6 +885,7 @@ begin
     Write(LStyle, SizeOf(LStyle));
     LCount := Count;
     Write(LCount, SizeOf(LCount));
+
     for LIndex := 0 to LCount - 1 do
       Get(LIndex).SaveToStream(AStream);
   end;
@@ -748,6 +896,7 @@ end;
 constructor TTextEditorPrintHeader.Create;
 begin
   inherited;
+
   SectionType := stHeader;
 end;
 
@@ -756,6 +905,7 @@ end;
 constructor TTextEditorPrintFooter.Create;
 begin
   inherited;
+
   SectionType := stFooter;
 end;
 

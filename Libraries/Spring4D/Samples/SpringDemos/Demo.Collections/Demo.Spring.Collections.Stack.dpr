@@ -5,18 +5,15 @@ program Demo.Spring.Collections.Stack;
 {$R *.res}
 
 uses
-  {$IF CompilerVersion >= 23.0}System.SysUtils{$ELSE}SysUtils{$IFEND},
+  SysUtils,
   uIsPalindrome in 'uIsPalindrome.pas';
 
 procedure TellIfPalindrome(const aString: string);
 begin
   if IsPalindrome(aString) then
-  begin
-    Writeln('"', aString, '"', ' is a palindrome');
-  end else
-  begin
+    Writeln('"', aString, '"', ' is a palindrome')
+  else
     Writeln('"', aString, '"', ' is NOT a palindrome');
-  end;
 end;
 
 var

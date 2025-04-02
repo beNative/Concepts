@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -26,10 +26,6 @@
 {$IFDEF DELPHIXE4_UP}
   {$ZEROBASEDSTRINGS OFF}
 {$ENDIF}
-{$IFNDEF DELPHIX_TOKYO_UP}{$IFDEF ANDROID}
-  // Android compilers up to 10.1 have some issue - trying some workaround
-  {$DEFINE ANDROID_COMPILER_ISSUE}
-{$ENDIF}{$ENDIF}
 
 unit Spring.Reflection;
 
@@ -38,15 +34,12 @@ interface
 uses
   Rtti,
   SyncObjs,
-  SysUtils,
   TypInfo,
   Spring,
   Spring.Collections,
   Spring.Collections.Base,
-{$IFDEF ANDROID_COMPILER_ISSUE}
   Spring.Collections.Extensions,
-{$ENDIF}
-  Spring.DesignPatterns;
+  Spring.Patterns.Specification;
 
 type
 
@@ -108,7 +101,7 @@ type
 
   {$REGION 'TRttiTypeIterator<T>'}
 
-  TRttiTypeIterator<T: TRttiType> = class(TIterator<T>)
+  TRttiTypeIterator<T: TRttiType> = class(TIterator<T>, IEnumerable<T>)
   private
     fContext: TRttiContext;
     fIndex: Integer;
@@ -124,10 +117,6 @@ type
 
 
   {$REGION 'TRttiObjectHelper'}
-
-  TRttiTypeHack = class(TRttiObject)
-    function GetAttributes: TArray<TCustomAttribute>; override;
-  end;
 
   TRttiObjectHelper = class helper for TRttiObject
   public
@@ -175,7 +164,7 @@ type
 
   {$REGION 'TRttiTypeHelper'}
 
-  TRttiTypeHelper =  class helper for TRttiType
+  TRttiTypeHelper = class helper for TRttiType
   private
     function GetAsInterface: TRttiInterfaceType;
     function GetIsClass: Boolean;
@@ -193,6 +182,7 @@ type
     function GetConstructorsInternal: IReadOnlyList<TRttiMethod>;
     function GetDefaultName: string;
     function GetAncestorCount: Integer;
+    function GetDeclaringUnitName: string;
   public
 
     /// <summary>
@@ -426,9 +416,9 @@ type
 
   TFiltersNamed<T: TRttiNamedObject> = class
   public
-    class function IsNamed(const name: string): TSpecification<T>;
+    class function IsNamed(const name: string): Specification<T>;
     class function HasAttribute(attributeClass: TAttributeClass;
-      inherit: Boolean = False): TSpecification<T>;
+      inherit: Boolean = False): Specification<T>;
   end;
 
   {$ENDREGION}
@@ -444,16 +434,16 @@ type
   /// </summary>
   TFiltersBase<T: TRttiMember> = class(TFiltersNamed<T>)
   public
-    class function ContainsParameterType(typeInfo: PTypeInfo): TSpecification<T>;
-    class function HasParameterTypes(const types: array of PTypeInfo): TSpecification<T>;
-    class function HasParameterFlags(const flags: TParamFlags): TSpecification<T>;
-    class function IsTypeOf<TType>: TSpecification<T>; overload;
-    class function IsTypeOf(typeInfo: PTypeInfo): TSpecification<T>; overload;
-    class function IsConstructor: TSpecification<T>;
-    class function IsInstanceMethod: TSpecification<T>;
-    class function IsClassMethod: TSpecification<T>;
-    class function IsMethodKind(const kinds: TMethodKinds): TSpecification<T>;
-    class function IsInvokable: TSpecification<T>;
+    class function ContainsParameterType(typeInfo: PTypeInfo): Specification<T>;
+    class function HasParameterTypes(const types: array of PTypeInfo): Specification<T>;
+    class function HasParameterFlags(const flags: TParamFlags): Specification<T>;
+    class function IsTypeOf<TType>: Specification<T>; overload;
+    class function IsTypeOf(typeInfo: PTypeInfo): Specification<T>; overload;
+    class function IsConstructor: Specification<T>;
+    class function IsInstanceMethod: Specification<T>;
+    class function IsClassMethod: Specification<T>;
+    class function IsMethodKind(const kinds: TMethodKinds): Specification<T>;
+    class function IsInvokable: Specification<T>;
   end;
 
   {$ENDREGION}
@@ -468,12 +458,12 @@ type
   TFieldFilters = class(TFiltersBase<TRttiField>);
   TTypeFilters = class(TFiltersNamed<TRttiType>)
   public
-    class function IsClass: TSpecification<TRttiType>;
-    class function IsInterface: TSpecification<TRttiType>;
+    class function IsClass: Specification<TRttiType>;
+    class function IsInterface: Specification<TRttiType>;
   end;
   TParameterFilters = class(TFiltersNamed<TRttiParameter>)
   public
-    class function HasFlags(flags: TParamFlags): TSpecification<TRttiParameter>;
+    class function HasFlags(flags: TParamFlags): Specification<TRttiParameter>;
   end;
 
   {$ENDREGION}
@@ -481,7 +471,7 @@ type
 
   {$REGION 'TNameFilter<T>'}
 
-  TNameFilter<T: TRttiNamedObject> = class(TSpecificationBase<T>)
+  TNameFilter<T: TRttiNamedObject> = class(TSpecification<T>)
   private
     fName: string;
   protected
@@ -495,7 +485,7 @@ type
 
   {$REGION 'TInvokableFilter<T>'}
 
-  TInvokableFilter<T: TRttiMember> = class(TSpecificationBase<T>)
+  TInvokableFilter<T: TRttiMember> = class(TSpecification<T>)
   protected
     function IsSatisfiedBy(const member: T): Boolean; override;
   end;
@@ -505,7 +495,7 @@ type
 
   {$REGION 'THasAttributeFilter<T>'}
 
-  THasAttributeFilter<T: TRttiObject> = class(TSpecificationBase<T>)
+  THasAttributeFilter<T: TRttiObject> = class(TSpecification<T>)
   private
     fAttributeClass: TAttributeClass;
     fInherit: Boolean;
@@ -520,7 +510,7 @@ type
 
   {$REGION 'TTypeFilter<T>'}
 
-  TTypeFilter<T: TRttiMember> = class(TSpecificationBase<T>)
+  TTypeFilter<T: TRttiMember> = class(TSpecification<T>)
   private
     fTypeInfo: PTypeInfo;
   protected
@@ -534,7 +524,7 @@ type
 
   {$REGION 'THasParameterTypesFilter<T>'}
 
-  THasParameterTypesFilter<T: TRttiMember> = class(TSpecificationBase<T>)
+  THasParameterTypesFilter<T: TRttiMember> = class(TSpecification<T>)
   private
     fTypes: TArray<PTypeInfo>;
   protected
@@ -548,7 +538,7 @@ type
 
   {$REGION 'TContainsParameterTypeFilter<T>'}
 
-  TContainsParameterTypeFilter<T: TRttiMember> = class(TSpecificationBase<T>)
+  TContainsParameterTypeFilter<T: TRttiMember> = class(TSpecification<T>)
   private
     fTypeInfo: PTypeInfo;
   protected
@@ -565,7 +555,7 @@ type
 
   {$REGION 'TMemberTypeFilter<T>'}
 
-  TMemberTypeFilter<T: TRttiMember> = class(TSpecificationBase<T>)
+  TMemberTypeFilter<T: TRttiMember> = class(TSpecification<T>)
   private
     fMemberClass: TRttiMemberClass;
   protected
@@ -579,7 +569,7 @@ type
 
   {$REGION 'TConstructorFilter<T>'}
 
-  TConstructorFilter<T: TRttiMember> = class(TSpecificationBase<T>)
+  TConstructorFilter<T: TRttiMember> = class(TSpecification<T>)
   protected
     function IsSatisfiedBy(const member: T): Boolean; override;
   end;
@@ -589,7 +579,7 @@ type
 
   {$REGION 'TInstanceMethodFilter<T>'}
 
-  TInstanceMethodFilter<T: TRttiMember> = class(TSpecificationBase<T>)
+  TInstanceMethodFilter<T: TRttiMember> = class(TSpecification<T>)
   protected
     function IsSatisfiedBy(const member: T): Boolean; override;
   end;
@@ -599,7 +589,7 @@ type
 
   {$REGION 'TClassMethodFilter<T>'}
 
-  TClassMethodFilter<T: TRttiMember> = class(TSpecificationBase<T>)
+  TClassMethodFilter<T: TRttiMember> = class(TSpecification<T>)
   protected
     function IsSatisfiedBy(const member: T): Boolean; override;
   end;
@@ -609,7 +599,7 @@ type
 
   {$REGION 'THasParameterFlagsFilter<T>'}
 
-  THasParameterFlagsFilter<T: TRttiMember> = class(TSpecificationBase<T>)
+  THasParameterFlagsFilter<T: TRttiMember> = class(TSpecification<T>)
   private
     fFlags: TParamFlags;
   protected
@@ -623,7 +613,7 @@ type
 
   {$REGION 'TMethodKindFilter<T>'}
 
-  TMethodKindFilter<T: TRttiMember> = class(TSpecificationBase<T>)
+  TMethodKindFilter<T: TRttiMember> = class(TSpecification<T>)
   private
     fFlags: TMethodKinds;
   protected
@@ -637,7 +627,7 @@ type
 
   {$REGION 'TIsClassFilter'}
 
-  TIsClassFilter = class(TSpecificationBase<TRttiType>)
+  TIsClassFilter = class(TSpecification<TRttiType>)
   protected
     function IsSatisfiedBy(const member: TRttiType): Boolean; override;
   end;
@@ -647,7 +637,7 @@ type
 
   {$REGION 'TIsInterfaceFilter'}
 
-  TIsInterfaceFilter = class(TSpecificationBase<TRttiType>)
+  TIsInterfaceFilter = class(TSpecification<TRttiType>)
   protected
     function IsSatisfiedBy(const member: TRttiType): Boolean; override;
   end;
@@ -657,7 +647,7 @@ type
 
   {$REGION 'THasFlagsFilter'}
 
-  THasFlagsFilter = class(TSpecificationBase<TRttiParameter>)
+  THasFlagsFilter = class(TSpecification<TRttiParameter>)
   private
     fFlags: TParamFlags;
   protected
@@ -669,27 +659,8 @@ type
   {$ENDREGION}
 
 
-  {$REGION 'TArrayIterator'}
-
-{$IFDEF ANDROID_COMPILER_ISSUE}
-type
-  TArrayIterator = class(Spring.Collections.Extensions.TArrayIterator<TObject>)
-  private
-    fElementType: PTypeInfo;
-  protected
-    function GetElementType: PTypeInfo; override;
-  public
-    constructor Create(const values: TArray<TObject>; elementClass: TClass);
-  end;
-{$ENDIF}
-
-  {$ENDREGION}
-
-
   {$REGION 'Routines'}
 
-function PassByRef(TypeInfo: PTypeInfo; CC: TCallConv;
-  IsConst: Boolean = False): Boolean;
 procedure PassArg(Par: TRttiParameter; const ArgSrc: TValue;
   var ArgDest: TValue; CC: TCallConv);
 
@@ -699,10 +670,9 @@ procedure PassArg(Par: TRttiParameter; const ArgSrc: TValue;
 implementation
 
 uses
-  Math,
   RTLConsts,
   StrUtils,
-  SysConst,
+  SysUtils,
   Spring.ResourceStrings;
 
 const
@@ -710,43 +680,6 @@ const
 
 
 {$REGION 'Routines'}
-
-function PassByRef(TypeInfo: PTypeInfo; CC: TCallConv; IsConst: Boolean = False): Boolean;
-begin
-  if TypeInfo = nil then
-    Exit(False);
-  case TypeInfo^.Kind of
-    tkArray:
-      Result := GetTypeData(TypeInfo)^.ArrayData.Size > SizeOf(Pointer);
-{$IF Defined(CPUX86)}
-    tkRecord:
-      if (CC in [ccCdecl, ccStdCall, ccSafeCall]) and not IsConst then
-        Result := False
-      else
-        Result := GetTypeData(TypeInfo)^.RecSize > SizeOf(Pointer);
-    tkVariant:
-      Result := IsConst or not (CC in [ccCdecl, ccStdCall, ccSafeCall]);
-{$ELSEIF Defined(CPUX64)}
-    tkRecord:
-      Result := not (GetTypeData(TypeInfo)^.RecSize in [1,2,4,8]);
-    tkMethod,
-    tkVariant:
-      Result := True;
-{$ELSEIF Defined(CPUARM)}
-    tkRecord:
-      Result := (CC = ccReg) or (CC = ccPascal);
-    tkMethod,
-    tkVariant:
-      Result := True;
-{$IFEND}
-{$IFNDEF NEXTGEN}
-    tkString:
-      Result := GetTypeData(TypeInfo)^.MaxLength > SizeOf(Pointer);
-{$ENDIF}
-  else
-    Result := False;
-  end;
-end;
 
 procedure PassArg(Par: TRttiParameter; const ArgSrc: TValue;
   var ArgDest: TValue; CC: TCallConv);
@@ -774,24 +707,6 @@ begin
   else
     ArgDest := ArgSrc.Cast(Par.ParamType.Handle);
 end;
-
-{$ENDREGION}
-
-
-{$REGION 'TArrayIterator'}
-
-{$IFDEF ANDROID_COMPILER_ISSUE}
-constructor TArrayIterator.Create(const values: TArray<TObject>; elementClass: TClass);
-begin
-  inherited Create(values);
-  fElementType := elementClass.ClassInfo;
-end;
-
-function TArrayIterator.GetElementType: PTypeInfo;
-begin
-  Result := fElementType;
-end;
-{$ENDIF}
 
 {$ENDREGION}
 
@@ -840,37 +755,8 @@ begin
 end;
 
 class function TType.IsDelegate(typeInfo: PTypeInfo): Boolean;
-const
-  DelegatePrefixStrings: array[0..2] of string = (
-    'TFunc<', 'TProc<', 'TPredicate<');
-  DelegatePrefixNonGenericStrings: array[0..1] of string = (
-    'TProc', 'TPredicate');
-var
-  name: string;
-  prefix: string;
-  rttiType: TRttiType;
-  method: TRttiMethod;
-  typeData: PTypeData;
 begin
-  while Assigned(typeInfo) and (typeInfo.Kind = tkInterface) do
-  begin
-    name := typeInfo.TypeName;
-    for prefix in DelegatePrefixNonGenericStrings do
-      if SameText(prefix, name) then
-        Exit(True);
-    for prefix in DelegatePrefixStrings do
-      if StartsText(prefix, name) then
-        Exit(True);
-    rttiType := TType.GetType(typeInfo);
-    if rttiType.Methods.TryGetSingle(method) and (method.Name = 'Invoke') then
-      Exit(True);
-    typeData := GetTypeData(typeInfo);
-    if Assigned(typeData) and Assigned(typeData.IntfParent) then
-      typeInfo := typeData.IntfParent^
-    else
-      typeInfo := nil;
-  end;
-  Result := False;
+  Result := IsMethodReference(typeInfo);
 end;
 
 class procedure TType.SetFieldValue(const instance: TObject;
@@ -935,9 +821,8 @@ begin
       begin
         fInterfaceTypes := TCollections.CreateDictionary<TGuid, TRttiInterfaceType>;
         for item in Context.GetTypes do
-          if item.IsInterface and TRttiInterfaceType(item).HasGuid
-            and not fInterfaceTypes.ContainsKey(TRttiInterfaceType(item).GUID) then
-            fInterfaceTypes.Add(TRttiInterfaceType(item).GUID, TRttiInterfaceType(item));
+          if item.IsInterface and TRttiInterfaceType(item).HasGuid then
+            fInterfaceTypes.TryAdd(TRttiInterfaceType(item).GUID, TRttiInterfaceType(item));
       end;
     finally
       fSection.Leave;
@@ -1078,11 +963,6 @@ end;
 
 {$REGION 'TRttiTypeHelper'}
 
-function TRttiTypeHack.GetAttributes: TArray<TCustomAttribute>;
-begin
-  Result := inherited;
-end;
-
 function TRttiTypeHelper.GetAttributes(
   inherit: Boolean): TArray<TCustomAttribute>;
 var
@@ -1108,7 +988,7 @@ begin
   depth := 0;
   while t <> nil do
   begin
-    flat[depth] := TRttiTypeHack(t).GetAttributes;
+    flat[depth] := TRttiObject(t).GetAttributes;
     if not inherit then
       Break;
     Inc(depth);
@@ -1136,42 +1016,33 @@ end;
 
 function TRttiTypeHelper.GetConstructorsInternal: IReadOnlyList<TRttiMethod>;
 begin
-{$IFDEF ANDROID_COMPILER_ISSUE}
-  IReadOnlyList<TObject>(Result) := TArrayIterator.Create(
-    TArray<TObject>(GetConstructors), TRttiMethod);
-{$ELSE}
   Result := TEnumerable.From<TRttiMethod>(GetConstructors);
-{$ENDIF}
 end;
 
 function TRttiTypeHelper.GetMethodsInternal: IReadOnlyList<TRttiMethod>;
 begin
-{$IFDEF ANDROID_COMPILER_ISSUE}
-  IReadOnlyList<TObject>(Result) := TArrayIterator.Create(
-    TArray<TObject>(GetMethods), TRttiMethod);
-{$ELSE}
   Result := TEnumerable.From<TRttiMethod>(GetMethods);
-{$ENDIF}
 end;
 
 function TRttiTypeHelper.GetPropertiesInternal: IReadOnlyList<TRttiProperty>;
 begin
-{$IFDEF ANDROID_COMPILER_ISSUE}
-  IReadOnlyList<TObject>(Result) := TArrayIterator.Create(
-    TArray<TObject>(GetProperties), TRttiProperty);
-{$ELSE}
   Result := TEnumerable.From<TRttiProperty>(GetProperties);
-{$ENDIF}
 end;
 
 function TRttiTypeHelper.GetFieldsInternal: IReadOnlyList<TRttiField>;
 begin
-{$IFDEF ANDROID_COMPILER_ISSUE}
-  IReadOnlyList<TObject>(Result) := TArrayIterator.Create(
-    TArray<TObject>(GetFields), TRttiField);
-{$ELSE}
   Result := TEnumerable.From<TRttiField>(GetFields);
-{$ENDIF}
+end;
+
+function TRttiTypeHelper.GetDeclaringUnitName: string;
+begin
+  case TypeKind of
+    tkClass: Result := TRttiInstanceType(Self).DeclaringUnitName;
+    tkInterface: Result := TRttiInterfaceType(Self).DeclaringUnitName;
+    tkDynArray: Result := TRttiDynamicArrayType(Self).DeclaringUnitName;
+  else
+    Result := '';
+  end;
 end;
 
 function TRttiTypeHelper.GetDefaultName: string;
@@ -1293,11 +1164,7 @@ var
   list: IList<TRttiInterfaceType>;
   classType: TClass;
   table: PInterfaceTable;
-{$IFDEF DELPHI2010}
-  entry: TInterfaceEntry;
-{$ELSE}
   p: PPPTypeInfo;
-{$ENDIF}
   intfType: TRttiInterfaceType;
   i: Integer;
 begin
@@ -1311,27 +1178,17 @@ begin
       table := classType.GetInterfaceTable;
       if Assigned(table) then
       begin
-      {$IFNDEF DELPHI2010}
         p := @table.Entries[table.EntryCount];
-      {$ENDIF}
-        for i := 0 to table.EntryCount - 1 do
+        for i := 0 to table.EntryCount - 1 do //FI:W528
         begin
-        {$IFDEF DELPHI2010}
-          entry := table.Entries[i];
-          if (entry.IID <> EmptyGuid)
-            and TType.TryGetInterfaceType(entry.IID, intfType)
-            and guids.Add(entry.IID) then
-          list.Add(intfType);
-        {$ELSE}
           intfType := TType.GetType(p^^).AsInterface;
           list.Add(intfType);
           Inc(p);
-        {$ENDIF}
         end;
       end;
       classType := classType.ClassParent;
     end;
-    Result := list.AsReadOnlyList;
+    Result := list.AsReadOnly;
   end
   else
   if IsInterface then
@@ -1346,7 +1203,7 @@ begin
         list.Add(intfType);
       intfType := intfType.BaseType;
     end;
-    Result := list.AsReadOnlyList;
+    Result := list.AsReadOnly;
   end
   else
     Result := TEnumerable.Empty<TRttiInterfaceType>;
@@ -1403,17 +1260,29 @@ end;
 
 function TRttiTypeHelper.IsGenericTypeOf(const genericType: string): Boolean;
 var
+  genericTypeDefinition, declaringUnitName: string;
+  declaringUnitNameLength: Integer;
   baseType: TRttiType;
 begin
   if not IsGenericType then
     Exit(False);
-  if SameText(GetGenericTypeDefinition, genericType)  then
-    Result := True
-  else
+  genericTypeDefinition := GetGenericTypeDefinition;
+  if SameText(genericTypeDefinition, genericType) then
+    Exit(True);
+
+  if TypeKind in [tkClass, tkInterface, tkDynArray] then
   begin
-    baseType := Self.BaseType;
-    Result := Assigned(baseType) and baseType.IsGenericTypeOf(genericType);
+    declaringUnitName := GetDeclaringUnitName;
+    declaringUnitNameLength := Length(declaringUnitName);
+    if (Length(genericType) - declaringUnitNameLength - Length(genericTypeDefinition) = 1)
+      and (genericType[declaringUnitNameLength + 1] = '.')
+      and StartsText(declaringUnitName, genericType)
+      and EndsText(genericTypeDefinition, genericType) then
+      Exit(True);
   end;
+
+  baseType := Self.BaseType;
+  Result := Assigned(baseType) and baseType.IsGenericTypeOf(genericType);
 end;
 
 function TRttiTypeHelper.IsType(typeInfo: PTypeInfo): Boolean;
@@ -1675,13 +1544,13 @@ end;
 
 {$REGION 'TFiltersNamed<T>'}
 
-class function TFiltersNamed<T>.IsNamed(const name: string): TSpecification<T>;
+class function TFiltersNamed<T>.IsNamed(const name: string): Specification<T>;
 begin
   Result := TNameFilter<T>.Create(name);
 end;
 
 class function TFiltersNamed<T>.HasAttribute(attributeClass: TAttributeClass;
-  inherit: Boolean = False): TSpecification<T>;
+  inherit: Boolean = False): Specification<T>;
 begin
   Result := THasAttributeFilter<T>.Create(attributeClass, inherit);
 end;
@@ -1692,55 +1561,55 @@ end;
 {$REGION 'TFiltersBase<T>'}
 
 class function TFiltersBase<T>.ContainsParameterType(
-  typeInfo: PTypeInfo): TSpecification<T>;
+  typeInfo: PTypeInfo): Specification<T>;
 begin
   Result := TContainsParameterTypeFilter<T>.Create(typeInfo);
 end;
 
 class function TFiltersBase<T>.HasParameterTypes(
-  const types: array of PTypeInfo): TSpecification<T>;
+  const types: array of PTypeInfo): Specification<T>;
 begin
   Result := THasParameterTypesFilter<T>.Create(types);
 end;
 
 class function TFiltersBase<T>.HasParameterFlags(
-  const flags: TParamFlags): TSpecification<T>;
+  const flags: TParamFlags): Specification<T>;
 begin
   Result := THasParameterFlagsFilter<T>.Create(flags);
 end;
 
-class function TFiltersBase<T>.IsTypeOf(typeInfo: PTypeInfo): TSpecification<T>;
+class function TFiltersBase<T>.IsTypeOf(typeInfo: PTypeInfo): Specification<T>;
 begin
   Result := TTypeFilter<T>.Create(typeInfo);
 end;
 
-class function TFiltersBase<T>.IsTypeOf<TType>: TSpecification<T>;
+class function TFiltersBase<T>.IsTypeOf<TType>: Specification<T>;
 begin
   Result := IsTypeOf(TypeInfo(TType));
 end;
 
-class function TFiltersBase<T>.IsClassMethod: TSpecification<T>;
+class function TFiltersBase<T>.IsClassMethod: Specification<T>;
 begin
   Result := TClassMethodFilter<T>.Create;
 end;
 
-class function TFiltersBase<T>.IsConstructor: TSpecification<T>;
+class function TFiltersBase<T>.IsConstructor: Specification<T>;
 begin
   Result := TConstructorFilter<T>.Create;
 end;
 
-class function TFiltersBase<T>.IsInstanceMethod: TSpecification<T>;
+class function TFiltersBase<T>.IsInstanceMethod: Specification<T>;
 begin
   Result := TInstanceMethodFilter<T>.Create;
 end;
 
-class function TFiltersBase<T>.IsInvokable: TSpecification<T>;
+class function TFiltersBase<T>.IsInvokable: Specification<T>;
 begin
   Result := TInvokableFilter<T>.Create;
 end;
 
 class function TFiltersBase<T>.IsMethodKind(
-  const kinds: TMethodKinds): TSpecification<T>;
+  const kinds: TMethodKinds): Specification<T>;
 begin
   Result := TMethodKindFilter<T>.Create(kinds);
 end;
@@ -1750,12 +1619,12 @@ end;
 
 {$REGION 'TTypeFilters'}
 
-class function TTypeFilters.IsClass: TSpecification<TRttiType>;
+class function TTypeFilters.IsClass: Specification<TRttiType>;
 begin
   Result := TIsClassFilter.Create;
 end;
 
-class function TTypeFilters.IsInterface: TSpecification<TRttiType>;
+class function TTypeFilters.IsInterface: Specification<TRttiType>;
 begin
   Result := TIsInterfaceFilter.Create;
 end;
@@ -1766,7 +1635,7 @@ end;
 {$REGION 'TParameterFilters'}
 
 class function TParameterFilters.HasFlags(
-  flags: TParamFlags): TSpecification<TRttiParameter>;
+  flags: TParamFlags): Specification<TRttiParameter>;
 begin
   Result := THasFlagsFilter.Create(flags);
 end;
@@ -1781,7 +1650,6 @@ end;
 constructor THasAttributeFilter<T>.Create(attributeClass: TAttributeClass;
   inherit: Boolean);
 begin
-  inherited Create;
   fAttributeClass := attributeClass;
   fInherit := inherit;
 end;
@@ -1795,7 +1663,6 @@ end;
 
 constructor TNameFilter<T>.Create(const name: string);
 begin
-  inherited Create;
   fName := name;
 end;
 
@@ -1808,7 +1675,6 @@ end;
 
 constructor TTypeFilter<T>.Create(const typeInfo: PTypeInfo);
 begin
-  inherited Create;
   fTypeInfo := typeInfo;
 end;
 
@@ -1828,7 +1694,6 @@ constructor THasParameterTypesFilter<T>.Create(const types: array of PTypeInfo);
 var
   i: Integer;
 begin
-  inherited Create;
   SetLength(fTypes, Length(types));
   for i := Low(types) to High(types) do
     fTypes[i] := types[i];
@@ -1855,13 +1720,11 @@ end;
 
 constructor TContainsParameterTypeFilter<T>.Create(const typeInfo: PTypeInfo);
 begin
-  inherited Create;
   fTypeInfo := typeInfo;
 end;
 
 function TContainsParameterTypeFilter<T>.IsSatisfiedBy(const member: T): Boolean;
 var
-  parameters: TArray<TRttiParameter>;
   parameter: TRttiParameter;
 begin
   Result := False;
@@ -1875,7 +1738,6 @@ end;
 
 constructor THasParameterFlagsFilter<T>.Create(const flags: TParamFlags);
 begin
-  inherited Create;
   fFlags := flags;
 end;
 
@@ -1894,18 +1756,12 @@ end;
 
 constructor TMethodKindFilter<T>.Create(const flags: TMethodKinds);
 begin
-  inherited Create;
   fFlags := flags;
 end;
 
 function TMethodKindFilter<T>.IsSatisfiedBy(const member: T): Boolean;
 begin
-{$IFDEF DELPHI2010}
-  // explicit cast to prevent the compiler from choking
-  Result := TRttiMember(member).IsMethod and (TRttiMethod(member).MethodKind in fFlags);
-{$ELSE}
   Result := member.IsMethod and (TRttiMethod(member).MethodKind in fFlags);
-{$ENDIF}
 end;
 
 { TInvokableFilter<T> }
@@ -1924,7 +1780,6 @@ end;
 
 constructor TMemberTypeFilter<T>.Create(memberClass: TRttiMemberClass);
 begin
-  inherited Create;
   fMemberClass := memberClass;
 end;
 
@@ -1972,7 +1827,6 @@ end;
 
 constructor THasFlagsFilter.Create(flags: TParamFlags);
 begin
-  inherited Create;
   fFlags := flags;
 end;
 

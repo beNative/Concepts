@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,21 +29,12 @@ unit Spring.Persistence.Adapters.FireDAC;
 interface
 
 uses
-  DB,
-  FireDAC.DApt,
   FireDAC.Comp.Client,
-  FireDAC.Stan.Async,
-  FireDAC.Stan.Def,
-  FireDAC.Stan.Option,
-  FireDAC.Stan.Param,
-  FireDAC.Stan.Error,
   SysUtils,
   Spring.Collections,
   Spring.Persistence.Core.Base,
   Spring.Persistence.Core.Exceptions,
   Spring.Persistence.Core.Interfaces,
-  Spring.Persistence.Mapping.Attributes,
-  Spring.Persistence.SQL.Generators.Ansi,
   Spring.Persistence.SQL.Params;
 
 type
@@ -97,8 +88,13 @@ type
 implementation
 
 uses
-  StrUtils,
-  Variants,
+  DB,
+  FireDAC.DApt,
+  FireDAC.Stan.Async,
+  FireDAC.Stan.Def,
+  FireDAC.Stan.Error,
+  FireDAC.Stan.Option,
+  FireDAC.Stan.Param,
   Spring.Persistence.Core.ConnectionFactory,
   Spring.Persistence.Core.ResourceStrings;
 
@@ -312,15 +308,15 @@ function TFireDACExceptionHandler.GetAdapterException(const exc: Exception;
 begin
   if exc is EFDDBEngineException then
     with EFDDBEngineException(exc) do
-  begin
-    case Kind of
-      ekUKViolated,
-      ekFKViolated :
-        Result := EORMConstraintException.Create(defaultMsg, ErrorCode);
+    begin
+      case Kind of
+        ekUKViolated,
+        ekFKViolated :
+          Result := EORMConstraintException.Create(defaultMsg, ErrorCode);
       else
         Result := EFireDACAdapterException.Create(defaultMsg, ErrorCode);
-    end;
-  end
+      end;
+    end
   else if exc is EDatabaseError then
     Result := EFireDACAdapterException.Create(defaultMsg)
   else

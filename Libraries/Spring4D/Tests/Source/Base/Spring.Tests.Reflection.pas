@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -41,6 +41,9 @@ type
     procedure TestIsDelegateTypeWithNil;
     procedure TestIsDelegateTypeWithIInterface;
     procedure TestIsDelegateTypeWithTObject;
+    procedure TestIsDelegateTypeWithAction;
+    procedure TestIsDelegateTypeWithFunc;
+    procedure TestIsDelegateTypeWithPredicate;
 
     procedure TestIsAssignableClassAndInterfaceNotImplemented;
     procedure TestIsAssignableClassAndInterfaceImplemented;
@@ -94,6 +97,17 @@ begin
   CheckTrue(TType.IsAssignable(TypeInfo(TTestObject), TypeInfo(ITestInterface3)));
 end;
 
+procedure TTestType.TestIsDelegateTypeWithAction;
+begin
+  CheckTrue(TType.IsDelegate(TypeInfo(Action)));
+  CheckTrue(TType.IsDelegate(TypeInfo(Action<Integer>)));
+end;
+
+procedure TTestType.TestIsDelegateTypeWithFunc;
+begin
+  CheckTrue(TType.IsDelegate(TypeInfo(Func<Integer>)));
+end;
+
 procedure TTestType.TestIsDelegateTypeWithIInterface;
 begin
   CheckFalse(TType.IsDelegate(TypeInfo(IInterface)));
@@ -102,6 +116,11 @@ end;
 procedure TTestType.TestIsDelegateTypeWithNil;
 begin
   CheckFalse(TType.IsDelegate(nil));
+end;
+
+procedure TTestType.TestIsDelegateTypeWithPredicate;
+begin
+  CheckTrue(TType.IsDelegate(TypeInfo(Predicate<Integer>)));
 end;
 
 procedure TTestType.TestIsDelegateTypeWithTFunc;
@@ -121,6 +140,7 @@ end;
 
 procedure TTestType.TestIsDelegateTypeWithTProc;
 begin
+  CheckTrue(TType.IsDelegate(TypeInfo(TProc)));
   CheckTrue(TType.IsDelegate(TypeInfo(TProc<Integer>)));
 end;
 

@@ -244,7 +244,7 @@ end;
 class constructor TDependencyProperty.Create;
 begin
   FLock := TCriticalSection.Create;
-  FRegister := TObjectDictionary<TDependencyProperty, TDictionary<TComponent, TValue>>.Create([doOwnsKeys, doOwnsValues]);
+  FRegister := TObjectDictionary<TDependencyProperty, TDictionary<TComponent, TValue>>.Create([Generics.Collections.doOwnsKeys, Generics.Collections.doOwnsValues]);
 end;
 
 class destructor TDependencyProperty.Destroy;
@@ -309,7 +309,8 @@ var
 begin
   TFramework.NotifyPropertyChanged(Sender, EventArgs.Prop.Name);
 
-  FDefaultMetadata.OnPropertyChanged.Invoke(Sender, EventArgs);
+  //FDefaultMetadata.OnPropertyChanged.Invoke(Sender, EventArgs);
+  //FDefaultMetadata.OnPropertyChanged(Sender, EventArgs);
 
   if FDefaultMetadata.Inherits then
   begin

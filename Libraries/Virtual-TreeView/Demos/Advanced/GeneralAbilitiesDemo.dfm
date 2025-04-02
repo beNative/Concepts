@@ -58,10 +58,10 @@ object GeneralForm: TGeneralForm
     ScrollBarOptions.VerticalIncrement = 19
     TabOrder = 0
     TreeOptions.AnimationOptions = [toAnimatedToggle]
-    TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScroll, toAutoSpanColumns, toAutoTristateTracking, toAutoHideButtons, toDisableAutoscrollOnFocus, toAutoChangeScale]
+    TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScroll, toAutoSpanColumns, toAutoTristateTracking, toAutoHideButtons, toAutoChangeScale]
     TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toEditable, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
     TreeOptions.PaintOptions = [toHideSelection, toHotTrack, toShowButtons, toShowDropmark, toShowRoot, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages, toFullVertGridLines, toUseBlendedSelection]
-    TreeOptions.SelectionOptions = [toExtendedFocus, toMiddleClickSelect, toMultiSelect, toRightClickSelect]
+    TreeOptions.SelectionOptions = [toExtendedFocus, toMiddleClickSelect, toMultiSelect, toRightClickSelect, toSelectNextNodeOnRemoval]
     TreeOptions.StringOptions = [toSaveCaptions, toShowStaticText, toAutoAcceptEditChange]
     OnDragOver = VST2DragOver
     OnFocusChanging = VST2FocusChanging

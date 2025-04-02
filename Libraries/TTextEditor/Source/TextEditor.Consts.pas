@@ -1,4 +1,5 @@
-﻿unit TextEditor.Consts;
+﻿{$WARN WIDECHAR_REDUCED OFF} // CharInSet is slow in loops
+unit TextEditor.Consts;
 
 interface
 
@@ -14,31 +15,42 @@ type
     LowerCharacters = ['a'..'z'];
     UpperCharacters = ['A'..'Z'];
     Characters = LowerCharacters + UpperCharacters;
-    DefaultDelimiters = ['!', '"', '#', '$', '%', '&', '''', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=',
-      '>', '?', '@', '[', '\', ']', '^', '`', '{', '|', '}', '~'];
+    DefaultDelimiters = ['''', '-', '!', '"', '#', '$', '%', '&', '(', ')', '*', ',', '.', '/', ':', ';', '?', '@', '[',
+      '\', ']', '^', '`', '{', '|', '}', '~', '+', '<', '=', '>'];
     DefaultSelectionPrefix = '$%:@';
+    DefaultCompletionProposalCloseChars = '()[]. ';
     Numbers = ['0'..'9'];
-    RealNumbers = Numbers + ['e', 'E', '.'];
-    ValidFoldingWord = Numbers + Characters + ['\', '@', '_'];
+    RealNumbers = Numbers + ['.', 'e', 'E'];
+    ValidFoldingWord = Numbers + Characters + ['@', '\', '_'];
     ValidKeyword = UpperCharacters + Numbers;
-    WordBreak = DefaultDelimiters + [' ', '§', '°', '´'];
+    WordBreak = DefaultDelimiters + [' ', '´', '§', '°'];
     CharactersAndNumbers = Characters + Numbers;
   end;
 
   TCharacters = record
   const
     AnsiCharCount = 256;
+    Arrows = [37..40];
+    CloseTagOpen = '</';
     CtrlBackspace = #127;
+    Dot = '.';
     ExclamationMark = #33;
-    LineSeparator = Char($2028);
+    Hyphen = '-';
+    LineSeparator = Char($2028); // TODO: move to control character
     LowLine = #95;
     NonBreakingSpace = #160;
+    ParagraphSeparator = Char($2029); // TODO: move to control character
     Pilcrow = Char($00B6);
+    QuestionMark = '?';
     Slash = '/';
     Space = #32;
+    SquareBracketClose = ']';
+    SquareBracketOpen = '[';
+    TagClose = '>';
+    TagOpen = '<';
     ThreeDots = '...';
     Underscore = '_';
-    ZeroWidthSpace = Char($200B);
+    ZeroWidthSpace = Char($200B); // TODO: move to control character
   end;
 
   TClipboardDefaults = record
@@ -49,14 +61,15 @@ type
 
   TControlCharacterKeys = record
   const
+    Backspace = 8;
     CarriageReturn = 13;
     Escape = 27;
-    Linefeed = 10;
   end;
 
   TControlCharacterNames = record
   const
     Acknowledge = 'ACK';
+    Backspace = 'BS';
     Bell = 'BEL';
     Cancel = 'CAN';
     CarriageReturn = 'CR';
@@ -75,8 +88,11 @@ type
     FormFeed = 'FF';
     GroupSeparator = 'GS';
     LineFeed = 'LF';
+    LineSeparator = 'LS';
     NegativeAcknowledge = 'NAK';
+    NextLine = 'NEL';
     Null = 'NUL';
+    ParagraphSeparator = 'PS';
     RecordSeparator = 'RS';
     ShiftIn = 'SI';
     ShiftOut = 'SO';
@@ -112,6 +128,7 @@ type
     GroupSeparator = #29;
     Linefeed = #10;
     NegativeAcknowledge = #21;
+    NextLine = #133;
     Null = #0;
     RecordSeparator = #30;
     ShiftIn = #15;
@@ -123,31 +140,26 @@ type
     Tab = #9;
     UnitSeparator = #31;
     VerticalTab = #11;
-    Names: TControlCharacterNames = ();
-    Keys: TControlCharacterKeys = ();
     AsSet = [#1..#31] - [CarriageReturn, Linefeed, Null, Substitute, Tab];
   end;
 
   TDefaultColors = record
   const
     ActiveLineBackground = $00E6FAFF;
-    ActiveLineBackgroundUnfocused = $00E6FAFF;
+    ActiveLineBackgroundUnfocused = $00F0F0F0;
     ActiveLineForeground = TColors.SysNone;
     ActiveLineForegroundUnfocused = TColors.SysNone;
-    Indent = $00CC9999;
-    IndentHighlight = $00CC9999;
+    BlockBackground = $00EEFFFF;
     LeftMarginBackground = $00FFFFFF;
-    LeftMarginFontForeground = $00CC9999;
-    MatchingPairUnderline = $00CC9999;
+    LineNumbers = $00CC9999;
+    MatchingPairUnderline = TColors.Black;
     MinimapBookmark = TColors.Green;
-    MinimapVisibleLines = $00E6FAFF;
     PaleRed = $00E6E6FC;
     Red = $006B6BFF;
     SearchHighlighter = $0078AAFF;
-    SearchInSelectionBackground = $00FCFDCD;
-    SearchMapActiveLine = $00F4F4F4;
-    SelectionColor = $00A56D53;
-    SyncEditBackground = $00FCFDCD;
+    SearchInSelectionBackground = $00FAFFE6;
+    Selection = $00A56D53;
+    SelectionUnfocused = $006B6B6B;
     WordWrapIndicatorArrow = TColors.Navy;
     WordWrapIndicatorLines = TColors.Black;
   end;
@@ -158,12 +170,17 @@ type
     ElementString = 'String';
   end;
 
+  TMinValues = record
+  const
+    FileReadBufferSize = 1024;
+    FileShowProgressSize = 1024;
+  end;
+
   TMaxValues = record
   const
-    TokenLength = 128;
     ScrollRange = High(Smallint);
-    BufferSize = 10485760; // = 1024 * 1024 * 10;
     TextLength = (MaxInt div SizeOf(WideChar)) div 4;
+    TokenLength = 128;
   end;
 
   TMouseWheelScrollCursors = record
@@ -182,7 +199,6 @@ type
   TMouseWheel = record
   const
     Divisor = 120;
-    ScrollCursor: TMouseWheelScrollCursors = ();
   end;
 
   TResourceBitmap = record
@@ -230,7 +246,8 @@ type
     Text = '{Text}';
   end;
 
-function ControlCharacterToName(const AChar: Char): string;
+function ControlCharacterToName(const AChar: Char): string; inline;
+function IsLineTerminatorCharacter(const AChar: Char): Boolean; inline;
 
 implementation
 
@@ -239,6 +256,8 @@ begin
   case AChar of
     TControlCharacters.Acknowledge:
       Result := TControlCharacterNames.Acknowledge;
+    TControlCharacters.Backspace:
+      Result := TControlCharacterNames.Backspace;
     TControlCharacters.Bell:
       Result := TControlCharacterNames.Bell;
     TControlCharacters.Cancel:
@@ -275,8 +294,14 @@ begin
       Result := TControlCharacterNames.GroupSeparator;
     TControlCharacters.LineFeed:
       Result := TControlCharacterNames.LineFeed;
+    TCharacters.LineSeparator:
+      Result := TControlCharacterNames.LineSeparator;
     TControlCharacters.NegativeAcknowledge:
       Result := TControlCharacterNames.NegativeAcknowledge;
+    TControlCharacters.NextLine:
+      Result := TControlCharacterNames.NextLine;
+    TCharacters.ParagraphSeparator:
+      Result := TControlCharacterNames.ParagraphSeparator;
     TControlCharacters.Substitute:
       Result := TControlCharacterNames.Null;
     TControlCharacters.RecordSeparator:
@@ -300,6 +325,24 @@ begin
   else
     Result := '';
   end;
+end;
+
+{ "The Unicode standard defines a number of characters that conforming applications should recognize as line terminators:
+
+  LF:    Line Feed, U+000A
+  VT:    Vertical Tab, U+000B
+  FF:    Form Feed, U+000C
+  CR:    Carriage Return, U+000D
+  CR+LF: CR (U+000D) followed by LF (U+000A)
+  NEL:   Next Line, U+0085
+  LS:    Line Separator, U+2028
+  PS:    Paragraph Separator, U+2029
+
+  Recognizing and using the newline codes greater than 0x7F (NEL, LS and PS) is not often done.",
+  https://en.wikipedia.org/wiki/Newline }
+function IsLineTerminatorCharacter(const AChar: Char): Boolean;
+begin
+  Result := AChar in [TControlCharacters.CarriageReturn, TControlCharacters.Linefeed];
 end;
 
 end.

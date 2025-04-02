@@ -1,25 +1,35 @@
 object dmEditorManager: TdmEditorManager
-  OldCreateOrder = False
-  Height = 405
-  Width = 410
+  Height = 498
+  Width = 541
   object aclActions: TActionList
     Images = imlMain
     OnExecute = aclActionsExecute
-    Left = 352
-    Top = 32
+    Left = 64
+    Top = 37
     object actSettings: TAction
       Category = 'Settings'
       Caption = 'Settings'
       Hint = 'Editor settings'
-      ImageIndex = 7
+      ImageIndex = 6
+      ImageName = 'settings'
       ShortCut = 24659
       OnExecute = actSettingsExecute
+    end
+    object actIncFontSize: TAction
+      Category = 'Settings'
+      Caption = 'Increase font size'
+      Hint = 'Increase editor font size'
+      ImageIndex = 66
+      ImageName = 'text-increase'
+      SecondaryShortCuts.Strings = (
+        'CTRL+'#39'+'#39)
+      ShortCut = 16491
+      OnExecute = actIncFontSizeExecute
     end
     object actSearch: TAction
       Category = 'Find'
       Caption = '&Find...'
       Hint = 'Find'
-      ImageIndex = 9
       ShortCut = 16454
       OnExecute = actSearchExecute
     end
@@ -27,7 +37,6 @@ object dmEditorManager: TdmEditorManager
       Category = 'Find'
       Caption = 'Find &next word'
       Hint = 'Find next word occurence'
-      ImageIndex = 21
       ShortCut = 49192
       OnExecute = actFindNextWordExecute
     end
@@ -35,7 +44,6 @@ object dmEditorManager: TdmEditorManager
       Category = 'Find'
       Caption = 'Find &previous word'
       Hint = 'Find previous word occurence'
-      ImageIndex = 22
       ShortCut = 49190
       OnExecute = actFindPrevWordExecute
     end
@@ -43,7 +51,6 @@ object dmEditorManager: TdmEditorManager
       Category = 'Find'
       Caption = '&Replace...'
       Hint = 'Replace'
-      ImageIndex = 10
       ShortCut = 16466
       OnExecute = actSearchReplaceExecute
     end
@@ -51,7 +58,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'File'
       Caption = 'Save as...'
       Hint = 'Save file as'
-      ImageIndex = 55
+      ImageIndex = 32
+      ImageName = 'floppy'
       ShortCut = 24659
       OnExecute = actSaveAsExecute
     end
@@ -59,7 +67,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'File'
       Caption = 'Open'
       Hint = 'Open file'
-      ImageIndex = 3
+      ImageIndex = 33
+      ImageName = 'folder-open'
       ShortCut = 16463
       OnExecute = actOpenExecute
     end
@@ -123,7 +132,6 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Page setup'
       Enabled = False
       Hint = 'Page setup'
-      ImageIndex = 35
       Visible = False
       OnExecute = actPageSetupExecute
     end
@@ -132,7 +140,6 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Print preview'
       Enabled = False
       Hint = 'Print preview'
-      ImageIndex = 35
       Visible = False
       OnExecute = actPrintPreviewExecute
     end
@@ -141,7 +148,6 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Print'
       Enabled = False
       Hint = 'Print'
-      ImageIndex = 34
       ShortCut = 16464
       Visible = False
       OnExecute = actPrintExecute
@@ -150,7 +156,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Edit'
       Caption = 'Copy to clipboard'
       Hint = 'Copy to clipboard'
-      ImageIndex = 1
+      ImageIndex = 3
+      ImageName = 'copy'
       ShortCut = 16451
       OnExecute = actCopyToClipboardExecute
     end
@@ -159,7 +166,8 @@ object dmEditorManager: TdmEditorManager
       AutoCheck = True
       Caption = 'Show special characters'
       Hint = 'Show special characters (like tabs and spaces).'
-      ImageIndex = 84
+      ImageIndex = 64
+      ImageName = 'pilcrow'
       ShortCut = 24658
       OnExecute = actShowSpecialCharactersExecute
     end
@@ -167,7 +175,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Selection'
       Caption = 'Uppercase'
       Hint = 'Upper case selection'
-      ImageIndex = 20
+      ImageIndex = 49
+      ImageName = 'letter-case-toggle'
       ShortCut = 16469
       OnExecute = actUpperCaseSelectionExecute
     end
@@ -175,7 +184,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Selection'
       Caption = 'Lowercase'
       Hint = 'Lower case selection'
-      ImageIndex = 25
+      ImageIndex = 48
+      ImageName = 'letter-case'
       ShortCut = 16460
       OnExecute = actLowerCaseSelectionExecute
     end
@@ -183,7 +193,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Selection'
       Caption = 'Toggle comment'
       Hint = 'Toggle comment for current line or each selected line.'
-      ImageIndex = 17
+      ImageIndex = 56
+      ImageName = 'slashes'
       ShortCut = 16575
       OnExecute = actToggleCommentExecute
     end
@@ -192,6 +203,7 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Align'
       Hint = 'Align selected lines'
       ImageIndex = 29
+      ImageName = 'clipboard-text'
       ShortCut = 49242
       OnExecute = actAlignSelectionExecute
     end
@@ -199,7 +211,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Selection'
       Caption = 'Toggle sort selected lines'
       Hint = 'Toggle sort order for selected lines'
-      ImageIndex = 16
+      ImageIndex = 26
+      ImageName = 'sort-descending'
       ShortCut = 49235
       OnExecute = actSortSelectedLinesExecute
     end
@@ -207,7 +220,6 @@ object dmEditorManager: TdmEditorManager
       Category = 'Find'
       Caption = 'Find next'
       Hint = 'Find next'
-      ImageIndex = 21
       ShortCut = 114
       OnExecute = actFindNextExecute
     end
@@ -215,7 +227,6 @@ object dmEditorManager: TdmEditorManager
       Category = 'Find'
       Caption = 'Find previous'
       Hint = 'Find previous'
-      ImageIndex = 22
       ShortCut = 16498
       OnExecute = actFindPreviousExecute
     end
@@ -223,7 +234,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Selection'
       Caption = 'Quote lines'
       Hint = 'Quote each line in the selection.'
-      ImageIndex = 82
+      ImageIndex = 23
+      ImageName = 'quote'
       ShortCut = 16465
       OnExecute = actQuoteLinesExecute
     end
@@ -239,25 +251,17 @@ object dmEditorManager: TdmEditorManager
       Category = 'Commands'
       Caption = 'Format text'
       Hint = 'Formats text depending on the current highlighter.'
-      ImageIndex = 74
+      ImageIndex = 19
+      ImageName = 'zap-16'
       ShortCut = 49222
       OnExecute = actFormatExecute
-    end
-    object actIncFontSize: TAction
-      Category = 'Settings'
-      Caption = 'Increase font size'
-      Hint = 'Increase editor font size'
-      ImageIndex = 78
-      SecondaryShortCuts.Strings = (
-        'CTRL+'#39'+'#39)
-      ShortCut = 16491
-      OnExecute = actIncFontSizeExecute
     end
     object actDecFontSize: TAction
       Category = 'Settings'
       Caption = 'Decrease font size'
       Hint = 'Decrease editor font size'
-      ImageIndex = 77
+      ImageIndex = 65
+      ImageName = 'text-decrease'
       ShortCut = 16493
       OnExecute = actDecFontSizeExecute
     end
@@ -265,7 +269,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'ToolViews'
       Caption = 'Shape code'
       Hint = 'Apply custom code formatting to selection'
-      ImageIndex = 79
+      ImageIndex = 68
+      ImageName = 'player-record'
       ShortCut = 49219
       OnExecute = actShowCodeShaperExecute
     end
@@ -281,7 +286,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'File'
       Caption = 'Save'
       Hint = 'Save'
-      ImageIndex = 4
+      ImageIndex = 32
+      ImageName = 'floppy'
       ShortCut = 16467
       OnExecute = actSaveExecute
     end
@@ -291,7 +297,8 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Fold level 0'
       GroupIndex = 2
       Hint = 'Sets the fold level to 0'
-      ImageIndex = 59
+      ImageIndex = 9
+      ImageName = 'square-number-0'
       OnExecute = actFoldLevel0Execute
     end
     object actFoldLevel1: TAction
@@ -300,7 +307,8 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Fold level 1'
       GroupIndex = 2
       Hint = 'Sets the fold level to 1'
-      ImageIndex = 60
+      ImageIndex = 10
+      ImageName = 'square-number-1'
       OnExecute = actFoldLevel1Execute
     end
     object actFoldLevel2: TAction
@@ -309,7 +317,8 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Fold level 2'
       GroupIndex = 2
       Hint = 'Sets the fold level to 2'
-      ImageIndex = 61
+      ImageIndex = 11
+      ImageName = 'square-number-2'
       OnExecute = actFoldLevel2Execute
     end
     object actFoldLevel3: TAction
@@ -318,7 +327,8 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Fold level 3'
       GroupIndex = 2
       Hint = 'Sets the fold level to 3'
-      ImageIndex = 62
+      ImageIndex = 12
+      ImageName = 'square-number-3'
       OnExecute = actFoldLevel3Execute
     end
     object actFoldLevel4: TAction
@@ -327,7 +337,8 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Fold level 4'
       GroupIndex = 2
       Hint = 'Sets the fold level to 4'
-      ImageIndex = 63
+      ImageIndex = 13
+      ImageName = 'square-number-4'
       OnExecute = actFoldLevel4Execute
     end
     object actFoldLevel5: TAction
@@ -336,7 +347,8 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Fold level 5'
       GroupIndex = 2
       Hint = 'Sets the fold level to 5'
-      ImageIndex = 64
+      ImageIndex = 14
+      ImageName = 'square-number-5'
       OnExecute = actFoldLevel5Execute
     end
     object actFoldLevel6: TAction
@@ -345,7 +357,8 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Fold level 6'
       GroupIndex = 2
       Hint = 'Sets the fold level to 6'
-      ImageIndex = 65
+      ImageIndex = 15
+      ImageName = 'square-number-6'
       OnExecute = actFoldLevel6Execute
     end
     object actFoldLevel7: TAction
@@ -354,7 +367,8 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Fold level 7'
       GroupIndex = 2
       Hint = 'Sets the fold level to 7'
-      ImageIndex = 66
+      ImageIndex = 16
+      ImageName = 'square-number-7'
       OnExecute = actFoldLevel7Execute
     end
     object actFoldLevel8: TAction
@@ -363,7 +377,8 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Fold level 8'
       GroupIndex = 2
       Hint = 'Sets the fold level to 8'
-      ImageIndex = 67
+      ImageIndex = 17
+      ImageName = 'square-number-8'
       OnExecute = actFoldLevel8Execute
     end
     object actFoldLevel9: TAction
@@ -372,7 +387,8 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Fold level 9'
       GroupIndex = 2
       Hint = 'Sets the fold level to 9'
-      ImageIndex = 68
+      ImageIndex = 18
+      ImageName = 'square-number-9'
       OnExecute = actFoldLevel9Execute
     end
     object actFoldLevel10: TAction
@@ -382,14 +398,14 @@ object dmEditorManager: TdmEditorManager
       Checked = True
       GroupIndex = 2
       Hint = 'Sets the fold level to 10'
-      ImageIndex = 69
+      ImageIndex = 61
+      ImageName = 'square'
       OnExecute = actFoldLevel10Execute
     end
     object actToggleFoldLevel: TAction
       Category = 'Fold'
       Caption = 'Toggle fold level'
       Hint = 'Toggle folding level.'
-      ImageIndex = 69
       ShortCut = 118
       OnExecute = actToggleFoldLevelExecute
     end
@@ -405,7 +421,6 @@ object dmEditorManager: TdmEditorManager
       Category = 'Debug'
       Caption = 'Inspect'
       Hint = 'Show inspector'
-      ImageIndex = 52
       ShortCut = 16496
       OnExecute = actInspectExecute
     end
@@ -413,7 +428,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'ToolViews'
       Caption = 'Filter code'
       Hint = 'Filter code'
-      ImageIndex = 70
+      ImageIndex = 40
+      ImageName = 'filter'
       ShortCut = 16455
       OnExecute = actShowCodeFilterExecute
     end
@@ -429,7 +445,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'File'
       Caption = 'Reload'
       Hint = 'Reload content.'
-      ImageIndex = 14
+      ImageIndex = 5
+      ImageName = 'refresh'
       ShortCut = 116
       OnExecute = actReloadExecute
     end
@@ -437,7 +454,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'File'
       Caption = 'New'
       Hint = 'Create a new editor view.'
-      ImageIndex = 39
+      ImageIndex = 30
+      ImageName = 'file'
       ShortCut = 16462
       OnExecute = actNewExecute
     end
@@ -453,6 +471,7 @@ object dmEditorManager: TdmEditorManager
       Category = 'Settings'
       Caption = 'Autoformat XML'
       ImageIndex = 50
+      ImageName = 'marquee-2'
       ShortCut = 49222
       OnExecute = actAutoFormatXMLExecute
     end
@@ -460,7 +479,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Help'
       Caption = '&Help'
       Hint = 'Show help dialog.'
-      ImageIndex = 54
+      ImageIndex = 47
+      ImageName = 'help'
       OnExecute = actHelpExecute
     end
     object actOpenFileAtCursor: TAction
@@ -475,7 +495,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Selection'
       Caption = 'Dequote lines'
       Hint = 'Dequote each line in the selection.'
-      ImageIndex = 86
+      ImageIndex = 24
+      ImageName = 'quote-off'
       ShortCut = 24644
       OnExecute = actDequoteLinesExecute
     end
@@ -483,7 +504,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Edit'
       Caption = '&Copy'
       Hint = 'Copy selection'
-      ImageIndex = 1
+      ImageIndex = 3
+      ImageName = 'copy'
       ShortCut = 16451
       OnExecute = actCopyExecute
     end
@@ -491,21 +513,22 @@ object dmEditorManager: TdmEditorManager
       Category = 'ToolViews'
       Caption = 'Show character map'
       Hint = 'Show character map with Ansi and Unicode characters.'
-      ImageIndex = 43
       OnExecute = actShowCharacterMapExecute
     end
     object actQuoteSelection: TAction
       Category = 'Selection'
       Caption = 'Quote'
       Hint = 'Quote selection'
-      ImageIndex = 83
+      ImageIndex = 23
+      ImageName = 'quote'
       OnExecute = actQuoteSelectionExecute
     end
     object actDequoteSelection: TAction
       Category = 'Selection'
       Caption = 'Dequote'
       Hint = 'Dequote selection'
-      ImageIndex = 85
+      ImageIndex = 24
+      ImageName = 'quote-off'
       ShortCut = 16452
       OnExecute = actDequoteSelectionExecute
     end
@@ -513,7 +536,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Commands'
       Caption = 'Auto guess highlighter'
       Hint = 'Auto guess highlighter'
-      ImageIndex = 87
+      ImageIndex = 37
+      ImageName = 'auto-fix'
       ShortCut = 16456
       OnExecute = actAutoGuessHighlighterExecute
     end
@@ -529,7 +553,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'File'
       Caption = 'Close active editor view'
       Hint = 'Close the active editor instance.'
-      ImageIndex = 31
+      ImageIndex = 36
+      ImageName = 'x'
       ShortCut = 16499
       OnExecute = actCloseExecute
     end
@@ -553,7 +578,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Edit'
       Caption = 'Redo'
       Hint = 'Redo'
-      ImageIndex = 37
+      ImageIndex = 1
+      ImageName = 'arrow-forward-up'
       ShortCut = 24666
       OnExecute = actRedoExecute
     end
@@ -568,7 +594,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Settings'
       Caption = 'Monitor changes'
       Hint = 'Monitor for external file changes.'
-      ImageIndex = 90
+      ImageIndex = 63
+      ImageName = 'eye'
       ShortCut = 24653
       OnExecute = actMonitorChangesExecute
     end
@@ -576,7 +603,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Help'
       Caption = 'About'
       Hint = 'Shows the about dialog.'
-      ImageIndex = 73
+      ImageIndex = 54
+      ImageName = 'info-circle'
       OnExecute = actAboutExecute
     end
     object actShowActions: TAction
@@ -627,7 +655,6 @@ object dmEditorManager: TdmEditorManager
       Category = 'Selection'
       Caption = 'Sync edit'
       Hint = 'Synchronized edit'
-      ImageIndex = 5
       ShortCut = 24650
       OnExecute = actSyncEditExecute
     end
@@ -635,14 +662,16 @@ object dmEditorManager: TdmEditorManager
       Category = 'Select'
       Caption = 'Clear'
       Hint = 'Clear all text in the editor view.'
-      ImageIndex = 72
+      ImageIndex = 36
+      ImageName = 'x'
       OnExecute = actClearExecute
     end
     object actCreateDesktopLink: TAction
       Category = 'Commands'
       Caption = 'Create desktop link'
       Hint = 'Create a desktop shortcut to the active file.'
-      ImageIndex = 92
+      ImageIndex = 58
+      ImageName = 'link-external-16'
       ShortCut = 49228
       OnExecute = actCreateDesktopLinkExecute
     end
@@ -650,14 +679,16 @@ object dmEditorManager: TdmEditorManager
       Category = 'File'
       Caption = 'Exit'
       Hint = 'Exit application'
-      ImageIndex = 19
+      ImageIndex = 44
+      ImageName = 'square-x'
       OnExecute = actExitExecute
     end
     object actStripMarkup: TAction
       Category = 'Selection'
       Caption = 'Strip markup'
       Hint = 'Strip markup tags from XML/HTML.'
-      ImageIndex = 93
+      ImageIndex = 20
+      ImageName = 'eraser'
       ShortCut = 57427
       OnExecute = actStripMarkupExecute
     end
@@ -666,6 +697,7 @@ object dmEditorManager: TdmEditorManager
       Caption = 'Paste'
       Hint = 'Paste'
       ImageIndex = 2
+      ImageName = 'clipboard'
       ShortCut = 16470
       OnExecute = actPasteExecute
     end
@@ -673,7 +705,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Edit'
       Caption = 'Cut'
       Hint = 'Cut'
-      ImageIndex = 0
+      ImageIndex = 4
+      ImageName = 'cut'
       ShortCut = 16472
       OnExecute = actCutExecute
     end
@@ -681,7 +714,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Edit'
       Caption = 'Undo'
       Hint = 'Undo'
-      ImageIndex = 38
+      ImageIndex = 0
+      ImageName = 'arrow-back-up'
       ShortCut = 16474
       OnExecute = actUndoExecute
     end
@@ -689,7 +723,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Select'
       Caption = 'Select &All'
       Hint = 'Select all.'
-      ImageIndex = 23
+      ImageIndex = 35
+      ImageName = 'select-all'
       ShortCut = 16449
       OnExecute = actSelectAllExecute
     end
@@ -697,7 +732,8 @@ object dmEditorManager: TdmEditorManager
       Category = 'Edit'
       Caption = 'Delete'
       Hint = 'Delete'
-      ImageIndex = 31
+      ImageIndex = 55
+      ImageName = 'minus'
       ShortCut = 46
     end
     object actShowTest: TAction
@@ -713,7 +749,6 @@ object dmEditorManager: TdmEditorManager
       Hint = 
         'Comment/uncomment the selection with the highlighter'#39's block com' +
         'ment tags.'
-      ImageIndex = 17
       ShortCut = 24767
       OnExecute = actToggleBlockCommentSelectionExecute
     end
@@ -726,6 +761,8 @@ object dmEditorManager: TdmEditorManager
     object actSelectionInfo: TAction
       Category = 'Debug'
       Caption = 'SelectionInfo'
+      ImageIndex = 57
+      ImageName = 'pointer-question'
       ShortCut = 24651
       OnExecute = actSelectionInfoExecute
     end
@@ -736,7 +773,8 @@ object dmEditorManager: TdmEditorManager
       Hint = 
         'Lets the application window stay on top of all other opened wind' +
         'ows.'
-      ImageIndex = 96
+      ImageIndex = 59
+      ImageName = 'pin-16'
       OnExecute = actStayOnTopExecute
     end
     object actToggleMaximized: TAction
@@ -759,7 +797,8 @@ object dmEditorManager: TdmEditorManager
     object actSelectionMenu: TAction
       Category = 'Selection'
       Caption = 'Selection'
-      ImageIndex = 41
+      ImageIndex = 50
+      ImageName = 'marquee-2'
     end
     object actSelectionModeMenu: TAction
       Category = 'SelectionMode'
@@ -772,6 +811,8 @@ object dmEditorManager: TdmEditorManager
     object actLineBreakStyleMenu: TAction
       Category = 'Linebreakstyle'
       Caption = 'Linebreakstyle'
+      ImageIndex = 52
+      ImageName = 'text-wrap'
     end
     object actEncodingMenu: TAction
       Category = 'Encoding'
@@ -780,12 +821,14 @@ object dmEditorManager: TdmEditorManager
     object actExportMenu: TAction
       Category = 'Export'
       Caption = 'Export'
-      ImageIndex = 80
+      ImageIndex = 31
+      ImageName = 'file-export'
     end
     object actClipboardMenu: TAction
       Category = 'Clipboard'
       Caption = 'Clipboard'
-      ImageIndex = 100
+      ImageIndex = 2
+      ImageName = 'clipboard'
     end
     object actInsertGUID: TAction
       Category = 'Insert'
@@ -798,7 +841,8 @@ object dmEditorManager: TdmEditorManager
     object actInsertMenu: TAction
       Category = 'Insert'
       Caption = 'Insert'
-      ImageIndex = 102
+      ImageIndex = 46
+      ImageName = 'forms'
     end
     object actFindAllOccurences: TAction
       Category = 'Find'
@@ -806,20 +850,19 @@ object dmEditorManager: TdmEditorManager
       Hint = 
         'Finds all occurences of the selected text or the current word at' +
         ' the caret position.'
-      ImageIndex = 27
       ShortCut = 24646
       OnExecute = actFindAllOccurencesExecute
     end
     object actSearchMenu: TAction
       Category = 'Find'
       Caption = 'Search'
-      ImageIndex = 9
     end
     object actIndent: TAction
       Category = 'Selection'
       Caption = 'Indent'
       Hint = 'Indent selected lines.'
-      ImageIndex = 30
+      ImageIndex = 22
+      ImageName = 'indent-increase'
       ShortCut = 24649
       OnExecute = actIndentExecute
     end
@@ -827,14 +870,16 @@ object dmEditorManager: TdmEditorManager
       Category = 'Selection'
       Caption = 'Unindent'
       Hint = 'Unindent selected lines.'
-      ImageIndex = 12
+      ImageIndex = 21
+      ImageName = 'indent-decrease'
       ShortCut = 24661
       OnExecute = actUnindentExecute
     end
     object actSelectMenu: TAction
       Category = 'Select'
       Caption = 'Select'
-      ImageIndex = 101
+      ImageIndex = 51
+      ImageName = 'pointer'
     end
     object actFileMenu: TAction
       Category = 'File'
@@ -866,13 +911,16 @@ object dmEditorManager: TdmEditorManager
       Hint = 
         'Convert TAB character to the equivalent amount of spaces in the ' +
         'selection.'
-      ImageIndex = 111
+      ImageIndex = 27
+      ImageName = 'space'
       OnExecute = actConvertTabsToSpacesExecute
     end
     object actExecuteScriptOnSelection: TAction
       Category = 'Selection'
       Caption = 'Execute script on selection'
       Hint = 'Execute script function on the selected lines.'
+      ImageIndex = 19
+      ImageName = 'zap-16'
     end
     object actShowScriptEditor: TAction
       Category = 'ToolViews'
@@ -893,12 +941,12 @@ object dmEditorManager: TdmEditorManager
     object actFoldMenu: TAction
       Category = 'Fold'
       Caption = 'Fold'
-      ImageIndex = 69
     end
     object actSettingsMenu: TAction
       Category = 'Settings'
       Caption = 'Settings'
-      ImageIndex = 7
+      ImageIndex = 6
+      ImageName = 'settings'
     end
     object actEncodeURL: TAction
       Category = 'Selection'
@@ -926,21 +974,24 @@ object dmEditorManager: TdmEditorManager
       Category = 'Selection'
       Caption = 'Strip comments'
       Hint = 'Strip all comments from the selected code.'
-      ImageIndex = 109
+      ImageIndex = 20
+      ImageName = 'eraser'
       OnExecute = actStripCommentsExecute
     end
     object actMergeBlankLines: TAction
       Category = 'Selection'
       Caption = 'Merge blank lines'
       Hint = 'Merge blank lines to one in the selected lines.'
-      ImageIndex = 108
+      ImageIndex = 62
+      ImageName = 'viewport-short'
       OnExecute = actMergeBlankLinesExecute
     end
     object actCompressSpace: TAction
       Category = 'Selection'
       Caption = 'Compress spaces'
       Hint = 'Reduce consecutive spaces to one.'
-      ImageIndex = 56
+      ImageIndex = 60
+      ImageName = 'viewport-narrow'
       OnExecute = actCompressSpaceExecute
     end
     object actCompressWhitespace: TAction
@@ -949,28 +1000,32 @@ object dmEditorManager: TdmEditorManager
       Hint = 
         'Replace any number of consecutive whitespace (including newlines' +
         ')'#13#10' with a single whitespace.'
-      ImageIndex = 76
+      ImageIndex = 60
+      ImageName = 'viewport-narrow'
       OnExecute = actCompressWhitespaceExecute
     end
     object actSaveAll: TAction
       Category = 'File'
       Caption = 'Save all'
       Hint = 'Save all changes.'
-      ImageIndex = 113
+      ImageIndex = 32
+      ImageName = 'floppy'
       ShortCut = 24659
       OnExecute = actSaveAllExecute
     end
     object actRecordMacro: TAction
       Category = 'Commands'
       Caption = 'Record macro'
-      ImageIndex = 116
+      ImageIndex = 68
+      ImageName = 'player-record'
       ShortCut = 24658
       OnExecute = actRecordMacroExecute
     end
     object actPlaybackMacro: TAction
       Category = 'Commands'
       Caption = 'Playback macro'
-      ImageIndex = 118
+      ImageIndex = 67
+      ImageName = 'player-play'
       ShortCut = 24656
       OnExecute = actPlaybackMacroExecute
     end
@@ -989,7 +1044,8 @@ object dmEditorManager: TdmEditorManager
       AutoCheck = True
       Caption = 'Toggle wordwrap'
       Hint = 'Toggle wordwrap mode.'
-      ImageIndex = 119
+      ImageIndex = 52
+      ImageName = 'text-wrap'
       ShortCut = 49239
       OnExecute = actToggleWordWrapExecute
     end
@@ -1009,34 +1065,34 @@ object dmEditorManager: TdmEditorManager
   end
   object ppmExport: TPopupMenu
     Images = imlMain
-    Left = 40
-    Top = 248
+    Left = 235
+    Top = 123
     object MenuItem1: TMenuItem
     end
   end
   object ppmHighLighters: TPopupMenu
     Images = imlMain
-    Left = 40
-    Top = 200
+    Left = 64
+    Top = 208
   end
   object ppmClipboard: TPopupMenu
     Images = imlMain
-    Left = 40
-    Top = 144
+    Left = 405
+    Top = 37
   end
   object dlgSave: TSaveDialog
     Options = [ofOverwritePrompt, ofHideReadOnly, ofShowHelp, ofPathMustExist, ofCreatePrompt, ofShareAware, ofEnableSizing]
-    Left = 285
-    Top = 32
+    Left = 64
+    Top = 379
   end
   object dlgOpen: TOpenDialog
-    Left = 285
-    Top = 88
+    Left = 320
+    Top = 37
   end
   object ppmFold: TPopupMenu
     Images = imlMain
-    Left = 40
-    Top = 88
+    Left = 405
+    Top = 123
     object MenuItem43: TMenuItem
       Action = actFoldLevel0
       AutoCheck = True
@@ -1471,74 +1527,74 @@ object dmEditorManager: TdmEditorManager
       'ColorS=F0FBFF'
       'ColorT=A4A0A0')
     Options = [cdFullOpen, cdAnyColor]
-    Left = 285
-    Top = 144
+    Left = 149
+    Top = 37
   end
   object ppmEncoding: TPopupMenu
     Images = imlMain
-    Left = 40
-    Top = 315
+    Left = 149
+    Top = 123
   end
   object ppmLineBreakStyle: TPopupMenu
     Images = imlMain
-    Left = 117
-    Top = 88
+    Left = 235
+    Top = 208
   end
   object ppmSelectionMode: TPopupMenu
     Images = imlMain
-    Left = 117
-    Top = 32
+    Left = 320
+    Top = 293
   end
   object ppmSelection: TPopupMenu
     Images = imlMain
-    Left = 117
-    Top = 144
+    Left = 64
+    Top = 293
   end
   object ppmEditor: TPopupMenu
     Images = imlMain
-    Left = 40
-    Top = 32
+    Left = 64
+    Top = 123
   end
   object ppmInsert: TPopupMenu
     Images = imlMain
-    Left = 121
-    Top = 215
+    Left = 149
+    Top = 208
   end
   object ppmSearch: TPopupMenu
     Images = imlMain
-    Left = 117
-    Top = 280
+    Left = 320
+    Top = 208
   end
   object ppmSettings: TPopupMenu
     Images = imlMain
-    Left = 200
-    Top = 280
+    Left = 405
+    Top = 293
   end
   object ppmSelect: TPopupMenu
     Images = imlMain
-    Left = 200
-    Top = 215
+    Left = 405
+    Top = 208
   end
   object ppmFile: TPopupMenu
     Images = imlMain
-    Left = 280
-    Top = 224
+    Left = 320
+    Top = 123
   end
   object ppmSelectionEncode: TPopupMenu
     Images = imlMain
-    Left = 120
-    Top = 336
+    Left = 235
+    Top = 293
   end
   object ppmSelectionDecode: TPopupMenu
     Images = imlMain
-    Left = 208
-    Top = 344
+    Left = 149
+    Top = 293
   end
-  object imlMain: TImageList
+  object imlMain_old: TImageList
     ColorDepth = cd32Bit
     DrawingStyle = dsTransparent
-    Left = 320
-    Top = 272
+    Left = 235
+    Top = 37
     Bitmap = {
       494C010179007D00040010001000FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       000000000000360000002800000040000000F0010000010020000000000000F0
@@ -5638,5 +5694,1200 @@ object dmEditorManager: TdmEditorManager
       FE070001C000C000FE03003FC000C000FE23003FC000C000FE33003FC000C000
       FE3B003FC000C000FE3F003FC000C00000000000000000000000000000000000
       000000000000}
+  end
+  object imcMain: TSVGIconImageCollection
+    SVGIconItems = <
+      item
+        IconName = 'arrow-back-up'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-arrow-back-up"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill=' +
+          '"none"/>'#10'  <path d="M9 14l-4 -4l4 -4" />'#10'  <path d="M5 10h11a4 4' +
+          ' 0 1 1 0 8h-1" />'#10'</svg>'
+      end
+      item
+        IconName = 'arrow-forward-up'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-arrow-forward-up"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fi' +
+          'll="none"/>'#10'  <path d="M15 14l4 -4l-4 -4" />'#10'  <path d="M19 10h-' +
+          '11a4 4 0 1 0 0 8h1" />'#10'</svg>'
+      end
+      item
+        IconName = 'clipboard'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-clipboard"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="non' +
+          'e"/>'#10'  <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0' +
+          ' 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />'#10'  <path d="M9 3m0 2a2 2 0 0' +
+          ' 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />' +
+          #10'</svg>'
+      end
+      item
+        IconName = 'copy'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-copy"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>'#10 +
+          '  <path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.6' +
+          '67 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h' +
+          '-8.666a2.667 2.667 0 0 1 -2.667 -2.667z" />'#10'  <path d="M4.012 16' +
+          '.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.7' +
+          '5 0 1.158 .385 1.5 1" />'#10'</svg>'
+      end
+      item
+        IconName = 'cut'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-cut"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>'#10' ' +
+          ' <path d="M7 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />'#10'  <path d=' +
+          '"M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />'#10'  <path d="M9.15 1' +
+          '4.85l8.85 -10.85" />'#10'  <path d="M6 4l8.85 10.85" />'#10'</svg>'
+      end
+      item
+        IconName = 'refresh'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-refresh"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"' +
+          '/>'#10'  <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />'#10'  <pa' +
+          'th d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />'#10'</svg>'
+      end
+      item
+        IconName = 'settings'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-settings"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none' +
+          '"/>'#10'  <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.7' +
+          '24 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 ' +
+          '1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.72' +
+          '4 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724' +
+          ' 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724' +
+          ' 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.' +
+          '724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724' +
+          ' 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .6' +
+          '08 2.296 .07 2.572 -1.065z" />'#10'  <path d="M9 12a3 3 0 1 0 6 0a3 ' +
+          '3 0 0 0 -6 0" />'#10'</svg>'
+      end
+      item
+        IconName = 'brand-wikipedia'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-brand-wikipedia" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M3 4.984h2" />'#10'  <pa' +
+          'th d="M8 4.984h2.5" />'#10'  <path d="M14.5 4.984h2.5" />'#10'  <path d=' +
+          '"M22 4.984h-2" />'#10'  <path d="M4 4.984l5.455 14.516l6.545 -14.516' +
+          '" />'#10'  <path d="M9 4.984l6 14.516l6 -14.516" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'check'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-check"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>' +
+          #10'  <path d="M5 12l5 5l10 -10" />'#10'</svg>'
+      end
+      item
+        IconName = 'square-number-0'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-square-number-0" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M3 3m0 2a2 2 0 0 1 2' +
+          ' -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />'#10 +
+          '  <path d="M10 10v4a2 2 0 1 0 4 0v-4a2 2 0 1 0 -4 0z" />'#10'</svg>'#10 +
+          #10#10
+      end
+      item
+        IconName = 'square-number-1'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-square-number-1" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M3 3m0 2a2 2 0 0 1 2' +
+          ' -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />'#10 +
+          '  <path d="M10 10l2 -2v8" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'square-number-2'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-square-number-2" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M3 3m0 2a2 2 0 0 1 2' +
+          ' -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />'#10 +
+          '  <path d="M10 8h3a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 0 -' +
+          '1 1v2a1 1 0 0 0 1 1h3" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'square-number-3'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-square-number-3" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M3 3m0 2a2 2 0 0 1 2' +
+          ' -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />'#10 +
+          '  <path d="M10 9a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1' +
+          'h-2h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1" />'#10'</sv' +
+          'g>'#10#10#10
+      end
+      item
+        IconName = 'square-number-4'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-square-number-4" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M3 3m0 2a2 2 0 0 1 2' +
+          ' -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />'#10 +
+          '  <path d="M10 8v3a1 1 0 0 0 1 1h3" />'#10'  <path d="M14 8v8" />'#10'</' +
+          'svg>'#10#10#10
+      end
+      item
+        IconName = 'square-number-5'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-square-number-5" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M3 3m0 2a2 2 0 0 1 2' +
+          ' -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />'#10 +
+          '  <path d="M10 15a1 1 0 0 0 1 1h2a1 1 0 0 0 1 -1v-2a1 1 0 0 0 -1' +
+          ' -1h-3v-4h4" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'square-number-6'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-square-number-6" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M3 3m0 2a2 2 0 0 1 2' +
+          ' -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />'#10 +
+          '  <path d="M14 9a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v6a1 1 0 0 0 1' +
+          ' 1h2a1 1 0 0 0 1 -1v-2a1 1 0 0 0 -1 -1h-3" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'square-number-7'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-square-number-7" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M3 3m0 2a2 2 0 0 1 2' +
+          ' -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />'#10 +
+          '  <path d="M10 8h4l-2 8" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'square-number-8'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-square-number-8" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M3 3m0 2a2 2 0 0 1 2' +
+          ' -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />'#10 +
+          '  <path d="M12 12h-1a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1h2a1 1 0 0' +
+          ' 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 0 -1 1v2a1 1 0 0 0 1 1h2a1 1 ' +
+          '0 0 0 1 -1v-2a1 1 0 0 0 -1 -1" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'square-number-9'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-square-number-9" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M3 3m0 2a2 2 0 0 1 2' +
+          ' -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />'#10 +
+          '  <path d="M10 15a1 1 0 0 0 1 1h2a1 1 0 0 0 1 -1v-6a1 1 0 0 0 -1' +
+          ' -1h-2a1 1 0 0 0 -1 1v2a1 1 0 0 0 1 1h3" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'zap-16'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" v' +
+          'iewBox="0 0 16 16"><path d="M9.504.43a1.516 1.516 0 0 1 2.437 1.' +
+          '713L10.415 5.5h2.123c1.57 0 2.346 1.909 1.22 3.004l-7.34 7.142a1' +
+          '.249 1.249 0 0 1-.871.354h-.302a1.25 1.25 0 0 1-1.157-1.723L5.63' +
+          '3 10.5H3.462c-1.57 0-2.346-1.909-1.22-3.004L9.503.429Zm1.047 1.0' +
+          '74L3.286 8.571A.25.25 0 0 0 3.462 9H6.75a.75.75 0 0 1 .694 1.034' +
+          'l-1.713 4.188 6.982-6.793A.25.25 0 0 0 12.538 7H9.25a.75.75 0 0 ' +
+          '1-.683-1.06l2.008-4.418.003-.006a.036.036 0 0 0-.004-.009l-.006-' +
+          '.006-.008-.001c-.003 0-.006.002-.009.004Z"/></svg>'
+      end
+      item
+        IconName = 'eraser'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-eraser" width="24" height="24" viewBox="0 0 24 24" s' +
+          'troke-width="2" stroke="currentColor" fill="none" stroke-linecap' +
+          '="round" stroke-linejoin="round">'#10'  <path stroke="none" d="M0 0h' +
+          '24v24H0z" fill="none"/>'#10'  <path d="M19 20h-10.5l-4.21 -4.3a1 1 0' +
+          ' 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9' +
+          '.3" />'#10'  <path d="M18 13.3l-6.3 -6.3" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'indent-decrease'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-indent-decrease" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M20 6l-7 0" />'#10'  <pa' +
+          'th d="M20 12l-9 0" />'#10'  <path d="M20 18l-7 0" />'#10'  <path d="M8 8' +
+          'l-4 4l4 4" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'indent-increase'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-indent-increase" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M20 6l-11 0" />'#10'  <p' +
+          'ath d="M20 12l-7 0" />'#10'  <path d="M20 18l-11 0" />'#10'  <path d="M4' +
+          ' 8l4 4l-4 4" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'quote'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-quote" width="24" height="24" viewBox="0 0 24 24" st' +
+          'roke-width="2" stroke="currentColor" fill="none" stroke-linecap=' +
+          '"round" stroke-linejoin="round">'#10'  <path stroke="none" d="M0 0h2' +
+          '4v24H0z" fill="none"/>'#10'  <path d="M10 11h-4a1 1 0 0 1 -1 -1v-3a1' +
+          ' 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5" />'#10'  ' +
+          '<path d="M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1' +
+          ' 1 1v6c0 2.667 -1.333 4.333 -4 5" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'quote-off'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-quote-off" width="24" height="24" viewBox="0 0 24 24' +
+          '" stroke-width="2" stroke="currentColor" fill="none" stroke-line' +
+          'cap="round" stroke-linejoin="round">'#10'  <path stroke="none" d="M0' +
+          ' 0h24v24H0z" fill="none"/>'#10'  <path d="M10 11h-4a1 1 0 0 1 -1 -1v' +
+          '-3a1 1 0 0 1 1 -1m4 4v3c0 2.667 -1.333 4.333 -4 5" />'#10'  <path d=' +
+          '"M19 11h-4m-1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 .66 -.082' +
+          ' 1.26 -.245 1.798m-1.653 2.29c-.571 .4 -1.272 .704 -2.102 .912" ' +
+          '/>'#10'  <path d="M3 3l18 18" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'sort-ascending'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-sort-ascending" width="24" height="24" viewBox="0 0 ' +
+          '24 24" stroke-width="2" stroke="currentColor" fill="none" stroke' +
+          '-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none" ' +
+          'd="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M4 6l7 0" />'#10'  <path ' +
+          'd="M4 12l7 0" />'#10'  <path d="M4 18l9 0" />'#10'  <path d="M15 9l3 -3l' +
+          '3 3" />'#10'  <path d="M18 6l0 12" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'sort-descending'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-sort-descending" width="24" height="24" viewBox="0 0' +
+          ' 24 24" stroke-width="2" stroke="currentColor" fill="none" strok' +
+          'e-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none"' +
+          ' d="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M4 6l9 0" />'#10'  <path' +
+          ' d="M4 12l7 0" />'#10'  <path d="M4 18l7 0" />'#10'  <path d="M15 15l3 3' +
+          'l3 -3" />'#10'  <path d="M18 6l0 12" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'space'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-space" width="24" height="24" viewBox="0 0 24 24" st' +
+          'roke-width="2" stroke="currentColor" fill="none" stroke-linecap=' +
+          '"round" stroke-linejoin="round">'#10'  <path stroke="none" d="M0 0h2' +
+          '4v24H0z" fill="none"/>'#10'  <path d="M4 10v3a1 1 0 0 0 1 1h14a1 1 0' +
+          ' 0 0 1 -1v-3" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'space-off'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-space-off" width="24" height="24" viewBox="0 0 24 24' +
+          '" stroke-width="2" stroke="currentColor" fill="none" stroke-line' +
+          'cap="round" stroke-linejoin="round">'#10'  <path stroke="none" d="M0' +
+          ' 0h24v24H0z" fill="none"/>'#10'  <path d="M4 10v3a1 1 0 0 0 1 1h9m4 ' +
+          '0h1a1 1 0 0 0 1 -1v-3" />'#10'  <path d="M3 3l18 18" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'clipboard-text'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-clipboard-text" width="24" height="24" viewBox="0 0 ' +
+          '24 24" stroke-width="2" stroke="currentColor" fill="none" stroke' +
+          '-linecap="round" stroke-linejoin="round">'#10'  <path stroke="none" ' +
+          'd="M0 0h24v24H0z" fill="none"/>'#10'  <path d="M9 5h-2a2 2 0 0 0 -2 ' +
+          '2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />'#10 +
+          '  <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -' +
+          '2 2h-2a2 2 0 0 1 -2 -2z" />'#10'  <path d="M9 12h6" />'#10'  <path d="M9' +
+          ' 16h6" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'file'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-file" width="24" height="24" viewBox="0 0 24 24" str' +
+          'oke-width="2" stroke="currentColor" fill="none" stroke-linecap="' +
+          'round" stroke-linejoin="round">'#10'  <path stroke="none" d="M0 0h24' +
+          'v24H0z" fill="none"/>'#10'  <path d="M14 3v4a1 1 0 0 0 1 1h4" />'#10'  <' +
+          'path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2' +
+          ' 2 0 0 1 -2 2z" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'file-export'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-file-export" width="24" height="24" viewBox="0 0 24 ' +
+          '24" stroke-width="2" stroke="currentColor" fill="none" stroke-li' +
+          'necap="round" stroke-linejoin="round">'#10'  <path stroke="none" d="' +
+          'M0 0h24v24H0z" fill="none"/>'#10'  <path d="M14 3v4a1 1 0 0 0 1 1h4"' +
+          ' />'#10'  <path d="M11.5 21h-4.5a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h' +
+          '7l5 5v5m-5 6h7m-3 -3l3 3l-3 3" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'floppy'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" id="mdi-floppy" viewBox=' +
+          '"0 0 24 24"><path d="M5,3A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2' +
+          ' 0 0,0 21,19V5.5L18.5,3H17V9A1,1 0 0,1 16,10H8A1,1 0 0,1 7,9V3H5' +
+          'M12,4V9H15V4H12M7,12H17A1,1 0 0,1 18,13V19H6V13A1,1 0 0,1 7,12Z"' +
+          ' /></svg>'
+      end
+      item
+        IconName = 'folder-open'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-folder-open" width="24" height="24" viewBox="0 0 24 ' +
+          '24" stroke-width="2" stroke="currentColor" fill="none" stroke-li' +
+          'necap="round" stroke-linejoin="round">'#10'  <path stroke="none" d="' +
+          'M0 0h24v24H0z" fill="none"/>'#10'  <path d="M5 19l2.757 -7.351a1 1 0' +
+          ' 0 1 .936 -.649h12.307a1 1 0 0 1 .986 1.164l-.996 5.211a2 2 0 0 ' +
+          '1 -1.964 1.625h-14.026a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h' +
+          '7a2 2 0 0 1 2 2v2" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'pencil-cog'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-pencil-cog" width="24" height="24" viewBox="0 0 24 2' +
+          '4" stroke-width="2" stroke="currentColor" fill="none" stroke-lin' +
+          'ecap="round" stroke-linejoin="round">'#10'  <path stroke="none" d="M' +
+          '0 0h24v24H0z" fill="none"/>'#10'  <path d="M4 20h4l10.5 -10.5a2.828 ' +
+          '2.828 0 1 0 -4 -4l-10.5 10.5v4" />'#10'  <path d="M13.5 6.5l4 4" />'#10 +
+          '  <path d="M19.001 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />'#10'  <p' +
+          'ath d="M19.001 15.5v1.5" />'#10'  <path d="M19.001 21v1.5" />'#10'  <pat' +
+          'h d="M22.032 17.25l-1.299 .75" />'#10'  <path d="M17.27 20l-1.3 .75"' +
+          ' />'#10'  <path d="M15.97 17.25l1.3 .75" />'#10'  <path d="M20.733 20l1.' +
+          '3 .75" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'select-all'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-select-all" width="24" height="24" viewBox="0 0 24 2' +
+          '4" stroke-width="2" stroke="currentColor" fill="none" stroke-lin' +
+          'ecap="round" stroke-linejoin="round">'#10'  <path stroke="none" d="M' +
+          '0 0h24v24H0z" fill="none"/>'#10'  <path d="M8 8m0 1a1 1 0 0 1 1 -1h6' +
+          'a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-6a1 1 0 0 1 -1 -1z" />'#10'  <path ' +
+          'd="M12 20v.01" />'#10'  <path d="M16 20v.01" />'#10'  <path d="M8 20v.01' +
+          '" />'#10'  <path d="M4 20v.01" />'#10'  <path d="M4 16v.01" />'#10'  <path d' +
+          '="M4 12v.01" />'#10'  <path d="M4 8v.01" />'#10'  <path d="M4 4v.01" />'#10 +
+          '  <path d="M8 4v.01" />'#10'  <path d="M12 4v.01" />'#10'  <path d="M16 ' +
+          '4v.01" />'#10'  <path d="M20 4v.01" />'#10'  <path d="M20 8v.01" />'#10'  <p' +
+          'ath d="M20 12v.01" />'#10'  <path d="M20 16v.01" />'#10'  <path d="M20 2' +
+          '0v.01" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'x'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-x"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>'#10'  <' +
+          'path d="M18 6l-12 12" />'#10'  <path d="M6 6l12 12" />'#10'</svg>'
+      end
+      item
+        IconName = 'auto-fix'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" id="mdi-auto-fix" viewBo' +
+          'x="0 0 24 24"><path d="M7.5,5.6L5,7L6.4,4.5L5,2L7.5,3.4L10,2L8.6' +
+          ',4.5L10,7L7.5,5.6M19.5,15.4L22,14L20.6,16.5L22,19L19.5,17.6L17,1' +
+          '9L18.4,16.5L17,14L19.5,15.4M22,2L20.6,4.5L22,7L19.5,5.6L17,7L18.' +
+          '4,4.5L17,2L19.5,3.4L22,2M13.34,12.78L15.78,10.34L13.66,8.22L11.2' +
+          '2,10.66L13.34,12.78M14.37,7.29L16.71,9.63C17.1,10 17.1,10.65 16.' +
+          '71,11.04L5.04,22.71C4.65,23.1 4,23.1 3.63,22.71L1.29,20.37C0.9,2' +
+          '0 0.9,19.35 1.29,18.96L12.96,7.29C13.35,6.9 14,6.9 14.37,7.29Z" ' +
+          '/></svg>'
+      end
+      item
+        IconName = 'check'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-check"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>' +
+          #10'  <path d="M5 12l5 5l10 -10" />'#10'</svg>'
+      end
+      item
+        IconName = 'checks'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-checks"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"/' +
+          '>'#10'  <path d="M7 12l5 5l10 -10" />'#10'  <path d="M2 12l5 5m5 -5l5 -5' +
+          '" />'#10'</svg>'
+      end
+      item
+        IconName = 'filter'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-filter" width="24" height="24" viewBox="0 0 24 24" s' +
+          'troke-width="2" stroke="currentColor" fill="none" stroke-linecap' +
+          '="round" stroke-linejoin="round">'#10'  <path stroke="none" d="M0 0h' +
+          '24v24H0z" fill="none"/>'#10'  <path d="M4 4h16v2.172a2 2 0 0 1 -.586' +
+          ' 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.3' +
+          '45v-2.227z" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'line-height'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-line-height" width="24" height="24" viewBox="0 0 24 ' +
+          '24" stroke-width="2" stroke="currentColor" fill="none" stroke-li' +
+          'necap="round" stroke-linejoin="round">'#10'  <path stroke="none" d="' +
+          'M0 0h24v24H0z" fill="none"/>'#10'  <path d="M3 8l3 -3l3 3" />'#10'  <pat' +
+          'h d="M3 16l3 3l3 -3" />'#10'  <path d="M6 5l0 14" />'#10'  <path d="M13 ' +
+          '6l7 0" />'#10'  <path d="M13 12l7 0" />'#10'  <path d="M13 18l7 0" />'#10'</' +
+          'svg>'#10#10#10
+      end
+      item
+        IconName = 'space'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-space" width="24" height="24" viewBox="0 0 24 24" st' +
+          'roke-width="2" stroke="currentColor" fill="none" stroke-linecap=' +
+          '"round" stroke-linejoin="round">'#10'  <path stroke="none" d="M0 0h2' +
+          '4v24H0z" fill="none"/>'#10'  <path d="M4 10v3a1 1 0 0 0 1 1h14a1 1 0' +
+          ' 0 0 1 -1v-3" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'space-off'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-space-off" width="24" height="24" viewBox="0 0 24 24' +
+          '" stroke-width="2" stroke="currentColor" fill="none" stroke-line' +
+          'cap="round" stroke-linejoin="round">'#10'  <path stroke="none" d="M0' +
+          ' 0h24v24H0z" fill="none"/>'#10'  <path d="M4 10v3a1 1 0 0 0 1 1h9m4 ' +
+          '0h1a1 1 0 0 0 1 -1v-3" />'#10'  <path d="M3 3l18 18" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'square-x'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-square-x"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none' +
+          '"/>'#10'  <path d="M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1' +
+          ' -2 2h-14a2 2 0 0 1 -2 -2v-14z" />'#10'  <path d="M9 9l6 6m0 -6l-6 6' +
+          '" />'#10'</svg>'
+      end
+      item
+        IconName = 'tools'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-tools" width="24" height="24" viewBox="0 0 24 24" st' +
+          'roke-width="2" stroke="currentColor" fill="none" stroke-linecap=' +
+          '"round" stroke-linejoin="round">'#10'  <path stroke="none" d="M0 0h2' +
+          '4v24H0z" fill="none"/>'#10'  <path d="M3 21h4l13 -13a1.5 1.5 0 0 0 -' +
+          '4 -4l-13 13v4" />'#10'  <path d="M14.5 5.5l4 4" />'#10'  <path d="M12 8l' +
+          '-5 -5l-4 4l5 5" />'#10'  <path d="M7 8l-1.5 1.5" />'#10'  <path d="M16 1' +
+          '2l5 5l-4 4l-5 -5" />'#10'  <path d="M16 17l-1.5 1.5" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'forms'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-forms" width="24" height="24" viewBox="0 0 24 24" st' +
+          'roke-width="2" stroke="currentColor" fill="none" stroke-linecap=' +
+          '"round" stroke-linejoin="round">'#10'  <path stroke="none" d="M0 0h2' +
+          '4v24H0z" fill="none"/>'#10'  <path d="M12 3a3 3 0 0 0 -3 3v12a3 3 0 ' +
+          '0 0 3 3" />'#10'  <path d="M6 3a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3" />'#10 +
+          '  <path d="M13 7h7a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-7" />'#10'  <path' +
+          ' d="M5 7h-1a1 1 0 0 0 -1 1v8a1 1 0 0 0 1 1h1" />'#10'  <path d="M17 ' +
+          '12h.01" />'#10'  <path d="M13 12h.01" />'#10'</svg>'#10#10#10
+      end
+      item
+        IconName = 'help'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-help"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>'#10 +
+          '  <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />'#10'  <pat' +
+          'h d="M12 17l0 .01" />'#10'  <path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2' +
+          '.6 2.6 0 1 0 -3 -4" />'#10'</svg>'
+      end
+      item
+        IconName = 'letter-case'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-letter-case"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="n' +
+          'one"/>'#10'  <path d="M17.5 15.5m-3.5 0a3.5 3.5 0 1 0 7 0a3.5 3.5 0 ' +
+          '1 0 -7 0" />'#10'  <path d="M3 19v-10.5a3.5 3.5 0 0 1 7 0v10.5" />'#10' ' +
+          ' <path d="M3 13h7" />'#10'  <path d="M21 12v7" />'#10'</svg>'
+      end
+      item
+        IconName = 'letter-case-toggle'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-letter-case-toggle"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" ' +
+          'fill="none"/>'#10'  <path d="M6.5 15.5m-3.5 0a3.5 3.5 0 1 0 7 0a3.5 ' +
+          '3.5 0 1 0 -7 0" />'#10'  <path d="M14 19v-10.5a3.5 3.5 0 0 1 7 0v10.' +
+          '5" />'#10'  <path d="M14 13h7" />'#10'  <path d="M10 12v7" />'#10'</svg>'
+      end
+      item
+        IconName = 'marquee-2'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-marquee-2"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="non' +
+          'e"/>'#10'  <path d="M4 6v-1a1 1 0 0 1 1 -1h1m5 0h2m5 0h1a1 1 0 0 1 1' +
+          ' 1v1m0 5v2m0 5v1a1 1 0 0 1 -1 1h-1m-5 0h-2m-5 0h-1a1 1 0 0 1 -1 ' +
+          '-1v-1m0 -5v-2" />'#10'</svg>'
+      end
+      item
+        IconName = 'pointer'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-pointer"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"' +
+          '/>'#10'  <path d="M7.904 17.563a1.2 1.2 0 0 0 2.228 .308l2.09 -3.093' +
+          'l4.907 4.907a1.067 1.067 0 0 0 1.509 0l1.047 -1.047a1.067 1.067 ' +
+          '0 0 0 0 -1.509l-4.907 -4.907l3.113 -2.09a1.2 1.2 0 0 0 -.309 -2.' +
+          '228l-13.582 -3.904l3.904 13.563z" />'#10'</svg>'
+      end
+      item
+        IconName = 'text-wrap'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-text-wrap"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="non' +
+          'e"/>'#10'  <path d="M4 6l16 0" />'#10'  <path d="M4 18l5 0" />'#10'  <path d' +
+          '="M4 12h13a3 3 0 0 1 0 6h-4l2 -2m0 4l-2 -2" />'#10'</svg>'
+      end
+      item
+        IconName = 'click'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-click"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>' +
+          #10'  <path d="M3 12l3 0" />'#10'  <path d="M12 3l0 3" />'#10'  <path d="M7' +
+          '.8 7.8l-2.2 -2.2" />'#10'  <path d="M16.2 7.8l2.2 -2.2" />'#10'  <path d' +
+          '="M7.8 16.2l-2.2 2.2" />'#10'  <path d="M12 12l9 3l-4 2l-2 4l-3 -9" ' +
+          '/>'#10'</svg>'
+      end
+      item
+        IconName = 'info-circle'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-info-circle"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="n' +
+          'one"/>'#10'  <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />'#10'  <pa' +
+          'th d="M12 9h.01" />'#10'  <path d="M11 12h1v4h1" />'#10'</svg>'
+      end
+      item
+        IconName = 'minus'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-minus"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>' +
+          #10'  <path d="M5 12l14 0" />'#10'</svg>'
+      end
+      item
+        IconName = 'slashes'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-slashes"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"' +
+          '/>'#10'  <path d="M14 5l-10 14" />'#10'  <path d="M20 5l-10 14" />'#10'</svg' +
+          '>'
+      end
+      item
+        IconName = 'pointer-question'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-pointer-question"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fi' +
+          'll="none"/>'#10'  <path d="M15.062 12.506l-.284 -.284l3.113 -2.09a1.' +
+          '2 1.2 0 0 0 -.309 -2.228l-13.582 -3.904l3.904 13.563a1.2 1.2 0 0' +
+          ' 0 2.228 .308l2.09 -3.093l1.278 1.278" />'#10'  <path d="M19 22v.01"' +
+          ' />'#10'  <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 ' +
+          '0 0 -2.414 .483" />'#10'</svg>'
+      end
+      item
+        IconName = 'link-external-16'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" v' +
+          'iewBox="0 0 16 16"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a' +
+          '.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25' +
+          '-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1' +
+          '.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.14' +
+          '6a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.2' +
+          '8 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3' +
+          '.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"/></svg>'
+      end
+      item
+        IconName = 'pin-16'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" v' +
+          'iewBox="0 0 16 16"><path d="m11.294.984 3.722 3.722a1.75 1.75 0 ' +
+          '0 1-.504 2.826l-1.327.613a3.089 3.089 0 0 0-1.707 2.084l-.584 2.' +
+          '454c-.317 1.332-1.972 1.8-2.94.832L5.75 11.311 1.78 15.28a.749.7' +
+          '49 0 1 1-1.06-1.06l3.969-3.97-2.204-2.204c-.968-.968-.5-2.623.83' +
+          '2-2.94l2.454-.584a3.08 3.08 0 0 0 2.084-1.707l.613-1.327a1.75 1.' +
+          '75 0 0 1 2.826-.504ZM6.283 9.723l2.732 2.731a.25.25 0 0 0 .42-.1' +
+          '19l.584-2.454a4.586 4.586 0 0 1 2.537-3.098l1.328-.613a.25.25 0 ' +
+          '0 0 .072-.404l-3.722-3.722a.25.25 0 0 0-.404.072l-.613 1.328a4.5' +
+          '84 4.584 0 0 1-3.098 2.537l-2.454.584a.25.25 0 0 0-.119.42l2.731' +
+          ' 2.732Z"/></svg>'
+      end
+      item
+        IconName = 'viewport-narrow'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-viewport-narrow"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fil' +
+          'l="none"/>'#10'  <path d="M3 12h7l-3 -3" />'#10'  <path d="M7 15l3 -3" /' +
+          '>'#10'  <path d="M21 12h-7l3 -3" />'#10'  <path d="M17 15l-3 -3" />'#10'  <p' +
+          'ath d="M9 6v-1a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v1" />'#10'  <path d="M' +
+          '9 18v1a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-1" />'#10'</svg>'
+      end
+      item
+        IconName = 'square'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-square"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"/' +
+          '>'#10'  <path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0' +
+          ' 1 -2 2h-14a2 2 0 0 1 -2 -2z" />'#10'</svg>'
+      end
+      item
+        IconName = 'viewport-short'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-viewport-short"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill' +
+          '="none"/>'#10'  <path d="M12 3v7l3 -3" />'#10'  <path d="M9 7l3 3" />'#10'  ' +
+          '<path d="M12 21v-7l3 3" />'#10'  <path d="M9 17l3 -3" />'#10'  <path d="' +
+          'M18 9h1a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-1" />'#10'  <path d="M6 9h-1' +
+          'a2 2 0 0 0 -2 2v2a2 2 0 0 0 2 2h1" />'#10'</svg>'
+      end
+      item
+        IconName = 'eye'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-eye"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>'#10' ' +
+          ' <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />'#10'  <path d="M21' +
+          ' 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3' +
+          '.6 0 6.6 2 9 6" />'#10'</svg>'
+      end
+      item
+        IconName = 'pilcrow'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-pilcrow"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="none"' +
+          '/>'#10'  <path d="M13 4v16" />'#10'  <path d="M17 4v16" />'#10'  <path d="M1' +
+          '9 4h-9.5a4.5 4.5 0 0 0 0 9h3.5" />'#10'</svg>'
+      end
+      item
+        IconName = 'text-decrease'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-text-decrease"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill=' +
+          '"none"/>'#10'  <path d="M4 19v-10.5a3.5 3.5 0 1 1 7 0v10.5" />'#10'  <pa' +
+          'th d="M4 13h7" />'#10'  <path d="M21 12h-6" />'#10'</svg>'
+      end
+      item
+        IconName = 'text-increase'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-text-increase"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill=' +
+          '"none"/>'#10'  <path d="M4 19v-10.5a3.5 3.5 0 1 1 7 0v10.5" />'#10'  <pa' +
+          'th d="M4 13h7" />'#10'  <path d="M18 9v6" />'#10'  <path d="M21 12h-6" /' +
+          '>'#10'</svg>'
+      end
+      item
+        IconName = 'player-play'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-player-play"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill="n' +
+          'one"/>'#10'  <path d="M7 4v16l13 -8z" />'#10'</svg>'
+      end
+      item
+        IconName = 'player-record'
+        SVGText = 
+          '<svg'#10'  xmlns="http://www.w3.org/2000/svg"'#10'  width="24"'#10'  height=' +
+          '"24"'#10'  viewBox="0 0 24 24"'#10'  fill="none"'#10'  stroke="currentColor"' +
+          #10'  stroke-width="2"'#10'  stroke-linecap="round"'#10'  stroke-linejoin="' +
+          'round"'#10'  class="icon icon-tabler icons-tabler-outline icon-table' +
+          'r-player-record"'#10'>'#10'  <path stroke="none" d="M0 0h24v24H0z" fill=' +
+          '"none"/>'#10'  <path d="M12 12m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" ' +
+          '/>'#10'</svg>'
+      end
+      item
+        IconName = 'blockquote'
+        SVGText = 
+          '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ' +
+          'icon-tabler-blockquote" width="24" height="24" viewBox="0 0 24 2' +
+          '4" stroke-width="2" stroke="currentColor" fill="none" stroke-lin' +
+          'ecap="round" stroke-linejoin="round">'#10'  <path stroke="none" d="M' +
+          '0 0h24v24H0z" fill="none"/>'#10'  <path d="M6 15h15" />'#10'  <path d="M' +
+          '21 19h-15" />'#10'  <path d="M15 11h6" />'#10'  <path d="M21 7h-6" />'#10'  ' +
+          '<path d="M9 9h1a1 1 0 1 1 -1 1v-2.5a2 2 0 0 1 2 -2" />'#10'  <path d' +
+          '="M3 9h1a1 1 0 1 1 -1 1v-2.5a2 2 0 0 1 2 -2" />'#10'</svg>'#10#10#10
+      end>
+    Left = 149
+    Top = 379
+  end
+  object imlMain: TVirtualImageList
+    Images = <
+      item
+        CollectionIndex = 0
+        CollectionName = 'arrow-back-up'
+        Name = 'arrow-back-up'
+      end
+      item
+        CollectionIndex = 1
+        CollectionName = 'arrow-forward-up'
+        Name = 'arrow-forward-up'
+      end
+      item
+        CollectionIndex = 2
+        CollectionName = 'clipboard'
+        Name = 'clipboard'
+      end
+      item
+        CollectionIndex = 3
+        CollectionName = 'copy'
+        Name = 'copy'
+      end
+      item
+        CollectionIndex = 4
+        CollectionName = 'cut'
+        Name = 'cut'
+      end
+      item
+        CollectionIndex = 5
+        CollectionName = 'refresh'
+        Name = 'refresh'
+      end
+      item
+        CollectionIndex = 6
+        CollectionName = 'settings'
+        Name = 'settings'
+      end
+      item
+        CollectionIndex = 7
+        CollectionName = 'brand-wikipedia'
+        Name = 'brand-wikipedia'
+      end
+      item
+        CollectionIndex = 8
+        CollectionName = 'check'
+        Name = 'check'
+      end
+      item
+        CollectionIndex = 9
+        CollectionName = 'square-number-0'
+        Name = 'square-number-0'
+      end
+      item
+        CollectionIndex = 10
+        CollectionName = 'square-number-1'
+        Name = 'square-number-1'
+      end
+      item
+        CollectionIndex = 11
+        CollectionName = 'square-number-2'
+        Name = 'square-number-2'
+      end
+      item
+        CollectionIndex = 12
+        CollectionName = 'square-number-3'
+        Name = 'square-number-3'
+      end
+      item
+        CollectionIndex = 13
+        CollectionName = 'square-number-4'
+        Name = 'square-number-4'
+      end
+      item
+        CollectionIndex = 14
+        CollectionName = 'square-number-5'
+        Name = 'square-number-5'
+      end
+      item
+        CollectionIndex = 15
+        CollectionName = 'square-number-6'
+        Name = 'square-number-6'
+      end
+      item
+        CollectionIndex = 16
+        CollectionName = 'square-number-7'
+        Name = 'square-number-7'
+      end
+      item
+        CollectionIndex = 17
+        CollectionName = 'square-number-8'
+        Name = 'square-number-8'
+      end
+      item
+        CollectionIndex = 18
+        CollectionName = 'square-number-9'
+        Name = 'square-number-9'
+      end
+      item
+        CollectionIndex = 19
+        CollectionName = 'zap-16'
+        Name = 'zap-16'
+      end
+      item
+        CollectionIndex = 20
+        CollectionName = 'eraser'
+        Name = 'eraser'
+      end
+      item
+        CollectionIndex = 21
+        CollectionName = 'indent-decrease'
+        Name = 'indent-decrease'
+      end
+      item
+        CollectionIndex = 22
+        CollectionName = 'indent-increase'
+        Name = 'indent-increase'
+      end
+      item
+        CollectionIndex = 23
+        CollectionName = 'quote'
+        Name = 'quote'
+      end
+      item
+        CollectionIndex = 24
+        CollectionName = 'quote-off'
+        Name = 'quote-off'
+      end
+      item
+        CollectionIndex = 25
+        CollectionName = 'sort-ascending'
+        Name = 'sort-ascending'
+      end
+      item
+        CollectionIndex = 26
+        CollectionName = 'sort-descending'
+        Name = 'sort-descending'
+      end
+      item
+        CollectionIndex = 27
+        CollectionName = 'space'
+        Name = 'space'
+      end
+      item
+        CollectionIndex = 28
+        CollectionName = 'space-off'
+        Name = 'space-off'
+      end
+      item
+        CollectionIndex = 29
+        CollectionName = 'clipboard-text'
+        Name = 'clipboard-text'
+      end
+      item
+        CollectionIndex = 30
+        CollectionName = 'file'
+        Name = 'file'
+      end
+      item
+        CollectionIndex = 31
+        CollectionName = 'file-export'
+        Name = 'file-export'
+      end
+      item
+        CollectionIndex = 32
+        CollectionName = 'floppy'
+        Name = 'floppy'
+      end
+      item
+        CollectionIndex = 33
+        CollectionName = 'folder-open'
+        Name = 'folder-open'
+      end
+      item
+        CollectionIndex = 34
+        CollectionName = 'pencil-cog'
+        Name = 'pencil-cog'
+      end
+      item
+        CollectionIndex = 35
+        CollectionName = 'select-all'
+        Name = 'select-all'
+      end
+      item
+        CollectionIndex = 36
+        CollectionName = 'x'
+        Name = 'x'
+      end
+      item
+        CollectionIndex = 37
+        CollectionName = 'auto-fix'
+        Name = 'auto-fix'
+      end
+      item
+        CollectionIndex = 38
+        CollectionName = 'check'
+        Name = 'check'
+      end
+      item
+        CollectionIndex = 39
+        CollectionName = 'checks'
+        Name = 'checks'
+      end
+      item
+        CollectionIndex = 40
+        CollectionName = 'filter'
+        Name = 'filter'
+      end
+      item
+        CollectionIndex = 41
+        CollectionName = 'line-height'
+        Name = 'line-height'
+      end
+      item
+        CollectionIndex = 42
+        CollectionName = 'space'
+        Name = 'space'
+      end
+      item
+        CollectionIndex = 43
+        CollectionName = 'space-off'
+        Name = 'space-off'
+      end
+      item
+        CollectionIndex = 44
+        CollectionName = 'square-x'
+        Name = 'square-x'
+      end
+      item
+        CollectionIndex = 45
+        CollectionName = 'tools'
+        Name = 'tools'
+      end
+      item
+        CollectionIndex = 46
+        CollectionName = 'forms'
+        Name = 'forms'
+      end
+      item
+        CollectionIndex = 47
+        CollectionName = 'help'
+        Name = 'help'
+      end
+      item
+        CollectionIndex = 48
+        CollectionName = 'letter-case'
+        Name = 'letter-case'
+      end
+      item
+        CollectionIndex = 49
+        CollectionName = 'letter-case-toggle'
+        Name = 'letter-case-toggle'
+      end
+      item
+        CollectionIndex = 50
+        CollectionName = 'marquee-2'
+        Name = 'marquee-2'
+      end
+      item
+        CollectionIndex = 51
+        CollectionName = 'pointer'
+        Name = 'pointer'
+      end
+      item
+        CollectionIndex = 52
+        CollectionName = 'text-wrap'
+        Name = 'text-wrap'
+      end
+      item
+        CollectionIndex = 53
+        CollectionName = 'click'
+        Name = 'click'
+      end
+      item
+        CollectionIndex = 54
+        CollectionName = 'info-circle'
+        Name = 'info-circle'
+      end
+      item
+        CollectionIndex = 55
+        CollectionName = 'minus'
+        Name = 'minus'
+      end
+      item
+        CollectionIndex = 56
+        CollectionName = 'slashes'
+        Name = 'slashes'
+      end
+      item
+        CollectionIndex = 57
+        CollectionName = 'pointer-question'
+        Name = 'pointer-question'
+      end
+      item
+        CollectionIndex = 58
+        CollectionName = 'link-external-16'
+        Name = 'link-external-16'
+      end
+      item
+        CollectionIndex = 59
+        CollectionName = 'pin-16'
+        Name = 'pin-16'
+      end
+      item
+        CollectionIndex = 60
+        CollectionName = 'viewport-narrow'
+        Name = 'viewport-narrow'
+      end
+      item
+        CollectionIndex = 61
+        CollectionName = 'square'
+        Name = 'square'
+      end
+      item
+        CollectionIndex = 62
+        CollectionName = 'viewport-short'
+        Name = 'viewport-short'
+      end
+      item
+        CollectionIndex = 63
+        CollectionName = 'eye'
+        Name = 'eye'
+      end
+      item
+        CollectionIndex = 64
+        CollectionName = 'pilcrow'
+        Name = 'pilcrow'
+      end
+      item
+        CollectionIndex = 65
+        CollectionName = 'text-decrease'
+        Name = 'text-decrease'
+      end
+      item
+        CollectionIndex = 66
+        CollectionName = 'text-increase'
+        Name = 'text-increase'
+      end
+      item
+        CollectionIndex = 67
+        CollectionName = 'player-play'
+        Name = 'player-play'
+      end
+      item
+        CollectionIndex = 68
+        CollectionName = 'player-record'
+        Name = 'player-record'
+      end
+      item
+        CollectionIndex = 69
+        CollectionName = 'blockquote'
+        Name = 'blockquote'
+      end>
+    ImageCollection = imcMain
+    Width = 24
+    Height = 24
+    Left = 235
+    Top = 379
   end
 end

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -32,7 +32,6 @@ uses
   SysUtils,
   TypInfo,
   Classes,
-  Rtti,
   Spring,
   Spring.Collections,
   Spring.Container;
@@ -101,6 +100,7 @@ implementation
 uses
   IniFiles,
   RTLConsts,
+  Rtti,
   Spring.Reflection,
   Spring.Container.Common,
   Spring.Container.Registration,
@@ -113,11 +113,11 @@ uses
   Spring.Logging.Container;
 
 type
-  TRegisterProc = reference to procedure (const reg: IRegistration;
+  TRegisterProc = reference to procedure (const reg: TRegistration;
     const name: string);
-  TPropertyFunc = reference to function (const reg: IRegistration;
+  TPropertyFunc = reference to function (const reg: TRegistration;
     const serviceName, name, value: string; var ctx: Boolean): Boolean;
-  TPropertiesReadProc = reference to procedure (const reg: IRegistration;
+  TPropertiesReadProc = reference to procedure (const reg: TRegistration;
     const ctx: Boolean);
 
 
@@ -266,10 +266,10 @@ var
 begin
   Guard.CheckNotNull(container, 'container');
   Guard.CheckNotNull(strings, 'strings');
-  if container.Kernel.Registry.HasService(TypeInfo(TLoggingConfiguration)) then
+  if container.Registry.HasService(TypeInfo(TLoggingConfiguration)) then
     raise ERegistrationException.CreateRes(@SLogConfigurationAlreadyRegistered);
-  container.Kernel.Resolver.AddSubResolver(
-    TLoggerResolver.Create(container.Kernel));
+  container.Resolver.AddSubResolver(
+    TLoggerResolver.Create(container));
 
   ini := TMemIniFile.Create('');
   try
@@ -278,7 +278,7 @@ begin
     //Register and build the configuration so we can be sure container will
     //properly release it
     container.RegisterType<TLoggingConfiguration>.AsSingleton.AsDefault;
-    container.Kernel.Builder.Build(container.Kernel.Registry.FindOne(
+    container.Builder.Build(container.Registry.FindOne(
       TypeInfo(TLoggingConfiguration)));
     configuration := container.Resolve<TLoggingConfiguration>;
 
@@ -343,7 +343,7 @@ function TConfigurationReader.GetType(const className: string;
 begin
   Guard.CheckNotNull(className <> '', SClass);
   //Both fully qualified and just class name supported
-  TRttiType(Result) := TType.FindType(className);
+  Result := TType.FindType(className);
   if (Result = nil) or (needInstance and (not Result.IsInstance)) then
     raise EClassNotFound.CreateResFmt(@SClassNotFound, [className]);
 end;
@@ -358,7 +358,7 @@ end;
 procedure TConfigurationReader.ReadAppenders;
 begin
   ReadSection(SAppenders, nil,
-    procedure (const reg: IRegistration; const name: string)
+    procedure (const reg: TRegistration; const name: string)
     begin
       if fAppenders = nil then
         fAppenders := TCollections.CreateList<string>;
@@ -371,18 +371,18 @@ end;
 procedure TConfigurationReader.ReadControllers;
 var
   result: Boolean;
-  reg: TRegistration<TLoggerController>;
+  reg: TRegistration;
   s: string;
 begin
   result := ReadSection(SControllers, TType.GetType(TLoggerController),
-    procedure (const reg: IRegistration; const name: string)
+    procedure (const reg: TRegistration; const name: string)
     begin
       reg.InjectConstructor;
       reg.Implements(TypeInfo(ILogAppender), SPrefix + name + SAppenderSuffix);
       reg.Implements(TypeInfo(ILoggerController), SPrefix + name + SControllerSuffix);
     end,
 
-    function (const reg: IRegistration; const serviceName, name, value: string;
+    function (const reg: TRegistration; const serviceName, name, value: string;
       var ctx: Boolean): Boolean
     begin
       if SameText(SAppender, name) then
@@ -416,12 +416,12 @@ var
   result: Boolean;
 begin
   result := ReadSection(SLoggers, TType.GetType(TLogger),
-    procedure (const reg: IRegistration; const name: string)
+    procedure (const reg: TRegistration; const name: string)
     begin
       reg.Implements(TypeInfo(ILogger), SPrefix + name);
     end,
 
-    function (const reg: IRegistration; const serviceName, name, value: string;
+    function (const reg: TRegistration; const serviceName, name, value: string;
       var ctx: Boolean): Boolean
     begin
       if SameText(SController, name) then
@@ -440,7 +440,7 @@ begin
         Result := False;
     end,
 
-    procedure (const reg: IRegistration; const ctx: Boolean)
+    procedure (const reg: TRegistration; const ctx: Boolean)
     begin
       //If controller was not seen inject the default one
       if not ctx then
@@ -467,7 +467,7 @@ var
   value: string;
   classType: TRttiType;
   prop: TRttiProperty;
-  reg: IRegistration;
+  reg: TRegistration;
   i: Integer;
   ctx: Boolean;
 begin
@@ -532,7 +532,7 @@ begin
   classType := GetType(typeName, True);
   Result := classType.QualifiedName;
 
-  if fContainer.Kernel.Registry.FindOne(classType.Handle) = nil then
+  if fContainer.Registry.FindOne(classType.Handle) = nil then
     fContainer.RegisterType(classType.Handle).AsSingleton
       .Implements(TypeInfo(ILogEventConverter), Result);
 end;

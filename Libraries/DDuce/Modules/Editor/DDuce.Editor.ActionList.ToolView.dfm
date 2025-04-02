@@ -4,7 +4,7 @@ object frmActionListView: TfrmActionListView
   ActiveControl = edtFilterActions
   Caption = 'Actions'
   ClientHeight = 526
-  ClientWidth = 800
+  ClientWidth = 806
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -13,16 +13,14 @@ object frmActionListView: TfrmActionListView
   Font.Name = 'Segoe UI'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   Position = poOwnerFormCenter
   OnKeyUp = FormKeyUp
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlEditorList: TPanel
     Left = 0
     Top = 0
-    Width = 800
+    Width = 806
     Height = 526
     Align = alClient
     BevelOuter = bvNone
@@ -30,7 +28,7 @@ object frmActionListView: TfrmActionListView
     object pgcMain: TPageControl
       Left = 0
       Top = 0
-      Width = 800
+      Width = 806
       Height = 526
       ActivePage = tsActions
       Align = alClient
@@ -40,8 +38,8 @@ object frmActionListView: TfrmActionListView
         object pnlActions: TPanel
           Left = 0
           Top = 21
-          Width = 792
-          Height = 477
+          Width = 801
+          Height = 480
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 0
@@ -49,7 +47,7 @@ object frmActionListView: TfrmActionListView
         object edtFilterActions: TEdit
           Left = 0
           Top = 0
-          Width = 792
+          Width = 801
           Height = 21
           Align = alTop
           TabOrder = 1

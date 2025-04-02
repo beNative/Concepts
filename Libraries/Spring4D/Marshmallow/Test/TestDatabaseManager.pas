@@ -26,10 +26,9 @@ type
 implementation
 
 uses
-  Spring.Persistence.Core.ConnectionFactory
-  ,TestEntities
-  ,SQLiteTable3
-  ;
+  Spring.Persistence.Core.ConnectionFactory,
+  TestEntities,
+  SQLiteTable3;
 
 const
   FILE_CONN_SQLITE = 'Conn_Sqlite.json';
@@ -55,7 +54,6 @@ begin
   while not LRes.IsEmpty do
   begin
     Result := Result + LRes.GetFieldValue(0) + ' ';
-
     LRes.Next;
   end;
 end;
@@ -85,17 +83,14 @@ begin
   CheckEquals(0, GetTableCount(FConnection));
   FDatabaseManager.BuildDatabase;
 
-  iCount := 7;
+  iCount := 10;
 
   sTables := GetTables(FConnection);
   if Pos('sqlite_sequence', sTables) > 0 then
-  begin
     Inc(iCount);
-  end;
 
   CheckEquals(iCount, GetTableCount(FConnection));
 end;
-
 
 procedure TDatabaseManagerTest.TestEntityExists;
 begin
@@ -103,7 +98,6 @@ begin
   FDatabaseManager.BuildDatabase;
   CheckTrue(FDatabaseManager.EntityExists(TCustomer));
 end;
-
 
 procedure TDatabaseManagerTest.TestUpdateDatabase;
 var

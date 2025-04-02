@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -30,7 +30,6 @@ interface
 
 uses
   Rtti,
-  SysUtils,
   Spring,
   Spring.Collections,
   Spring.Container.Core;
@@ -38,7 +37,6 @@ uses
 type
   TInjectionBase = class abstract(TInterfacedObject, IInjection)
   private
-    {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fTarget: TRttiMember;
     fTargetName: string;
     fDependencies: TArray<TDependencyModel>;
@@ -323,7 +321,7 @@ end;
 function TDependencyInjector.InjectConstructor(const model: TComponentModel;
   const parameterTypes: array of PTypeInfo): IInjection;
 var
-  predicate: TPredicate<TRttiMethod>;
+  predicate: Predicate<TRttiMethod>;
   method: TRttiMethod;
 begin
   predicate := TMethodFilters.IsConstructor
@@ -360,7 +358,7 @@ end;
 function TDependencyInjector.InjectMethod(const model: TComponentModel;
   const methodName: string; const parameterTypes: array of PTypeInfo): IInjection;
 var
-  predicate: TPredicate<TRttiMethod>;
+  predicate: Predicate<TRttiMethod>;
   method: TRttiMethod;
   injectionExists: Boolean;
 begin
@@ -421,7 +419,7 @@ end;
 function TDependencyInjector.InjectConstructor(
   const model: TComponentModel): IInjection;
 var
-  predicate: TPredicate<TRttiMethod>;
+  predicate: Predicate<TRttiMethod>;
   method: TRttiMethod;
 begin
   predicate := TMethodFilters.IsConstructor

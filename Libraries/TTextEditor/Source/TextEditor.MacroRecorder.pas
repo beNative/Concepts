@@ -3,8 +3,8 @@
 interface
 
 uses
-  Winapi.Windows, System.Classes, System.SysUtils, System.WideStrUtils, Vcl.Controls, Vcl.Graphics, Vcl.Menus,
-  TextEditor.KeyCommands, TextEditor.Language, TextEditor.Types;
+  Winapi.Windows, System.Classes, System.SysUtils, System.WideStrUtils, Vcl.Controls, Vcl.Menus, TextEditor.KeyCommands,
+  TextEditor.Language, TextEditor.Types;
 
 type
   TTextEditorMacroState = (msStopped, msRecording, msPlaying, msPaused);
@@ -140,7 +140,7 @@ type
     procedure LoadFromFile(const AFilename: string);
     procedure LoadFromStream(const ASource: TStream; const AClear: Boolean = True);
     procedure Pause;
-    procedure PlaybackMacro(const AEditor: TCustomControl);
+    procedure PlaybackMacro(const AEditor: TCustomControl; const AUntilEndOfFile: Boolean = False);
     procedure RecordMacro(const AEditor: TCustomControl);
     procedure Resume;
     procedure SaveToFile(const AFilename: string);
@@ -162,6 +162,7 @@ type
     property Editor: TCustomControl read GetEditor write SetEditor;
   end;
 
+  [ComponentPlatformsAttribute(pidWin32 or pidWin64)]
   TTextEditorMacroRecorder = class(TCustomEditorMacroRecorder)
   published
     property OnStateChange;
@@ -220,8 +221,11 @@ begin
     Result := -1;
     Exit;
   end;
+
   AEditor.FreeNotification(Self);
+
   Result := FEditors.Add(AEditor);
+
   DoAddEditor(AEditor);
 end;
 
@@ -243,6 +247,7 @@ begin
       FEvents.Delete(LIndex);
       LObject.Free;
     end;
+
     FEvents.Free;
     FEvents := nil;
   end;
@@ -257,6 +262,7 @@ var
 function NewPluginCommand: TTextEditorCommand;
 begin
   Result := GCurrentCommand;
+
   Inc(GCurrentCommand);
 end;
 
@@ -264,7 +270,7 @@ constructor TCustomEditorMacroRecorder.Create(AOwner: TComponent);
 begin
   inherited;
 
-  FMacroName := 'unnamed';
+  FMacroName := STextEditorMacroNameUnnamed;
   FRecordCommandID := NewPluginCommand;
   FPlaybackCommandID := NewPluginCommand;
   FRecordShortCut := Vcl.Menus.ShortCut(Ord('R'), [ssCtrl, ssShift]);
@@ -352,6 +358,7 @@ var
   LEditor: TCustomTextEditor;
 begin
   LEditor := Editor as TCustomTextEditor;
+
   if LEditor <> AValue then
   try
     if Assigned(LEditor) and (FEditors.Count = 1) then
@@ -423,6 +430,7 @@ procedure TCustomEditorMacroRecorder.InsertCustomEvent(const AIndex: Integer; co
 begin
   if not Assigned(FEvents) then
     FEvents := TList.Create;
+
   FEvents.Insert(AIndex, AEvent);
 end;
 
@@ -448,6 +456,7 @@ var
   LCount, LIndex: Integer;
 begin
   Stop;
+
   if AClear then
     Clear;
 
@@ -533,29 +542,41 @@ begin
   StateChanged;
 end;
 
-procedure TCustomEditorMacroRecorder.PlaybackMacro(const AEditor: TCustomControl);
+procedure TCustomEditorMacroRecorder.PlaybackMacro(const AEditor: TCustomControl; const AUntilEndOfFile: Boolean = False);
 var
   LIndex: Integer;
+  LStartLine, LEndLine: Integer;
+  LEditor: TCustomTextEditor;
 begin
   if State <> msStopped then
     Error(STextEditorCannotPlay);
 
-  FState := msPlaying;
-  try
-    StateChanged;
-    for LIndex := 0 to EventCount - 1 do
-    begin
-      Events[LIndex].Playback(AEditor);
-      if State <> msPlaying then
-        break;
-    end;
-  finally
-    if State = msPlaying then
-    begin
-      FState := msStopped;
+  LEditor := AEditor as TCustomTextEditor;
+
+  repeat
+    LStartLine  := LEditor.TextPosition.Line;
+
+    FState := msPlaying;
+    try
       StateChanged;
+
+      for LIndex := 0 to EventCount - 1 do
+      begin
+        Events[LIndex].Playback(AEditor);
+
+        if State <> msPlaying then
+          Break;
+      end;
+    finally
+      if State = msPlaying then
+      begin
+        FState := msStopped;
+        StateChanged;
+      end;
     end;
-  end;
+
+    LEndLine  := LEditor.TextPosition.Line;
+  until not AUntilEndOfFile or AUntilEndOfFile and (LEndLine <= LStartLine);
 end;
 
 procedure TCustomEditorMacroRecorder.RecordMacro(const AEditor: TCustomControl);
@@ -702,6 +723,7 @@ var
   LKeyCommand: TTextEditorKeyCommand;
 begin
   Assert(ANewShortCut <> 0);
+
   if [csDesigning] * ComponentState = [csDesigning] then
     if TCustomTextEditor(AEditor).KeyCommands.FindShortcut(ANewShortCut) >= 0 then
       raise ETextEditorMacroRecorderException.Create(STextEditorShortcutAlreadyExists)
@@ -711,9 +733,11 @@ begin
   if AOldShortCut <> 0 then
   begin
     LIndex := TCustomTextEditor(AEditor).KeyCommands.FindShortcut(AOldShortCut);
+
     if LIndex >= 0 then
     begin
       LKeyCommand := TCustomTextEditor(AEditor).KeyCommands[LIndex];
+
       if LKeyCommand.Command = ACommandID then
       begin
         LKeyCommand.ShortCut := ANewShortCut;
@@ -729,6 +753,7 @@ begin
     LKeyCommand.Free;
     raise;
   end;
+
   LKeyCommand.Command := ACommandID;
   TCustomTextEditor(AEditor).RegisterCommandHandler(OnCommand, Self);
 end;
@@ -744,9 +769,11 @@ begin
 
   LEditor := AEditor as TCustomTextEditor;
   LEditor.UnregisterCommandHandler(OnCommand);
+
   if Assigned(LEditor.KeyCommands) then
   begin
     LIndex := LEditor.KeyCommands.FindShortcut(AShortCut);
+
     if (LIndex >= 0) and (LEditor.KeyCommands[LIndex].Command = ACommandID) then
       LEditor.KeyCommands[LIndex].Free;
   end;
@@ -773,8 +800,13 @@ procedure TTextEditorBasicEvent.Playback(const AEditor: TCustomControl);
 var
   LIndex: Integer;
 begin
-  for LIndex := 1 to RepeatCount do //FI:W528 Variable not used in FOR-loop
+  LIndex := 1;
+
+  while LIndex <= RepeatCount do
+  begin
     TCustomTextEditor(AEditor).CommandProcessor(Command, TControlCharacters.Null, nil);
+    Inc(LIndex);
+  end;
 end;
 
 procedure TTextEditorBasicEvent.SaveToStream(const AStream: TStream);
@@ -790,10 +822,12 @@ var
   LString: string;
 begin
   LString := AString;
+
   if Length(LString) >= 1 then
     Key := LString[1]
   else
     Key := ' ';
+
   Delete(LString, 1, 1);
   RepeatCount := StrToIntDef(TextEditor.Utils.Trim(LString), 1);
 end;
@@ -814,8 +848,13 @@ procedure TTextEditorCharEvent.Playback(const AEditor: TCustomControl);
 var
   LIndex: Integer;
 begin
-  for LIndex := 1 to RepeatCount do //FI:W528 Variable not used in FOR-loop
+  LIndex := 1;
+
+  while LIndex <= RepeatCount do
+  begin
     TCustomTextEditor(AEditor).CommandProcessor(TKeyCommands.Char, Key, nil);
+    Inc(LIndex);
+  end;
 end;
 
 procedure TTextEditorCharEvent.SaveToStream(const AStream: TStream);
@@ -842,6 +881,7 @@ begin
   LDotPosition := Pos(',', LString);
   LOpenPosition := Pos('(', LString);
   LClosePosition := Pos(')', LString);
+
   if (not((LDotPosition = 0) or (LOpenPosition = 0) or (LClosePosition = 0))) and ((LDotPosition > LOpenPosition) and
     (LDotPosition < LClosePosition)) then
   begin
@@ -866,7 +906,7 @@ begin
   if Assigned(AData) then
     Position := TTextEditorTextPosition(AData^)
   else
-    Position := GetPosition(0, 0);
+    Position := GetBOFPosition;
 end;
 
 procedure TTextEditorPositionEvent.LoadFromStream(const AStream: TStream);
@@ -903,10 +943,12 @@ var
   begin
     Result := Length(S);
     P := PChar(Delimiters);
+
     while Result > 0 do
     begin
       if (S[Result] <> TControlCharacters.Null) and Assigned(WStrScan(P, S[Result])) then
         Exit;
+
       Dec(Result);
     end;
   end;
@@ -940,6 +982,7 @@ begin
   finally
     FreeMem(LPBuffer);
   end;
+
   AStream.Read(FRepeatCount, SizeOf(FRepeatCount));
 end;
 
@@ -947,9 +990,15 @@ procedure TTextEditorTextEvent.Playback(const AEditor: TCustomControl);
 var
   LIndex, LIndex2: Integer;
 begin
-  for LIndex := 1 to RepeatCount do //FI:W528 Variable not used in FOR-loop
+  LIndex := 1;
+
+  while LIndex <= RepeatCount do
+  begin
     for LIndex2 := 1 to Length(Value) do
       TCustomTextEditor(AEditor).CommandProcessor(TKeyCommands.Char, Value[LIndex2], nil);
+
+    Inc(LIndex);
+  end;
 end;
 
 procedure TTextEditorTextEvent.SaveToStream(const AStream: TStream);

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-{$IF Defined(DELPHIXE4_UP) and not Defined(NEXTGEN)}
+{$IF Defined(DELPHIXE4_UP)}
   AnsiStrings,
 {$ELSE}
   SysUtils,
@@ -98,6 +98,24 @@ begin
     TPictureToVariantConverter);
   TValueConverterFactory.RegisterConverter(TypeInfo(TStream), TypeInfo(TPicture),
     TStreamToPictureConverter);
+end;
+
+procedure UnregisterConverters;
+begin
+  TValueConverterFactory.UnregisterConverter(TStreamToVariantConverter);
+  TValueConverterFactory.UnregisterConverter(TPictureToVariantConverter);
+  TValueConverterFactory.UnregisterConverter(TStreamToPictureConverter);
+end;
+
+function TryConvertTo(const value: TValue; const targetTypeInfo: PTypeInfo;
+  var targetValue: TValue; const parameter: TValue): Boolean;
+begin
+  Result := TValueConverter.Default.TryConvertTo(value, targetTypeInfo, targetValue, parameter);
+end;
+
+procedure InitConverters;
+begin
+  TValue.ValueConverterCallback := TryConvertTo;
 end;
 
 
@@ -231,5 +249,9 @@ end;
 
 initialization
   RegisterConverters;
+  InitConverters;
+
+finalization
+  UnregisterConverters;
 
 end.

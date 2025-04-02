@@ -3,7 +3,7 @@
 interface
 
 uses
-  System.Classes, TextEditor.Glyph, TextEditor.SyncEdit.Colors, TextEditor.Types;
+  System.Classes, TextEditor.Glyph, TextEditor.Types;
 
 type
   TTextEditorSyncEdit = class(TPersistent)
@@ -13,7 +13,6 @@ type
     FBlockBeginPosition: TTextEditorTextPosition;
     FBlockEndPosition: TTextEditorTextPosition;
     FBlockSelected: Boolean;
-    FColors: TTextEditorSyncEditColors;
     FEditBeginPosition: TTextEditorTextPosition;
     FEditEndPosition: TTextEditorTextPosition;
     FEditWidth: Integer;
@@ -50,15 +49,14 @@ type
   published
     property Activator: TTextEditorGlyph read FActivator write SetActivator;
     property Active: Boolean read FActive write FActive default True;
-    property Colors: TTextEditorSyncEditColors read FColors write FColors;
     property Options: TTextEditorSyncEditOptions read FOptions write FOptions default [seCaseSensitive];
-    property ShortCut: TShortCut read FShortCut write FShortCut;
+    property ShortCut: TShortCut read FShortCut write FShortCut default 24650; // Ctrl+Shift+J
   end;
 
 implementation
 
 uses
-  System.UITypes, Vcl.Graphics, Vcl.Menus, TextEditor.Consts;
+  System.UITypes, Vcl.Menus, TextEditor.Consts;
 
 constructor TTextEditorSyncEdit.Create;
 begin
@@ -71,15 +69,14 @@ begin
   FShortCut := Vcl.Menus.ShortCut(Ord('J'), [ssCtrl, ssShift]);
   FOptions := [seCaseSensitive];
   FSyncItems := TList.Create;
-  FColors := TTextEditorSyncEditColors.Create;
   FActivator := TTextEditorGlyph.Create(HInstance, TResourceBitmap.SyncEdit, TColors.Fuchsia);
 end;
 
 destructor TTextEditorSyncEdit.Destroy;
 begin
   ClearSyncItems;
+
   FSyncItems.Free;
-  FColors.Free;
   FActivator.Free;
 
   inherited;
@@ -91,6 +88,7 @@ var
 begin
   for LIndex := FSyncItems.Count - 1 downto 0 do
     Dispose(PTextEditorTextPosition(FSyncItems.Items[LIndex]));
+
   FSyncItems.Clear;
 end;
 
@@ -102,7 +100,7 @@ begin
     Self.FActive := FActive;
     Self.FShortCut := FShortCut;
     Self.FActivator.Assign(FActivator);
-    Self.FColors.Assign(FColors);
+
     Self.DoChange(Self);
   end
   else
@@ -118,6 +116,7 @@ end;
 procedure TTextEditorSyncEdit.SetVisible(const AValue: Boolean);
 begin
   FVisible := AValue;
+
   DoChange(Self);
 end;
 

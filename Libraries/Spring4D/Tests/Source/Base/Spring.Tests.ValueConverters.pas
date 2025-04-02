@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -64,15 +64,11 @@ type
     procedure TestStringToDateTimeF;
     procedure TestStringToDateF;
     procedure TestStringToTimeF;
-{$IFNDEF NEXTGEN}
     procedure TestStringToWideString;
     procedure TestStringToAnsiString;
-{$ENDIF}
     procedure TestStringToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestStringToNullableAnsiString;
     procedure TestStringToNullableWideString;
-{$ENDIF}
     procedure TestStringToNullableInteger;
     procedure TestStringToNullableCardinal;
     procedure TestStringToNullableInt64;
@@ -95,7 +91,6 @@ type
     procedure TestStringToNullableGuid;
   end;
 
-{$IFNDEF NEXTGEN}
   TTestFromWideString = class(TTestCase)
   strict private
     fConverter: IValueConverter;
@@ -142,7 +137,6 @@ type
     procedure TestWStringToNullableDate;
     procedure TestWStringToNullableTime;
   end;
-{$ENDIF}
 
   TTestFromInteger = class(TTestCase)
   strict private
@@ -151,10 +145,8 @@ type
     procedure SetUp; override;
   published
     procedure TestIntegerToString;
-{$IFNDEF NEXTGEN}
     procedure TestIntegerToWideString;
     procedure TestIntegerToAnsiString;
-{$ENDIF}
     procedure TestIntegerToEnum;
     procedure TestIntegerToBoolean;
     procedure TestIntegerToFloat;
@@ -167,10 +159,8 @@ type
     procedure TestIntegerToNullableSmallInt;
     procedure TestIntegerToNullableShortInt;
     procedure TestIntegerToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestIntegerToNullableAnsiString;
     procedure TestIntegerToNullableWideString;
-{$ENDIF}
     procedure TestIntegerToNullableBoolean;
     procedure TestIntegerToNullableFloat;
   end;
@@ -182,10 +172,8 @@ type
     procedure SetUp; override;
   published
     procedure TestCardinalToString;
-{$IFNDEF NEXTGEN}
     procedure TestCardinalToWideString;
     procedure TestCardinalToAnsiString;
-{$ENDIF}
     procedure TestCardinalToEnum;
     procedure TestCardinalToBoolean;
     procedure TestCardinalToFloat;
@@ -198,10 +186,8 @@ type
     procedure TestCardinalToNullableSmallInt;
     procedure TestCardinalToNullableShortInt;
     procedure TestCardinalToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestCardinalToNullableAnsiString;
     procedure TestCardinalToNullableWideString;
-{$ENDIF}
     procedure TestCardinalToNullableBoolean;
     procedure TestCardinalToNullableFloat;
   end;
@@ -213,10 +199,8 @@ type
     procedure SetUp; override;
   published
     procedure TestSmallIntToString;
-{$IFNDEF NEXTGEN}
     procedure TestSmallIntToWideString;
     procedure TestSmallIntToAnsiString;
-{$ENDIF}
     procedure TestSmallIntToEnum;
     procedure TestSmallIntToBoolean;
     procedure TestSmallIntToFloat;
@@ -225,10 +209,8 @@ type
     procedure TestSmallIntToNullableSmallInt;
     procedure TestSmallIntToNullableShortInt;
     procedure TestSmallIntToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestSmallIntToNullableAnsiString;
     procedure TestSmallIntToNullableWideString;
-{$ENDIF}
     procedure TestSmallIntToNullableBoolean;
     procedure TestSmallIntToNullableFloat;
   end;
@@ -240,10 +222,8 @@ type
     procedure SetUp; override;
   published
     procedure TestShortIntToString;
-{$IFNDEF NEXTGEN}
     procedure TestShortIntToWideString;
     procedure TestShortIntToAnsiString;
-{$ENDIF}
     procedure TestShortIntToEnum;
     procedure TestShortIntToBoolean;
     procedure TestShortIntToFloat;
@@ -252,10 +232,8 @@ type
     procedure TestShortIntToNullableSmallInt;
     procedure TestShortIntToNullableShortInt;
     procedure TestShortIntToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestShortIntToNullableAnsiString;
     procedure TestShortIntToNullableWideString;
-{$ENDIF}
     procedure TestShortIntToNullableBoolean;
     procedure TestShortIntToNullableFloat;
   end;
@@ -271,20 +249,16 @@ type
     procedure TestBooleanToSmallInt;
     procedure TestBooleanToShortInt;
     procedure TestBooleanToString;
-{$IFNDEF NEXTGEN}
     procedure TestBooleanToWideString;
     procedure TestBooleanToAnsiString;
-{$ENDIF}
     procedure TestBooleanToNullableBoolean;
     procedure TestBooleanToNullableInteger;
     procedure TestBooleanToNullableCardinal;
     procedure TestBooleanToNullableSmallInt;
     procedure TestBooleanToNullableShortInt;
     procedure TestBooleanToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestBooleanToNullableAnsiString;
     procedure TestBooleanToNullableWideString;
-{$ENDIF}
   end;
 
   TTestFromEnum = class(TTestCase)
@@ -298,19 +272,15 @@ type
     procedure TestEnumToSmallInt;
     procedure TestEnumToShortInt;
     procedure TestEnumToString;
-{$IFNDEF NEXTGEN}
     procedure TestEnumToAnsiString;
     procedure TestEnumToWideString;
-{$ENDIF}
     procedure TestEnumToNullableInteger;
     procedure TestEnumToNullableCardinal;
     procedure TestEnumToNullableSmallInt;
     procedure TestEnumToNullableShortInt;
     procedure TestEnumToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestEnumToNullableAnsiString;
     procedure TestEnumToNullableWideString;
-{$ENDIF}
   end;
 
   TTestFromFloat = class(TTestCase)
@@ -324,10 +294,8 @@ type
     procedure TestFloatToSmallInt;
     procedure TestFloatToShortInt;
     procedure TestFloatToString;
-{$IFNDEF NEXTGEN}
     procedure TestFloatToAnsiString;
     procedure TestFloatToWideString;
-{$ENDIF}
     procedure TestFloatToStringF;
     procedure TestFloatToNullableInteger;
     procedure TestFloatToNullableCardinal;
@@ -335,10 +303,8 @@ type
     procedure TestFloatToNullableShortInt;
     procedure TestFloatToNullableFloat;
     procedure TestFloatToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestFloatToNullableAnsiString;
     procedure TestFloatToNullableWideString;
-{$ENDIF}
   end;
 
 {$IFNDEF SPRING_DISABLE_GRAPHICS}
@@ -352,19 +318,15 @@ type
     procedure TestColorToCardinal;
     procedure TestColorToSmallInt;
     procedure TestColorToString;
-{$IFNDEF NEXTGEN}
     procedure TestColorToAnsiString;
     procedure TestColorToWideString;
-{$ENDIF}
     procedure TestColorToNullableColor;
     procedure TestColorToNullableInteger;
     procedure TestColorToNullableCardinal;
     procedure TestColorToNullableSmallInt;
     procedure TestColorToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestColorToNullableAnsiString;
     procedure TestColorToNullableWideString;
-{$ENDIF}
   end;
 {$ENDIF}
 
@@ -375,16 +337,12 @@ type
     procedure SetUp; override;
   published
     procedure TestCurrencyToString;
-{$IFNDEF NEXTGEN}
     procedure TestCurrencyToAnsiString;
     procedure TestCurrencyToWideString;
-{$ENDIF}
     procedure TestCurrencyToStringF;
     procedure TestCurrencyToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestCurrencyToNullableAnsiString;
     procedure TestCurrencyToNullableWideString;
-{$ENDIF}
   end;
 
   TTestFromDateTime = class(TTestCase)
@@ -394,16 +352,12 @@ type
     procedure SetUp; override;
   published
     procedure TestDateTimeToString;
-{$IFNDEF NEXTGEN}
     procedure TestDateTimeToAnsiString;
     procedure TestDateTimeToWideString;
-{$ENDIF}
     procedure TestDateTimeToStringF;
     procedure TestDateTimeToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestDateTimeToNullableAnsiString;
     procedure TestDateTimeToNullableWideString;
-{$ENDIF}
   end;
 
   TTestFromDate = class(TTestCase)
@@ -413,16 +367,12 @@ type
     procedure SetUp; override;
   published
     procedure TestDateToString;
-{$IFNDEF NEXTGEN}
     procedure TestDateToAnsiString;
     procedure TestDateToWideString;
-{$ENDIF}
     procedure TestDateToStringF;
     procedure TestDateToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestDateToNullableAnsiString;
     procedure TestDateToNullableWideString;
-{$ENDIF}
   end;
 
   TTestFromTime = class(TTestCase)
@@ -432,16 +382,12 @@ type
     procedure SetUp; override;
   published
     procedure TestTimeToString;
-{$IFNDEF NEXTGEN}
     procedure TestTimeToAnsiString;
     procedure TestTimeToWideString;
-{$ENDIF}
     procedure TestTimeToStringF;
     procedure TestTimeToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestTimeToNullableAnsiString;
     procedure TestTimeToNullableWideString;
-{$ENDIF}
   end;
 
   TTestFromObject = class(TTestCase)
@@ -464,17 +410,13 @@ type
     procedure SetUp; override;
   published
     procedure TestObjectToString;
-{$IFNDEF NEXTGEN}
     procedure TestObjectToAnsiString;
     procedure TestObjectToWideString;
-{$ENDIF}
     procedure TestObjectToInterface;
     procedure TestObjectToClass;
     procedure TestObjectToNullableString;
-{$IFNDEF NEXTGEN}
     procedure TestObjectToNullableAnsiString;
     procedure TestObjectToNullableWideString;
-{$ENDIF}
   end;
 
   TTestFromInterface = class(TTestCase)
@@ -509,60 +451,47 @@ type
     procedure TestNullableIntegerToShortInt;
     procedure TestNullableIntegerToFloat;
     procedure TestNullableIntegerToString;
-{$IFNDEF NEXTGEN}
     procedure TestNullableIntegerToWideString;
     procedure TestNullableIntegerToAnsiString;
-{$ENDIF}
     procedure TestNullableCardinalToInteger;
     procedure TestNullableCardinalToCardinal;
     procedure TestNullableCardinalToSmallInt;
     procedure TestNullableCardinalToShortInt;
     procedure TestNullableCardinalToFloat;
     procedure TestNullableCardinalToString;
-{$IFNDEF NEXTGEN}
     procedure TestNullableCardinalToWideString;
     procedure TestNullableCardinalToAnsiString;
-{$ENDIF}
     procedure TestNullableSmallIntToInteger;
     procedure TestNullableSmallIntToCardinal;
     procedure TestNullableSmallIntToSmallInt;
     procedure TestNullableSmallIntToShortInt;
     procedure TestNullableSmallIntToFloat;
     procedure TestNullableSmallIntToString;
-{$IFNDEF NEXTGEN}
     procedure TestNullableSmallIntToWideString;
     procedure TestNullableSmallIntToAnsiString;
-{$ENDIF}
     procedure TestNullableShortIntToInteger;
     procedure TestNullableShortIntToCardinal;
     procedure TestNullableShortIntToSmallInt;
     procedure TestNullableShortIntToShortInt;
     procedure TestNullableShortIntToFloat;
     procedure TestNullableShortIntToString;
-{$IFNDEF NEXTGEN}
     procedure TestNullableShortIntToWideString;
     procedure TestNullableShortIntToAnsiString;
-{$ENDIF}
     procedure TestNullableFloatToInteger;
     procedure TestNullableFloatToIntger_ExceptionWhenDecimalPlaces;
     procedure TestNullableFloatToCardinal;
     procedure TestNullableFloatToSmallInt;
     procedure TestNullableFloatToShortInt;
     procedure TestNullableFloatToString;
-{$IFNDEF NEXTGEN}
     procedure TestNullableFloatToAnsiString;
     procedure TestNullableFloatToWideString;
-{$ENDIF}
     procedure TestNullableStringToString;
-{$IFNDEF NEXTGEN}
     procedure TestNullableAnsiStringToString;
     procedure TestNullableWideStringToWideString;
-{$ENDIF}
     procedure TestNullableStringToInteger;
     procedure TestNullableStringToCardinal;
     procedure TestNullableStringToSmallInt;
     procedure TestNullableStringToShortInt;
-{$IFNDEF NEXTGEN}
     procedure TestNullableAnsiStringToInteger;
     procedure TestNullableAnsiStringToCardinal;
     procedure TestNullableAnsiStringToSmallInt;
@@ -571,29 +500,22 @@ type
     procedure TestNullableWideStringToCardinal;
     procedure TestNullableWideStringToSmallInt;
     procedure TestNullableWideStringToShortInt;
-{$ENDIF}
     procedure TestNullableStringToFloat;
-{$IFNDEF NEXTGEN}
     procedure TestNullableAnsiStringToFloat;
     procedure TestNullableWideStringToFloat;
-{$ENDIF}
     procedure TestNullableDateTimeToString;
     procedure TestNullableDateToString;
     procedure TestNullableTimeToString;
-{$IFNDEF NEXTGEN}
     procedure TestNullableDateTimeToAnsiString;
     procedure TestNullableDateToAnsiString;
     procedure TestNullableTimeToAnsiString;
     procedure TestNullableDateTimeToWideString;
     procedure TestNullableDateToWideString;
     procedure TestNullableTimeToWideString;
-{$ENDIF}
 {$IFNDEF SPRING_DISABLE_GRAPHICS}
     procedure TestNullableColorToString;
-{$IFNDEF NEXTGEN}
     procedure TestNullableColorToAnsiString;
     procedure TestNullableColorToWideString;
-{$ENDIF}
 {$ENDIF}
   end;
 
@@ -931,7 +853,7 @@ begin
     TypeInfo(TDateTime));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<TDateTime>(outStamp));
-  CheckEqualsString(DateTimeToStr(stamp), DateTimeToStr(outStamp));
+  CheckEqualsString(DateTimeToStr(stamp), FormatDateTime('ddddd tt', outStamp));
 end;
 
 procedure TTestFromString.TestStringToDateTimeF;
@@ -946,7 +868,6 @@ begin
   CheckEqualsString('10.10.2010', FormatDateTime('dd.mm.yyyy', outStamp));
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromString.TestStringToAnsiString;
 var
   outValue: TValue;
@@ -970,7 +891,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEquals(WideString('Test WideString'), outWStr);
 end;
-{$ENDIF NEXTGEN}
 
 procedure TTestFromString.TestStringToNullableString;
 var
@@ -985,7 +905,6 @@ begin
   CheckEquals('Test', outNullable.Value);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromString.TestStringToNullableAnsiString;
 var
   outValue: TValue;
@@ -1011,7 +930,6 @@ begin
   CheckTrue(outNullable.HasValue);
   CheckEquals(WideString('Test'), outNullable.Value);
 end;
-{$ENDIF}
 
 procedure TTestFromString.TestStringToNullableInteger;
 var
@@ -1178,7 +1096,7 @@ begin
     TypeInfo(Nullable<TDateTime>));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<Nullable<TDateTime>>(outNullable));
-  CheckEqualsString(DateTimeToStr(stamp), DateTimeToStr(outNullable.Value));
+  CheckEqualsString(DateTimeToStr(stamp), FormatDateTime('ddddd tt', outNullable.Value));
 end;
 
 
@@ -1325,7 +1243,6 @@ begin
   CheckEquals('1', outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromInteger.TestIntegerToAnsiString;
 var
   outValue: TValue;
@@ -1349,7 +1266,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEquals('1', outWStr);
 end;
-{$ENDIF}
 
 procedure TTestFromInteger.TestIntegerToNullableInt64;
 var
@@ -1453,7 +1369,6 @@ begin
   CheckEquals(2147483647, outNullable.Value);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromInteger.TestIntegerToNullableAnsiString;
 var
   outValue: TValue;
@@ -1477,7 +1392,6 @@ begin
   CheckTrue(outValue.TryAsType<Nullable<WideString>>(outNullable));
   CheckEquals('1', outNullable.Value);
 end;
-{$ENDIF}
 
 procedure TTestFromInteger.TestIntegerToNullableWord;
 var
@@ -1598,7 +1512,6 @@ begin
   CheckEquals('1', outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromCardinal.TestCardinalToAnsiString;
 var
   outValue: TValue;
@@ -1622,7 +1535,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEquals('1', outWStr);
 end;
-{$ENDIF}
 
 procedure TTestFromCardinal.TestCardinalToNullableInt64;
 var
@@ -1720,7 +1632,6 @@ begin
   CheckEquals(2147483647, outNullable.Value);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromCardinal.TestCardinalToNullableAnsiString;
 var
   outValue: TValue;
@@ -1744,7 +1655,6 @@ begin
   CheckTrue(outValue.TryAsType<Nullable<WideString>>(outNullable));
   CheckEquals('1', outNullable.Value);
 end;
-{$ENDIF}
 
 procedure TTestFromCardinal.TestCardinalToNullableWord;
 var
@@ -1865,7 +1775,6 @@ begin
   CheckEquals('1', outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromSmallInt.TestSmallIntToAnsiString;
 var
   outValue: TValue;
@@ -1889,7 +1798,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEquals('1', outWStr);
 end;
-{$ENDIF}
 
 procedure TTestFromSmallInt.TestSmallIntToNullableInteger;
 var
@@ -1951,7 +1859,6 @@ begin
   CheckEqualsString('1', outNullable.Value);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromSmallInt.TestSmallIntToNullableAnsiString;
 var
   outValue: TValue;
@@ -1975,7 +1882,6 @@ begin
   CheckTrue(outValue.TryAsType<Nullable<WideString>>(outNullable));
   CheckEquals('1', outNullable.Value);
 end;
-{$ENDIF}
 
 procedure TTestFromSmallInt.TestSmallIntToNullableBoolean;
 var
@@ -2060,7 +1966,6 @@ begin
   CheckEquals('1', outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromShortInt.TestShortIntToAnsiString;
 var
   outValue: TValue;
@@ -2084,7 +1989,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEquals('1', outWStr);
 end;
-{$ENDIF}
 
 procedure TTestFromShortInt.TestShortIntToNullableInteger;
 var
@@ -2146,7 +2050,6 @@ begin
   CheckEqualsString('1', outNullable.Value);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromShortInt.TestShortIntToNullableAnsiString;
 var
   outValue: TValue;
@@ -2170,7 +2073,6 @@ begin
   CheckTrue(outValue.TryAsType<Nullable<WideString>>(outNullable));
   CheckEquals('1', outNullable.Value);
 end;
-{$ENDIF}
 
 procedure TTestFromShortInt.TestShortIntToNullableBoolean;
 var
@@ -2267,7 +2169,6 @@ begin
   CheckEqualsString('False', outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromBoolean.TestBooleanToAnsiString;
 var
   outValue: TValue;
@@ -2291,7 +2192,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEquals(WideString('False'), outWStr);
 end;
-{$ENDIF}
 
 procedure TTestFromBoolean.TestBooleanToNullableBoolean;
 var
@@ -2365,7 +2265,6 @@ begin
   CheckEqualsString('False', outNullable.Value);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromBoolean.TestBooleanToNullableAnsiString;
 var
   outValue: TValue;
@@ -2389,7 +2288,6 @@ begin
   CheckTrue(outValue.TryAsType<Nullable<WideString>>(outNullable));
   CheckEqualsString('False', outNullable.Value);
 end;
-{$ENDIF}
 
 {$ENDREGION}
 
@@ -2414,7 +2312,6 @@ begin
   CheckEquals('teFirst', outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromEnum.TestEnumToAnsiString;
 var
   outValue: TValue;
@@ -2438,7 +2335,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEquals(WideString('teFirst'), outWStr);
 end;
-{$ENDIF}
 
 procedure TTestFromEnum.TestEnumToInteger;
 var
@@ -2500,7 +2396,6 @@ begin
   CheckEqualsString('teFirst', outNullable.Value);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromEnum.TestEnumToNullableAnsiString;
 var
   outValue: TValue;
@@ -2524,7 +2419,6 @@ begin
   CheckTrue(outValue.TryAsType<Nullable<WideString>>(outNullable));
   CheckEquals(WideString('teFirst'), outNullable.Value);
 end;
-{$ENDIF}
 
 procedure TTestFromEnum.TestEnumToNullableInteger;
 var
@@ -2645,7 +2539,6 @@ begin
   CheckEquals(FloatToStr(1.11), outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromFloat.TestFloatToAnsiString;
 var
   outValue: TValue;
@@ -2669,7 +2562,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEquals(WideString(FloatToStr(1.11)), outWStr);
 end;
-{$ENDIF}
 
 procedure TTestFromFloat.TestFloatToStringF;
 var
@@ -2707,7 +2599,6 @@ begin
   CheckEqualsString(FloatToStr(1.11), outNullable.Value);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromFloat.TestFloatToNullableAnsiString;
 var
   outValue: TValue;
@@ -2731,7 +2622,6 @@ begin
   CheckTrue(outValue.TryAsType<Nullable<WideString>>(outNullable));
   CheckEquals(WideString(FloatToStr(1.11)), outNullable.Value);
 end;
-{$ENDIF}
 
 procedure TTestFromFloat.TestFloatToNullableInteger;
 var
@@ -2805,7 +2695,6 @@ begin
   CheckEqualsString(RedString, outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromColor.TestColorToAnsiString;
 var
   outValue: TValue;
@@ -2829,7 +2718,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEqualsString(RedString, outWStr);
 end;
-{$ENDIF}
 
 procedure TTestFromColor.TestColorToCardinal;
 var
@@ -2891,7 +2779,6 @@ begin
   CheckEqualsString(RedString, outNullable.Value);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromColor.TestColorToNullableAnsiString;
 var
   outValue: TValue;
@@ -2915,7 +2802,6 @@ begin
   CheckTrue(outValue.TryAsType<Nullable<WideString>>(outNullable));
   CheckEqualsString(RedString, outNullable.Value);
 end;
-{$ENDIF}
 
 procedure TTestFromColor.TestColorToNullableInteger;
 var
@@ -2989,7 +2875,6 @@ begin
   CheckEqualsString(FormatCurr('#.00 $', 1.11), outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromCurrency.TestCurrencyToAnsiString;
 var
   outValue: TValue;
@@ -3013,7 +2898,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEqualsString(FloatToStr(1.11), outWStr);
 end;
-{$ENDIF}
 
 procedure TTestFromCurrency.TestCurrencyToNullableString;
 var
@@ -3027,7 +2911,6 @@ begin
   CheckEqualsString(CurrToStr(1.11), outNullable.Value);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromCurrency.TestCurrencyToNullableAnsiString;
 var
   outValue: TValue;
@@ -3051,7 +2934,6 @@ begin
   CheckTrue(outValue.TryAsType<Nullable<WideString>>(outNullable));
   CheckEqualsString(CurrToStr(1.11), outNullable.Value);
 end;
-{$ENDIF}
 
 {$ENDREGION}
 
@@ -3092,7 +2974,6 @@ begin
   CheckEqualsString(FormatDateTime('dd-mm-yyyy', stamp), outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromDateTime.TestDateTimeToAnsiString;
 var
   outValue: TValue;
@@ -3120,7 +3001,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEqualsString(DateTimeToStr(stamp), outWStr);
 end;
-{$ENDIF}
 
 procedure TTestFromDateTime.TestDateTimeToNullableString;
 var
@@ -3136,7 +3016,6 @@ begin
   CheckEqualsString(DateTimeToStr(stamp), outNullable.Value);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromDateTime.TestDateTimeToNullableAnsiString;
 var
   outValue: TValue;
@@ -3164,7 +3043,6 @@ begin
   CheckTrue(outValue.TryAsType<Nullable<WideString>>(outNullable));
   CheckEqualsString(DateTimeToStr(stamp), outNullable.Value);
 end;
-{$ENDIF}
 
 {$ENDREGION}
 
@@ -3207,7 +3085,6 @@ begin
   obj.Free;
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromObject.TestObjectToAnsiString;
 var
   outValue: TValue;
@@ -3237,7 +3114,6 @@ begin
   CheckEquals(WideString(obj.ToString), outWStr);
   obj.Free;
 end;
-{$ENDIF}
 
 procedure TTestFromObject.TestObjectToClass;
 var
@@ -3284,7 +3160,6 @@ begin
   obj.Free;
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromObject.TestObjectToNullableWideString;
 var
   outValue: TValue;
@@ -3314,7 +3189,6 @@ begin
   CheckEquals(AnsiString(obj.ToString), outNullable.Value);
   obj.Free;
 end;
-{$ENDIF}
 
 {$ENDREGION}
 
@@ -3399,7 +3273,6 @@ begin
   CheckEquals('1', outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromNullable.TestNullableIntegerToAnsiString;
 var
   outValue: TValue;
@@ -3423,7 +3296,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEquals('1', outWStr);
 end;
-{$ENDIF}
 
 procedure TTestFromNullable.TestNullableFloatToString;
 var
@@ -3492,7 +3364,6 @@ begin
   CheckEquals(1, outInt);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromNullable.TestNullableFloatToAnsiString;
 var
   outValue: TValue;
@@ -3528,7 +3399,6 @@ begin
   CheckTrue(outValue.TryAsType<AnsiString>(outAStr));
   CheckEquals(AnsiString('1'), outAStr);
 end;
-{$ENDIF}
 
 procedure TTestFromNullable.TestNullableSmallIntToFloat;
 var
@@ -3602,7 +3472,6 @@ begin
   CheckEquals('1', outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromNullable.TestNullableSmallIntToWideString;
 var
   outValue: TValue;
@@ -3626,7 +3495,6 @@ begin
   CheckTrue(outValue.TryAsType<AnsiString>(outAStr));
   CheckEquals(AnsiString('1'), outAStr);
 end;
-{$ENDIF}
 
 procedure TTestFromNullable.TestNullableShortIntToFloat;
 var
@@ -3700,7 +3568,6 @@ begin
   CheckEquals('1', outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromNullable.TestNullableShortIntToWideString;
 var
   outValue: TValue;
@@ -3724,7 +3591,6 @@ begin
   CheckTrue(outValue.TryAsType<AnsiString>(outAStr));
   CheckEquals(AnsiString('1'), outAStr);
 end;
-{$ENDIF}
 
 procedure TTestFromNullable.TestNullableCardinalToFloat;
 var
@@ -3798,7 +3664,6 @@ begin
   CheckEquals('1', outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromNullable.TestNullableCardinalToWideString;
 var
   outValue: TValue;
@@ -3810,7 +3675,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEquals('1', outWStr);
 end;
-{$ENDIF}
 
 procedure TTestFromNullable.TestNullableStringToFloat;
 var
@@ -3898,7 +3762,6 @@ begin
   CheckEquals(TimeToStr(stamp), outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromNullable.TestNullableAnsiStringToShortInt;
 var
   outValue: TValue;
@@ -4070,7 +3933,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEquals(WideString(TimeToStr(stamp)), outWStr);
 end;
-{$ENDIF !NEXTGEN}
 
 procedure TTestFromNullable.TestNullableDateTimeToString;
 var
@@ -4100,7 +3962,6 @@ begin
   CheckEquals(DateToStr(stamp), outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromNullable.TestNullableDateTimeToAnsiString;
 var
   outValue: TValue;
@@ -4156,7 +4017,6 @@ begin
   CheckTrue(outValue.TryAsType<WideString>(outWStr));
   CheckEquals(WideString(DateToStr(stamp)), outWStr);
 end;
-{$ENDIF}
 
 {$IFNDEF SPRING_DISABLE_GRAPHICS}
 procedure TTestFromNullable.TestNullableColorToString;
@@ -4171,7 +4031,6 @@ begin
   CheckEquals(RedString, outStr);
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromNullable.TestNullableColorToAnsiString;
 var
   outValue: TValue;
@@ -4196,14 +4055,12 @@ begin
   CheckEquals(WideString('clRed'), outWStr);
 end;
 {$ENDIF}
-{$ENDIF}
 
 {$ENDREGION}
 
 
 {$REGION 'TTestFromWideString'}
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromWideString.SetUp;
 begin
   inherited;
@@ -4271,7 +4128,7 @@ begin
     TypeInfo(TDateTime));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<TDateTime>(outStamp));
-  CheckEqualsString(DateTimeToStr(stamp), DateTimeToStr(outStamp));
+  CheckEqualsString(DateTimeToStr(stamp), FormatDateTime('ddddd tt', outStamp));
 end;
 
 procedure TTestFromWideString.TestWStringToDateTimeF;
@@ -4438,7 +4295,7 @@ begin
     TypeInfo(Nullable<TDateTime>));
   CheckFalse(outValue.IsEmpty);
   CheckTrue(outValue.TryAsType<Nullable<TDateTime>>(outNullable));
-  CheckEqualsString(DateTimeToStr(stamp), DateTimeToStr(outNullable.Value));
+  CheckEqualsString(DateTimeToStr(stamp), FormatDateTime('ddddd tt', outNullable.Value));
 end;
 
 procedure TTestFromWideString.TestWStringToNullableFloat;
@@ -4686,7 +4543,6 @@ begin
   CheckTrue(outValue.TryAsType<TTime>(outStamp));
   CheckEqualsString('15:22:35', FormatDateTime('hh:mm:ss', outStamp));
 end;
-{$ENDIF}
 
 {$ENDREGION}
 
@@ -4792,7 +4648,6 @@ begin
   fConverter := TValueConverter.Default;
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromDate.TestDateToAnsiString;
 var
   outValue: TValue;
@@ -4848,7 +4703,6 @@ begin
   CheckTrue(outValue.TryAsType<Nullable<WideString>>(outNullable));
   CheckEqualsString(DateToStr(stamp), outNullable.Value);
 end;
-{$ENDIF}
 
 procedure TTestFromDate.TestDateToNullableString;
 var
@@ -4906,7 +4760,6 @@ begin
   fConverter := TValueConverter.Default;
 end;
 
-{$IFNDEF NEXTGEN}
 procedure TTestFromTime.TestTimeToAnsiString;
 var
   outValue: TValue;
@@ -4962,7 +4815,6 @@ begin
   CheckTrue(outValue.TryAsType<Nullable<WideString>>(outNullable));
   CheckEqualsString(TimeToStr(stamp), outNullable.Value);
 end;
-{$ENDIF}
 
 procedure TTestFromTime.TestTimeToNullableString;
 var

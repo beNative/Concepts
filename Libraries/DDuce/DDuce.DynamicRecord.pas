@@ -2738,7 +2738,6 @@ end;
 { Creates an TValue instance on the fly which wraps the actual value. }
 function TDynamicRecord<T>.GetItemValue(const AName: string): TValue;
 var
-  V         : TValue;
   LType     : TRttiType;
   LProperty : TRttiProperty;
 begin
@@ -2757,7 +2756,6 @@ end;
 
 procedure TDynamicRecord<T>.SetItemValue(const AName: string; const AValue: TValue);
 var
-  V         : TValue;
   LType     : TRttiType;
   LProperty : TRttiProperty;
 begin
@@ -2796,12 +2794,10 @@ function TDynamicRecord<T>.ToString(AAlignValues: Boolean): string;
 var
   I  : Integer;
   N  : Integer;
-  L  : Integer;
   S  : string;
   U  : string;
   SL : TStringList;
 begin
-  N := 0;
   SL := TStringList.Create;
   try
     N := 30;

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -220,7 +220,7 @@ begin
   with FTVP.ColumnDefinitions.Add('Text', 600) do
   begin
     ValuePropertyName := 'Text';
-    Font.Assign(View.Editor.Font);
+    Font.Assign(View.Editor.Fonts.Text);
     Font.Size := 8;
   end;
   InitializeComponents;
@@ -574,7 +574,7 @@ begin
     L := TLine(FTVP.SelectedItem);
     if Assigned(L) then
       //View.SearchAndSelectLine(L.Index, L.Text);
-      View.Editor.GotoLineAndCenter(L.Index);
+      View.Editor.GoToLineAndSetPosition(L.Index);
     FUpdateEditorView := False;
   end;
 end;

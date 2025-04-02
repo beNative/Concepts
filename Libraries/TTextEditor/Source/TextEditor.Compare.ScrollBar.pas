@@ -1,17 +1,20 @@
 ﻿unit TextEditor.Compare.ScrollBar;
 
+{$I TextEditor.Defines.inc}
+
 interface
 
 uses
-  Winapi.Messages, System.Classes, System.Types, Vcl.Controls, TextEditor
-{$IFDEF ALPHASKINS}, acSBUtils, sCommonData{$ENDIF};
+  Winapi.Messages, System.Classes, System.Types, Vcl.Controls, Vcl.Forms, TextEditor
+{$IFDEF ALPHASKINS}
+  , acSBUtils, sCommonData
+{$ENDIF};
 
 type
+  [ComponentPlatformsAttribute(pidWin32 or pidWin64)]
   TTextEditorCompareScrollBar = class(TCustomControl)
   strict private
-{$IFDEF ALPHASKINS}
-    FSkinData: TsScrollWndData;
-{$ENDIF}
+    FBorderStyle: TBorderStyle;
     FEditorLeft: TTextEditor;
     FEditorRight: TTextEditor;
     FMouseDownY: Integer;
@@ -21,6 +24,7 @@ type
     FScrollBarTopLine: Integer;
 {$IFDEF ALPHASKINS}
     FScrollWnd: TacScrollWnd;
+    FSkinData: TsScrollWndData;
 {$ENDIF}
     FScrollBarVisible: Boolean;
     FSystemMetricsCYDRAG: Integer;
@@ -29,6 +33,7 @@ type
     procedure DoOnScrollBarClick(const Y: Integer);
     procedure DragMinimap(const AY: Integer);
     procedure FillRect(const ARect: TRect);
+    procedure SetBorderStyle(const AValue: TBorderStyle);
     procedure SetEditorLeft(const AEditor: TTextEditor);
     procedure SetTopLine(const AValue: Integer);
     procedure WMEraseBkgnd(var AMessage: TWMEraseBkgnd); message WM_ERASEBKGND;
@@ -55,6 +60,8 @@ type
     property TopLine: Integer read FTopLine write SetTopLine;
   published
     property Align;
+    property BorderStyle: TBorderStyle read FBorderStyle write SetBorderStyle default bsSingle;
+    property BorderWidth;
     property EditorLeft: TTextEditor read FEditorLeft write SetEditorLeft;
     property EditorRight: TTextEditor read FEditorRight write FEditorRight;
     property ScrollBarVisible: Boolean read FScrollBarVisible write FScrollBarVisible default False;
@@ -63,9 +70,10 @@ type
 implementation
 
 uses
-  Winapi.Windows, System.Math, System.SysUtils, System.UITypes, Vcl.Forms, Vcl.Graphics, TextEditor.Consts,
-  TextEditor.Types
-{$IFDEF ALPHASKINS}, Winapi.CommCtrl, sConst, sMessages, sStyleSimply, sVCLUtils{$ENDIF};
+  Winapi.Windows, System.Math, System.SysUtils, System.UITypes, Vcl.Graphics, TextEditor.Consts, TextEditor.Types
+{$IFDEF ALPHASKINS}
+  , Winapi.CommCtrl, sConst, sMessages, sStyleSimply, sVCLUtils
+{$ENDIF};
 
 constructor TTextEditorCompareScrollBar.Create(AOwner: TComponent);
 begin
@@ -76,6 +84,7 @@ begin
 
   inherited Create(AOwner);
 
+  FBorderStyle := bsSingle;
   FScrollBarVisible := False;
   Color := TColors.SysWindow;
   DoubleBuffered := False;
@@ -85,7 +94,8 @@ end;
 
 procedure TTextEditorCompareScrollBar.CreateParams(var AParams: TCreateParams);
 const
-  LClassStylesOff = CS_VREDRAW or CS_HREDRAW;
+  ClassStylesOff = CS_VREDRAW or CS_HREDRAW;
+  BorderStyles: array[TBorderStyle] of DWORD = (0, WS_BORDER);
 begin
   StrDispose(WindowText);
   WindowText := nil;
@@ -94,10 +104,10 @@ begin
 
   with AParams do
   begin
-    WindowClass.Style := WindowClass.Style and not LClassStylesOff;
-    Style := Style or WS_BORDER or WS_CLIPCHILDREN;
+    WindowClass.Style := WindowClass.Style and not ClassStylesOff;
+    Style := Style or BorderStyles[FBorderStyle];
 
-    if NewStyleControls and Ctl3D then
+    if NewStyleControls and Ctl3D and (FBorderStyle = bsSingle) then
     begin
       Style := Style and not WS_BORDER;
       ExStyle := ExStyle or WS_EX_CLIENTEDGE;
@@ -113,6 +123,7 @@ begin
     FScrollWnd.Free;
     FScrollWnd := nil;
   end;
+
   if Assigned(FSkinData) then
   begin
     FSkinData.Free;
@@ -126,6 +137,7 @@ end;
 procedure TTextEditorCompareScrollBar.AfterConstruction;
 begin
   inherited AfterConstruction;
+
 {$IFDEF ALPHASKINS}
   if HandleAllocated then
     RefreshEditScrolls(SkinData, FScrollWnd);
@@ -188,7 +200,7 @@ begin
     Exit;
 
   LClipRect := ClientRect;
-  Canvas.Brush.Color := FEditorLeft.Colors.Background;
+  Canvas.Brush.Color := FEditorLeft.Colors.EditorBackground;
   FillRect(LClipRect);
 
   if FEditorLeft.Lines.Count <> FEditorRight.Lines.Count then
@@ -202,7 +214,7 @@ begin
   Canvas.Pen.Color := TDefaultColors.Red;
 
   LLine := 1;
-  LHalfWidth := ClientWidth div 2;
+  LHalfWidth := ClientWidth shr 1;
 
   for LIndex := FScrollBarTopLine to Min(FScrollBarTopLine + ClientHeight, FEditorLeft.Lines.Count - 1) do
   begin
@@ -260,6 +272,7 @@ begin
 
   if Assigned(FEditorLeft) then
     FVisibleLines := FEditorLeft.VisibleLineCount;
+
   UpdateScrollBars;
 
   inherited Invalidate;
@@ -268,6 +281,16 @@ end;
 procedure TTextEditorCompareScrollBar.WMSize(var AMessage: TWMSize);
 begin
   Invalidate;
+end;
+
+procedure TTextEditorCompareScrollBar.SetBorderStyle(const AValue: TBorderStyle);
+begin
+  if FBorderStyle <> AValue then
+  begin
+    FBorderStyle := AValue;
+
+    RecreateWnd;
+  end;
 end;
 
 procedure TTextEditorCompareScrollBar.SetEditorLeft(const AEditor: TTextEditor);
@@ -294,6 +317,7 @@ begin
 
     LScrollInfo.nMin := 1;
     LScrollInfo.nTrackPos := 0;
+
     if LVerticalMaxScroll <= TMaxValues.ScrollRange then
     begin
       LScrollInfo.nMax := Max(1, LVerticalMaxScroll);
@@ -327,11 +351,12 @@ begin
 
   LValue := Min(AValue, FEditorLeft.LineNumbersCount - FVisibleLines + 1);
   LValue := Max(LValue, 1);
+
   if FTopLine <> LValue then
   begin
     FTopLine := LValue;
-
     FScrollBarTopLine := 1;
+
     if Assigned(FEditorLeft) then
       FScrollBarTopLine := Max(FTopLine - Abs(Trunc((ClientHeight - FVisibleLines) *
         (FTopLine / Max(FEditorLeft.LineNumbersCount - FVisibleLines, 1)))), 1);
@@ -407,12 +432,14 @@ begin
     TopLine := LNewLine
   else
   begin
-    LNewLine := LNewLine - FVisibleLines div 2;
+    LNewLine := LNewLine - FVisibleLines shr 1;
     LStep := Abs(LNewLine - TopLine) div 5;
+
     if LNewLine < TopLine then
     while LNewLine < TopLine - LStep do
     begin
       TopLine := TopLine - LStep;
+
       if TopLine = LPreviousLine then
         Break
       else
@@ -424,6 +451,7 @@ begin
     while LNewLine > TopLine + LStep do
     begin
       TopLine := TopLine + LStep;
+
       if TopLine = LPreviousLine then
         Break
       else
@@ -431,8 +459,10 @@ begin
 
       Invalidate;
     end;
+
     TopLine := LNewLine;
   end;
+
   FScrollBarOffsetY := LNewLine - TopLine;
 end;
 
@@ -443,9 +473,12 @@ begin
   LTemp := FEditorLeft.LineNumbersCount - ClientHeight;
   LTemp2 := Max(AY - FScrollBarOffsetY, 0);
   FScrollBarTopLine := Max(1, Trunc((LTemp / Max(ClientHeight - FVisibleLines, 1)) * LTemp2));
+
   if (LTemp > 0) and (FScrollBarTopLine > LTemp) then
     FScrollBarTopLine := LTemp;
+
   LTopLine := Max(1, FScrollBarTopLine + LTemp2);
+
   if TopLine <> LTopLine then
   begin
     TopLine := LTopLine;
@@ -480,6 +513,7 @@ begin
     SB_THUMBPOSITION, SB_THUMBTRACK:
       begin
         LLineNumbersCount := Max(FEditorLeft.LineNumbersCount, FEditorRight.LineNumbersCount);
+
         if LLineNumbersCount > TMaxValues.ScrollRange then
           TopLine := MulDiv(FVisibleLines + LLineNumbersCount - 1, AMessage.Pos, TMaxValues.ScrollRange)
         else
@@ -516,6 +550,7 @@ begin
           FreeAndNil(FScrollWnd);
           RecreateWnd;
         end;
+
         Exit;
       end;
     AC_REFRESH:
@@ -554,6 +589,7 @@ begin
         begin
           if not InUpdating(FSkinData, True) then
             Perform(WM_NCPAINT, 0, 0);
+
           Exit;
         end;
     end;

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ uses
 
   Spring,
 
-  VirtualTrees, VirtualTrees.Types, VirtualTrees.Header;
+  VirtualTrees, VirtualTrees.BaseTree, VirtualTrees.Types, VirtualTrees.Header;
 
 { TVSTOptions is a settings container which holds the most commonly adjusted
   properties of the TVirtualStringTree component.

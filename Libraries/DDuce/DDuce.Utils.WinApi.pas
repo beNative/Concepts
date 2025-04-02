@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,6 +28,12 @@ uses
 
 type
   TProcessId = DWORD;
+
+function GetComputerName: string;
+
+function GetProcessName: string;
+
+function GetProcessID: UInt32;
 
 function GetTotalCpuUsagePct : Double;
 
@@ -439,6 +445,18 @@ begin
   Result := ExtractFileName(Result)
 end;
 
+function GetComputerName: string;
+var
+  Buffer: array[0..MAX_COMPUTERNAME_LENGTH + 1] of Char;
+  Size: DWORD;
+begin
+  Size := MAX_COMPUTERNAME_LENGTH + 1;
+  if Winapi.Windows.GetComputerName(Buffer, Size) then
+    Result := StrPas(Buffer)
+  else
+    RaiseLastOSError;
+end;
+
 function GetExenameForWindow(AWndHandle: HWND): string;
 var
   LProcessID : TProcessId;
@@ -450,6 +468,21 @@ begin
     if LProcessID <> 0 then
       Result := GetExenameForProcess(LProcessID);
   end;
+end;
+
+function GetProcessName: string;
+var
+  Buffer: array[0..MAX_PATH] of Char;
+begin
+  if GetModuleFileName(0, Buffer, MAX_PATH) > 0 then
+    Result := ExtractFileName(StrPas(Buffer))
+  else
+    RaiseLastOSError;
+end;
+
+function GetProcessID: UInt32;
+begin
+  Result := GetCurrentProcessId;
 end;
 
 procedure GetIPAddresses(AStrings: TStrings);
@@ -1033,61 +1066,6 @@ begin
   end;
 end;
 {$ENDREGION}
-
-{
-uses
-  SysUtils,
-  ActiveX,
-  ComObj,
-  Variants;
-
-// Serial Port Name
-
-procedure  GetMSSerial_PortNameInfo;
-const
-  wbemFlagForwardOnly = $00000020;
-var
-  FSWbemLocator : OLEVariant;
-  FWMIService   : OLEVariant;
-  FWbemObjectSet: OLEVariant;
-  FWbemObject   : OLEVariant;
-  oEnum         : IEnumvariant;
-  iValue        : LongWord;
-begin;
-  FSWbemLocator := CreateOleObject('WbemScripting.SWbemLocator');
-  FWMIService   := FSWbemLocator.ConnectServer('localhost', 'root\WMI', '', '');
-  FWbemObjectSet:= FWMIService.ExecQuery('SELECT * FROM MSSerial_PortName','WQL',wbemFlagForwardOnly);
-  oEnum         := IUnknown(FWbemObjectSet._NewEnum) as IEnumVariant;
-  while oEnum.Next(1, FWbemObject, iValue) = 0 do
-  begin
-    Writeln(Format('Active          %s',[FWbemObject.Active]));// Boolean
-    Writeln(Format('InstanceName    %s',[FWbemObject.InstanceName]));// String
-    Writeln(Format('PortName        %s',[FWbemObject.PortName]));// String
-
-    Writeln('');
-    FWbemObject:=Unassigned;
-  end;
-end;
-
-
-begin
- try
-    CoInitialize(nil);
-    try
-      GetMSSerial_PortNameInfo;
-      Readln;
-    finally
-    CoUninitialize;
-    end;
- except
-    on E:Exception do
-    begin
-        Writeln(E.Classname, ':', E.Message);
-        Readln;
-    end;
-  end;
-end.
-}
 
 initialization
   LatestProcessCpuUsageCache := TProcessCpuUsageList.Create([doOwnsValues]);

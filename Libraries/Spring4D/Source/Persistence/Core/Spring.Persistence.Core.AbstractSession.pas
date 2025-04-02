@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -30,14 +30,12 @@ interface
 
 uses
   Rtti,
-  TypInfo,
   Spring,
   Spring.Collections,
   Spring.Persistence.Core.EntityCache,
   Spring.Persistence.Core.Interfaces,
   Spring.Persistence.Mapping.Attributes,
-  Spring.Persistence.SQL.Params,
-  Spring.Reflection;
+  Spring.Persistence.SQL.Params;
 
 type
   TAbstractSession = class
@@ -166,6 +164,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  TypInfo,
   Variants,
   Spring.Persistence.Core.EntityMap,
   Spring.Persistence.Core.EntityWrapper,
@@ -174,7 +173,8 @@ uses
   Spring.Persistence.SQL.Commands.Delete,
   Spring.Persistence.SQL.Commands.Insert,
   Spring.Persistence.SQL.Commands.Select,
-  Spring.Persistence.SQL.Commands.Update;
+  Spring.Persistence.SQL.Commands.Update,
+  Spring.Reflection;
 
 
 {$REGION 'TAbstractSession'}
@@ -375,9 +375,8 @@ end;
 procedure TAbstractSession.RegisterNonGenericRowMapper(entityClass: TClass;
   const rowMapper: IRowMapper);
 begin
-  if fRowMappers.ContainsKey(entityClass) then
+  if not fRowMappers.TryAdd(entityClass, rowMapper) then
     raise EORMRowMapperAlreadyRegistered.CreateFmt('Row Mapper already registered for type: %s', [entityClass.ClassName]);
-  fRowMappers.Add(entityClass, rowMapper);
 end;
 
 function TAbstractSession.ResolveLazyInterface(const id: TValue;
@@ -386,35 +385,19 @@ function TAbstractSession.ResolveLazyInterface(const id: TValue;
 var
   entityClass: TClass;
   capturedId: TValue;
-  factory: TFunc<IInterface>;
-{$IFDEF AUTOREFCOUNT}
-  capturedSelf: Pointer;
-  capturedEntity: Pointer;
-{$ENDIF}
+  factory: Func<IInterface>;
 begin
   if not interfaceType.IsGenericTypeOf('IEnumerable<>') then
     raise EORMUnsupportedType.CreateFmt('Unsupported type: %s', [interfaceType.Name]);
   entityClass := interfaceType.GetGenericArguments[0].AsInstance.MetaclassType;
 
-  // Break reference held by the anonymous function closure (RSP-10176).
-  // Do not use __ObjRelease but use unsafe pointer here, if the lazy is
-  // released before TAbstractSession, it would destroy it.
-{$IFDEF AUTOREFCOUNT}
-  capturedSelf := Self;
-  capturedEntity := entity;
-{$ENDIF}
   capturedId := id;
   factory :=
     function: IInterface
     begin
-{$IFDEF AUTOREFCOUNT}
-      with TAbstractSession(capturedSelf) do
-{$ENDIF}
-        Result := GetLazyValueAsInterface(capturedId,
-          {$IFNDEF AUTOREFCOUNT}entity,{$ELSE}capturedEntity,{$ENDIF}
-          column, entityClass);
+      Result := GetLazyValueAsInterface(capturedId, entity, column, entityClass);
     end;
-  Result := TValue.From<Lazy<IInterface>>(TLazy<IInterface>.Create(factory));
+  Result := TValue.From<Lazy<IInterface>>(Lazy<IInterface>.Create(factory));
 end;
 
 function TAbstractSession.ResolveLazyObject(const id: TValue;
@@ -422,30 +405,15 @@ function TAbstractSession.ResolveLazyObject(const id: TValue;
   const column: ColumnAttribute): TValue;
 var
   capturedId: TValue;
-  factory: TFunc<TObject>;
-{$IFDEF AUTOREFCOUNT}
-  capturedSelf: Pointer;
-  capturedEntity: Pointer;
-{$ENDIF}
+  factory: Func<TObject>;
 begin
-  // Break reference held by the anonymous function closure (RSP-10176).
-  // See above for details.
-{$IFDEF AUTOREFCOUNT}
-  capturedSelf := Self;
-  capturedEntity := entity;
-{$ENDIF}
   capturedId := id;
   factory :=
     function: TObject
     begin
-{$IFDEF AUTOREFCOUNT}
-      with TAbstractSession(capturedSelf) do
-{$ENDIF}
-        Result := GetLazyValueAsObject(capturedId,
-          {$IFNDEF AUTOREFCOUNT}entity,{$ELSE}capturedEntity,{$ENDIF}
-          column, entityClass);
+      Result := GetLazyValueAsObject(capturedId, entity, column, entityClass);
     end;
-  Result := TValue.From<Lazy<TObject>>(TLazy<TObject>.Create(factory, True));
+  Result := TValue.From<Lazy<TObject>>(Lazy<TObject>.Create(factory, True));
 end;
 
 function TAbstractSession.GetResultSet(const sql: string;

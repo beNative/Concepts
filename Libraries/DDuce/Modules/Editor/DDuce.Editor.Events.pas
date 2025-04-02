@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -49,23 +49,23 @@ type
 
   protected
     {$REGION 'property access methods'}
-    function GetOnOpen: IEvent<TStorageEvent>;
-    function GetOnAfterSave: IEvent<TStorageEvent>;
-    function GetOnBeforeSave: IEvent<TStorageEvent>;
+    function GetOnOpen: IInvokableEvent<TStorageEvent>;
+    function GetOnAfterSave: IInvokableEvent<TStorageEvent>;
+    function GetOnBeforeSave: IInvokableEvent<TStorageEvent>;
     function GetView: IEditorView;
-    function GetOnAddEditorView: IEvent<TEditorViewEvent>;
-    function GetOnHideEditorToolView: IEvent<TEditorToolViewEvent>;
-    function GetOnNew: IEvent<TNewEvent>;
-    function GetOnLoad: IEvent<TStorageEvent>;
-    function GetOnOpenOtherInstance: IEvent<TOpenOtherInstanceEvent>;
-    function GetOnSave: IEvent<TStorageEvent>;
-    function GetOnShowEditorToolView: IEvent<TEditorToolViewEvent>;
+    function GetOnAddEditorView: IInvokableEvent<TEditorViewEvent>;
+    function GetOnHideEditorToolView: IInvokableEvent<TEditorToolViewEvent>;
+    function GetOnNew: IInvokableEvent<TNewEvent>;
+    function GetOnLoad: IInvokableEvent<TStorageEvent>;
+    function GetOnOpenOtherInstance: IInvokableEvent<TOpenOtherInstanceEvent>;
+    function GetOnSave: IInvokableEvent<TStorageEvent>;
+    function GetOnShowEditorToolView: IInvokableEvent<TEditorToolViewEvent>;
 //    function GetOnStatusChange: TStatusChangeEvent;
-    function GetOnActionExecute: IEvent<TActionExecuteEvent>;
-    function GetOnCaretPositionChange: IEvent<TCaretPositionEvent>;
-    function GetOnActiveViewChange: IEvent<TNotifyEvent>;
-    function GetOnChange: IEvent<TNotifyEvent>;
-    function GetOnModified: IEvent<TNotifyEvent>;
+    function GetOnActionExecute: IInvokableEvent<TActionExecuteEvent>;
+    function GetOnCaretPositionChange: IInvokableEvent<TCaretPositionEvent>;
+    function GetOnActiveViewChange: IInvokableEvent<TNotifyEvent>;
+    function GetOnChange: IInvokableEvent<TNotifyEvent>;
+    function GetOnModified: IInvokableEvent<TNotifyEvent>;
     {$ENDREGION}
 
     {$REGION 'event dispatch methods'}
@@ -90,50 +90,50 @@ type
     );
     {$ENDREGION}
 
-    property OnAddEditorView: IEvent<TEditorViewEvent>
+    property OnAddEditorView: IInvokableEvent<TEditorViewEvent>
       read GetOnAddEditorView;
 
-    property OnShowEditorToolView: IEvent<TEditorToolViewEvent>
+    property OnShowEditorToolView: IInvokableEvent<TEditorToolViewEvent>
       read GetOnShowEditorToolView;
 
-    property OnHideEditorToolView: IEvent<TEditorToolViewEvent>
+    property OnHideEditorToolView: IInvokableEvent<TEditorToolViewEvent>
       read GetOnHideEditorToolView;
 
 //    property OnStatusChange: TStatusChangeEvent
 //      read GetOnStatusChange write SetOnStatusChange;
 
     { Called when content is loaded into the editor's buffer. }
-    property OnLoad: IEvent<TStorageEvent>
+    property OnLoad: IInvokableEvent<TStorageEvent>
       read GetOnLoad;
 
     { Called when the 'New' action is executed by user }
-    property OnNew: IEvent<TNewEvent>
+    property OnNew: IInvokableEvent<TNewEvent>
       read GetOnNew;
 
     { Called when the editor's content is about to be saved. }
-    property OnSave: IEvent<TStorageEvent>
+    property OnSave: IInvokableEvent<TStorageEvent>
       read GetOnSave;
 
     { Called when the 'Open file' action is executed by user. }
-    property OnOpen: IEvent<TStorageEvent>
+    property OnOpen: IInvokableEvent<TStorageEvent>
       read GetOnOpen;
 
-    property OnOpenOtherInstance: IEvent<TOpenOtherInstanceEvent>
+    property OnOpenOtherInstance: IInvokableEvent<TOpenOtherInstanceEvent>
       read GetOnOpenOtherInstance;
 
-    property OnChange: IEvent<TNotifyEvent>
+    property OnChange: IInvokableEvent<TNotifyEvent>
       read GetOnChange;
 
-    property OnModified: IEvent<TNotifyEvent>
+    property OnModified: IInvokableEvent<TNotifyEvent>
       read GetOnModified;
 
-    property OnActiveViewChange: IEvent<TNotifyEvent>
+    property OnActiveViewChange: IInvokableEvent<TNotifyEvent>
       read GetOnActiveViewChange;
 
-    property OnActionExecute: IEvent<TActionExecuteEvent>
+    property OnActionExecute: IInvokableEvent<TActionExecuteEvent>
       read GetOnActionExecute;
 
-    property OnCaretPositionChange: IEvent<TCaretPositionEvent>
+    property OnCaretPositionChange: IInvokableEvent<TCaretPositionEvent>
       read GetOnCaretPositionChange;
 
     property View: IEditorView
@@ -164,27 +164,27 @@ end;
 {$ENDREGION}
 
 {$REGION 'property access mehods'}
-function TEditorEvents.GetOnOpen: IEvent<TStorageEvent>;
+function TEditorEvents.GetOnOpen: IInvokableEvent<TStorageEvent>;
 begin
   Result := FOnOpen;
 end;
 
-function TEditorEvents.GetOnAfterSave: IEvent<TStorageEvent>;
+function TEditorEvents.GetOnAfterSave: IInvokableEvent<TStorageEvent>;
 begin
   Result := FOnAfterSave;
 end;
 
-function TEditorEvents.GetOnBeforeSave: IEvent<TStorageEvent>;
+function TEditorEvents.GetOnBeforeSave: IInvokableEvent<TStorageEvent>;
 begin
   Result := FOnBeforeSave;
 end;
 
-function TEditorEvents.GetOnCaretPositionChange: IEvent<TCaretPositionEvent>;
+function TEditorEvents.GetOnCaretPositionChange: IInvokableEvent<TCaretPositionEvent>;
 begin
   Result := FOnCaretPositionChange;
 end;
 
-function TEditorEvents.GetOnChange: IEvent<TNotifyEvent>;
+function TEditorEvents.GetOnChange: IInvokableEvent<TNotifyEvent>;
 begin
   Result := FOnChange;
 end;
@@ -194,52 +194,52 @@ begin
   Result := FManager as IEditorView;
 end;
 
-function TEditorEvents.GetOnActionExecute: IEvent<TActionExecuteEvent>;
+function TEditorEvents.GetOnActionExecute: IInvokableEvent<TActionExecuteEvent>;
 begin
   Result := FOnActionExecute;
 end;
 
-function TEditorEvents.GetOnActiveViewChange: IEvent<TNotifyEvent>;
+function TEditorEvents.GetOnActiveViewChange: IInvokableEvent<TNotifyEvent>;
 begin
   Result := FOnActiveViewChange;
 end;
 
-function TEditorEvents.GetOnAddEditorView: IEvent<TEditorViewEvent>;
+function TEditorEvents.GetOnAddEditorView: IInvokableEvent<TEditorViewEvent>;
 begin
   Result := FOnAddEditorView;
 end;
 
-function TEditorEvents.GetOnHideEditorToolView: IEvent<TEditorToolViewEvent>;
+function TEditorEvents.GetOnHideEditorToolView: IInvokableEvent<TEditorToolViewEvent>;
 begin
   Result := FOnHideEditorToolView;
 end;
 
-function TEditorEvents.GetOnNew: IEvent<TNewEvent>;
+function TEditorEvents.GetOnNew: IInvokableEvent<TNewEvent>;
 begin
   Result := FOnNew;
 end;
 
-function TEditorEvents.GetOnOpenOtherInstance: IEvent<TOpenOtherInstanceEvent>;
+function TEditorEvents.GetOnOpenOtherInstance: IInvokableEvent<TOpenOtherInstanceEvent>;
 begin
   Result := FOnOpenOtherInstance;
 end;
 
-function TEditorEvents.GetOnSave: IEvent<TStorageEvent>;
+function TEditorEvents.GetOnSave: IInvokableEvent<TStorageEvent>;
 begin
   Result := FOnSave;
 end;
 
-function TEditorEvents.GetOnLoad: IEvent<TStorageEvent>;
+function TEditorEvents.GetOnLoad: IInvokableEvent<TStorageEvent>;
 begin
   Result := FOnLoad;
 end;
 
-function TEditorEvents.GetOnModified: IEvent<TNotifyEvent>;
+function TEditorEvents.GetOnModified: IInvokableEvent<TNotifyEvent>;
 begin
   Result := FOnModified;
 end;
 
-function TEditorEvents.GetOnShowEditorToolView: IEvent<TEditorToolViewEvent>;
+function TEditorEvents.GetOnShowEditorToolView: IInvokableEvent<TEditorToolViewEvent>;
 begin
   Result := FOnShowEditorToolView;
 end;

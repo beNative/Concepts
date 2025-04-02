@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,62 +29,84 @@ unit Spring.Collections.Events;
 interface
 
 uses
+  Classes,
   Spring,
   Spring.Collections,
   Spring.Events.Base;
 
+{$IFDEF DELPHIXE6_UP}{$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS(FieldVisibility)}{$ENDIF}
+
 type
-  TCollectionChangedEventImpl<T> = class(TEventBase, ICollectionChangedEvent<T>)
+  TCollectionChangedEventImpl<T> = class(TEventBase, IEvent, ICollectionChangedEvent<T>)
+{$IFDEF INVOKABLE_EVENT}
   private
     function GetInvoke: TCollectionChangedEvent<T>;
-    procedure Add(handler: TCollectionChangedEvent<T>);
-    procedure Remove(handler: TCollectionChangedEvent<T>);
-    procedure InternalInvoke(Sender: TObject; const Item: T;
-      Action: TCollectionChangedAction);
+{$ENDIF}
   public
-    constructor Create;
+    procedure AfterConstruction; override;
+    procedure Free;
+    procedure Add(handler: TCollectionChangedEvent<T>); overload; inline;
+    procedure Remove(handler: TCollectionChangedEvent<T>); overload; inline;
+    procedure Invoke(Sender: TObject; const Item: T; Action: TCollectionChangedAction);
+    property OnChanged: TNotifyEvent write fOnChanged;
   end;
 
 implementation
 
+uses
+  Spring.HazardEra;
+
 
 {$REGION 'TCollectionChangedEventImpl<T>'}
 
-constructor TCollectionChangedEventImpl<T>.Create;
+procedure TCollectionChangedEventImpl<T>.AfterConstruction;
 begin
-  inherited Create;
-  TCollectionChangedEvent<T>(fInvoke) := InternalInvoke;
+  TCollectionChangedEvent<T>(fInvoke) := Invoke;
+end;
+
+procedure TCollectionChangedEventImpl<T>.Free;
+begin
+  if Assigned(Self) then
+    _Release;
 end;
 
 procedure TCollectionChangedEventImpl<T>.Add(
   handler: TCollectionChangedEvent<T>);
 begin
-  inherited Add(TMethodPointer(handler));
+  inherited Add(TMethod(handler));
 end;
 
+{$IFDEF INVOKABLE_EVENT}
 function TCollectionChangedEventImpl<T>.GetInvoke: TCollectionChangedEvent<T>;
 begin
-  Result := TCollectionChangedEvent<T>(inherited Invoke);
+  Result := TCollectionChangedEvent<T>(fInvoke);
 end;
+{$ENDIF}
 
-procedure TCollectionChangedEventImpl<T>.InternalInvoke(Sender: TObject;
+procedure TCollectionChangedEventImpl<T>.Invoke(Sender: TObject;
   const Item: T; Action: TCollectionChangedAction);
 var
-  handler: TMethodPointer;
+  guard: GuardedPointer;
+  handlers: PMethodArray;
+  i: Integer;
 begin
-  // If you get exception at this location on NextGen and the handler is nil
-  // it is highly possible that the owner of the collection already released
-  // its weak references. To fix this, free the collection prior to freeing
-  // the object owning it (even if you're using interfaces).
-  if Enabled then
-    for handler in Handlers do
-      TCollectionChangedEvent<T>(handler)(Sender, Item, Action);
+  if CanInvoke then
+  begin
+    guard := GetHandlers;
+    handlers := guard;
+    try
+      for i := 0 to DynArrayHigh(handlers) do
+        TCollectionChangedEvent<T>(handlers[i])(Sender, Item, Action);
+    finally
+      guard.Release;
+    end;
+  end;
 end;
 
 procedure TCollectionChangedEventImpl<T>.Remove(
   handler: TCollectionChangedEvent<T>);
 begin
-  inherited Remove(TMethodPointer(handler));
+  inherited Remove(TMethod(handler));
 end;
 
 {$ENDREGION}

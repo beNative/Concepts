@@ -1,35 +1,41 @@
 inherited frmViewList: TfrmViewList
   Left = -916
   Top = 250
+  Margins.Left = 5
+  Margins.Top = 5
+  Margins.Right = 5
+  Margins.Bottom = 5
   Caption = 'Editor views'
   ClientHeight = 501
-  ClientWidth = 800
+  ClientWidth = 806
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -17
+  Font.Name = 'Segoe UI'
+  Font.Style = []
   PopupMode = pmAuto
   Position = poOwnerFormCenter
-  ExplicitWidth = 816
-  ExplicitHeight = 540
-  PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 23
   object pnlVST: TPanel
     Left = 0
     Top = 0
-    Width = 800
+    Width = 806
     Height = 464
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 1
   end
   object pnlBottom: TPanel
     Left = 0
     Top = 464
-    Width = 800
+    Width = 806
     Height = 37
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      800
+      806
       37)
     object btnClose: TButton
       Left = 676

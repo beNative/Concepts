@@ -6,82 +6,72 @@ procedure CheckIsLessThan10;
 procedure FilterList;
 procedure FlipCoins;
 
-
 implementation
 
 uses
-    Spring
-  , Spring.Collections
-  , Spring.Collections.Lists
-  ;
-
+  Spring,
+  Spring.Collections;
 
 procedure CheckIsLessThan10;
 var
-  IsLessThan10: TPredicate<integer>;
+  isLessThan10: Predicate<integer>;
   i: integer;
 begin
-  IsLessThan10 := function(const aValue: integer): Boolean
-                    begin
-                      Result := aValue < 10;
-                    end;
+  isLessThan10 :=
+    function(const aValue: integer): Boolean
+    begin
+      Result := aValue < 10;
+    end;
+
   Write('Enter an integer: ');
   Readln(i);
 
-  if IsLessThan10(i) then
-  begin
-    Writeln(i, ' is LESS THAN 10');
-  end else
-  begin
+  if isLessThan10(i) then
+    Writeln(i, ' is LESS THAN 10')
+  else
     Writeln(i, ' is GREATER THAN OR EQUAL to 10');
-  end;
 end;
 
 procedure FilterList;
 var
-  Temp: IEnumerable<integer>;
+  temp: IEnumerable<integer>;
   i: integer;
-  List: IList<integer>;
+  list: IList<integer>;
 begin
-  List := TList<integer>.Create;
-  List.Add(3);
-  List.Add(6);
-  List.Add(8);
-  List.Add(34);
-  List.Add(65);
-  List.Add(86);
+  list := TCollections.CreateList<Integer>;
+  list.Add(3);
+  list.Add(6);
+  list.Add(8);
+  list.Add(34);
+  list.Add(65);
+  list.Add(86);
 
-  Temp := List.TakeWhile(function(const aInt: integer): Boolean begin Result := aInt < 50; end);
-  for i in Temp do
-  begin
+  temp := list.TakeWhile(function(const aInt: integer): Boolean begin Result := aInt < 50; end);
+  for i in temp do
     WriteLn(i, ' is less than 50');
-  end;
-
 end;
 
 procedure FlipCoins;
 var
-  FlipResults: IList<integer>;
+  flipResults: IList<integer>;
   i: Integer;
-  TestTrue: TPredicate<integer>;
-  TheTrueOnes: IEnumerable<integer>;
+  testTrue: Predicate<integer>;
+  theTrueOnes: IEnumerable<integer>;
 const
   TotalFlips = 10000;
 begin
   Randomize;
 
-  FlipResults := TList<integer>.Create;
+  flipResults := TCollections.CreateList<Integer>;
   for i := 1 to TotalFlips do
+    flipResults.Add(Random(2));
+  testTrue :=
+    function(const aValue: integer): Boolean
     begin
-      FlipResults.Add(Random(2));
+      Result := aValue = 1;
     end;
-    TestTrue := function(const aValue: integer): Boolean
-                  begin
-                    Result := aValue = 1;
-                  end;
-    TheTrueOnes := FlipResults.Where(TestTrue);
-    Writeln('Total Heads: ', TheTrueOnes.Count, ' out of ', TotalFlips);
+  theTrueOnes := flipResults.Where(testTrue);
+  Writeln('Total Heads: ', theTrueOnes.Count, ' out of ', TotalFlips);
 end;
-
 
 end.

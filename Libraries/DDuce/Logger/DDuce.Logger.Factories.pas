@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ type
     class function CreateLogger: ILogger;
     class function CreateWinipcChannel: IWinipcChannel;
     class function CreateZmqChannel: IZmqChannel;
-    class function CreateMqttChannel: IMqttChannel;
+    class function CreateNatsChannel: INatsChannel;
     class function CreateLogFileChannel(AFileName: string = ''): ILogFileChannel;
 
   end;
@@ -37,16 +37,16 @@ implementation
 
 uses
   DDuce.Logger.Base, DDuce.Logger.Channels.Winipc, DDuce.Logger.Channels.Zmq,
-  {DDuce.Logger.Channels.Mqtt,} DDuce.Logger.Channels.LogFile;
+  DDuce.Logger.Channels.Nats, DDuce.Logger.Channels.LogFile;
 
 class function TLoggerFactories.CreateLogger: ILogger;
 begin
   Result := TLogger.Create;
 end;
 
-class function TLoggerFactories.CreateMqttChannel: IMqttChannel;
+class function TLoggerFactories.CreateNatsChannel: INatsChannel;
 begin
-//  Result := TMQTTChannel.Create;
+  Result := TNatsChannel.Create;
 end;
 
 class function TLoggerFactories.CreateWinipcChannel: IWinipcChannel;

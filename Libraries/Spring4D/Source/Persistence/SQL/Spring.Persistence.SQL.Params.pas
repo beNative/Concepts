@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -69,6 +69,7 @@ type
 implementation
 
 uses
+  Rtti, // H2443
   StrUtils,
   SysUtils,
   TypInfo,
@@ -80,7 +81,7 @@ uses
 constructor TDBParam.Create(const name: string; const value: TValue);
 begin
   inherited Create;
-  fName := AnsiUpperCase(name);
+  fName := name;
   if not StartsStr(':', fName) then
     fName := ':' + fName;
   fValue := value;
@@ -133,7 +134,7 @@ begin
       else if typeInfo = System.TypeInfo(TTime) then
         Result := ftTime
       else if typeInfo = System.TypeInfo(Currency) then
-        Result := ftCurrency
+        Result := ftFMTBcd
       else if typeInfo = System.TypeInfo(Extended) then
         Result := TFieldType.ftExtended
       else

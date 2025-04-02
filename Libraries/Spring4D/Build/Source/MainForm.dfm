@@ -5,7 +5,7 @@ object frmMain: TfrmMain
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Build Spring4d'
-  ClientHeight = 472
+  ClientHeight = 505
   ClientWidth = 513
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -338,19 +338,19 @@ object frmMain: TfrmMain
   OnDestroy = FormDestroy
   DesignSize = (
     513
-    472)
+    505)
   PixelsPerInch = 96
   TextHeight = 13
   object lblDetails: TLabel
     Left = 8
-    Top = 239
+    Top = 264
     Width = 36
     Height = 13
     Caption = '&Details:'
   end
   object btnBuild: TButton
     Left = 359
-    Top = 204
+    Top = 224
     Width = 146
     Height = 25
     Anchors = [akLeft, akTop, akRight]
@@ -361,9 +361,9 @@ object frmMain: TfrmMain
   end
   object mmoDetails: TMemo
     Left = 8
-    Top = 255
+    Top = 280
     Width = 497
-    Height = 184
+    Height = 192
     Anchors = [akLeft, akTop, akRight, akBottom]
     ReadOnly = True
     ScrollBars = ssBoth
@@ -373,7 +373,7 @@ object frmMain: TfrmMain
     Left = 8
     Top = 8
     Width = 345
-    Height = 225
+    Height = 241
     Caption = '&Targets'
     TabOrder = 0
     object lbTargets: TCheckListBox
@@ -381,7 +381,7 @@ object frmMain: TfrmMain
       Left = 10
       Top = 19
       Width = 325
-      Height = 200
+      Height = 214
       Margins.Left = 8
       Margins.Top = 4
       Margins.Right = 8
@@ -407,7 +407,7 @@ object frmMain: TfrmMain
   end
   object lblHomepage: TLinkLabel
     Left = 8
-    Top = 445
+    Top = 478
     Width = 113
     Height = 19
     Hint = 'Visit the home page'
@@ -422,13 +422,13 @@ object frmMain: TfrmMain
     Left = 359
     Top = 78
     Width = 146
-    Height = 89
+    Height = 109
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Build options'
     TabOrder = 2
     DesignSize = (
       146
-      89)
+      109)
     object chkRunTests: TCheckBox
       Left = 9
       Top = 21
@@ -470,10 +470,20 @@ object frmMain: TfrmMain
       TabOrder = 3
       OnClick = chkRunTestsAsConsoleClick
     end
+    object chkRunSilent: TCheckBox
+      Left = 9
+      Top = 89
+      Width = 128
+      Height = 17
+      Anchors = [akLeft, akTop, akRight]
+      Caption = 'Run &silent'
+      TabOrder = 4
+      OnClick = chkRunSilentClick
+    end
   end
   object btnClean: TButton
     Left = 359
-    Top = 173
+    Top = 193
     Width = 146
     Height = 25
     Anchors = [akLeft, akTop, akRight]
@@ -514,13 +524,13 @@ object frmMain: TfrmMain
   object PopupMenu1: TPopupMenu
     Left = 112
     Top = 304
-    object mniCheckAll: TMenuItem
-      Caption = 'Check all'
-      OnClick = mniCheckAllClick
+    object mniSelectAll: TMenuItem
+      Caption = 'Select all'
+      OnClick = mniSelectAllClick
     end
-    object mniUncheckAll: TMenuItem
-      Caption = 'Uncheck all'
-      OnClick = mniUncheckAllClick
+    object mniSelectNone: TMenuItem
+      Caption = 'Select none'
+      OnClick = mniSelectNoneClick
     end
   end
 end

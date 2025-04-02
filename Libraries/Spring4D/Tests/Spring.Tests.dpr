@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -24,8 +24,6 @@
 
 program Spring.Tests;
 
-{$I Spring.Tests.inc}
-
 // Spring.TestBootstrap be the first unit in the uses clause since it specifies
 // some units that need to be set in given order for FMX
 uses
@@ -37,6 +35,7 @@ uses
   Spring.TestUtils in 'Source\Spring.TestUtils.pas',
   Spring.Tests.Base in 'Source\Base\Spring.Tests.Base.pas',
   Spring.Tests.Collections in 'Source\Base\Spring.Tests.Collections.pas',
+  Spring.Tests.Collections.Dictionaries in 'Source\Base\Spring.Tests.Collections.Dictionaries.pas',
   Spring.Tests.Collections.Extensions in 'Source\Base\Spring.Tests.Collections.Extensions.pas',
   Spring.Tests.DesignPatterns in 'Source\Base\Spring.Tests.DesignPatterns.pas',
   Spring.Tests.Helpers in 'Source\Base\Spring.Tests.Helpers.pas',
@@ -51,11 +50,9 @@ uses
   Spring.Tests.Container.LifetimeManager in 'Source\Core\Spring.Tests.Container.LifetimeManager.pas',
   Spring.Tests.Container in 'Source\Core\Spring.Tests.Container.pas',
   Spring.Tests.Container.Logging in 'Source\Core\Spring.Tests.Container.Logging.pas',
-{$IFNDEF DELPHI2010}
   Spring.Tests.Interception in 'Source\Core\Spring.Tests.Interception.pas',
   Spring.Tests.Interception.Types in 'Source\Core\Spring.Tests.Interception.Types.pas',
   Spring.Tests.Mocking in 'Source\Core\Spring.Tests.Mocking.pas',
-{$ENDIF}
   Spring.Tests.Pool in 'Source\Core\Spring.Tests.Pool.pas',
   Spring.Tests.Cryptography in 'Source\Extensions\Spring.Tests.Cryptography.pas',
   Spring.Tests.Testing in 'Source\Spring.Tests.Testing.pas',

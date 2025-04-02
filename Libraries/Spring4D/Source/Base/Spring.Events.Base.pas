@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -30,162 +30,180 @@ interface
 
 uses
   Classes,
-  Generics.Collections,
-{$IFDEF MSWINDOWS}
-  Windows,
-{$ENDIF}
-  Spring;
+  Spring,
+  Spring.HazardEra;
 
 type
-  PMethodPointer = ^TMethodPointer;
+  TEventBaseClass = class of TEventBase;
 
   /// <summary>
   ///   Base class for multicast event implementation
   /// </summary>
-  TEventBase = class(TInterfacedObject, IEvent)
-  strict private
-    fHandlers: TArray<TMethodPointer>;
-    fCount: Integer;
+  TEventBase = class(TRefCountedObject)
+  public type
+    TCollectionNotification = (cnAdded, cnRemoved, cnExtracted);
+  private
+    function GetRefCount: Integer; inline;
+  strict protected
+    fHandlers: PMethodArray;
     fNotificationHandler: TNotificationHandler;
     fOnChanged: TNotifyEvent;
-  {$IFDEF MSWINDOWS}
-    fLock: TRTLCriticalSection;
-  {$ENDIF MSWINDOWS}
-    const DisabledFlag = Integer($80000000);
+  const
+    objDestroyingFlag = Integer($80000000);
+    DisabledFlag = Integer($40000000);
+    RefCountMask = Integer($3FFFFFFF);
   {$REGION 'Property Accessors'}
     function GetCanInvoke: Boolean; inline;
-    function GetCount: Integer; inline;
     function GetEnabled: Boolean; inline;
-    function GetHandlers: TArray<TMethodPointer>;
-    function GetInvoke: TMethodPointer; inline;
+    function GetHandlers: GuardedPointer;
     function GetOnChanged: TNotifyEvent;
     function GetUseFreeNotification: Boolean; inline;
     procedure SetEnabled(const value: Boolean);
     procedure SetOnChanged(const value: TNotifyEvent);
     procedure SetUseFreeNotification(const value: Boolean);
   {$ENDREGION}
-    procedure Delete(index: Integer);
-    procedure EnsureNotificationHandler; inline;
+    procedure EnsureNotificationHandler;
     procedure HandleNotification(component: TComponent; operation: TOperation);
-    procedure LockEnter; inline;
-    procedure LockLeave; inline;
-    property Count: Integer read GetCount;
   protected
     fInvoke: TMethodPointer;
-    procedure Notify(sender: TObject; const item: TMethodPointer;
+    procedure Notify(sender: TObject; const item: TMethod;
       action: TCollectionNotification); virtual;
-    property Handlers: TArray<TMethodPointer> read GetHandlers;
+    function _Release: Integer; stdcall;
   public
-    constructor Create;
     destructor Destroy; override;
+    procedure BeforeDestruction; override;
+    property RefCount: Integer read GetRefCount;
 
   {$REGION 'Implements IEvent'}
-    procedure Add(const handler: TMethodPointer);
-    procedure Remove(const handler: TMethodPointer);
+    procedure Add(const handler: TMethod);
+    procedure Remove(const handler: TMethod);
     procedure RemoveAll(instance: Pointer);
     procedure Clear;
   {$ENDREGION}
 
     property CanInvoke: Boolean read GetCanInvoke;
     property Enabled: Boolean read GetEnabled write SetEnabled;
-    property Invoke: TMethodPointer read GetInvoke;
+    property Invoke: TMethodPointer read fInvoke;
     property OnChanged: TNotifyEvent read GetOnChanged write SetOnChanged;
     property UseFreeNotification: Boolean read GetUseFreeNotification write SetUseFreeNotification;
   end;
 
-  TEventBase<T> = class(TEventBase, IEvent<T>)
-  protected
-  {$REGION 'Property Accessors'}
-    function GetInvoke: T;
-  {$ENDREGION}
-  public
-  {$REGION 'Implements IEvent<T>'}
-    procedure Add(handler: T);
-    procedure Remove(handler: T);
-  {$ENDREGION}
-  end;
-
 implementation
 
+{$IFDEF MSWINDOWS}
 uses
-  TypInfo;
+  Windows;
+{$ENDIF}
 
-function IsClassPtr(p: Pointer): Boolean;
-begin
-  try
-    Result := PPointer(NativeInt(p) + vmtSelfPtr)^ = p;
-  except
-    Result := False;
+{$IFOPT O+}
+function IsValidObject(p: Pointer): Boolean;
+
+  function IsClassRef(p: Pointer): Boolean;
+  begin
+    try
+      Result := PPointer(NativeInt(p) + vmtSelfPtr)^ = p;
+    except
+      Result := False;
+    end;
   end;
-end;
 
-function IsValidObj(p: Pointer): Boolean;
 begin
   Result := False;
   if Assigned(p) then
   try
-    if not IsClassPtr(p) then
+    if not IsClassRef(p) then
       if PNativeInt(p)^ > $FFFF then
         Result := PPointer(p)^ = PPointer(PNativeInt(p)^ + vmtSelfPtr)^;
   except
   end; //FI:W501
 end;
+{$ELSE}
+function IsValidObject(p: PPointer): Boolean;
+{$IFDEF MSWINDOWS}
+var
+  memInfo: TMemoryBasicInformation;
+{$ENDIF}
 
-function SafeIsClass(p: Pointer; cls: TClass): Boolean; inline;
+  function IsValidAddress(address: Pointer): Boolean;
+  begin
+    // Must be above 64k and 4 byte aligned
+    if (UIntPtr(address) > $FFFF) and (UIntPtr(address) and 3 = 0) then
+    begin
+{$IFDEF MSWINDOWS}
+      // do we need to recheck the virtual memory?
+      if (UIntPtr(memInfo.BaseAddress) > UIntPtr(address))
+        or ((UIntPtr(memInfo.BaseAddress) + memInfo.RegionSize) < (UIntPtr(address) + SizeOf(Pointer))) then
+      begin
+        // retrieve the status for the pointer
+        memInfo.RegionSize := 0;
+        VirtualQuery(address, memInfo, SizeOf(memInfo));
+      end;
+      // check the readability of the memory address
+     if (memInfo.RegionSize >= SizeOf(Pointer))
+        and (memInfo.State = MEM_COMMIT)
+        and (memInfo.Protect and (PAGE_READONLY or PAGE_READWRITE
+          or PAGE_WRITECOPY or PAGE_EXECUTE or PAGE_EXECUTE_READ
+          or PAGE_EXECUTE_READWRITE or PAGE_EXECUTE_WRITECOPY) <> 0)
+        and (memInfo.Protect and PAGE_GUARD = 0) then
+{$ENDIF}
+      Exit(True);
+    end;
+    Result := False;
+  end;
+
 begin
-  Result := IsValidObj(p) and (TObject(p) is cls);
+  Result := False;
+  if Assigned(p) then
+  try
+{$IFDEF MSWINDOWS}
+    memInfo.RegionSize := 0;
+{$ENDIF}
+    if IsValidAddress(p)
+      // not a class pointer - they point to themselves in the vmtSelfPtr slot
+      and not (IsValidAddress(PByte(p) + vmtSelfPtr)
+      and (p = PPointer(PByte(p) + vmtSelfPtr)^)) then
+      if IsValidAddress(p^) and IsValidAddress(PByte(p^) + vmtSelfPtr)
+        // looks to be an object, it points to a valid class pointer
+        and (p^ = PPointer(PByte(p^) + vmtSelfPtr)^) then
+        Result := True;
+  except
+  end; //FI:W501
 end;
+{$ENDIF}
 
 
 {$REGION 'TEventBase'}
 
-constructor TEventBase.Create;
+destructor TEventBase.Destroy; //FI:W504
 begin
-  inherited Create;
-{$IFDEF MSWINDOWS}
-  InitializeCriticalSection(fLock);
-{$ENDIF}
-end;
-
-destructor TEventBase.Destroy;
-begin
-  if UseFreeNotification then
+  if NativeUInt(fNotificationHandler) > 1 then
     fNotificationHandler.Free;
   NativeInt(fNotificationHandler) := 0;
-  Clear;
-{$IFDEF MSWINDOWS}
-  DeleteCriticalSection(fLock);
-{$ENDIF}
-  inherited Destroy;
+  if Assigned(fHandlers) then
+    Clear;
 end;
 
 procedure TEventBase.EnsureNotificationHandler;
+var
+  notificationHandler: TNotificationHandler;
 begin
   if fNotificationHandler = nil then
   begin
-    fNotificationHandler := TNotificationHandler.Create(nil);
-    fNotificationHandler.OnNotification := HandleNotification;
+    notificationHandler := TNotificationHandler.Create(nil);
+    notificationHandler.OnNotification := HandleNotification;
+    if AtomicCmpExchange(Pointer(fNotificationHandler), Pointer(notificationHandler), nil) <> nil then
+      notificationHandler.Free;
   end;
-end;
-
-function TEventBase.GetCanInvoke: Boolean;
-begin
-  Result := fCount > 0;
-end;
-
-function TEventBase.GetCount: Integer;
-begin
-  Result := fCount and not DisabledFlag;
 end;
 
 function TEventBase.GetEnabled: Boolean;
 begin
-  Result := fCount >= 0;
+  Result := fRefCount and DisabledFlag = 0;
 end;
 
-function TEventBase.GetInvoke: TMethodPointer;
+function TEventBase.GetCanInvoke: Boolean;
 begin
-  Result := fInvoke;
+  Result := Enabled and Assigned(fHandlers);
 end;
 
 function TEventBase.GetOnChanged: TNotifyEvent;
@@ -193,87 +211,72 @@ begin
   Result := fOnChanged;
 end;
 
+function TEventBase.GetRefCount: Integer;
+begin
+  Result := fRefCount and RefCountMask;
+end;
+
 function TEventBase.GetUseFreeNotification: Boolean;
 begin
   Result := NativeInt(fNotificationHandler) <> 1;
 end;
 
-procedure TEventBase.LockEnter;
-begin
-{$IFDEF MSWINDOWS}
-  EnterCriticalSection(fLock);
-{$ELSE}
-  TMonitor.Enter(Self);
-{$ENDIF}
-end;
-
-procedure TEventBase.LockLeave;
-begin
-{$IFDEF MSWINDOWS}
-  LeaveCriticalSection(fLock);
-{$ELSE}
-  TMonitor.Exit(Self);
-{$ENDIF}
-end;
-
-procedure TEventBase.Add(const handler: TMethodPointer);
+procedure TEventBase.Add(const handler: TMethod);
 var
-  i: Integer;
+  guard: GuardedPointer;
+  handlers, new: PMethodArray;
+  count: NativeInt;
 begin
-  if not Assigned(handler) then
+  if not Assigned(handler.Code) then
     Exit;
-  LockEnter;
-  try
-    i := Count;
-    if Length(fHandlers) < i + 1 then
-      if i = 0 then
-        SetLength(fHandlers, 1)
-      else
-        SetLength(fHandlers, i * 2);
-    fHandlers[i] := handler;
-    AtomicIncrement(fCount);
-    Notify(Self, handler, cnAdded);
-  finally
-    LockLeave;
-  end;
+
+  new := nil;
+  repeat
+    guard := AcquireGuard(fHandlers, new = nil);
+    handlers := guard;
+    count := DynArrayLength(handlers);
+    EraArraySetLength(new, count + 1, TypeInfo(TMethod));
+    EraArrayCopy(new, handlers);
+    new[count] := handler;
+  until AtomicCmpExchange(Pointer(fHandlers), new, handlers) = handlers;
+
+  guard.Release;
+  EraArrayClear(handlers);
+  Notify(Self, handler, cnAdded);
+end;
+
+procedure TEventBase.BeforeDestruction;
+begin
+  if RefCount <> 0 then
+    System.Error(reInvalidPtr);
 end;
 
 procedure TEventBase.Clear;
 var
-  i: Integer;
+  guard: GuardedPointer;
+  handlers: PMethodArray;
+  i: NativeInt;
 begin
-  LockEnter;
+  if fHandlers = nil then Exit;
+
+  handlers := nil;
+  repeat
+    guard := AcquireGuard(fHandlers, handlers = nil);
+    handlers := guard;
+  until AtomicCmpExchange(Pointer(fHandlers), nil, handlers) = handlers;
+
   try
-    for i := 0 to Count - 1 do
-      Notify(Self, fHandlers[i], cnRemoved);
-    fCount := fCount and DisabledFlag;
-    fHandlers := nil;
+    for i := 0 to DynArrayHigh(handlers) do
+      Notify(Self, handlers[i], cnRemoved);
   finally
-    LockLeave;
+    guard.Release;
+    EraArrayClear(handlers);
   end;
 end;
 
-procedure TEventBase.Delete(index: Integer);
-var
-  oldItem: TMethodPointer;
-  i: Integer;
+function TEventBase.GetHandlers: GuardedPointer;
 begin
-  oldItem := fHandlers[index];
-  AtomicDecrement(fCount);
-  for i := index to Count - 1 do
-    fHandlers[i] := fHandlers[i + 1];
-  fHandlers[Count] := nil;
-  Notify(Self, oldItem, cnRemoved);
-end;
-
-function TEventBase.GetHandlers: TArray<TMethodPointer>;
-begin
-  LockEnter;
-  try
-    Result := Copy(fHandlers, 0, Count);
-  finally
-    LockLeave;
-  end;
+  Result := AcquireGuard(fHandlers);
 end;
 
 procedure TEventBase.HandleNotification(component: TComponent;
@@ -283,13 +286,14 @@ begin
     RemoveAll(component);
 end;
 
-procedure TEventBase.Notify(sender: TObject; const item: TMethodPointer;
+procedure TEventBase.Notify(sender: TObject; const item: TMethod;
   action: TCollectionNotification);
 var
   data: Pointer;
 begin
-  data := TMethod(item).Data;
-  if UseFreeNotification and SafeIsClass(data, TComponent) then
+  data := item.Data;
+  if UseFreeNotification
+    and IsValidObject(data) and TObject(data).InheritsFrom(TComponent) then
     case action of
       cnAdded:
       begin
@@ -305,46 +309,96 @@ begin
     fOnChanged(Self);
 end;
 
-procedure TEventBase.Remove(const handler: TMethodPointer);
+procedure TEventBase.Remove(const handler: TMethod);
 var
-  i: Integer;
+  guard: GuardedPointer;
+  handlers, new: PMethodArray;
+  count, index, i: NativeInt;
 begin
-  LockEnter;
-  try
-    for i := 0 to Count - 1 do
-      if TMethod(fHandlers[i]) = TMethod(handler) then
+  if not Assigned(handler.Code) then
+    Exit;
+
+  new := nil;
+  repeat
+    guard := AcquireGuard(fHandlers, new = nil);
+    handlers := guard;
+    count := DynArrayLength(handlers);
+    index := -1;
+    for i := 0 to count - 1 do
+      if TMethod(handlers[i]) = TMethod(handler) then
       begin
-        Delete(i);
+        index := i;
         Break;
       end;
-  finally
-    LockLeave;
-  end;
+    if index = -1 then
+    begin
+      guard.Release;
+      Exit;
+    end;
+    if count > 1 then
+    begin
+      EraArraySetLength(new, count, TypeInfo(TMethod));
+      EraArrayCopy(new, handlers);
+      EraArrayDelete(new, index);
+    end;
+  until AtomicCmpExchange(Pointer(fHandlers), new, handlers) = handlers;
+
+  guard.Release;
+  EraArrayClear(handlers);
+  Notify(Self, handler, cnRemoved);
 end;
 
 procedure TEventBase.RemoveAll(instance: Pointer);
 var
-  i: Integer;
+  guard: GuardedPointer;
+  handlers, new: PMethodArray;
+  oldItems: TArray<TMethod>;
+  count, i, index: NativeInt;
 begin
-  LockEnter;
-  try
-    for i := Count - 1 downto 0 do
-      if TMethod(fHandlers[i]).Data = instance then
-        Delete(i);
-  finally
-    LockLeave;
-  end;
+  new := nil;
+  repeat
+    guard := AcquireGuard(fHandlers, new = nil);
+    handlers := guard;
+    count := DynArrayLength(handlers);
+
+    EraArraySetLength(new, count, TypeInfo(TMethod));
+    EraArrayCopy(new, handlers);
+    SetLength(oldItems, count);
+
+    index := 0;
+    for i := count - 1 downto 0 do
+      if TMethod(handlers[i]).Data = instance then
+      begin
+        oldItems[index] := handlers[i];
+        Inc(index);
+        EraArrayDelete(new, i);
+      end;
+
+    if index = 0 then
+    begin
+      guard.Release;
+      EraArrayClear(new);
+      Exit;
+    end;
+  until AtomicCmpExchange(Pointer(fHandlers), new, handlers) = handlers;
+  guard.Release;
+  EraArrayClear(handlers);
+  for i := index - 1 downto 0 do
+    Notify(Self, oldItems[i], cnRemoved);
 end;
 
 procedure TEventBase.SetEnabled(const value: Boolean);
 var
   bitMask: Integer;
-  oldCount: Integer;
+  oldRefCount: Integer;
 begin
-  bitMask := Integer(value) shl 31;
+  bitMask := Integer(value) shl 30;
   repeat
-    oldCount := fCount;
-  until AtomicCmpExchange(fCount, (oldCount or DisabledFlag) xor bitMask, oldCount) = oldCount;
+    oldRefCount := fRefCount;
+  until AtomicCmpExchange(fRefCount, (oldRefCount or DisabledFlag) xor bitMask, oldRefCount) = oldRefCount;
+
+  if Assigned(fOnChanged) then
+    fOnChanged(Self);
 end;
 
 procedure TEventBase.SetOnChanged(const value: TNotifyEvent);
@@ -354,10 +408,11 @@ end;
 
 procedure TEventBase.SetUseFreeNotification(const value: Boolean);
 var
-  i: Integer;
+  guard: GuardedPointer;
   data: Pointer;
+  handler: PMethodArray;
 begin
-  LockEnter;
+  MonitorEnter(Self);
   try
     case NativeInt(fNotificationHandler) of
       0: // UseFreeNotification is True but no handler assigned yet ...
@@ -367,14 +422,21 @@ begin
         if value then // ... it can only be turned True
         begin
           NativeInt(fNotificationHandler) := 0;
-          for i := 0 to Count - 1 do // check every handler
-          begin
-            data := TMethod(fHandlers[i]).Data;
-            if SafeIsClass(data, TComponent) then
-            begin
-              EnsureNotificationHandler;
-              fNotificationHandler.FreeNotification(TComponent(data));
-            end;
+          guard := AcquireGuard(fHandlers);
+          handler := guard;
+          try
+            if Assigned(handler) and Assigned(handler.Code) then
+            repeat
+              data := handler.Data;
+              if IsValidObject(data) and TObject(data).InheritsFrom(TComponent) then
+              begin
+                EnsureNotificationHandler;
+                fNotificationHandler.FreeNotification(TComponent(data));
+              end;
+              Inc(handler);
+            until not Assigned(handler.Code);
+          finally
+            guard.Release;
           end;
         end;
     else // UseFreeNotification is True and handler is already assigned ...
@@ -385,49 +447,18 @@ begin
       end;
     end;
   finally
-    LockLeave;
+    MonitorExit(Self);
   end;
 end;
 
-{$ENDREGION}
-
-
-{$REGION 'TEventBase<T>'}
-
-procedure TEventBase<T>.Add(handler: T);
+function TEventBase._Release: Integer;
 begin
-{$IFDEF DELPHI2010}
-  if PTypeInfo(TypeInfo(T)).Kind = tkInterface then
-{$ELSE}
-  if TType.Kind<T> = tkInterface then
-{$ENDIF}
-    inherited Add(MethodReferenceToMethodPointer(handler))
-  else
-    inherited Add(PMethodPointer(@handler)^);
-end;
-
-function TEventBase<T>.GetInvoke: T;
-begin
-{$IFDEF DELPHI2010}
-  if PTypeInfo(TypeInfo(T)).Kind = tkInterface then
-{$ELSE}
-  if TType.Kind<T> = tkInterface then
-{$ENDIF}
-    IInterface(PPointer(@Result)^) := MethodPointerToMethodReference(inherited Invoke)
-  else
-    PMethodPointer(@Result)^ := inherited Invoke;
-end;
-
-procedure TEventBase<T>.Remove(handler: T);
-begin
-{$IFDEF DELPHI2010}
-  if PTypeInfo(TypeInfo(T)).Kind = tkInterface then
-{$ELSE}
-  if TType.Kind<T> = tkInterface then
-{$ENDIF}
-    inherited Remove(MethodReferenceToMethodPointer(handler))
-  else
-    inherited Remove(PMethodPointer(@handler)^);
+  Result := AtomicDecrement(fRefCount) and not DisabledFlag;
+  if Result = 0 then
+  begin
+    fRefCount := objDestroyingFlag;
+    Destroy;
+  end;
 end;
 
 {$ENDREGION}

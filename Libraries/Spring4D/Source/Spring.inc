@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -31,8 +31,15 @@
 {$I jedi.inc}
 
 {$T-,X+,H+,B-}
+{$INLINE ON}
 
-{$IFDEF DELPHIXE4_UP}
+{$IFDEF DELPHIX_TOKYO_UP}
+//  {$WARN IMPLICIT_INTEGER_CAST_LOSS ON}
+//  {$WARN IMPLICIT_CONVERSION_LOSS ON}
+//  {$WARN COMBINING_SIGNED_UNSIGNED64 ON}
+{$ENDIF}
+
+{$IFDEF SUPPORTS_LEGACYIFEND}
   {$LEGACYIFEND ON}
 {$ENDIF}
 
@@ -41,15 +48,6 @@
   {$UNDEF CPU386}
   {$UNDEF CPU32}
   {$UNDEF CPUASM}
-  {$DEFINE PUREPASCAL}
-{$ENDIF}
-
-{$IFDEF LINUX}
-  {$DEFINE PUREPASCAL}
-{$ENDIF}
-
-{$IFDEF OSX64}
-  {$DEFINE PUREPASCAL}
 {$ENDIF}
 
 // JEDI will assert that at least CPU386 is defined
@@ -66,29 +64,31 @@
   {$ENDIF}
 {$ENDIF}
 
+{$IFDEF DELPHIXE4_UP}
+  {$DEFINE SUPPORTS_CONSTREF}
+{$ENDIF}
+
+{$IFNDEF DELPHIX_RIO_UP}
+  {$IF Defined(CPUX64) and Defined(MSWINDOWS)}
+    {$DEFINE PASS_64BIT_VALUE_REGISTER}
+  {$IFEND}
+{$ENDIF}
+
 {$IFDEF MSWINDOWS}
   // Use the unused vmtAutoTable slot in the class VMT to store the init table
   // otherwise a global dictionary will be used which is slightly slower
   {$DEFINE USE_VMTAUTOTABLE}
+
+  // see https://quality.embarcadero.com/browse/RSP-31615
+  {$IF defined(DELPHIX_SYDNEY_UP)}{$DEFINE RSP31615}{$IFEND}
 {$ELSE}
   // cannot use the vmtAutoTable slot on any platform except Windows (yet)
   {$UNDEF USE_VMTAUTOTABLE}
 {$ENDIF}
 
-// This will enable implicit assignment compatibility of Variant and Nullable<T>
-// This reduces type safety as the compiler might try to turn types into Variants
-// first to then assign them to a nullable
-// Example: n of type Nullable<Integer> might be assigned a string because the
-// compiler tries to turn the string into an Integer via VarToInt.
-// This is against the type safety provided by Nullable<T> where it only accepts
-// values of the type T.
-// Use this define to provide backwards compatibility. It is enabled by default
-// for now to find possible issues rather than changing the behavior without notice
-{$DEFINE UNSAFE_NULLABLE}
-{$IFDEF UNSAFE_NULLABLE}
-  // Raise deprecated warning in places where implicit operators are being used
-  {$DEFINE UNSAFE_NULLABLE_WARN}
-{$ENDIF}
+// This define is for compatibility with other libraries that are using Invoke on IEvent
+{.$DEFINE INVOKABLE_EVENT}
+
 // This will enable the implicit operator for unboxing a nullable value
 // Be aware that this may possibly raise an exception if the nullable does not
 // contain a value, i.e. is null
@@ -97,6 +97,12 @@
   // Raise deprecated warning in places where implicit operators are being used
   {.$DEFINE IMPLICIT_NULLABLE_WARN}
 {$ENDIF}
+
+{$IFDEF DELPHI28_UP} // Delphi 11.0
+  // Use this define to use custom managed record for Nullable<T> which stores the HasValue state as Boolean
+  //{$DEFINE NULLABLE_CMR}
+{$ENDIF}
+//{$DEFINE NULLABLE_PACKED}
 
 // This will disable the execution of guard code when assertions are turned off
 {$IFNDEF ASSERTIONS_ON}
@@ -131,8 +137,12 @@
 // It does not affect the binary size or generated code
 {$DEFINITIONINFO ON}
 
-{$IFNDEF DELPHI2010_UP}
-  {$MESSAGE ERROR 'This framework requires Delphi 2010 or higher.'}
+{$IFNDEF DELPHIXE_UP}
+  {$MESSAGE ERROR 'This library requires Delphi XE or higher.'}
+{$ENDIF}
+
+{$IFDEF AUTOREFCOUNT}
+  {$MESSAGE ERROR 'ARC is not supported'}
 {$ENDIF}
 
 {$IFNDEF NEXTGEN}

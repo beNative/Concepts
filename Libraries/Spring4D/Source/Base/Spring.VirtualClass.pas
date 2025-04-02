@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -28,7 +28,7 @@ unit Spring.VirtualClass;
 
 interface
 
-{$RANGECHECKS OFF}
+{$R-}
 
 uses
   Classes,
@@ -41,21 +41,13 @@ const
 {$IFEND}
 
 const
-  MinVirtualIndex = -11 - (CPP_ABI_ADJUST div SizeOf(Pointer)){$IFDEF AUTOREFCOUNT} - 2{$ENDIF};
+  MinVirtualIndex = -11 - (CPP_ABI_ADJUST div SizeOf(Pointer));
 
 type
 {$POINTERMATH ON}
   PVirtualMethodTable = ^Pointer;
 {$POINTERMATH OFF}
 
-{$IFDEF AUTOREFCOUNT}
-  // after looking at several functions in System.pas (like _AfterConstruction,
-  // etc.) we realized that Self (or Instance) is passed as const, this has
-  // some implication on NextGen regarding reference counting (most visible
-  // during FreeInstance)
-  TObjAddRef = function (const Self: TObject): Integer;
-  TObjRelease = function (const Self: TObject): Integer;
-{$ENDIF}
   TEquals = function (const Self: TObject; Obj: TObject): Boolean;
   TGetHashCode = function (const Self: TObject): Integer;
   TToString = function (const Self: TObject): string;
@@ -83,18 +75,10 @@ type
     FieldTable: PVmtFieldTable;
     MethodTable: PVmtMethodTable;
     DynamicTable: Pointer;
-{$IFNDEF NEXTGEN}
     ClassName: PShortString;
-{$ELSE}
-    ClassName: TTypeInfoFieldAccessor;
-{$ENDIF}
     InstanceSize: Integer;
     Parent: PClass;
 
-{$IFDEF AUTOREFCOUNT}
-    __ObjAddRef: TObjAddRef;
-    __ObjRelease: TObjRelease;
-{$ENDIF}
     Equals: TEquals;
     GetHashCode: TGetHashCode;
     ToString: TToString;
@@ -158,6 +142,9 @@ function GetVirtualMethodIndex(classType: TClass; method: Pointer): Integer;
 function IsVirtualMethodOverride(baseClass, classType: TClass; method: Pointer): Boolean;
 
 implementation
+
+uses
+  Spring;
 
 
 {$REGION 'Routines'}
@@ -239,15 +226,15 @@ end;
 
 function TClassData.GetVirtualMethodCount: Integer;
 begin
-  if Assigned(Parent) and (TypeInfo = Parent^.ClassInfo) then
+  if Assigned(Parent) and (TypeInfo = PPointer(@PByte(Parent^)[vmtTypeInfo])^) then
     Exit(GetClassData(Parent^).VirtualMethodCount);
 
   if InitTable <> nil then
-    Result := (PByte(InitTable) - PByte(@VirtualMethods[0])) div SizeOf(Pointer)
+    Result := Integer((PByte(InitTable) - PByte(@VirtualMethods[0])) div SizeOf(Pointer))
   else if FieldTable <> nil then
-    Result := (PByte(FieldTable) - PByte(@VirtualMethods[0])) div SizeOf(Pointer)
+    Result := Integer((PByte(FieldTable) - PByte(@VirtualMethods[0])) div SizeOf(Pointer))
   else if MethodTable <> nil then
-    Result := (PByte(MethodTable) - PByte(@VirtualMethods[0])) div SizeOf(Pointer)
+    Result := Integer((PByte(MethodTable) - PByte(@VirtualMethods[0])) div SizeOf(Pointer))
   else
     Result := 0;
 end;
@@ -259,14 +246,12 @@ end;
 
 constructor TVirtualClass.Create(classType: TClass);
 begin
-  inherited Create;
   fProxyClass := CreateVirtualClass(classType);
 end;
 
-destructor TVirtualClass.Destroy;
+destructor TVirtualClass.Destroy; //FI:W504
 begin
   DestroyVirtualClass(fProxyClass);
-  inherited Destroy;
 end;
 
 function TVirtualClass.GetClassProxyData: PClassData;
@@ -281,20 +266,28 @@ end;
 
 constructor TVirtualClasses.Create;
 begin
-  inherited Create;
   fClasses := TList.Create;
   fLock := TCriticalSection.Create;
 end;
 
-destructor TVirtualClasses.Destroy;
+destructor TVirtualClasses.Destroy; //FI:W504
 var
   classType: Pointer;
 begin
   for classType in fClasses do
-    DestroyVirtualClass(classType);
+    
+	// when this code runs after finalization of this unit
+	// there might still be object instances being proxified
+	// with these classes - any deallocation here would cause
+	// issues such as access violations and alike during the 
+	// finalization/destruction of these objects
+	// to avoid such issues the deallocation is left to the
+	// operation system when the process ends and they are
+	// exluced from memory leak reporting
+    RegisterExpectedMemoryLeak(PByte(classType) + vmtSelfPtr);
+
   fLock.Free;
   fClasses.Free;
-  inherited Destroy;
 end;
 
 class constructor TVirtualClasses.Create;
@@ -327,14 +320,14 @@ end;
 
 procedure TVirtualClasses.Proxify(const instance: TObject);
 begin
-  PPointer(instance)^ := GetVirtualClass(instance.ClassType);
+  PPointer(instance)^ := GetVirtualClass(PPointer(instance)^);
 end;
 
 procedure TVirtualClasses.Unproxify(const instance: TObject);
 var
   classType: TClass;
 begin
-  classType := instance.ClassType;
+  classType := PPointer(instance)^;
   if fClasses.IndexOf(classType) > -1 then
     PPointer(instance)^ := classType.ClassParent;
 end;

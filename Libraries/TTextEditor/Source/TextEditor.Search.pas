@@ -3,8 +3,7 @@
 interface
 
 uses
-  System.Classes, Vcl.Controls, TextEditor.Search.Highlighter, TextEditor.Search.InSelection, TextEditor.Search.Map,
-  TextEditor.Types;
+  System.Classes, TextEditor.Search.InSelection, TextEditor.Search.Map, TextEditor.Search.NearOperator, TextEditor.Types;
 
 const
   TEXTEDITOR_SEARCH_OPTIONS = [soHighlightResults, soSearchOnTyping, soBeepIfStringNotFound, soShowSearchMatchNotFound];
@@ -14,20 +13,22 @@ type
   strict private
     FEnabled: Boolean;
     FEngine: TTextEditorSearchEngine;
-    FHighlighter: TTextEditorSearchHighlighter;
     FInSelection: TTextEditorSearchInSelection;
+    FItemIndex: Integer;
     FItems: TList;
     FMap: TTextEditorSearchMap;
+    FNearOperator: TTextEditorSearchNearOperator;
     FOnChange: TTextEditorSearchChangeEvent;
     FOptions: TTextEditorSearchOptions;
+    FResultPosition: TTextEditorResultPosition;
     FSearchText: string;
     FVisible: Boolean;
     procedure DoChange;
     procedure SetEnabled(const AValue: Boolean);
     procedure SetEngine(const AValue: TTextEditorSearchEngine);
-    procedure SetHighlighter(const AValue: TTextEditorSearchHighlighter);
     procedure SetInSelection(const AValue: TTextEditorSearchInSelection);
     procedure SetMap(const AValue: TTextEditorSearchMap);
+    procedure SetNearOperator(const AValue: TTextEditorSearchNearOperator);
     procedure SetOnChange(const AValue: TTextEditorSearchChangeEvent);
     procedure SetSearchText(const AValue: string);
     procedure SetVisible(const AValue: Boolean);
@@ -40,16 +41,18 @@ type
     procedure ClearItems;
     procedure Execute;
     procedure SetOption(const AOption: TTextEditorSearchOption; const AEnabled: Boolean);
+    property ItemIndex: Integer read FItemIndex write FItemIndex;
     property Items: TList read FItems write FItems;
     property Visible: Boolean read FVisible write SetVisible;
   published
     property Enabled: Boolean read FEnabled write SetEnabled default True;
     property Engine: TTextEditorSearchEngine read FEngine write SetEngine default seNormal;
-    property Highlighter: TTextEditorSearchHighlighter read FHighlighter write SetHighlighter;
     property InSelection: TTextEditorSearchInSelection read FInSelection write SetInSelection;
     property Map: TTextEditorSearchMap read FMap write SetMap;
+    property NearOperator: TTextEditorSearchNearOperator read FNearOperator write SetNearOperator;
     property OnChange: TTextEditorSearchChangeEvent read FOnChange write SetOnChange;
     property Options: TTextEditorSearchOptions read FOptions write FOptions default TEXTEDITOR_SEARCH_OPTIONS;
+    property ResultPosition: TTextEditorResultPosition read FResultPosition write FResultPosition default rpMiddle;
     property SearchText: string read FSearchText write SetSearchText;
   end;
 
@@ -59,23 +62,26 @@ constructor TTextEditorSearch.Create;
 begin
   inherited;
 
-  FSearchText := '';
-  FEngine := seNormal;
-  FMap := TTextEditorSearchMap.Create;
-  FItems := TList.Create;
-  FHighlighter := TTextEditorSearchHighlighter.Create;
-  FInSelection := TTextEditorSearchInSelection.Create;
-  FOptions := TEXTEDITOR_SEARCH_OPTIONS;
   FEnabled := True;
+  FEngine := seNormal;
+  FInSelection := TTextEditorSearchInSelection.Create;
+  FItemIndex := 0;
+  FItems := TList.Create;
+  FMap := TTextEditorSearchMap.Create;
+  FNearOperator := TTextEditorSearchNearOperator.Create;
+  FOptions := TEXTEDITOR_SEARCH_OPTIONS;
+  FSearchText := '';
+  FResultPosition := rpMiddle;
 end;
 
 destructor TTextEditorSearch.Destroy;
 begin
-  FMap.Free;
-  FHighlighter.Free;
-  FInSelection.Free;
   ClearItems;
+
+  FInSelection.Free;
   FItems.Free;
+  FMap.Free;
+  FNearOperator.Free;
 
   inherited;
 end;
@@ -90,8 +96,9 @@ begin
     Self.FEngine := FEngine;
     Self.FOptions := FOptions;
     Self.FMap.Assign(FMap);
-    Self.FHighlighter.Assign(FHighlighter);
     Self.FInSelection.Assign(FInSelection);
+    Self.FNearOperator.Assign(FNearOperator);
+
     Self.DoChange;
   end
   else
@@ -116,7 +123,6 @@ procedure TTextEditorSearch.SetOnChange(const AValue: TTextEditorSearchChangeEve
 begin
   FOnChange := AValue;
   FMap.OnChange := FOnChange;
-  FHighlighter.OnChange := FOnChange;
   FInSelection.OnChange := FOnChange;
 end;
 
@@ -125,6 +131,7 @@ begin
   if FEngine <> AValue then
   begin
     FEngine := AValue;
+
     if Assigned(FOnChange) then
       FOnChange(scEngineUpdate);
   end;
@@ -139,6 +146,7 @@ end;
 procedure TTextEditorSearch.SetSearchText(const AValue: string);
 begin
   FSearchText := AValue;
+
   Execute;
 end;
 
@@ -147,6 +155,7 @@ begin
   if FEnabled <> AValue then
   begin
     FEnabled := AValue;
+
     Execute;
   end;
 end;
@@ -156,14 +165,10 @@ begin
   if FVisible <> AValue then
   begin
     FVisible := AValue;
+
     if Assigned(FOnChange) then
       FOnChange(scVisible);
   end;
-end;
-
-procedure TTextEditorSearch.SetHighlighter(const AValue: TTextEditorSearchHighlighter);
-begin
-  FHighlighter.Assign(AValue);
 end;
 
 procedure TTextEditorSearch.SetInSelection(const AValue: TTextEditorSearchInSelection);
@@ -176,12 +181,18 @@ begin
   FMap.Assign(AValue);
 end;
 
+procedure TTextEditorSearch.SetNearOperator(const AValue: TTextEditorSearchNearOperator);
+begin
+  FNearOperator.Assign(AValue);
+end;
+
 procedure TTextEditorSearch.ClearItems;
 var
   LIndex: Integer;
 begin
   for LIndex := FItems.Count - 1 downto 0 do
     Dispose(PTextEditorSearchItem(FItems[LIndex]));
+
   FItems.Clear;
 end;
 
@@ -207,13 +218,13 @@ var
   function IsSearchItemGreaterThanTextPosition: Boolean;
   begin
     Result := (LSearchItem^.EndTextPosition.Line > ATextPosition.Line) or
-      (LSearchItem^.EndTextPosition.Line = ATextPosition.Line) and (LSearchItem^.EndTextPosition.Char >= ATextPosition.Char)
+      (LSearchItem^.EndTextPosition.Line = ATextPosition.Line) and (LSearchItem^.EndTextPosition.Char > ATextPosition.Char)
   end;
 
   function IsSearchItemLowerThanTextPosition: Boolean;
   begin
     Result := (LSearchItem^.EndTextPosition.Line < ATextPosition.Line) or
-      (LSearchItem^.EndTextPosition.Line = ATextPosition.Line) and (LSearchItem^.EndTextPosition.Char <= ATextPosition.Char)
+      (LSearchItem^.EndTextPosition.Line = ATextPosition.Line) and (LSearchItem^.EndTextPosition.Char < ATextPosition.Char)
   end;
 
 begin
@@ -225,6 +236,7 @@ begin
   LHigh := FItems.Count - 1;
 
   LSearchItem := PTextEditorSearchItem(FItems[0]);
+
   if IsSearchItemGreaterThanTextPosition then
     if soWrapAround in Options then
       Exit(LHigh)
@@ -232,6 +244,7 @@ begin
       Exit;
 
   LSearchItem := PTextEditorSearchItem(FItems[LHigh]);
+
   if IsSearchItemLowerThanTextPosition then
     Exit(LHigh);
 
@@ -240,7 +253,7 @@ begin
 
   while LLow <= LHigh do
   begin
-    LMiddle := (LLow + LHigh) div 2;
+    LMiddle := (LLow + LHigh) shr 1;
 
     LSearchItem := PTextEditorSearchItem(FItems[LMiddle]);
 
@@ -283,7 +296,7 @@ var
   function IsSearchItemLowerThanTextPosition: Boolean;
   begin
     Result := (LSearchItem^.BeginTextPosition.Line < ATextPosition.Line) or
-      (LSearchItem^.BeginTextPosition.Line = ATextPosition.Line) and (LSearchItem^.BeginTextPosition.Char <= ATextPosition.Char)
+      (LSearchItem^.BeginTextPosition.Line = ATextPosition.Line) and (LSearchItem^.BeginTextPosition.Char < ATextPosition.Char)
   end;
 
 begin
@@ -293,12 +306,13 @@ begin
     Exit;
 
   LSearchItem := PTextEditorSearchItem(FItems[0]);
+
   if IsSearchItemGreaterThanTextPosition then
     Exit(0);
 
   LHigh := FItems.Count - 1;
-
   LSearchItem := PTextEditorSearchItem(FItems[LHigh]);
+
   if IsSearchItemLowerThanTextPosition then
     if soWrapAround in Options then
       Exit(0)
@@ -309,7 +323,7 @@ begin
 
   while LLow <= LHigh do
   begin
-    LMiddle := (LLow + LHigh) div 2;
+    LMiddle := (LLow + LHigh) shr 1;
 
     LSearchItem := PTextEditorSearchItem(FItems[LMiddle]);
 

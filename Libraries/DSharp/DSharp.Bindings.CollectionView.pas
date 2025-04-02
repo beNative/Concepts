@@ -110,7 +110,7 @@ constructor TCollectionView.Create;
 begin
   inherited;
   FItemIndex := -1;
-  //FFilter.OnChanged := DoFilterChanged;
+  FFilter.OnChanged := DoFilterChanged;
 end;
 
 destructor TCollectionView.Destroy;

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -82,7 +82,16 @@ begin
   TValueConverterFactory.RegisterConverter(TypeInfo(Variant), TypeInfo(TBcd), TVariantToBcdConverter);
 end;
 
+procedure UnregisterConverters;
+begin
+  TValueConverterFactory.UnregisterConverter(TBcdToVariantConverter);
+  TValueConverterFactory.UnregisterConverter(TVariantToBcdConverter);
+end;
+
 initialization
   RegisterConverters;
+
+finalization
+  UnregisterConverters;
 
 end.

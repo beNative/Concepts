@@ -215,7 +215,7 @@ end;
 procedure TBaseFireDACConnectionAdapterTest.TearDown;
 begin
   fConnection := nil;
-  fMockConnection.Setup.Executes.When(Args.Any).SetConnected(False);
+  fMockConnection.Behavior := TMockBehavior.Dynamic;
   fMockConnection.Free;
   fSqliteConnection := nil;
   inherited;

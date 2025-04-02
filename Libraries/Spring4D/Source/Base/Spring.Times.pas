@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,15 +29,15 @@ unit Spring.Times;
 interface
 
 uses
-  SysUtils;
+  Spring;
 
 type
   Times = packed record
   private
-    fEvaluator: TFunc<Integer, Boolean>;
+    fEvaluator: Func<Integer, Boolean>;
     fMin, fMax: Integer;
     fMessageFormat: string;
-    constructor Create(const evaluator: TFunc<Integer, Boolean>;
+    constructor Create(const evaluator: Func<Integer, Boolean>;
       min, max: Integer; const messageFormat: string);
   public
     function Equals(const value: Times): Boolean;
@@ -63,13 +63,13 @@ type
 implementation
 
 uses
-  Spring,
+  SysUtils,
   Spring.ResourceStrings;
 
 
 {$REGION 'Times'}
 
-constructor Times.Create(const evaluator: TFunc<Integer, Boolean>;
+constructor Times.Create(const evaluator: Func<Integer, Boolean>;
   min, max: Integer; const messageFormat: string);
 begin
   fEvaluator := evaluator;
@@ -105,7 +105,7 @@ end;
 class function Times.Any: Times;
 begin
   Result := Times.Create(
-    function(n: Integer): Boolean
+    function(const n: Integer): Boolean
     begin
       Result := n >= 0;
     end, 0, MaxInt, SNoMatchAny);
@@ -115,7 +115,7 @@ class function Times.AtLeast(count: Integer): Times;
 begin
   Guard.CheckRangeInclusive(count, 1, MaxInt);
   Result := Times.Create(
-    function(n: Integer): Boolean
+    function(const n: Integer): Boolean
     begin
       Result := n >= count;
     end, count, MaxInt, SNoMatchAtLeast);
@@ -124,7 +124,7 @@ end;
 class function Times.AtLeastOnce: Times;
 begin
   Result := Times.Create(
-    function(n: Integer): Boolean
+    function(const n: Integer): Boolean
     begin
       Result := n >= 1;
     end, 1, MaxInt, SNoMatchAtLeastOnce);
@@ -134,7 +134,7 @@ class function Times.AtMost(count: Integer): Times;
 begin
   Guard.CheckRangeInclusive(count, 0, MaxInt);
   Result := Times.Create(
-    function(n: Integer): Boolean
+    function(const n: Integer): Boolean
     begin
       Result := (n >= 0) and (n <= count);
     end, 0, count, SNoMatchAtMost);
@@ -143,7 +143,7 @@ end;
 class function Times.AtMostOnce: Times;
 begin
   Result := Times.Create(
-    function(n: Integer): Boolean
+    function(const n: Integer): Boolean
     begin
       Result := (n >= 0) and (n <= 1);
     end, 0, 1, SNoMatchAtMostOnce);
@@ -154,7 +154,7 @@ begin
   Guard.CheckRangeInclusive(max, 0, MaxInt);
   Guard.CheckRangeInclusive(min, 0, max);
   Result := Times.Create(
-    function(n: Integer): Boolean
+    function(const n: Integer): Boolean
     begin
       Result := (n >= min) and (n <= max);
     end, min, max, SNoMatchBetween);
@@ -164,7 +164,7 @@ class function Times.Exactly(count: Integer): Times;
 begin
   Guard.CheckRangeInclusive(count, 0, MaxInt);
   Result := Times.Create(
-    function(n: Integer): Boolean
+    function(const n: Integer): Boolean
     begin
       Result := n = count;
     end, count, count, SNoMatchExactly);
@@ -173,7 +173,7 @@ end;
 class function Times.Never: Times;
 begin
   Result := Times.Create(
-    function(n: Integer): Boolean
+    function(const n: Integer): Boolean
     begin
       Result := n = 0;
     end, 0, 0, SNoMatchNever);
@@ -182,7 +182,7 @@ end;
 class function Times.Once: Times;
 begin
   Result := Times.Create(
-    function(n: Integer): Boolean
+    function(const n: Integer): Boolean
     begin
       Result := n = 1;
     end, 1, 1, SNoMatchOnce);

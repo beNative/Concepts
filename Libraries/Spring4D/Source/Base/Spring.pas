@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -33,10 +33,14 @@ unit Spring;
 {$IFDEF DELPHIXE4_UP}
   {$ZEROBASEDSTRINGS OFF}
 {$ENDIF}
+{$DEFINE FIELD_RTTI}
 
 interface
 
 uses
+{$IFDEF MSWINDOWS}
+  Windows,
+{$ENDIF}
   Classes,
   Diagnostics,
   Generics.Collections,
@@ -46,8 +50,18 @@ uses
   SysUtils,
   TimeSpan,
   Types,
-  TypInfo,
-  Variants;
+  TypInfo;
+
+
+  {$REGION 'Interface helper routines'}
+
+function NopRef(inst: Pointer): Integer; stdcall;
+function NopQueryInterface(inst: Pointer; const IID: TGUID; out Obj): HResult; stdcall;
+function RecAddRef(inst: Pointer): Integer; stdcall;
+procedure IntfAssign(const source: IInterface; var target: IInterface);
+
+  {$ENDREGION}
+
 
 type
 
@@ -72,41 +86,37 @@ type
 
   TAttributeClass = class of TCustomAttribute;
 
-{$IFDEF DELPHI2010}
-  TThreadID = LongWord;
-
-  PNativeInt = ^NativeInt;
-  PNativeUInt = ^NativeUInt;
-{$ENDIF}
-
 {$IFNDEF DELPHIXE2_UP}
   IntPtr = NativeInt;
   UIntPtr = NativeUInt;
+
+  SIZE_T = ULONG_PTR;
+{$ENDIF}
+
+{$IFNDEF DELPHIXE3_UP}
+  TSymbolName = ShortString;
 {$ENDIF}
 
   PObject = ^TObject;
+  {$POINTERMATH ON}
+  PVTable = ^Pointer;
+  {$POINTERMATH OFF}
+  PPVTable = ^PVTable;
 
-  {$ENDREGION}
-
-
-  {$REGION 'TGuidHelper'}
-
-{$IFDEF DELPHI2010}
-  TGuidHelper = record helper for TGUID
-  public
-    class function Create(const B: TBytes): TGUID; overload; static;
-    class function Create(const S: string): TGUID; overload; static;
-    class function Create(A: Integer; B: SmallInt; C: SmallInt; const D: TBytes): TGUID; overload; static;
-
-    class function &&op_Equality(const left, right: TGUID): Boolean; static;
-    class function &&op_Inequality(const left, right: TGUID): Boolean; static; inline;
-    class function Empty: TGuid; static;
-    class function NewGuid: TGuid; static;
-
-    function ToByteArray: TBytes;
-    function ToString: string;
-  end;
+{$IFNDEF DELPHIXE3_UP}
+  PMethod = ^TMethod;
 {$ENDIF}
+  PMethodPointer = ^TMethodPointer;
+  TMethodPointer = procedure of object;
+
+  PInt8 = ^Int8;
+  PInt16 = ^Int16;
+  PInt32 = ^Int32;
+  PInt64 = ^Int64;
+
+{$POINTERMATH ON}
+  PMethodArray = ^TMethod;
+{$POINTERMATH OFF}
 
   {$ENDREGION}
 
@@ -135,9 +145,9 @@ type
     class constructor Create;
     class destructor Destroy;
 
-    class function HasWeakRef<T>: Boolean; inline; static;
-    class function IsManaged<T>: Boolean; inline; static;
-    class function Kind<T>: TTypeKind; inline; static;
+    class function HasWeakRef<T>: Boolean; static; inline;
+    class function IsManaged<T>: Boolean; static; inline;
+    class function Kind<T>: TTypeKind; static; inline;
 
     class function GetType<T>: TRttiType; overload; static; inline;
     class function GetType(typeInfo: PTypeInfo): TRttiType; overload; static;
@@ -179,6 +189,93 @@ type
   {$ENDREGION}
 
 
+  {$REGION 'TInterfacedCriticalSection'}
+
+  ICriticalSection = interface(IInvokable)
+    ['{16C21E9C-6450-4EA4-A3D3-1D59277C9BA6}']
+    procedure Enter;
+    procedure Leave;
+    function ScopedLock: IInterface;
+  end;
+
+  TInterfacedCriticalSection = class(TCriticalSection, IInterface, ICriticalSection)
+  private type
+    TScopedLock = class(TInterfacedObject)
+    private
+      fCriticalSection: ICriticalSection;
+    public
+      constructor Create(const criticalSection: ICriticalSection);
+      destructor Destroy; override;
+    end;
+  protected
+    fRefCount: Integer;
+    function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
+    function _AddRef: Integer; stdcall;
+    function _Release: Integer; stdcall;
+    function ScopedLock: IInterface;
+  end;
+
+  {$ENDREGION}
+
+
+  {$REGION 'Lock'}
+
+  /// <summary>
+  ///   Provides an easy to use wrapper around TCriticalSection. It
+  ///   automatically initializes the TCriticalSection instance when required
+  ///   and destroys it when the Lock goes out of scope.
+  /// </summary>
+  Lock = record
+  private
+    fCriticalSection: ICriticalSection;
+    procedure EnsureInitialized;
+  public
+    /// <summary>
+    ///   Calls Enter on the underlying TCriticalSection. The first call also
+    ///   initializes the TCriticalSection instance.
+    /// </summary>
+    procedure Enter;
+
+    /// <summary>
+    ///   Calls Leave on the underlying TCriticalSection. If no call to Enter
+    ///   has been made before it will raise an exception.
+    /// </summary>
+    /// <exception cref="EInvalidOperationException">
+    ///   When Enter was not called before
+    /// </exception>
+    procedure Leave;
+
+    /// <summary>
+    ///   Calls Enter on the underlying TCriticalSection and returns an
+    ///   interface reference that will call Leave once it goes out of scope.
+    /// </summary>
+    /// <remarks>
+    ///   Use this to avoid the classic try/finally block but keep in mind that
+    ///   the scope will be the entire method this is used in unless you keep
+    ///   hold of the returned interface and explicitly set it to nil causing
+    ///   its destruction.
+    /// </remarks>
+    function ScopedLock: IInterface;
+  end;
+
+  // simple multiple read exclusive write lock using busy wait
+  // taken from OTL with permission of Primoz Gabrijelcic
+  ReadWriteLock = record
+  strict private
+    Lock: IInterface;
+    ThreadId: IInterface;
+  public
+    procedure EnterRead;
+    procedure LeaveRead;
+    procedure EnterWrite;
+    procedure LeaveWrite;
+    procedure EnterUpgradableRead;
+    procedure LeaveUpgradableRead;
+  end;
+
+  {$ENDREGION}
+
+
   {$REGION 'TActivator'}
 
   IObjectActivator = interface
@@ -191,6 +288,7 @@ type
   TActivator = record
   private
     class var ConstructorCache: TDictionary<PTypeInfo,TConstructor>;
+    class var CacheLock: ReadWriteLock;
     class function FindConstructor(const classType: TRttiInstanceType;
       const arguments: array of TValue): TRttiMethod; overload; static;
     class procedure RaiseNoConstructorFound(classType: TClass); static;
@@ -250,29 +348,27 @@ type
   end;
 {$ENDIF}
 
+  TFieldInitializer = reference to procedure(typeInfo: PTypeInfo; var value);
+
   /// <summary>
   ///   This attribute marks automatically initialized interface or object
   ///   fields inside of classes that inherit from TManagedObject or are using
   ///   the mechanism provided by TInitTable.
   /// </summary>
-  /// <remarks>
-  ///   Because of limited RTTI in Delphi 2010 interface fields are only
-  ///   supported when the interface type has a GUID.
-  /// </remarks>
   ManagedAttribute = class(TBaseAttribute)
   strict private
     fCreateInstance: Boolean;
     fInstanceClass: TClass;
-    fFactory: TFunc<PTypeInfo,Pointer>;
+    fInitializer: TFieldInitializer;
   strict protected
-    constructor Create(const factory: TFunc<PTypeInfo,Pointer>); overload;
+    constructor Create(const initializer: TFieldInitializer); overload;
   public
     constructor Create(createInstance: Boolean = True); overload;
     constructor Create(instanceClass: TClass) overload;
 
     property CreateInstance: Boolean read fCreateInstance;
     property InstanceClass: TClass read fInstanceClass;
-    property Factory: TFunc<PTypeInfo,Pointer> read fFactory;
+    property Initializer: TFieldInitializer read fInitializer;
   end;
 
   {$ENDREGION}
@@ -317,16 +413,25 @@ type
       procedure FinalizeValue(instance: Pointer); virtual; abstract;
     end;
 
-    TManagedObjectField = class(TFinalizableField)
+    TInitializerField = class(TFinalizableField)
     private
       fOffset: Integer;
       fFieldType: PTypeInfo;
+      fInitializer: TFieldInitializer;
+    public
+      constructor Create(offset: Integer; fieldType: PTypeInfo;
+        const initializer: TFieldInitializer);
+      procedure InitializeValue(instance: Pointer); override;
+      procedure FinalizeValue(instance: Pointer); override;
+    end;
+
+    TManagedObjectField = class(TInitializerField)
+    private
       fCls: TClass;
       fCtor: TConstructor;
-      fFactory: TFunc<PTypeInfo,Pointer>;
     public
-      constructor Create(offset: Integer; fieldType: PTypeInfo; cls: TClass;
-        const factory: TFunc<PTypeInfo,Pointer>);
+      constructor Create(offset: Integer; fieldType: PTypeInfo;
+        const initializer: TFieldInitializer; cls: TClass);
       procedure InitializeValue(instance: Pointer); override;
       procedure FinalizeValue(instance: Pointer); override;
     end;
@@ -336,24 +441,12 @@ type
       fEntry: PInterfaceEntry;
       function CreateInstance: Pointer;
     public
-      constructor Create(offset: Integer; fieldType: PTypeInfo; cls: TClass;
-        const factory: TFunc<PTypeInfo,Pointer>; entry: PInterfaceEntry);
+      constructor Create(offset: Integer; fieldType: PTypeInfo;
+        const initializer: TFieldInitializer; cls: TClass; entry: PInterfaceEntry);
       procedure InitializeValue(instance: Pointer); override;
       procedure FinalizeValue(instance: Pointer); override;
     end;
 
-  const
-  {$IF SizeOf(Pointer) = 4}
-    PROPSLOT_MASK    = $FF000000;
-    PROPSLOT_FIELD   = $FF000000;
-    PROPSLOT_VIRTUAL = $FE000000;
-  {$ELSEIF SizeOf(Pointer) = 8}
-    PROPSLOT_MASK    = $FF00000000000000;
-    PROPSLOT_FIELD   = $FF00000000000000;
-    PROPSLOT_VIRTUAL = $FE00000000000000;
-  {$ELSE OTHER_PTR_SIZE}
-  {$MESSAGE Fatal 'Unrecognized pointer size'}
-  {$IFEND OTHER_PTR_SIZE}
   strict private
     DefaultFields: TArray<TInitializableField>;
     ManagedFields: TArray<TFinalizableField>;
@@ -365,11 +458,8 @@ type
 {$ELSE}
     InitTables: TDictionary<TClass,TInitTable>;
 {$ENDIF}
-    FormatSettings: TFormatSettings;
-    procedure AddDefaultField(fieldType: PTypeInfo; const value: Variant;
-      offset: Integer);
-    procedure AddDefaultProperty(fieldType: PTypeInfo; const value: Variant;
-      propInfo: PPropInfo);
+    procedure AddDefaultField(fieldType: PTypeInfo; const value: Variant; offset: Integer);
+    procedure AddDefaultProperty(fieldType: PTypeInfo; const value: Variant; propInfo: PPropInfo);
     procedure AddManagedField(const field: TRttiField; const attribute: ManagedAttribute);
     class function GetCodePointer(instance: TObject; p: Pointer): Pointer; static; inline;
   public
@@ -380,9 +470,7 @@ type
     destructor Destroy; override;
 
     procedure InitInstance(instance: Pointer);
-  {$IFNDEF AUTOREFCOUNT}
     procedure CleanupInstance(instance: Pointer);
-  {$ENDIF}
   end;
 
   {$ENDREGION}
@@ -392,19 +480,35 @@ type
 
   TManagedObject = class(TObject)
   public
-    class function NewInstance: TObject {$IFDEF AUTOREFCOUNT} unsafe {$ENDIF}; override;
-  {$IFNDEF AUTOREFCOUNT}
+    class function NewInstance: TObject; override;
     procedure FreeInstance; override;
-  {$ENDIF}
   end;
 
   TManagedInterfacedObject = class(TInterfacedObject)
   public
-    class function NewInstance: TObject {$IFDEF AUTOREFCOUNT} unsafe {$ENDIF}; override;
-  {$IFNDEF AUTOREFCOUNT}
+    class function NewInstance: TObject; override;
     procedure FreeInstance; override;
-  {$ENDIF}
   end;
+
+  {$ENDREGION}
+
+
+  {$REGION 'TDictionaryOwnerships}
+
+  /// <summary>
+  ///   Controls the ownership of objects stored in any associative collection.
+  /// </summary>
+  TDictionaryOwnerships = set of (
+    /// <summary>
+    ///   Objects stored as key are being destroyed when removed
+    /// </summary>
+    doOwnsKeys,
+
+    /// <summary>
+    ///   Objects stored as value are being destroyed when removed
+    /// </summary>
+    doOwnsValues
+  );
 
   {$ENDREGION}
 
@@ -444,7 +548,7 @@ type
     /// <summary>
     ///   The content of the collection changed dramatically.
     /// </summary>
-    caReseted,
+    caReset,
 
     /// <summary>
     ///   An item in the collection was changed.
@@ -457,14 +561,17 @@ type
 
   {$REGION 'TValueHelper'}
 
+  TValueConverterCallback = function (const value: TValue;
+    const targetTypeInfo: PTypeInfo; var targetValue: TValue;
+    const parameter: TValue): Boolean;
+
   TValueHelper = record helper for TValue
   private class var
     ConvertSettings: TFormatSettings;
+    fValueConverterCallback: TValueConverterCallback;
   private
     procedure Init(typeInfo: Pointer);
-{$IFNDEF DELPHIXE8_UP}
-    function GetTypeKind: TTypeKind; inline;
-{$ENDIF}
+    function GetTypeKind: TTypeKind;
     function GetValueType: TRttiType;
     function TryAsInterface(typeInfo: PTypeInfo; out Intf): Boolean;
     class procedure RaiseConversionError(source, target: PTypeInfo); static;
@@ -483,12 +590,15 @@ type
     class function &&op_Implicit(const value: TVarRec): TValue; overload; static; inline;
 {$ENDIF}
 
+{$IFNDEF DELPHIX_ALEXANDRIA_UP}
     class function &&op_Implicit(value: TDateTime): TValue; overload; static; inline;
     class function &&op_Implicit(value: TDate): TValue; overload; static; inline;
     class function &&op_Implicit(value: TTime): TValue; overload; static; inline;
+{$ENDIF}
+
     class function &&op_Implicit(const value: TGUID): TValue; overload; static;
 
-    class function From(buffer: Pointer; typeInfo: PTypeInfo): TValue; overload; static;
+    class function From(const value; typeInfo: PTypeInfo): TValue; overload; static;
     class function From(instance: TObject; classType: TClass): TValue; overload; static;
     class function FromFloat(typeInfo: PTypeInfo; value: Extended): TValue; overload; static;
     class function FromVariant(const value: Variant): TValue; static;
@@ -502,10 +612,6 @@ type
 
     function AsPointer: Pointer;
 
-{$IFDEF DELPHI2010}
-    function AsString: string;
-{$ENDIF}
-
     /// <summary>
     ///   Casts the currently stored value to another type.
     /// </summary>
@@ -513,7 +619,18 @@ type
     ///   This method fixes the missing interface cast support of
     ///   TValue.AsType&lt;T&gt;.
     /// </remarks>
-    function AsType<T>: T;
+    function AsType<T>: T; overload;
+
+    procedure AsType(typeInfo: PTypeInfo; out target); overload;
+
+    /// <summary>
+    ///   Casts the currently stored value to another type.
+    /// </summary>
+    /// <remarks>
+    ///   This method uses an equality check on the typeInfo to support types
+    ///   across binary boundaries
+    /// </remarks>
+    procedure AsTypeRelaxed(typeInfo: PTypeInfo; out target);
 
     /// <summary>
     ///   Casts the currently stored value to another type.
@@ -580,6 +697,11 @@ type
     function IsInterface: Boolean;
 
     /// <summary>
+    ///   Checks whether the stored value is a boolean type.
+    /// </summary>
+    function IsBoolean: Boolean;
+
+    /// <summary>
     ///   Checks whether the stored value is a float type.
     /// </summary>
     function IsFloat: Boolean;
@@ -594,32 +716,33 @@ type
     /// </summary>
     function IsString: Boolean;
 
+    function IsType(ATypeInfo: PTypeInfo): Boolean; overload;
+
     /// <summary>
     ///   Checks whether the stored value is a <c>Variant</c>.
     /// </summary>
     function IsVariant: Boolean;
-
-{$IFDEF DELPHI2010}
-    function IsType<T>: Boolean; overload;
-    function IsType(ATypeInfo: PTypeInfo): Boolean; overload;
-{$ENDIF}
 
     /// <summary>
     ///   Sets the stored value of a nullable.
     /// </summary>
     procedure SetNullableValue(const value: TValue);
 
+    function TryAsType(typeInfo: PTypeInfo; out target): Boolean; overload;
+
+    function TryCast(ATypeInfo: PTypeInfo; out AResult: TValue): Boolean;
+
     /// <summary>
     ///   Tries to convert the stored value. Returns false when the conversion
     ///   is not possible.
     /// </summary>
-    function TryConvert(targetType: PTypeInfo; out targetValue: TValue): Boolean; overload;
+    function TryConvert(targetType: PTypeInfo; var targetValue: TValue): Boolean; overload;
 
     /// <summary>
     ///   Tries to convert the stored value using the specified format
     ///   settings. Returns false when the conversion is not possible.
     /// </summary>
-    function TryConvert(targetType: PTypeInfo; out targetValue: TValue;
+    function TryConvert(targetType: PTypeInfo; var targetValue: TValue;
       const formatSettings: TFormatSettings): Boolean; overload;
 
     /// <summary>
@@ -694,14 +817,15 @@ type
     ///   This fixes the issue with returning <c>tkUnknown</c> when the stored
     ///   value is an empty reference type (RSP-10071).
     /// </remarks>
-{$IFNDEF DELPHIXE8_UP}
     property Kind: TTypeKind read GetTypeKind;
-{$ENDIF}
 
     /// <summary>
     ///   Returns the TRttiType of the stored value.
     /// </summary>
     property ValueType: TRttiType read GetValueType;
+
+    class property ValueConverterCallback: TValueConverterCallback
+      read fValueConverterCallback write fValueConverterCallback;
   end;
 
   {$ENDREGION}
@@ -709,20 +833,20 @@ type
 
   {$REGION 'TRttiMethodHelper'}
 
-{$IF CompilerVersion < 31}
+{$IFNDEF DELPHIX_BERLIN_UP}
   {$HINTS OFF}
   TRttiMethodHack = class(TRttiMethod)
   private
     function GetParameters: TArray<TRttiParameter>; override;
   end;
   {$HINTS ON}
-{$IFEND}
+{$ENDIF}
 
   TRttiMethodHelper = class helper for TRttiMethod
   private
     function GetIsAbstract: Boolean;
     function GetReturnTypeHandle: PTypeInfo;
-{$IF CompilerVersion < 31}
+{$IFNDEF DELPHIX_BERLIN_UP}
     procedure DispatchValue(const value: TValue; typeInfo: PTypeInfo);
     procedure FixParameters(const parameters: TArray<TRttiParameter>);
   public
@@ -757,7 +881,7 @@ type
     ///   This fixes the missing interface cast support in TValue (QC#123729).
     /// </remarks>
     function Invoke(Instance: TValue; const Args: array of TValue): TValue; overload;
-{$IFEND}
+{$ENDIF}
   public
 
     /// <summary>
@@ -790,53 +914,82 @@ type
 
   {$REGION 'TMethodImplementationHelper'}
 
-  {$IFNDEF DELPHI2010}
   TMethodImplementationHelper = class helper for TMethodImplementation
   public
     function AsMethod: TMethod;
   end;
-  {$ENDIF}
 
   {$ENDREGION}
 
 
   {$REGION 'Procedure types'}
 
-  /// <summary>
-  ///   Represents a logical predicate.
-  /// </summary>
-  /// <param name="arg">
-  ///   the value needs to be determined.
-  /// </param>
-  /// <returns>
-  ///   Returns <c>True</c> if the value was accepted, otherwise, returns <c>
-  ///   False</c>.
-  /// </returns>
-  /// <remarks>
-  ///   <note type="tip">
-  ///     This type redefined the <see cref="SysUtils|TPredicate`1">
-  ///     SysUtils.TPredicate&lt;T&gt;</see> type with a const parameter.
-  ///   </note>
-  /// </remarks>
-  /// <seealso cref="Spring.DesignPatterns|ISpecification&lt;T&gt;" />
   {$M+}
-  TPredicate<T> = reference to function(const arg: T): Boolean;
-  {$M-}
+  /// <summary>
+  ///   Encapsulates a method that has no parameters and does not return a
+  ///   value.
+  /// </summary>
+  Action = reference to procedure;
 
   /// <summary>
-  ///   Represents an anonymous method that has a single parameter and does not
-  ///   return a value.
+  ///   Encapsulates a method that has a single parameter and does not return a
+  ///   value.
   /// </summary>
-  /// <seealso cref="TActionProc&lt;T&gt;" />
-  /// <seealso cref="TActionMethod&lt;T&gt;" />
-  {$M+}
-  TAction<T> = reference to procedure(const arg: T);
+  Action<T> = reference to procedure(const arg: T);
 
-  TAction<T1, T2> = reference to procedure(const arg1: T1; const arg2: T2);
+  /// <summary>
+  ///   Encapsulates a method that has two parameters and does not return a
+  ///   value.
+  /// </summary>
+  Action<T1, T2> = reference to procedure(const arg1: T1; const arg2: T2);
 
-  TAction<T1, T2, T3> = reference to procedure(const arg1: T1; const arg2: T2; const arg3: T3);
+  /// <summary>
+  ///   Encapsulates a method that has three parameters and does not return a
+  ///   value.
+  /// </summary>
+  Action<T1, T2, T3> = reference to procedure(const arg1: T1; const arg2: T2; const arg3: T3);
 
-  TAction<T1, T2, T3, T4> = reference to procedure(const arg1: T1; const arg2: T2; const arg3: T3; const arg4: T4);
+  /// <summary>
+  ///   Encapsulates a method that has four parameters and does not return a
+  ///   value.
+  /// </summary>
+  Action<T1, T2, T3, T4> = reference to procedure(const arg1: T1; const arg2: T2; const arg3: T3; const arg4: T4);
+
+  /// <summary>
+  ///   Encapsulates a method that has no parameters and returns a value of the
+  ///   type specified by the <i>TResult</i> parameter.
+  /// </summary>
+  Func<TResult> = reference to function: TResult;
+
+  /// <summary>
+  ///   Encapsulates a method that has one parameter and returns a value of the
+  ///   type specified by the <i>TResult</i> parameter.
+  /// </summary>
+  Func<T, TResult> = reference to function(const arg: T): TResult;
+
+  /// <summary>
+  ///   Encapsulates a method that has two parameters and returns a value of
+  ///   the type specified by the <i>TResult</i> parameter.
+  /// </summary>
+  Func<T1, T2, TResult> = reference to function(const arg1: T1; const arg2: T2): TResult;
+
+  /// <summary>
+  ///   Encapsulates a method that has three parameters and returns a value of
+  ///   the type specified by the <i>TResult</i> parameter.
+  /// </summary>
+  Func<T1, T2, T3, TResult> = reference to function(const arg1: T1; const arg2: T2; const arg3: T3): TResult;
+
+  /// <summary>
+  ///   Encapsulates a method that has four parameters and returns a value of
+  ///   the type specified by the <i>TResult</i> parameter.
+  /// </summary>
+  Func<T1, T2, T3, T4, TResult> = reference to function(const arg1: T1; const arg2: T2; const arg3: T3; const arg4: T4): TResult;
+
+  /// <summary>
+  ///   Represents the method that defines a set of criteria and determines
+  ///   whether the specified object meets those criteria.
+  /// </summary>
+  Predicate<T> = reference to function(const arg: T): Boolean;
   {$M-}
 
   /// <summary>
@@ -873,13 +1026,12 @@ type
 
   {$REGION 'Multicast Event'}
 
-  TMethodPointer = procedure of object;
+{$IFDEF DELPHIXE6_UP}{$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}{$ENDIF}
 
   IEvent = interface
     ['{CFC14C4D-F559-4A46-A5B1-3145E9B182D8}']
   {$REGION 'Property Accessors'}
     function GetCanInvoke: Boolean;
-    function GetInvoke: TMethodPointer;
     function GetEnabled: Boolean;
     function GetOnChanged: TNotifyEvent;
     function GetUseFreeNotification: Boolean;
@@ -888,8 +1040,8 @@ type
     procedure SetUseFreeNotification(const value: Boolean);
   {$ENDREGION}
 
-    procedure Add(const handler: TMethodPointer);
-    procedure Remove(const handler: TMethodPointer);
+    procedure Add(const handler: TMethod);
+    procedure Remove(const handler: TMethod);
 
     /// <summary>
     ///   Removes all event handlers which were registered by an instance.
@@ -914,7 +1066,6 @@ type
     /// </summary>
     property Enabled: Boolean read GetEnabled write SetEnabled;
 
-    property Invoke: TMethodPointer read GetInvoke;
     property OnChanged: TNotifyEvent read GetOnChanged write SetOnChanged;
 
     /// <summary>
@@ -926,16 +1077,14 @@ type
   end;
 
   /// <summary>
-  ///   Represents a multicast event.
+  ///   Represents a multicast event that provides adding and removing event
+  ///   handlers.
   /// </summary>
   /// <typeparam name="T">
   ///   The event handler type must be an instance procedural type such as
   ///   TNotifyEvent.
   /// </typeparam>
   IEvent<T> = interface(IEvent)
-  {$REGION 'Property Accessors'}
-    function GetInvoke: T;
-  {$ENDREGION}
 
     /// <summary>
     ///   Adds an event handler to the list.
@@ -947,24 +1096,43 @@ type
     /// </summary>
     procedure Remove(handler: T);
 
+{$IFDEF INVOKABLE_EVENT}
+    function GetInvoke: T;
+
     /// <summary>
     ///   Invokes all event handlers.
     /// </summary>
     property Invoke: T read GetInvoke;
+{$ENDIF}
+  end;
+
+  /// <summary>
+  ///   Represents a multicast event that can be invoked.
+  /// </summary>
+  IInvokableEvent<T> = interface(IEvent<T>)
+{$IFNDEF INVOKABLE_EVENT}
+  {$REGION 'Property Accessors'}
+    function GetInvoke: T;
+  {$ENDREGION}
+
+    /// <summary>
+    ///   Invokes all event handlers.
+    /// </summary>
+    property Invoke: T read GetInvoke;
+{$ENDIF}
   end;
 
   Event<T> = record
   private
-    fInstance: IEvent<T>;
+    fInstance: IInvokableEvent<T>;
     function GetCanInvoke: Boolean;
     function GetEnabled: Boolean;
     function GetInvoke: T;
     function GetOnChanged: TNotifyEvent;
     function GetUseFreeNotification: Boolean;
     procedure SetEnabled(const value: Boolean);
-    procedure SetOnChanged(value: TNotifyEvent);
+    procedure SetOnChanged(const value: TNotifyEvent);
     procedure SetUseFreeNotification(const value: Boolean);
-    procedure EnsureInitialized;
   public
     procedure Add(const handler: T);
     procedure Remove(const handler: T);
@@ -983,8 +1151,8 @@ type
     /// </summary>
     property UseFreeNotification: Boolean read GetUseFreeNotification write SetUseFreeNotification;
 
-    class operator Implicit(const value: IEvent<T>): Event<T>;
-    class operator Implicit(var value: Event<T>): IEvent<T>;
+    class operator Implicit(const value: IInvokableEvent<T>): Event<T>;
+    class operator Implicit(var value: Event<T>): IInvokableEvent<T>;
     class operator Implicit(var value: Event<T>): T;
   end;
 
@@ -992,6 +1160,21 @@ type
 
   INotifyEvent<T> = interface(IEvent<TNotifyEvent<T>>)
   end;
+
+  IInvokableNotifyEvent = interface(INotifyEvent) //FI:W523
+    function GetInvoke: TNotifyEvent;
+    property Invoke: TNotifyEvent read GetInvoke;
+  end;
+
+  IInvokableNotifyEvent<T> = interface(INotifyEvent<T>)
+    function GetInvoke: TNotifyEvent<T>;
+    property Invoke: TNotifyEvent<T> read GetInvoke;
+  end;
+
+  {$RTTI INHERIT
+      METHODS(DefaultMethodRttiVisibility)
+      FIELDS(DefaultFieldRttiVisibility)
+      PROPERTIES(DefaultPropertyRttiVisibility)}
 
   {$ENDREGION}
 
@@ -1084,6 +1267,104 @@ type
     property IsEmpty: Boolean read GetIsEmpty;
   end;
 
+  /// <summary>
+  ///   Supports a simple iteration over a non-generic collection.
+  /// </summary>
+  IEnumerator = interface(IInvokable)
+    ['{A2AD52DC-FA9F-4121-9B54-5C427DA5E62C}']
+  {$REGION 'Property Accessors'}
+    function GetCurrent: TValue;
+  {$ENDREGION}
+
+    /// <summary>
+    ///   Advances the enumerator to the next element of the collection.
+    /// </summary>
+    /// <returns>
+    ///   <b>True</b> if the enumerator was successfully advanced to the next
+    ///   element; <b>False</b> if the enumerator has passed the end of the
+    ///   collection.
+    /// </returns>
+    /// <exception cref="Spring|EInvalidOperationException">
+    ///   The collection was modified after the enumerator was created.
+    /// </exception>
+    function MoveNext: Boolean;
+
+    /// <summary>
+    ///   Gets the current element in the collection.
+    /// </summary>
+    /// <value>
+    ///   The current element in the collection.
+    /// </value>
+    property Current: TValue read GetCurrent;
+  end;
+
+  /// <summary>
+  ///   Exposes an enumerator, which supports a simple iteration over a
+  ///   non-generic collection.
+  /// </summary>
+  IEnumerable = interface(IInvokable)
+    ['{6BC97F33-C0A8-4770-8E1C-C2017527B7E7}']
+
+    /// <summary>
+    ///   Returns an enumerator that iterates through a collection.
+    /// </summary>
+    /// <returns>
+    ///   An <see cref="IEnumerator" /> object that can be used to iterate
+    ///   through the collection.
+    /// </returns>
+    function GetEnumerator: IEnumerator;
+
+  {$REGION 'Property Accessors'}
+    function GetCount: Integer;
+    function GetElementType: PTypeInfo;
+    function GetIsEmpty: Boolean;
+
+    /// <summary>
+    ///   Attempts to retrieve the count without calling the enumerator; returns
+    ///   -1 otherwise.
+    /// </summary>
+    /// <remarks>
+    ///   This method is primarily for internal use to provide count based
+    ///   results as efficient as possible.
+    /// </remarks>
+    function GetNonEnumeratedCount: Integer;
+  {$ENDREGION}
+
+    /// <summary>
+    ///   Returns the reference to this instance.
+    /// </summary>
+    /// <returns>
+    ///   The <see cref="TObject" /> instance behind this IEnumerable
+    ///   reference.
+    /// </returns>
+    function AsObject: TObject;
+
+    /// <summary>
+    ///   Returns the number of elements in a sequence.
+    /// </summary>
+    /// <value>
+    ///   The number of elements in the sequence.
+    /// </value>
+    property Count: Integer read GetCount;
+
+    /// <summary>
+    ///   Returns the type of the elements in the sequence.
+    /// </summary>
+    /// <value>
+    ///   The type of the elements in the sequence.
+    /// </value>
+    property ElementType: PTypeInfo read GetElementType;
+
+    /// <summary>
+    ///   Determines whether the sequence contains no elements.
+    /// </summary>
+    /// <value>
+    ///   <b>True</b> if the source sequence contains no elements; otherwise, <b>
+    ///   False</b>.
+    /// </value>
+    property IsEmpty: Boolean read GetIsEmpty;
+  end;
+
   {$ENDREGION}
 
 
@@ -1150,27 +1431,34 @@ type
   {$ENDREGION}
 
 
-  {$REGION 'TInterfacedObjectEx'}
-
+  {$REGION 'TRefCountedObject'}
   /// <summary>
-  ///   Provides an improved implementation for TInterfacedObject that was
-  ///   introduced in Delphi XE7 for earlier versions. It makes sure that
-  ///   reference counting during destruction does not call the destructor
-  ///   recursively by using the highest bit in the FRefCount field to mark the
-  ///   instance as currently being destroyed.
+  ///   Provides an abstract implementation for any interface implementing
+  ///   class without already implementing IInterface to avoid unnecessary
+  ///   waste of instance space for its VMT. If you inherit from this class you
+  ///   implement an interface that is not IInterface and thus would just waste
+  ///   this space.
   /// </summary>
-  {$IF not defined(DELPHIXE7_UP) and not defined(AUTOREFCOUNT)}
-  TInterfacedObjectEx = class(TInterfacedObject)
-  private
-    const objDestroyingFlag = Integer($80000000);
+  TRefCountedObject = class abstract
+  private const
+    objDestroyingFlag = Integer($80000000);
     function GetRefCount: Integer; inline;
+  protected
+{$IF Declared(VolatileAttribute)}
+    [Volatile]
+{$IFEND}
+    fRefCount: Integer;
+    function AsObject: TObject;
   public
+    function QueryInterface(const IID: TGUID; out obj): HResult; stdcall;
+    function _AddRef: Integer; stdcall;
+    function _Release: Integer; stdcall;
+    function GetInterface(const IID: TGUID; out Obj): Boolean;
+    procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
+    class function NewInstance: TObject; override;
     property RefCount: Integer read GetRefCount;
   end;
-  {$ELSE}
-  TInterfacedObjectEx = TInterfacedObject;
-  {$IFEND}
 
   {$ENDREGION}
 
@@ -1190,7 +1478,6 @@ type
     class procedure RaiseArgumentException(typeKind: TTypeKind; const argumentName: string); overload; static;
     class procedure RaiseNullableHasNoValue; static;
     class procedure RaiseNoDelegateAssigned; static;
-    class procedure RaiseInvalidTypeCast(sourceType, targetType: PTypeInfo); static;
   public
     class procedure CheckTrue(condition: Boolean; const msg: string = ''); static; inline;
     class procedure CheckFalse(condition: Boolean; const msg: string = ''); static; inline;
@@ -1220,12 +1507,10 @@ type
     class procedure CheckRange<T>(const buffer: array of T; index, count: Integer); overload; static;
     class procedure CheckRange(const s: string; index: Integer); overload; static; inline;
     class procedure CheckRange(const s: string; index, count: Integer); overload; static; inline;
-{$IFNDEF NEXTGEN}
     class procedure CheckRange(const s: WideString; index: Integer); overload; static; inline;
     class procedure CheckRange(const s: WideString; index, count: Integer); overload; static; inline;
     class procedure CheckRange(const s: RawByteString; index: Integer); overload; static; inline;
     class procedure CheckRange(const s: RawByteString; index, count: Integer); overload; static; inline;
-{$ENDIF}
     class procedure CheckRange(condition: Boolean; const argumentName: string); overload; static; inline;
     class procedure CheckRange(length, index, count: Integer; indexBase: Integer = 0); overload; static; inline;
 
@@ -1288,7 +1573,7 @@ type
     class procedure RaiseArgumentFormatException(const argumentName: string); overload; static;
 
     /// <summary>
-    ///   Raises an <see cref="EArgumentNullException" /> exception.
+    ///   Raises an <see cref="EArgumentNilException" /> exception.
     /// </summary>
     class procedure RaiseArgumentNullException(const argumentName: string); overload; static;
 
@@ -1301,6 +1586,8 @@ type
     ///   Raises an <see cref="EInvalidEnumArgumentException" /> exception.
     /// </summary>
     class procedure RaiseInvalidEnumArgumentException(const argumentName: string); overload; static;
+
+    class function RaiseInvalidTypeCast(sourceType, targetType: PTypeInfo): Boolean; static;
   end;
 
   TArgument = Guard deprecated 'Use Guard instead';
@@ -1308,12 +1595,97 @@ type
   {$ENDREGION}
 
 
+  {$REGION 'RaiseHelper'}
+
+  {$SCOPEDENUMS ON}
+  ExceptionArgument = (
+    action,
+    capacity,
+    collection,
+    collectionSelector,
+    comparer,
+    count,
+    elementSelector,
+    first,
+    func,
+    index,
+    index1,
+    index2,
+    inner,
+    innerKeySelector,
+    items,
+    keySelector,
+    match,
+    max,
+    min,
+    other,
+    outer,
+    outerKeySelector,
+    predicate,
+    resultSelector,
+    second,
+    selector,
+    size,
+    sorter,
+    source,
+    sourceIndex,
+    targetIndex,
+    value,
+    values
+  );
+
+  ExceptionResource = (
+    ArgumentOutOfRange_Capacity,
+    ArgumentOutOfRange_Count,
+    ArgumentOutOfRange_Index,
+    ArgumentOutOfRange_NeedNonNegNum,
+    Argument_InvalidIndexCount
+  );
+  {$SCOPEDENUMS OFF}
+
+  RaiseHelper = record
+  private
+    class function GetArgumentName(argument: ExceptionArgument): string; static;
+    class function GetResourceString(resource: ExceptionResource): string; static;
+
+    class function GetArgumentOutOfRangeException(argument: ExceptionArgument; resource: ExceptionResource): EArgumentException; overload; static;
+    class function GetArgumentOutOfRangeException(resource: ExceptionResource): EArgumentException; overload; static;
+  public
+    class procedure ArgumentNil(argument: ExceptionArgument); static;
+    class function ArgumentOutOfRange(argument: ExceptionArgument): NativeInt; overload; static;
+    class function ArgumentOutOfRange(argument: ExceptionArgument; resource: ExceptionResource): NativeInt; overload; static;
+    class function ArgumentOutOfRange(resource: ExceptionResource): NativeInt; overload; static;
+
+    class function ArgumentOutOfRange_Count: NativeInt; static;
+    class function ArgumentOutOfRange_Index: NativeInt; static;
+
+    class procedure DuplicateKey; static;
+    class procedure KeyNotFound; static;
+    class procedure MoreThanOneElement; static;
+    class procedure MoreThanOneMatch; static;
+    class procedure NoClassType(t: PTypeInfo); static;
+    class procedure NoElements; static;
+    class procedure NoMatch; static;
+    class procedure NotSupported; static;
+
+    class function EnumFailedVersion: Boolean; static;
+  end;
+
+  {$ENDREGION}
+
+
   {$REGION 'Nullable Types'}
+
+{$IFDEF DELPHIXE6_UP}{$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS(DefaultFieldRttiVisibility)}{$ENDIF}
 
   Nullable = record
   private
-    const HasValue = 'True';
+    class var HasValue: string;
     type Null = interface end;
+  public
+    {$IFNDEF NULLABLE_CMR}
+    class constructor Create;
+    {$ENDIF}
   end;
 
   /// <summary>
@@ -1324,14 +1696,17 @@ type
   ///   The underlying value type of the <see cref="Nullable&lt;T&gt;" />
   ///   generic type.
   /// </typeparam>
-  Nullable<T> = record
+  Nullable<T> = {$IFDEF NULLABLE_PACKED}packed {$ENDIF}record
   private
     fValue: T;
-    fHasValue: string;
-    class var fComparer: IEqualityComparer<T>;
+    fHasValue: {$IFNDEF NULLABLE_CMR}string{$ELSE}Boolean{$ENDIF};
+    class var
+      fComparer: Pointer;
+      fEquals: function(const left, right: T): Boolean;
     class function EqualsComparer(const left, right: T): Boolean; static;
     class function EqualsInternal(const left, right: T): Boolean; static; inline;
-    function GetValue: T; inline;
+    class procedure InitEquals; static;
+    function GetValue: T;
     function GetHasValue: Boolean; inline;
   public
     /// <summary>
@@ -1426,13 +1801,8 @@ type
       {$IFDEF IMPLICIT_NULLABLE_WARN}inline; deprecated 'Possible unsafe operation involving implicit operator - use Value property';{$ENDIF}
 {$ENDIF}
 
-{$IFDEF UNSAFE_NULLABLE}
-    class operator Implicit(const value: Nullable<T>): Variant;
-      {$IFNDEF DELPHIXE4}
-      {$IFDEF UNSAFE_NULLABLE_WARN}inline; deprecated 'Possible unsafe operation involving implicit Variant conversion - use ToVariant';{$ENDIF}
-      {$ENDIF}
-    class operator Implicit(const value: Variant): Nullable<T>;
-      {$IFDEF UNSAFE_NULLABLE_WARN}inline; deprecated 'Possible unsafe operation involving implicit Variant conversion - use explicit cast';{$ENDIF}
+{$IFDEF NULLABLE_CMR}
+    class operator Initialize(out value: Nullable<T>);
 {$ENDIF}
 
     class operator Explicit(const value: Variant): Nullable<T>;
@@ -1447,10 +1817,8 @@ type
   end;
 
   TNullableString = Nullable<string>;
-{$IFNDEF NEXTGEN}
   TNullableAnsiString = Nullable<AnsiString>;
   TNullableWideString = Nullable<WideString>;
-{$ENDIF}
   TNullableInteger = Nullable<Integer>;
   TNullableInt64 = Nullable<Int64>;
   TNullableNativeInt = Nullable<NativeInt>;
@@ -1467,18 +1835,26 @@ type
   strict private
     fValueType: PTypeInfo;
     fHasValueOffset: NativeInt;
+    fHasValueKind: TTypeKind;
   public
     constructor Create(typeInfo: PTypeInfo);
     function GetValue(instance: Pointer): TValue; inline;
     function HasValue(instance: Pointer): Boolean; inline;
-    procedure SetValue(instance: Pointer; const value: TValue); inline;
+    procedure SetValue(instance: Pointer; const value: TValue);
     property ValueType: PTypeInfo read fValueType;
   end;
+
+  {$RTTI INHERIT
+      METHODS(DefaultMethodRttiVisibility)
+      FIELDS(DefaultFieldRttiVisibility)
+      PROPERTIES(DefaultPropertyRttiVisibility)}
 
   {$ENDREGION}
 
 
   {$REGION 'Lazy Initialization'}
+
+{$IFDEF DELPHIXE6_UP}{$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS(DefaultFieldRttiVisibility)}{$ENDIF}
 
   /// <summary>
   ///   Specifies the kind of a lazy type.
@@ -1491,7 +1867,7 @@ type
     lkNone,
 
     /// <summary>
-    ///   Type is <see cref="SysUtils|TFunc&lt;T&gt;" />.
+    ///   Type is <see cref="Spring|Func&lt;T&gt;" />.
     /// </summary>
     lkFunc,
 
@@ -1509,7 +1885,7 @@ type
   /// <summary>
   ///   Provides support for lazy initialization.
   /// </summary>
-  ILazy = interface(IInvokable)
+  ILazy = interface
     ['{40223BA9-0C66-49E7-AA33-BDAEF9F506D6}']
   {$REGION 'Property Accessors'}
     function GetIsValueCreated: Boolean;
@@ -1540,6 +1916,7 @@ type
   /// <summary>
   ///   Provides support for lazy initialization.
   /// </summary>
+  {$M+}
   ILazy<T> = interface(ILazy)
   {$REGION 'Property Accessors'}
     function GetValue: T;
@@ -1555,102 +1932,7 @@ type
     /// </value>
     property Value: T read GetValue;
   end;
-
-  /// <summary>
-  ///   The base class of the lazy initialization type.
-  /// </summary>
-  TLazy = class(TInterfacedObject, ILazy)
-  private
-    fLock: TCriticalSection;
-    fIsValueCreated: Boolean;
-    fOwnsObjects: Boolean;
-  {$REGION 'Property Accessors'}
-    function GetIsValueCreated: Boolean;
-    function GetValueNonGeneric: TValue; virtual; abstract;
-    function ILazy.GetValue = GetValueNonGeneric;
-  {$ENDREGION}
-  public
-    constructor Create;
-    destructor Destroy; override;
-
-    /// <summary>
-    ///   Gets a value that indicates whether a value has been created for this
-    ///   <see cref="TLazy&lt;T&gt;" /> instance.
-    /// </summary>
-    /// <value>
-    ///   <b>True</b> if a value has been created for this <see cref="TLazy&lt;T&gt;" />
-    ///    instance; otherwise, <b>False</b>.
-    /// </value>
-    property IsValueCreated: Boolean read GetIsValueCreated;
-  end;
-
-  /// <summary>
-  ///   Provides support for lazy initialization.
-  /// </summary>
-  /// <typeparam name="T">
-  ///   The type of object that is being lazily initialized.
-  /// </typeparam>
-  TLazy<T> = class(TLazy, ILazy<T>, TFunc<T>)
-  private
-    fValueFactory: TFunc<T>;
-    fValue: T;
-    procedure InitializeValue;
-  {$REGION 'Property Accessors'}
-    function GetValue: T;
-    function GetValueNonGeneric: TValue; override; final;
-    function TFunc<T>.Invoke = GetValue;
-  {$ENDREGION}
-  public
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="Lazy&lt;T&gt;" />
-    ///   record. When lazy initialization occurs, the default constructor of
-    ///   the target type is used.
-    /// </summary>
-    constructor Create; overload;
-
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="TLazy&lt;T&gt;" />
-    ///   class. When lazy initialization occurs, the specified initialization
-    ///   function is used.
-    /// </summary>
-    /// <param name="valueFactory">
-    ///   The delegate that is invoked to produce the lazily initialized value
-    ///   when it is needed.
-    /// </param>
-    /// <param name="ownsObject">
-    ///   If <b>true</b> the value - if any got created - will be destroyed
-    ///   when going out of scope. Only when T is a class type.
-    /// </param>
-    /// <exception cref="EArgumentNullException">
-    ///   <i>valueFactory</i> is <b>nil</b>.
-    /// </exception>
-    constructor Create(const valueFactory: TFunc<T>; ownsObject: Boolean = False); overload;
-
-    /// <summary>
-    ///   Initializes a new instance of <see cref="TLazy&lt;T&gt;" /> with the
-    ///   specified value.
-    /// </summary>
-    /// <param name="value">
-    ///   The initialized value.
-    /// </param>
-    /// <param name="ownsObject">
-    ///   If <b>true</b> the value - if any got created - will be destroyed
-    ///   when going out of scope. Only when T is a class type.
-    /// </param>
-    constructor CreateFrom(const value: T; ownsObject: Boolean = False);
-
-    destructor Destroy; override;
-
-    /// <summary>
-    ///   Gets the lazily initialized value of the current <see cref="TLazy&lt;T&gt;" />
-    ///    instance.
-    /// </summary>
-    /// <value>
-    ///   The lazily initialized value of the current <see cref="TLazy&lt;T&gt;" />
-    ///    instance.
-    /// </value>
-    property Value: T read GetValue;
-  end;
+  {$M-}
 
   /// <summary>
   ///   Provides support for lazy initialization.
@@ -1660,10 +1942,10 @@ type
   /// </typeparam>
   Lazy<T> = record
   private
-    fLazy: ILazy<T>; // DO NOT ADD ANY OTHER FIELDS !!!
-    function GetIsAssigned: Boolean;
-    function GetIsValueCreated: Boolean;
-    function GetValue: T; inline;
+    fInstance: ILazy<T>; // DO NOT ADD ANY OTHER FIELDS !!!
+    function GetIsAssigned: Boolean; inline;
+    function GetIsValueCreated: Boolean; inline;
+    function GetValue: T;
   public
     /// <summary>
     ///   Initializes a new instance of the <see cref="Lazy&lt;T&gt;" />
@@ -1685,10 +1967,10 @@ type
     ///   If <b>true</b> the value - if any got created - will be destroyed
     ///   when going out of scope. Only when T is a class type.
     /// </param>
-    /// <exception cref="EArgumentNullException">
+    /// <exception cref="Spring|EArgumentNilException">
     ///   <i>valueFactory</i> is <b>nil</b>.
     /// </exception>
-    constructor Create(const valueFactory: TFunc<T>; ownsObject: Boolean = False); overload;
+    constructor Create(const valueFactory: Func<T>; ownsObject: Boolean = False); overload;
 
     /// <summary>
     ///   Initializes a new instance of <see cref="Lazy&lt;T&gt;" /> with the
@@ -1703,11 +1985,12 @@ type
     /// </param>
     constructor CreateFrom(const value: T; ownsObject: Boolean = False);
 
-    class operator Implicit(const value: Lazy<T>): ILazy<T>;
-    class operator Implicit(const value: Lazy<T>): T;
+    class operator Implicit(const {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}value: Lazy<T>): ILazy<T>;
+    class operator Implicit(const {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}value: Lazy<T>): T;
     class operator Implicit(const value: T): Lazy<T>;
-    class operator Implicit(const value: TFunc<T>): Lazy<T>;
-    class operator Implicit(const value: TLazy<T>): Lazy<T>;
+    class operator Implicit(const valueFactory: Func<T>): Lazy<T>;
+    class operator Implicit(const value: ILazy<T>): Lazy<T>;
+    class operator Implicit(const value: Nullable.Null): Lazy<T>;
 
     /// <summary>
     ///   Returns true if the value is assigned and contains an ILazy&lt;T&gt;
@@ -1735,6 +2018,122 @@ type
     /// </value>
     /// <exception cref="Spring|EInvalidOperationException" />
     property Value: T read GetValue;
+  end;
+
+  Lazy = record
+  private type
+    ILazyInternal = interface(ILazy)
+      procedure GetValue;
+      procedure GetValueInternal(var result);
+    end;
+
+    ILazyInternal<T> = interface(ILazy)
+      function GetValue: T;
+      procedure GetValueInternal(var result);
+    end;
+
+    TLazy = class(TRefCountedObject)
+    protected
+      fValueFactory: IInterface;
+      function GetIsValueCreated: Boolean;
+      procedure CreateValue;
+      procedure InvokeFactory(const valueFactory: Pointer); virtual; abstract;
+    public
+      property IsValueCreated: Boolean read GetIsValueCreated;
+    end;
+
+    TLazy<T> = class(TLazy, ILazy, ILazyInternal<T>)
+    protected
+      fValue: T;
+      function GetValue: TValue;
+      function GetValueT: T;
+      function ILazyInternal<T>.GetValue = GetValueT;
+      procedure GetValueInternal(var result);
+      procedure InvokeFactory(const valueFactory: Pointer); override;
+    end;
+
+    TDefaultCtorFactory = class(TRefCountedObject, Func<TObject>)
+    private
+      classType: TClass;
+      ctor: TConstructor;
+      function Invoke: TObject;
+    end;
+
+    TReference = record
+      Vtable: Pointer;
+      RefCount: Integer;
+      function QueryInterface(const IID: TGUID; out obj): HResult; stdcall;
+    end;
+
+    PObjectReference = ^TObjectReference;
+    TObjectReference = record
+      Vtable: Pointer;
+      RefCount: Integer;
+      Factory: IInterface;
+
+      Value: TObject;
+      OwnsObject: Boolean;
+      function _Release: Integer; stdcall;
+      function GetIsValueCreated: Boolean;
+      function GetValue: TValue;
+      function GetObject: TObject;
+      procedure GetValueInternal(var result);
+      procedure CreateValue;
+    end;
+
+    PInterfaceReference = ^TInterfaceReference;
+    TInterfaceReference = record
+      Vtable: Pointer;
+      RefCount: Integer;
+      Factory: IInterface;
+
+      Value: IInterface;
+      TypeInfo: PTypeInfo;
+      function _Release: Integer; stdcall;
+      function GetIsValueCreated: Boolean;
+      function GetValue: TValue;
+      function GetInterface: IInterface;
+      procedure GetValueInternal(var result);
+      procedure CreateValue;
+    end;
+
+  const
+    ObjectReferenceVtable: array[0..6] of Pointer =
+    (
+      @TReference.QueryInterface,
+      @RecAddRef,
+      @TObjectReference._Release,
+
+      @TObjectReference.GetIsValueCreated,
+      @TObjectReference.GetValue,
+      @TObjectReference.GetObject,
+      @TObjectReference.GetValueInternal
+    );
+
+    InterfaceReferenceVtable: array[0..6] of Pointer =
+    (
+      @TReference.QueryInterface,
+      @RecAddRef,
+      @TInterfaceReference._Release,
+
+      @TInterfaceReference.GetIsValueCreated,
+      @TInterfaceReference.GetValue,
+      @TInterfaceReference.GetInterface,
+      @TInterfaceReference.GetValueInternal
+    );
+  var
+    fInstance: ILazy;
+    procedure GetValue(var result);
+    function GetIsValueCreated: Boolean;
+  public
+    class procedure Make(const value: TObject; var result; ownsObject: Boolean); overload; static;
+    class procedure Make(const value: IInterface; var result; typeInfo: PTypeInfo); overload; static;
+    class procedure Make<T>(const value: T; var result); overload; static;
+
+    class procedure MakeFromDefaultCtor(var result; const typeInfo: PTypeInfo); static;
+    class procedure MakeFromFactory(factory: Pointer; var result; ownsObject: Boolean); overload; static;
+    class procedure MakeFromFactory(factory: Pointer; var result; typeInfo: PTypeInfo); overload; static;
+    class procedure MakeFromFactory<T>(factory: Pointer; var result); overload; static;
   end;
 
   /// <summary>
@@ -1774,18 +2173,90 @@ type
     ///     method will destroy the instances that were not stored.
     ///   </para>
     /// </remarks>
-    class function EnsureInitialized<T>(var target: T; const valueFactory: TFunc<T>): T; overload; static;
+    class function EnsureInitialized<T>(var target: T; const valueFactory: Func<T>): T; overload; static;
   end;
+
+  {$RTTI INHERIT
+      METHODS(DefaultMethodRttiVisibility)
+      FIELDS(DefaultFieldRttiVisibility)
+      PROPERTIES(DefaultPropertyRttiVisibility)}
+
+  {$ENDREGION}
+
+
+  {$REGION 'Weak smart pointer'}
+
+{$IFDEF DELPHIXE6_UP}{$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}{$ENDIF}
+
+  Weak<T> = record
+  private
+    fReference: IInterface;
+    function GetIsAlive: Boolean; inline;
+    function GetTarget: T;
+  public
+    class operator Implicit(const value: T): Weak<T>;
+    class operator Implicit({$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}const value: Weak<T>): T;
+
+    class operator Equal({$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}const left: Weak<T>; const right: T): Boolean;
+    class operator NotEqual({$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}const left: Weak<T>; const right: T): Boolean;
+
+    function TryGetTarget(var target: T): Boolean;
+    property Target: T read GetTarget;
+    property IsAlive: Boolean read GetIsAlive;
+  end;
+
+  Weak = record
+  private type
+    PReference = ^TReference;
+    TReference = record
+    private
+      Vtable: Pointer;
+      RefCount: Integer;
+      Target: Pointer;
+      function _Release_Obj: Integer; stdcall;
+      function _Release_Intf: Integer; stdcall;
+    end;
+
+  const
+    ObjectReferenceVtable: array[0..2] of Pointer =
+    (
+      @NopQueryInterface,
+      @RecAddRef,
+      @TReference._Release_Obj
+    );
+
+    InterfaceReferenceVtable: array[0..2] of Pointer =
+    (
+      @NopQueryInterface,
+      @RecAddRef,
+      @TReference._Release_Intf
+    );
+  private
+    class function Equal(const left; const right): Boolean; static;
+    class function NotEqual(const left; const right): Boolean; static;
+    class function GetIsAlive(const reference): Boolean; static;
+    class procedure GetTarget(const reference; var result; kind: TTypeKind); static;
+    class function TryGetTarget(const reference; var target; kind: TTypeKind): Boolean; static;
+    class procedure MakeFromObject(const value; var result); overload; static;
+    class procedure MakeFromInterface(const value; var result); overload; static;
+  end;
+
+  {$RTTI INHERIT
+      METHODS(DefaultMethodRttiVisibility)
+      FIELDS(DefaultFieldRttiVisibility)
+      PROPERTIES(DefaultPropertyRttiVisibility)}
 
   {$ENDREGION}
 
 
   {$REGION 'Shared smart pointer'}
 
+{$IFDEF DELPHIXE6_UP}{$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS([])}{$ENDIF}
+
   IShared<T> = reference to function: T;
 
   Shared<T> = record
-  strict private
+  private
     fValue: T;
     fFinalizer: IInterface;
     class function GetMake: IShared<T>; static;
@@ -1793,11 +2264,11 @@ type
     class operator Implicit(const value: IShared<T>): Shared<T>;
     class operator Implicit(const value: Shared<T>): IShared<T>;
     class operator Implicit(const value: Shared<T>): T; {$IFNDEF DELPHIXE4}inline;{$ENDIF}
+    class operator Implicit(const value: Shared<T>): Weak<T>;
     class operator Implicit(const value: T): Shared<T>;
     property Value: T read fValue;
 
     class property Make: IShared<T> read GetMake;
-    class function New: IShared<T>; static; deprecated 'use Shared<T>.Make';
   end;
 
   Shared = record
@@ -1808,116 +2279,60 @@ type
       Vtable: Pointer;
       RefCount: Integer;
       Value: TObject;
-      function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
-      function _AddRef: Integer; stdcall;
       function _Release: Integer; stdcall;
       function Invoke: TObject;
-    public
-      class function Create(typeInfo: PTypeInfo): PObjectFinalizer; overload; static;
-      class function Create(const value: TObject): PObjectFinalizer; overload; static;
     end;
 
-    TRecordFinalizer = class(TInterfacedObject, IShared<Pointer>)
+    PRecordFinalizer = ^TRecordFinalizer;
+    TRecordFinalizer = record
     private
-      fValue: Pointer;
-      fTypeInfo: PTypeInfo;
+      Vtable: Pointer;
+      RefCount: Integer;
+      Value: Pointer;
+      TypeInfo: PTypeInfo;
+      function _Release: Integer; stdcall;
       function Invoke: Pointer;
-    public
-      constructor Create(typeInfo: PTypeInfo); overload;
-      constructor Create(const value: Pointer; typeInfo: PTypeInfo); overload;
-      destructor Destroy; override;
     end;
 
     THandleFinalizer<T> = class(TInterfacedObject, IShared<T>)
     private
       fValue: T;
-      fFinalizer: TAction<T>;
+      fFinalizer: Action<T>;
       function Invoke: T;
     public
-      constructor Create(const value: T; finalizer: TAction<T>);
+      constructor Create(const value: T; finalizer: Action<T>);
       destructor Destroy; override;
     end;
 
   const
     ObjectFinalizerVtable: array[0..3] of Pointer =
     (
-      @TObjectFinalizer.QueryInterface,
-      @TObjectFinalizer._AddRef,
+      @NopQueryInterface,
+      @RecAddRef,
       @TObjectFinalizer._Release,
       @TObjectFinalizer.Invoke
     );
+    RecordFinalizerVtable: array[0..3] of Pointer =
+    (
+      @NopQueryInterface,
+      @RecAddRef,
+      @TRecordFinalizer._Release,
+      @TRecordFinalizer.Invoke
+    );
   private
-    class procedure Make(const value: TObject; var result: PObjectFinalizer); overload; static; inline;
+    class procedure Make(const value: TObject; var result); overload; static;
+    class procedure Make(const value: Pointer; typeInfo: PTypeInfo; var result); overload; static;
+    class procedure Make(typeInfo: PTypeInfo; var result); overload; static;
   public
+    class function Make<T: class, constructor>: IShared<T>; overload; static;
     class function Make<T>(const value: T): IShared<T>; overload; static;
-    class function Make<T>(const value: T; const finalizer: TAction<T>): IShared<T>; overload; static;
-
-    class function New<T>(const value: T): IShared<T>; overload; static; deprecated 'use Shared.Make';
-    class function New<T>(const value: T; const finalizer: TAction<T>): IShared<T>; overload; static; deprecated 'use Shared.Make';
+    class function Make<T>(const value: T; const finalizer: Action<T>): IShared<T>; overload; static;
   end;
 
-  {$ENDREGION}
-
-
-  {$REGION 'Weak smart pointer'}
-
-  IWeakReference<T> = interface
-  {$REGION 'Property Accessors'}
-    function GetIsAlive: Boolean;
-    function GetTarget: T;
-    procedure SetTarget(const value: T);
-  {$ENDREGION}
-    function TryGetTarget(out target: T): Boolean;
-    property IsAlive: Boolean read GetIsAlive;
-    property Target: T read GetTarget write SetTarget;
-  end;
-
-  TWeakReference = class abstract(TInterfacedObject)
-  private
-    fTarget: Pointer;
-  protected
-    function GetIsAlive: Boolean; inline;
-    procedure RegisterWeakRef(address: Pointer; instance: Pointer);
-    procedure UnregisterWeakRef(address: Pointer; instance: Pointer);
-  public
-    property IsAlive: Boolean read GetIsAlive;
-  end;
-
-  TWeakReference<T> = class(TWeakReference, IWeakReference<T>)
-  private
-    function GetTarget: T;
-    procedure SetTarget(const value: T);
-    constructor CreateInternal(const target: T; var ref: PPointer);
-  public
-    constructor Create(const target: T);
-    destructor Destroy; override;
-
-    function TryGetTarget(out target: T): Boolean;
-    property Target: T read GetTarget write SetTarget;
-  end;
-
-  Weak<T> = record
-  strict private
-    fTarget: PPointer;
-    fReference: IWeakReference<T>;
-    function GetIsAlive: Boolean;
-    function GetTarget: T;
-    procedure SetTarget(const value: T);
-    type PT = ^T;
-  public
-    constructor Create(const target: T);
-
-    class operator Implicit(const value: Shared<T>): Weak<T>;
-    class operator Implicit(const value: T): Weak<T>;
-    class operator Implicit(const value: Weak<T>): T;
-
-    class operator Equal(const left: Weak<T>; const right: T): Boolean; inline;
-    class operator NotEqual(const left: Weak<T>; const right: T): Boolean; inline;
-
-    function TryGetTarget(out target: T): Boolean;
-    property Target: T read GetTarget write SetTarget;
-    property IsAlive: Boolean read GetIsAlive;
-  end;
+  {$RTTI INHERIT
+      METHODS(DefaultMethodRttiVisibility)
+      FIELDS(DefaultFieldRttiVisibility)
+      PROPERTIES(DefaultPropertyRttiVisibility)}
 
   {$ENDREGION}
 
@@ -1956,7 +2371,7 @@ type
   TPropertyChangedEvent = procedure(Sender: TObject;
     const EventArgs: IPropertyChangedEventArgs) of object;
 
-  IPropertyChangedEvent = IEvent<TPropertyChangedEvent>;
+  IPropertyChangedEvent = IInvokableEvent<TPropertyChangedEvent>;
 
   INotifyPropertyChanged = interface
     ['{A517EC98-C651-466B-8290-F7EE96877E03}']
@@ -1990,15 +2405,10 @@ type
 
   ENotSupportedException = SysUtils.ENotSupportedException;
 
-{$IFNDEF DELPHI2010}
   ENotImplementedException = SysUtils.ENotImplemented;
   EInvalidOperationException = SysUtils.EInvalidOpException;
+  EKeyNotFoundException = class(SysUtils.EArgumentException);
   EArgumentNilException = SysUtils.EArgumentNilException;
-{$ELSE}
-  ENotImplementedException = class(Exception);
-  EInvalidOperationException = class(Exception);
-  EArgumentNilException = class(EArgumentException);
-{$ENDIF}
 
   EInvalidCastException = SysUtils.EInvalidCast;
 
@@ -2009,7 +2419,6 @@ type
 
   EArgumentException = SysUtils.EArgumentException;
   EArgumentOutOfRangeException = SysUtils.EArgumentOutOfRangeException;
-  EArgumentNullException = EArgumentNilException;
   EInvalidEnumArgumentException = class(EArgumentException);
 
   ERttiException = class(Exception);
@@ -2023,10 +2432,9 @@ type
   strict private
     function GetRttiType: TRttiType; inline;
   public
-{$IFNDEF DELPHIXE3_UP}
-    function TypeData: PTypeData; inline;
-{$ENDIF}
+    function TypeData: PTypeData;
     function TypeName: string; inline;
+    function TypeSize: Integer; inline;
 
     property RttiType: TRttiType read GetRttiType;
   end;
@@ -2041,78 +2449,6 @@ type
 {$IFNDEF DELPHIXE3_UP}
     function DynArrElType: PPTypeInfo; inline;
 {$ENDIF}
-  end;
-
-  {$ENDREGION}
-
-
-  {$REGION 'TInterfacedCriticalSection'}
-
-  ICriticalSection = interface(IInvokable)
-    ['{16C21E9C-6450-4EA4-A3D3-1D59277C9BA6}']
-    procedure Enter;
-    procedure Leave;
-    function ScopedLock: IInterface;
-  end;
-
-  TInterfacedCriticalSection = class(TCriticalSection, IInterface, ICriticalSection)
-  private type
-    TScopedLock = class(TInterfacedObject)
-    private
-      fCriticalSection: ICriticalSection;
-    public
-      constructor Create(const criticalSection: ICriticalSection);
-      destructor Destroy; override;
-    end;
-  protected
-    fRefCount: Integer;
-    function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
-    function _AddRef: Integer; stdcall;
-    function _Release: Integer; stdcall;
-    function ScopedLock: IInterface;
-  end;
-
-  {$ENDREGION}
-
-
-  {$REGION 'Lock'}
-
-  /// <summary>
-  ///   Provides an easy to use wrapper around TCriticalSection. It
-  ///   automatically initializes the TCriticalSection instance when required
-  ///   and destroys it when the Lock goes out of scope.
-  /// </summary>
-  Lock = record
-  private
-    fCriticalSection: ICriticalSection;
-    procedure EnsureInitialized;
-  public
-    /// <summary>
-    ///   Calls Enter on the underlying TCriticalSection. The first call also
-    ///   initializes the TCriticalSection instance.
-    /// </summary>
-    procedure Enter;
-
-    /// <summary>
-    ///   Calls Leave on the underlying TCriticalSection. If no call to Enter
-    ///   has been made before it will raise an exception.
-    /// </summary>
-    /// <exception cref="EInvalidOperationException">
-    ///   When Enter was not called before
-    /// </exception>
-    procedure Leave;
-
-    /// <summary>
-    ///   Calls Enter on the underlying TCriticalSection and returns an
-    ///   interface reference that will call Leave once it goes out of scope.
-    /// </summary>
-    /// <remarks>
-    ///   Use this to avoid the classic try/finally block but keep in mind that
-    ///   the scope will be the entire method this is used in unless you keep
-    ///   hold of the returned interface and explicitly set it to nil causing
-    ///   its destruction.
-    /// </remarks>
-    function ScopedLock: IInterface;
   end;
 
   {$ENDREGION}
@@ -2196,27 +2532,181 @@ type
   {$ENDREGION}
 
 
+  {$REGION 'TTimSort'}
+
+{$IFDEF DELPHIXE7_UP}
+  Pointer<T> = record
+    {$POINTERMATH ON}
+    type P = ^T;
+    {$POINTERMATH OFF}
+  end;
+
+  PTimSort = ^TTimSort;
+  TTimSort = record
+  private
+    type
+      TCompareFunc = function(const left, right): Integer of object;
+      TMergeFunc = procedure(left: Pointer; leftLen: Integer; right: Pointer; rightLen: Integer; self: PTimSort);
+      TComparerMethod<T> = function(const left, right: T): Integer of object;
+      {$POINTERMATH ON}
+      PSlice = ^TSlice;
+      {$POINTERMATH OFF}
+      TSlice = record
+        base: Pointer; len: Integer;
+      end;
+      TSliceArray = array[0..48] of TSlice;
+  private
+    const
+      MIN_MERGE = 64;
+      MIN_GALLOP = 7;
+      INITIAL_TMP_STORAGE_LENGTH = 256;
+  private
+    fMinGallop: Integer;
+    fTmp: Pointer; // TArray<T>
+    fCompare: TMethodPointer;
+    fCompareFunc: TCompareFunc;
+    fMergeLo: TMergeFunc;
+    fMergeHi: TMergeFunc;
+    fItemSize: Integer;
+    fStackLen: Integer;
+    fRuns: TSliceArray;
+    fArrayTypeInfo: PTypeInfo;
+  private
+    procedure Initialize(const comparer: IInterface; const compareFunc: Pointer;
+      mergeLo, mergeHi: TMergeFunc; arrayTypeInfo: PTypeInfo; itemSize: Integer);
+    procedure Finalize;
+    function at(items: Pointer; index: Integer): Pointer; inline;
+  public
+    class function CompareThunk<T>(instance: Pointer; const left, right): Integer; static;
+    class procedure BinaryInsertionSort<T>(var values: array of T; start: NativeInt; const comparer: IComparer<T>); static;
+    class function CountRunAndMakeAscending<T>(var values: array of T; const comparer: IComparer<T>): Integer; static;
+    class function MinRunLength(n: Integer): Integer; static;
+    procedure PushRun(runBase: Pointer; runLen: Integer); inline;
+    procedure MergeCollapse;
+    procedure MergeForceCollapse;
+    procedure MergeAt(i: Integer);
+    function GallopLeft(key: Pointer; items: Pointer; len, hint: Integer): Integer;
+    function GallopRight(key: Pointer; items: Pointer; len, hint: Integer): Integer;
+    class procedure MergeLo<T>(left: Pointer<T>.P; leftLen: Integer; right: Pointer<T>.P; rightLen: Integer; ts: PTimSort); static;
+    class procedure MergeHi<T>(left: Pointer<T>.P; leftLen: Integer; right: Pointer<T>.P; rightLen: Integer; ts: PTimSort); static;
+    function EnsureTmpCapacity(neededCapacity: Integer): Pointer; inline;
+    procedure Grow(neededCapacity: NativeInt);
+  public
+    class procedure Sort(items: Pointer; const comparer: IComparer<Pointer>; index, count: Integer); overload; static;
+    class procedure Sort<T>(items: Pointer; const comparer: IComparer<T>; index, count: Integer); overload; static;
+  end;
+  {$ENDIF}
+
+  {$ENDREGION}
+
+
   {$REGION 'TArray'}
 
+  IComparerRef = interface //FI:W523
+    function Compare(const left, right): Integer;
+  end;
+  TSlice<T> = array[0..2] of T;
+  Int24 = packed record
+  case Integer of
+    0: (Low: Word; High: Byte);
+    1: (Bytes: array[0..2] of Byte);
+  end;
+  PInt24 = ^Int24;
   TArray = class
-  private
+  private type
+    TCompareMethodRef = function(const left, right): Integer of object;
+    TCompareMethod<T> = function(const left, right: T): Integer of object;
+    TQuickSortPartitionHelper<T> = record
+      compare: TCompareMethod<T>;
+      pivotIndex: NativeInt;
+      temp, pivot: T;
+    end;
+    TInsertionSortHelper<T> = record
+      compare: TCompareMethod<T>;
+      hi: NativeInt;
+      temp: T;
+    end;
+  protected
+    const FoldedTypeKinds = [tkInteger, tkChar, tkEnumeration, tkClass, tkMethod, tkWChar, tkInterface, tkInt64, tkUString, tkClassRef, tkPointer, tkProcedure];
+    const PointerTypeKinds = [tkClass, tkInterface, tkDynArray, tkUString, tkClassRef, tkPointer, tkProcedure];
     const IntrosortSizeThreshold = 16;
     class function GetDepthLimit(count: Integer): Integer; static;
 
-    class procedure Swap<T>(var left, right: T); static; inline;
+    class procedure DownHeap<T>(var values: array of T; {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}const compare: TCompareMethod<T>; i: NativeInt); static;
+    class procedure HeapSort<T>(var values: array of T; {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}const compare: TCompareMethod<T>); static;
 
-    class procedure SortTwoItems<T>(const comparer: IComparer<T>; var left, right: T); static;
-    class procedure SortThreeItems<T>(const comparer: IComparer<T>; var left, mid, right: T); static;
+    class procedure InsertionSort<T>(var values: array of T; const comparer: IComparer<T>); static;
+    class function QuickSortPartition<T>(var values: array of T; {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}const compare: TCompareMethod<T>): NativeInt; static;
+    class procedure IntroSort<T>(var values: array of T; const comparer: IComparer<T>; depthLimit: Integer = -1); static;
 
-    class procedure InsertionSort<T>(var values: array of T; const comparer: IComparer<T>; left, right: Integer); static;
+    class procedure DownHeap_Ref(values: PByte; hi: NativeInt; const compare: TCompareMethodRef; i, size: NativeInt); static;
+    class procedure HeapSort_Ref(values: PByte; hi: NativeInt; const compare: TCompareMethodRef; size: NativeInt); static;
+    class procedure InsertionSort_Ref(values: PByte; hi: NativeInt; const compare: TCompareMethodRef; size: NativeInt); static;
+    class function QuickSortPartition_Ref(values: PByte; hi: NativeInt; {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}const compare: TCompareMethodRef; size: NativeInt): NativeInt; static;
+    class procedure IntroSort_Ref(values: PByte; hi: NativeInt; const comparer: IComparerRef; size: NativeInt; depthLimit: Integer = -1); static;
 
-    class procedure DownHeap<T>(var values: array of T; const comparer: IComparer<T>; left, count, i: Integer); static;
-    class procedure HeapSort<T>(var values: array of T; const comparer: IComparer<T>; left, right: Integer); static;
+    class procedure IntroSort_Int8(var values: array of Int8; const comparer: IComparer<Int8>); static;
+    class procedure IntroSort_Int16(var values: array of Int16; const comparer: IComparer<Int16>); static;
+    class procedure IntroSort_Int24(var values: array of Int24; const comparer: IComparer<Int24>); static;
+    class procedure IntroSort_Int32(var values: array of Int32; const comparer: IComparer<Int32>); static;
+    class procedure IntroSort_Int64(var values: array of Int64; const comparer: IComparer<Int64>); static;
+    class procedure IntroSort_Single(var values: array of Single; const comparer: IComparer<Single>); static;
+    class procedure IntroSort_Double(var values: array of Double; const comparer: IComparer<Double>); static;
+    class procedure IntroSort_Extended(var values: array of Extended; const comparer: IComparer<Extended>); static;
+    class procedure IntroSort_Method(var values: array of TMethodPointer; const comparer: IComparer<TMethodPointer>); static;
 
-    class function QuickSortPartition<T>(var values: array of T; const comparer: IComparer<T>; left, right: Integer): Integer; static;
+    class procedure Reverse_Int8(const values: PInt8; right: NativeInt); static;
+    class procedure Reverse_Int16(const values: PInt16; right: NativeInt); static;
+    class procedure Reverse_Int24(const values: PInt24; right: NativeInt); static;
+    class procedure Reverse_Int32(const values: PInt32; right: NativeInt); static;
+    class procedure Reverse_Int64(const values: PInt64; right: NativeInt); static;
+    class procedure Reverse_Single(const values: PSingle; right: NativeInt); static;
+    class procedure Reverse_Double(const values: PDouble; right: NativeInt); static;
+    class procedure Reverse_Extended(const values: PExtended; right: NativeInt); static;
+    class procedure Reverse_Method(const values: PMethodPointer; right: NativeInt); static;
+    class procedure Reverse_Ref(const values: PByte; right, size: NativeInt); static;
+    class procedure Reverse_Generic<T>(var values: array of T); static;
 
-    class procedure IntroSort<T>(var values: array of T; const comparer: IComparer<T>; left, right, depthLimit: Integer); static;
+    class procedure Shuffle_Int8(const values: PInt8; hi: NativeInt); static;
+    class procedure Shuffle_Int16(const values: PInt16; hi: NativeInt); static;
+    class procedure Shuffle_Int24(const values: PInt24; hi: NativeInt); static;
+    class procedure Shuffle_Int32(const values: PInt32; hi: NativeInt); static;
+    class procedure Shuffle_Int64(const values: PInt64; hi: NativeInt); static;
+    class procedure Shuffle_Single(const values: PSingle; hi: NativeInt); static;
+    class procedure Shuffle_Double(const values: PDouble; hi: NativeInt); static;
+    class procedure Shuffle_Extended(const values: PExtended; hi: NativeInt); static;
+    class procedure Shuffle_Method(const values: PMethodPointer; hi: NativeInt); static;
+    class procedure Shuffle_Ref(const values: PByte; hi, size: NativeInt); static;
+    class procedure Shuffle_Generic<T>(var values: array of T); static;
+
+    class function BinarySearchInternal<T>(const values: array of T;
+      const item: T; out foundIndex: Integer; const comparer: IComparer<T>): Boolean; static;
+    class function BinarySearchUpperBoundInternal<T>(const values: array of T;
+      const item: T; out foundIndex: Integer; const comparer: IComparer<T>): Boolean; static;
   public
+    /// <summary>
+    ///   Searches a sorted array for the given value, using a binary search
+    ///   algorithm returning the index for the first found value using the
+    ///   default comparer.
+    /// </summary>
+    class function BinarySearch<T>(const values: array of T; const item: T;
+      out foundIndex: Integer): Boolean; overload; static;
+
+    /// <summary>
+    ///   Searches a range of elements in a sorted array for the given value,
+    ///   using a binary search algorithm returning the index for the first
+    ///   found value using the default comparer.
+    /// </summary>
+    class function BinarySearch<T>(const values: array of T; const item: T;
+      out foundIndex: Integer; index, count: Integer): Boolean; overload; static;
+
+    /// <summary>
+    ///   Searches a sorted array for the given value, using a binary search
+    ///   algorithm returning the index for the first found value using the
+    ///   specified comparer.
+    /// </summary>
+    class function BinarySearch<T>(const values: array of T; const item: T;
+      out foundIndex: Integer; const comparer: IComparer<T>): Boolean; overload; static;
 
     /// <summary>
     ///   Searches a range of elements in a sorted array for the given value,
@@ -2230,18 +2720,10 @@ type
     /// <summary>
     ///   Searches a sorted array for the given value, using a binary search
     ///   algorithm returning the index for the first found value using the
-    ///   specified comparer.
+    ///   specified comparison.
     /// </summary>
     class function BinarySearch<T>(const values: array of T; const item: T;
-      out foundIndex: Integer; const comparer: IComparer<T>): Boolean; overload; static;
-
-    /// <summary>
-    ///   Searches a sorted array for the given value, using a binary search
-    ///   algorithm returning the index for the first found value using the
-    ///   default comparer.
-    /// </summary>
-    class function BinarySearch<T>(const values: array of T; const item: T;
-      out foundIndex: Integer): Boolean; overload; static;
+      out foundIndex: Integer; const comparison: TComparison<T>): Boolean; overload; static;
 
     /// <summary>
     ///   Searches a range of elements in a sorted array for the given value,
@@ -2254,28 +2736,18 @@ type
 
     /// <summary>
     ///   Searches a sorted array for the given value, using a binary search
-    ///   algorithm returning the index for the first found value using the
-    ///   specified comparison.
+    ///   algorithm returning the index for the last found value.
     /// </summary>
-    class function BinarySearch<T>(const values: array of T; const item: T;
-      out foundIndex: Integer; const comparison: TComparison<T>): Boolean; overload; static;
+    class function BinarySearchUpperBound<T>(const values: array of T;
+      const item: T; out foundIndex: Integer): Boolean; overload; static;
 
     /// <summary>
     ///   Searches a range of elements in a sorted array for the given value,
     ///   using a binary search algorithm returning the index for the last
-    ///   found value using the specified comparer.
+    ///   found value using the default comparer.
     /// </summary>
     class function BinarySearchUpperBound<T>(const values: array of T;
-      const item: T; out foundIndex: Integer; const comparer: IComparer<T>;
-      index, count: Integer): Boolean; overload; static;
-
-    /// <summary>
-    ///   Searches a range of elements in a sorted array for the given value,
-    ///   using a binary search algorithm returning the index for the last
-    ///   found value using the specified comparison.
-    /// </summary>
-    class function BinarySearchUpperBound<T>(const values: array of T;
-      const item: T; out foundIndex: Integer; const comparison: TComparison<T>;
+      const item: T; out foundIndex: Integer;
       index, count: Integer): Boolean; overload; static;
 
     /// <summary>
@@ -2288,6 +2760,15 @@ type
       const comparer: IComparer<T>): Boolean; overload; static;
 
     /// <summary>
+    ///   Searches a range of elements in a sorted array for the given value,
+    ///   using a binary search algorithm returning the index for the last
+    ///   found value using the specified comparer.
+    /// </summary>
+    class function BinarySearchUpperBound<T>(const values: array of T;
+      const item: T; out foundIndex: Integer; const comparer: IComparer<T>;
+      index, count: Integer): Boolean; overload; static;
+
+    /// <summary>
     ///   Searches a sorted array for the given value, using a binary search
     ///   algorithm returning the index for the last found value using the
     ///   specified comparer.
@@ -2297,11 +2778,13 @@ type
       const comparison: TComparison<T>): Boolean; overload; static;
 
     /// <summary>
-    ///   Searches a sorted array for the given value, using a binary search
-    ///   algorithm returning the index for the last found value.
+    ///   Searches a range of elements in a sorted array for the given value,
+    ///   using a binary search algorithm returning the index for the last
+    ///   found value using the specified comparison.
     /// </summary>
     class function BinarySearchUpperBound<T>(const values: array of T;
-      const item: T; out foundIndex: Integer): Boolean; overload; static;
+      const item: T; out foundIndex: Integer; const comparison: TComparison<T>;
+      index, count: Integer): Boolean; overload; static;
 
     /// <summary>
     ///   Concatenates an array of arrays to one array
@@ -2338,7 +2821,7 @@ type
     ///   Executes the specified action for each item in the specified array.
     /// </summary>
     class procedure ForEach<T>(const values: array of T;
-      const action: TAction<T>); static;
+      const action: Action<T>); static;
 
     /// <summary>
     ///   Searches for the specified element and returns the index of the first
@@ -2407,6 +2890,11 @@ type
       const comparer: IEqualityComparer<T>): Integer; overload; static;
 
     /// <summary>
+    ///   Swaps the values of the specified variables.
+    /// </summary>
+    class procedure Swap<T>(left, right: Pointer); static; inline;
+
+    /// <summary>
     ///   Reverses the elements in the entire array.
     /// </summary>
     class procedure Reverse<T>(var values: array of T); overload; static;
@@ -2418,16 +2906,14 @@ type
       index, count: Integer); overload; static;
 
     /// <summary>
+    ///   Reverses the elements in the specified range in the array.
+    /// </summary>
+    class procedure Reverse<T>(const values: Pointer; hi: NativeInt); overload; static; inline;
+
+    /// <summary>
     ///   Shuffles the elements in the array using the Fisher-Yates algorithm.
     /// </summary>
     class procedure Shuffle<T>(var values: array of T); overload; static;
-
-    /// <summary>
-    ///   Shuffles the elements in the array starting at the specified index
-    ///   using the Fisher-Yates algorithm.
-    /// </summary>
-    class procedure Shuffle<T>(var values: array of T;
-      index: Integer); overload; static;
 
     /// <summary>
     ///   Shuffles the specified count of elements in the array starting at the
@@ -2435,6 +2921,12 @@ type
     /// </summary>
     class procedure Shuffle<T>(var values: array of T;
       index, count: Integer); overload; static;
+
+    /// <summary>
+    ///   Shuffles the elements in the specified range in the array using the
+    ///   Fisher-Yates algorithm.
+    /// </summary>
+    class procedure Shuffle<T>(const values: Pointer; hi: NativeInt); overload; static; inline;
 
     /// <summary>
     ///   Sorts the elements in an array using the default comparer.
@@ -2464,6 +2956,79 @@ type
     /// </summary>
     class procedure Sort<T>(var values: array of T;
       const comparison: TComparison<T>; index, count: Integer); overload; static;
+
+{$IFDEF DELPHIXE7_UP}
+    /// <summary>
+    ///   When <c>True</c> any managed reference type is treated as Pointer by
+    ///   StableSort results in faster sorting.
+    /// </summary>
+    class var UnsafeStableSort: Boolean;
+    const ManagedPointerTypeKinds = [tkInterface, tkDynArray, tkUString];
+    const UnmanagedPointerTypeKinds = [tkClass, tkClassRef, tkPointer, tkProcedure];
+
+    /// <summary>
+    ///   Sorts the elements in an array using the default comparer.
+    /// </summary>
+    class procedure StableSort<T>(var values: array of T); overload; static;
+
+    /// <summary>
+    ///   Sorts the specified range of elements in an array using the default
+    ///   comparer.
+    /// </summary>
+    class procedure StableSort<T>(var values: array of T; index, count: Integer); overload; static;
+
+    /// <summary>
+    ///   Sorts the elements in an array using the specified comparer.
+    /// </summary>
+    class procedure StableSort<T>(var values: array of T; const comparer: IComparer<T>); overload; static;
+
+    /// <summary>
+    ///   Sorts the specified range of elements in an array using the specified
+    ///   comparer.
+    /// </summary>
+    class procedure StableSort<T>(var values: array of T;
+      const comparer: IComparer<T>; index, count: Integer); overload; static;
+
+    /// <summary>
+    ///   Sorts the elements in an array using the specified comparison.
+    /// </summary>
+    class procedure StableSort<T>(var values: array of T; const comparison: TComparison<T>); overload; static;
+
+    /// <summary>
+    ///   Sorts the specified range of elements in an array using the specified
+    ///   comparison.
+    /// </summary>
+    class procedure StableSort<T>(var values: array of T;
+      const comparison: TComparison<T>; index, count: Integer); overload; static;
+{$ENDIF}
+  end;
+
+  {$ENDREGION}
+
+
+  {$REGION 'TTypeInfo<T>'}
+
+  TTypeInfo<T> = record
+  private
+  {$IFDEF DELPHIXE7_UP}
+    {$IFDEF WEAKREF}
+    class function GetHasWeakRef: Boolean; static; inline;
+    {$ENDIF}
+    class function GetIsManaged: Boolean; static; inline;
+  {$ELSE}
+    {$IFDEF WEAKREF}
+    class var fHasWeakRef: Boolean;
+    {$ENDIF}
+    class var fIsManaged: Boolean;
+    class constructor Create;
+  {$ENDIF}
+  public
+    {$IFDEF WEAKREF}
+    class property HasWeakRef: Boolean read {$IFDEF DELPHIXE7_UP}GetHasWeakRef{$ELSE}fHasWeakRef{$ENDIF};
+    {$ELSE}
+    const HasWeakRef = False;
+    {$ENDIF}
+    class property IsManaged: Boolean read {$IFDEF DELPHIXE7_UP}GetIsManaged{$ELSE}fIsManaged{$ENDIF};
   end;
 
   {$ENDREGION}
@@ -2471,13 +3036,9 @@ type
 
   {$REGION 'Vector<T>'}
 
-{$IFDEF DELPHI2010}
-  TArrayEnumerator<T> = class
-{$ELSE}
   TArrayEnumerator<T> = record
-{$ENDIF}
   private
-    fItems: TArray<T>;
+    fItems: Pointer;
     fIndex: Integer;
     function GetCurrent: T; inline;
   public
@@ -2488,25 +3049,25 @@ type
 
   VectorHelper = record
   private
-    class function InternalIndexOfInt8(const data: Pointer; const item: ShortInt): Integer; static;
-    class function InternalIndexOfInt16(const data: Pointer; const item: SmallInt): Integer; static;
-    class function InternalIndexOfInt32(const data: Pointer; const item: Integer): Integer; static;
-    class function InternalIndexOfInt64(const data: Pointer; const item: Int64): Integer; static;
-    class function InternalIndexOfStr(const data: Pointer; const item: string): Integer; static;
+    class function InternalIndexOfInt8(const data: Pointer; const item: ShortInt): NativeInt; static;
+    class function InternalIndexOfInt16(const data: Pointer; const item: SmallInt): NativeInt; static;
+    class function InternalIndexOfInt32(const data: Pointer; const item: Integer): NativeInt; static;
+    class function InternalIndexOfInt64(const data: Pointer; const item: Int64): NativeInt; static;
+    class function InternalIndexOfStr(const data: Pointer; const item: string): NativeInt; static;
   end;
 
   Vector<T> = record
   private
     fData: TArray<T>; // DO NOT ADD ANY OTHER FIELDS !!!
-    function GetCount: Integer; inline;
+    function GetCount: NativeInt; inline;
     function GetFirst: T; inline;
-    function GetItem(index: Integer): T; inline;
+    function GetItem(index: NativeInt): T; inline;
     function GetLast: T; inline;
-    procedure SetCount(value: Integer); inline;
-    procedure SetItem(index: Integer; const value: T); inline;
-    procedure InternalInsert(index: Integer; const items: array of T);
+    procedure SetCount(value: NativeInt); inline;
+    procedure SetItem(index: NativeInt; const value: T); inline;
+    procedure InternalInsert(index: NativeInt; const items: array of T);
     function InternalEquals(const items: array of T): Boolean;
-    function InternalIndexOf(const item: T): Integer;
+    function InternalIndexOf(const item: T): NativeInt;
   public
     class operator Implicit(const value: TArray<T>): Vector<T>; inline;
     class operator Implicit(const value: Vector<T>): TArray<T>; inline;
@@ -2526,15 +3087,15 @@ type
     procedure Assign(const items: array of T);
     procedure Clear; inline;
 
-    function Add(const item: T): Integer; overload; inline;
+    function Add(const item: T): NativeInt; overload; inline;
     procedure Add(const items: array of T); overload;
     procedure Add(const items: TArray<T>); overload; inline;
     procedure Add(const items: Vector<T>); overload; inline;
-    procedure Insert(index: Integer; const item: T); overload; inline;
-    procedure Insert(index: Integer; const items: array of T); overload;
-    procedure Insert(index: Integer; const items: TArray<T>); overload; inline;
-    procedure Delete(index: Integer); overload; inline;
-    procedure Delete(index: Integer; count: Integer); overload; inline;
+    procedure Insert(index: NativeInt; const item: T); overload; inline;
+    procedure Insert(index: NativeInt; const items: array of T); overload;
+    procedure Insert(index: NativeInt; const items: TArray<T>); overload; inline;
+    procedure Delete(index: NativeInt); overload; inline;
+    procedure Delete(index: NativeInt; count: NativeInt); overload; inline;
     function Remove: T; overload; inline;
     procedure Remove(const item: T); overload; inline;
     procedure Remove(const items: array of T); overload;
@@ -2545,55 +3106,35 @@ type
     function Contains(const item: T; const comparer: TEqualityComparison<T>): Boolean; overload;
     function Contains(const items: array of T): Boolean; overload;
     function Contains(const items: TArray<T>): Boolean; overload;
-    function IndexOf(const item: T): Integer; inline;
+    function IndexOf(const item: T): NativeInt; inline;
     function Equals(const items: array of T): Boolean; overload;
     function Equals(const items: TArray<T>): Boolean; overload; inline;
 
-    function Slice(index: Integer): Vector<T>; overload; inline;
-    function Slice(index: Integer; count: Integer): Vector<T>; overload; inline;
-    function Splice(index: Integer; count: Integer): Vector<T>; overload; inline;
-    function Splice(index: Integer; count: Integer; const items: array of T): Vector<T>; overload;
+    function Slice(index: NativeInt): Vector<T>; overload; inline;
+    function Slice(index: NativeInt; count: NativeInt): Vector<T>; overload; inline;
+    function Splice(index: NativeInt; count: NativeInt): Vector<T>; overload; inline;
+    function Splice(index: NativeInt; count: NativeInt; const items: array of T): Vector<T>; overload;
 
     procedure Sort; overload; inline;
     procedure Sort(const comparer: IComparer<T>); overload; inline;
     procedure Sort(const comparer: TComparison<T>); overload; inline;
     procedure Reverse;
 
-    procedure ForEach(const action: TAction<T>); inline;
+    procedure ForEach(const action: Action<T>); inline;
 
     function GetEnumerator: TArrayEnumerator<T>; inline;
-    property Count: Integer read GetCount;
+    property Count: NativeInt read GetCount;
     property Data: TArray<T> read fData;
     property First: T read GetFirst;
-    property Items[index: Integer]: T read GetItem write SetItem; default;
+    property Items[index: NativeInt]: T read GetItem write SetItem; default;
     property Last: T read GetLast;
-    property Length: Integer read GetCount write SetCount;
+    property Length: NativeInt read GetCount write SetCount;
   end;
-
-  {$ENDREGION}
-
-
-  {$REGION 'TFormatSettingsHelper'}
-
-{$IFDEF DELPHI2010}
-  TFormatSettingsHelper = record helper for TFormatSettings
-  public
-    /// <summary>
-    ///   Creates a TFormatSettings record with current default values provided
-    ///   by the operating system.
-    /// </summary>
-    class function Create: TFormatSettings; static; inline;
-  end;
-{$ENDIF}
 
   {$ENDREGION}
 
 
   {$REGION 'Routines'}
-
-{$IFDEF DELPHI2010}
-function SplitString(const s, delimiters: string): TStringDynArray;
-{$ENDIF}
 
 {$IFNDEF DELPHIXE2_UP}
 function ReturnAddress: Pointer;
@@ -2603,16 +3144,21 @@ function ReturnAddress: Pointer;
 function Pos(const SubStr, Str: UnicodeString; Offset: Integer): Integer; overload;
 {$ENDIF}
 
+{$IFNDEF DELPHIXE7_UP}
+procedure DynArrayAssign(var Dest: Pointer; Source: Pointer; typeInfo: Pointer);
+procedure DynArrayCopyRange(var Result: Pointer; A: Pointer; TypeInfo: Pointer; Index, Count: NativeInt);
+{$ENDIF}
+
 procedure PlatformNotImplemented;
 
 /// <summary>
-///   Raises an <see cref="Spring|EArgumentNullException" /> if the <paramref name="value" />
+///   Raises an <see cref="Spring|EArgumentNilException" /> if the <paramref name="value" />
 ///    is nil.
 /// </summary>
 procedure CheckArgumentNotNull(const value: IInterface; const argumentName: string); overload; deprecated 'Use Guard.CheckNotNull instead';
 
 /// <summary>
-///   Raises an <see cref="Spring|EArgumentNullException" /> if the <paramref name="value" />
+///   Raises an <see cref="Spring|EArgumentNilException" /> if the <paramref name="value" />
 ///    is nil.
 /// </summary>
 procedure CheckArgumentNotNull(value: Pointer; const argumentName: string); overload; deprecated 'Use Guard.CheckNotNull instead';
@@ -2629,6 +3175,12 @@ function FormatValue(const value: TValue): string;
 function IsAssignableFrom(leftType, rightType: PTypeInfo): Boolean; overload;
 
 function IsAssignableFrom(const leftTypes, rightTypes: array of PTypeInfo): Boolean; overload;
+
+/// <summary>
+///   Determines whether an instance of <c>leftType</c> can be assigned from an
+///   instance of <c>rightType</c> using an equality check of the typeinfo.
+/// </summary>
+function IsAssignableFromRelaxed(leftType, rightType: PTypeInfo): Boolean;
 
 /// <summary>
 ///   Returns <c>True</c> if the type is a nullable type.
@@ -2679,6 +3231,10 @@ function GetSetSize(typeInfo: PTypeInfo): Integer;
 /// <summary>
 ///   Compares two TValue instances.
 /// </summary>
+/// <remarks>
+///   A value that returns <c>True</c> from <see cref="IsEmpty" />
+///   it is considered greater than a non empty value.
+/// </remarks>
 function CompareValue(const left, right: TValue): Integer; overload;
 
 /// <summary>
@@ -2686,8 +3242,22 @@ function CompareValue(const left, right: TValue): Integer; overload;
 /// </summary>
 function TypesOf(const values: array of TValue): TArray<PTypeInfo>;
 
+function InterfaceToMethodPointer(const intf; index: Integer): TMethodPointer;
+function MethodReferenceToMethod(const methodRef): TMethod;
 function MethodReferenceToMethodPointer(const methodRef): TMethodPointer;
+function MethodToMethodReference(const method: TMethod): IInterface;
 function MethodPointerToMethodReference(const method: TMethodPointer): IInterface;
+function HasMethodInfo(typeInfo: PTypeInfo): Boolean;
+function IsMethodReference(typeInfo: PTypeInfo): Boolean;
+
+function GetInterfaceByTypeInfo(self: TObject; intf: PTypeInfo; out obj): Boolean;
+
+{$IFDEF MSWINDOWS}
+function UTF8IdentIdentCompare(left, right: PByte): Boolean;
+{$ENDIF}
+
+function SameTypeInfo(const left, right: PTypeInfo): Boolean;
+function GetTypeInfoHashCode(const typeInfo: PTypeInfo): Integer;
 
 function SkipShortString(P: PByte): Pointer; inline;
 
@@ -2726,75 +3296,140 @@ function GetVirtualMethod(const classType: TClass; const index: Integer): Pointe
 function GetAbstractError: Pointer;
 
 {$IFNDEF DELPHIXE3_UP}
-function AtomicIncrement(var target: Integer): Integer;
-function AtomicDecrement(var target: Integer): Integer;
+function AtomicIncrement(var target: Integer): Integer; overload;
+function AtomicIncrement(var target: Integer; increment: Integer): Integer; overload;
+function AtomicIncrement(var target: Int64; increment: Int64 = 1): Int64; overload;
+function AtomicDecrement(var target: Integer): Integer; overload;
+function AtomicDecrement(var target: NativeInt; decrement: NativeInt): NativeInt; overload;
+function AtomicExchange(var target: Integer; value: Integer): Integer; overload;
+function AtomicExchange(var target: NativeInt; value: NativeInt): NativeInt; overload;
+function AtomicExchange(var target: Pointer; value: Pointer): Pointer; overload;
 function AtomicCmpExchange(var target: Integer; newValue, comparand: Integer): Integer; overload;
-function AtomicCmpExchange(var target: Pointer; newValue, comparand: Pointer): TObject; overload;
+function AtomicCmpExchange(var target: NativeInt; newValue, comparand: NativeInt): NativeInt; overload;
+function AtomicCmpExchange(var target: Pointer; newValue, comparand: Pointer): Pointer; overload;
 {$ENDIF}
+procedure AtomicStore(var target: Int64; const {$IFDEF CPUX86}{$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}{$ENDIF}value: Int64); {$IFNDEF CPUX86}inline;{$ENDIF}
+function AtomicLoad(var source: Int64): Int64; {$IFNDEF CPUX86}inline;{$ENDIF}
+function AtomicExchangeAdd(var target: Int64; const value: Int64): Int64;
 
 procedure IncUnchecked(var i: Integer; const n: Integer = 1); inline;
 
-procedure SwapPtr(var left, right); inline;
+procedure SwapPtr(arr: PPointer; left, right: Integer); inline;
+
+function IsPowerOf2(value: NativeInt): Boolean;
+
+function NextPowerOf2(value: NativeInt): NativeInt;
+
+// copy from System.pas to make it possible to inline
+function DynArrayLength(const A: Pointer): NativeInt; inline;
+function DynArrayHigh(const A: Pointer): NativeInt; inline;
+
+function GetEqualsOperator(const typeInfo: PTypeInfo): TRttiMethod;
+
+function GrowCapacity(oldCapacity: Integer): Integer; overload;
+function GrowCapacity(oldCapacity, newCount: Integer): Integer; overload;
+
+{$IFNDEF DELPHIX_BERLIN_UP}
+procedure CopyRecord(Dest, Source, TypeInfo: Pointer);
+procedure FinalizeRecord(P: Pointer; TypeInfo: Pointer);
+{$ENDIF}
+
+procedure RegisterWeakRef(address: Pointer; const instance: TObject);
+procedure UnregisterWeakRef(address: Pointer; const instance: TObject);
+
+procedure MoveManaged(source, target, typeInfo: Pointer; count: NativeInt);
+
+procedure CheckIndex(index, size: Integer); inline;
+procedure CheckRange(index, count, size: Integer); inline;
+
+procedure BinarySwap(left, right: Pointer; size: NativeInt);
+
+{$IFNDEF MSWINDOWS}
+function RegisterExpectedMemoryLeak(P: Pointer): Boolean;
+{$ENDIF}
+
+function PassByRef(TypeInfo: PTypeInfo; CC: TCallConv; IsConst: Boolean = False): Boolean;
+
+{$IFNDEF DELPHIX_TOKYO_UP}
+function StrToUInt(const s: string): Cardinal;
+{$ENDIF}
+{$IFNDEF DELPHIXE6_UP}
+function StrToUInt64(const s: string): UInt64;
+{$ENDIF}
+
+procedure __SuppressWarning(var value); inline;
 
   {$ENDREGION}
 
 
 const
   EmptyValue: TValue = ();
+  caReseted = caReset deprecated 'Use caReset'; //FI:O803
+
+  ObjCastGUID: TGUID = '{CEDF24DE-80A4-447D-8C75-EB871DC121FD}';
+
+  FieldVisibility = [{$IFDEF FIELD_RTTI}vcPrivate..vcProtected{$ENDIF}]; //FI:O803
+
+  InvokableEvent = {$IFDEF INVOKABLE_EVENT}True{$ELSE}False{$ENDIF};
+
+{$IFNDEF DELPHIXE3_UP}
+{$IF SizeOf(Pointer) = 4}
+  PROPSLOT_MASK    = $FF000000;
+  PROPSLOT_FIELD   = $FF000000;
+  PROPSLOT_VIRTUAL = $FE000000;
+{$ELSEIF SizeOf(Pointer) = 8}
+  PROPSLOT_MASK    = $FF00000000000000;
+  PROPSLOT_FIELD   = $FF00000000000000;
+  PROPSLOT_VIRTUAL = $FE00000000000000;
+{$ELSE OTHER_PTR_SIZE}
+{$MESSAGE Fatal 'Unrecognized pointer size'}
+{$IFEND OTHER_PTR_SIZE}
+{$ENDIF}
+
+const
+  ISO8601FormatSettings: TFormatSettings = (
+    DateSeparator: '-';
+    TimeSeparator: ':';
+    ShortDateFormat: 'YYYY-MM-DD';
+    LongDateFormat: 'YYYY-MM-DD';
+    TimeAMString: '';
+    TimePMString: '';
+    ShortTimeFormat: 'hh:nn:ss';
+    LongTimeFormat: 'hh:nn:ss';
+    DecimalSeparator: '.';
+  );
 
 implementation
 
 uses
   DateUtils,
+{$IFDEF DELPHIXE8_UP}
+  System.Hash,
+{$ENDIF}
   Math,
+{$IFNDEF DELPHIX_BERLIN_UP}
   RTLConsts,
+{$ENDIF}
   StrUtils,
   SysConst,
+  Variants,
   VarUtils,
-{$IFDEF MSWINDOWS}
-  Windows,
+{$IFDEF POSIX}
+  Posix.Pthread,
 {$ENDIF}
+  Spring.Comparers,
   Spring.Events,
   Spring.ResourceStrings,
-{$IFNDEF DELPHI2010}
-  Spring.ValueConverters,
-{$ENDIF}
   Spring.VirtualClass;
+
+const
+  TypeDataOffset    = SizeOf(TTypeKind) + SizeOf(Byte);
+  UnitNameOffset    = TypeDataOffset + SizeOf(TClass) + SizeOf(PPTypeInfo) + SizeOf(SmallInt);
+  IntfUnitOffset    = TypeDataOffset + SizeOf(PPTypeInfo) + SizeOf(TIntfFlagsBase) + SizeOf(TGUID);
+  DynUnitNameOffset = TypeDataOffset + SizeOf(Integer) + SizeOf(PPTypeInfo) + SizeOf(Integer) + SizeOf(PPTypeInfo);
 
 
 {$REGION 'Routines'}
-
-{$IFDEF DELPHI2010}
-function SplitString(const s, delimiters: string): TStringDynArray;
-var
-  splitCount: Integer;
-  startIndex: Integer;
-  foundIndex: Integer;
-  i: Integer;
-begin
-  Result := nil;
-
-  if s <> '' then
-  begin
-    splitCount := 0;
-    for i := 1 to Length(s) do
-      if IsDelimiter(delimiters, s, i) then
-        Inc(splitCount);
-
-    SetLength(Result, splitCount + 1);
-
-    startIndex := 1;
-    for i := 0 to splitCount - 1 do
-    begin
-      foundIndex := FindDelimiter(delimiters, s, startIndex);
-      Result[i] := Copy(s, startIndex, foundIndex - startIndex);
-      startIndex := foundIndex + 1;
-    end;
-
-    Result[splitCount] := Copy(s, startIndex, Length(s) - startIndex + 1);
-  end;
-end;
-{$ENDIF}
 
 {$IFNDEF DELPHIXE2_UP}
 function ReturnAddress: Pointer;
@@ -2810,10 +3445,38 @@ asm
 end;
 {$ENDIF}
 
+{$IFNDEF DELPHIXE7_UP}
+procedure DynArrayAssign(var Dest: Pointer; Source: Pointer; typeInfo: Pointer);
+asm
+  jmp System.@DynArrayAsg;
+end;
+
+procedure DynArrayCopyRange(var Result: Pointer; A: Pointer; TypeInfo: Pointer; Index, Count: NativeInt);
+asm
+{$IFDEF CPUX64}
+  .noframe
+  jmp System.@DynArrayCopyRange
+{$ELSE}
+  push ebx
+  mov ebx,[ebp+$08]
+  push ebx
+  push eax
+  mov eax,edx
+  mov edx,ecx
+  mov ecx,[ebp+$0c]
+  call System.@DynArrayCopyRange
+  pop ebx
+{$ENDIF}
+end;
+
+{$ENDIF}
+
+{$IFNDEF DELPHIXE2_UP}{$IFNDEF STACKFRAMES_ON}{$W+}{$ENDIF}{$ENDIF}
 procedure PlatformNotImplemented;
 begin
   raise ENotImplementedException.Create('Not implemented in present platform.') at ReturnAddress;
 end;
+{$IFNDEF DELPHIXE2_UP}{$IFNDEF STACKFRAMES_ON}{$W-}{$ENDIF}{$ENDIF}
 
 procedure CheckArgumentNotNull(const value: IInterface; const argumentName: string);
 begin
@@ -2844,19 +3507,20 @@ function FormatValue(const value: TValue): string;
 
   function FormatRecord(const value: TValue): string;
   var
+    guid: TGUID;
     method: TRttiMethod;
-    i: Integer;
+    i: NativeInt;
     fields: TArray<TRttiField>;
   begin
     // handle TGUID explicitly
-    if value.TypeInfo = TypeInfo(TGUID) then
-      Exit(value.AsType<TGUID>.ToString);
+    if value.TryAsType(TypeInfo(TGUID), guid) then
+      Exit(guid.ToString);
 
     // use function ToString: string when available
     for method in value.TypeInfo.RttiType.GetMethods do
       if SameText(method.Name, 'ToString')
         and (method.MethodKind = mkFunction)
-        and (Length(method.GetParameters) = 0)
+        and (method.GetParameters = nil)
         and (method.ReturnType.TypeKind = tkUString) then
         Exit(method.Invoke(value, []).AsString);
 
@@ -2876,23 +3540,43 @@ function FormatValue(const value: TValue): string;
     Result := Result + ')';
   end;
 
+  function FormatEnumerable(const enumerable: IEnumerable): string;
+  var
+    i: Integer;
+    value: TValue;
+  begin
+    Result := '[';
+    i := 0;
+    for value in enumerable do
+    begin
+      if i > 0 then
+        Result := Result + ',';
+      Inc(i);
+      Result := Result + FormatValue(value);
+    end;
+    Result := Result + ']';
+  end;
+
   function StripUnitName(const s: string): string;
   begin
     Result := ReplaceText(s, 'System.', '');
   end;
 
+const
+  IEnumerableGuid: TGUID = '{6BC97F33-C0A8-4770-8E1C-C2017527B7E7}'; // copy from Spring.Collections
 var
   intf: IInterface;
+  enumerable: IEnumerable;
   obj: TObject;
 begin
   case value.Kind of
     tkFloat:
       if value.TypeInfo = TypeInfo(TDateTime) then
-        Result := DateTimeToStr(value.AsType<TDateTime>)
+        Result := DateTimeToStr(TValueData(value).FAsDouble)
       else if value.TypeInfo = TypeInfo(TDate) then
-        Result := DateToStr(value.AsType<TDate>)
+        Result := DateToStr(TValueData(value).FAsDouble)
       else if value.TypeInfo = TypeInfo(TTime) then
-        Result := TimeToStr(value.AsType<TTime>)
+        Result := TimeToStr(TValueData(value).FAsDouble)
       else
         Result := value.ToString;
     tkClass:
@@ -2903,13 +3587,23 @@ begin
     tkInterface:
     begin
       intf := value.AsInterface;
-      obj := intf as TObject;
-      Result := Format('%s($%x) as %s', [StripUnitName(obj.ClassName),
-        NativeInt(intf), StripUnitName(value.TypeInfo.TypeName)]);
+      if Supports(intf, IEnumerableGuid, enumerable) then
+        Result := FormatEnumerable(enumerable)
+      else
+      begin
+        obj := intf as TObject;
+        Result := Format('%s($%x) as %s', [StripUnitName(obj.ClassName),
+          NativeInt(intf), StripUnitName(value.TypeInfo.TypeName)]);
+      end;
     end;
     tkArray, tkDynArray:
       Result := FormatArray(value);
-    tkChar, tkString, tkWChar, tkLString, tkWString, tkUString:
+    tkChar, tkWChar:
+      if TValueData(value).FAsUWord < 20 then
+        Result := '#' + IntToStr(TValueData(value).FAsUWord)
+      else
+        Result := QuotedStr(value.ToString);
+    tkString, tkLString, tkWString, tkUString:
       Result := QuotedStr(value.ToString);
     tkClassRef:
       Result := value.AsClass.ClassName;
@@ -2942,6 +3636,218 @@ begin
 {$ENDIF}
 end;
 
+{$IFDEF MSWINDOWS}
+function InternalUTF8ShortShortCompare(left, right: Pointer): Boolean; overload;
+var
+  leftLen, rightLen: Integer;
+  leftBuffer, rightBuffer: array[0..255] of WideChar;
+begin
+  leftLen := MultiByteToWideChar(CP_UTF8, 0, @PByte(left)[1], PByte(left)^, leftBuffer, Length(leftBuffer));
+  rightLen := MultiByteToWideChar(CP_UTF8, 0, @PByte(right)[1], PByte(right)^, rightBuffer, Length(rightBuffer));
+  Result := CompareString(UTF8CompareLocale, NORM_IGNORECASE, leftBuffer, leftLen, rightBuffer, rightLen) = CSTR_EQUAL;
+end;
+
+function UTF8IdentIdentCompare(left, right: PByte): Boolean;
+label
+  NotEqual, Utf8Compare;
+var
+  i, n: NativeInt;
+begin
+  if left^ <> right^ then
+    goto NotEqual;
+
+  i := 1;
+  for n := 1 to left^ div 4 do //FI:W528
+  begin
+    if PCardinal(@left[i])^ and $80808080 <> 0 then
+      goto Utf8Compare;
+    if PCardinal(@right[i])^ and $80808080 <> 0 then
+      goto Utf8Compare;
+    if (PCardinal(@left[i])^ xor PCardinal(@right[i])^) and $5F5F5F5F <> 0 then
+      goto NotEqual;
+    Inc(i, 4);
+  end;
+  for n := 1 to left^ mod 4 do //FI:W528
+  begin
+    if left[i] and $80 <> 0 then
+      goto Utf8Compare;
+    if right[i] and $80 <> 0 then
+      goto Utf8Compare;
+    if (left[i] xor right[i]) and $5F <> 0 then
+      goto NotEqual;
+    Inc(i);
+  end;
+  Exit(True);
+NotEqual:
+  Exit(False);
+Utf8Compare:
+  Result := InternalUTF8ShortShortCompare(left, right);
+end;
+{$ENDIF}
+
+function SameTypeInfo(const left, right: PTypeInfo): Boolean;
+label
+  BothTypesNonNil, Equal;
+var
+  leftUnitName, rightUnitName: ^TSymbolName;
+begin
+  if left <> right then
+  begin
+    if NativeUInt(left) and NativeUInt(right) <> 0 then
+    begin
+  BothTypesNonNil:
+      if left.Kind = right.Kind then
+      if UTF8IdentIdentCompare(@left.Name, @right.Name) then
+      begin
+        case left.Kind of
+          tkDynArray:
+          begin
+            leftUnitName := @PByte(left)[Length(left.Name) + DynUnitNameOffset];
+            rightUnitName := @PByte(right)[Length(right.Name) + DynUnitNameOffset];
+          end;
+          tkInterface:
+          begin
+            leftUnitName := @PByte(left)[Length(left.Name) + IntfUnitOffset];
+            rightUnitName := @PByte(right)[Length(right.Name) + IntfUnitOffset];
+          end;
+          tkClass:
+          begin
+            leftUnitName := @PByte(left)[Length(left.Name) + UnitNameOffset];
+            rightUnitName := @PByte(right)[Length(right.Name) + UnitNameOffset];
+          end;
+        else
+          goto Equal;
+        end;
+        Exit(UTF8IdentIdentCompare(Pointer(leftUnitName), Pointer(rightUnitName)));
+      end;
+    end else if Assigned(left) and Assigned(right) then
+      goto BothTypesNonNil;
+    Exit(False);
+  end;
+Equal:
+  Result := True;
+end;
+
+function GetTypeInfoHashCode(const typeInfo: PTypeInfo): Integer;
+var
+  hashFunction: THashFunction;
+  unitName: ^TSymbolName;
+begin
+  hashFunction := DefaultHashFunction;
+  Result := hashFunction(typeInfo.Name[1], Length(typeInfo.Name), Ord(typeInfo.Kind));
+  case typeInfo.Kind of
+    tkDynArray:  unitName := @PByte(typeInfo)[Length(typeInfo.Name) + DynUnitNameOffset];
+    tkInterface: unitName := @PByte(typeInfo)[Length(typeInfo.Name) + IntfUnitOffset];
+    tkClass:     unitName := @PByte(typeInfo)[Length(typeInfo.Name) + UnitNameOffset];
+  else
+    Exit;
+  end;
+  Result := hashFunction(unitName^[1], Length(unitName^), Result);
+end;
+
+function GetInterfaceEntryByTypeInfo(cls: TClass; intf: PTypeInfo): PInterfaceEntry;
+var
+  interfaceTable: PInterfaceTable;
+  p: PPPTypeInfo;
+  i: Integer;
+begin
+  repeat
+    interfaceTable := cls.GetInterfaceTable;
+    if interfaceTable <> nil then
+    begin
+      p := @interfaceTable.Entries[interfaceTable.EntryCount];
+      for i := 0 to interfaceTable.EntryCount - 1 do
+      begin
+        Result := @interfaceTable.Entries[i];
+        if p^^ = intf then
+          Exit;
+        if (p^^.Kind = tkInterface)
+          and UTF8IdentIdentCompare(@p^^.Name, @intf.Name)
+          and UTF8IdentIdentCompare(@p^^.TypeData.IntfUnit, @intf.TypeData.IntfUnit) then
+          Exit;
+        Inc(p);
+      end;
+    end;
+    cls := cls.ClassParent;
+  until cls = nil;
+  Result := nil;
+end;
+
+procedure InvokeImplGetter(const self: TObject; implGetter: NativeUInt; var result: IInterface);
+{$IFNDEF CPUX86}
+type
+{$IF Defined(MSWINDOWS) or Defined(OSX32)}
+  TGetProc = procedure (const Self: TObject; var Result: IInterface);
+{$ELSEIF Defined(LINUX64) or Defined(OSX64) or Defined(CPUARM32)}
+  TGetProc = procedure (var Result: IInterface; const Self: TObject);
+{$ELSEIF Defined(CPUARM64)}
+  TGetProc = function (const Self: TObject): IInterface;
+{$ELSE}
+  {$MESSAGE Fatal 'InvokeImplGetter not implemented for platform'}
+{$IFEND}
+var
+  getProc: TGetProc;
+begin
+  if (implGetter and PROPSLOT_MASK) = PROPSLOT_FIELD then
+    Result := IInterface(PPointer(PByte(self) + (implGetter and not PROPSLOT_MASK))^)
+  else
+  begin
+    if (implGetter and PROPSLOT_MASK) = PROPSLOT_VIRTUAL then
+      getProc := PPointer(PNativeInt(self)^ + SmallInt(implGetter))^
+    else
+      getProc := Pointer(implGetter);
+{$IF Defined(MSWINDOWS) or Defined(OSX32)}
+    GetProc(Self, Result);
+{$ELSEIF Defined(LINUX64) or Defined(OSX64) or Defined(CPUARM32)}
+    GetProc(Result, Self);
+{$ELSEIF Defined(CPUARM64)}
+    Result := GetProc(Self);
+{$ELSE}
+    {$MESSAGE Fatal 'InvokeImplGetter not implemented for platform'}
+{$IFEND}
+  end;
+end;
+{$ELSE}
+asm
+  xchg edx,ecx
+  cmp ecx,PROPSLOT_FIELD
+  jae @@isField
+  cmp ecx,PROPSLOT_VIRTUAL
+  jb @@isStaticMethod
+
+  movsx ecx,cx
+  add ecx,[eax]
+  jmp dword ptr [ecx]
+
+@@isStaticMethod:
+  jmp ecx
+
+@@isField:
+  and ecx,not PROPSLOT_MASK
+  add ecx,eax
+  mov eax,edx
+  mov edx,[ecx]
+  jmp System.@IntfCopy
+end;
+{$ENDIF}
+
+function GetInterfaceByTypeInfo(self: TObject; intf: PTypeInfo; out Obj): Boolean;
+var
+  InterfaceEntry: PInterfaceEntry;
+begin
+  Pointer(obj) := nil;
+  InterfaceEntry := GetInterfaceEntryByTypeInfo(self.ClassType, intf);
+  if InterfaceEntry <> nil then
+    if InterfaceEntry^.IOffset <> 0 then
+    begin
+      Pointer(obj) := Pointer(PByte(self) + InterfaceEntry^.IOffset);
+      if Pointer(obj) <> nil then IInterface(obj)._AddRef;
+    end
+    else
+      InvokeImplGetter(self, InterfaceEntry^.ImplGetter, IInterface(obj));
+  Result := Pointer(obj) <> nil;
+end;
+
 function IsAssignableFrom(leftType, rightType: PTypeInfo): Boolean;
 var
   leftData, rightData: PTypeData;
@@ -2958,8 +3864,10 @@ begin
     Result := rightData.ClassType.InheritsFrom(leftData.ClassType)
   else if (rightType.Kind = tkClass) and (leftType.Kind = tkInterface) then
   begin
-    Result := (ifHasGuid in leftData.IntfFlags) and
-      Supports(rightData.ClassType, leftData.Guid);
+    if ifHasGuid in leftData.IntfFlags then
+      Result := Supports(rightData.ClassType, leftData.Guid)
+    else
+      Result := GetInterfaceEntryByTypeInfo(rightData.ClassType, leftType) <> nil;
   end
   else if (rightType.Kind = tkInterface) and (leftType.Kind = tkInterface) then
   begin
@@ -2987,6 +3895,11 @@ begin
         Exit(False);
 end;
 
+function IsAssignableFromRelaxed(leftType, rightType: PTypeInfo): Boolean;
+begin
+  Result := SameTypeInfo(leftType, rightType) or IsAssignableFrom(leftType, rightType);
+end;
+
 function IsNullable(typeInfo: PTypeInfo): Boolean;
 const
   PrefixString = 'Nullable<';    // DO NOT LOCALIZE
@@ -3010,7 +3923,7 @@ end;
 
 const
   LazyPrefixStrings: array[lkFunc..High(TLazyKind)] of string = (
-    'TFunc<', 'Lazy<', 'ILazy<');
+    'Func<', 'Lazy<', 'ILazy<');
 
 function GetLazyKind(typeInfo: PTypeInfo): TLazyKind;
 var
@@ -3020,7 +3933,8 @@ begin
   begin
     name := typeInfo.TypeName;
     for Result := lkFunc to High(TLazyKind) do
-      if StartsText(LazyPrefixStrings[Result], name)
+      if (StartsText(LazyPrefixStrings[Result], name)
+        or ((Result = lkFunc) and StartsText('T' + LazyPrefixStrings[Result], name)))
         and (Length(GetGenericTypeParameters(name)) = 1) then
         Exit;
   end;
@@ -3100,11 +4014,24 @@ end;
 
 // TODO: use typekind matrix for comparer functions
 function CompareValue(const left, right: TValue): Integer;
+
+  function CompareValueCurr(const A, B: Currency): TValueRelationship;
+  begin
+    if A = B then
+      Result := EqualsValue
+    else if A < B then
+      Result := LessThanValue
+    else
+      Result := GreaterThanValue;
+  end;
+
 const
   EmptyResults: array[Boolean, Boolean] of Integer = ((0, -1), (1, 0));
 var
   leftIsEmpty, rightIsEmpty: Boolean;
   leftValue, rightValue: TValue;
+  leftObject, rightObject: TObject;
+  equal: Boolean;
 begin
   leftIsEmpty := left.IsEmpty;
   rightIsEmpty := right.IsEmpty;
@@ -3113,11 +4040,31 @@ begin
   else if left.IsOrdinal and right.IsOrdinal then
     Result := Math.CompareValue(left.AsOrdinal, right.AsOrdinal)
   else if left.IsFloat and right.IsFloat then
-    Result := Math.CompareValue(left.AsExtended, right.AsExtended)
+    if (left.TypeData.FloatType = ftCurr) and (right.TypeData.FloatType = ftCurr) then
+      Result := CompareValueCurr(left.AsCurrency, right.AsCurrency)
+    else
+      Result := Math.CompareValue(left.AsExtended, right.AsExtended)
   else if left.IsString and right.IsString then
     Result := SysUtils.AnsiCompareStr(left.AsString, right.AsString)
   else if left.IsObject and right.IsObject then
-    Result := NativeInt(left.AsObject) - NativeInt(right.AsObject) // TODO: instance comparer
+  begin
+    leftObject := left.AsObject;
+    rightObject := right.AsObject;
+    if (NativeInt(leftObject) or NativeInt(rightObject)) = 0 then
+      Exit(0);
+    if leftObject <> nil then
+      equal := leftObject.Equals(rightObject)
+    else
+      equal := rightObject.Equals(leftObject);
+    if equal then
+      Result := 0
+    else if NativeInt(leftObject) < NativeInt(rightObject) then
+      Result := -1
+    else if NativeInt(leftObject) > NativeInt(rightObject) then
+      Result := 1
+    else
+      Result := 0;
+  end
   else if left.IsVariant and right.IsVariant then
   begin
     case VarCompareValue(left.AsVariant, right.AsVariant) of
@@ -3181,10 +4128,8 @@ const
     SizeOf(Currency){8});
 begin
   case typeInfo.Kind of
-{$IFNDEF NEXTGEN}
     tkChar:
       Result := SizeOf(AnsiChar){1};
-{$ENDIF}
     tkWChar:
       Result := SizeOf(WideChar){2};
     tkInteger, tkEnumeration:
@@ -3220,17 +4165,36 @@ begin
     Result[i] := values[i].TypeInfo;
 end;
 
+function InterfaceToMethodPointer(const intf; index: Integer): TMethodPointer;
+begin
+  if Pointer(intf) = nil then
+    Exit(nil);
+  // 3 is offset of the first declared method in the interface, after QI, AddRef, Release
+  TMethod(Result).Code := PPVtable(intf)^[index + 3];
+  TMethod(Result).Data := Pointer(intf);
+end;
+
+function MethodReferenceToMethod(const methodRef): TMethod;
+begin
+  if Pointer(methodRef) = nil then
+    Exit(Default(TMethod));
+  // 3 is offset of Invoke, after QI, AddRef, Release
+  Result.Code := PPVtable(methodRef)^[3];
+  Result.Data := Pointer(methodRef);
+end;
+
 function MethodReferenceToMethodPointer(const methodRef): TMethodPointer;
-type
-  TVtable = array[0..3] of Pointer;
-  PVtable = ^TVtable;
-  PPVtable = ^PVtable;
 begin
   if Pointer(methodRef) = nil then
     Exit(nil);
   // 3 is offset of Invoke, after QI, AddRef, Release
-  TMethod(Result).Code := PPVtable(methodRef)^^[3];
+  TMethod(Result).Code := PPVtable(methodRef)^[3];
   TMethod(Result).Data := Pointer(methodRef);
+end;
+
+function MethodToMethodReference(const method: TMethod): IInterface;
+begin
+  Result := IInterface(TMethod(method).Data);
 end;
 
 function MethodPointerToMethodReference(const method: TMethodPointer): IInterface;
@@ -3257,7 +4221,7 @@ begin
   Result := VarArrayCreate([0, size - 1], varByte);
   lock := VarArrayLock(Result);
   try
-    stream.ReadBuffer(lock^, stream.Size);
+    stream.ReadBuffer(lock^, size);
   finally
     VarArrayUnlock(Result);
   end;
@@ -3285,7 +4249,8 @@ function GetGenericTypeParameters(const typeName: string): TArray<string>;
 
   function SplitTypes(const s: string): TArray<string>;
   var
-    startPos, index, len: Integer;
+    startPos, index: Integer;
+    len: NativeInt;
   begin
     Result := nil;
     startPos := 1;
@@ -3328,7 +4293,7 @@ function SameValue(const left, right: Variant): Boolean;
   function MoveNext(const bounds: TArray<TVarArrayBound>;
     var indices: TArray<Integer>): Boolean;
   var
-    i: Integer;
+    i: NativeInt;
   begin
     for i := Length(indices) - 1 downto 0 do
       if indices[i] < bounds[i].HighBound then
@@ -3361,7 +4326,7 @@ begin
     Exit(False);
   SetLength(indices, leftArr.DimCount);
   SetLength(bounds, leftArr.DimCount);
-{$RANGECHECKS OFF}
+{$R-}
   for i := leftArr.DimCount - 1 downto 0 do
   begin
     count := leftArr.Bounds[i].ElementCount;
@@ -3371,9 +4336,7 @@ begin
       Exit(False);
     bounds[leftArr.DimCount - 1 - i] := leftArr.Bounds[i];
   end;
-{$IFDEF RANGECHECKS_ON}
-{$RANGECHECKS ON}
-{$ENDIF}
+{$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
   repeat
     if not SameValue(VarArrayGet(left, indices), VarArrayGet(right, indices)) then
       Exit(False);
@@ -3399,7 +4362,25 @@ end;
 
 function GetVirtualMethod(const classType: TClass; const index: Integer): Pointer;
 begin
+  {$Q-}
   Result := PPointer(IntPtr(classType) + IntPtr(index * SizeOf(Pointer)))^;
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}
+end;
+
+type
+  TIntfFlagEx = (ifHasGuid, ifDispInterface, ifDispatch, ifMethodInfo, ifUnused, ifUnused2, ifMethodReference);
+  TIntfFlagsEx = set of TIntfFlagEx;
+
+function HasMethodInfo(typeInfo: PTypeInfo): Boolean;
+begin
+  Result := Assigned(typeInfo) and (typeInfo.Kind = tkInterface)
+    and (ifMethodInfo in TIntfFlagsEx(typeInfo.TypeData.IntfFlags));
+end;
+
+function IsMethodReference(typeInfo: PTypeInfo): Boolean;
+begin
+  Result := Assigned(typeInfo) and (typeInfo.Kind = tkInterface)
+    and (ifMethodReference in TIntfFlagsEx(typeInfo.TypeData.IntfFlags));
 end;
 
 type
@@ -3428,6 +4409,48 @@ asm
 {$ENDIF}
 end;
 
+function AtomicIncrement(var target: Integer; increment: Integer): Integer;
+asm
+{$IFDEF CPUX86}
+  mov ecx,edx
+  lock xadd [eax],edx
+  add edx,ecx
+  mov eax,edx
+{$ENDIF}
+{$IFDEF CPUX64}
+  mov rax,rdx
+  lock xadd [rcx],rdx
+  add rax,rdx
+{$ENDIF}
+end;
+
+function AtomicIncrement(var target: Int64; increment: Int64): Int64;
+asm
+{$IFDEF CPUX86}
+  push ebx
+  push esi
+  mov esi,target
+  mov eax,[esi]
+  mov edx,[esi+4]
+@@1:
+  mov ebx,eax
+  mov ecx,edx
+  add ebx,low increment
+  adc ecx,high increment
+  lock cmpxchg8b [esi]
+  jnz @@1
+  add eax,low increment
+  adc edx,high increment
+  pop esi
+  pop ebx
+{$ENDIF}
+{$IFDEF CPUX64}
+  mov rax,rdx
+  lock xadd [rcx],rdx
+  add rax,rdx
+{$ENDIF}
+end;
+
 function AtomicDecrement(var target: Integer): Integer;
 asm
 {$IFDEF CPUX86}
@@ -3443,11 +4466,64 @@ asm
 {$ENDIF}
 end;
 
+function AtomicDecrement(var target: NativeInt; decrement: NativeInt): NativeInt;
+asm
+{$IFDEF CPUX86}
+  neg edx
+  mov ecx,edx
+  lock xadd [eax],edx
+  add edx,ecx
+  mov eax,edx
+{$ENDIF}
+{$IFDEF CPUX64}
+  neg rdx
+  mov rax,rdx
+  lock xadd [rcx],rdx
+  add rax,rdx
+{$ENDIF}
+end;
+
+function AtomicExchange(var target: Integer; value: Integer): Integer;
+asm
+{$IFDEF CPUX86}
+  lock xchg [eax],edx
+  mov eax,edx
+{$ENDIF}
+{$IFDEF CPUX64}
+  lock xchg [rcx],rdx
+  mov rax,rdx
+{$ENDIF}
+end;
+
+function AtomicExchange(var target: NativeInt; value: NativeInt): NativeInt;
+asm
+{$IFDEF CPUX86}
+  lock xchg [eax],edx
+  mov eax,edx
+{$ENDIF}
+{$IFDEF CPUX64}
+  lock xchg [rcx],rdx
+  mov rax,rdx
+{$ENDIF}
+end;
+
+function AtomicExchange(var target: Pointer; value: Pointer): Pointer;
+asm
+{$IFDEF CPUX86}
+  lock xchg [eax],edx
+  mov eax,edx
+{$ENDIF}
+{$IFDEF CPUX64}
+  lock xchg [rcx],rdx
+  mov rax,rdx
+{$ENDIF}
+end;
+
 function AtomicCmpExchange(var target: Integer; newValue, comparand: Integer): Integer;
 asm
 {$IFDEF CPUX86}
   xchg eax,ecx
-  lock cmpxchg [ecx],edx  
+  lock cmpxchg [ecx],edx
 {$ENDIF}
 {$IFDEF CPUX64}
   mov rax,r8
@@ -3455,7 +4531,19 @@ asm
 {$ENDIF}
 end;
 
-function AtomicCmpExchange(var target: Pointer; newValue, comparand: Pointer): TObject;
+function AtomicCmpExchange(var target: NativeInt; newValue, comparand: NativeInt): NativeInt;
+asm
+{$IFDEF CPUX86}
+  xchg eax,ecx
+  lock cmpxchg [ecx],edx
+{$ENDIF}
+{$IFDEF CPUX64}
+  mov rax,r8
+  lock cmpxchg [rcx],edx
+{$ENDIF}
+end;
+
+function AtomicCmpExchange(var target: Pointer; newValue, comparand: Pointer): Pointer;
 asm
 {$IFDEF CPUX86}
   xchg eax,ecx
@@ -3468,78 +4556,396 @@ asm
 end;
 {$ENDIF}
 
+procedure AtomicStore(var target: Int64;
+  const {$IFDEF CPUX86}{$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}{$ENDIF}value: Int64); {$IFNDEF CPUX86}inline;{$ENDIF}
+{$IFDEF CPUX86}
+asm
+{$IFDEF SUPPORTS_CONSTREF}
+  movq xmm0,[edx]
+{$ELSE}
+  movq xmm0,[ebp+8]
+{$ENDIF}
+  movq [eax],xmm0
+end;
+{$ELSE}
+begin
+  target := value;
+end;
+{$ENDIF}
+
+function AtomicLoad(var source: Int64): Int64; {$IFNDEF CPUX86}inline;{$ENDIF}
+{$IFDEF CPUX86}
+asm
+  movq xmm0,[source]
+  movd eax,xmm0
+  psrldq xmm0,4
+  movd edx,xmm0
+end;
+{$ELSE}
+begin
+  Result := source;
+end;
+{$ENDIF}
+
+function AtomicExchangeAdd(var target: Int64; const value: Int64): Int64;
+{$IFDEF ASSEMBLER}
+asm
+{$IFDEF CPUX86}
+  push    ebx
+  push    esi
+  mov     esi,eax
+  mov     eax,[esi]
+  mov     edx,[esi+4]
+@1:
+  mov     ebx,eax
+  mov     ecx,edx
+  add     ebx,[ebp+8]
+  adc     ecx,[ebp+12]
+  lock cmpxchg8b [esi]
+  jnz @1
+  pop     esi
+  pop     ebx
+{$ELSE}
+  mov rax,rdx
+  lock xadd [rcx],rax
+{$ENDIF}
+end;
+{$ELSE}
+begin
+  Result := AtomicIncrement(target, value) - value;
+end;
+{$ENDIF}
+
 procedure IncUnchecked(var i: Integer; const n: Integer = 1); inline;
 begin
-  {$IFOPT Q+}{$DEFINE OVERFLOWCHECKS_ON}{$Q-}{$ENDIF}
+  {$Q-}
   Inc(i, n);
   {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}
+end;
+
+function IsPowerOf2(value: NativeInt): Boolean;
+begin
+  Result := (value > 0) and (value and (value - 1) = 0);
+end;
+
+function NextPowerOf2(value: NativeInt): NativeInt;
+{$IFDEF ASSEMBLER}
+{$IFDEF CPUX86}
+asm
+  test eax, eax
+  jle @negative
+  bsr ecx, eax
+  mov eax, 2
+  shl eax, cl
+  ret
+@negative:
+  mov eax, 1
+end;
+{$ELSE}
+asm
+  test rcx, rcx
+  jle @negative
+  bsr rcx, rcx
+  mov eax, 2
+  shl rax, cl
+  ret
+@negative:
+  mov eax, 1
+end;
+{$ENDIF}
+{$ELSE}
+begin
+  Result := 1;
+  while (Result <= value) and (Result > 0) do
+    Result := Result shl 1;
+end;
+{$ENDIF}
+
+{$Q-}
+{$R-}
+function DynArrayLength(const A: Pointer): NativeInt;
+begin
+  Result := NativeInt(A);
+  if Result <> 0 then
+    {$POINTERMATH ON}
+    Result := PNativeInt(Result)[-1];
+    {$POINTERMATH OFF}
+end;
+
+function DynArrayHigh(const A: Pointer): NativeInt;
+begin
+  Result := NativeInt(A);
+  if Result <> 0 then
+    {$POINTERMATH ON}
+    Result := PNativeInt(Result)[-1];
+    {$POINTERMATH OFF}
+  Dec(Result);
+end;
+{$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+{$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}
+
+function GetEqualsOperator(const typeInfo: PTypeInfo): TRttiMethod;
+const
+  EqualsOperatorName = '&op_Equality';
+var
+  method: TRttiMethod;
+  parameters: TArray<TRttiParameter>;
+begin
+  for method in TType.GetType(typeInfo).GetMethods(EqualsOperatorName) do
+  begin
+    if method.MethodKind <> mkOperatorOverload then
+      Continue;
+    if method.CallingConvention <> ccReg then
+      Continue;
+    parameters := method.GetParameters;
+    if (Length(parameters) = 2)
+      and (parameters[0].ParamType.Handle = typeInfo) and (parameters[1].ParamType.Handle = typeInfo)
+      and (pfConst in parameters[0].Flags) and (pfConst in parameters[1].Flags) then
+     Exit(method);
+  end;
+  Result := nil;
+end;
+
+function OutOfMemoryError: Integer;
+begin
+  SysUtils.OutOfMemoryError;
+  Result := 0;
+end;
+
+function GrowCapacity(oldCapacity: Integer): Integer;
+begin
+  if oldCapacity >= 4 then
+  begin
+    if oldCapacity < 1024 then
+      Result := oldCapacity * 2
+    else
+    begin
+      Result := oldCapacity + oldCapacity shr 1;
+      if Result < 0 then
+        Exit(OutOfMemoryError);
+    end;
+  end
+  else
+    Result := 4;
+end;
+
+function GrowCapacity(oldCapacity, newCount: Integer): Integer;
+begin
+  Result := oldCapacity;
+  repeat
+    if Result >= 1024 then
+      Result := Result + Result shr 1
+    else
+      if Result >= 4 then
+        Result := Result * 2
+      else
+        Result := 4;
+    if Result < 0 then
+      Exit(OutOfMemoryError);
+  until Result >= newCount;
+end;
+
+{$IFNDEF DELPHIX_BERLIN_UP}
+procedure CopyRecord(Dest, Source, TypeInfo: Pointer);
+asm
+  jmp System.@CopyRecord
+end;
+
+procedure FinalizeRecord(P: Pointer; TypeInfo: Pointer);
+asm
+  jmp System.@FinalizeRecord
+end;
+{$ENDIF}
+
+function NopRef(inst: Pointer): Integer; //FI:O804
+begin
+  Result := -1;
+end;
+
+function NopQueryInterface(inst: Pointer; const IID: TGUID; out Obj): HResult; //FI:O804
+begin
+  Result := E_NOINTERFACE;
+end;
+
+function RecAddRef(inst: Pointer): Integer;
+type
+  PIntfRef = ^TIntfRef;
+  TIntfRef = record
+    VTable: Pointer;
+    RefCount: Integer;
+  end;
+begin
+  Result := AtomicIncrement(PIntfRef(inst).RefCount);
+end;
+
+procedure IntfAssign(const source: IInterface; var target: IInterface);
+begin
+  target := source;
+end;
+
+procedure CheckIndex(index, size: Integer);
+begin
+  if Cardinal(index) >= Cardinal(size) then RaiseHelper.ArgumentOutOfRange_Index;
+end;
+
+procedure CheckRange(index, count, size: Integer);
+begin
+  if Cardinal(index) > Cardinal(size) then RaiseHelper.ArgumentOutOfRange_Index;
+  {$Q-}
+  if (count < 0) or (index > size - count) then RaiseHelper.ArgumentOutOfRange_Count;
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}
+end;
+
+{$IFNDEF MSWINDOWS}
+function RegisterExpectedMemoryLeak(P: Pointer): Boolean;
+var
+  MemoryManager: TMemoryManagerEx;
+begin
+  GetMemoryManager(MemoryManager);
+  Result := MemoryManager.RegisterExpectedMemoryLeak(P);
+end;
+{$ENDIF}
+
+function PassByRef(TypeInfo: PTypeInfo; CC: TCallConv; IsConst: Boolean = False): Boolean;
+begin
+  if TypeInfo = nil then
+    Exit(False);
+  case TypeInfo^.Kind of
+    tkArray:
+      Result := GetTypeData(TypeInfo)^.ArrayData.Size > SizeOf(Pointer);
+{$IF Defined(CPUX86)}
+    tkRecord:
+      if (CC in [ccCdecl, ccStdCall, ccSafeCall]) and not IsConst then
+        Result := False
+      else
+        Result := GetTypeData(TypeInfo)^.RecSize > SizeOf(Pointer);
+    tkVariant:
+      Result := IsConst or not (CC in [ccCdecl, ccStdCall, ccSafeCall]);
+{$ELSEIF Defined(CPUX64)}
+    tkRecord:
+      Result := not (GetTypeData(TypeInfo)^.RecSize in [1,2,4,8]);
+    tkMethod,
+    tkVariant:
+      Result := True;
+{$ELSEIF Defined(CPUARM)}
+    tkRecord:
+      Result := (CC = ccReg) or (CC = ccPascal);
+    tkMethod,
+    tkVariant:
+      Result := True;
+{$IFEND}
+    tkString:
+      Result := GetTypeData(TypeInfo)^.MaxLength > SizeOf(Pointer);
+{$IF declared(tkMRecord)}
+    tkMRecord:
+      Result := True;
+{$IFEND}
+  else
+    Result := False;
+  end;
+end;
+
+{$IFNDEF DELPHIX_TOKYO_UP}
+function StrToUInt(const s: string): Cardinal;
+var
+  i: Int64;
+  e: Integer;
+begin
+  Val(s, i, e);
+  if (e <> 0) or not((Low(Cardinal) <= i) and (i <= High(Cardinal))) then
+    raise EConvertError.CreateResFmt(@SInvalidInteger, [s]);
+  Result := Cardinal(i);
+end;
+{$ENDIF}
+
+{$IFNDEF DELPHIXE6_UP}
+function StrToUInt64(const s: string): UInt64;
+var
+  e: Integer;
+begin
+  Val(s, Result, e);
+  if e <> 0 then raise EConvertError.CreateResFmt(@SInvalidInteger, [s]);
+end;
+{$ENDIF}
+
+procedure __SuppressWarning(var value); inline;
+begin
 end;
 
 {$ENDREGION}
 
 
-{$REGION 'TGuidHelper'}
+{$REGION 'ReadWriteLock'}
 
-{$IFDEF DELPHI2010}
-class function TGuidHelper.Create(const B: TBytes): TGUID;
-begin
-  if Length(B) <> 16 then
-    raise EArgumentException.CreateResFmt(@SInvalidGuidArray, [16]);
-  Move(B[0], Result, SizeOf(Result));
-end;
-
-class function TGuidHelper.Create(const S: string): TGUID;
-begin
-  Result := StringToGUID(S);
-end;
-
-class function TGuidHelper.Create(A: Integer; B, C: SmallInt;
-  const D: TBytes): TGUID;
-begin
-  if Length(D) <> 16 then
-    raise EArgumentException.CreateResFmt(@SInvalidGuidArray, [8]);
-  Result.D1 := LongWord(A);
-  Result.D2 := Word(B);
-  Result.D3 := Word(C);
-  Move(D[0], Result.D4, SizeOf(Result.D4));
-end;
-
-class function TGuidHelper.Empty: TGuid;
-begin
-  FillChar(Result, SizeOf(Result), 0);
-end;
-
-class function TGuidHelper.NewGuid: TGuid;
-begin
-  if CreateGUID(Result) <> S_OK then
-    RaiseLastOSError;
-end;
-
-class function TGuidHelper.&&op_Equality(const left, right: TGUID): Boolean;
+procedure ReadWriteLock.EnterRead;
 var
-  a, b: PIntegerArray;
+  current: NativeInt;
 begin
-  a := PIntegerArray(@left);
-  b := PIntegerArray(@right);
-  Result := (a^[0] = b^[0]) and (a^[1] = b^[1]) and (a^[2] = b^[2]) and (a^[3] = b^[3]);
+  while True do
+  begin
+    current := NativeInt(Lock) and not 1;
+    if AtomicCmpExchange(NativeInt(Lock), current + 4, current) = current then
+      Break;
+
+    {$IFDEF CPUX86}asm pause end;{$ELSE}YieldProcessor;{$ENDIF}
+  end;
 end;
 
-class function TGuidHelper.&&op_Inequality(const left, right: TGUID): Boolean;
+procedure ReadWriteLock.LeaveRead;
 begin
-  Result := not (left = right);
+  AtomicDecrement(NativeInt(Lock), 4);
 end;
 
-function TGuidHelper.ToByteArray: TBytes;
+procedure ReadWriteLock.EnterUpgradableRead;
+var
+  current: NativeInt;
 begin
-  SetLength(Result, 16);
-  Move(D1, Result[0], SizeOf(Self));
+  while True do
+  begin
+    current := NativeInt(Lock) and not 3;
+    if AtomicCmpExchange(NativeInt(Lock), current + 2, current) = current then
+      Break;
+
+    {$IFDEF CPUX86}asm pause end;{$ELSE}YieldProcessor;{$ENDIF}
+  end;
+
+  NativeUInt(ThreadId) := GetCurrentThreadId;
 end;
 
-function TGuidHelper.ToString: string;
+procedure ReadWriteLock.LeaveUpgradableRead;
 begin
-  Result := GuidToString(Self);
+  NativeUInt(ThreadId) := 0;
+  AtomicDecrement(NativeInt(Lock), 2);
 end;
-{$ENDIF}
+
+procedure ReadWriteLock.EnterWrite;
+var
+  current: NativeInt;
+begin
+  while True do
+  begin
+    while True do
+    begin
+      current := NativeInt(Lock) and not 1;
+      if AtomicCmpExchange(NativeInt(Lock), current + 1, current) = current then
+        Break;
+
+      {$IFDEF CPUX86}asm pause end;{$ELSE}YieldProcessor;{$ENDIF}
+    end;
+
+    if (NativeInt(Lock) and 2 = 2) and (NativeUInt(ThreadId) <> GetCurrentThreadId) then
+      AtomicDecrement(NativeInt(Lock), 1)
+    else
+      Break;
+  end;
+
+  while NativeInt(Lock) > 3 do;
+end;
+
+procedure ReadWriteLock.LeaveWrite;
+begin
+  AtomicDecrement(NativeInt(Lock), 1);
+end;
 
 {$ENDREGION}
 
@@ -3648,6 +5054,8 @@ begin
     1: Result := PByte(@value)^;
     2: Result := PWord(@value)^;
     4: Result := PInteger(@value)^;
+  else
+    __SuppressWarning(Result);
   end;
 end;
 
@@ -3685,30 +5093,17 @@ end;
 class function TEnum.GetNames<T>: TStringDynArray;
 var
   typeData: PTypeData;
-{$IFDEF NEXTGEN}
-  p: TTypeInfoFieldAccessor;
-{$ELSE}
   p: PShortString;
-{$ENDIF}
-  i: Integer;
+  i: NativeInt;
 begin
   Guard.CheckTypeKind<T>(tkEnumeration, 'T');
   typeData := GetTypeData(TypeInfo(T));
   SetLength(Result, typeData.MaxValue - typeData.MinValue + 1);
-{$IFDEF NEXTGEN}
-  p := typedata^.NameListFld;
-{$ELSE}
   p := @typedata.NameList;
-{$ENDIF}
   for i := Low(Result) to High(Result) do
   begin
-{$IFDEF NEXTGEN}
-    Result[i] := p.ToString;
-    p.SetData(p.Tail);
-{$ELSE}
     Result[i] := UTF8ToString(p^);
     Inc(PByte(p), Length(p^) + 1);
-{$ENDIF}
   end;
 end;
 
@@ -3729,13 +5124,13 @@ end;
 class function TEnum.GetValues<T>: TIntegerDynArray;
 var
   typeData: PTypeData;
-  i: Integer;
+  i: NativeInt;
 begin
   Guard.CheckTypeKind<T>(tkEnumeration, 'T');
   typeData := GetTypeData(TypeInfo(T));
   SetLength(Result, typeData.MaxValue - typeData.MinValue + 1);
   for i := Low(Result) to High(Result) do
-    Result[i] := i;
+    Result[i] := Integer(i);
 end;
 
 class function TEnum.TryParse<T>(const value: Integer; out enum: T): Boolean;
@@ -3771,9 +5166,8 @@ end;
 
 {$REGION 'TBaseAttribute'}
 
-constructor TBaseAttribute.Create;
-begin
-  inherited Create;
+constructor TBaseAttribute.Create; //FI:W525
+begin //FI:W519
 end;
 
 {$ENDREGION}
@@ -3784,43 +5178,36 @@ end;
 {$IFNDEF DELPHIXE3_UP}
 constructor DefaultAttribute.Create(const defaultValue: Integer);
 begin
-  inherited Create;
   fValue := defaultValue;
 end;
 
 constructor DefaultAttribute.Create(const defaultValue: Boolean);
 begin
-  inherited Create;
   fValue := Ord(defaultValue);
 end;
 
 constructor DefaultAttribute.Create(const defaultValue: Cardinal);
 begin
-  inherited Create;
   fValue := defaultValue;
 end;
 
 constructor DefaultAttribute.Create(const defaultValue: string);
 begin
-  inherited Create;
   fValue := defaultValue;
 end;
 
 constructor DefaultAttribute.Create(const defaultValue: Extended);
 begin
-  inherited Create;
   fValue := defaultValue;
 end;
 
 constructor DefaultAttribute.Create(const defaultValue: Int64);
 begin
-  inherited Create;
   fValue := defaultValue;
 end;
 
 constructor DefaultAttribute.Create(const defaultValue: UInt64);
 begin
-  inherited Create;
   fValue := defaultValue;
 end;
 {$ENDIF}
@@ -3830,23 +5217,20 @@ end;
 
 {$REGION 'ManagedAttribute'}
 
-constructor ManagedAttribute.Create(createInstance: Boolean);
+constructor ManagedAttribute.Create(createInstance: Boolean); //FI:W525
 begin
-  inherited Create;
   fCreateInstance := createInstance;
 end;
 
-constructor ManagedAttribute.Create(instanceClass: TClass);
+constructor ManagedAttribute.Create(instanceClass: TClass); //FI:W525
 begin
-  inherited Create;
   fCreateInstance := True;
   fInstanceClass := instanceClass;
 end;
 
-constructor ManagedAttribute.Create(const factory: TFunc<PTypeInfo,Pointer>);
+constructor ManagedAttribute.Create(const initializer: TFieldInitializer); //FI:W525
 begin
-  Create(instanceClass);
-  fFactory := factory;
+  fInitializer := initializer;
 end;
 
 {$ENDREGION}
@@ -3859,13 +5243,8 @@ begin
 {$IFDEF USE_VMTAUTOTABLE}
   InitTables := TObjectList<TInitTable>.Create;
 {$ELSE}
-  InitTables := TObjectDictionary<TClass,TInitTable>.Create([doOwnsValues]);
+  InitTables := TObjectDictionary<TClass,TInitTable>.Create([Generics.Collections.doOwnsValues]);
 {$ENDIF}
-  FormatSettings := TFormatSettings.Create;
-  FormatSettings.DateSeparator := '-';
-  FormatSettings.TimeSeparator := ':';
-  FormatSettings.ShortDateFormat := 'YYYY-MM-DD';
-  FormatSettings.ShortTimeFormat := 'hh:mm:ss';
 end;
 
 class destructor TInitTable.Destroy;
@@ -3876,52 +5255,75 @@ end;
 constructor TInitTable.Create(classType: TClass);
 var
   t: TRttiType;
+  types: TArray<TRttiType>;
+  i: NativeInt;
   f: TRttiField;
   p: TRttiProperty;
   a: TCustomAttribute;
   setter: Pointer;
 begin
   t := TType.GetType(classType);
-  for f in t.GetFields do
-    for a in f.GetAttributes do
-      if a is DefaultAttribute then
-        AddDefaultField(f.FieldType.Handle, DefaultAttribute(a).Value, f.Offset)
-      else if a is ManagedAttribute then
-        if f.FieldType.TypeKind in [tkClass, tkInterface] then
+
+  repeat
+    SetLength(types, Length(types) + 1);
+    types[High(types)] := t;
+    t := t.BaseType;
+  until t.Handle = TypeInfo(TObject);
+
+  for i := High(types) downto 0 do
+  begin
+    t := types[i];
+
+    for f in t.GetDeclaredFields do
+    begin
+      if not Assigned(f.FieldType) then
+        Continue;
+
+      for a in f.FieldType.GetAttributes do
+        if a is DefaultAttribute then
+          AddDefaultField(f.FieldType.Handle, DefaultAttribute(a).Value, f.Offset)
+        else if a is ManagedAttribute then
           AddManagedField(f, ManagedAttribute(a));
 
-  for p in t.GetProperties do
-    for a in p.GetAttributes do
-      if a is DefaultAttribute then
-      begin
-        if p.IsWritable then
-          setter := TRttiInstanceProperty(p).PropInfo.SetProc
-        else
-        begin
-          // if the property is read-only but backed by a field it can be initialized
-          setter := TRttiInstanceProperty(p).PropInfo.GetProc;
-          if IntPtr(setter) and PROPSLOT_MASK <> PROPSLOT_FIELD then
-            raise EInvalidOperationException.Create('Property not writable'); // TODO
-        end;
+      for a in f.GetAttributes do
+        if a is DefaultAttribute then
+          AddDefaultField(f.FieldType.Handle, DefaultAttribute(a).Value, f.Offset)
+        else if a is ManagedAttribute then
+          AddManagedField(f, ManagedAttribute(a));
+    end;
 
-        if IntPtr(setter) and PROPSLOT_MASK = PROPSLOT_FIELD then
-          AddDefaultField(p.PropertyType.Handle, DefaultAttribute(a).Value,
-            IntPtr(setter) and not PROPSLOT_MASK)
-        else
-          AddDefaultProperty(p.PropertyType.Handle, DefaultAttribute(a).Value,
-            TRttiInstanceProperty(p).PropInfo);
-      end;
+    for p in t.GetDeclaredProperties do
+      for a in p.GetAttributes do
+        if a is DefaultAttribute then
+        begin
+          if p.IsWritable then
+            setter := TRttiInstanceProperty(p).PropInfo.SetProc
+          else
+          begin
+            // if the property is read-only but backed by a field it can be initialized
+            setter := TRttiInstanceProperty(p).PropInfo.GetProc;
+            if IntPtr(setter) and PROPSLOT_MASK <> PROPSLOT_FIELD then
+              raise EInvalidOperationException.Create('Property not writable'); // TODO
+          end;
+
+          if IntPtr(setter) and PROPSLOT_MASK = PROPSLOT_FIELD then
+            AddDefaultField(p.PropertyType.Handle, DefaultAttribute(a).Value,
+              Integer(IntPtr(setter) and not PROPSLOT_MASK))
+          else
+            AddDefaultProperty(p.PropertyType.Handle, DefaultAttribute(a).Value,
+              TRttiInstanceProperty(p).PropInfo);
+        end;
+  end;
 end;
 
-destructor TInitTable.Destroy;
+destructor TInitTable.Destroy; //FI:W504
 var
-  i: Integer;
+  i: NativeInt;
 begin
   for i := 0 to High(DefaultFields) do
     FreeAndNil(DefaultFields[i]);
   for i := 0 to High(ManagedFields) do
     FreeAndNil(ManagedFields[i]);
-  inherited Destroy;
 end;
 
 procedure TInitTable.AddDefaultField(fieldType: PTypeInfo;
@@ -3940,17 +5342,15 @@ begin
         otUWord: defaultField := TDefaultField<Word>.Create(offset, value);
         otULong: defaultField := TDefaultField<Cardinal>.Create(offset, value);
       end;
-    {$IFNDEF NEXTGEN}
     tkChar:
       defaultField  := TDefaultField<AnsiChar>.Create(offset, value);
-    {$ENDIF}
     tkFloat:
       if (fieldType = TypeInfo(TDateTime)) and (VarType(value) = varUString) then
-        defaultField := TDefaultField<TDateTime>.Create(offset, StrToDateTime(value, FormatSettings))
+        defaultField := TDefaultField<TDateTime>.Create(offset, StrToDateTime(value, ISO8601FormatSettings))
       else if (fieldType = TypeInfo(TDate)) and (VarType(value) = varUString) then
-        defaultField := TDefaultField<TDate>.Create(offset, StrToDate(value, FormatSettings))
+        defaultField := TDefaultField<TDate>.Create(offset, StrToDate(value, ISO8601FormatSettings))
       else if (fieldType = TypeInfo(TTime)) and (VarType(value) = varUString) then
-        defaultField := TDefaultField<TTime>.Create(offset, StrToTime(value, FormatSettings))
+        defaultField := TDefaultField<TTime>.Create(offset, StrToTime(value, ISO8601FormatSettings))
       else
         case FieldType.TypeData.FloatType of
           ftSingle: defaultField := TDefaultField<Single>.Create(offset, value);
@@ -3961,10 +5361,8 @@ begin
         end;
     tkWChar:
       defaultField := TDefaultField<Char>.Create(offset, value);
-    {$IFNDEF NEXTGEN}
     tkWString:
       defaultField := TDefaultField<WideString>.Create(offset, value);
-    {$ENDIF}
     tkVariant:
       defaultField := TDefaultField<Variant>.Create(offset, value);
     tkInt64:
@@ -3979,7 +5377,7 @@ begin
   end;
   if defaultField <> nil then
   begin
-    DefaultFieldCount := Length(DefaultFields) + 1;
+    DefaultFieldCount := Integer(Length(DefaultFields) + 1);
     SetLength(DefaultFields, DefaultFieldCount);
     DefaultFields[DefaultFieldCount - 1] := defaultField;
   end;
@@ -4001,17 +5399,15 @@ begin
         otUWord: defaultField := TDefaultProperty<Word>.Create(propInfo, value);
         otULong: defaultField := TDefaultProperty<Cardinal>.Create(propInfo, value);
       end;
-    {$IFNDEF NEXTGEN}
     tkChar:
       defaultField  := TDefaultProperty<AnsiChar>.Create(propInfo, value);
-    {$ENDIF}
     tkFloat:
       if (fieldType = TypeInfo(TDateTime)) and (VarType(value) = varUString) then
-        defaultField := TDefaultProperty<TDateTime>.Create(propInfo, StrToDateTime(value, FormatSettings))
+        defaultField := TDefaultProperty<TDateTime>.Create(propInfo, StrToDateTime(value, ISO8601FormatSettings))
       else if (fieldType = TypeInfo(TDate)) and (VarType(value) = varUString) then
-        defaultField := TDefaultProperty<TDate>.Create(propInfo, StrToDate(value, FormatSettings))
+        defaultField := TDefaultProperty<TDate>.Create(propInfo, StrToDate(value, ISO8601FormatSettings))
       else if (fieldType = TypeInfo(TTime)) and (VarType(value) = varUString) then
-        defaultField := TDefaultProperty<TTime>.Create(propInfo, StrToTime(value, FormatSettings))
+        defaultField := TDefaultProperty<TTime>.Create(propInfo, StrToTime(value, ISO8601FormatSettings))
       else
         case fieldType.TypeData.FloatType of
           ftSingle: defaultField := TDefaultProperty<Single>.Create(propInfo, value);
@@ -4022,10 +5418,8 @@ begin
         end;
     tkWChar:
       defaultField := TDefaultProperty<Char>.Create(propInfo, value);
-    {$IFNDEF NEXTGEN}
     tkWString:
       defaultField := TDefaultProperty<WideString>.Create(propInfo, value);
-    {$ENDIF}
     tkVariant:
       defaultField := TDefaultProperty<Variant>.Create(propInfo, value);
     tkInt64:
@@ -4040,7 +5434,7 @@ begin
   end;
   if defaultField <> nil then
   begin
-    DefaultFieldCount := Length(DefaultFields) + 1;
+    DefaultFieldCount := Integer(Length(DefaultFields) + 1);
     SetLength(DefaultFields, DefaultFieldCount);
     DefaultFields[DefaultFieldCount - 1] := defaultField;
   end;
@@ -4048,54 +5442,12 @@ end;
 
 procedure TInitTable.AddManagedField(const field: TRttiField;
   const attribute: ManagedAttribute);
-
-  function GetInterfaceEntry(cls: TClass; intf: PTypeInfo): PInterfaceEntry;
-  var
-    intfGuid: TGUID;
-    interfaceTable: PInterfaceTable;
-    {$IFNDEF DELPHI2010}
-    p: PPPTypeInfo;
-    {$ENDIF}
-    i: Integer;
-  begin
-    {$IFDEF DELPHI2010}
-    // Delphi 2010 does not have the PPTypeInfo array
-    // after the TInterfaceEntry array in TInterfaceTable
-    // so only interfaces with a GUID can be used
-    if not (ifHasGuid in intf.TypeData.IntfFlags) then
-      Exit(nil);
-    {$ENDIF}
-    intfGuid := intf.TypeData.Guid;
-    repeat
-      interfaceTable := cls.GetInterfaceTable;
-      if interfaceTable <> nil then
-      begin
-        {$IFNDEF DELPHI2010}
-        p := @interfaceTable.Entries[interfaceTable.EntryCount];
-        {$ENDIF}
-        for i := 0 to interfaceTable.EntryCount - 1 do
-        begin
-          Result := @interfaceTable.Entries[i];
-          {$IFNDEF DELPHI2010}
-          if p^^ = intf then
-            Exit;
-          Inc(p);
-          {$ENDIF}
-          if Result.IID = intf.TypeData.Guid then
-            Exit;
-        end;
-      end;
-      cls := cls.ClassParent;
-    until cls = nil;
-    Result := nil;
-  end;
-
 var
   fieldType: PTypeInfo;
   offset: Integer;
   createInstance: Boolean;
   cls: TClass;
-  factory: TFunc<PTypeInfo,Pointer>;
+  initializer: TFieldInitializer;
   managedField: TFinalizableField;
   entry: PInterfaceEntry;
 begin
@@ -4103,20 +5455,19 @@ begin
   offset := field.Offset;
   createInstance := attribute.CreateInstance;
   cls := attribute.InstanceClass;
-  factory := attribute.Factory;
-  managedField := nil;
+  initializer := attribute.Initializer;
   case fieldType.Kind of
     tkClass:
     begin
-      if not Assigned(factory) and not Assigned(cls) and createInstance then
+      if not Assigned(initializer) and not Assigned(cls) and createInstance then
         cls := fieldType.TypeData.ClassType;
-      managedField := TManagedObjectField.Create(offset, fieldType, cls, factory);
+      managedField := TManagedObjectField.Create(offset, fieldType, initializer, cls);
     end;
     tkInterface:
     begin
       if Assigned(cls) then
       begin
-        entry := GetInterfaceEntry(cls, fieldType);
+        entry := GetInterfaceEntryByTypeInfo(cls, fieldType);
         if entry = nil then
           raise EInvalidOperationException.CreateFmt(
             'class %s is not compatible with interface %s (field %s)', [
@@ -4124,12 +5475,14 @@ begin
       end
       else
         entry := nil;
-      managedField := TManagedInterfaceField.Create(offset, fieldType, cls, factory, entry);
+      managedField := TManagedInterfaceField.Create(offset, fieldType, initializer, cls, entry);
     end;
+  else
+    managedField := TInitializerField.Create(offset, fieldType, initializer);
   end;
   if managedField <> nil then
   begin
-    ManagedFieldCount := Length(ManagedFields) + 1;
+    ManagedFieldCount := Integer(Length(ManagedFields) + 1);
     SetLength(ManagedFields, ManagedFieldCount);
     ManagedFields[ManagedFieldCount - 1] := managedField;
   end;
@@ -4168,7 +5521,7 @@ begin
 {$ENDIF}
 end;
 
-{$IFDEF RANGECHECKS_ON}{$RANGECHECKS OFF}{$ENDIF}
+{$R-}
 procedure TInitTable.InitInstance(instance: Pointer);
 var
   f: ^TInitializableField;
@@ -4188,7 +5541,6 @@ begin
   end;
 end;
 
-{$IFNDEF AUTOREFCOUNT}
 procedure TInitTable.CleanupInstance(instance: Pointer);
 var
   f: ^TFinalizableField;
@@ -4201,19 +5553,17 @@ begin
     Inc(f);
   end;
 end;
-{$ENDIF}
-{$IFDEF RANGECHECKS_ON}{$RANGECHECKS ON}{$ENDIF}
+{$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
 
 {$ENDREGION}
 
 
 {$REGION 'TInitTable.TDefaultField<T>'}
 
-constructor TInitTable.TDefaultField<T>.Create(offset: Integer; const value: Variant);
+constructor TInitTable.TDefaultField<T>.Create(offset: Integer; const value: Variant); //FI:W525
 begin
-  inherited Create;
   fOffset := offset;
-  fValue := TValue.FromVariant(value).AsType<T>; // TODO
+  TValue.FromVariant(value).AsType(TypeInfo(T), fValue); // TODO
 end;
 
 procedure TInitTable.TDefaultField<T>.InitializeValue(instance: Pointer);
@@ -4226,11 +5576,10 @@ end;
 
 {$REGION 'TInitTable.TDefaultProperty<T>'}
 
-constructor TInitTable.TDefaultProperty<T>.Create(propInfo: PPropInfo; const value: Variant);
+constructor TInitTable.TDefaultProperty<T>.Create(propInfo: PPropInfo; const value: Variant); //FI:W525
 begin
-  inherited Create;
   fPropInfo := propInfo;
-  fValue := TValue.FromVariant(value).AsType<T>; // TODO
+  TValue.FromVariant(value).AsType(TypeInfo(T), fValue); // TODO
 end;
 
 class function TInitTable.GetCodePointer(instance: TObject; p: Pointer): Pointer;
@@ -4256,17 +5605,36 @@ end;
 {$ENDREGION}
 
 
+{$REGION 'TInitTable.TInitializerField'}
+
+constructor TInitTable.TInitializerField.Create(offset: Integer; //FI:W525
+  fieldType: PTypeInfo; const initializer: TFieldInitializer);
+begin
+  fOffset := offset;
+  fFieldType := fieldType;
+  fInitializer := initializer;
+end;
+
+procedure TInitTable.TInitializerField.FinalizeValue(instance: Pointer);
+begin
+end;
+
+procedure TInitTable.TInitializerField.InitializeValue(instance: Pointer);
+begin
+  fInitializer(fFieldType, Pointer(PByte(instance) + fOffset)^);
+end;
+
+{$ENDREGION}
+
+
 {$REGION 'TInitTable.TManagedObjectField'}
 
 constructor TInitTable.TManagedObjectField.Create(offset: Integer;
-  fieldType: PTypeInfo; cls: TClass; const factory: TFunc<PTypeInfo,Pointer>);
+  fieldType: PTypeInfo; const initializer: TFieldInitializer; cls: TClass);
 begin
-  inherited Create;
-  fOffset := offset;
-  fFieldType := fieldType;
+  inherited Create(offset, fieldType, initializer);
   fCls := cls;
-  fFactory := factory;
-  if Assigned(cls) and not Assigned(factory) then
+  if Assigned(cls) and not Assigned(initializer) then
     fCtor := TActivator.FindConstructor(cls);
 end;
 
@@ -4279,8 +5647,8 @@ procedure TInitTable.TManagedObjectField.InitializeValue(instance: Pointer);
 begin
   if Assigned(fCtor) then
     TObject(Pointer(PByte(instance) + fOffset)^) := TObject(fCtor(fCls))
-  else if Assigned(fFactory) then
-    TObject(Pointer(PByte(instance) + fOffset)^) := fFactory(fFieldType);
+  else if Assigned(fInitializer) then
+    fInitializer(fFieldType, Pointer(PByte(instance) + fOffset)^);
 end;
 
 {$ENDREGION}
@@ -4288,45 +5656,11 @@ end;
 
 {$REGION 'TInitTable.TManagedInterfaceField'}
 
-function InvokeImplGetter(const Self: TObject; implGetter: NativeUInt): IInterface;
-var
-  method: function: IInterface of object;
-begin
-  TMethod(method).Data := Self;
-  {$IF SizeOf(NativeUInt) = 4}
-  case implGetter of
-    $FF000000..$FFFFFFFF:
-      Result := IInterface(PPointer(PByte(Self) + (implGetter and $00FFFFFF))^);
-    $FE000000..$FEFFFFFF:
-    begin
-      TMethod(method).Code := PPointer(PNativeInt(Self)^ + SmallInt(implGetter))^;
-      Result := method;
-    end;
-  else
-    TMethod(method).Code := Pointer(implGetter);
-    Result := method;
-  end;
-  {$ELSE}
-  if (implGetter and $FF00000000000000) = $FF00000000000000 then
-    Result := IInterface(PPointer(PByte(Self) + (implGetter and $00FFFFFFFFFFFFFF))^)
-  else if (implGetter and $FF00000000000000) = $FE00000000000000 then
-  begin
-    TMethod(method).Code := PPointer(PNativeInt(Self)^ + SmallInt(implGetter))^;
-    Result := method;
-  end
-  else
-  begin
-    TMethod(method).Code := Pointer(implGetter);
-    Result := method;
-  end;
-  {$IFEND}
-end;
-
 constructor TInitTable.TManagedInterfaceField.Create(offset: Integer;
-  fieldType: PTypeInfo; cls: TClass; const factory: TFunc<PTypeInfo,Pointer>;
+  fieldType: PTypeInfo; const initializer: TFieldInitializer; cls: TClass;
   entry: PInterfaceEntry);
 begin
-  inherited Create(offset, fieldType, cls, factory);
+  inherited Create(offset, fieldType, initializer, cls);
   fEntry := entry;
 end;
 
@@ -4344,7 +5678,7 @@ begin
   else
   begin
     Result := nil;
-    IInterface(Result) := InvokeImplGetter(obj, fEntry.ImplGetter);
+    InvokeImplGetter(obj, fEntry.ImplGetter, IInterface(Result));
   end;
 end;
 
@@ -4353,17 +5687,11 @@ begin
 end;
 
 procedure TInitTable.TManagedInterfaceField.InitializeValue(instance: Pointer);
-var
-  intf: Pointer;
 begin
   if Assigned(fCtor) then
-    intf := CreateInstance
-  else if Assigned(fFactory) then
-    intf := fFactory(fFieldType)
-  else
-    Exit;
-
-  PPointer(PByte(instance) + fOffset)^ := intf;
+    PPointer(PByte(instance) + fOffset)^ := CreateInstance
+  else if Assigned(fInitializer) then
+    fInitializer(fFieldType, PPointer(PByte(instance) + fOffset)^);
 end;
 
 {$ENDREGION}
@@ -4371,13 +5699,11 @@ end;
 
 {$REGION 'TManagedObject'}
 
-{$IFNDEF AUTOREFCOUNT}
 procedure TManagedObject.FreeInstance;
 begin
   GetInitTable(ClassType).CleanupInstance(Self);
   inherited FreeInstance;
 end;
-{$ENDIF}
 
 class function TManagedObject.NewInstance: TObject;
 begin
@@ -4390,13 +5716,11 @@ end;
 
 {$REGION 'TManagedInterfacedObject'}
 
-{$IFNDEF AUTOREFCOUNT}
 procedure TManagedInterfacedObject.FreeInstance;
 begin
   GetInitTable(ClassType).CleanupInstance(Self);
   inherited FreeInstance;
 end;
-{$ENDIF}
 
 class function TManagedInterfacedObject.NewInstance: TObject;
 begin
@@ -4423,13 +5747,8 @@ begin
     FAsMethod.Code := nil;
     FAsMethod.Data := nil;
 {$IFEND}
-{$IFDEF DELPHI2010}
-    FHeapData := nil;
-    Pointer(FHeapData) := Nop_Instance;
-{$ELSE}
     FValueData := nil;
     Pointer(FValueData) := Nop_Instance;
-{$ENDIF}
   end;
 end;
 
@@ -4437,11 +5756,7 @@ function TValueHelper.AsPointer: Pointer;
 begin
   case Kind of
     tkPointer:
-{$IFDEF DELPHI2010}
-      Result := Pointer(TValueData(Self).FAsSLong);
-{$ELSE}
       Result := TValueData(Self).FAsPointer;
-{$ENDIF}
     tkClass:
       Result := AsObject;
     tkInterface:
@@ -4452,22 +5767,25 @@ begin
   end;
 end;
 
-{$IFDEF DELPHI2010}
-function TValueHelper.AsString: string;
-begin
-  Result := AsType<string>;
-end;
-{$ENDIF}
-
 function TValueHelper.AsType<T>: T;
 begin
-{$IFDEF DELPHI2010}
-  if IsEmpty then
-    Exit(Default(T));
-{$ENDIF}
   if not TryAsInterface(System.TypeInfo(T), Result) then
-  if not TryAsType<T>(Result) then
+  if not TryAsType(System.TypeInfo(T), Result) then
     Guard.RaiseInvalidTypeCast(TypeInfo, System.TypeInfo(T));
+end;
+
+procedure TValueHelper.AsTypeRelaxed(typeInfo: PTypeInfo; out target);
+begin
+  if SameTypeInfo(TValueData(Self).FTypeInfo, typeInfo) then
+    typeInfo := TValueData(Self).FTypeInfo;
+  AsType(typeInfo, target);
+end;
+
+procedure TValueHelper.AsType(typeInfo: PTypeInfo; out target);
+begin
+  if not TryAsInterface(typeInfo, target) then
+  if not TryAsType(typeInfo, target) then
+    Guard.RaiseInvalidTypeCast(Self.TypeInfo, typeInfo);
 end;
 
 function TValueHelper.Cast(typeInfo: PTypeInfo): TValue;
@@ -4542,11 +5860,14 @@ begin
 end;
 
 function EqualsInt2Float(const left, right: TValue): Boolean;
+var
+  valueSingle: Single;
+  valueDouble: Double;
 begin
-  if right.IsType<Single> then
-    Result := Math.SameValue(left.AsInteger, right.AsType<Single>)
-  else if right.IsType<Double> then
-    Result := Math.SameValue(left.AsInteger, right.AsType<Double>)
+  if right.TryAsType(TypeInfo(Single), valueSingle) then
+    Result := Math.SameValue(left.AsInteger, valueSingle)
+  else if right.TryAsType(TypeInfo(Double), valueDouble) then
+    Result := Math.SameValue(left.AsInteger, valueDouble)
   else
     Result := Math.SameValue(left.AsInteger, right.AsExtended);
 end;
@@ -4559,8 +5880,8 @@ end;
 function EqualsFloat2Int(const left, right: TValue): Boolean;
 begin
   case left.TypeData.FloatType of
-    ftSingle: Result := Math.SameValue(left.AsType<Single>, right.AsInteger);
-    ftDouble: Result := Math.SameValue(left.AsType<Double>, right.AsInteger);
+    ftSingle: Result := Math.SameValue(TValueData(left).FAsSingle, right.AsInteger);
+    ftDouble: Result := Math.SameValue(TValueData(left).FAsDouble, right.AsInteger);
   else
     Result := Math.SameValue(left.AsExtended, right.AsInteger);
   end;
@@ -4571,22 +5892,33 @@ begin
   case left.TypeData.FloatType of
     ftSingle:
       case right.TypeData.FloatType of
-        ftSingle: Result := Math.SameValue(left.AsType<Single>, right.AsType<Single>);
-        ftDouble: Result := Math.SameValue(left.AsType<Single>, right.AsType<Double>);
+        ftSingle: Result := Math.SameValue(TValueData(left).FAsSingle, TValueData(right).FAsSingle);
+        ftDouble: Result := Math.SameValue(TValueData(left).FAsSingle, TValueData(right).FAsDouble);
+        ftCurr: Result := Math.SameValue(TValueData(left).FAsSingle, TValueData(right).FAsCurr);
       else
-        Result := Math.SameValue(left.AsType<Single>, right.AsExtended);
+        Result := Math.SameValue(TValueData(left).FAsSingle, right.AsExtended);
       end;
     ftDouble:
       case right.TypeData.FloatType of
-        ftSingle: Result := Math.SameValue(left.AsType<Double>, right.AsType<Single>);
-        ftDouble: Result := Math.SameValue(left.AsType<Double>, right.AsType<Double>);
+        ftSingle: Result := Math.SameValue(TValueData(left).FAsDouble, TValueData(right).FAsSingle);
+        ftDouble: Result := Math.SameValue(TValueData(left).FAsDouble, TValueData(right).FAsDouble);
+        ftCurr: Result := Math.SameValue(TValueData(left).FAsDouble, TValueData(right).FAsCurr);
       else
-        Result := Math.SameValue(left.AsType<Double>, right.AsExtended);
+        Result := Math.SameValue(TValueData(left).FAsDouble, right.AsExtended);
+      end;
+    ftCurr:
+      case right.TypeData.FloatType of
+        ftSingle: Result := Math.SameValue(TValueData(left).FAsCurr, TValueData(right).FAsSingle);
+        ftDouble: Result := Math.SameValue(TValueData(left).FAsCurr, TValueData(right).FAsDouble);
+        ftCurr: Result := TValueData(left).FAsCurr = TValueData(right).FAsCurr;
+      else
+        Result := Math.SameValue(TValueData(left).FAsCurr, right.AsExtended);
       end;
   else
     case right.TypeData.FloatType of
-      ftSingle: Result := Math.SameValue(left.AsExtended, right.AsType<Single>);
-      ftDouble: Result := Math.SameValue(left.AsExtended, right.AsType<Double>);
+      ftSingle: Result := Math.SameValue(left.AsExtended, TValueData(right).FAsSingle);
+      ftDouble: Result := Math.SameValue(left.AsExtended, TValueData(right).FAsDouble);
+      ftCurr: Result := Math.SameValue(left.AsExtended, TValueData(right).FAsCurr);
     else
       Result := Math.SameValue(left.AsExtended, right.AsExtended);
     end;
@@ -4596,8 +5928,8 @@ end;
 function EqualsFloat2Int64(const left, right: TValue): Boolean;
 begin
   case left.TypeData.FloatType of
-    ftSingle: Result := Math.SameValue(left.AsType<Single>, right.AsInt64);
-    ftDouble: Result := Math.SameValue(left.AsType<Double>, right.AsInt64);
+    ftSingle: Result := Math.SameValue(TValueData(left).FAsSingle, right.AsInt64);
+    ftDouble: Result := Math.SameValue(TValueData(left).FAsDouble, right.AsInt64);
   else
     Result := Math.SameValue(left.AsExtended, right.AsInt64);
   end;
@@ -4609,11 +5941,14 @@ begin
 end;
 
 function EqualsInt64ToFloat(const left, right: TValue): Boolean;
+var
+  valueSingle: Single;
+  valueDouble: Double;
 begin
-  if right.IsType<Single> then
-    Result := Math.SameValue(left.AsInt64, right.AsType<Single>)
-  else if right.IsType<Double> then
-    Result := Math.SameValue(left.AsInt64, right.AsType<Double>)
+  if right.TryAsType(TypeInfo(Single), valueSingle) then
+    Result := Math.SameValue(left.AsInt64, valueSingle)
+  else if right.TryAsType(TypeInfo(Double), valueDouble) then
+    Result := Math.SameValue(left.AsInt64, valueDouble)
   else
     Result := Math.SameValue(left.AsInt64, right.AsExtended);
 end;
@@ -4636,6 +5971,13 @@ end;
 function EqualsClass2Class(const left, right: TValue): Boolean;
 begin
   Result := left.AsObject = right.AsObject;
+end;
+
+function EqualsMeth2Meth(const left, right: TValue): Boolean;
+begin
+  Result := (left.TypeInfo = right.TypeInfo)
+    and (TValueData(left).FAsMethod.Code = TValueData(right).FAsMethod.Code)
+    and (TValueData(left).FAsMethod.Data = TValueData(right).FAsMethod.Data);
 end;
 
 function EqualsPointer2Pointer(const left, right: TValue): Boolean;
@@ -4694,32 +6036,25 @@ function EqualsRec2Rec(const left, right: TValue): Boolean;
   end;
 
 var
-  recordType: TRttiType;
   method: TRttiMethod;
-  parameters: TArray<TRttiParameter>;
 begin
   if (left.TypeInfo = TypeInfo(TValue)) and (right.TypeInfo = TypeInfo(TValue)) then
     Exit(PValue(left.GetReferenceToRawData).Equals(
       PValue(right.GetReferenceToRawData)^));
 
-  recordType := left.TypeInfo.RttiType;
-  for method in recordType.GetMethods('&op_Equality') do
-  begin
-    parameters := method.GetParameters;
-    if (Length(parameters) = 2)
-      and (parameters[0].ParamType.Handle = left.TypeInfo)
-      and (parameters[1].ParamType.Handle = right.TypeInfo) then
-      Exit(method.Invoke(nil, [left, right]).AsBoolean);
-  end;
-
-  Result := RawEquals(recordType);
+  method := GetEqualsOperator(left.TypeInfo);
+  if Assigned(method) then
+    Result := method.Invoke(nil, [left, right]).AsBoolean
+  else
+    Result := RawEquals(left.TypeInfo.RttiType);
 end;
 
-function EqualsDynArray2DynArray(const left, right: TValue): Boolean;
+function EqualsArray2Array(const left, right: TValue): Boolean;
 var
   len, i: Integer;
 begin
-  if PPointer(left.GetReferenceToRawData)^ = PPointer(right.GetReferenceToRawData)^ then
+  if (left.Kind = tkDynArray) and (right.Kind = tkDynArray)
+    and (PPointer(left.GetReferenceToRawData)^ = PPointer(right.GetReferenceToRawData)^) then
     Exit(True);
   len := left.GetArrayLength;
   if len <> right.GetArrayLength then
@@ -4861,7 +6196,7 @@ const
       // tkUnknown, tkInteger, tkChar, tkEnumeration, tkFloat,
       EqualsFail, EqualsFail, EqualsFail, EqualsFail, EqualsFail,
       // tkString, tkSet, tkClass, tkMethod, tkWChar,
-      EqualsFail, EqualsFail, EqualsFail, EqualsFail, EqualsFail, // TODO: tkMethod
+      EqualsFail, EqualsFail, EqualsFail, EqualsMeth2Meth, EqualsFail, // TODO: tkMethod
       // tkLString, tkWString, tkVariant, tkArray, tkRecord,
       EqualsFail, EqualsFail, EqualsFail, EqualsFail, EqualsFail,
       // tkInterface, tkInt64, tkDynArray, tkUString, tkClassRef
@@ -4928,9 +6263,9 @@ const
       // tkString, tkSet, tkClass, tkMethod, tkWChar,
       EqualsFail, EqualsFail, EqualsFail, EqualsFail, EqualsFail,
       // tkLString, tkWString, tkVariant, tkArray, tkRecord,
-      EqualsFail, EqualsFail, EqualsFail, EqualsFail, EqualsFail,
+      EqualsFail, EqualsFail, EqualsFail, EqualsArray2Array, EqualsFail,
       // tkInterface, tkInt64, tkDynArray, tkUString, tkClassRef
-      EqualsFail, EqualsFail, EqualsFail, EqualsFail, EqualsFail,
+      EqualsFail, EqualsFail, EqualsArray2Array, EqualsFail, EqualsFail,
       // tkPointer, tkProcedure
       EqualsFail, EqualsFail {$IF Declared(tkMRecord)}, EqualsFail{$IFEND}
     ),
@@ -4980,9 +6315,9 @@ const
       // tkString, tkSet, tkClass, tkMethod, tkWChar,
       EqualsFail, EqualsFail, EqualsFail, EqualsFail, EqualsFail,
       // tkLString, tkWString, tkVariant, tkArray, tkRecord,
-      EqualsFail, EqualsFail, EqualsFail, EqualsFail, EqualsFail,
+      EqualsFail, EqualsFail, EqualsFail, EqualsArray2Array, EqualsFail,
       // tkInterface, tkInt64, tkDynArray, tkUString, tkClassRef
-      EqualsFail, EqualsFail, EqualsDynArray2DynArray, EqualsFail, EqualsFail,
+      EqualsFail, EqualsFail, EqualsArray2Array, EqualsFail, EqualsFail,
       // tkPointer, tkProcedure
       EqualsFail, EqualsFail {$IF Declared(tkMRecord)}, EqualsFail{$IFEND}
     ),
@@ -5068,16 +6403,12 @@ end;
 procedure TValueHelper.Free;
 begin
   if IsObject then
-{$IFNDEF AUTOREFCOUNT}
     AsObject.Free;
-{$ELSE}
-    AsObject.DisposeOf;
-{$ENDIF}
 end;
 
-class function TValueHelper.From(buffer: Pointer; typeInfo: PTypeInfo): TValue;
+class function TValueHelper.From(const value; typeInfo: PTypeInfo): TValue;
 begin
-  TValue.Make(buffer, typeInfo, Result);
+  TValue.Make(@value, typeInfo, Result);
 end;
 
 class function TValueHelper.From(instance: TObject; classType: TClass): TValue;
@@ -5088,18 +6419,19 @@ end;
 class function TValueHelper.FromFloat(typeInfo: PTypeInfo;
   value: Extended): TValue;
 begin
+  Result.Init(typeInfo);
   case typeInfo.TypeData.FloatType of
-    ftSingle: Result := TValue.From<Single>(value);
-    ftDouble: Result := TValue.From<Double>(value);
-    ftExtended: Result := TValue.From<Extended>(value);
-    ftComp: Result := TValue.From<Comp>(value);
-    ftCurr: Result := TValue.From<Currency>(value);
+    ftSingle: TValueData(Result).FAsSingle := value;
+    ftDouble: TValueData(Result).FAsDouble := value;
+    ftExtended: TValueData(Result).FAsExtended := value;
+    ftComp: TValueData(Result).FAsComp := value;
+    ftCurr: TValueData(Result).FAsCurr := value;
   end;
 end;
 
 class function TValueHelper.FromVariant(const value: Variant): TValue;
 
-  procedure FromCustomVariant(const value: Variant; out result: TValue);
+  procedure FromCustomVariant(const value: Variant; var result: TValue);
   type
     PCustomVariantTypeInfo = ^TCustomVariantTypeInfo;
     TCustomVariantTypeInfo = record
@@ -5113,9 +6445,11 @@ class function TValueHelper.FromVariant(const value: Variant): TValue;
       (Name: 'FMTBcdVariantType'; VType: varInt64)
     );
   var
-    typeName: string;
+    typeName, tmpStr: string;
     i: Integer;
-    tmp: Int64;
+    tmpInt64: Int64;
+    tmpDouble: Double;
+    tmpCurrency: Currency;
     info: PCustomVariantTypeInfo;
   begin
     typeName := VarTypeAsText(TVarData(value).VType);
@@ -5127,10 +6461,21 @@ class function TValueHelper.FromVariant(const value: Variant): TValue;
         case info.VType of
           varDouble: result := Double(value);
           varInt64:
-            if TryStrToInt64(VarToStr(value), tmp) then
-              Result := tmp
+          begin
+            tmpStr := VarToStr(value);
+            if TryStrToInt64(tmpStr, tmpInt64) then
+              Result := tmpInt64
             else
-              Result := Double(value);
+            begin
+              tmpDouble := Double(value);
+              if FloatToStr(tmpDouble) = tmpStr then
+                Result := tmpDouble
+              else if TryStrToCurr(tmpStr, tmpCurrency) and (CurrToStr(tmpCurrency) = tmpStr) then
+                Result := tmpCurrency
+              else
+                Result := tmpStr;
+            end;
+          end;
         else
           raise EVariantTypeCastError.CreateRes(@SInvalidVarCast);
         end;
@@ -5150,32 +6495,20 @@ begin
     varShortInt: Result := TVarData(value).VShortInt;
     varSmallint: Result := TVarData(value).VSmallInt;
     varInteger: Result := TVarData(value).VInteger;
-{$IFDEF DELPHIXE4_UP}
     varSingle: Result := TVarData(value).VSingle;
     varDouble: Result := TVarData(value).VDouble;
     varCurrency: Result := TVarData(value).VCurrency;
-{$ELSE}
-    varSingle: Result := TValue.From<Single>(TVarData(value).VSingle);
-    varDouble: Result := TValue.From<Double>(TVarData(value).VDouble);
-    varCurrency: Result := TValue.From<Currency>(TVarData(value).VCurrency);
-{$ENDIF}
-    varDate: Result := From<TDateTime>(TVarData(value).VDate);
+    varDate: Result := TVarData(value).VDate;
     varOleStr: Result := string(TVarData(value).VOleStr);
-    varDispatch: Result := From<IDispatch>(IDispatch(TVarData(value).VDispatch));
-    varError: Result := From<HRESULT>(TVarData(value).VError);
-    varUnknown: Result := From<IInterface>(IInterface(TVarData(value).VUnknown));
+    varDispatch: Result := From(TVarData(value).VDispatch, System.TypeInfo(IDispatch));
+    varError: Result := From(TVarData(value).VError, System.TypeInfo(HRESULT));
+    varUnknown: Result := From(TVarData(value).VUnknown, System.TypeInfo(IInterface));
     varByte: Result := TVarData(value).VByte;
     varWord: Result := TVarData(value).VWord;
     varLongWord: Result := TVarData(value).VLongWord;
     varInt64: Result := TVarData(value).VInt64;
-{$IFDEF DELPHIXE4_UP}
     varUInt64: Result := TVarData(value).VUInt64;
-{$ELSE}
-    varUInt64: Result := TValue.From<UInt64>(TVarData(value).VUInt64);
-{$ENDIF}
-{$IFNDEF NEXTGEN}
     varString: Result := string(AnsiString(TVarData(value).VString));
-{$ENDIF}
     varUString: Result := UnicodeString(TVarData(value).VUString);
   else
     if TVarData(value).VType and varArray = varArray then
@@ -5224,7 +6557,7 @@ begin
 {$IF Declared(ShortString)}
     vtString: Result := string(value.VString^);
 {$IFEND}
-    vtPointer: Result := value.VPointer;
+    vtPointer: Result := TValue.From(value.VPointer, System.TypeInfo(Pointer));
 {$IF Declared(PAnsiChar)}
     vtPChar: Result := string(value.VPChar);
 {$IFEND}
@@ -5237,9 +6570,9 @@ begin
 {$IFEND}
     vtCurrency: Result := value.VCurrency^;
     vtVariant: Result := TValue.FromVariant(value.VVariant^);
-    vtInterface: Result := TValue.From<IInterface>(IInterface(value.VInterface));
+    vtInterface: Result := TValue.From(value.VInterface, System.TypeInfo(IInterface));
 {$IF Declared(WideString)}
-    vtWideString: Result := string(value.VWideString);
+    vtWideString: Result := WideString(value.VWideString);
 {$IFEND}
     vtInt64: Result := value.VInt64^;
     vtUnicodeString: Result := string(value.VUnicodeString);
@@ -5275,23 +6608,22 @@ begin
     Result := TValue.Empty;
 end;
 
-{$IFNDEF DELPHIXE8_UP}
 function TValueHelper.GetTypeKind: TTypeKind;
 begin
-{$IFDEF DELPHI2010}
-  if (TValueData(Self).FTypeInfo = nil) or (TValueData(Self).FHeapData = nil) then
-{$ELSE}
-  if (TValueData(Self).FTypeInfo = nil) or (TValueData(Self).FValueData = nil) then
-{$ENDIF}
-    Result := tkUnknown
+  if (TValueData(Self).FTypeInfo <> nil) and (TValueData(Self).FValueData <> nil) then
+    Result := TValueData(Self).FTypeInfo.Kind
   else
-    Result := TValueData(Self).FTypeInfo.Kind;
+    Result := tkUnknown;
 end;
-{$ENDIF}
 
 function TValueHelper.GetValueType: TRttiType;
 begin
   Result := TypeInfo.RttiType;
+end;
+
+function TValueHelper.IsBoolean: Boolean;
+begin
+  Result := IsType(System.TypeInfo(Boolean));
 end;
 
 function TValueHelper.IsFloat: Boolean;
@@ -5323,19 +6655,12 @@ begin
   Result := Kind in StringKinds;
 end;
 
-{$IFDEF DELPHI2010}
 function TValueHelper.IsType(ATypeInfo: PTypeInfo): Boolean;
 var
   unused: TValue;
 begin
-  Result := IsEmpty or TryCast(ATypeInfo, unused);
+  Result := TryCast(ATypeInfo, unused);
 end;
-
-function TValueHelper.IsType<T>: Boolean;
-begin
-  Result := IsType(System.TypeInfo(T));
-end;
-{$ENDIF}
 
 function TValueHelper.IsVariant: Boolean;
 begin
@@ -5380,6 +6705,7 @@ begin
 end;
 {$ENDIF}
 
+{$IFNDEF DELPHIX_ALEXANDRIA_UP}
 class function TValueHelper.&&op_Implicit(value: TDate): TValue;
 begin
   Result.Init(System.TypeInfo(TDate));
@@ -5397,6 +6723,7 @@ begin
   Result.Init(System.TypeInfo(TDateTime));
   TValueData(Result).FAsDouble := value;
 end;
+{$ENDIF}
 
 class function TValueHelper.&&op_Implicit(const value: TGUID): TValue;
 begin
@@ -5408,6 +6735,7 @@ begin
   Result := not left.Equals(right);
 end;
 
+{$IFNDEF DELPHIXE2_UP}{$IFNDEF STACKFRAMES_ON}{$W+}{$ENDIF}{$ENDIF}
 class procedure TValueHelper.RaiseConversionError(source, target: PTypeInfo);
 var
   sourceTypeName: string;
@@ -5419,6 +6747,7 @@ begin
   raise EConvertError.CreateResFmt(@STypeConversionError, [
     sourceTypeName, target.TypeName]) at ReturnAddress;
 end;
+{$IFNDEF DELPHIXE2_UP}{$IFNDEF STACKFRAMES_ON}{$W-}{$ENDIF}{$ENDIF}
 
 procedure TValueHelper.SetNullableValue(const value: TValue);
 var
@@ -5472,28 +6801,84 @@ begin
 end;
 
 function TValueHelper.ToVariant: Variant;
-var
-  value: TValue;
-  obj: TObject;
-  stream: TStream;
-  persist: IStreamPersist;
 
-{$IFNDEF DELPHI2010}
-  function TryConvertToVariant(out returnValue: Variant): Boolean;
+  function TryConvertToVariant(var returnValue: Variant): Boolean;
+  var
+    value: TValue;
   begin
-    Result := TValueConverter.Default.TryConvertTo(Self, System.TypeInfo(Variant), value);
+    Result := Assigned(fValueConverterCallback)
+      and fValueConverterCallback(Self, System.TypeInfo(Variant), value, EmptyValue);
+
     if Result then
       returnValue := value.AsVariant
     else
       returnValue := Null;
   end;
-{$ENDIF}
 
+  function TryConvertStreamToVariant(var returnValue: Variant): Boolean;
+  var
+    obj: TObject;
+    stream: TStream;
+    persist: IStreamPersist;
+  begin
+    obj := AsObject;
+    if obj is TStream then
+    begin
+      stream := TStream(obj);
+      stream.Position := 0;
+      returnValue := StreamToVariant(stream);
+      Result := True;
+    end
+    else if Supports(obj, IStreamPersist, persist) then
+    begin
+      stream := TMemoryStream.Create;
+      try
+        persist.SaveToStream(stream);
+        stream.Position := 0;
+        returnValue := StreamToVariant(stream);
+        Result := True;
+      finally
+        stream.Free;
+      end;
+    end
+    else
+      Result := False;
+  end;
+
+  function TryConvertRecordToVariant(var returnValue: Variant): Boolean;
+  var
+    value: TValue;
+    guid: TGUID;
+  begin
+    if IsNullable(TypeInfo) and TryGetNullableValue(value) then
+    begin
+      returnValue := value.ToVariant;
+      Exit(True);
+    end;
+
+    if IsLazyType(TypeInfo) and TryGetLazyValue(value) then
+    begin
+      returnValue := value.ToVariant;
+      Exit(True);
+    end;
+
+    if TypeInfo = System.TypeInfo(TGUID) then
+    begin
+      AsType(System.TypeInfo(TGUID), guid);
+      returnValue := guid.ToString;
+      Exit(True);
+    end;
+
+    Result := False;
+  end;
+
+var
+  arr: PPointer;
 begin
   Result := Null;
   case Kind of
     tkEnumeration:
-      if IsType<Boolean> then
+      if IsBoolean then
         Exit(AsBoolean)
       else
         Exit(AsOrdinal);
@@ -5501,58 +6886,30 @@ begin
       if (TypeInfo = System.TypeInfo(TDateTime))
         or (TypeInfo = System.TypeInfo(TDate))
         or (TypeInfo = System.TypeInfo(TTime)) then
-        Exit(AsType<TDateTime>)
+        Exit(TValueData(Self).FAsDouble)
       else if TypeInfo = System.TypeInfo(Currency) then
         Exit(AsCurrency)
       else
         Exit(AsExtended);
     tkRecord:
-    begin
-      if IsNullable(TypeInfo) then
-        if TryGetNullableValue(value) then
-          Exit(value.ToVariant);
-
-      if IsLazyType(TypeInfo) then
-        if TryGetLazyValue(value) then
-          Exit(value.ToVariant);
-
-      if TypeInfo = System.TypeInfo(TGUID) then
-        Exit(AsType<TGUID>.ToString);
-    end;
-    tkClass:
-    begin
-    {$IFNDEF DELPHI2010}
-      if TryConvertToVariant(Result) then
+      if TryConvertRecordToVariant(Result) then
         Exit;
-    {$ENDIF}
-
-      obj := AsObject;
-      if obj is TStream then
-      begin
-        stream := TStream(obj);
-        stream.Position := 0;
-        Exit(StreamToVariant(stream));
-      end
-      else if Supports(obj, IStreamPersist, persist) then
-      begin
-        stream := TMemoryStream.Create;
-        try
-          persist.SaveToStream(stream);
-          stream.Position := 0;
-          Exit(StreamToVariant(stream));
-        finally
-          stream.Free;
-        end;
-      end;
-    end;
+    tkClass:
+      if TryConvertToVariant(Result)
+        or TryConvertStreamToVariant(Result) then
+        Exit;
     tkInterface:
       Exit(AsInterface);
+    tkDynArray:
+    begin
+      arr := GetReferenceToRawData;
+      DynArrayToVariant(Result, arr^, TypeInfo);
+      Exit;
+    end
   else
     Exit(AsVariant);
   end;
-{$IFNDEF DELPHI2010}
   TryConvertToVariant(Result);
-{$ENDIF}
 end;
 
 function TValueHelper.TryAsInterface(typeInfo: PTypeInfo; out Intf): Boolean;
@@ -5568,14 +6925,10 @@ begin
     Result := True
   else
   begin
-    typeData := typeInfo.TypeData;
     if Kind = tkClass then
     begin
-{$IFDEF AUTOREFCOUNT}
-      TValueData(Self).FValueData.ExtractRawData(@obj);
-{$ELSE}
       obj := TObject(TValueData(Self).FAsObject);
-{$ENDIF}
+      typeData := typeInfo.TypeData;
       Exit(obj.GetInterface(typeData.Guid, Intf));
     end;
     Result := False;
@@ -5591,37 +6944,74 @@ begin
     end;
   end;
   if Result then
-    IInterface(Intf) := AsInterface;
+    TValueData(Self).FValueData.ExtractRawData(@Intf);
+end;
+
+function TValueHelper.TryAsType(typeInfo: PTypeInfo; out target): Boolean;
+var
+  value: TValue;
+begin
+  Result := TryCast(typeInfo, value);
+  if Result then
+    value.ExtractRawData(@target);
+end;
+
+function TValueHelper.TryCast(ATypeInfo: PTypeInfo;
+  out AResult: TValue): Boolean;
+begin
+  // fix wrong logic in RTL:
+  // typecasting a TValue that contains a reference type that is nil succeeds
+  // in all cases which clearly is against the otherwise strict type cast rules
+
+  if not ((TValueData(Self).FTypeInfo = nil) or (TValueData(Self).FValueData = nil)) then
+    if IsEmpty and Assigned(ATypeInfo) and (Kind <> ATypeInfo.Kind) then
+      case Kind of
+        tkClass:
+          if not (ATypeInfo.Kind in [tkVariant, tkInterface, tkPointer]) then
+            Exit(False);
+        tkInterface:
+          if not (ATypeInfo.Kind in [tkVariant, tkPointer]) then
+            Exit(False);
+        tkDynArray:
+          if TValueData(Self).FTypeInfo <> ATypeInfo then
+            Exit(False);
+        tkPointer:;
+      else
+        Exit(False);
+      end;
+  Result := TValueHack(Self).TryCast(ATypeInfo, AResult);
+  if Result then
+    TValueData(AResult).FTypeInfo := ATypeInfo;
 end;
 
 
 {$REGION 'Conversion functions'}
 type
   TConvertFunc = function(const source: TValue; target: PTypeInfo;
-    out value: TValue; const formatSettings: TFormatSettings): Boolean;
+    var value: TValue; const formatSettings: TFormatSettings): Boolean;
 
-function ConvFail(const source: TValue; target: PTypeInfo; out value: TValue;
+function ConvFail(const source: TValue; target: PTypeInfo; var value: TValue; //FI:O804
   const formatSettings: TFormatSettings): Boolean; //FI:O804
 begin
   Result := False;
 end;
 
-function ConvClass2Class(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function ConvClass2Class(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 begin
   Result := source.TryCast(target, value);
 end;
 
-function ConvClass2Enum(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function ConvClass2Enum(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 begin
   Result := target = TypeInfo(Boolean);
   if Result then
     value := source.AsObject <> nil;
 end;
 
-function ConvFloat2Ord(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function ConvFloat2Ord(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 begin
   Result := Frac(source.AsExtended) = 0;
   if Result then
@@ -5629,7 +7019,7 @@ begin
 end;
 
 function ConvFloat2Str(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+  var value: TValue; const formatSettings: TFormatSettings): Boolean;
 var
   temp: TValue;
 begin
@@ -5645,13 +7035,13 @@ begin
 end;
 
 function ConvIntf2Class(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+  var value: TValue; const formatSettings: TFormatSettings): Boolean;
 begin
   Result := ConvClass2Class(source.AsInterface as TObject, target, value, formatSettings);
 end;
 
-function ConvIntf2Intf(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function ConvIntf2Intf(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 var
   intf: IInterface;
 begin
@@ -5662,15 +7052,15 @@ begin
     value := TValue.Empty;
 end;
 
-function ConvOrd2Float(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function ConvOrd2Float(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 begin
   value := TValue.FromFloat(target, source.AsOrdinal);
   Result := True;
 end;
 
-function ConvOrd2Ord(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function ConvOrd2Ord(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 var
   i: Int64;
 begin
@@ -5682,8 +7072,8 @@ begin
   Result := True;
 end;
 
-function ConvOrd2Str(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function ConvOrd2Str(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 var
   temp: TValue;
 begin
@@ -5691,19 +7081,19 @@ begin
   Result := temp.TryCast(target, value);
 end;
 
-function ConvRec2Meth(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function ConvRec2Meth(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 begin
   Result := source.TypeInfo = TypeInfo(TMethod);
   if Result then
   begin
-    value := TValue.From(source.GetReferenceToRawData, target);
+    value := TValue.From(source.GetReferenceToRawData^, target);
     Result := True;
   end
 end;
 
-function ConvStr2Enum(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function ConvStr2Enum(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 var
   temp: Integer;
 begin
@@ -5714,7 +7104,7 @@ begin
 end;
 
 function ConvStr2Float(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+  var value: TValue; const formatSettings: TFormatSettings): Boolean;
 var
   s: string;
   d: TDateTime;
@@ -5725,19 +7115,19 @@ begin
   begin
     Result := TryStrToDateTime(s, d, formatSettings);
     if Result then
-      value := TValue.From<TDateTime>(d);
+      value := TValue.From(d, TypeInfo(TDateTime));
   end else
   if target = TypeInfo(TDate) then
   begin
     Result := TryStrToDate(s, d, formatSettings);
     if Result then
-      value := TValue.From<TDate>(d);
+      value := TValue.From(d, TypeInfo(TDate));
   end else
   if target = TypeInfo(TTime) then
   begin
     Result := TryStrToTime(s, d, formatSettings);
     if Result then
-      value := TValue.From<TTime>(d);
+      value := TValue.From(d, TypeInfo(TTime));
   end else
   begin
     Result := TryStrToFloat(s, f, formatSettings);
@@ -5746,12 +7136,19 @@ begin
   end;
 end;
 
-function ConvStr2Ord(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function ConvStr2Ord(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 var
+  s: string;
   i: Int64;
 begin
-  Result := TryStrToInt64(source.AsString, i);
+  s := source.AsString;
+  Result := TryStrToInt64(s, i);
+  if not Result and SameText(Trim(s), 'maxint') then
+  begin
+    Result := True;
+    i := MaxInt;
+  end;
   if Result then
     value := TValue.FromOrdinal(target, i);
 end;
@@ -5765,12 +7162,52 @@ begin
   TValue.MakeWithoutCopy(@p, typeInfo, result);
 end;
 
-function ConvStr2DynArray(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function SplitString(const s, delimiter: string): TStringDynArray;
+
+  function ScanChar(const s: string; var index: Integer): Boolean;
+  var
+    level: Integer;
+  begin
+    Result := False;
+    level := 0;
+    while index <= Length(s) do
+    begin
+      case s[index] of
+        '[': Inc(level);
+        ']': Dec(level);
+      else
+        if Copy(s, index, Length(delimiter)) = delimiter then
+          if level = 0 then
+            Exit(True);
+      end;
+      Inc(index);
+      Result := level = 0;
+    end;
+  end;
+
+var
+  startPos, index: Integer;
+  len: NativeInt;
+begin
+  Result := nil;
+  startPos := 1;
+  index := 1;
+  while ScanChar(s, index) do
+  begin
+    len := Length(Result);
+    SetLength(Result, len + 1);
+    Result[len] := Copy(s, startPos, index - startPos);
+    Inc(index);
+    startPos := index;
+  end;
+end;
+
+function ConvStr2DynArray(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 var
   s: string;
   values: TStringDynArray;
-  i: Integer;
+  i: NativeInt;
   res, v1, v2: TValue;
   elType: PTypeInfo;
 begin
@@ -5782,7 +7219,16 @@ begin
   elType := target.TypeData.DynArrElType^;
   for i := 0 to High(values) do
   begin
-    v1 := TValue.From(Trim(values[i]));
+    case elType.Kind of
+      tkString, tkLString, tkWString, tkUString: ;
+      tkChar, tkWChar:
+        if Length(values[i]) > 1 then
+          values[i] := Trim(values[i]);
+    else
+      values[i] := Trim(values[i]);
+    end;
+
+    v1 := TValue.From(values[i]);
     if not v1.TryConvert(elType, v2) then
       Exit(False);
     res.SetArrayElement(i, v2);
@@ -5791,8 +7237,8 @@ begin
   Result := True;
 end;
 
-function ConvStr2Array(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function ConvStr2Array(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 var
   s: string;
   values: TStringDynArray;
@@ -5815,7 +7261,16 @@ begin
   TValue.Make(nil, target, res);
   for i := 0 to arrData.ElCount - 1 do
   begin
-    v1 := TValue.From(Trim(values[i]));
+    case elType.Kind of
+      tkString, tkLString, tkWString, tkUString: ;
+      tkChar, tkWChar:
+        if Length(values[i]) > 1 then
+          values[i] := Trim(values[i]);
+    else
+      values[i] := Trim(values[i]);
+    end;
+
+    v1 := TValue.From(values[i]);
     if not v1.TryConvert(elType, v2) then
       Exit(False);
     res.SetArrayElement(i, v2);
@@ -5824,47 +7279,23 @@ begin
   Result := True;
 end;
 
-function ConvVariant2Enum(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function ConvVariant2Enum(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 var
   v: Variant;
-{$IFNDEF DELPHI2010}
   temp: TValue;
-{$ENDIF}
 begin
   // workaround for RSP-20160
   v := source.AsVariant;
   if TVarData(v).VType <> varBoolean then
     Exit(False);
 
-{$IFDEF DELPHI2010}
-  if target = TypeInfo(Boolean) then
-  begin
-    value := TValue.From<Boolean>(TVarData(v).VBoolean);
-    Result := True;
-  end else if target = TypeInfo(LongBool) then
-  begin
-    value := TValue.From<LongBool>(TVarData(v).VBoolean);
-    Result := True;
-  end else if target = TypeInfo(WordBool) then
-  begin
-    value := TValue.From<WordBool>(TVarData(v).VBoolean);
-    Result := True;
-  end else if target = TypeInfo(ByteBool) then
-  begin
-    value := TValue.From<ByteBool>(TVarData(v).VBoolean);
-    Result := True;
-  end
-  else
-    Result := False;
-{$ELSE}
-  temp := TValue.From<Boolean>(TVarData(v).VBoolean);
+  temp := TValue.From(TVarData(v).VBoolean, TypeInfo(Boolean));
   Result := temp.TryCast(target, value);
-{$ENDIF}
 end;
 
-function ConvDynArray2DynArray(const source: TValue; target: PTypeInfo;
-  out value: TValue; const formatSettings: TFormatSettings): Boolean;
+function ConvDynArray2DynArray(const source: TValue; target: PTypeInfo; var value: TValue;
+  const formatSettings: TFormatSettings): Boolean; //FI:O804
 var
   len, i: Integer;
   res, v1, v2: TValue;
@@ -6152,25 +7583,16 @@ const
 
 
 function TValueHelper.TryConvert(targetType: PTypeInfo;
-  out targetValue: TValue): Boolean;
+  var targetValue: TValue): Boolean;
 begin
   Result := TryConvert(targetType, targetValue, ConvertSettings);
 end;
 
 function TValueHelper.TryConvert(targetType: PTypeInfo;
-  out targetValue: TValue; const formatSettings: TFormatSettings): Boolean;
+  var targetValue: TValue; const formatSettings: TFormatSettings): Boolean;
 var
   value: TValue;
 begin
-  {$IFDEF DELPHI2010}
-  // Fix for TValue.Cast not converting TValue.Empty to any type
-  if (TypeInfo = nil) and (targetType <> nil) then
-  begin
-    TValue.Make(nil, targetType, targetValue);
-    Exit(True);
-  end;
-  {$ENDIF}
-
   if (TypeInfo = nil) or (targetType = nil) then
   begin
     targetValue := EmptyValue;
@@ -6199,40 +7621,27 @@ begin
       Exit(True);
     end;
 
-    case Kind of
+    case Kind of //FI:W535
       tkRecord{$IF Declared(tkMRecord)}, tkMRecord{$IFEND}:
         if TypeInfo = System.TypeInfo(TValue) then
-          Exit(AsType<TValue>.TryConvert(targetType, targetValue));
-      {$IFDEF DELPHI2010}
-      // workaround for bug in RTTI.pas (fixed in XE)
-      tkUnknown:
-      begin
-        case targetType.Kind of
-          tkInteger, tkEnumeration, tkChar, tkWChar, tkInt64:
-          begin
-            targetValue := TValue.FromOrdinal(targetType, 0);
-            Exit(True);
-          end;
-          tkFloat:
-          begin
-            targetValue := TValue.From<Extended>(0);
-            Exit(True);
-          end;
-          tkUString:
-          begin
-            targetValue := '';
-            Exit(True);
-          end;
+        begin
+          AsType(System.TypeInfo(TValue), value);
+          Exit(value.TryConvert(targetType, targetValue));
         end;
-      end;
-      {$ENDIF}
     end;
 
-    {$IFNDEF DELPHI2010}
-    Result := TValueConverter.Default.TryConvertTo(Self, targetType, targetValue, TValue.From(formatSettings));
-    {$ELSE}
-    Result := False;
-    {$ENDIf}
+{$IFNDEF DELPHIXE2_UP}
+    // workaround for wrong TValue.TryCast for string to float (it calls ConvStr2Str by mistake)
+    if not ((Kind in [tkString, tkLString, tkWString, tkUString])
+      and (targetType.Kind = tkFloat)) then
+{$ENDIF}
+    if TryCast(targetType, targetValue) then
+      Exit(True);
+
+    Result := Assigned(fValueConverterCallback)
+      and fValueConverterCallback(Self, targetType, targetValue, TValue.From(formatSettings, System.TypeInfo(TFormatSettings)));
+    if not Result then
+      Finalize(targetValue);
   end;
 end;
 
@@ -6350,7 +7759,7 @@ begin
     Result := nil;
 end;
 
-{$IF CompilerVersion < 31}
+{$IFNDEF DELPHIX_BERLIN_UP}
 procedure TRttiMethodHelper.DispatchValue(const value: TValue;
   typeInfo: PTypeInfo);
 type
@@ -6421,7 +7830,7 @@ begin
   else
     Result := Self.DispatchInvoke(Instance, Args);
 end;
-{$IFEND}
+{$ENDIF}
 
 {$ENDREGION}
 
@@ -6445,9 +7854,7 @@ type
   protected
     FHandle: Pointer;
     FRttiDataSize: Integer;
-    {$IFDEF WEAKINSTREF}[Weak]{$ENDIF}
     FPackage: TRttiPackage;
-    {$IFDEF WEAKINSTREF}[Weak]{$ENDIF}
     FParent: TRttiObject;
   end;
 
@@ -6526,7 +7933,6 @@ constructor TRttiInvokableMethod.Create(AType: TRttiInvokableType);
 var
   ctx: TRttiContext;
 begin
-  inherited Create;
   // GetInvokeInfo need the Parent property
   TRttiObjectHack(Self).FParent := ctx.GetType(TObject);
   FType := AType;
@@ -6565,13 +7971,11 @@ end;
 
 {$REGION 'TMethodImplementationHelper'}
 
-{$IFNDEF DELPHI2010}
 function TMethodImplementationHelper.AsMethod: TMethod;
 begin
   Result.Code := CodeAddress;
   Result.Data := Self;
 end;
-{$ENDIF}
 
 {$ENDREGION}
 
@@ -6587,18 +7991,18 @@ end;
 class function TNamedValue.From<T>(const value: T;
   const name: string): TNamedValue;
 begin
-  Result.fValue := TValue.From<T>(value);
+  Result.fValue := TValue.From(value, System.TypeInfo(T));
   Result.fName := name;
 end;
 
 class operator TNamedValue.Implicit(const value: TNamedValue): TValue;
 begin
-  Result := TValue.From(value);
+  Result := TValue.From(value, TypeInfo(TNamedValue));
 end;
 
 class operator TNamedValue.Implicit(const value: TValue): TNamedValue;
 begin
-  Result := value.AsType<TNamedValue>;
+  value.AsType(TypeInfo(TNamedValue), Result);
 end;
 
 {$ENDREGION}
@@ -6614,14 +8018,14 @@ end;
 
 class function TTypedValue.From<T>(const value: T): TTypedValue;
 begin
-  Result.fValue := TValue.From<T>(value);
+  Result.fValue := TValue.From(value, System.TypeInfo(T));
   Result.fTypeInfo := System.TypeInfo(T);
 end;
 
 class function TTypedValue.From<T>(const value: T;
   const typeInfo: PTypeInfo): TTypedValue;
 begin
-  Result.fValue := TValue.From<T>(value);
+  Result.fValue := TValue.From(value, System.TypeInfo(T));
   Result.fTypeInfo := typeInfo;
 end;
 
@@ -6632,7 +8036,7 @@ end;
 
 class operator TTypedValue.Implicit(const value: TValue): TTypedValue;
 begin
-  Result := value.AsType<TTypedValue>;
+  value.AsType(System.TypeInfo(TTypedValue), Result);
 end;
 
 {$ENDREGION}
@@ -6661,26 +8065,84 @@ end;
 {$ENDREGION}
 
 
-{$REGION 'TInterfacedObjectEx'}
+{$REGION 'TRefCountedObject'}
 
-{$IF not defined(DELPHIXE7_UP) and not defined(AUTOREFCOUNT)}
-procedure TInterfacedObjectEx.BeforeDestruction;
+function TRefCountedObject.AsObject: TObject;
 begin
-  inherited BeforeDestruction;
-  FRefCount := objDestroyingFlag;
+  Result := Self;
 end;
 
-function TInterfacedObjectEx.GetRefCount: Integer;
+function TRefCountedObject.GetInterface(const IID: TGUID; out Obj): Boolean;
+var
+  interfaceEntry: PInterfaceEntry;
 begin
-  Result := FRefCount and not objDestroyingFlag;
+  Pointer(Obj) := nil;
+  interfaceEntry := GetInterfaceEntry(IID);
+  if interfaceEntry <> nil then
+  begin
+    if interfaceEntry.IOffset <> 0 then
+    begin
+      Pointer(Obj) := Pointer(PByte(Self) + interfaceEntry.IOffset);
+      if Pointer(Obj) <> nil then IInterface(Obj)._AddRef;
+    end
+    else
+      InvokeImplGetter(Self, interfaceEntry.ImplGetter, IInterface(Obj));
+  end else if IID = ObjCastGUID then
+    Pointer(Obj) := Pointer(Self);
+  Result := Pointer(Obj) <> nil;
 end;
-{$IFEND}
+
+function TRefCountedObject.GetRefCount: Integer;
+begin
+  Result := fRefCount and not objDestroyingFlag;
+end;
+
+procedure TRefCountedObject.AfterConstruction;
+begin
+  AtomicDecrement(fRefCount);
+end;
+
+procedure TRefCountedObject.BeforeDestruction;
+begin
+  if RefCount <> 0 then
+    System.Error(reInvalidPtr);
+end;
+
+class function TRefCountedObject.NewInstance: TObject;
+begin
+  Result := inherited NewInstance;
+  TRefCountedObject(Result).fRefCount := 1;
+end;
+
+function TRefCountedObject.QueryInterface(const IID: TGUID; out Obj): HResult;
+begin
+  if GetInterface(IID, Obj) then
+    Result := 0
+  else
+    Result := E_NOINTERFACE;
+end;
+
+function TRefCountedObject._AddRef: Integer;
+begin
+  Result := AtomicIncrement(fRefCount);
+end;
+
+function TRefCountedObject._Release: Integer;
+begin
+  Result := AtomicDecrement(fRefCount);
+  if Result = 0 then
+  begin
+    fRefCount := objDestroyingFlag;
+    Destroy;
+  end;
+end;
 
 {$ENDREGION}
 
 
 {$REGION 'Guard'}
 
+{$IFNDEF DELPHIXE2_UP}{$IFNDEF STACKFRAMES_ON}{$W+}{$ENDIF}{$ENDIF}
 class procedure Guard.RaiseArgumentException(const msg: string);
 begin
   raise EArgumentException.Create(msg) at ReturnAddress;
@@ -6688,8 +8150,8 @@ end;
 
 class procedure Guard.RaiseArgumentNullException(const argumentName: string);
 begin
-  raise EArgumentNullException.CreateResFmt(
-    @SArgumentNullException, [argumentName]) at ReturnAddress;
+  raise EArgumentNilException.CreateResFmt(
+    @SArgumentNilException, [argumentName]) at ReturnAddress;
 end;
 
 class procedure Guard.RaiseArgumentOutOfRangeException(const argumentName: string);
@@ -6716,7 +8178,7 @@ begin
     @SInvalidEnumArgument, [argumentName]) at ReturnAddress;
 end;
 
-class procedure Guard.RaiseInvalidTypeCast(sourceType, targetType: PTypeInfo);
+class function Guard.RaiseInvalidTypeCast(sourceType, targetType: PTypeInfo): Boolean;
 begin
   raise EInvalidCastException.CreateResFmt(@SInvalidTypeCast, [
     sourceType.TypeName, targetType.TypeName]) at ReturnAddress;
@@ -6731,6 +8193,7 @@ class procedure Guard.RaiseNoDelegateAssigned;
 begin
   raise EInvalidOperationException.CreateRes(@SNoDelegateAssigned) at ReturnAddress;
 end;
+{$IFNDEF DELPHIXE2_UP}{$IFNDEF STACKFRAMES_ON}{$W-}{$ENDIF}{$ENDIF}
 
 class procedure Guard.CheckIndex(length, index, indexBase: Integer);
 const
@@ -6927,7 +8390,7 @@ end;
 class procedure Guard.CheckSet<T>(const argumentValue: T;
   const argumentName: string);
 var
-  value: Integer;
+  value: Cardinal;
 begin
   value := 0;
   Move(argumentValue, value, SizeOf(T));
@@ -6950,7 +8413,7 @@ begin
   if Assigned(data.CompType) then
   begin
     data := data.CompType^.TypeData;
-    maxValue := (1 shl (data.MaxValue - data.MinValue + 1)) - 1;
+    maxValue := Cardinal(1 shl (data.MaxValue - data.MinValue + 1)) - 1;
   end
   else
     case data^.OrdType of
@@ -6974,8 +8437,6 @@ begin
     Guard.RaiseArgumentOutOfRangeException(ValueArgName);
 end;
 
-
-{$IFNDEF NEXTGEN}
 class procedure Guard.CheckRange(const s: WideString; index: Integer);
 begin
   Guard.CheckIndex(Length(s), index, 1);
@@ -6995,7 +8456,6 @@ class procedure Guard.CheckRange(const s: RawByteString; index, count: Integer);
 begin
   Guard.CheckRange(Length(s), index, count, 1);
 end;
-{$ENDIF}
 
 class procedure Guard.CheckTypeKind(typeInfo: PTypeInfo;
   expectedTypeKind: TTypeKind; const argumentName: string);
@@ -7029,12 +8489,170 @@ end;
 {$ENDREGION}
 
 
+{$REGION 'RaiseHelper'}
+
+{$IFNDEF DELPHIXE2_UP}{$IFNDEF STACKFRAMES_ON}{$W+}{$ENDIF}{$ENDIF}
+class procedure RaiseHelper.ArgumentNil(argument: ExceptionArgument);
+begin
+  raise EArgumentNilException.Create(GetArgumentName(argument)) at ReturnAddress;
+end;
+
+class function RaiseHelper.ArgumentOutOfRange(argument: ExceptionArgument): NativeInt;
+begin
+  raise EArgumentOutOfRangeException.Create(GetArgumentName(argument)) at ReturnAddress;
+end;
+
+class function RaiseHelper.ArgumentOutOfRange(argument: ExceptionArgument; resource: ExceptionResource): NativeInt;
+begin
+  raise GetArgumentOutOfRangeException(argument, resource) at ReturnAddress;
+end;
+
+class function RaiseHelper.ArgumentOutOfRange(resource: ExceptionResource): NativeInt;
+begin
+  raise GetArgumentOutOfRangeException(resource) at ReturnAddress;
+end;
+
+class function RaiseHelper.ArgumentOutOfRange_Count: NativeInt;
+begin
+  raise GetArgumentOutOfRangeException(ExceptionArgument.count,
+    ExceptionResource.ArgumentOutOfRange_Count) at ReturnAddress;
+end;
+
+class function RaiseHelper.ArgumentOutOfRange_Index: NativeInt;
+begin
+  raise GetArgumentOutOfRangeException(ExceptionArgument.index,
+    ExceptionResource.ArgumentOutOfRange_Index) at ReturnAddress;
+end;
+
+class procedure RaiseHelper.DuplicateKey;
+begin
+  raise EArgumentException.CreateRes(@SArgument_DuplicateKey) at ReturnAddress;
+end;
+
+class procedure RaiseHelper.KeyNotFound;
+begin
+  raise EKeyNotFoundException.CreateRes(@SArgument_KeyNotFound) at ReturnAddress;
+end;
+
+class procedure RaiseHelper.MoreThanOneElement;
+begin
+  raise EInvalidOperationException.CreateRes(@SSequenceContainsMoreThanOneElement) at ReturnAddress;
+end;
+
+class procedure RaiseHelper.MoreThanOneMatch;
+begin
+  raise EInvalidOperationException.CreateRes(@SSequenceContainsMoreThanOneMatchingElement) at ReturnAddress;
+end;
+
+class procedure RaiseHelper.NoClassType(t: PTypeInfo);
+begin
+  raise EInvalidCast.CreateResFmt(@SNotClassType, [t.TypeName]) at ReturnAddress;
+end;
+
+class procedure RaiseHelper.NoElements;
+begin
+  raise EInvalidOperationException.CreateRes(@SSequenceContainsNoElements) at ReturnAddress;
+end;
+
+class procedure RaiseHelper.NoMatch;
+begin
+  raise EInvalidOperationException.CreateRes(@SSequenceContainsNoMatchingElement) at ReturnAddress;
+end;
+
+class procedure RaiseHelper.NotSupported;
+begin
+  raise ENotSupportedException.Create('') at ReturnAddress;
+end;
+
+class function RaiseHelper.EnumFailedVersion: Boolean;
+begin
+  raise EInvalidOperationException.CreateRes(@SInvalidOperation_EnumFailedVersion) at ReturnAddress;
+end;
+{$IFNDEF DELPHIXE2_UP}{$IFNDEF STACKFRAMES_ON}{$W-}{$ENDIF}{$ENDIF}
+
+class function RaiseHelper.GetArgumentOutOfRangeException(
+  argument: ExceptionArgument; resource: ExceptionResource): EArgumentException;
+begin
+  Result := EArgumentOutOfRangeException.CreateFmt(GetResourceString(resource), [GetArgumentName(argument)]);
+end;
+
+class function RaiseHelper.GetArgumentOutOfRangeException(
+  resource: ExceptionResource): EArgumentException;
+begin
+  Result := EArgumentOutOfRangeException.Create(GetResourceString(resource));
+end;
+
+class function RaiseHelper.GetArgumentName(argument: ExceptionArgument): string;
+const
+  ArgumentNames: array[ExceptionArgument] of string = (
+    'action',
+    'capacity',
+    'collection',
+    'collectionSelector',
+    'comparer',
+    'count',
+    'elementSelector',
+    'first',
+    'func',
+    'index',
+    'index1',
+    'index2',
+    'inner',
+    'innerKeySelector',
+    'items',
+    'keySelector',
+    'match',
+    'max',
+    'min',
+    'other',
+    'outer',
+    'outerKeySelector',
+    'predicate',
+    'resultSelector',
+    'second',
+    'selector',
+    'size',
+    'sorter',
+    'source',
+    'sourceIndex',
+    'targetIndex',
+    'value',
+    'values'
+  );
+begin
+  Result := ArgumentNames[argument];
+end;
+
+class function RaiseHelper.GetResourceString(resource: ExceptionResource): string;
+const
+  ResourceStrings: array[ExceptionResource] of PResStringRec = (
+    @SArgumentOutOfRange_Capacity,
+    @SArgumentOutOfRange_Count,
+    @SArgumentOutOfRange_Index,
+    @SArgumentOutOfRange_NeedNonNegNum,
+    @SArgument_InvalidIndexCount
+  );
+begin
+  Result := LoadResString(ResourceStrings[resource]);
+end;
+
+{$ENDREGION}
+
+
 {$REGION 'Nullable<T>'}
+
+{$IFNDEF NULLABLE_CMR}
+class constructor Nullable.Create;
+begin
+  HasValue := 'True';
+  UniqueString(HasValue);
+end;
+{$ENDIF}
 
 constructor Nullable<T>.Create(const value: T);
 begin
   fValue := value;
-  fHasValue := Nullable.HasValue;
+  fHasValue := {$IFNDEF NULLABLE_CMR}Nullable.HasValue{$ELSE}True{$ENDIF};
 end;
 
 constructor Nullable<T>.Create(const value: Variant);
@@ -7044,26 +8662,27 @@ begin
   if not VarIsNullOrEmpty(value) then
   begin
     v := TValue.FromVariant(value);
-    fValue := v.AsType<T>;
-    fHasValue := Nullable.HasValue;
+    v.AsType(TypeInfo(T), fValue);
+    fHasValue := {$IFNDEF NULLABLE_CMR}Nullable.HasValue{$ELSE}True{$ENDIF};
   end
   else
   begin
-    fHasValue := '';
+    fHasValue := {$IFNDEF NULLABLE_CMR}''{$ELSE}False{$ENDIF};
     fValue := Default(T);
   end;
 end;
 
 function Nullable<T>.GetHasValue: Boolean;
 begin
-  Result := fHasValue <> '';
+  Result := fHasValue{$IFNDEF NULLABLE_CMR} <> ''{$ENDIF};
 end;
 
-function Nullable<T>.GetValue: T;
+function Nullable<T>.GetValue: T; //FI:W521
 begin
-  if not HasValue then
-    Guard.RaiseNullableHasNoValue;
-  Result := fValue;
+  if HasValue then
+    Exit(fValue);
+  Guard.RaiseNullableHasNoValue;
+  __SuppressWarning(Result);
 end;
 
 function Nullable<T>.GetValueOrDefault: T;
@@ -7082,32 +8701,40 @@ begin
     Result := defaultValue;
 end;
 
+class procedure Nullable<T>.InitEquals;
+var
+  method: TRttiMethod;
+begin
+  method := GetEqualsOperator(TypeInfo(T));
+  if Assigned(method) then
+    fEquals := method.CodeAddress;
+  if not Assigned(fEquals) then
+  begin
+    fComparer := _LookupVtableInfo(giEqualityComparer, TypeInfo(T), SizeOf(T));
+    fEquals := Nullable<T>.EqualsComparer;
+  end;
+end;
+
 class function Nullable<T>.EqualsComparer(const left, right: T): Boolean;
 begin
-  if not Assigned(fComparer) then
-    fComparer := TEqualityComparer<T>.Default;
-  Result := fComparer.Equals(left, right);
+  Result := IEqualityComparer<T>(fComparer).Equals(left, right);
 end;
 
 class function Nullable<T>.EqualsInternal(const left, right: T): Boolean;
 begin
   case TType.Kind<T> of
-    tkInteger, tkEnumeration:
-    begin
+    tkInteger, tkChar, tkEnumeration, tkWChar:
       case SizeOf(T) of
         1: Result := PByte(@left)^ = PByte(@right)^;
         2: Result := PWord(@left)^ = PWord(@right)^;
         4: Result := PCardinal(@left)^ = PCardinal(@right)^;
+      else
+        __SuppressWarning(Result);
       end;
-    end;
-{$IFNDEF NEXTGEN}
-    tkChar: Result := PAnsiChar(@left)^ = PAnsiChar(@right)^;
     tkString: Result := PShortString(@left)^ = PShortString(@right)^;
     tkLString: Result := PAnsiString(@left)^ = PAnsiString(@right)^;
     tkWString: Result := PWideString(@left)^ = PWideString(@right)^;
-{$ENDIF}
     tkFloat:
-    begin
       if TypeInfo(T) = TypeInfo(Single) then
         Result := Math.SameValue(PSingle(@left)^, PSingle(@right)^)
       else if TypeInfo(T) = TypeInfo(Double) then
@@ -7124,12 +8751,12 @@ begin
           ftComp: Result := PComp(@left)^ = PComp(@right)^;
           ftCurr: Result := PCurrency(@left)^ = PCurrency(@right)^;
         end;
-    end;
-    tkWChar: Result := PWideChar(@left)^ = PWideChar(@right)^;
     tkInt64: Result := PInt64(@left)^ = PInt64(@right)^;
     tkUString: Result := PUnicodeString(@left)^ = PUnicodeString(@right)^;
   else
-    Result := EqualsComparer(left, right);
+    if not Assigned(fEquals) then
+      InitEquals;
+    Result := fEquals(left, right)
   end;
 end;
 
@@ -7142,48 +8769,23 @@ begin
   Result := EqualsInternal(fValue, other.fValue);
 end;
 
+{$IFDEF NULLABLE_CMR}
+class operator Nullable<T>.Initialize(out value: Nullable<T>);
+begin
+  value.fHasValue := False;
+end;
+{$ENDIF}
+
 class operator Nullable<T>.Implicit(const value: T): Nullable<T>;
 begin
   Result.fValue := value;
-  Result.fHasValue := Nullable.HasValue;
+  Result.fHasValue := {$IFNDEF NULLABLE_CMR}Nullable.HasValue{$ELSE}True{$ENDIF};
 end;
 
 {$IFDEF IMPLICIT_NULLABLE}
 class operator Nullable<T>.Implicit(const value: Nullable<T>): T;
 begin
   Result := value.Value;
-end;
-{$ENDIF}
-
-{$IFDEF UNSAFE_NULLABLE}
-class operator Nullable<T>.Implicit(const value: Nullable<T>): Variant;
-var
-  v: TValue;
-begin
-  if value.HasValue then
-  begin
-    v := TValue.From<T>(value.fValue);
-    if v.IsType<Boolean> then
-      Result := v.AsBoolean
-    else
-      Result := v.AsVariant;
-  end
-  else
-    Result := Null;
-end;
-
-class operator Nullable<T>.Implicit(const value: Variant): Nullable<T>;
-var
-  v: TValue;
-begin
-  if not VarIsNullOrEmpty(value) then
-  begin
-    v := TValue.FromVariant(value);
-    Result.fValue := v.AsType<T>;
-    Result.fHasValue := Nullable.HasValue;
-  end
-  else
-    Result := Default(Nullable<T>);
 end;
 {$ENDIF}
 
@@ -7194,8 +8796,8 @@ begin
   if not VarIsNullOrEmpty(value) then
   begin
     v := TValue.FromVariant(value);
-    Result.fValue := v.AsType<T>;
-    Result.fHasValue := Nullable.HasValue;
+    v.AsType(TypeInfo(T), Result.fValue);
+    Result.fHasValue := {$IFNDEF NULLABLE_CMR}Nullable.HasValue{$ELSE}True{$ENDIF};
   end
   else
     Result := Default(Nullable<T>);
@@ -7209,7 +8811,7 @@ end;
 class operator Nullable<T>.Implicit(const value: Nullable.Null): Nullable<T>;
 begin
   Result.fValue := Default(T);
-  Result.fHasValue := '';
+  Result.fHasValue := {$IFNDEF NULLABLE_CMR}''{$ELSE}False{$ENDIF};
 end;
 
 class operator Nullable<T>.Equal(const left, right: Nullable<T>): Boolean;
@@ -7220,7 +8822,7 @@ end;
 class operator Nullable<T>.Equal(const left: Nullable<T>;
   const right: T): Boolean;
 begin
-  if left.fHasValue = '' then
+  if {$IFDEF NULLABLE_CMR}not {$ENDIF}left.fHasValue{$IFNDEF NULLABLE_CMR} = ''{$ENDIF} then
     Exit(False);
   Result := EqualsInternal(left.fValue, right);
 end;
@@ -7228,7 +8830,7 @@ end;
 class operator Nullable<T>.Equal(const left: Nullable<T>;
   const right: Nullable.Null): Boolean;
 begin
-  Result := left.fHasValue = '';
+  Result := {$IFDEF NULLABLE_CMR}not {$ENDIF}left.fHasValue{$IFNDEF NULLABLE_CMR} = ''{$ENDIF};
 end;
 
 class operator Nullable<T>.NotEqual(const left, right: Nullable<T>): Boolean;
@@ -7239,13 +8841,13 @@ end;
 class operator Nullable<T>.NotEqual(const left: Nullable<T>;
   const right: Nullable.Null): Boolean;
 begin
-  Result := left.fHasValue <> '';
+  Result := left.fHasValue{$IFNDEF NULLABLE_CMR} <> ''{$ENDIF};
 end;
 
 class operator Nullable<T>.NotEqual(const left: Nullable<T>;
   const right: T): Boolean;
 begin
-  if left.fHasValue = '' then
+  if {$IFDEF NULLABLE_CMR}not {$ENDIF}left.fHasValue{$IFNDEF NULLABLE_CMR} = ''{$ENDIF} then
     Exit(True);
   Result := not EqualsInternal(left.fValue, right);
 end;
@@ -7256,7 +8858,7 @@ var
 begin
   if HasValue then
   begin
-    v := TValue.From<T>(fValue);
+    v := TValue.From(fValue, TypeInfo(T));
     Result := v.ToString;
   end
   else
@@ -7269,8 +8871,8 @@ var
 begin
   if HasValue then
   begin
-    v := TValue.From<T>(fValue);
-    if v.IsType<Boolean> then
+    v := TValue.From(fValue, TypeInfo(T));
+    if v.IsType(TypeInfo(Boolean)) then
       Result := v.AsBoolean
     else
       Result := v.AsVariant;
@@ -7281,7 +8883,7 @@ end;
 
 function Nullable<T>.TryGetValue(out value: T): Boolean;
 begin
-  Result := fHasValue <> '';
+  Result := fHasValue{$IFNDEF NULLABLE_CMR} <> ''{$ENDIF};
   if Result then
     value := fValue;
 end;
@@ -7309,6 +8911,7 @@ begin
   // get TTypeData.RecFields[1]
   field := PRecordTypeField(PByte(SkipShortString(@field.Name)) + SizeOf(TAttrData));
   fHasValueOffset := field.Field.FldOffset;
+  fHasValueKind := field.Field.TypeRef^.Kind;
 end;
 
 function TNullableHelper.GetValue(instance: Pointer): TValue;
@@ -7318,16 +8921,33 @@ end;
 
 function TNullableHelper.HasValue(instance: Pointer): Boolean;
 begin
-  Result := PUnicodeString(PByte(instance) + fHasValueOffset)^ <> '';
+  case fHasValueKind of
+    tkUString: Result := PUnicodeString(PByte(instance) + fHasValueOffset)^ <> '';
+    tkEnumeration: Result := PBoolean(PByte(instance) + fHasValueOffset)^;
+  else
+    Result := False;
+  end;
 end;
 
 procedure TNullableHelper.SetValue(instance: Pointer; const value: TValue);
+
+  function IsEmpty(const value: TValue): Boolean;
+  begin
+    // don't use TValue.IsEmpty here as that also considers reference types that are nil or [] as empty
+    Result := (TValueData(value).FTypeInfo = nil) or (TValueData(value).FValueData = nil);
+  end;
+
 begin
   value.Cast(fValueType).ExtractRawData(instance);
-  if value.IsEmpty then
-    PUnicodeString(PByte(instance) + fHasValueOffset)^ := ''
-  else
-    PUnicodeString(PByte(instance) + fHasValueOffset)^ := Nullable.HasValue;
+  case fHasValueKind of //FI:W535
+    tkUString:
+      if IsEmpty(value) then
+        PUnicodeString(PByte(instance) + fHasValueOffset)^ := ''
+      else
+        PUnicodeString(PByte(instance) + fHasValueOffset)^ := Nullable.HasValue;
+    tkEnumeration:
+      PBoolean(PByte(instance) + fHasValueOffset)^ := not IsEmpty(value);
+  end;
 end;
 
 {$ENDREGION}
@@ -7335,98 +8955,73 @@ end;
 
 {$REGION 'TLazy'}
 
-constructor TLazy.Create;
+function Lazy.TLazy.GetIsValueCreated: Boolean;
 begin
-  inherited Create;
-  fLock := TCriticalSection.Create;
+  Result := fValueFactory = nil;
 end;
 
-destructor TLazy.Destroy;
+procedure Lazy.TLazy.CreateValue;
+var
+  valueFactory: Pointer;
+  spinWait: TSpinWait;
 begin
-  fLock.Free;
-  inherited Destroy;
-end;
-
-function TLazy.GetIsValueCreated: Boolean;
-begin
-  Result := fIsValueCreated;
+  valueFactory := Pointer(fValueFactory);
+  if valueFactory = nil then Exit;
+  valueFactory := AtomicCmpExchange(Pointer(fValueFactory), Pointer(1), valueFactory);
+  if valueFactory = Pointer(1) then
+  begin
+    spinWait := Default(TSpinWait);
+    while fValueFactory <> nil do
+      spinWait.SpinCycle;
+  end
+  else if valueFactory <> nil then
+  try
+    InvokeFactory(valueFactory);
+  finally
+    AtomicExchange(Pointer(fValueFactory), nil);
+    IInterface(valueFactory)._Release;
+  end;
 end;
 
 {$ENDREGION}
 
 
-{$REGION 'TLazy<T>'}
+{$REGION 'Lazy.TLazy<T>'}
 
-constructor TLazy<T>.Create;
-var
-  classType: TClass;
-  ctor: TConstructor;
+function Lazy.TLazy<T>.GetValue: TValue;
 begin
-  Guard.CheckTypeKind<T>([tkClass], 'T');
-
-  classType := GetTypeData(TypeInfo(T)).ClassType;
-  ctor := TActivator.FindConstructor(classType);
-
-  inherited Create;
-  fValueFactory :=
-    function: T
-    begin
-      PObject(@Result)^ := ctor(classType);
-    end;
+  if fValueFactory <> nil then
+    CreateValue;
+  Result := TValue.From(fValue, TypeInfo(T));
 end;
 
-constructor TLazy<T>.Create(const valueFactory: TFunc<T>; ownsObject: Boolean);
+function Lazy.TLazy<T>.GetValueT: T;
 begin
-  Guard.CheckNotNull(Assigned(valueFactory), 'valueFactory');
-
-  inherited Create;
-  fOwnsObjects := ownsObject;
-  fValueFactory := valueFactory;
-end;
-
-constructor TLazy<T>.CreateFrom(const value: T; ownsObject: Boolean);
-begin
-  inherited Create;
-  fValue := value;
-  fIsValueCreated := True;
-  fOwnsObjects := ownsObject;
-end;
-
-destructor TLazy<T>.Destroy;
-begin
-  inherited Destroy;
-  if TType.Kind<T> = tkClass then
-{$IFNDEF AUTOREFCOUNT}
-    if fOwnsObjects then
-      FreeAndNil(PObject(@fValue)^);
-{$ENDIF}
-end;
-
-procedure TLazy<T>.InitializeValue;
-begin
-  fLock.Enter;
-  try
-    if fIsValueCreated then
-      Exit;
-
-    fValue := fValueFactory();
-    fValueFactory := nil;
-    fIsValueCreated := True;
-  finally
-    fLock.Leave;
-  end;
-end;
-
-function TLazy<T>.GetValue: T;
-begin
-  if not fIsValueCreated then
-    InitializeValue;
+  if fValueFactory <> nil then
+    CreateValue;
   Result := fValue;
 end;
 
-function TLazy<T>.GetValueNonGeneric: TValue;
+procedure Lazy.TLazy<T>.GetValueInternal(var result);
 begin
-  Result := TValue.From<T>(Value);
+  if fValueFactory <> nil then
+    CreateValue;
+  T(result) := fValue;
+end;
+
+procedure Lazy.TLazy<T>.InvokeFactory(const valueFactory: Pointer);
+begin
+  fValue := Func<T>(valueFactory)();
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'Lazy.TDefaultCtorFactory'}
+
+function Lazy.TDefaultCtorFactory.Invoke: TObject;
+begin
+  Result := ctor(classType);
 end;
 
 {$ENDREGION}
@@ -7434,61 +9029,362 @@ end;
 
 {$REGION 'Lazy<T>'}
 
-class function Lazy<T>.Create: Lazy<T>;
+class function Lazy<T>.Create: Lazy<T>; //FI:W521
 begin
-  Result.fLazy := TLazy<T>.Create;
+  Lazy.MakeFromDefaultCtor(Result.fInstance, TypeInfo(T));
 end;
 
-constructor Lazy<T>.Create(const valueFactory: TFunc<T>; ownsObject: Boolean);
+constructor Lazy<T>.Create(const valueFactory: Func<T>; ownsObject: Boolean);
 begin
-  fLazy := TLazy<T>.Create(valueFactory, ownsObject);
+  case TType.Kind<T> of
+    tkClass: Lazy.MakeFromFactory(PPointer(@valueFactory)^, fInstance, ownsObject);
+    tkInterface: Lazy.MakeFromFactory(PPointer(@valueFactory)^, fInstance, TypeInfo(T));
+  else
+    Lazy.MakeFromFactory<T>(PPointer(@valueFactory)^, fInstance);
+  end;
 end;
 
 constructor Lazy<T>.CreateFrom(const value: T; ownsObject: Boolean);
 begin
-  fLazy := TLazy<T>.CreateFrom(value, ownsObject);
+  case TType.Kind<T> of
+    tkClass: Lazy.Make(PObject(@value)^, fInstance, ownsObject);
+    tkInterface: Lazy.Make(PInterface(@value)^, fInstance, TypeInfo(T));
+  else
+    Lazy.Make<T>(value, fInstance);
+  end;
 end;
 
 function Lazy<T>.GetValue: T;
 begin
-  if not Assigned(fLazy) then
-    Guard.RaiseNoDelegateAssigned;
-  Result := fLazy.Value;
+  Lazy(fInstance).GetValue(Result);
 end;
 
 function Lazy<T>.GetIsValueCreated: Boolean;
 begin
-  Result := Assigned(fLazy) and fLazy.IsValueCreated;
+  Result := Lazy(fInstance).GetIsValueCreated;
 end;
 
 function Lazy<T>.GetIsAssigned: Boolean;
 begin
-  Result := Assigned(fLazy);
+  Result := Assigned(fInstance);
 end;
 
-class operator Lazy<T>.Implicit(const value: Lazy<T>): ILazy<T>;
+class operator Lazy<T>.Implicit(const {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}value: Lazy<T>): ILazy<T>;
 begin
-  Result := value.fLazy;
+  IntfAssign(value.fInstance, IInterface(Result));
 end;
 
-class operator Lazy<T>.Implicit(const value: Lazy<T>): T;
+class operator Lazy<T>.Implicit(const {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}value: Lazy<T>): T;
 begin
-  Result := value.Value;
+  Lazy(value.fInstance).GetValue(Result);
 end;
 
 class operator Lazy<T>.Implicit(const value: T): Lazy<T>;
 begin
-  Result.fLazy := TLazy<T>.CreateFrom(value);
+  case TType.Kind<T> of
+    tkClass: Lazy.Make(PObject(@value)^, Result.fInstance, False);
+    tkInterface: Lazy.Make(PInterface(@value)^, Result.fInstance, TypeInfo(T));
+  else
+    Lazy.Make<T>(value, Result.fInstance);
+  end;
 end;
 
-class operator Lazy<T>.Implicit(const value: TFunc<T>): Lazy<T>;
+class operator Lazy<T>.Implicit(const valueFactory: Func<T>): Lazy<T>;
 begin
-  Result.fLazy := TLazy<T>.Create(value);
+  case TType.Kind<T> of
+    tkClass: Lazy.MakeFromFactory(PPointer(@valueFactory)^, Result.fInstance, False);
+    tkInterface: Lazy.MakeFromFactory(PPointer(@valueFactory)^, Result.fInstance, TypeInfo(T));
+  else
+    Lazy.MakeFromFactory<T>(PPointer(@valueFactory)^, Result.fInstance);
+  end;
 end;
 
-class operator Lazy<T>.Implicit(const value: TLazy<T>): Lazy<T>;
+class operator Lazy<T>.Implicit(const value: ILazy<T>): Lazy<T>;
 begin
-  Result.fLazy := value;
+  Result.fInstance := value;
+end;
+
+class operator Lazy<T>.Implicit(const value: Nullable.Null): Lazy<T>;
+begin
+  Result.fInstance := nil;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'Lazy'}
+
+function Lazy.GetIsValueCreated: Boolean;
+begin
+  if Assigned(fInstance) then
+    Result := fInstance.IsValueCreated
+  else
+    Result := False;
+end;
+
+procedure Lazy.GetValue(var result);
+begin
+  if Assigned(fInstance) then
+    ILazyInternal(fInstance).GetValueInternal(result)
+  else
+    Guard.RaiseNoDelegateAssigned;
+end;
+
+class procedure Lazy.Make(const value: TObject; var result; ownsObject: Boolean);
+var
+  rec: PObjectReference absolute result;
+begin
+  if Assigned(rec) and (AtomicDecrement(rec.RefCount) = 0) then
+  begin
+    if rec.OwnsObject then
+      rec.Value.Free;
+  end
+  else
+  begin
+    GetMem(rec, SizeOf(TObjectReference));
+    rec.Vtable := @Lazy.ObjectReferenceVtable;
+    Pointer(rec.Factory) := nil;
+    Pointer(rec.Value) := nil;
+  end;
+  rec.RefCount := 1;
+  rec.OwnsObject := ownsObject;
+  rec.Factory := nil;
+  rec.Value := value;
+end;
+
+class procedure Lazy.Make(const value: IInterface; var result; typeInfo: PTypeInfo);
+var
+  rec: PInterfaceReference absolute result;
+begin
+  if not Assigned(rec) or (AtomicDecrement(rec.RefCount) <> 0) then
+  begin
+    GetMem(rec, SizeOf(TInterfaceReference));
+    rec.Vtable := @Lazy.InterfaceReferenceVtable;
+    Pointer(rec.Factory) := nil;
+    Pointer(rec.Value) := nil;
+  end;
+  rec.RefCount := 1;
+  rec.Factory := nil;
+  rec.Value := value;
+  rec.TypeInfo := typeInfo;
+end;
+
+class procedure Lazy.Make<T>(const value: T; var result);
+var
+  instance: TLazy<T>;
+begin
+  TObject(instance) := TLazy<T>.Create;
+  instance.fValue := value;
+  ILazyInternal<T>(result) := instance;
+end;
+
+class procedure Lazy.MakeFromDefaultCtor(var result; const typeInfo: PTypeInfo);
+var
+  defaultCtor: TDefaultCtorFactory;
+begin
+  Guard.CheckTypeKind(typeInfo, tkClass, 'classInfo');
+
+  defaultCtor := TDefaultCtorFactory.Create;
+  defaultCtor.classType := typeInfo.TypeData.ClassType;
+  defaultCtor.ctor := TActivator.FindConstructor(defaultCtor.classType);
+
+  MakeFromFactory(Pointer(Func<TObject>(defaultCtor)), result, True);
+end;
+
+class procedure Lazy.MakeFromFactory(factory: Pointer; var result; ownsObject: Boolean);
+var
+  rec: PObjectReference absolute result;
+begin
+  if Assigned(rec) and (AtomicDecrement(rec.RefCount) = 0) then
+  begin
+    if rec.OwnsObject then
+      rec.Value.Free;
+  end
+  else
+  begin
+    GetMem(rec, SizeOf(TObjectReference));
+    rec.Vtable := @Lazy.ObjectReferenceVtable;
+    Pointer(rec.Factory) := nil;
+    Pointer(rec.Value) := nil;
+  end;
+  rec.RefCount := 1;
+  rec.OwnsObject := ownsObject;
+  rec.Factory := IInterface(factory);
+  rec.Value := nil;
+end;
+
+class procedure Lazy.MakeFromFactory(factory: Pointer; var result; typeInfo: PTypeInfo);
+var
+  rec: PInterfaceReference absolute result;
+begin
+  if not Assigned(rec) or (AtomicDecrement(rec.RefCount) <> 0) then
+  begin
+    GetMem(rec, SizeOf(TInterfaceReference));
+    rec.Vtable := @Lazy.InterfaceReferenceVtable;
+    Pointer(rec.Factory) := nil;
+    Pointer(rec.Value) := nil;
+  end;
+  rec.RefCount := 1;
+  rec.Factory := IInterface(factory);
+  rec.Value := nil;
+  rec.TypeInfo := typeInfo;
+end;
+
+class procedure Lazy.MakeFromFactory<T>(factory: Pointer; var result);
+var
+  instance: TLazy<T>;
+begin
+  TObject(instance) := TLazy<T>.Create;
+  instance.fValueFactory := IInterface(factory);
+  ILazyInternal<T>(result) := instance;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'Lazy.TReference'}
+
+function Lazy.TReference.QueryInterface(const IID: TGUID; out obj): HResult;
+begin
+  if IID = ILazy then
+  begin
+    Pointer(obj) := @Vtable;
+    AtomicIncrement(RefCount);
+    Result := S_OK;
+  end
+  else
+    Result := E_NOINTERFACE;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'Lazy.TObjectReference'}
+
+function Lazy.TObjectReference._Release: Integer;
+begin
+  Result := AtomicDecrement(RefCount);
+  if Result = 0 then
+  begin
+    Factory := nil;
+    if OwnsObject then
+      Value.Free;
+    FreeMem(@Self);
+  end;
+end;
+
+procedure Lazy.TObjectReference.CreateValue;
+var
+  valueFactory: Pointer;
+  spinWait: TSpinWait;
+begin
+  valueFactory := Pointer(Factory);
+  if valueFactory = nil then Exit;
+  valueFactory := AtomicCmpExchange(Pointer(Factory), Pointer(1), valueFactory);
+  if valueFactory = Pointer(1) then
+  begin
+    spinWait := Default(TSpinWait);
+    while Factory <> nil do
+      spinWait.SpinCycle;
+  end
+  else if valueFactory <> nil then
+  try
+    Value := Func<TObject>(valueFactory)();
+  finally
+    AtomicExchange(Pointer(Factory), nil);
+    IInterface(valueFactory)._Release;
+  end;
+end;
+
+function Lazy.TObjectReference.GetIsValueCreated: Boolean;
+begin
+  Result := Factory = nil;
+end;
+
+function Lazy.TObjectReference.GetValue: TValue;
+begin
+  if Factory <> nil then
+    CreateValue;
+  Result := Value;
+end;
+
+function Lazy.TObjectReference.GetObject: TObject;
+begin
+  if Factory <> nil then
+    CreateValue;
+  Result := Value;
+end;
+
+procedure Lazy.TObjectReference.GetValueInternal(var result);
+begin
+  if Factory <> nil then
+    CreateValue;
+  TObject(result) := Value;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'Lazy.TInterfaceReference'}
+
+function Lazy.TInterfaceReference._Release: Integer;
+begin
+  Result := AtomicDecrement(RefCount);
+  if Result = 0 then
+  begin
+    Factory := nil;
+    Value := nil;
+    FreeMem(@Self);
+  end;
+end;
+
+procedure Lazy.TInterfaceReference.CreateValue;
+var
+  valueFactory: Pointer;
+  spinWait: TSpinWait;
+begin
+  valueFactory := Pointer(Factory);
+  if valueFactory = nil then Exit;
+  valueFactory := AtomicCmpExchange(Pointer(Factory), Pointer(1), valueFactory);
+  if valueFactory = Pointer(1) then
+  begin
+    spinWait := Default(TSpinWait);
+    while Factory <> nil do
+      spinWait.SpinCycle;
+  end
+  else if valueFactory <> nil then
+  try
+    Value := Func<IInterface>(valueFactory)();
+  finally
+    AtomicExchange(Pointer(Factory), nil);
+    IInterface(valueFactory)._Release;
+  end;
+end;
+
+function Lazy.TInterfaceReference.GetIsValueCreated: Boolean;
+begin
+  Result := Factory = nil;
+end;
+
+function Lazy.TInterfaceReference.GetValue: TValue;
+begin
+  if Factory <> nil then
+    CreateValue;
+  Result := TValue.From(Value, TypeInfo);
+end;
+
+function Lazy.TInterfaceReference.GetInterface: IInterface;
+begin
+  if Factory <> nil then
+    CreateValue;
+  Result := Value;
+end;
+
+procedure Lazy.TInterfaceReference.GetValueInternal(var result);
+begin
+  if Factory <> nil then
+    CreateValue;
+  IInterface(result) := Value;
 end;
 
 {$ENDREGION}
@@ -7510,7 +9406,7 @@ begin
 end;
 
 class function TLazyInitializer.EnsureInitialized<T>(var target: T;
-  const valueFactory: TFunc<T>): T;
+  const valueFactory: Func<T>): T;
 var
   value: T;
 begin
@@ -7541,8 +9437,7 @@ end;
 class function Shared<T>.GetMake: IShared<T>;
 begin
   case TType.Kind<T> of
-    tkClass: IShared<TObject>(Result) := IShared<TObject>(Shared.TObjectFinalizer.Create(TypeInfo(T)));
-    tkPointer: IShared<Pointer>(Result) := Shared.TRecordFinalizer.Create(TypeInfo(T));
+    tkClass, tkPointer: Shared.Make(TypeInfo(T), Result);
   end;
 end;
 
@@ -7562,28 +9457,21 @@ begin
   Result := value.fValue;
 end;
 
+class operator Shared<T>.Implicit(const value: Shared<T>): Weak<T>;
+begin
+  case TType.Kind<T> of
+    tkClass: Weak.MakeFromObject(value.Value, Result.fReference);
+    tkInterface: Weak.MakeFromInterface(value.Value, Result.fReference);
+  end;
+end;
+
 class operator Shared<T>.Implicit(const value: T): Shared<T>;
 begin
   Result.fValue := value;
   case TType.Kind<T> of
-{$IFNDEF AUTOREFCOUNT}
-    tkClass:
-      if PPointer(@value)^ = nil then
-        Result.fFinalizer := nil
-      else
-        Result.fFinalizer := IInterface(Shared.TObjectFinalizer.Create(PObject(@value)^));
-{$ENDIF}
-    tkPointer:
-      if PPointer(@value)^ = nil then
-        Result.fFinalizer := nil
-      else
-        Result.fFinalizer := Shared.TRecordFinalizer.Create(PPointer(@value)^, TypeInfo(T));
+    tkClass: Shared.Make(PObject(@Result.fValue)^, Result.fFinalizer);
+    tkPointer: Shared.Make(PPointer(@Result.fValue)^, TypeInfo(T), Result.fFinalizer);
   end;
-end;
-
-class function Shared<T>.New: IShared<T>;
-begin
-  Result := GetMake();
 end;
 
 {$ENDREGION}
@@ -7591,72 +9479,79 @@ end;
 
 {$REGION 'Shared'}
 
-class procedure Shared.Make(const value: TObject; var result: PObjectFinalizer);
+class procedure Shared.Make(const value: TObject; var result);
+var
+  finalizer: PObjectFinalizer absolute result;
 begin
-  if Assigned(result) and (AtomicDecrement(result.RefCount) = 0) then
-    result.Value.Free
+  if Assigned(finalizer) and (AtomicDecrement(finalizer.RefCount) = 0) then
+    finalizer.Value.Free
   else
   begin
-    GetMem(result, SizeOf(TObjectFinalizer));
-    result.Vtable := @Shared.ObjectFinalizerVtable;
+    GetMem(finalizer, SizeOf(TObjectFinalizer));
+    finalizer.Vtable := @Shared.ObjectFinalizerVtable;
   end;
-  result.RefCount := 1;
-  result.Value := value;
+  finalizer.RefCount := 1;
+  finalizer.Value := value;
+end;
+
+class procedure Shared.Make(const value: Pointer; typeInfo: PTypeInfo; var result);
+var
+  finalizer: PRecordFinalizer absolute result;
+begin
+  typeInfo := typeInfo.TypeData.RefType^;
+  if Assigned(finalizer) and (AtomicDecrement(finalizer.RefCount) = 0) then
+  begin
+    FinalizeArray(finalizer.Value, typeInfo, 1);
+    FillChar(finalizer.Value^, typeInfo.TypeData.RecSize, 0);
+    FreeMem(finalizer.Value);
+  end
+  else
+  begin
+    GetMem(finalizer, SizeOf(TRecordFinalizer));
+    finalizer.Vtable := @Shared.RecordFinalizerVtable;
+  end;
+  finalizer.RefCount := 1;
+  finalizer.Value := value;
+  finalizer.TypeInfo := typeInfo;
+end;
+
+class procedure Shared.Make(typeInfo: PTypeInfo; var result);
+
+  function AllocRecord(typeInfo: PTypeInfo): Pointer;
+  begin
+    Result := AllocMem(typeInfo.TypeData.RefType^.TypeData.RecSize);
+  end;
+
+begin
+  if typeInfo.Kind = tkClass then
+    Make(TActivator.CreateInstance(typeInfo), result)
+  else if typeInfo.Kind = tkPointer then
+    Make(AllocRecord(typeInfo), typeInfo, result);
+end;
+
+class function Shared.Make<T>: IShared<T>;
+begin
+  Make(T.Create, Result);
 end;
 
 class function Shared.Make<T>(const value: T): IShared<T>;
 begin
   case TType.Kind<T> of
-    tkClass: Make(PObject(@value)^, PObjectFinalizer(Result));
-    tkPointer: IShared<Pointer>(Result) := Shared.TRecordFinalizer.Create(PPointer(@value)^, TypeInfo(T));
+    tkClass: Make(PObject(@value)^, Result);
+    tkPointer: Make(PPointer(@value)^, TypeInfo(T), Result);
   end;
 end;
 
 class function Shared.Make<T>(const value: T;
-  const finalizer: TAction<T>): IShared<T>;
+  const finalizer: Action<T>): IShared<T>;
 begin
   Result := THandleFinalizer<T>.Create(value, finalizer);
-end;
-
-class function Shared.New<T>(const value: T): IShared<T>;
-begin
-  Result := Make<T>(value);
-end;
-
-class function Shared.New<T>(const value: T;
-  const finalizer: TAction<T>): IShared<T>;
-begin
-  Result := Make<T>(value, finalizer);
 end;
 
 {$ENDREGION}
 
 
 {$REGION 'Shared.TObjectFinalizer'}
-
-class function Shared.TObjectFinalizer.Create(const value: TObject): PObjectFinalizer;
-begin
-  GetMem(Result, SizeOf(TObjectFinalizer));
-  Result.Vtable := @Shared.ObjectFinalizerVtable;
-  Result.RefCount := 0;
-  Result.Value := value;
-end;
-
-class function Shared.TObjectFinalizer.Create(
-  typeInfo: PTypeInfo): PObjectFinalizer;
-begin
-  Result := Create(TActivator.CreateInstance(typeInfo.TypeData.ClassType));
-end;
-
-function Shared.TObjectFinalizer.QueryInterface(const IID: TGUID; out Obj): HResult;
-begin
-  Result := E_NOINTERFACE;
-end;
-
-function Shared.TObjectFinalizer._AddRef: Integer;
-begin
-  Result := AtomicIncrement(RefCount);
-end;
 
 function Shared.TObjectFinalizer._Release: Integer;
 begin
@@ -7678,31 +9573,21 @@ end;
 
 {$REGION 'Shared.TRecordFinalizer'}
 
-constructor Shared.TRecordFinalizer.Create(typeInfo: PTypeInfo);
+function Shared.TRecordFinalizer._Release: Integer;
 begin
-  inherited Create;
-  fTypeInfo := typeInfo.TypeData.RefType^;
-  fValue := AllocMem(GetTypeSize(fTypeInfo));
-end;
-
-constructor Shared.TRecordFinalizer.Create(const value: Pointer; typeInfo: PTypeInfo);
-begin
-  inherited Create;
-  fTypeInfo := typeInfo.TypeData.RefType^;
-  fValue := value;
-end;
-
-destructor Shared.TRecordFinalizer.Destroy;
-begin
-  FinalizeArray(fValue, fTypeInfo, 1);
-  FillChar(fValue^, fTypeInfo.TypeData.RecSize, 0);
-  FreeMem(fValue);
-  inherited;
+  Result := AtomicDecrement(RefCount);
+  if Result = 0 then
+  begin
+    FinalizeArray(Value, TypeInfo, 1);
+    FillChar(Value^, TypeInfo.TypeData.RecSize, 0);
+    FreeMem(Value);
+    FreeMem(@Self);
+  end;
 end;
 
 function Shared.TRecordFinalizer.Invoke: Pointer;
 begin
-  Result := fValue;
+  Result := Value;
 end;
 
 {$ENDREGION}
@@ -7711,17 +9596,15 @@ end;
 {$REGION 'Shared.THandleFinalizer<T>'}
 
 constructor Shared.THandleFinalizer<T>.Create(const value: T;
-  finalizer: TAction<T>);
+  finalizer: Action<T>);
 begin
-  inherited Create;
   fValue := value;
   fFinalizer := finalizer;
 end;
 
-destructor Shared.THandleFinalizer<T>.Destroy;
+destructor Shared.THandleFinalizer<T>.Destroy; //FI:W504
 begin
   fFinalizer(fValue);
-  inherited;
 end;
 
 function Shared.THandleFinalizer<T>.Invoke: T;
@@ -7735,46 +9618,28 @@ end;
 {$REGION 'TWeakReferences'}
 
 type
-  TWeakReferences = class
+  TWeakReferences = record
   strict private
     fLock: TCriticalSection;
     fWeakReferences: TDictionary<Pointer, TList>;
-    class var fDefault: TWeakReferences;
-  protected
-    class property Default: TWeakReferences read fDefault;
   public
-    constructor Create;
-    destructor Destroy; override;
-
-    class constructor Create;
-    class destructor Destroy;
+    procedure Initialize;
+    procedure Finalize;
 
     procedure RegisterWeakRef(address: Pointer; instance: Pointer);
     procedure UnregisterWeakRef(address: Pointer; instance: Pointer);
   end;
 
-constructor TWeakReferences.Create;
+procedure TWeakReferences.Initialize;
 begin
-  inherited Create;
   fLock := TCriticalSection.Create;
-  fWeakReferences := TObjectDictionary<Pointer, TList>.Create([doOwnsValues]);
+  fWeakReferences := TObjectDictionary<Pointer, TList>.Create([Generics.Collections.doOwnsValues]);
 end;
 
-destructor TWeakReferences.Destroy;
+procedure TWeakReferences.Finalize;
 begin
-  fWeakReferences.Free;
-  fLock.Free;
-  inherited Destroy;
-end;
-
-class constructor TWeakReferences.Create;
-begin
-  fDefault := TWeakReferences.Create;
-end;
-
-class destructor TWeakReferences.Destroy;
-begin
-  fDefault.Free;
+  FreeAndNil(fWeakReferences);
+  FreeAndNil(fLock);
 end;
 
 procedure TWeakReferences.RegisterWeakRef(address, instance: Pointer);
@@ -7798,6 +9663,8 @@ procedure TWeakReferences.UnregisterWeakRef(address, instance: Pointer);
 var
   addresses: TList;
 begin
+  if fLock = nil then Exit;
+
   fLock.Enter;
   try
     if fWeakReferences.TryGetValue(instance, addresses) then
@@ -7821,98 +9688,233 @@ begin
   end;
 end;
 
-{$ENDREGION}
-
-
-{$REGION 'TWeakReference'}
+var
+  WeakRefInstances: TWeakReferences;
 
 type
   TVirtualClasses = class(Spring.VirtualClass.TVirtualClasses);
-
-function TWeakReference.GetIsAlive: Boolean;
-begin
-  Result := Assigned(fTarget);
-end;
 
 procedure WeakRefFreeInstance(const Self: TObject);
 var
   freeInstance: TFreeInstance;
 begin
   freeInstance := GetClassData(Self.ClassParent).FreeInstance;
-  TWeakReferences.Default.UnregisterWeakRef(nil, Self);
+  WeakRefInstances.UnregisterWeakRef(nil, Self);
   freeInstance(Self);
 end;
 
-procedure TWeakReference.RegisterWeakRef(address, instance: Pointer); //FI:O804
+procedure RegisterWeakRef(address: Pointer; const instance: TObject);
 begin
   TVirtualClasses.Default.Proxify(instance);
-  GetClassData(TObject(instance).ClassType).FreeInstance := WeakRefFreeInstance;
-  TWeakReferences.Default.RegisterWeakRef(@fTarget, instance);
+  GetClassData(PPointer(instance)^).FreeInstance := WeakRefFreeInstance;
+  WeakRefInstances.RegisterWeakRef(address, instance);
 end;
 
-procedure TWeakReference.UnregisterWeakRef(address, instance: Pointer);
+procedure UnregisterWeakRef(address: Pointer; const instance: TObject);
 begin
-  TWeakReferences.Default.UnregisterWeakRef(address, instance);
+  WeakRefInstances.UnregisterWeakRef(address, instance);
 end;
 
-{$ENDREGION}
+procedure MoveManaged(source, target, typeInfo: Pointer; count: NativeInt);
+type
+  TFieldInfo = packed record
+    TypeInfo: PPTypeInfo;
+    Offset: NativeInt;
+  end;
 
+  PFieldTable = ^TFieldTable;
+  TFieldTable = packed record
+    Size: Integer;
+    Count: Integer;
+    case TTypeKind of
+    tkArray:  ( ElemType: PPTypeInfo );
+    tkRecord: ( Fields: array[0..0] of TFieldInfo );
+  end;
 
-{$REGION 'TWeakReference<T>'}
+  function GetFieldTable(typeInfo: Pointer): PFieldTable; inline;
+  begin
+    Result := PFieldTable(PByte(typeInfo) + PByte(typeInfo)[1] + 2);
+  end;
 
-constructor TWeakReference<T>.Create(const target: T);
+var
+  fieldTable: PFieldTable;
+  elemType: PTypeInfo;
+  size, elemCount: Integer;
+  n: NativeInt;
 begin
-  inherited Create;
-  SetTarget(target);
-end;
-
-constructor TWeakReference<T>.CreateInternal(const target: T;
-  var ref: PPointer);
-begin
-  inherited Create;
-  SetTarget(target);
-  ref := @fTarget;
-end;
-
-destructor TWeakReference<T>.Destroy;
-begin
-  SetTarget(Default(T));
-  inherited Destroy;
-end;
-
-function TWeakReference<T>.GetTarget: T;
-begin
-  if IsAlive then
-    case PTypeInfo(TypeInfo(T)).Kind of
-      tkClass: PObject(@Result)^ := TObject(fTarget);
-      tkInterface: PInterface(@Result)^ := IInterface(fTarget)
+  if count = 0 then Exit;
+  if PByte(target) < PByte(source) then
+    case PTypeInfo(typeInfo).Kind of
+      tkLString:
+        repeat
+          PAnsiString(target)^ := PAnsiString(source)^;
+          Inc(PByte(target), SizeOf(Pointer));
+          Inc(PByte(source), SizeOf(Pointer));
+          Dec(count);
+        until count = 0;
+      tkWString:
+        repeat
+          PWideString(target)^ := PWideString(source)^;
+          Inc(PByte(target), SizeOf(Pointer));
+          Inc(PByte(source), SizeOf(Pointer));
+          Dec(count);
+        until count = 0;
+      tkUString:
+        repeat
+          PUnicodeString(target)^ := PUnicodeString(source)^;
+          Inc(PByte(target), SizeOf(Pointer));
+          Inc(PByte(source), SizeOf(Pointer));
+          Dec(count);
+        until count = 0;
+      tkVariant:
+        repeat
+          PVariant(target)^ := PVariant(source)^;
+          Inc(PByte(target), SizeOf(TVarData));
+          Inc(PByte(source), SizeOf(TVarData));
+          Dec(count);
+        until count = 0;
+      tkArray:
+      begin
+        fieldTable := GetFieldTable(typeInfo);
+        size := fieldTable.Size;
+        elemCount := fieldTable.Count;
+        elemType := fieldTable.ElemType^;
+        repeat
+          CopyArray(target, source, elemType, elemCount);
+          Inc(PByte(target), size);
+          Inc(PByte(source), size);
+          Dec(count);
+        until count = 0;
+      end;
+      tkRecord{$IF Declared(tkMRecord)}, tkMRecord{$IFEND}:
+      begin
+        size := GetFieldTable(typeInfo).Size;
+        repeat
+          CopyRecord(target, source, typeInfo);
+          Inc(PByte(target), size);
+          Inc(PByte(source), size);
+          Dec(count);
+        until count = 0;
+      end;
+      tkInterface:
+        repeat
+          PInterface(target)^ := PInterface(source)^;
+          Inc(PByte(target), SizeOf(Pointer));
+          Inc(PByte(source), SizeOf(Pointer));
+          Dec(count);
+        until count = 0;
+      tkDynArray:
+        repeat
+          DynArrayAssign(PPointer(target)^, PPointer(source)^, typeInfo);
+          Inc(PByte(target), SizeOf(Pointer));
+          Inc(PByte(source), SizeOf(Pointer));
+          Dec(count);
+        until count = 0;
     end
   else
-    Result := Default(T);
-end;
-
-procedure TWeakReference<T>.SetTarget(const value: T);
-var
-  typeInfo: PTypeInfo;
-begin
-  typeInfo := System.TypeInfo(T);
-  if Assigned(fTarget) then
-    case typeInfo.Kind of
-      tkClass: UnregisterWeakRef(@fTarget, fTarget);
-      tkInterface: UnregisterWeakRef(@fTarget, IInterface(fTarget) as TObject);
-    end;
-  fTarget := PPointer(@value)^;
-  if Assigned(fTarget) then
-    case typeInfo.Kind of
-      tkClass: RegisterWeakRef(@fTarget, fTarget);
-      tkInterface: RegisterWeakRef(@fTarget, IInterface(fTarget) as TObject);
-    end;
-end;
-
-function TWeakReference<T>.TryGetTarget(out target: T): Boolean;
-begin
-  target := GetTarget;
-  Result := IsAlive;
+    case PTypeInfo(typeInfo).Kind of
+      tkLString:
+      begin
+        n := (count - 1) * SizeOf(Pointer);
+        Inc(PByte(target), n);
+        Inc(PByte(source), n);
+        repeat
+          PAnsiString(target)^ := PAnsiString(source)^;
+          Dec(PByte(target), SizeOf(Pointer));
+          Dec(PByte(source), SizeOf(Pointer));
+          Dec(count);
+        until count = 0;
+      end;
+      tkWString:
+      begin
+        n := (count - 1) * SizeOf(Pointer);
+        Inc(PByte(target), n);
+        Inc(PByte(source), n);
+        repeat
+          PWideString(target)^ := PWideString(source)^;
+          Dec(PByte(target), SizeOf(Pointer));
+          Dec(PByte(source), SizeOf(Pointer));
+          Dec(count);
+        until count = 0;
+      end;
+      tkUString:
+      begin
+        n := (count - 1) * SizeOf(Pointer);
+        Inc(PByte(target), n);
+        Inc(PByte(source), n);
+        repeat
+          PUnicodeString(target)^ := PUnicodeString(source)^;
+          Dec(PByte(target), SizeOf(Pointer));
+          Dec(PByte(source), SizeOf(Pointer));
+          Dec(count);
+        until count = 0;
+      end;
+      tkVariant:
+      begin
+        n := (count - 1) * SizeOf(TVarData);
+        Inc(PByte(target), n);
+        Inc(PByte(source), n);
+        repeat
+          PVariant(target)^ := PVariant(source)^;
+          Dec(PByte(target), SizeOf(TVarData));
+          Dec(PByte(source), SizeOf(TVarData));
+          Dec(count);
+        until count = 0;
+      end;
+      tkArray:
+      begin
+        fieldTable := GetFieldTable(typeInfo);
+        size := fieldTable.Size;
+        elemCount := fieldTable.Count;
+        elemType := fieldTable.ElemType^;
+        n := (count - 1) * size;
+        Inc(PByte(target), n);
+        Inc(PByte(source), n);
+        repeat
+          CopyArray(target, source, elemType, elemCount);
+          Dec(PByte(target), size);
+          Dec(PByte(source), size);
+          Dec(count);
+        until count = 0;
+      end;
+      tkRecord{$IF Declared(tkMRecord)}, tkMRecord{$IFEND}:
+      begin
+        size := GetFieldTable(typeInfo).Size;
+        n := (count - 1) * size;
+        Inc(PByte(target), n);
+        Inc(PByte(source), n);
+        repeat
+          CopyRecord(target, source, typeInfo);
+          Dec(PByte(target), size);
+          Dec(PByte(source), size);
+          Dec(count);
+        until count = 0;
+      end;
+      tkInterface:
+      begin
+        n := (count - 1) * SizeOf(Pointer);
+        Inc(PByte(target), n);
+        Inc(PByte(source), n);
+        repeat
+          PInterface(target)^ := PInterface(source)^;
+          Dec(PByte(target), SizeOf(Pointer));
+          Dec(PByte(source), SizeOf(Pointer));
+          Dec(count);
+        until count = 0;
+      end;
+      tkDynArray:
+      begin
+        n := (count - 1) * SizeOf(Pointer);
+        Inc(PByte(target), n);
+        Inc(PByte(source), n);
+        repeat
+          DynArrayAssign(PPointer(target)^, PPointer(source)^, typeInfo);
+          Dec(PByte(target), SizeOf(Pointer));
+          Dec(PByte(source), SizeOf(Pointer));
+          Dec(count);
+        until count = 0;
+      end;
+    end
 end;
 
 {$ENDREGION}
@@ -7920,72 +9922,224 @@ end;
 
 {$REGION 'Weak<T>'}
 
-constructor Weak<T>.Create(const target: T);
-begin
-  fReference := TWeakReference<T>.CreateInternal(target, fTarget);
-end;
-
 function Weak<T>.GetIsAlive: Boolean;
 begin
-  Result := Assigned(fReference) and Assigned(fTarget^);
+  Result := Weak.GetIsAlive(fReference);
 end;
 
 function Weak<T>.GetTarget: T;
 begin
-  if Assigned(fReference) then
-    Result := PT(fTarget)^
-  else
-    Result := Default(T);
+  Weak.GetTarget(fReference, Result, TType.Kind<T>);
 end;
 
-procedure Weak<T>.SetTarget(const value: T);
+function Weak<T>.TryGetTarget(var target: T): Boolean;
 begin
-  if Assigned(fReference) then
-    fReference.Target := value
-  else
-    fReference := TWeakReference<T>.CreateInternal(value, fTarget);
-end;
-
-function Weak<T>.TryGetTarget(out target: T): Boolean;
-begin
-  Result := Assigned(fReference) and Assigned(fTarget^);
-  if Result then
-    target := PT(fTarget)^
-  else
-    target := Default(T);
-end;
-
-class operator Weak<T>.Implicit(const value: Shared<T>): Weak<T>;
-begin
-  Result.Target := value.Value;
+  Result := Weak.TryGetTarget(fReference, target, TType.Kind<T>);
 end;
 
 class operator Weak<T>.Implicit(const value: T): Weak<T>;
 begin
-  Result.Target := value;
+  case TType.Kind<T> of
+    tkClass: Weak.MakeFromObject(value, Result.fReference);
+    tkInterface: Weak.MakeFromInterface(value, Result.fReference);
+  end;
 end;
 
-class operator Weak<T>.Implicit(const value: Weak<T>): T;
+class operator Weak<T>.Implicit(
+  {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}
+  const value: Weak<T>): T;
 begin
-  Result := value.Target;
+  Weak.GetTarget(value.fReference, Result, TType.Kind<T>);
 end;
 
-class operator Weak<T>.Equal(const left: Weak<T>;
-  const right: T): Boolean;
+class operator Weak<T>.Equal(
+  {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}
+  const left: Weak<T>; const right: T): Boolean;
 begin
-  if Assigned(left.fReference) then
-    Result := PPointer(@right)^ = left.fTarget^
+  Result := Weak.Equal(left.fReference, right);
+end;
+
+class operator Weak<T>.NotEqual(
+  {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}
+  const left: Weak<T>; const right: T): Boolean;
+begin
+  Result := Weak.NotEqual(left.fReference, right);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'Weak'}
+
+class procedure Weak.MakeFromObject(const value; var result);
+var
+  ref: PReference absolute result;
+begin
+  repeat
+    if Assigned(ref) then
+    begin
+      if ref.Target = Pointer(value) then
+        Exit;
+
+      if AtomicDecrement(ref.RefCount) = 0 then
+      begin
+        if Assigned(ref.Target) then
+          UnregisterWeakRef(@ref.Target, ref.Target);
+        if Assigned(Pointer(value)) then
+          Break;
+
+        FreeMem(ref);
+        Exit;
+      end;
+    end;
+
+    if not Assigned(Pointer(value)) then
+      Exit;
+
+    GetMem(ref, SizeOf(TReference));
+    ref.Vtable := @Weak.ObjectReferenceVtable;
+  until True;
+  ref.RefCount := 1;
+  ref.Target := Pointer(value);
+  RegisterWeakRef(@ref.Target, ref.Target);
+end;
+
+class procedure Weak.MakeFromInterface(const value; var result);
+var
+  ref: PReference absolute result;
+begin
+  repeat
+    if Assigned(ref) then
+    begin
+      if ref.Target = Pointer(value) then
+        Exit;
+
+      if AtomicDecrement(ref.RefCount) = 0 then
+      begin
+        if Assigned(ref.Target) then
+          UnregisterWeakRef(@ref.Target, IInterface(ref.Target) as TObject);
+        if Assigned(Pointer(value)) then
+          Break;
+
+        FreeMem(ref);
+        Exit;
+      end;
+    end;
+
+    if not Assigned(Pointer(value)) then
+      Exit;
+
+    GetMem(ref, SizeOf(TReference));
+    ref.Vtable := @Weak.InterfaceReferenceVtable;
+  until True;
+  ref.RefCount := 1;
+  ref.Target := Pointer(value);
+  RegisterWeakRef(@ref.Target, IInterface(ref.Target) as TObject);
+end;
+
+class function Weak.Equal(const left; const right): Boolean;
+var
+  p: Pointer;
+begin
+  p := Pointer(left);
+  if Assigned(p) then
+    p := PReference(p).Target;
+  Result := p = Pointer(right);
+end;
+
+class function Weak.NotEqual(const left; const right): Boolean;
+var
+  p: Pointer;
+begin
+  p := Pointer(left);
+  if Assigned(p) then
+    p := PReference(p).Target;
+  Result := p <> Pointer(right);
+end;
+
+class function Weak.GetIsAlive(const reference): Boolean;
+var
+  p: Pointer;
+begin
+  p := Pointer(reference);
+  if Assigned(p) then
+    p := PReference(p).Target;
+  Result := Assigned(p);
+end;
+
+class procedure Weak.GetTarget(const reference; var result; kind: TTypeKind);
+{$IFNDEF CPUX86}
+var
+  p: Pointer;
+begin
+  p := Pointer(reference);
+  if Assigned(p) then
+    p := PReference(p).Target;
+  if kind = tkInterface then
+    IInterface(result) := IInterface(p)
   else
-    Result := PPointer(@right)^ = nil;
+    TObject(result) := TObject(p);
+end;
+{$ELSE}
+asm
+  mov eax,[eax]
+  test eax,eax
+  jz @@niltarget
+  mov eax,dword ptr [eax].TReference.Target
+@@niltarget:
+  cmp cl,tkInterface
+  jne @@exit
+  mov ecx,eax
+  mov eax,edx
+  mov edx,ecx
+  call System.@IntfCopy
+  ret
+@@exit:
+  mov [edx],eax
+end;
+{$ENDIF}
+
+class function Weak.TryGetTarget(const reference; var target; kind: TTypeKind): Boolean;
+var
+  p: Pointer;
+begin
+  p := Pointer(reference);
+  if Assigned(p) then
+    p := PReference(p).Target;
+  if kind = tkInterface then
+    IInterface(target) := IInterface(p)
+  else
+    TObject(target) := TObject(p);
+  Result := Assigned(p);
 end;
 
-class operator Weak<T>.NotEqual(const left: Weak<T>;
-  const right: T): Boolean;
+{$ENDREGION}
+
+
+{$REGION 'Weak.TReference'}
+
+function Weak.TReference._Release_Obj: Integer;
 begin
-  if Assigned(left.fReference) then
-    Result := PPointer(@right)^ <> left.fTarget^
-  else
-    Result := PPointer(@right)^ <> nil;
+  Result := AtomicDecrement(RefCount);
+  if Result = 0 then
+  begin
+    if Assigned(Target) then
+      UnregisterWeakRef(@Target, Target);
+    Target := nil;
+    FreeMem(@Self);
+  end;
+end;
+
+function Weak.TReference._Release_Intf: Integer;
+begin
+  Result := AtomicDecrement(RefCount);
+  if Result = 0 then
+  begin
+    if Assigned(Target) then
+      UnregisterWeakRef(@Target, IInterface(Target) as TObject);
+    Target := nil;
+    FreeMem(@Self);
+  end;
 end;
 
 {$ENDREGION}
@@ -7995,93 +10149,77 @@ end;
 
 procedure Event<T>.Add(const handler: T);
 begin
-  EnsureInitialized;
-  fInstance.Add(handler);
+  EventHelper(fInstance).Add(handler, TypeInfo(T));
 end;
 
 procedure Event<T>.Clear;
 begin
-  if Assigned(fInstance) then
-    fInstance.Clear;
-end;
-
-procedure Event<T>.EnsureInitialized;
-begin
-  if not Assigned(fInstance) then
-    fInstance := TEvent<T>.Create;
+  EventHelper(fInstance).Clear;
 end;
 
 function Event<T>.GetCanInvoke: Boolean;
 begin
-  Result := Assigned(fInstance) and fInstance.CanInvoke;
+  Result := EventHelper(fInstance).GetCanInvoke;
 end;
 
 function Event<T>.GetEnabled: Boolean;
 begin
-  Result := not Assigned(fInstance) or fInstance.Enabled;
+  Result := EventHelper(fInstance).GetEnabled;
 end;
 
 function Event<T>.GetInvoke: T;
 begin
-  EnsureInitialized;
-  Result := fInstance.Invoke;
+  EventHelper(fInstance).GetInvoke(Result, TypeInfo(T));
 end;
 
 function Event<T>.GetOnChanged: TNotifyEvent;
 begin
-  EnsureInitialized;
-  Result := fInstance.OnChanged;
+  Result := EventHelper(fInstance).GetOnChanged();
 end;
 
 function Event<T>.GetUseFreeNotification: Boolean;
 begin
-  Result := not Assigned(fInstance) or fInstance.UseFreeNotification;
+  Result := EventHelper(fInstance).GetUseFreeNotification;
 end;
 
 procedure Event<T>.Remove(const handler: T);
 begin
-  if Assigned(fInstance) then
-    fInstance.Remove(handler);
+  EventHelper(fInstance).Remove(handler);
 end;
 
 procedure Event<T>.RemoveAll(instance: Pointer);
 begin
-  if Assigned(fInstance) then
-    fInstance.RemoveAll(instance);
+  EventHelper(fInstance).RemoveAll(instance);
 end;
 
 procedure Event<T>.SetEnabled(const value: Boolean);
 begin
-  EnsureInitialized;
-  fInstance.Enabled := value;
+  EventHelper(fInstance).SetEnabled(value, TypeInfo(T));
 end;
 
-procedure Event<T>.SetOnChanged(value: TNotifyEvent);
+procedure Event<T>.SetOnChanged(const value: TNotifyEvent);
 begin
-  EnsureInitialized;
-  fInstance.OnChanged := value;
+  EventHelper(fInstance).SetOnChanged(value, TypeInfo(T));
 end;
 
 procedure Event<T>.SetUseFreeNotification(const value: Boolean);
 begin
-  EnsureInitialized;
-  fInstance.UseFreeNotification := value;
+  EventHelper(fInstance).SetUseFreeNotification(value, TypeInfo(T));
 end;
 
-class operator Event<T>.Implicit(const value: IEvent<T>): Event<T>;
+class operator Event<T>.Implicit(const value: IInvokableEvent<T>): Event<T>;
 begin
-  Result.fInstance := value;
+  IntfAssign(value, IInterface(Result.fInstance));
 end;
 
-class operator Event<T>.Implicit(var value: Event<T>): IEvent<T>;
+class operator Event<T>.Implicit(var value: Event<T>): IInvokableEvent<T>;
 begin
-  value.EnsureInitialized;
-  Result := value.fInstance;
+  EventHelper(value.fInstance).EnsureInstance(Result, TypeInfo(T));
 end;
 
 class operator Event<T>.Implicit(var value: Event<T>): T;
 begin
-  Result := value.Invoke;
+  EventHelper(value.fInstance).GetInvoke(Result, TypeInfo(T));
 end;
 
 {$ENDREGION}
@@ -8094,20 +10232,22 @@ begin
   Result := TType.GetType(@Self);
 end;
 
-{$IFNDEF DELPHIXE3_UP}
 function TTypeInfoHelper.TypeData: PTypeData;
+var
+  p: PByte;
 begin
-  Result := GetTypeData(@Self);
+  p := @Self;
+  Result := @p[p[1]+2];
 end;
-{$ENDIF}
 
 function TTypeInfoHelper.TypeName: string;
 begin
-{$IFNDEF NEXTGEN}
   Result := UTF8ToString(Name);
-{$ELSE}
-  Result := NameFld.ToString;
-{$ENDIF}
+end;
+
+function TTypeInfoHelper.TypeSize: Integer;
+begin
+  Result := GetTypeSize(@Self);
 end;
 
 {$ENDREGION}
@@ -8128,8 +10268,7 @@ end;
 {$REGION 'TEventArgs'}
 
 constructor TEventArgs.Create;
-begin
-  inherited Create;
+begin //FI:W519
 end;
 
 {$ENDREGION}
@@ -8137,9 +10276,8 @@ end;
 
 {$REGION 'TPropertyChangedEventArgs'}
 
-constructor TPropertyChangedEventArgs.Create(const propertyName: string);
+constructor TPropertyChangedEventArgs.Create(const propertyName: string); //FI:W525
 begin
-  inherited Create;
   fPropertyName := propertyName;
 end;
 
@@ -8176,27 +10314,19 @@ end;
 
 function TInterfacedCriticalSection._AddRef: Integer;
 begin
-{$IFNDEF AUTOREFCOUNT}
   Result := AtomicIncrement(fRefCount);
-{$ELSE}
-  Result := __ObjAddRef;
-{$ENDIF}
 end;
 
 function TInterfacedCriticalSection._Release: Integer;
 begin
-{$IFNDEF AUTOREFCOUNT}
   Result := AtomicDecrement(fRefCount);
   if Result = 0 then
     Destroy;
-{$ELSE}
-  Result := __ObjRelease;
-{$ENDIF}
 end;
 
 function TInterfacedCriticalSection.ScopedLock: IInterface;
 begin
-  Result := TScopedLock.Create(Self);
+  Result := TScopedLock.Create(Self); //FI:W534
 end;
 
 {$ENDREGION}
@@ -8207,15 +10337,13 @@ end;
 constructor TInterfacedCriticalSection.TScopedLock.Create(
   const criticalSection: ICriticalSection);
 begin
-  inherited Create;
   fCriticalSection := criticalSection;
   fCriticalSection.Enter;
 end;
 
-destructor TInterfacedCriticalSection.TScopedLock.Destroy;
+destructor TInterfacedCriticalSection.TScopedLock.Destroy; //FI:W504
 begin
   fCriticalSection.Leave;
-  inherited Destroy;
 end;
 
 {$ENDREGION}
@@ -8272,7 +10400,12 @@ end;
 
 class procedure TActivator.ClearCache;
 begin
-  ConstructorCache.Clear;
+  CacheLock.EnterWrite;
+  try
+    ConstructorCache.Clear;
+  finally
+    CacheLock.LeaveWrite;
+  end;
 end;
 
 class function TActivator.CreateInstance(
@@ -8352,26 +10485,45 @@ end;
 class function TActivator.FindConstructor(classType: TClass): TConstructor;
 var
   classInfo: PTypeInfo;
+  ctorFound: Boolean;
   method: TRttiMethod;
 begin
   Assert(Assigned(classType));
   classInfo := classType.ClassInfo;
-  if ConstructorCache.TryGetValue(classInfo, Result) then
+
+  CacheLock.EnterRead;
+  try
+    ctorFound := ConstructorCache.TryGetValue(classInfo, Result);
+  finally
+    CacheLock.LeaveRead;
+  end;
+
+  if ctorFound then
     Exit;
 
-  for method in TType.GetType(classInfo).GetMethods do
-  begin
-    if not method.IsConstructor then
-      Continue;
-
-    if Length(method.GetParameters) = 0 then
+  CacheLock.EnterUpgradableRead;
+  try
+    for method in TType.GetType(classInfo).GetMethods do
     begin
-      Result := method.CodeAddress;
-      ConstructorCache.AddOrSetValue(classInfo, Result);
-      Exit;
+      if not method.IsConstructor then
+        Continue;
+
+      if method.GetParameters = nil then
+      begin
+        Result := method.CodeAddress;
+        CacheLock.EnterWrite;
+        try
+          ConstructorCache.AddOrSetValue(classInfo, Result);
+        finally
+          CacheLock.LeaveWrite;
+        end;
+        Exit;
+      end;
     end;
+    Result := nil;
+  finally
+    CacheLock.LeaveUpgradableRead;
   end;
-  Result := nil;
 end;
 
 class function TActivator.FindConstructor(const classType: TRttiInstanceType;
@@ -8401,7 +10553,14 @@ begin
     if Assignable(method.GetParameters, arguments) then
     begin
       if Length(arguments) = 0 then
-        ConstructorCache.AddOrSetValue(classType.Handle, method.CodeAddress);
+      begin
+        CacheLock.EnterWrite;
+        try
+          ConstructorCache.AddOrSetValue(classType.Handle, method.CodeAddress);
+        finally
+          CacheLock.LeaveWrite;
+        end;
+      end;
       Exit(method);
     end;
   end;
@@ -8427,13 +10586,12 @@ end;
 
 function Tuple<T1, T2>.Equals(const value: Tuple<T1, T2>): Boolean;
 var
-  comparer1: IEqualityComparer<T1>;
-  comparer2: IEqualityComparer<T2>;
+  comparer1, comparer2: Pointer;
 begin
-  comparer1 := TEqualityComparer<T1>.Default;
-  comparer2 := TEqualityComparer<T2>.Default;
-  Result := comparer1.Equals(fValue1, value.Value1)
-    and comparer2.Equals(fValue2, value.Value2);
+  comparer1 := _LookupVtableInfo(giEqualityComparer, TypeInfo(T1), SizeOf(T1));
+  comparer2 := _LookupVtableInfo(giEqualityComparer, TypeInfo(T2), SizeOf(T2));
+  Result := IEqualityComparer<T1>(comparer1).Equals(fValue1, value.Value1)
+    and IEqualityComparer<T2>(comparer2).Equals(fValue2, value.Value2);
 end;
 
 class operator Tuple<T1, T2>.Equal(const left, right: Tuple<T1, T2>): Boolean;
@@ -8445,15 +10603,15 @@ class operator Tuple<T1, T2>.Implicit(
   const values: Tuple<T1, T2>): TArray<TValue>;
 begin
   SetLength(Result, 2);
-  Result[0] := TValue.From<T1>(values.Value1);
-  Result[1] := TValue.From<T2>(values.Value2);
+  Result[0] := TValue.From(values.Value1, TypeInfo(T1));
+  Result[1] := TValue.From(values.Value2, TypeInfo(T2));
 end;
 
 class operator Tuple<T1, T2>.Implicit(
   const values: TArray<TValue>): Tuple<T1, T2>;
 begin
-  Result.fValue1 := values[0].AsType<T1>;
-  Result.fValue2 := values[1].AsType<T2>;
+  values[0].AsType(TypeInfo(T1), Result.fValue1);
+  values[1].AsType(TypeInfo(T2), Result.fValue2);
 end;
 
 class operator Tuple<T1, T2>.Implicit(
@@ -8462,9 +10620,9 @@ var
   value: TValue;
 begin
   value := TValue.FromVarRec(values[0]);
-  Result.fValue1 := value.AsType<T1>;
+  value.AsType(TypeInfo(T1), Result.fValue1);
   value := TValue.FromVarRec(values[1]);
-  Result.fValue2 := value.AsType<T2>;
+  value.AsType(TypeInfo(T2), Result.fValue2);
 end;
 
 class operator Tuple<T1, T2>.NotEqual(const left,
@@ -8494,16 +10652,14 @@ end;
 
 function Tuple<T1, T2, T3>.Equals(const value: Tuple<T1, T2, T3>): Boolean;
 var
-  comparer1: IEqualityComparer<T1>;
-  comparer2: IEqualityComparer<T2>;
-  comparer3: IEqualityComparer<T3>;
+  comparer1, comparer2, comparer3: Pointer;
 begin
-  comparer1 := TEqualityComparer<T1>.Default;
-  comparer2 := TEqualityComparer<T2>.Default;
-  comparer3 := TEqualityComparer<T3>.Default;
-  Result := comparer1.Equals(fValue1, value.Value1)
-    and comparer2.Equals(fValue2, value.Value2)
-    and comparer3.Equals(fValue3, value.Value3);
+  comparer1 := _LookupVtableInfo(giEqualityComparer, TypeInfo(T1), SizeOf(T1));
+  comparer2 := _LookupVtableInfo(giEqualityComparer, TypeInfo(T2), SizeOf(T2));
+  comparer3 := _LookupVtableInfo(giEqualityComparer, TypeInfo(T3), SizeOf(T3));
+  Result := IEqualityComparer<T1>(comparer1).Equals(fValue1, value.Value1)
+    and IEqualityComparer<T2>(comparer2).Equals(fValue2, value.Value2)
+    and IEqualityComparer<T3>(comparer3).Equals(fValue3, value.Value3);
 end;
 
 class operator Tuple<T1, T2, T3>.Equal(const left,
@@ -8516,9 +10672,9 @@ class operator Tuple<T1, T2, T3>.Implicit(
   const values: Tuple<T1, T2, T3>): TArray<TValue>;
 begin
   SetLength(Result, 3);
-  Result[0] := TValue.From<T1>(values.Value1);
-  Result[1] := TValue.From<T2>(values.Value2);
-  Result[2] := TValue.From<T3>(values.Value3);
+  Result[0] := TValue.From(values.Value1, TypeInfo(T1));
+  Result[1] := TValue.From(values.Value2, TypeInfo(T2));
+  Result[2] := TValue.From(values.Value3, TypeInfo(T3));
 end;
 
 class operator Tuple<T1, T2, T3>.Implicit(
@@ -8531,9 +10687,9 @@ end;
 class operator Tuple<T1, T2, T3>.Implicit(
   const values: TArray<TValue>): Tuple<T1, T2, T3>;
 begin
-  Result.fValue1 := values[0].AsType<T1>;
-  Result.fValue2 := values[1].AsType<T2>;
-  Result.fValue3 := values[2].AsType<T3>;
+  values[0].AsType(TypeInfo(T1), Result.fValue1);
+  values[1].AsType(TypeInfo(T2), Result.fValue2);
+  values[2].AsType(TypeInfo(T3), Result.fValue3);
 end;
 
 class operator Tuple<T1, T2, T3>.Implicit(
@@ -8542,11 +10698,11 @@ var
   value: TValue;
 begin
   value := TValue.FromVarRec(values[0]);
-  Result.fValue1 := value.AsType<T1>;
+  value.AsType(TypeInfo(T1), Result.fValue1);
   value := TValue.FromVarRec(values[1]);
-  Result.fValue2 := value.AsType<T2>;
+  value.AsType(TypeInfo(T2), Result.fValue2);
   value := TValue.FromVarRec(values[2]);
-  Result.fValue3 := value.AsType<T3>;
+  value.AsType(TypeInfo(T3), Result.fValue3);
 end;
 
 class operator Tuple<T1, T2, T3>.NotEqual(const left,
@@ -8586,19 +10742,16 @@ end;
 function Tuple<T1, T2, T3, T4>.Equals(
   const value: Tuple<T1, T2, T3, T4>): Boolean;
 var
-  comparer1: IEqualityComparer<T1>;
-  comparer2: IEqualityComparer<T2>;
-  comparer3: IEqualityComparer<T3>;
-  comparer4: IEqualityComparer<T4>;
+  comparer1, comparer2, comparer3, comparer4: Pointer;
 begin
-  comparer1 := TEqualityComparer<T1>.Default;
-  comparer2 := TEqualityComparer<T2>.Default;
-  comparer3 := TEqualityComparer<T3>.Default;
-  comparer4 := TEqualityComparer<T4>.Default;
-  Result := comparer1.Equals(fValue1, value.Value1)
-    and comparer2.Equals(fValue2, value.Value2)
-    and comparer3.Equals(fValue3, value.Value3)
-    and comparer4.Equals(fValue4, value.Value4);
+  comparer1 := _LookupVtableInfo(giEqualityComparer, TypeInfo(T1), SizeOf(T1));
+  comparer2 := _LookupVtableInfo(giEqualityComparer, TypeInfo(T2), SizeOf(T2));
+  comparer3 := _LookupVtableInfo(giEqualityComparer, TypeInfo(T3), SizeOf(T3));
+  comparer4 := _LookupVtableInfo(giEqualityComparer, TypeInfo(T4), SizeOf(T4));
+  Result := IEqualityComparer<T1>(comparer1).Equals(fValue1, value.Value1)
+    and IEqualityComparer<T2>(comparer2).Equals(fValue2, value.Value2)
+    and IEqualityComparer<T3>(comparer3).Equals(fValue3, value.Value3)
+    and IEqualityComparer<T4>(comparer4).Equals(fValue4, value.Value4);
 end;
 
 class operator Tuple<T1, T2, T3, T4>.Equal(const left,
@@ -8611,10 +10764,10 @@ class operator Tuple<T1, T2, T3, T4>.Implicit(
   const values: Tuple<T1, T2, T3, T4>): TArray<TValue>;
 begin
   SetLength(Result, 4);
-  Result[0] := TValue.From<T1>(values.Value1);
-  Result[1] := TValue.From<T2>(values.Value2);
-  Result[2] := TValue.From<T3>(values.Value3);
-  Result[3] := TValue.From<T4>(values.Value4);
+  Result[0] := TValue.From(values.Value1, TypeInfo(T1));
+  Result[1] := TValue.From(values.Value2, TypeInfo(T2));
+  Result[2] := TValue.From(values.Value3, TypeInfo(T3));
+  Result[3] := TValue.From(values.Value4, TypeInfo(T4));
 end;
 
 class operator Tuple<T1, T2, T3, T4>.Implicit(
@@ -8635,10 +10788,10 @@ end;
 class operator Tuple<T1, T2, T3, T4>.Implicit(
   const values: TArray<TValue>): Tuple<T1, T2, T3, T4>;
 begin
-  Result.fValue1 := values[0].AsType<T1>;
-  Result.fValue2 := values[1].AsType<T2>;
-  Result.fValue3 := values[2].AsType<T3>;
-  Result.fValue4 := values[3].AsType<T4>;
+  values[0].AsType(TypeInfo(T1), Result.fValue1);
+  values[1].AsType(TypeInfo(T2), Result.fValue2);
+  values[2].AsType(TypeInfo(T3), Result.fValue3);
+  values[3].AsType(TypeInfo(T4), Result.fValue4);
 end;
 
 class operator Tuple<T1, T2, T3, T4>.Implicit(
@@ -8647,13 +10800,13 @@ var
   value: TValue;
 begin
   value := TValue.FromVarRec(values[0]);
-  Result.fValue1 := value.AsType<T1>;
+  value.AsType(TypeInfo(T1), Result.fValue1);
   value := TValue.FromVarRec(values[1]);
-  Result.fValue2 := value.AsType<T2>;
+  value.AsType(TypeInfo(T2), Result.fValue2);
   value := TValue.FromVarRec(values[2]);
-  Result.fValue3 := value.AsType<T3>;
+  value.AsType(TypeInfo(T3), Result.fValue3);
   value := TValue.FromVarRec(values[3]);
-  Result.fValue4 := value.AsType<T4>;
+  value.AsType(TypeInfo(T4), Result.fValue4);
 end;
 
 class operator Tuple<T1, T2, T3, T4>.NotEqual(const left,
@@ -8719,143 +10872,191 @@ end;
 
 {$REGION 'TArray'}
 
-class function TArray.BinarySearch<T>(const values: array of T; const item: T;
-  out foundIndex: Integer; const comparer: IComparer<T>; index,
-  count: Integer): Boolean;
+class function TArray.BinarySearchInternal<T>(const values: array of T; const item: T;
+  out foundIndex: Integer; const comparer: IComparer<T>): Boolean;
 var
-  left, right, i, c: Integer;
+  count, left, right: NativeInt;
+  compareResult: Integer;
+  compare: TCompareMethod<T>;
 begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckNotNull(Assigned(comparer), 'comparer');
-  Guard.CheckRange((index >= 0) and (index <= Length(values)), 'index');
-  Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
-{$ENDIF}
-
-  if count = 0 then
-  begin
-    foundIndex := index;
-    Exit(False);
-  end;
-
+  TMethod(compare).Data := Pointer(comparer);
+  TMethod(compare).Code := PPVTable(comparer)^[3];
   Result := False;
-  left := index;
-  right := index + count - 1;
-  while left <= right do
-  begin
-    i := left + (right - left) shr 1;
-    c := comparer.Compare(values[i], item);
-    if c < 0 then
-      left := i + 1
-    else
-    begin
-      right := i - 1;
-      if c = 0 then
-        Result := True;
-    end;
-  end;
+  count := Length(values);
+  left := 0;
+  if count > 0 then
+  repeat
+    right := left + (1 and count);
+    count := count shr 1;
+    right := right + count;
+    compareResult := compare(values[left + count], item);
+    if compareResult < 0 then
+      left := right;
+    {$B+}
+    Result := Result or (compareResult = 0);
+    {$B-}
+  until count = 0;
   foundIndex := left;
+end;
+
+class function TArray.BinarySearch<T>(const values: array of T; const item: T;
+  out foundIndex: Integer): Boolean;
+var
+  comparer: Pointer;
+begin
+  comparer := _LookupVtableInfo(giComparer, TypeInfo(T), SizeOf(T));
+  Result := BinarySearchInternal<T>(values, item, foundIndex, IComparer<T>(comparer));
+end;
+
+class function TArray.BinarySearch<T>(const values: array of T; const item: T;
+  out foundIndex: Integer; index, count: Integer): Boolean;
+var
+  comparer: Pointer;
+begin
+  CheckRange(index, count, Length(values));
+  comparer := _LookupVtableInfo(giComparer, TypeInfo(T), SizeOf(T));
+  {$R-}
+  Result := BinarySearchInternal<T>(
+    Slice(TSlice<T>((@values[index])^), count),
+    item, foundIndex, IComparer<T>(comparer));
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+  Inc(foundIndex, index);
 end;
 
 class function TArray.BinarySearch<T>(const values: array of T; const item: T;
   out foundIndex: Integer; const comparer: IComparer<T>): Boolean;
 begin
-  Result := BinarySearch<T>(values, item, foundIndex, comparer,
-    Low(values), Length(values));
+  Result := BinarySearchInternal<T>(values, item, foundIndex, comparer);
 end;
 
 class function TArray.BinarySearch<T>(const values: array of T; const item: T;
-  out foundIndex: Integer): Boolean;
+  out foundIndex: Integer; const comparer: IComparer<T>;
+  index, count: Integer): Boolean;
 begin
-  Result := BinarySearch<T>(values, item, foundIndex, TComparer<T>.Default(),
-    Low(values), Length(values));
-end;
-
-class function TArray.BinarySearch<T>(const values: array of T; const item: T;
-  out foundIndex: Integer; const comparison: TComparison<T>; index,
-  count: Integer): Boolean;
-begin
-  Result := BinarySearch<T>(values, item, foundIndex,
-    IComparer<T>(PPointer(@comparison)^), index, count);
+  CheckRange(index, count, Length(values));
+  if not Assigned(comparer) then RaiseHelper.ArgumentNil(ExceptionArgument.comparer);
+  {$R-}
+  Result := BinarySearchInternal<T>(
+    Slice(TSlice<T>((@values[index])^), count),
+    item, foundIndex, comparer);
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+  Inc(foundIndex, index);
 end;
 
 class function TArray.BinarySearch<T>(const values: array of T; const item: T;
   out foundIndex: Integer; const comparison: TComparison<T>): Boolean;
 begin
-  Result := BinarySearch<T>(values, item, foundIndex,
-    IComparer<T>(PPointer(@comparison)^));
+  Result := BinarySearchInternal<T>(values, item, foundIndex, IComparer<T>((@comparison)^));
+end;
+
+class function TArray.BinarySearch<T>(const values: array of T; const item: T;
+  out foundIndex: Integer; const comparison: TComparison<T>;
+  index, count: Integer): Boolean;
+begin
+  CheckRange(index, count, Length(values));
+  if not Assigned(comparison) then RaiseHelper.ArgumentNil(ExceptionArgument.comparer);
+  {$R-}
+  Result := BinarySearchInternal<T>(
+    Slice(TSlice<T>((@values[index])^), count),
+    item, foundIndex, IComparer<T>((@comparison)^));
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+  Inc(foundIndex, index);
+end;
+
+class function TArray.BinarySearchUpperBoundInternal<T>(const values: array of T;
+  const item: T; out foundIndex: Integer; const comparer: IComparer<T>): Boolean;
+var
+  count, left, right: NativeInt;
+  compareResult: Integer;
+  compare: TCompareMethod<T>;
+begin
+  TMethod(compare).Data := Pointer(comparer);
+  TMethod(compare).Code := PPVTable(comparer)^[3];
+  Result := False;
+  count := Length(values);
+  left := 0;
+  if count > 0 then
+  repeat
+    right := left + (1 and count);
+    count := count shr 1;
+    right := right + count;
+    compareResult := compare(values[left + count], item);
+    if compareResult > 0 then Continue;
+    left := right;
+    {$B+}
+    Result := Result or (compareResult = 0);
+    {$B-}
+  until count = 0;
+  foundIndex := left - Ord(Result);
+end;
+
+class function TArray.BinarySearchUpperBound<T>(const values: array of T;
+  const item: T; out foundIndex: Integer): Boolean;
+var
+  comparer: Pointer;
+begin
+  comparer := _LookupVtableInfo(giComparer, TypeInfo(T), SizeOf(T));
+  Result := BinarySearchUpperBoundInternal<T>(values, item, foundIndex, IComparer<T>(comparer));
+end;
+
+class function TArray.BinarySearchUpperBound<T>(const values: array of T;
+  const item: T; out foundIndex: Integer; index, count: Integer): Boolean;
+var
+  comparer: Pointer;
+begin
+  CheckRange(index, count, Length(values));
+  comparer := _LookupVtableInfo(giComparer, TypeInfo(T), SizeOf(T));
+  {$R-}
+  Result := BinarySearchUpperBoundInternal<T>(
+    Slice(TSlice<T>((@values[index])^), count),
+    item, foundIndex, IComparer<T>(comparer));
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+  Inc(foundIndex, index);
+end;
+
+class function TArray.BinarySearchUpperBound<T>(const values: array of T;
+  const item: T; out foundIndex: Integer; const comparer: IComparer<T>): Boolean;
+begin
+  Result := BinarySearchUpperBoundInternal<T>(values, item, foundIndex, comparer);
 end;
 
 class function TArray.BinarySearchUpperBound<T>(const values: array of T;
   const item: T; out foundIndex: Integer; const comparer: IComparer<T>;
   index, count: Integer): Boolean;
-var
-  left, right, i, c: Integer;
 begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckNotNull(Assigned(comparer), 'comparer');
-  Guard.CheckRange((index >= 0) and (index <= Length(values)), 'index');
-  Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
-{$ENDIF}
-
-  if count = 0 then
-  begin
-    foundIndex := index;
-    Exit(False);
-  end;
-
-  Result := False;
-  left := index;
-  right := index + count - 1;
-  while left <= right do
-  begin
-    i := left + (right - left) shr 1;
-    c := comparer.Compare(values[i], item);
-    if c > 0 then
-      right := i - 1
-    else
-    begin
-      left := i + 1;
-      if c = 0 then
-        Result := True;
-    end;
-  end;
-  foundIndex := right;
+  CheckRange(index, count, Length(values));
+  if not Assigned(comparer) then RaiseHelper.ArgumentNil(ExceptionArgument.comparer);
+  {$R-}
+  Result := BinarySearchUpperBoundInternal<T>(
+    Slice(TSlice<T>((@values[index])^), count),
+    item, foundIndex, comparer);
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+  Inc(foundIndex, index);
 end;
 
-class function TArray.BinarySearchUpperBound<T>(const values: array of T;
-  const item: T; out foundIndex: Integer;
-  const comparer: IComparer<T>): Boolean;
+class function TArray.BinarySearchUpperBound<T>(const values: array of T; const item: T;
+  out foundIndex: Integer; const comparison: TComparison<T>): Boolean;
 begin
-  Result := BinarySearchUpperBound<T>(values, item, foundIndex, comparer,
-    Low(values), Length(values));
+  Result := BinarySearchUpperBoundInternal<T>(values, item, foundIndex, IComparer<T>((@comparison)^));
 end;
 
-class function TArray.BinarySearchUpperBound<T>(const values: array of T;
-  const item: T; out foundIndex: Integer): Boolean;
-begin
-  Result := BinarySearchUpperBound<T>(values, item, foundIndex,
-    TComparer<T>.Default(), Low(values), Length(values));
-end;
-
-class function TArray.BinarySearchUpperBound<T>(const values: array of T;
-  const item: T; out foundIndex: Integer; const comparison: TComparison<T>;
+class function TArray.BinarySearchUpperBound<T>(const values: array of T; const item: T;
+  out foundIndex: Integer; const comparison: TComparison<T>;
   index, count: Integer): Boolean;
 begin
-  Result := BinarySearchUpperBound<T>(values, item, foundIndex,
-    IComparer<T>(PPointer(@comparison)^), index, count);
-end;
-
-class function TArray.BinarySearchUpperBound<T>(const values: array of T;
-  const item: T; out foundIndex: Integer;
-  const comparison: TComparison<T>): Boolean;
-begin
-  Result := BinarySearchUpperBound<T>(values, item, foundIndex,
-    IComparer<T>(PPointer(@comparison)^), Low(values), Length(values));
+  CheckRange(index, count, Length(values));
+  if not Assigned(comparison) then RaiseHelper.ArgumentNil(ExceptionArgument.comparer);
+  {$R-}
+  Result := BinarySearchUpperBoundInternal<T>(
+    Slice(TSlice<T>((@values[index])^), count),
+    item, foundIndex, IComparer<T>((@comparison)^));
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+  Inc(foundIndex, index);
 end;
 
 class function TArray.Concat<T>(const values: array of TArray<T>): TArray<T>;
 var
-  i, k, n: Integer;
+  i, k, n: NativeInt;
 begin
   n := 0;
   for i := Low(values) to High(values) do
@@ -8873,12 +11074,12 @@ end;
 class function TArray.Contains<T>(const values: array of T;
   const item: T): Boolean;
 var
-  comparer: IEqualityComparer<T>;
+  comparer: Pointer;
   i: Integer;
 begin
-  comparer := TEqualityComparer<T>.Default;
+  comparer := _LookupVtableInfo(giEqualityComparer, TypeInfo(T), SizeOf(T));
   for i := Low(Values) to High(Values) do
-    if comparer.Equals(values[i], item) then
+    if IEqualityComparer<T>(comparer).Equals(values[i], item) then
       Exit(True);
   Result := False;
 end;
@@ -8900,8 +11101,10 @@ end;
 
 class procedure TArray.Copy<T>(const source: array of T;
   var target: array of T; sourceIndex, targetIndex, count: NativeInt);
+{$IFDEF SPRING_ENABLE_GUARD}
 var
   sourceLength, targetLength: NativeInt;
+{$ENDIF}
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   sourceLength := Length(source);
@@ -8915,13 +11118,13 @@ begin
     raise EArgumentException.CreateRes(@SArraysIdentical);
 {$ENDIF}
   if TType.IsManaged<T> then
-    System.CopyArray(Pointer(@target[targetIndex]), Pointer(@source[sourceIndex]), TypeInfo(T), count)
+    MoveManaged(@source[sourceIndex], @target[targetIndex], TypeInfo(T), count)
   else
-    System.Move(Pointer(@source[sourceIndex])^, Pointer(@target[targetIndex])^, count * SizeOf(T));
+    System.Move(source[sourceIndex], target[targetIndex], count * SizeOf(T));
 end;
 
 class procedure TArray.ForEach<T>(const values: array of T;
-  const action: TAction<T>);
+  const action: Action<T>);
 var
   i: Integer;
 begin
@@ -8929,25 +11132,30 @@ begin
     action(values[i]);
 end;
 
-class function TArray.IndexOf<T>(const values: array of T;
-  const item: T): Integer;
+class function TArray.IndexOf<T>(const values: array of T; const item: T): Integer;
+var
+  comparer: Pointer;
 begin
-  Result := IndexOf<T>(values, item,
-    0, Length(values), TEqualityComparer<T>.Default);
+  comparer := _LookupVtableInfo(giEqualityComparer, TypeInfo(T), SizeOf(T));
+  Result := IndexOf<T>(values, item, 0, Length(values), IEqualityComparer<T>(comparer));
 end;
 
 class function TArray.IndexOf<T>(const values: array of T; const item: T;
   index: Integer): Integer;
+var
+  comparer: Pointer;
 begin
-  Result := IndexOf<T>(values, item,
-    index, Length(values) - index, TEqualityComparer<T>.Default);
+  comparer := _LookupVtableInfo(giEqualityComparer, TypeInfo(T), SizeOf(T));
+  Result := IndexOf<T>(values, item, index, Length(values) - index, IEqualityComparer<T>(comparer));
 end;
 
 class function TArray.IndexOf<T>(const values: array of T; const item: T;
   index, count: Integer): Integer;
+var
+  comparer: Pointer;
 begin
-  Result := IndexOf<T>(values, item,
-    index, count, TEqualityComparer<T>.Default);
+  comparer := _LookupVtableInfo(giEqualityComparer, TypeInfo(T), SizeOf(T));
+  Result := IndexOf<T>(values, item, index, count, IEqualityComparer<T>(comparer));
 end;
 
 class function TArray.IndexOf<T>(const values: array of T; const item: T;
@@ -8969,23 +11177,29 @@ end;
 
 class function TArray.LastIndexOf<T>(const values: array of T;
   const item: T): Integer;
+var
+  comparer: Pointer;
 begin
-  Result := LastIndexOf<T>(values, item,
-    0, Length(values), TEqualityComparer<T>.Default);
+  comparer := _LookupVtableInfo(giEqualityComparer, TypeInfo(T), SizeOf(T));
+  Result := LastIndexOf<T>(values, item, High(values), Length(values), IEqualityComparer<T>(comparer));
 end;
 
 class function TArray.LastIndexOf<T>(const values: array of T; const item: T;
   index: Integer): Integer;
+var
+  comparer: Pointer;
 begin
-  Result := LastIndexOf<T>(values, item,
-    index, Length(values) - index, TEqualityComparer<T>.Default);
+  comparer := _LookupVtableInfo(giEqualityComparer, TypeInfo(T), SizeOf(T));
+  Result := LastIndexOf<T>(values, item, index, Length(values) - index, IEqualityComparer<T>(comparer));
 end;
 
 class function TArray.LastIndexOf<T>(const values: array of T; const item: T;
   index, count: Integer): Integer;
+var
+  comparer: Pointer;
 begin
-  Result := LastIndexOf<T>(values, item,
-    index, count, TEqualityComparer<T>.Default);
+  comparer := _LookupVtableInfo(giEqualityComparer, TypeInfo(T), SizeOf(T));
+  Result := LastIndexOf<T>(values, item, index, count, IEqualityComparer<T>(comparer));
 end;
 
 class function TArray.LastIndexOf<T>(const values: array of T; const item: T;
@@ -8995,315 +11209,2400 @@ var
 begin
 {$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckRange((index >= 0) and (index <= Length(values)), 'index');
-  Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
+  Guard.CheckRange((count >= 0) and (count <= index + 1), 'count');
 {$ENDIF}
 
-  for i := index + count - 1 downto index do
+  for i := index downto index - count do
     if comparer.Equals(values[i], item) then
       Exit(i);
   Result := -1;
 end;
 
-class procedure TArray.Reverse<T>(var values: array of T);
+procedure SwapPtr(arr: PPointer; left, right: Integer);
+var
+  temp: Pointer;
 begin
-  Reverse<T>(values, 0, Length(values));
+{$POINTERMATH ON}
+  temp := arr[left];
+  arr[left] := arr[right];
+  arr[right] := temp;
+{$POINTERMATH OFF}
 end;
 
-class procedure TArray.Reverse<T>(var values: array of T; index,
-  count: Integer);
+procedure BinarySwap(left, right: Pointer; size: NativeInt);
+{$IFDEF ASSEMBLER}
+{$IFDEF CPUX64}
+asm
+  mov       rax, r8
+  and       r8, 15
+  and       rax, -16
+  jz        @@Swap8Byte
+  add       rcx, rax
+  add       rdx, rax
+  neg       rax
+
+  .align 16
+@@Swap16Byte:
+  movdqu    xmm0, [rcx+rax]
+  movdqu    xmm1, [rdx+rax]
+  movdqu    [rcx+rax], xmm1
+  movdqu    [rdx+rax], xmm0
+  add       rax, 16
+  jl        @@Swap16Byte
+
+@@Swap8Byte:
+  test      r8, r8
+  jz        @@Exit
+  cmp       r8, 8
+  jl        @@Swap4Byte
+  mov       rax, [rcx]
+  mov       r9, [rdx]
+  mov       [rcx], r9
+  mov       [rdx], rax
+  sub       r8, 8
+  jz        @@Exit
+  add       rcx, 8
+  add       rdx, 8
+
+@@Swap4Byte:
+  cmp       r8, 4
+  jl        @@Swap2Byte
+  mov       eax, [rcx]
+  mov       r9d, [rdx]
+  mov       [rcx], r9d
+  mov       [rdx], eax
+  sub       r8, 4
+  jz        @@Exit
+  add       rcx, 4
+  add       rdx, 4
+
+@@Swap2Byte:
+  cmp       r8, 2
+  jl        @@Swap1Byte
+  movzx     eax, word ptr [rcx]
+  movzx     r9d, word ptr [rdx]
+  mov       [rcx], r9w
+  mov       [rdx], ax
+  sub       r8, 2
+  jz        @@Exit
+  add       rcx, 2
+  add       rdx, 2
+
+@@Swap1Byte:
+  movzx     eax, byte ptr [rcx]
+  movzx     r9d, byte ptr [rdx]
+  mov       [rcx], r9b
+  mov       [rdx], al
+
+@@Exit:
+end;
+{$ELSE}
+asm
+  push      esi
+  push      ebx
+  mov       esi, ecx
+  and       esi, 15
+  and       ecx, -16
+  jz        @@Swap8Byte
+  add       eax, ecx
+  add       edx, ecx
+  neg       ecx
+
+  .align 16
+@@Swap16Byte:
+  movdqu    xmm0, [eax+ecx]
+  movdqu    xmm1, [edx+ecx]
+  movdqu    [eax+ecx], xmm1
+  movdqu    [edx+ecx], xmm0
+  add       ecx, 16
+  jl        @@Swap16Byte
+
+@@Swap8Byte:
+  test      esi, esi
+  jz        @@Exit
+  cmp       esi, 8
+  jl        @@Swap4Byte
+  movq      xmm0, [eax]
+  movq      xmm1, [edx]
+  movq      [eax], xmm1
+  movq      [edx], xmm0
+  sub       esi, 8
+  jz        @@Exit
+  add       eax, 8
+  add       edx, 8
+
+@@Swap4Byte:
+  cmp       esi, 4
+  jl        @@Swap2Byte
+  mov       ebx, [eax]
+  mov       ecx, [edx]
+  mov       [eax], ecx
+  mov       [edx], ebx
+  sub       esi, 4
+  jz        @@Exit
+  add       eax, 4
+  add       edx, 4
+
+@@Swap2Byte:
+  cmp       esi, 2
+  jl        @@Swap1Byte
+  movzx     ebx, word ptr [eax]
+  movzx     ecx, word ptr [edx]
+  mov       [eax], cx
+  mov       [edx], bx
+  sub       esi, 2
+  jz        @@Exit
+  add       eax, 2
+  add       edx, 2
+
+@@Swap1Byte:
+  movzx     ebx, byte ptr [eax]
+  movzx     ecx, byte ptr [edx]
+  mov       [eax], cl
+  mov       [edx], bl
+
+@@Exit:
+  pop       ebx
+  pop       esi
+end;
+{$ENDIF}
+{$ELSE}
+type
+  PInt128 = ^Int128;
+  Int128 = array[0..3] of Int32;
 var
-  temp: T;
-  index1, index2: Integer;
+  temp: Int128;
+  b: Byte;
 begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckRange((index >= 0) and (index <= Length(values)), 'index');
-  Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
+  if size >= 16 then
+  repeat
+    temp := PInt128(left)^;
+    PInt128(left)^ := PInt128(right)^;
+    PInt128(right)^ := temp;
+    Inc(PInt128(left));
+    Inc(PInt128(right));
+    Dec(size, 16);
+  until size < 16;
+
+  if size > 0 then
+  repeat
+    b := PByte(left)^;
+    PByte(left)^ := PByte(right)^;
+    PByte(right)^ := b;
+    Inc(PByte(left));
+    Inc(PByte(right));
+    Dec(size);
+  until size = 0;
+end;
 {$ENDIF}
 
-  index1 := index;
-  index2 := index + count - 1;
-  while index1 < index2 do
+class procedure TArray.Swap<T>(left, right: Pointer);
+begin
+{$IFDEF DELPHIXE7_UP}
+  if not System.HasWeakRef(T) then
+{$ENDIF}
+    BinarySwap(left, right, SizeOf(T))
+end;
+
+class procedure TArray.Reverse_Int8(const values: PInt8; right: NativeInt);
+var
+  left: NativeInt;
+  temp: Int8;
+begin
+  left := 0;
+  while left < right do
   begin
-    temp := values[index1];
-    values[index1] := values[index2];
-    values[index2] := temp;
-    Inc(index1);
-    Dec(index2);
+    {$POINTERMATH ON}
+    temp := values[left];
+    values[left] := values[right];
+    values[right] := temp;
+    {$POINTERMATH OFF}
+    Inc(left);
+    Dec(right);
   end;
+end;
+
+class procedure TArray.Reverse_Int16(const values: PInt16; right: NativeInt);
+var
+  left: NativeInt;
+  temp: Int16;
+begin
+  left := 0;
+  while left < right do
+  begin
+    {$POINTERMATH ON}
+    temp := values[left];
+    values[left] := values[right];
+    values[right] := temp;
+    {$POINTERMATH OFF}
+    Inc(left);
+    Dec(right);
+  end;
+end;
+
+class procedure TArray.Reverse_Int24(const values: PInt24; right: NativeInt);
+var
+  left: NativeInt;
+  temp: Int24;
+begin
+  left := 0;
+  while left < right do
+  begin
+    {$POINTERMATH ON}
+    temp := values[left];
+    values[left] := values[right];
+    values[right] := temp;
+    {$POINTERMATH OFF}
+    Inc(left);
+    Dec(right);
+  end;
+end;
+
+class procedure TArray.Reverse_Int32(const values: PInt32; right: NativeInt);
+var
+  left: NativeInt;
+  temp: Int32;
+begin
+  left := 0;
+  while left < right do
+  begin
+    {$POINTERMATH ON}
+    temp := values[left];
+    values[left] := values[right];
+    values[right] := temp;
+    {$POINTERMATH OFF}
+    Inc(left);
+    Dec(right);
+  end;
+end;
+
+class procedure TArray.Reverse_Int64(const values: PInt64; right: NativeInt);
+var
+  left: NativeInt;
+  temp: Int64;
+begin
+  left := 0;
+  while left < right do
+  begin
+    {$POINTERMATH ON}
+    temp := values[left];
+    values[left] := values[right];
+    values[right] := temp;
+    {$POINTERMATH OFF}
+    Inc(left);
+    Dec(right);
+  end;
+end;
+
+class procedure TArray.Reverse_Single(const values: PSingle; right: NativeInt);
+var
+  left: NativeInt;
+  temp: Single;
+begin
+  left := 0;
+  while left < right do
+  begin
+    {$POINTERMATH ON}
+    temp := values[left];
+    values[left] := values[right];
+    values[right] := temp;
+    {$POINTERMATH OFF}
+    Inc(left);
+    Dec(right);
+  end;
+end;
+
+class procedure TArray.Reverse_Double(const values: PDouble; right: NativeInt);
+var
+  left: NativeInt;
+  temp: Double;
+begin
+  left := 0;
+  while left < right do
+  begin
+    {$POINTERMATH ON}
+    temp := values[left];
+    values[left] := values[right];
+    values[right] := temp;
+    {$POINTERMATH OFF}
+    Inc(left);
+    Dec(right);
+  end;
+end;
+
+class procedure TArray.Reverse_Extended(const values: PExtended; right: NativeInt);
+var
+  left: NativeInt;
+  temp: Extended;
+begin
+  left := 0;
+  while left < right do
+  begin
+    {$POINTERMATH ON}
+    temp := values[left];
+    values[left] := values[right];
+    values[right] := temp;
+    {$POINTERMATH OFF}
+    Inc(left);
+    Dec(right);
+  end;
+end;
+
+class procedure TArray.Reverse_Method(const values: PMethodPointer; right: NativeInt);
+var
+  left: NativeInt;
+  temp: TMethodPointer;
+begin
+  left := 0;
+  while left < right do
+  begin
+    {$POINTERMATH ON}
+    temp := values[left];
+    values[left] := values[right];
+    values[right] := temp;
+    {$POINTERMATH OFF}
+    Inc(left);
+    Dec(right);
+  end;
+end;
+
+class procedure TArray.Reverse_Ref(const values: PByte; right, size: NativeInt);
+var
+  left: NativeInt;
+begin
+  left := 0;
+  while left < right do
+  begin
+    BinarySwap(@values[left * size], @values[right * size], size);
+    Inc(left);
+    Dec(right);
+  end;
+end;
+
+class procedure TArray.Reverse_Generic<T>(var values: array of T);
+var
+  left, right: NativeInt;
+  temp: T;
+begin
+  left := 0;
+  right := High(values);
+  while left < right do
+  begin
+    {$POINTERMATH ON}
+    temp := values[left];
+    values[left] := values[right];
+    values[right] := temp;
+    {$POINTERMATH OFF}
+    Inc(left);
+    Dec(right);
+  end;
+end;
+
+class procedure TArray.Reverse<T>(const values: Pointer; hi: NativeInt);
+var
+  items: Pointer;
+begin
+  {$R-}
+  {$IFDEF DELPHIXE7_UP}
+  case GetTypeKind(T) of
+    tkInteger, tkChar, tkEnumeration, tkClass, tkWChar, tkLString, tkWString,
+    tkInterface, tkInt64, tkDynArray, tkUString, tkClassRef, tkPointer, tkProcedure:
+      case SizeOf(T) of
+        1: Reverse_Int8(values, hi);
+        2: Reverse_Int16(values, hi);
+        4: Reverse_Int32(values, hi);
+        8: Reverse_Int64(values, hi);
+      end;
+    tkFloat:
+      case SizeOf(T) of
+        4: Reverse_Single(values, hi);
+        10: Reverse_Extended(values, hi);
+      else
+        if GetTypeData(TypeInfo(T)).FloatType = ftDouble then
+          Reverse_Double(values, hi)
+        else
+          Reverse_Int64(values, hi);
+      end;
+    tkString:
+      Reverse_Ref(values, hi, SizeOf(T));
+    tkSet:
+      case SizeOf(T) of
+        1: Reverse_Int8(values, hi);
+        2: Reverse_Int16(values, hi);
+        4: Reverse_Int32(values, hi);
+        8: Reverse_Int64(values, hi);
+      else
+        Reverse_Ref(values, hi, SizeOf(T));
+      end;
+    tkMethod:
+      Reverse_Method(values, hi);
+    tkVariant,
+    {$IF Declared(tkMRecord)}
+    tkMRecord,
+    {$IFEND}
+    tkRecord:
+      if not System.HasWeakRef(T) then
+        case SizeOf(T) of
+          1: Reverse_Int8(values, hi);
+          2: Reverse_Int16(values, hi);
+          3: Reverse_Int24(values, hi);
+          4: Reverse_Int32(values, hi);
+          8: Reverse_Int64(values, hi);
+        else
+          Reverse_Ref(values, hi, SizeOf(T))
+        end
+      else
+      begin
+        items := values;
+        Reverse_Generic<T>(Slice(TSlice<T>(items^), hi+1));
+      end;
+    tkArray:
+      case SizeOf(T) of
+        1: Reverse_Int8(values, hi);
+        2: Reverse_Int16(values, hi);
+        3: Reverse_Int24(values, hi);
+        4: Reverse_Int32(values, hi);
+        8: Reverse_Int64(values, hi);
+      else
+        Reverse_Ref(values, hi, SizeOf(T));
+      end;
+  else
+  {$ELSE}
+  begin
+  {$ENDIF}
+    items := values;
+    Reverse_Generic<T>(Slice(TSlice<T>(items^), hi+1));
+  end;
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+end;
+
+class procedure TArray.Reverse<T>(var values: array of T);
+begin
+  {$R-}
+  Reverse<T>(@values[0], High(values));
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+end;
+
+class procedure TArray.Reverse<T>(var values: array of T; index, count: Integer);
+begin
+  CheckRange(index, count, Length(values));
+
+  Reverse<T>(@values[index], count - 1);
+end;
+
+class procedure TArray.Shuffle_Int8(const values: PInt8; hi: NativeInt);
+var
+  i, randomIndex: NativeInt;
+  temp: Int8;
+begin
+  for i := hi downto 1 do
+  begin
+    randomIndex := Random(i + 1);
+    {$POINTERMATH ON}
+    temp := values[randomIndex];
+    values[randomIndex] := values[i];
+    values[i] := temp;
+    {$POINTERMATH OFF}
+  end;
+end;
+
+class procedure TArray.Shuffle_Int16(const values: PInt16; hi: NativeInt);
+var
+  i, randomIndex: NativeInt;
+  temp: Int16;
+begin
+  for i := hi downto 1 do
+  begin
+    randomIndex := Random(i + 1);
+    {$POINTERMATH ON}
+    temp := values[randomIndex];
+    values[randomIndex] := values[i];
+    values[i] := temp;
+    {$POINTERMATH OFF}
+  end;
+end;
+
+class procedure TArray.Shuffle_Int24(const values: PInt24; hi: NativeInt);
+var
+  i, randomIndex: NativeInt;
+  temp: Int24;
+begin
+  for i := hi downto 1 do
+  begin
+    randomIndex := Random(i + 1);
+    {$POINTERMATH ON}
+    temp := values[randomIndex];
+    values[randomIndex] := values[i];
+    values[i] := temp;
+    {$POINTERMATH OFF}
+  end;
+end;
+
+class procedure TArray.Shuffle_Int32(const values: PInt32; hi: NativeInt);
+var
+  i, randomIndex: NativeInt;
+  temp: Int32;
+begin
+  for i := hi downto 1 do
+  begin
+    randomIndex := Random(i + 1);
+    {$POINTERMATH ON}
+    temp := values[randomIndex];
+    values[randomIndex] := values[i];
+    values[i] := temp;
+    {$POINTERMATH OFF}
+  end;
+end;
+
+class procedure TArray.Shuffle_Int64(const values: PInt64; hi: NativeInt);
+var
+  i, randomIndex: NativeInt;
+  temp: Int64;
+begin
+  for i := hi downto 1 do
+  begin
+    randomIndex := Random(i + 1);
+    {$POINTERMATH ON}
+    temp := values[randomIndex];
+    values[randomIndex] := values[i];
+    values[i] := temp;
+    {$POINTERMATH OFF}
+  end;
+end;
+
+class procedure TArray.Shuffle_Single(const values: PSingle; hi: NativeInt);
+var
+  i, randomIndex: NativeInt;
+  temp: Single;
+begin
+  for i := hi downto 1 do
+  begin
+    randomIndex := Random(i + 1);
+    {$POINTERMATH ON}
+    temp := values[randomIndex];
+    values[randomIndex] := values[i];
+    values[i] := temp;
+    {$POINTERMATH OFF}
+  end;
+end;
+
+class procedure TArray.Shuffle_Double(const values: PDouble; hi: NativeInt);
+var
+  i, randomIndex: NativeInt;
+  temp: Double;
+begin
+  for i := hi downto 1 do
+  begin
+    randomIndex := Random(i + 1);
+    {$POINTERMATH ON}
+    temp := values[randomIndex];
+    values[randomIndex] := values[i];
+    values[i] := temp;
+    {$POINTERMATH OFF}
+  end;
+end;
+
+class procedure TArray.Shuffle_Extended(const values: PExtended; hi: NativeInt);
+var
+  i, randomIndex: NativeInt;
+  temp: Extended;
+begin
+  for i := hi downto 1 do
+  begin
+    randomIndex := Random(i + 1);
+    {$POINTERMATH ON}
+    temp := values[randomIndex];
+    values[randomIndex] := values[i];
+    values[i] := temp;
+    {$POINTERMATH OFF}
+  end;
+end;
+
+class procedure TArray.Shuffle_Method(const values: PMethodPointer; hi: NativeInt);
+var
+  i, randomIndex: NativeInt;
+  temp: TMethodPointer;
+begin
+  for i := hi downto 1 do
+  begin
+    randomIndex := Random(i + 1);
+    {$POINTERMATH ON}
+    temp := values[randomIndex];
+    values[randomIndex] := values[i];
+    values[i] := temp;
+    {$POINTERMATH OFF}
+  end;
+end;
+
+class procedure TArray.Shuffle_Ref(const values: PByte; hi, size: NativeInt);
+var
+  i, randomIndex: NativeInt;
+begin
+  for i := hi downto 1 do
+  begin
+    randomIndex := Random(i + 1);
+    BinarySwap(@values[randomIndex * size], @values[i * size], size);
+  end;
+end;
+
+class procedure TArray.Shuffle_Generic<T>(var values: array of T);
+var
+  i, randomIndex: NativeInt;
+  temp: T;
+begin
+  for i := High(values) downto 1 do
+  begin
+    randomIndex := Random(i + 1);
+    {$POINTERMATH ON}
+    temp := values[randomIndex];
+    values[randomIndex] := values[i];
+    values[i] := temp;
+    {$POINTERMATH OFF}
+  end;
+end;
+
+class procedure TArray.Shuffle<T>(const values: Pointer; hi: NativeInt);
+begin
+  {$R-}
+  {$IFDEF DELPHIXE7_UP}
+  case GetTypeKind(T) of
+    tkInteger, tkChar, tkEnumeration, tkClass, tkWChar, tkLString, tkWString,
+    tkInterface, tkInt64, tkDynArray, tkUString, tkClassRef, tkPointer, tkProcedure:
+      case SizeOf(T) of
+        1: Shuffle_Int8(values, hi);
+        2: Shuffle_Int16(values, hi);
+        4: Shuffle_Int32(values, hi);
+        8: Shuffle_Int64(values, hi);
+      end;
+    tkFloat:
+      case SizeOf(T) of
+        4: Shuffle_Single(values, hi);
+        10: Shuffle_Extended(values, hi);
+      else
+        if GetTypeData(TypeInfo(T)).FloatType = ftDouble then
+          Shuffle_Double(values, hi)
+        else
+          Shuffle_Int64(values, hi);
+      end;
+    tkString:
+      Shuffle_Ref(values, hi, SizeOf(T));
+    tkSet:
+      case SizeOf(T) of
+        1: Shuffle_Int8(values, hi);
+        2: Shuffle_Int16(values, hi);
+        4: Shuffle_Int32(values, hi);
+        8: Shuffle_Int64(values, hi);
+      else
+        Shuffle_Ref(values, hi, SizeOf(T));
+      end;
+    tkMethod:
+      Shuffle_Method(values, hi);
+    tkVariant,
+    {$IF Declared(tkMRecord)}
+    tkMRecord,
+    {$IFEND}
+    tkRecord:
+      if not System.HasWeakRef(T) then
+        case SizeOf(T) of
+          1: Shuffle_Int8(values, hi);
+          2: Shuffle_Int16(values, hi);
+          3: Shuffle_Int24(values, hi);
+          4: Shuffle_Int32(values, hi);
+          8: Shuffle_Int64(values, hi);
+        else
+          Shuffle_Ref(values, hi, SizeOf(T))
+        end
+      else
+        Shuffle_Generic<T>(Slice(TSlice<T>(values^), hi+1));
+    tkArray:
+      case SizeOf(T) of
+        1: Shuffle_Int8(values, hi);
+        2: Shuffle_Int16(values, hi);
+        3: Shuffle_Int24(values, hi);
+        4: Shuffle_Int32(values, hi);
+        8: Shuffle_Int64(values, hi);
+      else
+        Shuffle_Ref(values, hi, SizeOf(T));
+      end;
+  else
+  {$ELSE}
+  begin
+  {$ENDIF}
+    Shuffle_Generic<T>(Slice(TSlice<T>(values^), hi+1));
+  end;
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
 end;
 
 class procedure TArray.Shuffle<T>(var values: array of T);
 begin
-  Shuffle<T>(values, 0, Length(values));
+  {$R-}
+  Shuffle<T>(@values[0], High(values));
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
 end;
 
-class procedure TArray.Shuffle<T>(var values: array of T; index: Integer);
+class procedure TArray.Shuffle<T>(var values: array of T; index, count: Integer);
 begin
-  Shuffle<T>(values, index, Length(values) - index);
-end;
+  CheckRange(index, count, Length(values));
 
-class procedure TArray.Shuffle<T>(var values: array of T; index,
-  count: Integer);
-var
-  i: Integer;
-  temp: T;
-begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckRange((index >= 0) and (index <= Length(values)), 'index');
-  Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
-{$ENDIF}
-
-  while count > 1 do
-  begin
-    i := Random(count) + index;
-    Dec(count);
-    temp := values[index];
-    values[index] := values[i];
-    values[i] := temp;
-    Inc(index);
-  end;
-end;
-
-procedure SwapPtr(var left, right);
-var
-  temp: Pointer;
-begin
-  temp := Pointer(left);
-  Pointer(left) := Pointer(right);
-  Pointer(right) := temp;
+  {$R-}
+  Shuffle<T>(@values[index], count - 1);
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
 end;
 
 class function TArray.GetDepthLimit(count: Integer): Integer;
-begin
-  Result := 0;
-  while count > 0 do
-  begin
-    Inc(Result);
-    count := count div 2;
-  end;
-  Result := Result * 2;
+{$IFDEF ASSEMBLER}
+asm
+  inc eax
+  or eax,1
+  bsr eax,eax
+  shl eax,1
 end;
-
-class procedure TArray.Swap<T>(var left, right: T);
-var
-  temp: T;
-begin
-{$IFDEF DELPHIXE7_UP} // XE7 and higher
-  case GetTypeKind(T) of
-{$IFDEF AUTOREFCOUNT}
-    tkClass,
-{$ENDIF AUTOREFCOUNT}
-    tkInterface,
-    tkDynArray,
-    tkUString:
-      SwapPtr(left, right);
-  else
-    temp := left;
-    left := right;
-    right := temp;
-  end;
 {$ELSE}
-  temp := left;
-  left := right;
-  right := temp;
+const
+  Log2DeBruijn: array[0..31] of Byte = (
+    00, 09, 01, 10, 13, 21, 02, 29,
+    11, 14, 16, 18, 22, 25, 03, 30,
+    08, 12, 20, 28, 15, 17, 24, 07,
+    19, 27, 23, 06, 26, 05, 04, 31
+  );
+begin
+  Inc(count);
+  count := count or (count shr 1);
+  count := count or (count shr 2);
+  count := count or (count shr 4);
+  count := count or (count shr 8);
+  count := count or (count shr 16);
+  {$Q-}
+  Result := Log2DeBruijn[(count * $07C4ACDD) shr 27] * 2;
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}
+end;
 {$ENDIF}
+
+{$IFDEF DELPHIXE7_UP}
+class procedure TArray.StableSort<T>(var values: array of T);
+var
+  comparer: Pointer;
+begin
+  comparer := _LookupVtableInfo(giComparer, TypeInfo(T), SizeOf(T));
+  if ((GetTypeKind(T) in ManagedPointerTypeKinds) and UnsafeStableSort)
+    or (GetTypeKind(T) in UnmanagedPointerTypeKinds) then
+    TTimSort.Sort(@values, IComparer<Pointer>(comparer), 0, Length(values))
+  else
+    TTimSort.Sort<T>(@values, IComparer<T>(comparer), 0, Length(values));
 end;
 
-class procedure TArray.SortTwoItems<T>(const comparer: IComparer<T>;
-  var left, right: T);
+class procedure TArray.StableSort<T>(var values: array of T; index, count: Integer);
+var
+  comparer: Pointer;
 begin
-  if comparer.Compare(left, right) > 0 then
-    Swap<T>(left, right);
+  CheckRange(index, count, Length(values));
+
+  comparer := _LookupVtableInfo(giComparer, TypeInfo(T), SizeOf(T));
+  if ((GetTypeKind(T) in ManagedPointerTypeKinds) and UnsafeStableSort)
+    or (GetTypeKind(T) in UnmanagedPointerTypeKinds) then
+    TTimSort.Sort(@values, IComparer<Pointer>(comparer), index, count)
+  else
+    TTimSort.Sort<T>(@values, IComparer<T>(comparer), index, count);
 end;
 
-class procedure TArray.SortThreeItems<T>(const comparer: IComparer<T>;
-  var left, mid, right: T);
+class procedure TArray.StableSort<T>(var values: array of T; const comparer: IComparer<T>);
 begin
-  if comparer.Compare(left, mid) > 0 then
-    Swap<T>(left, mid);
-  if comparer.Compare(left, right) > 0 then
-    Swap<T>(left, right);
-  if comparer.Compare(mid, right) > 0 then
-    Swap<T>(mid, right);
+  if ((GetTypeKind(T) in ManagedPointerTypeKinds) and UnsafeStableSort)
+    or (GetTypeKind(T) in UnmanagedPointerTypeKinds) then
+    TTimSort.Sort(@values, IComparer<Pointer>(comparer), 0, Length(values))
+  else
+    TTimSort.Sort<T>(@values, comparer, 0, Length(values));
 end;
+
+class procedure TArray.StableSort<T>(var values: array of T;
+  const comparer: IComparer<T>; index, count: Integer);
+begin
+  CheckRange(index, count, Length(values));
+
+  if ((GetTypeKind(T) in ManagedPointerTypeKinds) and UnsafeStableSort)
+    or (GetTypeKind(T) in UnmanagedPointerTypeKinds) then
+    TTimSort.Sort(@values, IComparer<Pointer>(comparer), index, count)
+  else
+    TTimSort.Sort<T>(@values, comparer, index, count);
+end;
+
+class procedure TArray.StableSort<T>(var values: array of T;
+  const comparison: TComparison<T>);
+begin
+  if ((GetTypeKind(T) in ManagedPointerTypeKinds) and UnsafeStableSort)
+    or (GetTypeKind(T) in UnmanagedPointerTypeKinds) then
+    TTimSort.Sort(@values, IComparer<Pointer>(PPointer(@comparison)^), 0, Length(values))
+  else
+    TTimSort.Sort<T>(@values, IComparer<T>(PPointer(@comparison)^), 0, Length(values));
+end;
+
+class procedure TArray.StableSort<T>(var values: array of T;
+  const comparison: TComparison<T>; index, count: Integer);
+begin
+  CheckRange(index, count, Length(values));
+
+  if ((GetTypeKind(T) in ManagedPointerTypeKinds) and UnsafeStableSort)
+    or (GetTypeKind(T) in UnmanagedPointerTypeKinds) then
+    TTimSort.Sort(@values, IComparer<Pointer>(PPointer(@comparison)^), index, count)
+  else
+    TTimSort.Sort<T>(@values, IComparer<T>(PPointer(@comparison)^), index, count);
+end;
+{$ENDIF}
 
 class procedure TArray.DownHeap<T>(var values: array of T;
-  const comparer: IComparer<T>; left, count, i: Integer);
+  {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}const compare: TCompareMethod<T>; i: NativeInt);
 var
+  hi, child: NativeInt;
   temp: T;
-  child, n, x: Integer;
 begin
-  temp := values[left + i - 1];
-  n := count div 2;
-  while i <= n do
+  hi := High(values);
+  while True do
   begin
-    child := i * 2;
-    if (child < count) and (comparer.Compare(values[left + child - 1], values[left + child]) < 0) then
+    child := i * 2 + 1;
+    if child > hi then Break;
+    if (child < hi) and (compare(values[child], values[child + 1]) < 0) then
       Inc(child);
-    if comparer.Compare(temp, values[left + child - 1]) >= 0 then
+    if compare(values[i], values[child]) >= 0 then
       Break;
-    values[left + i - 1] := values[left + child - 1];
+    temp := values[i];
+    values[i] := values[child];
+    values[child] := temp;
     i := child;
   end;
-  values[left + i - 1] := temp;
 end;
 
 class procedure TArray.HeapSort<T>(var values: array of T;
-  const comparer: IComparer<T>; left, right: Integer);
+  {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}const compare: TCompareMethod<T>);
 var
-  count, i: Integer;
+  i: NativeInt;
+  temp: T;
 begin
-  count := right - left + 1;
-  for i := count div 2 downto 1 do
-    DownHeap<T>(values, comparer, left, count, i);
-  for i := count downto 2 do
+  for i := Length(values) shr 1 - 1 downto 0 do
+    DownHeap<T>(values, compare, i);
+  for i := High(values) downto 1 do
   begin
-    Swap<T>(values[left], values[left + i - 1]);
-    DownHeap<T>(values, comparer, left, i - 1, 1);
+    temp := values[0];
+    values[0] := values[i];
+    values[i] := temp;
+    DownHeap<T>(Slice(values, i), compare, 0);
   end;
 end;
 
 class procedure TArray.InsertionSort<T>(var values: array of T;
-  const comparer: IComparer<T>; left, right: Integer);
+  const comparer: IComparer<T>);
 var
-  i, j: Integer;
+  index, start: NativeInt;
   temp: T;
+  compare: TCompareMethod<T>;
 begin
-  for i := left + 1 to right do
-  begin
-    j := i;
-    temp := values[i];
-    while (j > left) and (comparer.Compare(values[j - 1], temp) > 0) do
+  TMethod(compare).Data := Pointer(comparer);
+  TMethod(compare).Code := PPVTable(comparer)^[3];
+  start := 1;
+  repeat
+    index := start;
+    repeat
+      if compare(values[index-1], values[start]) <= 0 then Break;
+      Dec(index);
+    until index = 0;
+
+    if index < start then
     begin
-      values[j] := values[j - 1];
-      Dec(j);
+      temp := values[start];
+      if TType.HasWeakRef<T> then
+        MoveManaged(@values[index], @values[index+1], TypeInfo(T), start - index)
+      else
+      begin
+        if TType.IsManaged<T> then
+          System.Finalize(values[start]);
+        Move(values[index], values[index+1], SizeOf(T) * (start - index));
+        if TType.IsManaged<T> then
+          if SizeOf(T) = SizeOf(Pointer) then
+            PPointer(@values[index])^ := nil
+          else
+            System.FillChar(values[index], SizeOf(T), 0);
+      end;
+      values[index] := temp;
     end;
-    values[j] := temp;
-  end;
+
+    Inc(start);
+  until start > High(values);
 end;
 
 class function TArray.QuickSortPartition<T>(var values: array of T;
-  const comparer: IComparer<T>; left, right: Integer): Integer;
+  {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}const compare: TCompareMethod<T>): NativeInt;
 var
-  mid, pivotIndex: Integer;
-  pivot: T;
+  left, right, middle: NativeInt;
+  temp: T;
+  helper: TQuickSortPartitionHelper<T>;
 begin
-  mid := left + (right - left) div 2;
+  right := High(values);
+  middle := right shr 1;
+  helper.compare := compare;
 
-  SortThreeItems<T>(comparer, values[left], values[mid], values[right]);
-
-  Dec(right);
-  pivotIndex := right;
-
-  pivot := values[mid];
-  Swap<T>(values[mid], values[right]);
-
-  while left < right do
+  if helper.compare(values[0], values[middle]) > 0 then
   begin
-    repeat
-      Inc(left);
-    until comparer.Compare(values[left], pivot) >= 0;
-    repeat
-      Dec(right);
-    until comparer.Compare(pivot, values[right]) >= 0;
-
-    if left >= right then
-      Break;
-
-    Swap<T>(values[left], values[right]);
+    temp := values[0];
+    values[0] := values[middle];
+    values[middle] := temp;
+  end;
+  if helper.compare(values[0], values[right]) > 0 then
+  begin
+    temp := values[0];
+    values[0] := values[right];
+    values[right] := temp;
+  end;
+  if helper.compare(values[middle], values[right]) > 0 then
+  begin
+    temp := values[middle];
+    values[middle] := values[right];
+    values[right] := temp;
   end;
 
-  Swap<T>(values[left], values[pivotIndex]);
+  Dec(right);
+  helper.pivotIndex := right;
+  temp := values[middle];
+  values[middle] := values[right];
+  values[right] := temp;
+  helper.pivot := temp;
+
+  left := 0;
+
+  if left < right then
+    while True do
+    begin
+      repeat
+        Inc(left);
+      until helper.compare(values[left], helper.pivot) >= 0;
+      repeat
+        Dec(right);
+      until helper.compare(helper.pivot, values[right]) >= 0;
+
+      if left >= right then
+        Break;
+
+      helper.temp := values[left];
+      values[left] := values[right];
+      values[right] := helper.temp;
+    end;
+
+  right := helper.pivotIndex;
+  if left <> right then
+  begin
+    temp := values[left];
+    values[left] := values[right];
+    values[right] := temp;
+  end;
+
   Result := left;
 end;
 
 class procedure TArray.IntroSort<T>(var values: array of T;
-  const comparer: IComparer<T>; left, right, depthLimit: Integer);
+  const comparer: IComparer<T>; depthLimit: Integer);
 var
-  count, pivot: Integer;
+  partitionSize, pivot: NativeInt;
+  compare: TCompareMethod<T>;
 begin
-  while right > left do
+  TMethod(compare).Data := Pointer(comparer);
+  TMethod(compare).Code := PPVTable(comparer)^[3];
+
+  partitionSize := Length(values);
+  while partitionSize > 1 do
   begin
-    count := right - left + 1;
-    if count = 1 then
-      Exit;
-    if count = 2 then
+    if partitionSize <= IntrosortSizeThreshold then
     begin
-      SortTwoItems<T>(comparer, values[left], values[right]);
+      InsertionSort<T>(Slice(values, partitionSize), IComparer<T>(TMethod(compare).Data));
       Exit;
-    end;
-    if count = 3 then
+    end
+    else
     begin
-      SortThreeItems<T>(comparer, values[left], values[right - 1], values[right]);
-      Exit;
-    end;
-    if count <= IntrosortSizeThreshold then
-    begin
-      InsertionSort<T>(values, comparer, left, right);
-      Exit;
-    end;
+      if depthLimit = 0 then
+      begin
+        HeapSort<T>(Slice(values, partitionSize), compare);
+        Exit;
+      end;
 
-    if depthLimit = 0 then
-    begin
-      HeapSort<T>(values, comparer, left, right);
-      Exit;
-    end;
+      if depthLimit < 0 then
+        depthLimit := GetDepthLimit(partitionSize);
+      Dec(depthLimit);
 
-    Dec(depthLimit);
-    pivot := QuickSortPartition<T>(values, comparer, left, right);
-    IntroSort<T>(values, comparer, pivot + 1, right, depthLimit);
-    right := pivot - 1;
+      pivot := QuickSortPartition<T>(Slice(values, partitionSize), compare);
+      {$R-}
+      IntroSort<T>(Slice(TSlice<T>((@values[pivot + 1])^), partitionSize - (pivot + 1)), IComparer<T>(TMethod(compare).Data), depthLimit);
+      {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+      partitionSize := pivot;
+    end;
   end;
 end;
 
+class procedure TArray.DownHeap_Ref(values: PByte; hi: NativeInt;
+  const compare: TCompareMethodRef; i, size: NativeInt);
+var
+  child: NativeInt;
+begin
+  while True do
+  begin
+    child := i * 2 + 1;
+    if child > hi then
+      Break;
+
+    if (child < hi) and (compare(values[child*size], values[(child+1)*size]) < 0) then
+      inc(child);
+    if compare(values[i*size], values[child*size]) >= 0 then
+      Break;
+
+    BinarySwap(@values[i*size], @values[child*size], size);
+    i := child;
+  end;
+end;
+
+class procedure TArray.HeapSort_Ref(values: PByte; hi: NativeInt;
+  const compare: TCompareMethodRef; size: NativeInt);
+var
+  i: NativeInt;
+begin
+  for i := (hi+1) shr 1 - 1 downto 0 do
+    DownHeap_Ref(values, hi, compare, i, size);
+  for i := hi downto 1 do
+  begin
+    BinarySwap(@values[i*size], @values[0], size);
+    DownHeap_Ref(values, i-1, compare, 0, size);
+  end;
+end;
+
+class procedure TArray.InsertionSort_Ref(values: PByte; hi: NativeInt;
+  const compare: TCompareMethodRef; size: NativeInt);
+var
+  i, j: NativeInt;
+begin
+  i := size;
+  hi := hi * size;
+  repeat
+    j := i;
+    repeat
+      if compare(values[j-size], values[j]) <= 0 then Break;
+      BinarySwap(@values[j-size], @values[j], size);
+      Dec(j, size);
+    until j = 0;
+    Inc(i, size);
+  until i > hi;
+end;
+
+class function TArray.QuickSortPartition_Ref(values: PByte; hi: NativeInt;
+  {$IFDEF SUPPORTS_CONSTREF}[ref]{$ENDIF}const compare: TCompareMethodRef; size: NativeInt): NativeInt;
+var
+  left, right, middle, pivotIndex: NativeInt;
+begin
+  middle := (hi shr 1) * size;
+  right := hi * size;
+
+  if compare(values[0], values[middle]) > 0 then
+    BinarySwap(@values[0], @values[middle], size);
+  if compare(values[0], values[right]) > 0 then
+    BinarySwap(@values[0], @values[right], size);
+  if compare(values[middle], values[right]) > 0 then
+    BinarySwap(@values[middle], @values[right], size);
+
+  Dec(right, size);
+  BinarySwap(@values[middle], @values[right], size);
+
+  pivotIndex := right;
+  left := 0;
+
+  repeat
+    repeat
+      Inc(left, size);
+    until compare(values[left], values[pivotIndex]) >= 0;
+    repeat
+      Dec(right, size);
+    until compare(values[pivotIndex], values[right]) >= 0;
+
+    if left >= right then
+      Break;
+
+    BinarySwap(@values[left], @values[right], size);
+  until left >= right;
+
+  if left <> pivotIndex then
+    BinarySwap(@values[left], @values[pivotIndex], size);
+
+  Result := left div size;
+end;
+
+class procedure TArray.IntroSort_Ref(values: PByte; hi: NativeInt;
+  const comparer: IComparerRef; size: NativeInt; depthLimit: Integer);
+var
+  partitionSize, pivot: NativeInt;
+  compare: TCompareMethodRef;
+begin
+  TMethod(compare).Data := Pointer(comparer);
+  TMethod(compare).Code := PPVTable(comparer)^[3];
+
+  partitionSize := hi + 1;
+  while partitionSize > 1 do
+  begin
+    if partitionSize <= IntrosortSizeThreshold then
+    begin
+      InsertionSort_Ref(values, partitionSize - 1, compare, size);
+      Exit;
+    end
+    else
+    begin
+      if depthLimit = 0 then
+      begin
+        HeapSort_Ref(values, partitionSize - 1, compare, size);
+        Exit;
+      end;
+
+      if depthLimit < 0 then
+        depthLimit := GetDepthLimit(partitionSize);
+
+      Dec(depthLimit);
+      pivot := QuickSortPartition_Ref(values, partitionSize - 1, compare, size);
+      {$R-}
+      IntroSort_Ref(@values[(pivot + 1) * size], partitionSize - (pivot + 1) - 1, IComparerRef(TMethod(compare).Data), size, depthLimit);
+      {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+      partitionSize := pivot;
+    end;
+  end;
+end;
+
+class procedure TArray.IntroSort_Int8(var values: array of Int8; const comparer: IComparer<Int8>);
+begin
+  {$Q-}{$R-}
+  IntroSort<Int8>(values, comparer);
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}{$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+end;
+
+class procedure TArray.IntroSort_Int16(var values: array of Int16; const comparer: IComparer<Int16>);
+begin
+  {$Q-}{$R-}
+  IntroSort<Int16>(values, comparer);
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}{$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+end;
+
+class procedure TArray.IntroSort_Int24(var values: array of Int24; const comparer: IComparer<Int24>);
+begin
+  {$Q-}{$R-}
+  IntroSort<Int24>(values, comparer);
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}{$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+end;
+
+class procedure TArray.IntroSort_Int32(var values: array of Int32; const comparer: IComparer<Int32>);
+begin
+  {$Q-}{$R-}
+  IntroSort<Int32>(values, comparer);
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}{$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+end;
+
+class procedure TArray.IntroSort_Int64(var values: array of Int64; const comparer: IComparer<Int64>);
+begin
+  {$Q-}{$R-}
+  IntroSort<Int64>(values, comparer);
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}{$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+end;
+
+class procedure TArray.IntroSort_Single(var values: array of Single; const comparer: IComparer<Single>);
+begin
+  {$Q-}{$R-}
+  IntroSort<Single>(values, comparer);
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}{$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+end;
+
+class procedure TArray.IntroSort_Double(var values: array of Double; const comparer: IComparer<Double>);
+begin
+  {$Q-}{$R-}
+  IntroSort<Double>(values, comparer);
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}{$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+end;
+
+class procedure TArray.IntroSort_Extended(var values: array of Extended; const comparer: IComparer<Extended>);
+begin
+  {$Q-}{$R-}
+  IntroSort<Extended>(values, comparer);
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}{$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+end;
+
+class procedure TArray.IntroSort_Method(var values: array of TMethodPointer; const comparer: IComparer<TMethodPointer>);
+begin
+  {$Q-}{$R-}
+  IntroSort<TMethodPointer>(values, comparer);
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}{$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+end;
+
 class procedure TArray.Sort<T>(var values: array of T);
+var
+  comparer: Pointer;
 begin
-  IntroSort<T>(values, TComparer<T>.Default,
-    Low(values), High(values), GetDepthLimit(Length(values)));
+  comparer := _LookupVtableInfo(giComparer, TypeInfo(T), SizeOf(T));
+  {$R-}
+  {$IFDEF DELPHIXE7_UP}
+  case GetTypeKind(T) of
+    tkInteger, tkChar, tkEnumeration, tkClass, tkWChar, tkLString, tkWString,
+    tkInterface, tkInt64, tkDynArray, tkUString, tkClassRef, tkPointer, tkProcedure:
+      case SizeOf(T) of
+        1: IntroSort_Int8(Slice(TSlice<Int8>((@values[0])^), Length(values)), IComparer<Int8>(comparer));
+        2: IntroSort_Int16(Slice(TSlice<Int16>((@values[0])^), Length(values)), IComparer<Int16>(comparer));
+        4: IntroSort_Int32(Slice(TSlice<Int32>((@values[0])^), Length(values)), IComparer<Int32>(comparer));
+        8: IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(comparer));
+      end;
+    tkFloat:
+      case SizeOf(T) of
+        4: IntroSort_Single(Slice(TSlice<Single>((@values[0])^), Length(values)), IComparer<Single>(comparer));
+        10,16: IntroSort_Extended(Slice(TSlice<Extended>((@values[0])^), Length(values)), IComparer<Extended>(comparer));
+      else
+        if GetTypeData(TypeInfo(T)).FloatType = ftDouble then
+          IntroSort_Double(Slice(TSlice<Double>((@values[0])^), Length(values)), IComparer<Double>(comparer))
+        else
+          IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(comparer));
+      end;
+    tkString:
+      IntroSort_Ref(@values[0], High(values), IComparerRef(comparer), SizeOf(T));
+    tkSet:
+      case SizeOf(T) of
+        1: IntroSort_Int8(Slice(TSlice<Int8>((@values[0])^), Length(values)), IComparer<Int8>(comparer));
+        2: IntroSort_Int16(Slice(TSlice<Int16>((@values[0])^), Length(values)), IComparer<Int16>(comparer));
+        4: IntroSort_Int32(Slice(TSlice<Int32>((@values[0])^), Length(values)), IComparer<Int32>(comparer));
+      {$IFDEF PASS_64BIT_VALUE_REGISTER}
+        8: IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(comparer));
+      {$ENDIF}
+      else
+        IntroSort_Ref(@values[0], High(values), IComparerRef(comparer), SizeOf(T));
+      end;
+    tkMethod:
+      IntroSort_Method(Slice(TSlice<TMethodPointer>((@values[0])^), Length(values)), IComparer<TMethodPointer>(comparer));
+    tkVariant,
+    {$IF Declared(tkMRecord)}
+    tkMRecord,
+    {$IFEND}
+    tkRecord:
+      if not System.HasWeakRef(T) then
+        case SizeOf(T) of
+          1: IntroSort_Int8(Slice(TSlice<Int8>((@values[0])^), Length(values)), IComparer<Int8>(comparer));
+          2: IntroSort_Int16(Slice(TSlice<Int16>((@values[0])^), Length(values)), IComparer<Int16>(comparer));
+          3: IntroSort_Int24(Slice(TSlice<Int24>((@values[0])^), Length(values)), IComparer<Int24>(comparer));
+          4: IntroSort_Int32(Slice(TSlice<Int32>((@values[0])^), Length(values)), IComparer<Int32>(comparer));
+        {$IFDEF PASS_64BIT_VALUE_REGISTER}
+          8: IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(comparer));
+        {$ENDIF}
+        else
+          IntroSort_Ref(@values[0], High(values), IComparerRef(comparer), SizeOf(T))
+        end
+      else
+        IntroSort<T>(values, IComparer<T>(comparer));
+    tkArray:
+      case SizeOf(T) of
+        1: IntroSort_Int8(Slice(TSlice<Int8>((@values[0])^), Length(values)), IComparer<Int8>(comparer));
+        2: IntroSort_Int16(Slice(TSlice<Int16>((@values[0])^), Length(values)), IComparer<Int16>(comparer));
+        3: IntroSort_Int24(Slice(TSlice<Int24>((@values[0])^), Length(values)), IComparer<Int24>(comparer));
+        4: IntroSort_Int32(Slice(TSlice<Int32>((@values[0])^), Length(values)), IComparer<Int32>(comparer));
+      {$IFDEF PASS_64BIT_VALUE_REGISTER}
+        8: IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(comparer));
+      {$ENDIF}
+      else
+        IntroSort_Ref(@values[0], High(values), IComparerRef(comparer), SizeOf(T));
+      end;
+  else{$ELSE}begin{$ENDIF}
+    IntroSort<T>(values, IComparer<T>(comparer));
+  end;
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
 end;
 
-class procedure TArray.Sort<T>(var values: array of T;
-  const comparer: IComparer<T>);
+class procedure TArray.Sort<T>(var values: array of T; const comparer: IComparer<T>);
 begin
-  IntroSort<T>(values, comparer,
-    Low(values), High(values), GetDepthLimit(Length(values)));
+  {$R-}
+  {$IFDEF DELPHIXE7_UP}
+  case GetTypeKind(T) of
+    tkInteger, tkChar, tkEnumeration, tkClass, tkWChar, tkLString, tkWString,
+    tkInterface, tkInt64, tkDynArray, tkUString, tkClassRef, tkPointer, tkProcedure:
+      case SizeOf(T) of
+        1: IntroSort_Int8(Slice(TSlice<Int8>((@values[0])^), Length(values)), IComparer<Int8>(comparer));
+        2: IntroSort_Int16(Slice(TSlice<Int16>((@values[0])^), Length(values)), IComparer<Int16>(comparer));
+        4: IntroSort_Int32(Slice(TSlice<Int32>((@values[0])^), Length(values)), IComparer<Int32>(comparer));
+        8: IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(comparer));
+      end;
+    tkFloat:
+      case SizeOf(T) of
+        4: IntroSort_Single(Slice(TSlice<Single>((@values[0])^), Length(values)), IComparer<Single>(comparer));
+        10,16: IntroSort_Extended(Slice(TSlice<Extended>((@values[0])^), Length(values)), IComparer<Extended>(comparer));
+      else
+        if GetTypeData(TypeInfo(T)).FloatType = ftDouble then
+          IntroSort_Double(Slice(TSlice<Double>((@values[0])^), Length(values)), IComparer<Double>(comparer))
+        else
+          IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(comparer));
+      end;
+    tkString:
+      IntroSort_Ref(@values[0], High(values), IComparerRef(comparer), SizeOf(T));
+    tkSet:
+      case SizeOf(T) of
+        1: IntroSort_Int8(Slice(TSlice<Int8>((@values[0])^), Length(values)), IComparer<Int8>(comparer));
+        2: IntroSort_Int16(Slice(TSlice<Int16>((@values[0])^), Length(values)), IComparer<Int16>(comparer));
+        4: IntroSort_Int32(Slice(TSlice<Int32>((@values[0])^), Length(values)), IComparer<Int32>(comparer));
+      {$IFDEF PASS_64BIT_VALUE_REGISTER}
+        8: IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(comparer));
+      {$ENDIF}
+      else
+        IntroSort_Ref(@values[0], High(values), IComparerRef(comparer), SizeOf(T));
+      end;
+    tkMethod:
+      IntroSort_Method(Slice(TSlice<TMethodPointer>((@values[0])^), Length(values)), IComparer<TMethodPointer>(comparer));
+    tkVariant,
+    {$IF Declared(tkMRecord)}
+    tkMRecord,
+    {$IFEND}
+    tkRecord:
+      if not System.HasWeakRef(T) then
+        case SizeOf(T) of
+          1: IntroSort_Int8(Slice(TSlice<Int8>((@values[0])^), Length(values)), IComparer<Int8>(comparer));
+          2: IntroSort_Int16(Slice(TSlice<Int16>((@values[0])^), Length(values)), IComparer<Int16>(comparer));
+          3: IntroSort_Int24(Slice(TSlice<Int24>((@values[0])^), Length(values)), IComparer<Int24>(comparer));
+          4: IntroSort_Int32(Slice(TSlice<Int32>((@values[0])^), Length(values)), IComparer<Int32>(comparer));
+        {$IFDEF PASS_64BIT_VALUE_REGISTER}
+          8: IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(comparer));
+        {$ENDIF}
+        else
+          IntroSort_Ref(@values[0], High(values), IComparerRef(comparer), SizeOf(T))
+        end
+      else
+        IntroSort<T>(values, comparer);
+    tkArray:
+      case SizeOf(T) of
+        1: IntroSort_Int8(Slice(TSlice<Int8>((@values[0])^), Length(values)), IComparer<Int8>(comparer));
+        2: IntroSort_Int16(Slice(TSlice<Int16>((@values[0])^), Length(values)), IComparer<Int16>(comparer));
+        3: IntroSort_Int24(Slice(TSlice<Int24>((@values[0])^), Length(values)), IComparer<Int24>(comparer));
+        4: IntroSort_Int32(Slice(TSlice<Int32>((@values[0])^), Length(values)), IComparer<Int32>(comparer));
+      {$IFDEF PASS_64BIT_VALUE_REGISTER}
+        8: IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(comparer));
+      {$ENDIF}
+      else
+        IntroSort_Ref(@values[0], High(values), IComparerRef(comparer), SizeOf(T));
+      end;
+  else{$ELSE}begin{$ENDIF}
+    IntroSort<T>(values, comparer);
+  end;
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
 end;
 
-class procedure TArray.Sort<T>(var values: array of T;
-  const comparer: IComparer<T>; index, count: Integer);
+class procedure TArray.Sort<T>(var values: array of T; const comparer: IComparer<T>; index, count: Integer);
 begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckNotNull(Assigned(comparer), 'comparer');
-  Guard.CheckRange((index >= 0) and (index <= Length(values)), 'index');
-  Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
+  CheckRange(index, count, Length(values));
+
+  if count > 1 then
+  begin
+    {$R-}
+    {$IFDEF DELPHIXE7_UP}
+    case GetTypeKind(T) of
+      tkInteger, tkChar, tkEnumeration, tkClass, tkWChar, tkLString, tkWString,
+      tkInterface, tkInt64, tkDynArray, tkUString, tkClassRef, tkPointer, tkProcedure:
+        case SizeOf(T) of
+          1: IntroSort_Int8(Slice(TSlice<Int8>((@values[index])^), count), IComparer<Int8>(comparer));
+          2: IntroSort_Int16(Slice(TSlice<Int16>((@values[index])^), count), IComparer<Int16>(comparer));
+          4: IntroSort_Int32(Slice(TSlice<Int32>((@values[index])^), count), IComparer<Int32>(comparer));
+          8: IntroSort_Int64(Slice(TSlice<Int64>((@values[index])^), count), IComparer<Int64>(comparer));
+        end;
+      tkFloat:
+        case SizeOf(T) of
+          4: IntroSort_Single(Slice(TSlice<Single>((@values[index])^), count), IComparer<Single>(comparer));
+          10,16: IntroSort_Extended(Slice(TSlice<Extended>((@values[index])^), count), IComparer<Extended>(comparer));
+        else
+          if GetTypeData(TypeInfo(T)).FloatType = ftDouble then
+            IntroSort_Double(Slice(TSlice<Double>((@values[index])^), count), IComparer<Double>(comparer))
+          else
+            IntroSort_Int64(Slice(TSlice<Int64>((@values[index])^), count), IComparer<Int64>(comparer));
+        end;
+      tkString:
+        IntroSort_Ref(@values[index], count - 1, IComparerRef(comparer), SizeOf(T));
+      tkSet:
+        case SizeOf(T) of
+          1: IntroSort_Int8(Slice(TSlice<Int8>((@values[index])^), count), IComparer<Int8>(comparer));
+          2: IntroSort_Int16(Slice(TSlice<Int16>((@values[index])^), count), IComparer<Int16>(comparer));
+          4: IntroSort_Int32(Slice(TSlice<Int32>((@values[index])^), count), IComparer<Int32>(comparer));
+        {$IFDEF PASS_64BIT_VALUE_REGISTER}
+          8: IntroSort_Int64(Slice(TSlice<Int64>((@values[index])^), count), IComparer<Int64>(comparer));
+        {$ENDIF}
+        else
+          IntroSort_Ref(@values[index], count - 1, IComparerRef(comparer), SizeOf(T));
+        end;
+      tkMethod:
+        IntroSort_Method(Slice(TSlice<TMethodPointer>((@values[index])^), count), IComparer<TMethodPointer>(comparer));
+      tkVariant,
+      {$IF Declared(tkMRecord)}
+      tkMRecord,
+      {$IFEND}
+      tkRecord:
+        if not System.HasWeakRef(T) then
+          case SizeOf(T) of
+            1: IntroSort_Int8(Slice(TSlice<Int8>((@values[index])^), count), IComparer<Int8>(comparer));
+            2: IntroSort_Int16(Slice(TSlice<Int16>((@values[index])^), count), IComparer<Int16>(comparer));
+            3: IntroSort_Int24(Slice(TSlice<Int24>((@values[index])^), count), IComparer<Int24>(comparer));
+            4: IntroSort_Int32(Slice(TSlice<Int32>((@values[index])^), count), IComparer<Int32>(comparer));
+          {$IFDEF PASS_64BIT_VALUE_REGISTER}
+            8: IntroSort_Int64(Slice(TSlice<Int64>((@values[index])^), count), IComparer<Int64>(comparer));
+          {$ENDIF}
+          else
+            IntroSort_Ref(@values[index], count - 1, IComparerRef(comparer), SizeOf(T))
+          end
+        else
+          IntroSort<T>(values, comparer);
+      tkArray:
+        case SizeOf(T) of
+          1: IntroSort_Int8(Slice(TSlice<Int8>((@values[index])^), count), IComparer<Int8>(comparer));
+          2: IntroSort_Int16(Slice(TSlice<Int16>((@values[index])^), count), IComparer<Int16>(comparer));
+          3: IntroSort_Int24(Slice(TSlice<Int24>((@values[index])^), count), IComparer<Int24>(comparer));
+          4: IntroSort_Int32(Slice(TSlice<Int32>((@values[index])^), count), IComparer<Int32>(comparer));
+        {$IFDEF PASS_64BIT_VALUE_REGISTER}
+          8: IntroSort_Int64(Slice(TSlice<Int64>((@values[index])^), count), IComparer<Int64>(comparer));
+        {$ENDIF}
+        else
+          IntroSort_Ref(@values[index], count - 1, IComparerRef(comparer), SizeOf(T));
+        end;
+    else{$ELSE}begin{$ENDIF}
+      IntroSort<T>(values, comparer);
+    end;
+    {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+  end;
+end;
+
+class procedure TArray.Sort<T>(var values: array of T; const comparison: TComparison<T>);
+begin
+  {$R-}
+  {$IFDEF DELPHIXE7_UP}
+  case GetTypeKind(T) of
+    tkInteger, tkChar, tkEnumeration, tkClass, tkWChar, tkLString, tkWString,
+    tkInterface, tkInt64, tkDynArray, tkUString, tkClassRef, tkPointer, tkProcedure:
+      case SizeOf(T) of
+        1: IntroSort_Int8(Slice(TSlice<Int8>((@values[0])^), Length(values)), IComparer<Int8>(PPointer(@comparison)^));
+        2: IntroSort_Int16(Slice(TSlice<Int16>((@values[0])^), Length(values)), IComparer<Int16>(PPointer(@comparison)^));
+        4: IntroSort_Int32(Slice(TSlice<Int32>((@values[0])^), Length(values)), IComparer<Int32>(PPointer(@comparison)^));
+        8: IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(PPointer(@comparison)^));
+      end;
+    tkFloat:
+      case SizeOf(T) of
+        4: IntroSort_Single(Slice(TSlice<Single>((@values[0])^), Length(values)), IComparer<Single>(PPointer(@comparison)^));
+        10,16: IntroSort_Extended(Slice(TSlice<Extended>((@values[0])^), Length(values)), IComparer<Extended>(PPointer(@comparison)^));
+      else
+        if GetTypeData(TypeInfo(T)).FloatType = ftDouble then
+          IntroSort_Double(Slice(TSlice<Double>((@values[0])^), Length(values)), IComparer<Double>(PPointer(@comparison)^))
+        else
+          IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(PPointer(@comparison)^));
+      end;
+    tkString:
+      IntroSort_Ref(@values[0], High(values), IComparerRef(PPointer(@comparison)^), SizeOf(T));
+    tkSet:
+      case SizeOf(T) of
+        1: IntroSort_Int8(Slice(TSlice<Int8>((@values[0])^), Length(values)), IComparer<Int8>(PPointer(@comparison)^));
+        2: IntroSort_Int16(Slice(TSlice<Int16>((@values[0])^), Length(values)), IComparer<Int16>(PPointer(@comparison)^));
+        4: IntroSort_Int32(Slice(TSlice<Int32>((@values[0])^), Length(values)), IComparer<Int32>(PPointer(@comparison)^));
+      {$IFDEF PASS_64BIT_VALUE_REGISTER}
+        8: IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(PPointer(@comparison)^));
+      {$ENDIF}
+      else
+        IntroSort_Ref(@values[0], High(values), IComparerRef(PPointer(@comparison)^), SizeOf(T));
+      end;
+    tkMethod:
+      IntroSort_Method(Slice(TSlice<TMethodPointer>((@values[0])^), Length(values)), IComparer<TMethodPointer>(PPointer(@comparison)^));
+    tkVariant,
+    {$IF Declared(tkMRecord)}
+    tkMRecord,
+    {$IFEND}
+    tkRecord:
+      if not System.HasWeakRef(T) then
+        case SizeOf(T) of
+          1: IntroSort_Int8(Slice(TSlice<Int8>((@values[0])^), Length(values)), IComparer<Int8>(PPointer(@comparison)^));
+          2: IntroSort_Int16(Slice(TSlice<Int16>((@values[0])^), Length(values)), IComparer<Int16>(PPointer(@comparison)^));
+          3: IntroSort_Int24(Slice(TSlice<Int24>((@values[0])^), Length(values)), IComparer<Int24>(PPointer(@comparison)^));
+          4: IntroSort_Int32(Slice(TSlice<Int32>((@values[0])^), Length(values)), IComparer<Int32>(PPointer(@comparison)^));
+        {$IFDEF PASS_64BIT_VALUE_REGISTER}
+          8: IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(PPointer(@comparison)^));
+        {$ENDIF}
+        else
+          IntroSort_Ref(@values[0], High(values), IComparerRef(PPointer(@comparison)^), SizeOf(T))
+        end
+      else
+        IntroSort<T>(values, IComparer<T>(PPointer(@comparison)^));
+    tkArray:
+      case SizeOf(T) of
+        1: IntroSort_Int8(Slice(TSlice<Int8>((@values[0])^), Length(values)), IComparer<Int8>(PPointer(@comparison)^));
+        2: IntroSort_Int16(Slice(TSlice<Int16>((@values[0])^), Length(values)), IComparer<Int16>(PPointer(@comparison)^));
+        3: IntroSort_Int24(Slice(TSlice<Int24>((@values[0])^), Length(values)), IComparer<Int24>(PPointer(@comparison)^));
+        4: IntroSort_Int32(Slice(TSlice<Int32>((@values[0])^), Length(values)), IComparer<Int32>(PPointer(@comparison)^));
+      {$IFDEF PASS_64BIT_VALUE_REGISTER}
+        8: IntroSort_Int64(Slice(TSlice<Int64>((@values[0])^), Length(values)), IComparer<Int64>(PPointer(@comparison)^));
+      {$ENDIF}
+      else
+        IntroSort_Ref(@values[0], High(values), IComparerRef(PPointer(@comparison)^), SizeOf(T));
+      end;
+  else{$ELSE}begin{$ENDIF}
+    IntroSort<T>(values, IComparer<T>(PPointer(@comparison)^));
+  end;
+  {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+end;
+
+class procedure TArray.Sort<T>(var values: array of T; const comparison: TComparison<T>; index, count: Integer);
+begin
+  CheckRange(index, count, Length(values));
+
+  if count > 1 then
+  begin
+    {$R-}
+    {$IFDEF DELPHIXE7_UP}
+    case GetTypeKind(T) of
+      tkInteger, tkChar, tkEnumeration, tkClass, tkWChar, tkLString, tkWString,
+      tkInterface, tkInt64, tkDynArray, tkUString, tkClassRef, tkPointer, tkProcedure:
+        case SizeOf(T) of
+          1: IntroSort_Int8(Slice(TSlice<Int8>((@values[index])^), count), IComparer<Int8>(PPointer(@comparison)^));
+          2: IntroSort_Int16(Slice(TSlice<Int16>((@values[index])^), count), IComparer<Int16>(PPointer(@comparison)^));
+          4: IntroSort_Int32(Slice(TSlice<Int32>((@values[index])^), count), IComparer<Int32>(PPointer(@comparison)^));
+          8: IntroSort_Int64(Slice(TSlice<Int64>((@values[index])^), count), IComparer<Int64>(PPointer(@comparison)^));
+        end;
+      tkFloat:
+        case SizeOf(T) of
+          4: IntroSort_Single(Slice(TSlice<Single>((@values[index])^), count), IComparer<Single>(PPointer(@comparison)^));
+          10,16: IntroSort_Extended(Slice(TSlice<Extended>((@values[index])^), count), IComparer<Extended>(PPointer(@comparison)^));
+        else
+          if GetTypeData(TypeInfo(T)).FloatType = ftDouble then
+            IntroSort_Double(Slice(TSlice<Double>((@values[index])^), count), IComparer<Double>(PPointer(@comparison)^))
+          else
+            IntroSort_Int64(Slice(TSlice<Int64>((@values[index])^), count), IComparer<Int64>(PPointer(@comparison)^));
+        end;
+      tkString:
+        IntroSort_Ref(@values[index], count - 1, IComparerRef(PPointer(@comparison)^), SizeOf(T));
+      tkSet:
+        case SizeOf(T) of
+          1: IntroSort_Int8(Slice(TSlice<Int8>((@values[index])^), count), IComparer<Int8>(PPointer(@comparison)^));
+          2: IntroSort_Int16(Slice(TSlice<Int16>((@values[index])^), count), IComparer<Int16>(PPointer(@comparison)^));
+          4: IntroSort_Int32(Slice(TSlice<Int32>((@values[index])^), count), IComparer<Int32>(PPointer(@comparison)^));
+        {$IFDEF PASS_64BIT_VALUE_REGISTER}
+          8: IntroSort_Int64(Slice(TSlice<Int64>((@values[index])^), count), IComparer<Int64>(PPointer(@comparison)^));
+        {$ENDIF}
+        else
+          IntroSort_Ref(@values[index], count - 1, IComparerRef(PPointer(@comparison)^), SizeOf(T));
+        end;
+      tkMethod:
+        IntroSort_Method(Slice(TSlice<TMethodPointer>((@values[index])^), count), IComparer<TMethodPointer>(PPointer(@comparison)^));
+      tkVariant,
+      {$IF Declared(tkMRecord)}
+      tkMRecord,
+      {$IFEND}
+      tkRecord:
+        if not System.HasWeakRef(T) then
+          case SizeOf(T) of
+            1: IntroSort_Int8(Slice(TSlice<Int8>((@values[index])^), count), IComparer<Int8>(PPointer(@comparison)^));
+            2: IntroSort_Int16(Slice(TSlice<Int16>((@values[index])^), count), IComparer<Int16>(PPointer(@comparison)^));
+            3: IntroSort_Int24(Slice(TSlice<Int24>((@values[index])^), count), IComparer<Int24>(PPointer(@comparison)^));
+            4: IntroSort_Int32(Slice(TSlice<Int32>((@values[index])^), count), IComparer<Int32>(PPointer(@comparison)^));
+          {$IFDEF PASS_64BIT_VALUE_REGISTER}
+            8: IntroSort_Int64(Slice(TSlice<Int64>((@values[index])^), count), IComparer<Int64>(PPointer(@comparison)^));
+          {$ENDIF}
+          else
+            IntroSort_Ref(@values[index], count - 1, IComparerRef(PPointer(@comparison)^), SizeOf(T))
+          end
+        else
+          IntroSort<T>(values, IComparer<T>(PPointer(@comparison)^));
+      tkArray:
+        case SizeOf(T) of
+          1: IntroSort_Int8(Slice(TSlice<Int8>((@values[index])^), count), IComparer<Int8>(PPointer(@comparison)^));
+          2: IntroSort_Int16(Slice(TSlice<Int16>((@values[index])^), count), IComparer<Int16>(PPointer(@comparison)^));
+          3: IntroSort_Int24(Slice(TSlice<Int24>((@values[index])^), count), IComparer<Int24>(PPointer(@comparison)^));
+          4: IntroSort_Int32(Slice(TSlice<Int32>((@values[index])^), count), IComparer<Int32>(PPointer(@comparison)^));
+        {$IFDEF PASS_64BIT_VALUE_REGISTER}
+          8: IntroSort_Int64(Slice(TSlice<Int64>((@values[index])^), count), IComparer<Int64>(PPointer(@comparison)^));
+        {$ENDIF}
+        else
+          IntroSort_Ref(@values[index], count - 1, IComparerRef(PPointer(@comparison)^), SizeOf(T));
+        end;
+    else{$ELSE}begin{$ENDIF}
+      IntroSort<T>(values, IComparer<T>(PPointer(@comparison)^));
+    end;
+    {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+  end;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TTimSort'}
+
+{$IFDEF DELPHIXE7_UP}
+procedure TTimSort.Initialize(const comparer: IInterface;
+  const compareFunc: Pointer; mergeLo, mergeHi: TMergeFunc;
+  arrayTypeInfo: PTypeInfo; itemSize: Integer);
+begin
+  TMethod(fCompare).Data := Pointer(comparer);
+  TMethod(fCompare).Code := PPVTable(comparer)^[3];
+  TMethod(fCompareFunc).Code := compareFunc;
+  TMethod(fCompareFunc).Data := @TMethod(fCompare);
+  fMergeLo := mergeLo;
+  fMergeHi := mergeHi;
+  fTmp := nil;
+  fItemSize := itemSize;
+  fMinGallop := MIN_GALLOP;
+  fStackLen := 0;
+  fArrayTypeInfo := arrayTypeInfo;
+end;
+
+procedure TTimSort.Finalize;
+begin
+  DynArrayClear(fTmp, fArrayTypeInfo);
+end;
+
+function TTimSort.at(items: Pointer; index: Integer): Pointer;
+begin
+  Result := PByte(items) + index * fItemSize;
+end;
+
+class function TTimSort.CompareThunk<T>(instance: Pointer; const left, right): Integer;
+begin
+  Result := TComparerMethod<T>(instance^)(T(left), T(right));
+end;
+
+class procedure TTimSort.BinaryInsertionSort<T>(var values: array of T;
+  start: NativeInt; const comparer: IComparer<T>);
+var
+  index, count, right: NativeInt;
+  pivot: T;
+  compare: TComparerMethod<T>;
+begin
+  TMethod(compare).Data := Pointer(comparer);
+  TMethod(compare).Code := PPVTable(comparer)^[3];
+  while start <= High(values) do
+  begin
+    count := start;
+    index := 0;
+    if count > 0 then
+    repeat
+      right := index + (1 and count);
+      count := count shr 1;
+      right := right + count;
+      if compare(values[index + count], values[start]) > 0 then Continue;
+      index := right;
+    until count = 0;
+    if index < start then
+    begin
+      pivot := values[start];
+      if TType.HasWeakRef<T> then
+        MoveManaged(@values[index], @values[index+1], TypeInfo(T), start - index)
+      else
+      begin
+        if TType.IsManaged<T> then
+          System.Finalize(values[start]);
+        Move(values[index], values[index+1], SizeOf(T) * (start - index));
+        if TType.IsManaged<T> then
+          System.FillChar(values[index], SizeOf(T), 0);
+      end;
+      values[index] := pivot;
+    end;
+    Inc(start);
+  end;
+end;
+
+class function TTimSort.CountRunAndMakeAscending<T>(var values: array of T;
+  const comparer: IComparer<T>): Integer;
+var
+  {$POINTERMATH ON}
+  items: ^T;
+  {$POINTERMATH ON}
+  compare: TComparerMethod<T>;
+begin
+  TMethod(compare).Data := Pointer(comparer);
+  TMethod(compare).Code := PPVTable(comparer)^[3];
+  Result := 1;
+  if High(values) > 0 then
+  begin
+    items := @values[0];
+    // descending?
+    if compare(items[0], items[1]) > 0 then
+    begin
+      // find end of run, and reverse range if descending
+      while (Result < High(values)) and (compare(items[Result], items[Result + 1]) > 0) do
+        Inc(Result);
+      TArray.Reverse<T>(items, Result);
+    end;
+    (* ascending
+       even if the run was initially descending, after reversing it the
+       following elements may form an ascending continuation of the
+       now-reversed run.
+       unconditionally attempt to continue the ascending run *)
+    repeat
+      Inc(Result);
+    until (Result > High(values)) or (compare(items[Result-1], items[Result]) > 0);
+  end;
+end;
+
+class function TTimSort.MinRunLength(n: Integer): Integer;
+var
+  r: Integer;
+begin
+  Assert(n >= 0);
+  r := 0; // becomes 1 if any 1 bits are shifted off
+  while n >= MIN_MERGE do
+  begin
+    r := r or (n and 1);
+    n := n shr 1;
+  end;
+  Result := n + r;
+end;
+
+procedure TTimSort.PushRun(runBase: Pointer; runLen: Integer);
+begin
+  with fRuns[fStackLen] do
+  begin
+    base := runBase;
+    len := runLen;
+  end;
+  Inc(fStackLen);
+end;
+
+procedure TTimSort.MergeCollapse;
+var
+  n: Integer;
+  p: PSlice;
+begin
+  p := @fRuns[0];
+
+  while fStackLen > 1 do
+  begin
+    n := fStackLen - 2;
+    if (n > 0) and (p[n-1].len <= p[n].len + p[n+1].len) then
+    begin
+      if p[n-1].len < p[n+1].len then
+        Dec(n);
+      MergeAt(n);
+    end
+    else if p[n].len <= p[n+1].len then
+      MergeAt(n)
+    else
+      Break; // invariant is established
+  end;
+end;
+
+procedure TTimSort.MergeForceCollapse;
+var
+  n: Integer;
+  p: PSlice;
+begin
+  p := @fRuns[0];
+
+  while fStackLen > 1 do
+  begin
+    n := fStackLen - 2;
+    if (n > 0) and (p[n-1].len < p[n+1].len) then
+      Dec(n);
+    MergeAt(n);
+  end;
+end;
+
+procedure TTimSort.MergeAt(i: Integer);
+var
+  left, right: Pointer;
+  leftLen, rightLen, k: Integer;
+begin
+  Assert(fStackLen >= 2);
+  Assert(i >= 0);
+  Assert((i = fStackLen - 2) or (i = fStackLen - 3));
+
+  with fRuns[i] do
+  begin
+    left := base;
+    leftLen := len;
+  end;
+  with fRuns[i+1] do
+  begin
+    right := base;
+    rightLen := len;
+  end;
+  Assert(leftLen > 0);
+  Assert(rightLen > 0);
+  Assert(at(left, leftLen) = right);
+
+  (* Record the length of the combined runs; if i is the 3rd-last run now, also slide over the
+     last run (which isn't involved in this merge).  The current run (i+1) goes away in any case. *)
+  fRuns[i].len := leftLen + rightLen;
+  if i = fStackLen - 3 then
+    fRuns[i+1] := fRuns[i+2];
+  Dec(fStackLen);
+
+  (* Find where the first element of run2 goes in run1. Prior elements in run1 can be ignored
+     because they're already in place. *)
+  k := GallopRight(right, left, leftLen, 0);
+  Assert(k >= 0);
+  left := at(left, k);
+  Dec(leftLen, k);
+  if leftLen = 0 then
+    Exit;
+
+  (* Find where the last element of left goes in right. Subsequent elements in right can be
+     ignored because they're already in place. *)
+  rightLen := GallopLeft(at(left, leftLen - 1), right, rightLen, rightLen - 1);
+  Assert(rightLen >= 0);
+  if rightLen = 0 then
+    Exit;
+
+  // merge remaining runs, using tmp array with min(leftLen, rightLen) elements
+  if leftLen <= rightLen then
+    fMergeLo(left, leftLen, right, rightLen, @Self)
+  else
+    fMergeHi(left, leftLen, right, rightLen, @Self);
+end;
+
+function TTimSort.GallopLeft(key: Pointer; items: Pointer; len, hint: Integer): Integer;
+var
+  lastOfs, ofs, maxOfs, k, m: Integer;
+begin
+  Assert(len > 0);
+  Assert(hint >= 0);
+  Assert(hint < len);
+
+  items := at(items, hint);
+  lastOfs := 0;
+  ofs := 1;
+  if fCompareFunc(items^, key^) < 0 then
+  begin
+    (* items[hint] < key -- gallop right, until
+       items[hint + lastOfs] < key <= items[hint + ofs] *)
+    maxOfs := len - hint;
+    while (ofs < maxOfs) and (fCompareFunc(at(items, ofs)^, key^) < 0) do
+    begin
+      lastOfs := ofs;
+      Assert(ofs <= (MaxInt - 1) div 2);
+      ofs := (ofs shl 1) + 1;
+    end;
+    if ofs > maxOfs then
+      ofs := maxOfs;
+
+    // Translate back to offsets relative to items[0].
+    Inc(lastOfs, hint);
+    Inc(ofs, hint);
+  end
+  else
+  begin
+    (* key <= items[hint] -- gallop left, until
+       items[hint - ofs] < key <= items[hint - lastOfs] *)
+    maxOfs := hint + 1;
+    while (ofs < maxOfs) and (fCompareFunc(at(items, -ofs)^, key^) >= 0) do
+    begin
+      lastOfs := ofs;
+      Assert(ofs <= (MaxInt - 1) div 2);
+      ofs := (ofs shl 1) + 1;
+    end;
+    if ofs > maxOfs then
+      ofs := maxOfs;
+
+    // Translate back to positive offsets relative to items[0].
+    k := lastOfs;
+    lastOfs := hint - ofs;
+    ofs := hint - k;
+  end;
+  items := at(items, -hint);
+
+  Assert(-1 <= lastOfs);
+  Assert(lastOfs < ofs);
+  Assert(ofs <= len);
+
+  (* Now items[lastOfs] < key <= items[ofs], so key belongs somewhere to the
+     right of lastOfs but no farther right than ofs.  Do a binary
+     search, with invariant items[lastOfs-1] < key <= item[ofs]. *)
+  Inc(lastOfs);
+  while lastOfs < ofs do
+  begin
+    m := lastOfs + ((ofs - lastOfs) shr 1);
+    if fCompareFunc(at(items, m)^, key^) < 0 then
+      lastOfs := m + 1    // items[m] < key
+    else
+      ofs := m;           // key <= items[m]
+  end;
+  Assert(lastOfs = ofs);  // so items[ofs-1] < key <= items[ofs]
+  Result := ofs;
+end;
+
+function TTimSort.GallopRight(key: Pointer; items: Pointer; len, hint: Integer): Integer;
+var
+  lastOfs, ofs, maxOfs, k, m: Integer;
+begin
+  Assert(len > 0);
+  Assert(hint >= 0);
+  Assert(hint < len);
+
+  items := at(items, hint);
+  lastOfs := 0;
+  ofs := 1;
+  if fCompareFunc(key^, items^) < 0 then
+  begin
+    (* key < items[hint] -- gallop left, until
+       items[hint - ofs] <= key < items[hint - lastOfs] *)
+    maxOfs := hint + 1;
+    while (ofs < maxOfs) and (fCompareFunc(key^, at(items, -ofs)^) < 0) do
+    begin
+      lastOfs := ofs;
+      Assert(ofs <= (MaxInt - 1) div 2);
+      ofs := (ofs shl 1) + 1;
+    end;
+    if ofs > maxOfs then
+      ofs := maxOfs;
+
+    // Translate back to positive offsets relative to items[0].
+    k := lastOfs;
+    lastOfs := hint - ofs;
+    ofs := hint - k;
+  end
+  else
+  begin
+    (* items[hint] <= key -- gallop right, until
+       items[hint + lastOfs] <= key < items[hint + ofs] *)
+    maxOfs := len - hint;
+    while (ofs < maxOfs) and (fCompareFunc(key^, at(items, ofs)^) >= 0) do
+    begin
+      lastOfs := ofs;
+      Assert(ofs <= (MaxInt - 1) div 2);
+      ofs := (ofs shl 1) + 1;
+    end;
+    if ofs > maxOfs then
+      ofs := maxOfs;
+
+    // Translate back to offsets relative to items[0].
+    Inc(lastOfs, hint);
+    Inc(ofs, hint);
+  end;
+  items := at(items, -hint);
+
+  Assert(-1 <= lastOfs);
+  Assert(lastOfs < ofs);
+  Assert(ofs <= len);
+
+  (* Now items[lastOfs] <= key < items[ofs], so key belongs somewhere to the
+     right of lastOfs but no farther right than ofs.  Do a binary
+     search, with invariant items[lastOfs-1] <= key < items[ofs]. *)
+  Inc(lastOfs);
+  while lastOfs < ofs do
+  begin
+    m := lastOfs + ((ofs - lastOfs) shr 1);
+    if fCompareFunc(key^, at(items, m)^) < 0 then
+      ofs := m            // key < items[m]
+    else
+      lastOfs := m + 1;   // items[m] <= key
+  end;
+  Assert(lastOfs = ofs);  // so items[ofs-1] <= key < items[ofs]
+  Result := ofs;
+end;
+
+function TTimSort.EnsureTmpCapacity(neededCapacity: Integer): Pointer;
+begin
+  if DynArrayLength(fTmp) < neededCapacity then
+    Grow(neededCapacity);
+  Result := fTmp;
+end;
+
+procedure TTimSort.Grow(neededCapacity: NativeInt);
+begin
+  neededCapacity := NextPowerOf2(neededCapacity);
+  DynArraySetLength(fTmp, fArrayTypeInfo, 1, @neededCapacity);
+end;
+
+class procedure TTimSort.MergeLo<T>(left: Pointer<T>.P; leftLen: Integer; right: Pointer<T>.P; rightLen: Integer; ts: PTimSort);
+label
+  copyLeft, copyRight, gallopLeft, gallopRight;
+var
+  dest: Pointer<T>.P;
+  leftCount, rightCount: Integer;
+{$IF Defined(DELPHIX_TOKYO_UP) Defined(WIN64) and Defined(OPTIMIZATION_ON)}
+  // Win64 with O+ has a codegen glitch as it later moves value from an uninitialized register
+  temp_ts: PTimSort;
+{$IFEND}
+begin
+  Assert(leftLen > 0);
+  Assert(rightLen > 0);
+  Assert(left + leftLen = right);
+{$IF Declared(temp_ts)}
+  temp_ts := ts;
+{$IFEND}
+
+  // copy first run into temp array
+  dest := left;
+  left := ts.EnsureTmpCapacity(leftLen);
+  if TType.IsManaged<T> then
+    MoveManaged(dest, left, TypeInfo(T), leftLen)
+  else
+    Move(dest^, left^, SizeOf(T) * leftLen);
+
+  // move first element of second run and deal with degenerate cases
+  dest^ := right^;
+  Inc(dest);
+  Inc(right);
+  Dec(rightLen);
+  if rightLen = 0 then
+    goto copyLeft;
+  if leftLen = 1 then
+    goto copyRight;
+
+  while True do
+  begin
+    leftCount := 0; // number of times in a row that first run won
+    rightCount := 0; // number of times in a row that second run won
+
+    // do the straightforward thing until (if ever) one run starts winning consistently
+    while True do
+    begin
+      Assert(leftLen > 1);
+      Assert(rightLen > 0);
+      if TComparerMethod<T>(ts.fCompare)(right^, left^) < 0 then
+      begin
+        dest^ := right^;
+        Inc(dest);
+        Inc(right);
+        Inc(rightCount);
+        leftCount := 0;
+        Dec(rightLen);
+        if rightLen = 0 then
+          goto copyLeft;
+        if rightCount >= ts.fMinGallop then
+          goto gallopLeft;
+      end
+      else
+      begin
+        dest^ := left^;
+        Inc(dest);
+        Inc(left);
+        Inc(leftCount);
+        rightCount := 0;
+        Dec(leftLen);
+        if leftLen = 1 then
+          goto copyRight;
+        if leftCount >= ts.fMinGallop then
+          goto gallopRight;
+      end;
+    end;
+
+    (* One run is winning so consistently that galloping may be a huge win. So
+       try that, and continue galloping until (if ever) neither run appears to
+       be winning consistently anymore. *)
+    Inc(ts.fMinGallop);
+    repeat
+      Assert(leftLen > 1);
+      Assert(rightLen > 0);
+      Dec(ts.fMinGallop, Integer(ts.fMinGallop > 1));
+
+    gallopRight:
+      leftCount := ts.GallopRight(right, left, leftLen, 0);
+      if leftCount <> 0 then
+      begin
+        if TType.IsManaged<T> then
+          MoveManaged(left, dest, TypeInfo(T), leftCount)
+        else
+          Move(left^, dest^, SizeOf(T) * leftCount);
+        Inc(dest, leftCount);
+        Inc(left, leftCount);
+        Dec(leftLen, leftCount);
+        if leftLen = 1 then
+          goto copyRight;
+        if leftLen = 0 then
+          goto copyLeft;
+      end;
+      dest^ := right^;
+      Inc(dest);
+      Inc(right);
+      Dec(rightLen);
+      if rightLen = 0 then
+        goto copyLeft;
+
+    gallopLeft:
+{$IF Declared(temp_ts)}
+      ts := temp_ts;
+{$IFEND}
+      rightCount := ts.GallopLeft(left, right, rightLen, 0);
+      if rightCount <> 0 then
+      begin
+        if TType.IsManaged<T> then
+          MoveManaged(right, dest, TypeInfo(T), rightCount)
+        else
+          Move(right^, dest^, SizeOf(T) * rightCount);
+        Inc(dest, rightCount);
+        Inc(right, rightCount);
+        Dec(rightLen, rightCount);
+        if rightLen = 0 then
+          goto copyLeft;
+      end;
+      dest^ := left^;
+      Inc(dest);
+      Inc(left);
+      Dec(leftLen);
+      if leftLen = 1 then
+        goto copyRight;
+    until (leftCount < MIN_GALLOP) and (rightCount < MIN_GALLOP);
+    Inc(ts.fMinGallop); // penalize it for leaving galloping mode
+  end;
+
+copyLeft:
+  if leftLen > 0 then
+    if TType.IsManaged<T> then
+      MoveManaged(left, dest, TypeInfo(T), leftLen)
+    else
+      Move(left^, dest^, SizeOf(T) * leftLen);
+  Exit;
+copyRight:
+  Assert(leftLen = 1); //FI:W509
+  Assert(rightLen > 0);
+  if TType.IsManaged<T> then
+    MoveManaged(right, dest, TypeInfo(T), rightLen)
+  else
+    Move(right^, dest^, SizeOf(T) * rightLen);
+  dest[rightLen] := left^;
+end;
+
+class procedure TTimSort.MergeHi<T>(left: Pointer<T>.P; leftLen: Integer; right: Pointer<T>.P; rightLen: Integer; ts: PTimSort);
+label
+  copyLeft, copyRight, gallopLeft, gallopRight;
+var
+  dest, leftBase, rightBase: Pointer<T>.P;
+  leftCount, rightCount: Integer;
+{$IF Defined(DELPHIX_TOKYO_UP) Defined(WIN64) and Defined(OPTIMIZATION_ON)}
+  // Win64 with O+ has a codegen glitch as it later moves value from an uninitialized register
+  temp_ts: PTimSort;
+{$IFEND}
+begin
+  Assert(leftLen > 0);
+  Assert(rightLen > 0);
+  Assert(left + leftLen = right);
+{$IF Declared(temp_ts)}
+  temp_ts := ts;
+{$IFEND}
+
+  // copy second run into temp array
+  rightBase := ts.EnsureTmpCapacity(rightLen);
+  dest := right + rightLen - 1;
+  if TType.IsManaged<T> then
+    MoveManaged(right, rightBase, TypeInfo(T), rightLen)
+  else
+    Move(right^, rightBase^, SizeOf(T) * rightLen);
+  leftBase := left;
+  right := rightBase + rightLen - 1;
+  Inc(left, leftLen - 1);
+
+  // move last element of first run and deal with degenerate cases
+  dest^ := left^;
+  Dec(dest);
+  Dec(left);
+  Dec(leftLen);
+  if leftLen = 0 then
+    goto copyRight;
+  if rightLen = 1 then
+    goto copyLeft;
+
+  while True do
+  begin
+    leftCount := 0; // number of times in a row that first run won
+    rightCount := 0; // number of times in a row that second run won
+
+    // do the straightforward thing until (if ever) one run appears to win consistently
+    while True do
+    begin
+      Assert(leftLen > 0);
+      Assert(rightLen > 1);
+      if TComparerMethod<T>(ts.fCompare)(right^, left^) < 0 then
+      begin
+        dest^ := left^;
+        Dec(dest);
+        Dec(left);
+        Inc(leftCount);
+        rightCount := 0;
+        Dec(leftLen);
+        if leftLen = 0 then
+          goto copyRight;
+        if leftCount >= ts.fMinGallop then
+          goto gallopRight;
+      end
+      else
+      begin
+        dest^ := right^;
+        Dec(dest);
+        Dec(right);
+        Inc(rightCount);
+        leftCount := 0;
+        Dec(rightLen);
+        if rightLen = 1 then
+          goto copyLeft;
+        if rightCount >= ts.fMinGallop then
+          goto gallopLeft;
+      end;
+    end;
+
+    (* One run is winning so consistently that galloping may be a huge win.
+       So try that, and continue galloping until (if ever) neither run appears
+       to be winning consistently anymore. *)
+    Inc(ts.fMinGallop);
+    repeat
+      Assert(leftLen > 0);
+      Assert(rightLen > 1);
+      Dec(ts.fMinGallop, Integer(ts.fMinGallop > 1));
+
+    gallopRight:
+      leftCount := leftLen - ts.GallopRight(right, leftBase, leftLen, leftLen - 1);
+      if leftCount <> 0 then
+      begin
+        Dec(dest, leftCount);
+        Dec(left, leftCount);
+        if TType.IsManaged<T> then
+          MoveManaged(@left[1], @dest[1], TypeInfo(T), leftCount)
+        else
+          Move(left[1], dest[1], SizeOf(T) * leftCount);
+        Dec(leftLen, leftCount);
+        if leftLen = 0 then
+          goto copyRight;
+      end;
+      dest^ := right^;
+      Dec(dest);
+      Dec(right);
+      Dec(rightLen);
+      if rightLen = 1 then
+        goto copyLeft;
+
+    gallopLeft:
+{$IF Declared(temp_ts)}
+      ts := temp_ts;
+{$IFEND}
+      rightCount := rightLen - ts.GallopLeft(left, rightBase, rightLen, rightLen - 1);
+      if rightCount <> 0 then
+      begin
+        Dec(dest, rightCount);
+        Dec(right, rightCount);
+        if TType.IsManaged<T> then
+          MoveManaged(@right[1], @dest[1], TypeInfo(T), rightCount)
+        else
+          Move(right[1], dest[1], SizeOf(T) * rightCount);
+        Dec(rightLen, rightCount);
+        if rightLen = 1 then
+          goto copyLeft;
+        if rightLen = 0 then
+          goto copyRight;
+      end;
+      dest^ := left^;
+      Dec(dest);
+      Dec(left);
+      Dec(leftLen);
+      if leftLen = 0 then
+        goto copyRight;
+    until (leftCount < MIN_GALLOP) and (rightCount < MIN_GALLOP);
+    Inc(ts.fMinGallop); // penalize for leaving gallop mode
+  end;
+
+copyRight:
+  if rightLen > 0 then
+    if TType.IsManaged<T> then
+      MoveManaged(rightBase, @dest[-(rightLen - 1)], TypeInfo(T), rightLen)
+    else
+      Move(rightBase^, dest[-(rightLen - 1)], SizeOf(T) * rightLen);
+  Exit;
+copyLeft:
+  Assert(rightLen = 1); //FI:W509
+  Assert(leftLen > 0);
+  Dec(dest, leftLen);
+  Dec(left, leftLen);
+  if TType.IsManaged<T> then
+    MoveManaged(@left[1], @dest[1], TypeInfo(T), leftLen)
+  else
+    Move(left[1], dest[1], SizeOf(T) * leftLen);
+  dest^ := right^;
+end;
+
+class procedure TTimSort.Sort(items: Pointer; const comparer: IComparer<Pointer>; index, count: Integer);
+begin
+  TTimSort.Sort<Pointer>(items, comparer, index, count);
+end;
+
+class procedure TTimSort.Sort<T>(items: Pointer; const comparer: IComparer<T>; index, count: Integer);
+var
+  runLen, minRun: Integer;
+  force: Integer;
+  ts: TTimSort;
+begin
+  Assert(index >= 0);
+  Assert(count >= 0);
+
+  if count < 2 then
+    Exit; // arrays of length 0 and 1 are always sorted
+
+  Inc(PByte(items), index * SizeOf(T));
+
+  // if array is small, do a "mini-TimSort" with no merges
+  if count < MIN_MERGE then
+  begin
+    {$R-}
+    runLen := CountRunAndMakeAscending<T>(Slice(TSlice<T>(items^), count), comparer);
+    if GetTypeKind(T) in TArray.ManagedPointerTypeKinds then
+      BinaryInsertionSort<Pointer>(Slice(TSlice<Pointer>(items^), count), runLen, IComparer<Pointer>(comparer))
+    else
+      BinaryInsertionSort<T>(Slice(TSlice<T>(items^), count), runLen, comparer);
+    {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+    Exit;
+  end;
+
+  ts.Initialize(comparer, @CompareThunk<T>, @TTimSort.MergeLo<T>, @TTimSort.MergeHi<T>, TypeInfo(TArray<T>), Integer(SizeOf(T)));
+  try
+    (* March over the array once, left to right, finding natural runs, extending short
+       natural runs to minRun elements, and merging runs to maintain stack invariant. *)
+    minRun := MinRunLength(count);
+    repeat
+      // identify next run
+      {$R-}
+      runLen := CountRunAndMakeAscending<T>(Slice(TSlice<T>(items^), count), comparer);
+
+      // if run is short, extend to min(minRun, count)
+      if runLen < minRun then
+      begin
+        if count <= minRun then
+          force := count
+        else
+          force := minRun;
+        if GetTypeKind(T) in TArray.ManagedPointerTypeKinds then
+          BinaryInsertionSort<Pointer>(Slice(TSlice<Pointer>(items^), force), runLen, IComparer<Pointer>(comparer))
+        else
+          BinaryInsertionSort<T>(Slice(TSlice<T>(items^), force), runLen, comparer);
+        runLen := force;
+      end;
+      {$IFDEF RANGECHECKS_ON}{$R+}{$ENDIF}
+
+      // push run onto pending-run stack, and maybe merge
+      ts.PushRun(items, runLen);
+      ts.MergeCollapse;
+
+      // advance to find next run
+      Inc(PByte(items), runLen * SizeOf(T));
+      Dec(count, runLen);
+    until count = 0;
+
+    // Merge all remaining runs to complete sort
+    ts.MergeForceCollapse;
+    Assert(ts.fStackLen = 1);
+  finally
+    ts.Finalize;
+  end;
+end;
 {$ENDIF}
 
-  if count <= 1 then
-    Exit;
-  IntroSort<T>(values, comparer, index, index + count - 1, GetDepthLimit(count));
-end;
+{$ENDREGION}
 
-class procedure TArray.Sort<T>(var values: array of T;
-  const comparison: TComparison<T>);
-begin
-  IntroSort<T>(values, IComparer<T>(PPointer(@comparison)^),
-    Low(values), High(values), GetDepthLimit(Length(values)));
-end;
 
-class procedure TArray.Sort<T>(var values: array of T;
-  const comparison: TComparison<T>; index, count: Integer);
+{$REGION 'TTypeInfo<T>'}
+
+{$IFNDEF DELPHIXE7_UP}
+class constructor TTypeInfo<T>.Create;
 begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckNotNull(Assigned(comparison), 'comparison');
-  Guard.CheckRange((index >= 0) and (index <= Length(values)), 'index');
-  Guard.CheckRange((count >= 0) and (count <= Length(values) - index), 'count');
+{$IFDEF WEAKREF}
+  fHasWeakRef := TType.HasWeakRef<T>;
+{$ENDIF}
+  fIsManaged := TType.IsManaged<T>;
+end;
+{$ELSE}
+{$IFDEF WEAKREF}
+class function TTypeInfo<T>.GetHasWeakRef: Boolean;
+begin
+  Result := System.HasWeakRef(T);
+end;
 {$ENDIF}
 
-  if count <= 1 then
-    Exit;
-  IntroSort<T>(values, IComparer<T>(PPointer(@comparison)^),
-    index, index + count - 1, GetDepthLimit(count));
+class function TTypeInfo<T>.GetIsManaged: Boolean;
+begin
+  Result := System.IsManagedType(T);
 end;
+{$ENDIF}
 
 {$ENDREGION}
 
@@ -9311,7 +13610,7 @@ end;
 {$REGION 'Vector<T>'}
 
 class function VectorHelper.InternalIndexOfInt8(const data: Pointer;
-  const item: ShortInt): Integer;
+  const item: ShortInt): NativeInt;
 begin
   for Result := 0 to High(TArray<ShortInt>(data)) do
     if TArray<ShortInt>(data)[Result] = item then
@@ -9320,7 +13619,7 @@ begin
 end;
 
 class function VectorHelper.InternalIndexOfInt16(const data: Pointer;
-  const item: SmallInt): Integer;
+  const item: SmallInt): NativeInt;
 begin
   for Result := 0 to High(TArray<SmallInt>(data)) do
     if TArray<SmallInt>(data)[Result] = item then
@@ -9329,7 +13628,7 @@ begin
 end;
 
 class function VectorHelper.InternalIndexOfInt32(const data:Pointer;
-  const item: Integer): Integer;
+  const item: Integer): NativeInt;
 begin
   for Result := 0 to High(TArray<Integer>(data)) do
     if TArray<Integer>(data)[Result] = item then
@@ -9338,7 +13637,7 @@ begin
 end;
 
 class function VectorHelper.InternalIndexOfInt64(const data: Pointer;
-  const item: Int64): Integer;
+  const item: Int64): NativeInt;
 begin
   for Result := 0 to High(TArray<Int64>(data)) do
     if TArray<Int64>(data)[Result] = item then
@@ -9347,7 +13646,7 @@ begin
 end;
 
 class function VectorHelper.InternalIndexOfStr(const data: Pointer;
-  const item: string): Integer;
+  const item: string): NativeInt;
 begin
   for Result := 0 to High(TArray<string>(data)) do
     if TArray<string>(data)[Result] = item then
@@ -9390,7 +13689,7 @@ begin
   Result.Add(right);
 end;
 
-function Vector<T>.Add(const item: T): Integer;
+function Vector<T>.Add(const item: T): NativeInt;
 begin
   Result := System.Length(fData);
   SetLength(fData, Result + 1);
@@ -9422,7 +13721,11 @@ end;
 
 procedure Vector<T>.Assign(const items: array of T);
 begin
-  fData := TArray.Copy<T>(items);
+  SetLength(fData, System.Length(items));
+  if TType.IsManaged<T> then
+    MoveManaged(@items[0], fData, TypeInfo(T), System.Length(items))
+  else
+    Move(items[0], fData[0], SizeOf(T) * System.Length(items));
 end;
 
 procedure Vector<T>.Clear;
@@ -9430,14 +13733,16 @@ begin
   fData := nil;
 end;
 
-function Vector<T>.IndexOf(const item: T): Integer;
+function Vector<T>.IndexOf(const item: T): NativeInt;
 begin
   case TType.Kind<T> of
-    tkInteger:
+    tkInteger, tkChar, tkEnumeration, tkWChar:
       case SizeOf(T) of
         1: Result := VectorHelper.InternalIndexOfInt8(fData, PShortInt(@item)^);
         2: Result := VectorHelper.InternalIndexOfInt16(fData, PSmallInt(@item)^);
         4: Result := VectorHelper.InternalIndexOfInt32(fData, PInteger(@item)^);
+      else
+        __SuppressWarning(Result);
       end;
     tkInt64: Result := VectorHelper.InternalIndexOfInt64(fData, PInt64(@item)^);
     tkUString: Result := VectorHelper.InternalIndexOfStr(fData, PUnicodeString(@item)^);
@@ -9454,7 +13759,7 @@ end;
 function Vector<T>.Contains(const item: T;
   const comparer: IEqualityComparer<T>): Boolean;
 var
-  i: Integer;
+  i: NativeInt;
 begin
   for i := 0 to High(fData) do
     if comparer.Equals(fData[i], item) then
@@ -9465,7 +13770,7 @@ end;
 function Vector<T>.Contains(const item: T;
   const comparer: TEqualityComparison<T>): Boolean;
 var
-  i: Integer;
+  i: NativeInt;
 begin
   for i := 0 to High(fData) do
     if comparer(fData[i], item) then
@@ -9475,7 +13780,7 @@ end;
 
 function Vector<T>.Contains(const items: array of T): Boolean;
 var
-  i: Integer;
+  i: NativeInt;
 begin
   for i := 0 to High(items) do
     if IndexOf(items[i]) = -1 then
@@ -9485,22 +13790,22 @@ end;
 
 function Vector<T>.Contains(const items: TArray<T>): Boolean;
 var
-  i: Integer;
+  i: NativeInt;
 begin
-  for i := 0 to System.Length(items) - 1 do
+  for i := 0 to DynArrayHigh(items) do
     if IndexOf(items[i]) = -1 then
       Exit(False);
   Result := True;
 end;
 
-procedure Vector<T>.Delete(index: Integer);
+procedure Vector<T>.Delete(index: NativeInt);
 {$IFNDEF DELPHIXE7_UP}
 var
-  n, i: Integer;
+  n, i: NativeInt;
 {$ENDIF}
 begin
 {$IFNDEF DELPHIXE7_UP}
-  n := System.Length(fData);
+  n := DynArrayLength(fData);
   if (index < 0) or (index >= n) then
     Exit;
   Dec(n);
@@ -9524,14 +13829,14 @@ begin
 {$ENDIF}
 end;
 
-procedure Vector<T>.Delete(index, count: Integer);
+procedure Vector<T>.Delete(index, count: NativeInt);
 {$IFNDEF DELPHIXE7_UP}
 var
-  n, i: Integer;
+  n, i: NativeInt;
 {$ENDIF}
 begin
 {$IFNDEF DELPHIXE7_UP}
-  n := System.Length(fData);
+  n := DynArrayLength(fData);
   if (index < 0) or (index >= n) then
     Exit;
   if count > n - index then
@@ -9565,9 +13870,9 @@ end;
 
 function Vector<T>.Equals(const items: array of T): Boolean;
 var
-  n, i: Integer;
+  n, i: NativeInt;
 begin
-  n := System.Length(fData);
+  n := DynArrayLength(fData);
   if n <> System.Length(items) then
     Exit(False);
   Result := True;
@@ -9587,10 +13892,10 @@ end;
 
 function Vector<T>.Equals(const items: TArray<T>): Boolean;
 var
-  n, i: Integer;
+  n, i: NativeInt;
 begin
-  n := System.Length(fData);
-  if n <> System.Length(items) then
+  n := DynArrayLength(fData);
+  if n <> DynArrayLength(items) then
     Exit(False);
   Result := True;
   case TType.Kind<T> of
@@ -9607,27 +13912,23 @@ begin
   end;
 end;
 
-procedure Vector<T>.ForEach(const action: TAction<T>);
+procedure Vector<T>.ForEach(const action: Action<T>);
 var
-  i: Integer;
+  i: NativeInt;
 begin
   for i := Low(fData) to High(fData) do
     action(fData[i]);
 end;
 
-function Vector<T>.GetCount: Integer;
+function Vector<T>.GetCount: NativeInt;
 begin
-  Result := System.Length(fData);
+  Result := DynArrayLength(fData);
 end;
 
 function Vector<T>.GetEnumerator: TArrayEnumerator<T>;
 begin
-{$IFDEF DELPHI2010}
-  Result := TArrayEnumerator<T>.Create(fData);
-{$ELSE}
   Result.fItems := fData;
   Result.fIndex := -1;
-{$ENDIF}
 end;
 
 function Vector<T>.GetFirst: T;
@@ -9635,7 +13936,7 @@ begin
   Result := fData[0];
 end;
 
-function Vector<T>.GetItem(index: Integer): T;
+function Vector<T>.GetItem(index: NativeInt): T;
 begin
   Result := fData[index];
 end;
@@ -9655,8 +13956,7 @@ begin
   Result := value.fData;
 end;
 
-class operator Vector<T>.In(const left: T;
-  const right: Vector<T>): Boolean;
+class operator Vector<T>.In(const left: T; const right: Vector<T>): Boolean;
 begin
   Result := right.Contains(left);
 end;
@@ -9666,21 +13966,19 @@ begin
   Result := right.Contains(left.fData);
 end;
 
-class operator Vector<T>.In(const left: TArray<T>;
-  const right: Vector<T>): Boolean;
+class operator Vector<T>.In(const left: TArray<T>; const right: Vector<T>): Boolean;
 begin
   Result := right.Contains(left);
 end;
 
-procedure Vector<T>.Insert(index: Integer; const item: T);
+procedure Vector<T>.Insert(index: NativeInt; const item: T);
 {$IFNDEF DELPHIXE7_UP}
 var
-  count: Integer;
-  i: Integer;
+  count, i: NativeInt;
 {$ENDIF}
 begin
 {$IFNDEF DELPHIXE7_UP}
-  count := System.Length(fData);
+  count := DynArrayLength(fData);
   SetLength(fData, count + 1);
   if index <> count then
 {$IFDEF WEAKREF}
@@ -9701,12 +13999,12 @@ begin
 {$ENDIF}
 end;
 
-procedure Vector<T>.Insert(index: Integer; const items: array of T);
+procedure Vector<T>.Insert(index: NativeInt; const items: array of T);
 begin
   InternalInsert(index, items);
 end;
 
-procedure Vector<T>.Insert(index: Integer; const items: TArray<T>);
+procedure Vector<T>.Insert(index: NativeInt; const items: TArray<T>);
 begin
 {$IFNDEF DELPHIXE7_UP}
   InternalInsert(index, items);
@@ -9717,32 +14015,32 @@ end;
 
 function Vector<T>.InternalEquals(const items: array of T): Boolean;
 var
-  comparer: IEqualityComparer<T>;
-  i: Integer;
+  comparer: Pointer;
+  i: NativeInt;
 begin
-  comparer := TEqualityComparer<T>.Default;
-  for i := 0 to System.Length(fData) - 1 do
-    if not comparer.Equals(fData[i], items[i]) then
+  comparer := _LookupVtableInfo(giEqualityComparer, TypeInfo(T), SizeOf(T));
+  for i := 0 to DynArrayHigh(fData) do
+    if not IEqualityComparer<T>(comparer).Equals(fData[i], items[i]) then
       Exit(False);
   Result := True;
 end;
 
-function Vector<T>.InternalIndexOf(const item: T): Integer;
+function Vector<T>.InternalIndexOf(const item: T): NativeInt;
 var
-  comparer: IEqualityComparer<T>;
+  comparer: Pointer;
 begin
-  comparer := TEqualityComparer<T>.Default;
-  for Result := 0 to High(fData) do
-    if comparer.Equals(fData[Result], item) then
+  comparer := _LookupVtableInfo(giEqualityComparer, TypeInfo(T), SizeOf(T));
+  for Result := 0 to DynArrayHigh(fData) do
+    if IEqualityComparer<T>(comparer).Equals(fData[Result], item) then
       Exit;
   Result := -1;
 end;
 
-procedure Vector<T>.InternalInsert(index: Integer; const items: array of T);
+procedure Vector<T>.InternalInsert(index: NativeInt; const items: array of T);
 var
-  count, len, i: Integer;
+  count, len, i: NativeInt;
 begin
-  count := System.Length(fData);
+  count := DynArrayLength(fData);
   len := System.Length(items);
   SetLength(fData, count + len);
   if index <> count then
@@ -9778,16 +14076,16 @@ end;
 
 function Vector<T>.Remove: T;
 var
-  n: Integer;
+  n: NativeInt;
 begin
-  n := High(fData);
+  n := DynArrayHigh(fData);
   Result := fData[n];
   SetLength(fData, n);
 end;
 
 procedure Vector<T>.Remove(const item: T);
 var
-  index: Integer;
+  index: NativeInt;
 begin
   index := IndexOf(item);
   if index > -1 then
@@ -9796,7 +14094,7 @@ end;
 
 procedure Vector<T>.Remove(const items: array of T);
 var
-  i, index: Integer;
+  i, index: NativeInt;
 begin
   for i := Low(items) to High(items) do
   begin
@@ -9808,9 +14106,9 @@ end;
 
 procedure Vector<T>.Remove(const items: TArray<T>);
 var
-  i, index: Integer;
+  i, index: NativeInt;
 begin
-  for i := 0 to System.Length(items) - 1 do
+  for i := 0 to DynArrayHigh(items) do
   begin
     index := IndexOf(items[i]);
     if index > -1 then
@@ -9821,7 +14119,7 @@ end;
 procedure Vector<T>.Reverse;
 var
   tmp: T;
-  b, e: Integer;
+  b, e: NativeInt;
 begin
   b := 0;
   e := Count - 1;
@@ -9835,22 +14133,22 @@ begin
   end;
 end;
 
-procedure Vector<T>.SetCount(value: Integer);
+procedure Vector<T>.SetCount(value: NativeInt);
 begin
   SetLength(fData, value);
 end;
 
-procedure Vector<T>.SetItem(index: Integer; const value: T);
+procedure Vector<T>.SetItem(index: NativeInt; const value: T);
 begin
   fData[index] := value;
 end;
 
-function Vector<T>.Slice(index: Integer): Vector<T>;
+function Vector<T>.Slice(index: NativeInt): Vector<T>;
 begin
   Result.fData := Copy(fData, index);
 end;
 
-function Vector<T>.Slice(index, count: Integer): Vector<T>;
+function Vector<T>.Slice(index, count: NativeInt): Vector<T>;
 begin
   Result.fData := Copy(fData, index, count);
 end;
@@ -9870,17 +14168,17 @@ begin
   TArray.Sort<T>(fData, IComparer<T>(PPointer(@comparer)^));
 end;
 
-function Vector<T>.Splice(index, count: Integer): Vector<T>;
+function Vector<T>.Splice(index, count: NativeInt): Vector<T>;
 begin
   Result := Splice(index, count, []);
 end;
 
-function Vector<T>.Splice(index, count: Integer;
+function Vector<T>.Splice(index, count: NativeInt;
   const items: array of T): Vector<T>;
 var
-  i: Integer;
+  i: NativeInt;
 begin
-  i := System.Length(fData);
+  i := DynArrayLength(fData);
   if (index < 0) or (index >= i) then
     Exit;
   if count > i - index then
@@ -9890,8 +14188,7 @@ begin
   Insert(index, items);
 end;
 
-class operator Vector<T>.Subtract(const left,
-  right: Vector<T>): Vector<T>;
+class operator Vector<T>.Subtract(const left, right: Vector<T>): Vector<T>;
 begin
   Result := left;
   Result.Remove(right.fData);
@@ -9907,7 +14204,7 @@ end;
 {$ENDREGION}
 
 
-{$REGION 'TArrayEnumerator<T>' }
+{$REGION 'TArrayEnumerator<T>'}
 
 constructor TArrayEnumerator<T>.Create(const items: TArray<T>);
 begin
@@ -9917,47 +14214,36 @@ end;
 
 function TArrayEnumerator<T>.GetCurrent: T;
 begin
-  Result := fItems[fIndex];
+  Result := TArray<T>(fItems)[fIndex];
 end;
 
 function TArrayEnumerator<T>.MoveNext: Boolean;
 begin
   Inc(fIndex);
-  Result := fIndex < System.Length(fItems);
+  {$POINTERMATH ON}
+  Result := Assigned(fItems) and (fIndex < PNativeInt(fItems)[-1]);
+  {$POINTERMATH OFF}
 end;
-
-{$ENDREGION}
-
-
-{$REGION 'TFormatSettingsHelper'}
-
-{$IFDEF DELPHI2010}
-class function TFormatSettingsHelper.Create: TFormatSettings;
-begin
-  GetLocaleFormatSettings(LOCALE_SYSTEM_DEFAULT, Result);
-end;
-{$ENDIF}
 
 {$ENDREGION}
 
 
 procedure Init;
 begin
-{$IFDEF DELPHI2010}
-  Nop_Instance := Pointer(TValueData(TValue.Empty).FHeapData);
-{$ELSE}
   Nop_Instance := Pointer(TValueData(TValue.Empty).FValueData);
-{$ENDIF}
 
   TValue.UpdateFormatSettings;
 end;
 
+
 initialization
   Init;
+  WeakRefInstances.Initialize;
 
 finalization
   // make sure this properly gets freed because it appears
   // the class destructor is not running all the time
   TType.fContext.Free;
+  WeakRefInstances.Finalize;
 
 end.

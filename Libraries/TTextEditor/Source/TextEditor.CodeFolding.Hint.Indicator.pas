@@ -3,31 +3,27 @@
 interface
 
 uses
-  System.Classes, Vcl.Controls, TextEditor.CodeFolding.Hint.Indicator.Colors, TextEditor.Glyph, TextEditor.Types;
-
-const
-  TEXTEDITOR_CODE_FOLDING_HINT_INDICATOR_DEFAULT_OPTIONS = [hioShowBorder, hioShowMark];
+  System.Classes, Vcl.Controls, TextEditor.Glyph, TextEditor.Types;
 
 type
   TTextEditorCodeFoldingHintIndicator = class(TPersistent)
   strict private
-    FColors: TTextEditorCodeFoldingHintIndicatorColors;
     FGlyph: TTextEditorGlyph;
     FMarkStyle: TTextEditorCodeFoldingHintIndicatorMarkStyle;
     FOptions: TTextEditorCodeFoldingHintIndicatorOptions;
     FPadding: TTextEditorCodeFoldingHintIndicatorPadding;
     FVisible: Boolean;
     FWidth: Integer;
+    function IsGlyphStored: Boolean;
     procedure SetGlyph(const AValue: TTextEditorGlyph);
   public
     constructor Create;
     destructor Destroy; override;
     procedure Assign(ASource: TPersistent); override;
   published
-    property Colors: TTextEditorCodeFoldingHintIndicatorColors read FColors write FColors;
-    property Glyph: TTextEditorGlyph read FGlyph write SetGlyph;
+    property Glyph: TTextEditorGlyph read FGlyph write SetGlyph stored IsGlyphStored;
     property MarkStyle: TTextEditorCodeFoldingHintIndicatorMarkStyle read FMarkStyle write FMarkStyle default imsThreeDots;
-    property Options: TTextEditorCodeFoldingHintIndicatorOptions read FOptions write FOptions default TEXTEDITOR_CODE_FOLDING_HINT_INDICATOR_DEFAULT_OPTIONS;
+    property Options: TTextEditorCodeFoldingHintIndicatorOptions read FOptions write FOptions default TTextEditorDefaultOptions.CodeFoldingHint;
     property Padding: TTextEditorCodeFoldingHintIndicatorPadding read FPadding write FPadding;
     property Visible: Boolean read FVisible write FVisible default True;
     property Width: Integer read FWidth write FWidth default 26;
@@ -35,23 +31,24 @@ type
 
 implementation
 
+uses
+  System.UITypes;
+
 constructor TTextEditorCodeFoldingHintIndicator.Create;
 begin
   inherited;
 
-  FColors := TTextEditorCodeFoldingHintIndicatorColors.Create;
   FGlyph := TTextEditorGlyph.Create;
   FPadding := TTextEditorCodeFoldingHintIndicatorPadding.Create(nil);
   FGlyph.Visible := False;
   FMarkStyle := imsThreeDots;
   FVisible := True;
-  FOptions := TEXTEDITOR_CODE_FOLDING_HINT_INDICATOR_DEFAULT_OPTIONS;
+  FOptions := TTextEditorDefaultOptions.CodeFoldingHint;
   FWidth := 26;
 end;
 
 destructor TTextEditorCodeFoldingHintIndicator.Destroy;
 begin
-  FColors.Free;
   FGlyph.Free;
   FPadding.Free;
 
@@ -66,12 +63,16 @@ begin
     Self.FVisible := FVisible;
     Self.FMarkStyle := FMarkStyle;
     Self.FWidth := FWidth;
-    Self.FColors.Assign(FColors);
     Self.FGlyph.Assign(FGlyph);
     Self.FPadding.Assign(FPadding);
   end
   else
     inherited Assign(ASource);
+end;
+
+function TTextEditorCodeFoldingHintIndicator.IsGlyphStored: Boolean;
+begin
+  Result := FGlyph.Visible or (FGlyph.Left <> 2) or (FGlyph.MaskColor <> TColors.SysNone);
 end;
 
 procedure TTextEditorCodeFoldingHintIndicator.SetGlyph(const AValue: TTextEditorGlyph);

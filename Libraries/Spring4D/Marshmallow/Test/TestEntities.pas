@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -427,26 +427,21 @@ type
   private
     [Column('SID', [cpRequired, cpPrimaryKey], 19,0)]
     FSid: Integer;
-
     [Column('RESOURCE_NAME', [], 50)]
     FResourceName: string;
-
     [Column('ASSOC_RES_SID', [], 50)]
     FResourceAssociateSid: Integer;
-
     [ManyToOne(False, [ckCascadeAll], 'FResourceAssociateSid')]
-    FResourceAssociate : TResourceAssociate;
-
+    FResourceAssociate: TResourceAssociate;
     function GetResourceAssociateName: string;
     procedure SetResourceAssociateName(const Value: string);
   public
     constructor Create;
     destructor Destroy; override;
-    property Sid : Integer read FSid write FSid;
-    property ResourceName : string read FResourceName write FResourceName;
-    property ResourceAssociateSid : Integer read FResourceAssociateSid write FResourceAssociateSid;
-    property ResourceAssociateName : string read GetResourceAssociateName write SetResourceAssociateName;
-
+    property Sid: Integer read FSid write FSid;
+    property ResourceName: string read FResourceName write FResourceName;
+    property ResourceAssociateSid: Integer read FResourceAssociateSid write FResourceAssociateSid;
+    property ResourceAssociateName: string read GetResourceAssociateName write SetResourceAssociateName;
   end;
 
   [Table('RESOURCE')]
@@ -454,12 +449,85 @@ type
   private
     [Column('SID', [cpRequired, cpPrimaryKey], 19,0)]
     FSid: Integer;
-
     [Column('RESOURCE_NAME', [], 50)]
     FResourceName: string;
   public
-    property Sid : Integer read FSid write FSid;
-    property ResourceName : string read FResourceName write FResourceName;
+    property Sid: Integer read FSid write FSid;
+    property ResourceName: string read FResourceName write FResourceName;
+  end;
+
+  [Entity]
+  [Table('Subsidiary')]
+  TSubsidiaryAssociate2 = class
+  private
+    [Column('SID', [cpRequired, cpPrimaryKey], 19,0)]
+    FSid: Integer;
+    [Column('SBS_NAME', [], 50)]
+    FSbsName: string;
+    [Column('SBS_NO', [], 10, 0)]
+    FSbsNo: Integer;
+  public
+    property Sid: Integer read FSid write FSid;
+    property SbsName: string read FSbsName write FSbsName;
+    property SbsNo: Integer read FSbsNo write FSbsNo;
+  end;
+
+  [Entity]
+  [Table('Controller')]
+  TControllerAssociate = class
+  private
+    [Column('SID', [cpRequired, cpPrimaryKey], 19,0)]
+    FSid: Integer;
+    [Column('CONTROLLER_NAME', [], 50)]
+    FControllerName: string;
+    [Column('HOST_ADDRESS', [], 100)]
+    FAddress: string;
+    [Column('SBS_SID', [cpRequired], 19, 0)]
+    FSbsSid: Int64;
+    [ManyToOne(False, [ckCascadeAll], 'FSbsSid')]
+    FSubsidiaryAssociate: TSubsidiaryAssociate2;
+    function GetSbsName: string;
+    function GetSbsNo: Integer;
+    procedure SetSbsName(const Value: string);
+    procedure SetSbsNo(const Value: Integer);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Sid: Integer read FSid write FSid;
+    property ControllerName: string read FControllerName write FControllerName;
+    property Address: String read FAddress write FAddress;
+    property SbsSid: Int64 read FSbsSid write FSbsSid;
+    property SbsNo: Integer read GetSbsNo write SetSbsNo;
+    property SbsName: string read GetSbsName write SetSbsName;
+  end;
+
+  [Entity][Table('REMOTE_CONNECTION')]
+  TRemoteConnection = class
+  private
+    [Column('SID', [cpRequired, cpPrimaryKey], 19,0)]
+    FSid: Integer;
+    [Column('REMOTE_CONTROLLER_SID', [cpRequired], 19,0)]
+    FRemoteControllerSid: Int64;
+    [Column('LOCAL_CONTROLLER_SID', [cpRequired], 19,0)]
+    FLocalControllerSid: Int64;
+    [ManyToOne(False, [ckCascadeAll], 'FLocalControllerSid')]
+    FLocalControllerAssociate:  TControllerAssociate;
+    [ManyToOne(False, [ckCascadeAll], 'FRemoteControllerSid')]
+    FRemoteControllerAssociate: TControllerAssociate;
+    function GetLocalAddress: String;
+    function GetRemoteAddress: String;
+    procedure SetLocalAddress(const Value: String);
+    procedure SetRemoteAddress(const Value: String);
+    function GetRemoteConnectionName: String;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Sid: Integer read FSid write FSid;
+    property LocalControllerSid: Int64 read FLocalControllerSid write FLocalControllerSid;
+    property RemoteControllerSid: Int64 read FRemoteControllerSid write FRemoteControllerSid;
+    property LocalAddress: String read GetLocalAddress write SetLocalAddress;
+    property RemoteAddress: String read GetRemoteAddress write SetRemoteAddress;
+    property RemoteConnectionName: String read GetRemoteConnectionName;
   end;
 
 var
@@ -734,6 +802,79 @@ end;
 procedure TResource.SetResourceAssociateName(const Value: string);
 begin
   FResourceAssociate.ResourceName := Value;
+end;
+
+{ TRemoteConnection }
+
+constructor TRemoteConnection.Create;
+begin
+  FLocalControllerAssociate := TControllerAssociate.Create;
+  FRemoteControllerAssociate := TControllerAssociate.Create;
+end;
+
+destructor TRemoteConnection.Destroy;
+begin
+  FLocalControllerAssociate.Free;
+  FRemoteControllerAssociate.Free;
+  inherited;
+end;
+
+function TRemoteConnection.GetLocalAddress: String;
+begin
+  Result := FLocalControllerAssociate.Address;
+end;
+
+function TRemoteConnection.GetRemoteAddress: String;
+begin
+  Result := FRemoteControllerAssociate.Address
+end;
+
+function TRemoteConnection.GetRemoteConnectionName: String;
+begin
+  Result := FLocalControllerAssociate.ControllerName + ' <--> ' + FRemoteControllerAssociate.ControllerName;
+end;
+
+procedure TRemoteConnection.SetLocalAddress(const Value: String);
+begin
+  FLocalControllerAssociate.Address := Value;
+end;
+
+procedure TRemoteConnection.SetRemoteAddress(const Value: String);
+begin
+  FRemoteControllerAssociate.Address := Value;
+end;
+
+{ TControllerAssociate }
+
+constructor TControllerAssociate.Create;
+begin
+  FSubsidiaryAssociate := TSubsidiaryAssociate2.Create;
+end;
+
+destructor TControllerAssociate.Destroy;
+begin
+  FSubsidiaryAssociate.Free;
+  inherited;
+end;
+
+function TControllerAssociate.GetSbsName: string;
+begin
+  Result := FSubsidiaryAssociate.SbsName;
+end;
+
+function TControllerAssociate.GetSbsNo: Integer;
+begin
+  Result := FSubsidiaryAssociate.SbsNo;
+end;
+
+procedure TControllerAssociate.SetSbsName(const Value: string);
+begin
+  FSubsidiaryAssociate.SbsName := Value;
+end;
+
+procedure TControllerAssociate.SetSbsNo(const Value: Integer);
+begin
+  FSubsidiaryAssociate.SbsNo := Value;
 end;
 
 end.

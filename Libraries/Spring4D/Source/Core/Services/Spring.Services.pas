@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -125,8 +125,6 @@ type
     class var GlobalInstance: TServiceLocator;
     function GetServiceLocator: IServiceLocator;
     procedure RaiseNotInitialized;
-    type
-      TValueArray = array of TValue;
   protected
     class constructor Create;
     class destructor Destroy;
@@ -162,8 +160,7 @@ type
 ///   Since Delphi doesn't support generic methods for interfaces, the result
 ///   type is TServiceLocator instead of IServiceLocator.
 /// </remarks>
-{$IFDEF AUTOREFCOUNT}[Result: Unsafe]{$ENDIF}
-function ServiceLocator: TServiceLocator; {$IFNDEF AUTOREFCOUNT}inline;{$ENDIF}
+function ServiceLocator: TServiceLocator; inline;
 
 implementation
 
@@ -234,7 +231,7 @@ var
   value: TValue;
 begin
   value := GetServiceLocator.GetService(TypeInfo(T));
-  Result := value.AsType<T>;
+  value.AsType(TypeInfo(T), Result);
 end;
 
 function TServiceLocator.GetService<T>(const serviceName: string): T;
@@ -242,7 +239,7 @@ var
   value: TValue;
 begin
   value := GetServiceLocator.GetService(TypeInfo(T), serviceName);
-  Result := value.AsType<T>;
+  value.AsType(TypeInfo(T), Result);
 end;
 
 function TServiceLocator.GetService<T>(const args: array of TValue): T;
@@ -250,7 +247,7 @@ var
   value: TValue;
 begin
   value := GetServiceLocator.GetService(TypeInfo(T), args);
-  Result := value.AsType<T>;
+  value.AsType(TypeInfo(T), Result);
 end;
 
 function TServiceLocator.GetService<T>(const serviceName: string;
@@ -259,7 +256,7 @@ var
   value: TValue;
 begin
   value := GetServiceLocator.GetService(TypeInfo(T), serviceName, args);
-  Result := value.AsType<T>;
+  value.AsType(TypeInfo(T), Result);
 end;
 
 function TServiceLocator.GetAllServices(serviceType: PTypeInfo): TArray<TValue>;
@@ -275,11 +272,7 @@ begin
   services := GetServiceLocator.GetAllServices(TypeInfo(TServiceType));
   SetLength(Result, Length(services));
   for i := Low(Result) to High(Result) do
-  begin
-    // accessing TArray<TValue> directly causes an internal error URW1111 in Delphi 2010 (see QC #77575)
-    // the hardcast prevents it but does not cause any differences in compiled code
-    Result[i] := TValueArray(services)[i].AsType<TServiceType>;
-  end;
+    services[i].AsType(TypeInfo(TServiceType), Result[i]);
 end;
 
 function TServiceLocator.HasService(serviceType: PTypeInfo): Boolean;

@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -55,13 +55,13 @@ class function TDDuceComponents.CreateLogTree(AOwner: TComponent;
 var
   VLT : TLogTree;
 begin
-  VLT                    := TLogTree.Create(AOwner);
-  VLT.AlignWithMargins   := True;
-  VLT.BorderStyle        := bsNone;
-  VLT.Parent             := AParent;
-  VLT.Align              := alClient;
-  VLT.ShowImages         := True;
-  VLT.Header.Options     := VLT.Header.Options + [hoAutoSpring];
+  VLT                  := TLogTree.Create(AOwner);
+  VLT.AlignWithMargins := True;
+  VLT.BorderStyle      := bsNone;
+  VLT.Parent           := AParent;
+  VLT.Align            := alClient;
+  VLT.ShowImages       := True;
+  VLT.Header.Options   := VLT.Header.Options + [hoAutoSpring];
   Result := VLT;
 end;
 

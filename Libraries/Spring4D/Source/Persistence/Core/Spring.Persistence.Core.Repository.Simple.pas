@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -38,7 +38,6 @@ uses
 type
   TSimpleRepository<T: class, constructor; TID> = class(TInterfacedObject, IPagedRepository<T, TID>)
   private
-    {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fSession: TSession;
     fNamespace: string;
   protected

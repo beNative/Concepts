@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ unit DDuce.Components.VirtualTrees.Node;
 interface
 
 uses
-  VirtualTrees;
+  VirtualTrees, VirtualTrees.Types, VirtualTrees.BaseTree;
 
+{$REGION 'documentation'}
 {
-  Documentation
     TVTNode is a type designed to be used as the data structure where each
     treenode in a treeview is pointing to.
 
@@ -36,7 +36,11 @@ uses
       TMyData = class
         ...
       end;
+
+    TODO: non generic version where visible node content is stored in Text and
+          Hint properties.
 }
+{$ENDREGION}
 
 {
 TVirtualNode = packed record
@@ -155,12 +159,6 @@ type
     function GetParentNode: TVTNode<T>;
     function GetPrevSiblingData: T;
     function GetPrevSiblingNode: TVTNode<T>;
-    function GetNextNode: TVTNode<T>;
-    function GetNextData: T;
-    function GetPrevData: T;
-    function GetPrevNode: TVTNode<T>;
-    function GetEnabled: Boolean;
-    procedure SetEnabled(const Value: Boolean);
     {$ENDREGION}
 
   public
@@ -218,9 +216,6 @@ type
 
     property Focused: Boolean
       read GetFocused write SetFocused;
-
-    property Enabled: Boolean
-      read GetEnabled write SetEnabled;
 
     property ImageIndex: Integer
       read GetImageIndex write SetImageIndex;
@@ -293,12 +288,6 @@ type
     property LastChildNode: TVTNode<T>
       read GetLastChildNode;
 
-    property NextNode: TVTNode<T>
-      read GetNextNode;
-
-    property PrevNode: TVTNode<T>
-      read GetPrevNode;
-
     property ParentData: T
       read GetParentData;
 
@@ -314,18 +303,44 @@ type
     property LastChildData: T
       read GetLastChildData;
 
-    property NextData: T
-      read GetNextData;
-
-    property PrevData: T
-      read GetPrevData;
-
   end;
 
 implementation
 
 uses
   System.SysUtils, System.Rtti;
+
+{$REGION 'TVTNode<T>.TVTNodeEnumerator<K>'}
+constructor TVTNode<T>.TVTNodeEnumerator<K>.Create(AVTNode: TVTNode<K>);
+begin
+  FCurrent := AVTNode;
+  FFirst   := True;
+end;
+
+function TVTNode<T>.TVTNodeEnumerator<K>.GetCurrent: TVTNode<K>;
+begin
+  Result := FCurrent;
+end;
+
+function TVTNode<T>.TVTNodeEnumerator<K>.MoveNext: Boolean;
+var
+  LTree : TCustomVirtualStringTree;
+begin
+  if Assigned(FCurrent) then
+  begin
+    if FFirst then
+    begin
+      FFirst := False;
+    end
+    else
+    begin
+      LTree := FCurrent.FTree;
+      FCurrent := LTree.GetNodeData<TVTNode<K>>(FCurrent.VNode.NextSibling);
+    end;
+  end;
+  Result := Assigned(FCurrent);
+end;
+{$ENDREGION}
 
 {$REGION 'construction and destruction'}
 constructor TVTNode<T>.Create(ATree: TCustomVirtualStringTree; const AData: T;
@@ -435,24 +450,6 @@ begin
   end;
 end;
 
-function TVTNode<T>.GetEnabled: Boolean;
-begin
-  if Assigned(FTree) and Assigned(FVNode) then
-  begin
-    Result := not FTree.IsDisabled[VNode];
-  end
-  else
-    Result := False;
-end;
-
-procedure TVTNode<T>.SetEnabled(const Value: Boolean);
-begin
-  if Assigned(FTree) and Assigned(FVNode) then
-  begin
-    FTree.IsDisabled[VNode] := not Value;
-  end;
-end;
-
 function TVTNode<T>.GetFirstChildData: T;
 begin
   if Assigned(FirstChildNode) then
@@ -543,23 +540,6 @@ begin
     Result := 0;
 end;
 
-function TVTNode<T>.GetNextData: T;
-begin
-  Result := NextNode.Data;
-end;
-
-function TVTNode<T>.GetNextNode: TVTNode<T>;
-begin
-  if Assigned(NextSiblingNode) then
-    Result := NextSiblingNode
-  else if Assigned(PrevSiblingNode) then
-    Result := PrevSiblingNode
-  else if Assigned(ParentNode) then
-    Result := ParentNode
-  else
-    Result := nil;
-end;
-
 function TVTNode<T>.GetNextSiblingData: T;
 begin
   if Assigned(NextSiblingNode) then
@@ -601,7 +581,7 @@ end;
 
 procedure TVTNode<T>.SetNodeHeight(const Value: Word);
 begin
-  VNode.NodeHeight := Value;
+//  VNode.NodeHeight := Value;
 end;
 
 function TVTNode<T>.GetText: string;
@@ -623,23 +603,6 @@ function TVTNode<T>.GetParentNode: TVTNode<T>;
 begin
   if Assigned(VNode) then
     Result := VTNodeFromVNode(VNode.Parent)
-  else
-    Result := nil;
-end;
-
-function TVTNode<T>.GetPrevData: T;
-begin
-  Result := PrevNode.Data;
-end;
-
-function TVTNode<T>.GetPrevNode: TVTNode<T>;
-begin
-  if Assigned(PrevSiblingNode) then
-    Result := PrevSiblingNode
-  else if Assigned(ParentNode) then
-    Result := ParentNode
-  else if Assigned(NextSiblingNode) then
-    Result := NextSiblingNode
   else
     Result := nil;
 end;
@@ -862,38 +825,6 @@ end;
 procedure TVTNode<T>.Select;
 begin
   Selected := True;
-end;
-{$ENDREGION}
-
-{$REGION 'TVTNodeEnumerator<T>'}
-constructor TVTNode<T>.TVTNodeEnumerator<K>.Create(AVTNode: TVTNode<K>);
-begin
-  FCurrent := AVTNode;
-  FFirst   := True;
-end;
-
-function TVTNode<T>.TVTNodeEnumerator<K>.GetCurrent: TVTNode<K>;
-begin
-  Result := FCurrent;
-end;
-
-function TVTNode<T>.TVTNodeEnumerator<K>.MoveNext: Boolean;
-var
-  LTree : TCustomVirtualStringTree;
-begin
-  if Assigned(FCurrent) then
-  begin
-    if FFirst then
-    begin
-      FFirst := False;
-    end
-    else
-    begin
-      LTree := FCurrent.FTree;
-      FCurrent := LTree.GetNodeData<TVTNode<K>>(FCurrent.VNode.NextSibling);
-    end;
-  end;
-  Result := Assigned(FCurrent);
 end;
 {$ENDREGION}
 

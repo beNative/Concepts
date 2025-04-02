@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -30,8 +30,6 @@ interface
 
 uses
   Rtti,
-  SysUtils,
-  TypInfo,
   Spring,
   Spring.Logging;
 
@@ -64,7 +62,6 @@ type
     TAppenderBuilder = record
     private
       fBuilder: IBuilder;
-      {$IFDEF DELPHI2010}{$HINTS OFF}fDummy: Pointer;{$ENDIF}
     public
       function EndAppender: TLoggingConfigurationBuilder;
 
@@ -82,7 +79,6 @@ type
     TControllerBuilder = record
     private
       fBuilder: IBuilder;
-      {$IFDEF DELPHI2010}{$HINTS OFF}fDummy: Pointer;{$ENDIF}
     public
       function EndController: TLoggingConfigurationBuilder;
 
@@ -103,7 +99,6 @@ type
     TLoggerBuilder = record
     private
       fBuilder: IBuilder;
-      {$IFDEF DELPHI2010}{$HINTS OFF}fDummy: Pointer;{$ENDIF}
     public
       function EndLogger: TLoggingConfigurationBuilder;
 
@@ -120,7 +115,6 @@ type
     {$ENDREGION}
   private
     fBuilder: IBuilder;
-    {$IFDEF DELPHI2010}{$HINTS OFF}fDummy: Pointer;{$ENDIF}
   public
     class function Create: TLoggingConfigurationBuilder; static;
 
@@ -146,6 +140,12 @@ type
 
 
 implementation
+
+uses
+{$IF defined(DELPHIXE4) or defined(DELPHIXE5) or defined(DELPHIXE6)}
+  TypInfo, // H2443
+{$IFEND}
+  SysUtils;
 
 const
   SClass = 'class = %s';

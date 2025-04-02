@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -123,9 +123,9 @@ type
 implementation
 
 uses
-  Generics.Collections,
-  SysUtils,
   Rtti,
+  SysUtils,
+  TypInfo, // H2443
   Spring.Persistence.Core.Exceptions,
   Spring.Reflection;
 
@@ -452,7 +452,7 @@ end;
 class constructor TEntityCache.Create;
 begin
   fLock := TInterfacedCriticalSection.Create;
-  fEntities := TCollections.CreateDictionary<TClass,TEntityData>([doOwnsValues], 100);
+  fEntities := TCollections.CreateDictionary<TClass,TEntityData>(100, [doOwnsValues]);
 end;
 
 class function TEntityCache.Get(entityClass: TClass): TEntityData;

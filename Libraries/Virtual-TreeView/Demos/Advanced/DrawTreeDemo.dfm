@@ -1,25 +1,24 @@
 object DrawTreeForm: TDrawTreeForm
   Left = 544
   Top = 320
-  ClientHeight = 474
-  ClientWidth = 710
+  ClientHeight = 475
+  ClientWidth = 714
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
   Font.Height = -13
   Font.Name = 'Trebuchet MS'
   Font.Style = []
-  OldCreateOrder = False
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   DesignSize = (
-    710
-    474)
-  PixelsPerInch = 96
+    714
+    475)
   TextHeight = 18
   object Label7: TLabel
     Left = 0
     Top = 0
-    Width = 710
+    Width = 714
     Height = 61
     Align = alTop
     AutoSize = False
@@ -32,7 +31,7 @@ object DrawTreeForm: TDrawTreeForm
   end
   object Label1: TLabel
     Left = 4
-    Top = 381
+    Top = 390
     Width = 247
     Height = 18
     Anchors = [akLeft, akBottom]
@@ -40,7 +39,7 @@ object DrawTreeForm: TDrawTreeForm
   end
   object Label3: TLabel
     Left = 424
-    Top = 381
+    Top = 390
     Width = 22
     Height = 18
     Anchors = [akLeft, akBottom]
@@ -50,7 +49,7 @@ object DrawTreeForm: TDrawTreeForm
     Left = 10
     Top = 84
     Width = 684
-    Height = 278
+    Height = 287
     Anchors = [akLeft, akTop, akRight, akBottom]
     AutoExpandDelay = 200
     AutoScrollDelay = 200
@@ -74,7 +73,6 @@ object DrawTreeForm: TDrawTreeForm
     Indent = 20
     LineMode = lmBands
     ParentShowHint = False
-    RootNodeCount = 10
     ScrollBarOptions.VerticalIncrement = 32
     ShowHint = True
     TabOrder = 0
@@ -115,7 +113,7 @@ object DrawTreeForm: TDrawTreeForm
   end
   object TrackBar1: TTrackBar
     Left = 264
-    Top = 379
+    Top = 388
     Width = 157
     Height = 21
     Anchors = [akLeft, akBottom]

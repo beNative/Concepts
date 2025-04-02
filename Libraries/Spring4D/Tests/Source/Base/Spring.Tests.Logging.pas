@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -48,9 +48,7 @@ uses
   Spring.Logging.Controller,
   Spring.Logging.Extensions,
   Spring.Logging.Loggers,
-{$IFNDEF DELPHI2010}
   Spring.Mocking,
-{$ENDIF}
   Spring.Tests.Logging.Types;
 
 type
@@ -70,9 +68,7 @@ type
     procedure TestAddEventConverter;
     procedure TestFindSerializer;
     procedure TestSendWithSerializer;
-{$IFNDEF DELPHI2010}
     procedure TestStackTrace;
-{$ENDIF}
   end;
 
   {$ENDREGION}
@@ -409,7 +405,6 @@ begin
   CheckEquals(Ord(TLogEventType.SerializedData), Ord(appender.Event.EventType));
 end;
 
-{$IFNDEF DELPHI2010}
 procedure TTestLoggerController.TestStackTrace;
 var
   appender: TAppenderMock;
@@ -490,7 +485,6 @@ begin
     fController := nil;
   end;
 end;
-{$ENDIF}
 
 {$ENDREGION}
 

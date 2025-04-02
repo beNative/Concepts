@@ -41,7 +41,7 @@ type
     INotifyPropertyChanged, INotifyPropertyChangedEx)
   private
     FPropertyChanged: Event<TPropertyChangedEvent>;
-    function GetOnPropertyChanged: IEvent<TPropertyChangedEvent>;
+    function GetOnPropertyChanged: IPropertyChangedEvent;
     function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
     function _AddRef: Integer; stdcall;
     function _Release: Integer; stdcall;
@@ -53,7 +53,7 @@ implementation
 
 { TPropertyChangedBase }
 
-function TPropertyChangedBase.GetOnPropertyChanged: IEvent<TPropertyChangedEvent>;
+function TPropertyChangedBase.GetOnPropertyChanged: IPropertyChangedEvent;
 begin
   Result := FPropertyChanged;
 end;

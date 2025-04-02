@@ -84,10 +84,12 @@ var
   LValue: Integer;
 begin
   LValue := EnsureRange(AValue, 2, 12);
+
   if FDigitCount <> LValue then
   begin
     FDigitCount := LValue;
     FAutosizeDigitCount := FDigitCount;
+
     DoChange
   end;
 end;
@@ -97,6 +99,7 @@ begin
   if FOptions <> AValue then
   begin
     FOptions := AValue;
+
     DoChange
   end;
 end;
@@ -106,8 +109,10 @@ begin
   if FStartFrom <> AValue then
   begin
     FStartFrom := AValue;
+
     if FStartFrom < 0 then
       FStartFrom := 0;
+
     DoChange
   end;
 end;
@@ -117,6 +122,7 @@ begin
   if FVisible <> AValue then
   begin
     FVisible := AValue;
+
     DoChange
   end;
 end;

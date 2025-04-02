@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,7 +29,6 @@ unit Spring.Container.LifetimeManager;
 interface
 
 uses
-  SysUtils,
   Spring,
   Spring.Collections,
   Spring.Container.Common,
@@ -54,7 +53,7 @@ type
 
   TSingletonLifetimeManager = class(TLifetimeManagerBase)
   private
-    fInstance: TFunc<TValue>;
+    fInstance: Func<TValue>;
   public
     destructor Destroy; override;
     function Resolve(const context: ICreationContext;
@@ -71,12 +70,12 @@ type
 
   TSingletonPerThreadLifetimeManager = class(TLifetimeManagerBase)
   private
-    fInstances: IDictionary<TThreadID, TFunc<TValue>>;
+    fInstances: IDictionary<TThreadID, Func<TValue>>;
   protected
-    procedure HandleValueChanged(sender: TObject; const item: TFunc<TValue>;
+    procedure HandleValueChanged(sender: TObject; const item: Func<TValue>;
       action: TCollectionChangedAction);
     function CreateHolder(const instance: TValue;
-      refCounting: TRefCounting): TFunc<TValue>; virtual;
+      refCounting: TRefCounting): Func<TValue>; virtual;
   public
     constructor Create(const model: TComponentModel); override;
     destructor Destroy; override;
@@ -100,6 +99,7 @@ implementation
 uses
   Classes,
   Rtti,
+  SysUtils,
   TypInfo,
   Spring.Container.ResourceStrings,
   Spring.Reflection;
@@ -107,7 +107,7 @@ uses
 
 {$REGION 'TLifetimeManagerBase'}
 
-constructor TLifetimeManagerBase.Create(const model: TComponentModel);
+constructor TLifetimeManagerBase.Create(const model: TComponentModel); //FI:O804
 begin
   inherited Create;
 end;
@@ -130,19 +130,25 @@ function TLifetimeManagerBase.TryGetInterfaceWithoutCopy(const instance: TValue;
   end;
 
 var
+  obj: TObject;
   localIntf: Pointer; // weak-reference
 begin
   Guard.CheckFalse(instance.IsEmpty, 'instance should not be empty.');
 
-  case instance.Kind of
+  case TValueData(instance).FTypeInfo.Kind of
     tkClass:
     begin
-      Result := GetInterface(instance.AsObject, IID, intf);
-      Result := Result or (GetInterface(instance.AsObject, IInterface, localIntf)
-        and (IInterface(localIntf).QueryInterface(IID, intf) = S_OK));
+      obj := TValueData(instance).FAsObject;
+      Result := GetInterface(obj, IID, intf);
+      if not Result and GetInterface(obj, IInterface, localIntf) then
+        Result := IInterface(localIntf).QueryInterface(IID, intf) = S_OK;
     end;
     tkInterface:
-      Result := instance.AsInterface.QueryInterface(IID, intf) = S_OK;
+    begin
+      localIntf := nil;
+      TValueData(instance).FValueData.ExtractRawDataNoCopy(@localIntf);
+      Result := IInterface(localIntf).QueryInterface(IID, intf) = S_OK;
+    end;
   else
     Result := False;
   end
@@ -223,10 +229,8 @@ procedure TTransientLifetimeManager.Release(const instance: TValue);
 begin
   Guard.CheckNotNull(instance, 'instance');
   DoBeforeDestruction(instance);
-{$IFNDEF AUTOREFCOUNT}
   if instance.IsObject then
     instance.AsObject.Free;
-{$ENDIF}
 end;
 
 {$ENDREGION}
@@ -237,25 +241,24 @@ end;
 constructor TSingletonPerThreadLifetimeManager.Create(const model: TComponentModel);
 begin
   inherited Create(model);
-  fInstances := TCollections.CreateDictionary<TThreadID, TFunc<TValue>>;
+  fInstances := TCollections.CreateDictionary<TThreadID, Func<TValue>>;
   fInstances.OnValueChanged.Add(HandleValueChanged);
 end;
 
 function TSingletonPerThreadLifetimeManager.CreateHolder(
-  const instance: TValue; refCounting: TRefCounting): TFunc<TValue>;
+  const instance: TValue; refCounting: TRefCounting): Func<TValue>;
 begin
   Result := TValueHolder.Create(instance, refCounting);
 end;
 
 destructor TSingletonPerThreadLifetimeManager.Destroy;
 begin
-  // Needs to be freed prior our weakrefs get cleared
   fInstances := nil;
   inherited Destroy;
 end;
 
 procedure TSingletonPerThreadLifetimeManager.HandleValueChanged(sender: TObject;
-  const item: TFunc<TValue>; action: TCollectionChangedAction);
+  const item: Func<TValue>; action: TCollectionChangedAction);
 begin
   if action = caRemoved then
   begin
@@ -268,7 +271,7 @@ function TSingletonPerThreadLifetimeManager.Resolve(
 var
   threadID: THandle;
   instance: TValue;
-  holder: TFunc<TValue>;
+  holder: Func<TValue>;
 begin
   threadID := TThread.CurrentThread.ThreadID;
   MonitorEnter(Self);
@@ -277,7 +280,7 @@ begin
     begin
       instance := model.ComponentActivator.CreateInstance(context);
       holder := CreateHolder(instance, model.RefCounting);
-      fInstances.AddOrSetValue(threadID, holder);
+      fInstances[threadID] := holder;
       DoAfterConstruction(holder);
     end;
   finally

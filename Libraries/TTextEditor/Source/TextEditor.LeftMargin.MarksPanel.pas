@@ -3,7 +3,7 @@
 interface
 
 uses
-  System.Classes, Vcl.Graphics, TextEditor.Types;
+  System.Classes, TextEditor.Types;
 
 type
   TTextEditorLeftMarginMarksPanel = class(TPersistent)
@@ -48,6 +48,7 @@ begin
   begin
     Self.FVisible := FVisible;
     Self.FWidth := FWidth;
+
     if Assigned(Self.FOnChange) then
       Self.FOnChange(Self);
   end
@@ -56,11 +57,8 @@ begin
 end;
 
 procedure TTextEditorLeftMarginMarksPanel.ChangeScale(const AMultiplier, ADivider: Integer);
-var
-  LNumerator: Integer;
 begin
-  LNumerator := (AMultiplier div ADivider) * ADivider;
-  FWidth := MulDiv(FWidth, LNumerator, ADivider);
+  FWidth := MulDiv(FWidth, AMultiplier, ADivider);
 end;
 
 procedure TTextEditorLeftMarginMarksPanel.DoChange;
@@ -74,9 +72,11 @@ var
   LValue: Integer;
 begin
   LValue := Max(0, AValue);
+
   if FWidth <> LValue then
   begin
     FWidth := LValue;
+
     DoChange
   end;
 end;
@@ -86,6 +86,7 @@ begin
   if FVisible <> AValue then
   begin
     FVisible := AValue;
+
     DoChange
   end;
 end;

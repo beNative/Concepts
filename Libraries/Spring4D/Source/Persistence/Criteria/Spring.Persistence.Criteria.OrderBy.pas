@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -40,12 +40,15 @@ type
   TOrderBy = class(TInterfacedObject, IOrderBy)
   private
     fEntityClass: TClass;
+    fMemberPath: string;
     fPropertyName: string;
     fSortingDirection: TSortingDirection;
     function GetEntityClass: TClass;
+    function GetMemberPath: string;
     function GetPropertyName: string;
     function GetSortingDirection: TSortingDirection;
     procedure SetEntityClass(value: TClass);
+    procedure SetMemberPath(const value: string);
   protected
     constructor Create(const propertyName: string; sortingDirection: TSortingDirection);
   public
@@ -81,6 +84,11 @@ begin
   Result := fEntityClass;
 end;
 
+function TOrderBy.GetMemberPath: string;
+begin
+  Result := fMemberPath;
+end;
+
 function TOrderBy.GetPropertyName: string;
 begin
   Result := fPropertyName;
@@ -94,6 +102,11 @@ end;
 procedure TOrderBy.SetEntityClass(value: TClass);
 begin
   fEntityClass := value;
+end;
+
+procedure TOrderBy.SetMemberPath(const value: string);
+begin
+  fMemberPath := value;
 end;
 
 {$ENDREGION}

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -29,13 +29,14 @@ unit Spring.Collections.Sets;
 interface
 
 uses
-  Generics.Collections,
   Generics.Defaults,
+  Spring,
   Spring.Collections,
-{$IFNDEF DELPHI2010}
+  Spring.Collections.Base,
   Spring.Collections.Trees,
-{$ENDIF}
-  Spring.Collections.Base;
+  Spring.HashTable;
+
+{$IFDEF DELPHIXE6_UP}{$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS(FieldVisibility)}{$ENDIF}
 
 type
   /// <summary>
@@ -43,7 +44,7 @@ type
   /// </summary>
   TSetBase<T> = class abstract(TCollectionBase<T>)
   protected
-    class function CreateSet: ISet<T>; virtual; abstract;
+    function CreateSet: ISet<T>; virtual; abstract;
   public
     procedure ExceptWith(const other: IEnumerable<T>);
     procedure IntersectWith(const other: IEnumerable<T>);
@@ -54,58 +55,74 @@ type
     function Overlaps(const other: IEnumerable<T>): Boolean;
   end;
 
+  THashSetItem<T> = packed record
+  public
+    HashCode: Integer;
+    Item: T;
+  end;
+
   /// <summary>
   ///   Represents a set of values.
   /// </summary>
   /// <typeparam name="T">
   ///   The type of elements in the hash set.
   /// </typeparam>
-  THashSet<T> = class(TSetBase<T>, ISet<T>)
+  THashSet<T> = class(TSetBase<T>, IInterface, IEnumerable<T>,
+    IReadOnlyCollection<T>, ICollection<T>, ISet<T>, IOrderedSet<T>)
+  private type
+  {$REGION 'Nested Types'}
+    TItem = THashSetItem<T>;
+    TItems = TArray<TItem>;
+    PItem = ^TItem;
+
+    PEnumerator = ^TEnumerator;
+    TEnumerator = record
+      Vtable: Pointer;
+      RefCount: Integer;
+      TypeInfo: PTypeInfo;
+      fSource: THashSet<T>;
+      fIndex: Integer;
+      fVersion: Integer;
+      fItem: PItem;
+      function GetCurrent: T;
+      function MoveNext: Boolean;
+      class var Enumerator_Vtable: TEnumeratorVtable;
+    end;
+  {$ENDREGION}
   private
-    type
-      TGenericDictionary = Generics.Collections.TDictionary<T, Integer>;
-  private
-    fDictionary: TGenericDictionary;
-    procedure DoKeyNotify(Sender: TObject; const Item: T;
-      Action: TCollectionNotification);
-  protected
-    class function CreateSet: ISet<T>; override;
-    procedure AddInternal(const item: T); override;
-    function GetCount: Integer; override;
-  public
-    constructor Create; overload; override;
-    constructor Create(const comparer: IEqualityComparer<T>); overload;
-    destructor Destroy; override;
-
-    function GetEnumerator: IEnumerator<T>; override;
-
-    function Add(const item: T): Boolean;
-    function Remove(const item: T): Boolean; override;
-    function Extract(const item: T): T; override;
-    procedure Clear; override;
-
-    function Contains(const item: T): Boolean; override;
-  end;
-
-  TOrderedSet<T> = class(THashSet<T>, IOrderedSet<T>)
-  private
-    fKeys: IList<T>;
+    fHashTable: THashTable;
   {$REGION 'Property Accessors'}
-    function GetItem(index: Integer): T;
+    function GetCapacity: Integer; inline;
+    function GetCount: Integer;
+    function GetItemByIndex(index: Integer): T;
+    function GetNonEnumeratedCount: Integer;
+    procedure SetCapacity(value: Integer);
   {$ENDREGION}
   protected
-    procedure Changed(const item: T; action: TCollectionChangedAction); override;
+    function CreateSet: ISet<T>; override;
+    function TryGetElementAt(var item: T; index: Integer): Boolean;
+    property Capacity: Integer read GetCapacity;
   public
-    constructor Create; overload; override;
-    constructor Create(const comparer: IEqualityComparer<T>); overload;
+    constructor Create(capacity: Integer; const comparer: IEqualityComparer<T>);
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
 
   {$REGION 'Implements IEnumerable<T>'}
-    function GetEnumerator: IEnumerator<T>; override;
-    function ToArray: TArray<T>; override;
+    function GetEnumerator: IEnumerator<T>;
+    function Contains(const item: T): Boolean; overload;
+    function ToArray: TArray<T>;
   {$ENDREGION}
 
   {$REGION 'Implements ICollection<T>'}
-    procedure Clear; override;
+    function Add(const item: T): Boolean;
+    procedure AddRange(const values: array of T); overload;
+    function Remove(const item: T): Boolean;
+    function Extract(const item: T): T;
+    procedure Clear;
+  {$ENDREGION}
+
+  {$REGION 'Implements ISet<T>'}
+    procedure TrimExcess;
   {$ENDREGION}
 
   {$REGION 'Implements IOrderedSet<T>'}
@@ -113,155 +130,235 @@ type
   {$ENDREGION}
   end;
 
-{$IFNDEF DELPHI2010}
-  TSortedSet<T> = class(TSetBase<T>, ISet<T>)
+  TSortedSet<T> = class(TSetBase<T>, IEnumerable<T>,
+    IReadOnlyCollection<T>, ICollection<T>, ISet<T>)
+  private type
+  {$REGION 'Nested Types'}
+    PNode = ^TNode;
+    TNode = packed record // same layout as TRedBlackTreeBase<T>.TNode
+      Parent, Right, Left: PNode;
+      Key: T;
+    end;
+
+    PEnumerator = ^TEnumerator;
+    TEnumerator = record
+      Vtable: Pointer;
+      RefCount: Integer;
+      TypeInfo: PTypeInfo;
+      fSource: TSortedSet<T>;
+      fNode: PBinaryTreeNode;
+      fVersion: Integer;
+      function GetCurrent: T;
+      function MoveNext: Boolean;
+      class var Enumerator_Vtable: TEnumeratorVtable;
+    end;
+  {$ENDREGION}
   private
-    fTree: IRedBlackTree<T>;
-    type
-      PNode = TRedBlackTreeNodeHelper<T>.PNode;
+    fTree: TRedBlackTreeBase<T>;
+    fVersion: Integer;
+  {$REGION 'Property Accessors'}
+    function GetCapacity: Integer;
+    function GetCount: Integer;
+    function GetNonEnumeratedCount: Integer;
+    procedure SetCapacity(value: Integer);
+  {$ENDREGION}
   protected
-    class function CreateSet: ISet<T>; override;
-    procedure AddInternal(const item: T); override;
-    function GetCount: Integer; override;
+    function CreateSet: ISet<T>; override;
   public
-    constructor Create; overload; override;
-    constructor Create(const comparer: IComparer<T>); overload;
+    constructor Create(const comparer: IComparer<T>);
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
 
-    function GetEnumerator: IEnumerator<T>; override;
+  {$REGION 'Implements IEnumerable<T>'}
+    function GetEnumerator: IEnumerator<T>;
+    function Contains(const item: T): Boolean; overload;
+    function ToArray: TArray<T>;
+  {$ENDREGION}
 
+  {$REGION 'Implements ICollection<T>'}
     function Add(const item: T): Boolean;
-    function Remove(const item: T): Boolean; override;
-    function Extract(const item: T): T; override;
-    procedure Clear; override;
+    function Remove(const item: T): Boolean;
+    function Extract(const item: T): T;
+    procedure Clear;
+  {$ENDREGION}
 
-    function Contains(const item: T): Boolean; override;
+  {$REGION 'Implements ISet<T>'}
+    procedure TrimExcess;
+  {$ENDREGION}
   end;
-{$ENDIF}
+
+  TFoldedHashSet<T> = class(THashSet<T>)
+  private
+    fElementType: PTypeInfo;
+  protected
+    function GetElementType: PTypeInfo; override;
+  public
+    constructor Create(elementType: PTypeInfo;
+      capacity: Integer;
+      const comparer: IEqualityComparer<T>);
+  end;
 
 implementation
 
 uses
-  Spring,
-  Spring.Collections.Extensions,
-  Spring.Collections.Lists;
+  TypInfo,
+  Spring.Comparers,
+  Spring.Events.Base,
+  Spring.ResourceStrings;
 
 
 {$REGION 'TSetBase<T>'}
 
 procedure TSetBase<T>.ExceptWith(const other: IEnumerable<T>);
-var
-  item: T;
 begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckNotNull(Assigned(other), 'other');
-{$ENDIF}
-
-  for item in other do
-    Remove(item);
+  ICollection<T>(this).RemoveRange(other);
 end;
 
 procedure TSetBase<T>.IntersectWith(const other: IEnumerable<T>);
 var
-  item: T;
-  list: IList<T>;
+  count, capacity: NativeInt;
+  enumerator: IEnumerator<T>;
+  items: TArray<T>;
 begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckNotNull(Assigned(other), 'other');
-{$ENDIF}
+  if not Assigned(other) then RaiseHelper.ArgumentNil(ExceptionArgument.other);
 
-{$IFNDEF DELPHI2010}
-  list := TCollections.CreateList<T>;
-{$ELSE}
-  list := TList<T>.Create;
-{$ENDIF}
-  for item in Self do
-    if not other.Contains(item) then
-      list.Add(item);
-
-  for item in list do
-    Remove(item);
+  count := 0;
+  capacity := 0;
+  enumerator := IEnumerable<T>(this).GetEnumerator;
+  while enumerator.MoveNext do
+  begin
+    if count >= capacity then
+      capacity := DynArrayGrow(Pointer(items), TypeInfo(TArray<T>), capacity);
+    {$IFDEF RSP31615}
+    if IsManagedType(T) then
+      IEnumeratorInternal(enumerator).GetCurrent(items[count])
+    else
+    {$ENDIF}
+    items[count] := enumerator.Current;
+    Inc(count, Ord(not other.Contains(items[count])));
+  end;
+  if count > 0 then
+  begin
+    SetLength(items, count);
+    ICollection<T>(this).RemoveRange(items);
+  end;
 end;
 
 function TSetBase<T>.IsSubsetOf(const other: IEnumerable<T>): Boolean;
 var
+  enumerator: IEnumerator<T>;
   item: T;
 begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckNotNull(Assigned(other), 'other');
-{$ENDIF}
+  if not Assigned(other) then RaiseHelper.ArgumentNil(ExceptionArgument.other);
 
-  for item in Self do
+  enumerator := IEnumerable<T>(this).GetEnumerator;
+  while enumerator.MoveNext do
+  begin
+    {$IFDEF RSP31615}
+    if IsManagedType(T) then
+      IEnumeratorInternal(enumerator).GetCurrent(item)
+    else
+    {$ENDIF}
+    item := enumerator.Current;
     if not other.Contains(item) then
       Exit(False);
+  end;
 
   Result := True;
 end;
 
 function TSetBase<T>.IsSupersetOf(const other: IEnumerable<T>): Boolean;
 var
+  enumerator: IEnumerator<T>;
   item: T;
 begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckNotNull(Assigned(other), 'other');
-{$ENDIF}
+  if not Assigned(other) then RaiseHelper.ArgumentNil(ExceptionArgument.other);
 
-  for item in other do
-    if not Contains(item) then
+  enumerator := other.GetEnumerator;
+  while enumerator.MoveNext do
+  begin
+    {$IFDEF RSP31615}
+    if IsManagedType(T) then
+      IEnumeratorInternal(enumerator).GetCurrent(item)
+    else
+    {$ENDIF}
+    item := enumerator.Current;
+    if not IEnumerable<T>(this).Contains(item) then
       Exit(False);
+  end;
 
   Result := True;
 end;
 
 function TSetBase<T>.Overlaps(const other: IEnumerable<T>): Boolean;
 var
+  enumerator: IEnumerator<T>;
   item: T;
 begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckNotNull(Assigned(other), 'other');
-{$ENDIF}
+  if not Assigned(other) then RaiseHelper.ArgumentNil(ExceptionArgument.other);
 
-  for item in other do
-    if Contains(item) then
+  enumerator := other.GetEnumerator;
+  while enumerator.MoveNext do
+  begin
+    {$IFDEF RSP31615}
+    if IsManagedType(T) then
+      IEnumeratorInternal(enumerator).GetCurrent(item)
+    else
+    {$ENDIF}
+    item := enumerator.Current;
+    if IEnumerable<T>(this).Contains(item) then
       Exit(True);
+  end;
 
   Result := False;
 end;
 
 function TSetBase<T>.SetEquals(const other: IEnumerable<T>): Boolean;
 var
-  item: T;
   localSet: ISet<T>;
+  enumerator: IEnumerator<T>;
+  item: T;
 begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckNotNull(Assigned(other), 'other');
-{$ENDIF}
+  if not Assigned(other) then RaiseHelper.ArgumentNil(ExceptionArgument.other);
+
+  if other = IEnumerable<T>(this) then
+    Exit(True);
 
   localSet := CreateSet;
 
-  for item in other do
+  enumerator := other.GetEnumerator;
+  while enumerator.MoveNext do
   begin
+    {$IFDEF RSP31615}
+    if IsManagedType(T) then
+      IEnumeratorInternal(enumerator).GetCurrent(item)
+    else
+    {$ENDIF}
+    item := enumerator.Current;
     localSet.Add(item);
-    if not Contains(item) then
+    if not IEnumerable<T>(this).Contains(item) then
       Exit(False);
   end;
 
-  for item in Self do
+  enumerator := IEnumerable<T>(this).GetEnumerator;
+  while enumerator.MoveNext do
+  begin
+    {$IFDEF RSP31615}
+    if IsManagedType(T) then
+      IEnumeratorInternal(enumerator).GetCurrent(item)
+    else
+    {$ENDIF}
+    item := enumerator.Current;
     if not localSet.Contains(item) then
       Exit(False);
+  end;
 
   Result := True;
 end;
 
 procedure TSetBase<T>.UnionWith(const other: IEnumerable<T>);
-var
-  item: T;
 begin
-{$IFDEF SPRING_ENABLE_GUARD}
-  Guard.CheckNotNull(Assigned(other), 'other');
-{$ENDIF}
-
-  for item in other do
-    Add(item);
+  ICollection<T>(this).AddRange(other);
 end;
 
 {$ENDREGION}
@@ -269,144 +366,249 @@ end;
 
 {$REGION 'THashSet<T>'}
 
-constructor THashSet<T>.Create;
+constructor THashSet<T>.Create(capacity: Integer; const comparer: IEqualityComparer<T>);
+begin
+  fHashTable.Comparer := comparer;
+  fHashTable.ItemsInfo := TypeInfo(TItems);
+  SetCapacity(capacity);
+end;
+
+procedure THashSet<T>.AfterConstruction;
 var
-  // use variable to pass nil because of codegen bug in XE2 and XE3 in x64
-  comparer: IEqualityComparer<T>;
+  elementType: PTypeInfo;
 begin
-  Create(comparer);
+  inherited AfterConstruction;
+
+  elementType := GetElementType;
+  fHashTable.Initialize(@TComparerThunks<T>.Equals, @TComparerThunks<T>.GetHashCode, elementType);
+  {$IFDEF DELPHIXE7_UP}
+  if fHashTable.DefaultComparer then
+    fHashTable.Find := @THashTable<T>.FindWithoutComparer
+  else
+  {$ENDIF}
+    fHashTable.Find := @THashTable<T>.FindWithComparer;
 end;
 
-constructor THashSet<T>.Create(const comparer: IEqualityComparer<T>);
-begin
-  inherited Create;
-  fDictionary := TGenericDictionary.Create(comparer);
-  fDictionary.OnKeyNotify := DoKeyNotify;
-end;
-
-destructor THashSet<T>.Destroy;
+procedure THashSet<T>.BeforeDestruction;
 begin
   Clear;
-  fDictionary.Free;
-  inherited Destroy;
+  inherited BeforeDestruction;
 end;
 
-class function THashSet<T>.CreateSet: ISet<T>;
+function THashSet<T>.CreateSet: ISet<T>;
 begin
-  Result := THashSet<T>.Create;
+  Result := THashSet<T>.Create(0, IEqualityComparer<T>(fHashTable.Comparer));
+end;
+
+procedure THashSet<T>.SetCapacity(value: Integer);
+begin
+  fHashTable.Capacity := value;
+end;
+
+procedure THashSet<T>.TrimExcess;
+begin
+  fHashTable.Capacity := fHashTable.Count;
+end;
+
+function THashSet<T>.TryGetElementAt(var item: T; index: Integer): Boolean;
+begin
+  if Cardinal(index) < Cardinal(fHashTable.Count) then
+  begin
+    fHashTable.EnsureCompact;
+    item := TItems(fHashTable.Items)[index].Item;
+    Exit(True);
+  end;
+  item := Default(T);
+  Result := False;
 end;
 
 function THashSet<T>.Add(const item: T): Boolean;
+var
+  entry: PItem;
 begin
-  Result := not fDictionary.ContainsKey(item);
-  if Result then
-    inherited Add(item);
+  entry := IHashTable<T>(@fHashTable).Find(item, IgnoreExisting or InsertNonExisting);
+  if not Assigned(entry) then Exit(Boolean(Pointer(entry)));
+  entry.Item := item;
+  DoNotify(item, caAdded);
+  Result := True;
 end;
 
-procedure THashSet<T>.AddInternal(const item: T);
+procedure THashSet<T>.AddRange(const values: array of T);
+var
+  i: NativeInt;
+  entry: PItem;
 begin
-  fDictionary.AddOrSetValue(item, 0);
+  fHashTable.Capacity := fHashTable.Count + Length(values);
+  for i := 0 to High(values) do
+  begin
+    entry := IHashTable<T>(@fHashTable).Find(values[i], IgnoreExisting or InsertNonExisting);
+    if not Assigned(entry) then Continue;
+    entry.Item := values[i];
+    if Assigned(Notify) then
+      Notify(Self, entry.Item, caAdded);
+  end;
 end;
 
 procedure THashSet<T>.Clear;
+var
+  item: PItem;
+  i: Integer;
 begin
-  fDictionary.Clear;
+  if Assigned(Notify) then
+  begin
+    fHashTable.ClearCount;
+    item := PItem(fHashTable.Items);
+    for i := 1 to fHashTable.ItemCount do //FI:W528
+      if item.HashCode >= 0 then
+        Notify(Self, item.Item, caRemoved);
+  end;
+
+  fHashTable.Clear;
 end;
 
 function THashSet<T>.Contains(const item: T): Boolean;
+var
+  entry: PItem;
 begin
-  Result := fDictionary.ContainsKey(item);
-end;
-
-procedure THashSet<T>.DoKeyNotify(Sender: TObject; const Item: T;
-  Action: TCollectionNotification);
-begin
-  Changed(Item, CollectionNotificationMapping[Action]);
+  entry := IHashTable<T>(@fHashTable).Find(item);
+  Result := Assigned(entry);
 end;
 
 function THashSet<T>.Extract(const item: T): T;
+var
+  entry: PItem;
 begin
-  if fDictionary.ContainsKey(item) then
-{$IFDEF DELPHIXE2_UP}
-    Result := fDictionary.ExtractPair(item).Key
-{$ELSE}
+  entry := IHashTable<T>(@fHashTable).Find(item, DeleteExisting);
+  if Assigned(entry) then
   begin
-    Result := item;
-    fDictionary.ExtractPair(item);
+    if Assigned(Notify) then
+      Notify(Self, entry.Item, caExtracted);
+    Result := entry.Item;
+    entry.Item := Default(T);
   end
-{$ENDIF}
   else
     Result := Default(T);
 end;
 
-function THashSet<T>.GetEnumerator: IEnumerator<T>;
+function THashSet<T>.GetEnumerator: IEnumerator<T>; //FI:W521
 begin
-  Result := TEnumeratorAdapter<T>.Create(fDictionary.Keys);
+  _AddRef;
+  with PEnumerator(TEnumeratorBlock.Create(@Result, @TEnumerator.Enumerator_Vtable,
+    TypeInfo(TEnumerator), @TEnumerator.GetCurrent, @TEnumerator.MoveNext))^ do
+  begin
+    fSource := Self;
+    fVersion := Self.fHashTable.Version;
+  end;
+end;
+
+function THashSet<T>.GetCapacity: Integer;
+begin
+  Result := fHashTable.Capacity;
 end;
 
 function THashSet<T>.GetCount: Integer;
 begin
-  Result := fDictionary.Count;
+  Result := fHashTable.Count;
+end;
+
+function THashSet<T>.GetItemByIndex(index: Integer): T; //FI:W521
+begin
+  if Cardinal(index) < Cardinal(fHashTable.Count) then
+  begin
+    fHashTable.EnsureCompact;
+    Exit(TItems(fHashTable.Items)[index].Item);
+  end;
+  RaiseHelper.ArgumentOutOfRange_Index;
+  __SuppressWarning(Result);
+end;
+
+function THashSet<T>.GetNonEnumeratedCount: Integer;
+begin
+  Result := fHashTable.Count;
+end;
+
+function THashSet<T>.IndexOf(const key: T): Integer;
+var
+  entry: THashTableEntry;
+begin
+  entry.HashCode := IEqualityComparer<T>(fHashTable.Comparer).GetHashCode(key);
+  fHashTable.EnsureCompact;
+  if fHashTable.FindEntry(key, entry) then
+    Exit(entry.ItemIndex);
+  Result := -1;
 end;
 
 function THashSet<T>.Remove(const item: T): Boolean;
+var
+  temp: Pointer;
+  entry: PItem;
 begin
-  Result := fDictionary.ContainsKey(item);
-  if Result then
-    fDictionary.Remove(item);
+  temp := IHashTable<T>(@fHashTable).Find(item, DeleteExisting);
+  if not Assigned(temp) then Exit(Boolean(Pointer(temp)));
+  entry := temp;
+  if Assigned(Notify) then
+    Notify(Self, entry.Item, caRemoved);
+  entry.Item := Default(T);
+  Result := True;
+end;
+
+function THashSet<T>.ToArray: TArray<T>;
+var
+  target: ^T;
+  source: PItem;
+  i: Integer;
+begin
+  SetLength(Result, fHashTable.Count);
+  target := Pointer(Result);
+  if Assigned(target) then
+  begin
+    source := Pointer(fHashTable.Items);
+    for i := 1 to fHashTable.ItemCount do //FI:W528
+    begin
+      if source.HashCode >= 0 then
+      begin
+        target^ := source.Item;
+        Inc(target);
+      end;
+      Inc(source);
+    end;
+  end;
 end;
 
 {$ENDREGION}
 
 
-{$REGION 'TOrderedSet<T>'}
+{$REGION 'THashSet<T>.TEnumerator'}
 
-constructor TOrderedSet<T>.Create;
+function THashSet<T>.TEnumerator.GetCurrent: T;
 begin
-  inherited Create;
-  fKeys := TKeyList<T>.Create(nil);
+  Result := fItem.Item;
 end;
 
-constructor TOrderedSet<T>.Create(const comparer: IEqualityComparer<T>);
+function THashSet<T>.TEnumerator.MoveNext: Boolean;
+var
+  hashTable: PHashTable;
+  item: PItem;
 begin
-  inherited Create(comparer);
-  fKeys := TKeyList<T>.Create(comparer);
-end;
+  hashTable := @fSource.fHashTable;
+  if fVersion = hashTable.Version then
+  begin
+    repeat
+      if fIndex >= hashTable.ItemCount then
+        Break;
 
-procedure TOrderedSet<T>.Clear;
-begin
-  fKeys.Clear;
-  inherited Clear;
-end;
-
-procedure TOrderedSet<T>.Changed(const item: T;
-  action: TCollectionChangedAction);
-begin
-  inherited Changed(item, action);
-  case action of
-    caAdded: fKeys.Add(item);
-    caRemoved, caExtracted: fKeys.Remove(item);
-  end;
-end;
-
-function TOrderedSet<T>.GetEnumerator: IEnumerator<T>;
-begin
-  Result := fKeys.GetEnumerator;
-end;
-
-function TOrderedSet<T>.GetItem(index: Integer): T;
-begin
-  Result := fKeys[index];
-end;
-
-function TOrderedSet<T>.IndexOf(const key: T): Integer;
-begin
-  Result := fKeys.IndexOf(key);
-end;
-
-function TOrderedSet<T>.ToArray: TArray<T>;
-begin
-  Result := fKeys.ToArray;
+      item := @TItems(hashTable.Items)[fIndex];
+      Inc(fIndex);
+      if item.HashCode >= 0 then
+      begin
+        fItem := item;
+        Exit(True);
+      end;
+    until False;
+    Result := False;
+  end
+  else
+    Result := RaiseHelper.EnumFailedVersion;
 end;
 
 {$ENDREGION}
@@ -414,70 +616,93 @@ end;
 
 {$REGION 'TSortedSet<T>'}
 
-{$IFNDEF DELPHI2010}
-constructor TSortedSet<T>.Create;
-var
-  // use variable to pass nil because of codegen bug in XE2 and XE3 in x64
-  comparer: IComparer<T>;
-begin
-  Create(comparer);
-end;
-
 constructor TSortedSet<T>.Create(const comparer: IComparer<T>);
 begin
-  inherited Create;
-  fTree := TRedBlackTree<T>.Create(comparer);
+  fComparer := comparer;
 end;
 
-class function TSortedSet<T>.CreateSet: ISet<T>;
+procedure TSortedSet<T>.AfterConstruction;
 begin
-  Result := TSortedSet<T>.Create;
+  inherited AfterConstruction;
+
+  fTree := TRedBlackTreeBase<T>.Create(fComparer);
+end;
+
+procedure TSortedSet<T>.BeforeDestruction;
+begin
+  Clear;
+  fTree.Free;
+  inherited BeforeDestruction;
+end;
+
+function TSortedSet<T>.CreateSet: ISet<T>;
+begin
+  Result := TSortedSet<T>.Create(fComparer);
 end;
 
 function TSortedSet<T>.Add(const item: T): Boolean;
+var
+  node: Pointer;
 begin
-  Result := fTree.Add(item);
-  if Result then
-    Changed(item, caAdded);
-end;
-
-procedure TSortedSet<T>.AddInternal(const item: T);
-begin
-  fTree.Add(item);
-  Changed(item, caAdded);
+  node := fTree.AddNode(item);
+  if not Assigned(node) then Exit(Boolean(node));
+  {$Q-}
+  Inc(fVersion);
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}
+  if Assigned(Notify) then
+    Notify(Self, PNode(node).Key, caAdded);
+  Result := True;
 end;
 
 procedure TSortedSet<T>.Clear;
 var
-  node: PBinaryTreeNode;
+  node: Pointer;
 begin
-  node := fTree.Root.LeftMost;
-  while Assigned(node) do
+  if fTree.Count = 0 then
+    Exit;
+
+  {$Q-}
+  Inc(fVersion);
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}
+  if Assigned(Notify) then // optimization: if no notification needs to be send the entire tree traversal won't be done
   begin
-    Changed(PNode(node).Key, caRemoved);
-    node := node.Next;
+    node := fTree.Root.LeftMost;
+    while Assigned(node) do
+      Notify(Self, PNode(node).Key, caRemoved);
   end;
 
   fTree.Clear;
 end;
 
 function TSortedSet<T>.Contains(const item: T): Boolean;
+var
+  node: Pointer;
 begin
-  Result := Assigned(fTree.FindNode(item));
+  node := fTree.FindNode(item);
+  Result := Assigned(node);
 end;
 
 function TSortedSet<T>.Extract(const item: T): T;
 var
-  node: PNode;
+  node: Pointer;
 begin
   node := fTree.FindNode(item);
   if Assigned(node) then
   begin
-    Result := node.Key;
-    Changed(Result, caExtracted);
+    Result := PNode(node).Key;
+    {$Q-}
+    Inc(fVersion);
+    {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}
+    fTree.DeleteNode(node);
+    DoNotify(Result, caExtracted);
   end
   else
     Result := Default(T);
+end;
+
+function TSortedSet<T>.GetCapacity: Integer;
+begin
+  Result := fTree.Capacity;
 end;
 
 function TSortedSet<T>.GetCount: Integer;
@@ -485,18 +710,117 @@ begin
   Result := fTree.Count;
 end;
 
-function TSortedSet<T>.GetEnumerator: IEnumerator<T>;
+function TSortedSet<T>.GetEnumerator: IEnumerator<T>; //FI:W521
 begin
-  Result := fTree.GetEnumerator;
+  _AddRef;
+  with PEnumerator(TEnumeratorBlock.Create(@Result, @TEnumerator.Enumerator_Vtable,
+    TypeInfo(TEnumerator), @TEnumerator.GetCurrent, @TEnumerator.MoveNext))^ do
+  begin
+    fSource := Self;
+    fVersion := Self.fVersion;
+  end;
+end;
+
+function TSortedSet<T>.GetNonEnumeratedCount: Integer;
+begin
+  Result := fTree.Count;
 end;
 
 function TSortedSet<T>.Remove(const item: T): Boolean;
+var
+  node: Pointer;
 begin
-  Result := fTree.Delete(item);
-  if Result then
-    Changed(item, caRemoved);
+  node := fTree.FindNode(item);
+  if not Assigned(node) then Exit(Boolean(node));
+  {$Q-}
+  Inc(fVersion);
+  {$IFDEF OVERFLOWCHECKS_ON}{$Q+}{$ENDIF}
+  fTree.DeleteNode(node);
+  DoNotify(item, caRemoved);
+  Result := True;
 end;
-{$ENDIF}
+
+function TSortedSet<T>.ToArray: TArray<T>;
+var
+  tree: TBinaryTree;
+  i: Integer;
+  node: PBinaryTreeNode;
+begin
+  tree := fTree;
+  SetLength(Result, tree.Count);
+  i := 0;
+  node := tree.Root.LeftMost;
+  while Assigned(node) do
+  begin
+    Result[i] := PNode(node).Key;
+    node := node.Next;
+    Inc(i);
+  end;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TSortedSet<T>.TEnumerator'}
+
+function TSortedSet<T>.TEnumerator.GetCurrent: T;
+begin
+  Result := PNode(fNode).Key;
+end;
+
+function TSortedSet<T>.TEnumerator.MoveNext: Boolean;
+var
+  node: Pointer;
+begin
+  if fVersion = fSource.fVersion then
+  begin
+    if fNode <> Pointer(1) then
+    begin
+      if Assigned(fNode) then
+        node := fNode.Next
+      else
+        node := fSource.fTree.Root.LeftMost;
+      if Assigned(node) then
+      begin
+        fNode := node;
+        Exit(True);
+      end;
+      fNode := Pointer(1);
+    end;
+    Result := False;
+  end
+  else
+    Result := RaiseHelper.EnumFailedVersion;
+end;
+
+procedure TSortedSet<T>.SetCapacity(value: Integer);
+begin
+  fTree.Capacity := value;
+end;
+
+procedure TSortedSet<T>.TrimExcess;
+begin
+  fTree.TrimExcess;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TFoldedHashSet<T>'}
+
+constructor TFoldedHashSet<T>.Create(elementType: PTypeInfo; capacity: Integer;
+  const comparer: IEqualityComparer<T>);
+begin
+  fHashTable.Comparer := comparer;
+  fHashTable.ItemsInfo := TypeInfo(TItems);
+  SetCapacity(capacity);
+  fElementType := elementType;
+end;
+
+function TFoldedHashSet<T>.GetElementType: PTypeInfo;
+begin
+  Result := fElementType;
+end;
 
 {$ENDREGION}
 

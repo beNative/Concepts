@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -57,11 +57,7 @@ type
   TTestCRC16 = class(THashAlgorithmTestCase)
   private
     const
-{$IFNDEF NEXTGEN}
       fCData: AnsiString = '123456789';
-{$ELSE}
-      fCData = '123456789';
-{$ENDIF}
       fCExpectedHashOfEmptyBuffer = '0000';
       fCExpectedHashOfData = 'BB3D';
   private
@@ -78,11 +74,7 @@ type
   TTestCRC32 = class(THashAlgorithmTestCase)
   private
     const
-{$IFNDEF NEXTGEN}
       fCData: AnsiString = '123456789';
-{$ELSE}
-      fCData = '123456789';
-{$ENDIF}
       fCExpectedHashOfEmptyBuffer = '00000000';
       fCExpectedHashOfData = 'CBF43926';
   private
@@ -305,11 +297,7 @@ end;
 
 procedure TTestCRC16.TestNonEmptyBuffer;
 begin
-{$IFNDEF NEXTGEN}
   fActual := fCRC16.ComputeHash(fCData);
-{$ELSE}
-  fActual := fCRC16.ComputeHash(TEncoding.ANSI.GetBytes(fCData));
-{$ENDIF}
   fExpected := TBuffer.FromHexString(fCExpectedHashOfData);
   CheckEquals(fExpected, fActual);
 end;
@@ -344,11 +332,7 @@ end;
 
 procedure TTestCRC32.TestNonEmptyBuffer;
 begin
-{$IFNDEF NEXTGEN}
   fActual := fCRC32.ComputeHash(fCData);
-{$ELSE}
-  fActual := fCRC32.ComputeHash(TEncoding.ANSI.GetBytes(fCData));
-{$ENDIF}
   fExpected := TBuffer.FromHexString(fCExpectedHashOfData);
   CheckEquals(fExpected, fActual);
 end;
@@ -573,11 +557,7 @@ end;
 
 procedure TTestDES.TestCBC;
 begin
-{$IFNDEF NEXTGEN}
   fInputBuffer := TBuffer.Create(AnsiString('Now is the time for all '));
-{$ELSE}
-  fInputBuffer := TBuffer.Create(TEncoding.ANSI.GetBytes('Now is the time for all '));
-{$ENDIF}
   fOutputBuffer := TBuffer.FromHexString('e5c7cdde872bf27c 43e934008c389c0f 683788499a7c05f6');
   fKey := TBuffer.FromHexString('0123456789abcdef');
   fDES.IV := TBuffer.FromHexString('1234567890abcdef');
@@ -784,7 +764,7 @@ end;
 {$ENDREGION}
 
 
-{$REGION 'TTestPaddingModeIsZeros' }
+{$REGION 'TTestPaddingModeIsZeros'}
 
 procedure TTestPaddingModeIsZeros.SetUp;
 begin

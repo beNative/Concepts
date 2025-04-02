@@ -47,7 +47,7 @@ uses
   zObjInspector, zObjInspTypes,
 
   DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter,
-  DSharp.Bindings, DSharp.Windows.CustomPresenter,
+  DSharp.Windows.CustomPresenter,
 
   Spring.Collections,
 

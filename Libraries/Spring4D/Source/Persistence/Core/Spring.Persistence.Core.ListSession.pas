@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -37,7 +37,6 @@ uses
 type
   TListSession<T: class, constructor> = class(TInterfacedObject, IListSession<T>)
   private
-    {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fSession: TSession;
     fList: IList<T>;
     fPrimaryKeys: ISet<TValue>;
@@ -56,7 +55,6 @@ type
 implementation
 
 uses
-  Generics.Collections,
   Spring.Persistence.Core.Exceptions,
   Spring.Persistence.Core.EntityCache,
   Spring.Persistence.SQL.Commands.Delete;
@@ -116,7 +114,7 @@ begin
     end;
     caReplaced: ;
     caMoved: ;
-    caReseted: ;
+    caReset: ;
   end;
 end;
 

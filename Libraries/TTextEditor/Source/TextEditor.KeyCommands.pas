@@ -83,19 +83,21 @@ type
     GoToPreviousBookmark = 331;
     { Deletion }
     Backspace = 501;
-    DeleteChar = 502;
-    DeleteWord = 503;
-    DeleteWordForward = 504;
-    DeleteWordBackward = 505;
-    DeleteBeginningOfLine = 506;
-    DeleteEndOfLine = 507;
-    DeleteLine = 508;
-    Clear = 509;
+    Clear = 502;
+    DeleteBeginningOfLine = 503;
+    DeleteChar = 504;
+    DeleteEndOfLine = 505;
+    DeleteLine = 506;
+    DeleteWhitespaceBackward = 507;
+    DeleteWhitespaceForward = 508;
+    DeleteWord = 509;
+    DeleteWordBackward = 510;
+    DeleteWordForward = 511;
     { Insert }
-    LineBreak = 510;
-    InsertLine = 511;
-    Char = 512;
-    Text = 513;
+    LineBreak = 512;
+    InsertLine = 513;
+    Char = 514;
+    Text = 515;
     ImeStr = 550;
     { Clipboard }
     Undo = 601;
@@ -117,6 +119,9 @@ type
     UpperCaseBlock = 625;
     LowerCaseBlock = 626;
     AlternatingCaseBlock = 627;
+    KeywordsUpperCase = 628;
+    KeywordsLowerCase = 629;
+    KeywordsTitleCase = 630;
     { Move }
     MoveLineUp = 701;
     MoveLineDown = 702;
@@ -213,7 +218,7 @@ function EditorCommandToIdent(ACommand: Integer; var AIdent: string): Boolean;
 implementation
 
 uses
-  Winapi.Windows, System.UITypes, TextEditor.Language;
+  System.UITypes, TextEditor.Language;
 
 type
   TTextEditorCommandString = record
@@ -222,7 +227,7 @@ type
   end;
 
 const
-  EditorCommandStrings: array [0 .. 106] of TTextEditorCommandString = (
+  EditorCommandStrings: array [0 .. 108] of TTextEditorCommandString = (
     (Value: TKeyCommands.None; Name: 'TKeyCommands.None'),
     (Value: TKeyCommands.Left; Name: 'TKeyCommands.Left'),
     (Value: TKeyCommands.Right; Name: 'TKeyCommands.Right'),
@@ -266,6 +271,8 @@ const
     (Value: TKeyCommands.ScrollRight; Name: 'TKeyCommands.ScrollRight'),
     (Value: TKeyCommands.Backspace; Name: 'TKeyCommands.Backspace'),
     (Value: TKeyCommands.DeleteChar; Name: 'TKeyCommands.DeleteChar'),
+    (Value: TKeyCommands.DeleteWhitespaceForward; Name: 'TKeyCommands.DeleteWhitespaceForward'),
+    (Value: TKeyCommands.DeleteWhitespaceBackward; Name: 'TKeyCommands.DeleteWhitespaceBackward'),
     (Value: TKeyCommands.DeleteWord; Name: 'TKeyCommands.DeleteWord'),
     (Value: TKeyCommands.DeleteWordForward; Name: 'TKeyCommands.DeleteWordForward'),
     (Value: TKeyCommands.DeleteWordBackward; Name: 'TKeyCommands.DeleteWordBackward'),
@@ -342,6 +349,7 @@ begin
   for LIndex := Low(EditorCommandStrings) to High(EditorCommandStrings) do
   begin
     LCommandString := EditorCommandStrings[LIndex];
+
     if CompareText(LCommandString.Name, AIdent) = 0 then
     begin
       ACommand := LCommandString.Value;
@@ -362,6 +370,7 @@ begin
   for LIndex := Low(EditorCommandStrings) to High(EditorCommandStrings) do
   begin
     LCommandString := EditorCommandStrings[LIndex];
+
     if LCommandString.Value = ACommand then
     begin
       AIdent := LCommandString.Name;
@@ -394,6 +403,7 @@ var
 begin
   LClassMethod := TMethod(FEvent);
   LParamMethod := TMethod(AEvent);
+
   Result := (LClassMethod.Code = LParamMethod.Code) and (LClassMethod.Data = LParamMethod.Data);
 end;
 
@@ -417,9 +427,11 @@ end;
 function TTextEditorKeyCommand.GetDisplayName: string;
 begin
   Result := EditorCommandToCodeString(Command) + ' - ' + ShortCutToText(ShortCut);
+
   if SecondaryShortCut <> 0 then
     Result := Result + ' ' + ShortCutToText(SecondaryShortCut);
-  if Result = '' then
+
+  if Result.IsEmpty then
     Result := inherited GetDisplayName;
 end;
 
@@ -455,6 +467,7 @@ begin
   if AValue <> 0 then
   begin
     LDuplicate := TTextEditorKeyCommands(Collection).FindShortcuts(AValue, SecondaryShortCut);
+
     if (LDuplicate <> -1) and (LDuplicate <> Self.Index) then
       raise ETextEditorKeyCommandException.Create(STextEditorDuplicateShortcut);
   end;
@@ -489,11 +502,13 @@ begin
   if AValue <> 0 then
   begin
     LDuplicate := TTextEditorKeyCommands(Collection).FindShortcuts(ShortCut, AValue);
+
     if (LDuplicate <> -1) and (LDuplicate <> Self.Index) then
       raise ETextEditorKeyCommandException.Create(STextEditorDuplicateShortcut);
   end;
 
   Vcl.Menus.ShortCutToKey(AValue, LNewKey, LNewShiftState);
+
   if (LNewKey <> SecondaryKey) or (LNewShiftState <> SecondaryShiftState) then
   begin
     SecondaryKey := LNewKey;
@@ -531,7 +546,9 @@ begin
   if Assigned(ASource) and (ASource is TTextEditorKeyCommands) then
   begin
     LKeyCommands := ASource as TTextEditorKeyCommands;
+
     Self.Clear;
+
     for LIndex := 0 to LKeyCommands.Count - 1 do
       NewItem.Assign(LKeyCommands[LIndex]);
   end
@@ -551,6 +568,7 @@ var
   LIndex: Integer;
 begin
   Result := -1;
+
   for LIndex := 0 to Count - 1 do
   if Items[LIndex].Command = ACommand then
     Exit(LIndex);
@@ -562,9 +580,11 @@ var
   LKeyCommand: TTextEditorKeyCommand;
 begin
   Result := -1;
+
   for LIndex := 0 to Count - 1 do
   begin
     LKeyCommand := Items[LIndex];
+
     if (LKeyCommand.Key = AKeyCode) and (LKeyCommand.ShiftState = AShift) and (LKeyCommand.SecondaryKey = 0) then
       Exit(LIndex);
   end;
@@ -576,9 +596,11 @@ var
   LKeyCommand: TTextEditorKeyCommand;
 begin
   Result := -1;
+
   for LIndex := 0 to Count - 1 do
   begin
     LKeyCommand := Items[LIndex];
+
     if (LKeyCommand.Key = AKeyCode) and (LKeyCommand.ShiftState = AShift) and (LKeyCommand.SecondaryKey = ASecondaryKeyCode) and
       (LKeyCommand.SecondaryShiftState = ASecondaryShift) then
       Exit(LIndex);
@@ -590,6 +612,7 @@ var
   LIndex: Integer;
 begin
   Result := -1;
+
   for LIndex := 0 to Count - 1 do
   if Items[LIndex].ShortCut = AShortCut then
     Exit(LIndex);
@@ -601,9 +624,11 @@ var
   LKeyCommand: TTextEditorKeyCommand;
 begin
   Result := -1;
+
   for LIndex := 0 to Count - 1 do
   begin
     LKeyCommand := Items[LIndex];
+
     if (LKeyCommand.ShortCut = AShortCut) and (LKeyCommand.SecondaryShortCut = ASecondaryShortCut) then
       Exit(LIndex);
   end;
@@ -686,12 +711,14 @@ begin
   Add(TKeyCommands.BlockUnindent, [ssCtrl, ssShift], Ord('U'));
   { Fragment deletion }
   Add(TKeyCommands.DeleteWord, [ssCtrl], Ord('W'));
+  Add(TKeyCommands.DeleteWhitespaceBackward, [ssCtrl, ssShift], vkBack);
+  Add(TKeyCommands.DeleteWhitespaceForward, [ssCtrl, ssShift], vkDelete);
   Add(TKeyCommands.DeleteWordBackward, [ssCtrl], vkBack);
   Add(TKeyCommands.DeleteWordForward, [ssCtrl], vkDelete);
   { Line operations }
   Add(TKeyCommands.InsertLine, [ssCtrl], Ord('M'));
-  Add(TKeyCommands.MoveLineUp, [ssCtrl, ssShift], vkUp);
-  Add(TKeyCommands.MoveLineDown, [ssCtrl, ssShift], vkDown);
+  Add(TKeyCommands.MoveLineUp, [ssCtrl, ssAlt, ssShift], vkUp);
+  Add(TKeyCommands.MoveLineDown, [ssCtrl, ssAlt, ssShift], vkDown);
   Add(TKeyCommands.DeleteLine, [ssCtrl], Ord('Y'));
   Add(TKeyCommands.DeleteEndOfLine, [ssCtrl, ssShift], Ord('Y'));
   { Bookmarks }

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -54,7 +54,7 @@ type
   TSession = class(TAbstractSession)
   protected
     function GetQueryCountSql(const sql: string): string;
-    function GetQueryCount(const sql: string; const params: IEnumerable<TDBParam>): Int64;
+    function GetQueryCount(const sql: string; const params: IEnumerable<TDBParam>): Integer;
   public
     /// <summary>
     ///   Starts a new List Session. ListSession monitors changes in the
@@ -275,6 +275,7 @@ type
 implementation
 
 uses
+  Rtti, // H2443
   TypInfo,
   Spring.Persistence.Core.Base,
   Spring.Persistence.Core.EntityCache,
@@ -410,7 +411,7 @@ begin
 end;
 
 function TSession.GetQueryCount(const sql: string;
-  const params: IEnumerable<TDBParam>): Int64;
+  const params: IEnumerable<TDBParam>): Integer;
 var
   results: IDBResultSet;
 begin

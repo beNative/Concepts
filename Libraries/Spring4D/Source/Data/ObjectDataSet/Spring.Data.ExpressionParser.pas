@@ -34,7 +34,7 @@ unit Spring.Data.ExpressionParser;
 interface
 
 uses
-  SysUtils, Generics.Collections;
+  SysUtils;
 
 type
   TOnGetVariableValue = function(Sender: TObject; const VarName: string;
@@ -82,7 +82,7 @@ var
 implementation
 
 uses
-  Variants, Masks, StrUtils, Math, Classes;
+  Generics.Collections, Variants, Masks, Math, Classes, Spring;
 
   (*
 {$IFDEF COMPILER12_UP}
@@ -325,6 +325,17 @@ begin
     StartIdx := Idx;
     Inc(Idx);
     CToken := tkNA;
+
+    if (C = '/') and (Str[Idx] = '*') then
+    begin
+      Inc(Idx);
+      while (Idx < Len) and not((Str[Idx] = '*') and (Str[Idx + 1] = '/')) do
+      begin
+        Inc(Idx);
+      end;
+      Inc(Idx, 2);
+      continue;
+    end;
 
     case C of
       '(': CToken := tkLParen;
@@ -705,7 +716,7 @@ var
       varDate:
       begin
         case VarType(RightValue) of
-          varString, varUString: RightValue := StrToDateTime(RightValue);
+          varString, varUString: RightValue := StrToDateTime(RightValue, ISO8601FormatSettings);
         end;
       end;
       varBoolean:
@@ -723,7 +734,7 @@ var
       varDate:
       begin
         case VarType(LeftValue) of
-          varString, varUString: LeftValue := StrToDateTime(LeftValue);
+          varString, varUString: LeftValue := StrToDateTime(LeftValue, ISO8601FormatSettings);
         end;
       end;
       varBoolean:
@@ -935,7 +946,7 @@ function TNodeCValue.Eval: Variant;
 begin
   case FCValue.Token of
     tkNumber:
-      Result := StrToFloat(FCValue.Str);
+      Result := StrToFloat(FCValue.Str, ISO8601FormatSettings);
     tkInteger:
       Result := StrToInt(FCValue.Str);
     tkString:

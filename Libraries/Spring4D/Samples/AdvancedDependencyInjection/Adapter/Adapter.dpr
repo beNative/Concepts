@@ -40,7 +40,7 @@ begin
   GlobalContainer.RegisterType<ICommand,TSaveCommand>('save');
   GlobalContainer.RegisterType<ICommand,TOpenCommand>('open');
   GlobalContainer.RegisterType<TToolButton>;
-  GlobalContainer.RegisterType<TArray<TToolButton>>.DelegateTo(
+  GlobalContainer.RegisterType<TArray<TToolButton>>(
     function: TArray<TToolButton>
     var
       commands: TArray<ICommand>;

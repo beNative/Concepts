@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -68,6 +68,7 @@ implementation
 
 uses
   Classes,
+  Generics.Collections, // H2443
   Rtti,
   SysUtils,
   TypInfo,
@@ -171,10 +172,8 @@ end;
 
 class procedure TConnectionFactory.RegisterConnection<T>(const key: TDBDriverType);
 begin
-  if fRegistered.ContainsKey(key) then
+  if not fRegistered.TryAdd(key, TClass(T)) then
     raise EORMConnectionAlreadyRegistered.Create('Connection already registered');
-
-  fRegistered.Add(key, TClass(T));
 end;
 
 class procedure TConnectionFactory.SetConnectionConnected(
@@ -204,7 +203,7 @@ begin
       // do only simplest conversions
       case prop.PropertyType.TypeKind of
         tkEnumeration:
-          if prop.PropertyType.IsType<Boolean> then
+          if prop.PropertyType.IsType(TypeInfo(Boolean)) then
             value := StrToBool(jsonPair.JsonValue.Value);
         tkInteger: value := StrToInt(jsonPair.JsonValue.Value);
         tkInt64: value := StrToInt64(jsonPair.JsonValue.Value);

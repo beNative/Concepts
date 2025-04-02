@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -36,9 +36,6 @@
 ///     <item>
 ///       <b>Observer Pattern</b>
 ///     </item>
-///     <item>
-///       <b><see cref="ISpecification&lt;T&gt;">Specification Pattern</see></b>
-///     </item>
 ///   </list>
 /// </summary>
 /// <preliminary />
@@ -47,10 +44,8 @@ unit Spring.DesignPatterns;
 interface
 
 uses
-  Classes,
   SysUtils,
   SyncObjs,
-  TypInfo,
   Spring,
   Spring.Collections;
 
@@ -106,7 +101,8 @@ type
   /// <summary>
   ///   Represents an observable subject.
   /// </summary>
-  IObservable<T> = interface(IInvokable)
+  IObservable<T> = interface(IInvokable) //FI:W524
+    ['{A5B3E22A-8F64-492D-8FB3-0BFE4406283C}']
     procedure Attach(const observer: T);
     procedure Detach(const observer: T);
     procedure Notify;
@@ -126,84 +122,6 @@ type
     procedure Attach(const observer: T);
     procedure Detach(const observer: T);
     procedure Notify;
-  end;
-
-  {$ENDREGION}
-
-
-  {$REGION 'Specification Pattern'}
-
-//  ISpecification = interface
-//    ['{9029A971-3A6C-4241-A246-C0F613ABE51C}']
-//    function IsSatisfiedBy(const obj: TValue): Boolean;
-//  end;
-
-  /// <summary>
-  ///   Defines the core methods of a specification interface.
-  /// </summary>
-  ISpecification<T> = interface(IInvokable)
-    function IsSatisfiedBy(const item: T): Boolean;
-    // DO NOT ADD ANY METHODS HERE!!!
-  end;
-
-  /// <summary>
-  ///   Provides the easy-going specification holder with operator overloads.
-  /// </summary>
-  TSpecification<T> = record
-  private
-    fSpecification: ISpecification<T>;
-  public
-    function IsSatisfiedBy(const item: T): Boolean;
-
-    class operator Implicit(const specification: ISpecification<T>): TSpecification<T>;
-    class operator Implicit(const specification: TPredicate<T>): TSpecification<T>;
-    class operator Implicit(const specification: TSpecification<T>): ISpecification<T>;
-    class operator Implicit(const specification: TSpecification<T>): TPredicate<T>;
-    class operator Explicit(const specification: ISpecification<T>): TSpecification<T>;
-    class operator Explicit(const specification: TPredicate<T>): TSpecification<T>;
-    class operator Explicit(const specification: TSpecification<T>): ISpecification<T>;
-    class operator LogicalAnd(const left, right: TSpecification<T>): TSpecification<T>;
-    class operator LogicalOr(const left, right: TSpecification<T>): TSpecification<T>;
-    class operator LogicalNot(const value: TSpecification<T>): TSpecification<T>;
-  end;
-
-  /// <summary>
-  ///   Provides the abstract base class for Specification.
-  /// </summary>
-  TSpecificationBase<T> = class abstract(TInterfacedObject, ISpecification<T>, TPredicate<T>)
-  protected
-    function TPredicate<T>.Invoke = IsSatisfiedBy;
-    function IsSatisfiedBy(const item: T): Boolean; virtual; abstract;
-  end;
-
-  TUnarySpecification<T> = class abstract(TSpecificationBase<T>)
-  protected
-    fSpecification: ISpecification<T>;
-  public
-    constructor Create(const specification: ISpecification<T>);
-  end;
-
-  TLogicalNotSpecification<T> = class sealed(TUnarySpecification<T>)
-  protected
-    function IsSatisfiedBy(const item: T): Boolean; override;
-  end;
-
-  TBinarySpecification<T> = class abstract(TSpecificationBase<T>)
-  protected
-    fLeft: ISpecification<T>;
-    fRight: ISpecification<T>;
-  public
-    constructor Create(const left, right: ISpecification<T>);
-  end;
-
-  TLogicalAndSpecification<T> = class sealed(TBinarySpecification<T>)
-  protected
-    function IsSatisfiedBy(const item: T): Boolean; override;
-  end;
-
-  TLogicalOrSpecification<T> = class sealed(TBinarySpecification<T>)
-  protected
-    function IsSatisfiedBy(const item: T): Boolean; override;
   end;
 
   {$ENDREGION}
@@ -283,6 +201,9 @@ type
 implementation
 
 uses
+{$IF defined(DELPHIXE4) or defined(DELPHIXE5) or defined(DELPHIXE6)}
+  TypInfo, // H2443
+{$IFEND}
   Spring.ResourceStrings;
 
 
@@ -330,16 +251,14 @@ end;
 
 constructor TObservable<T>.Create;
 begin
-  inherited Create;
   fLock := TMREWSync.Create;
   fObservers := TCollections.CreateList<T>;
 end;
 
-destructor TObservable<T>.Destroy;
+destructor TObservable<T>.Destroy; //FI:W504
 begin
   fObservers := nil;
   fLock.Free;
-  inherited Destroy;
 end;
 
 procedure TObservable<T>.Attach(const observer: T);
@@ -378,127 +297,10 @@ end;
 {$ENDREGION}
 
 
-{$REGION 'TSpecification<T>'}
-
-function TSpecification<T>.IsSatisfiedBy(const item: T): Boolean;
-begin
-  Result := Assigned(fSpecification) and fSpecification.IsSatisfiedBy(item);
-end;
-
-class operator TSpecification<T>.Implicit(
-  const specification: ISpecification<T>): TSpecification<T>;
-begin
-  Result.fSpecification := specification;
-end;
-
-class operator TSpecification<T>.Implicit(
-  const specification: TPredicate<T>): TSpecification<T>;
-begin
-  TPredicate<T>(Result.fSpecification) := specification;
-end;
-
-class operator TSpecification<T>.Implicit(
-  const specification: TSpecification<T>): ISpecification<T>;
-begin
-  Result := specification.fSpecification;
-end;
-
-class operator TSpecification<T>.Implicit(
-  const specification: TSpecification<T>): TPredicate<T>;
-begin
-  ISpecification<T>(Result) := specification.fSpecification;
-end;
-
-class operator TSpecification<T>.Explicit(
-  const specification: ISpecification<T>): TSpecification<T>;
-begin
-  Result.fSpecification := specification;
-end;
-
-class operator TSpecification<T>.Explicit(
-  const specification: TPredicate<T>): TSpecification<T>;
-begin
-  TPredicate<T>(Result.fSpecification) := specification;
-end;
-
-class operator TSpecification<T>.Explicit(
-  const specification: TSpecification<T>): ISpecification<T>;
-begin
-  Result := specification.fSpecification;
-end;
-
-class operator TSpecification<T>.LogicalAnd(const left,
-  right: TSpecification<T>): TSpecification<T>;
-begin
-  Result.fSpecification := TLogicalAndSpecification<T>.Create(
-    left.fSpecification, right.fSpecification)
-end;
-
-class operator TSpecification<T>.LogicalOr(const left,
-  right: TSpecification<T>): TSpecification<T>;
-begin
-  Result.fSpecification := TLogicalOrSpecification<T>.Create(
-    left.fSpecification, right.fSpecification);
-end;
-
-class operator TSpecification<T>.LogicalNot(
-  const value: TSpecification<T>): TSpecification<T>;
-begin
-  Result.fSpecification := TLogicalNotSpecification<T>.Create(
-    value.fSpecification);
-end;
-
-{$ENDREGION}
-
-
-{$REGION 'Logical Specifications'}
-
-{ TUnarySpecification<T> }
-
-constructor TUnarySpecification<T>.Create(const specification: ISpecification<T>);
-begin
-  inherited Create;
-  fSpecification := specification;
-end;
-
-{ TBinarySpecification<T> }
-
-constructor TBinarySpecification<T>.Create(const left, right: ISpecification<T>);
-begin
-  inherited Create;
-  fLeft := left;
-  fRight := right;
-end;
-
-{ TLogicalAndSpecification<T> }
-
-function TLogicalAndSpecification<T>.IsSatisfiedBy(const item: T): Boolean;
-begin
-  Result := fLeft.IsSatisfiedBy(item) and fRight.IsSatisfiedBy(item);
-end;
-
-{ TLogicalOrSpecification<T> }
-
-function TLogicalOrSpecification<T>.IsSatisfiedBy(const item: T): Boolean;
-begin
-  Result := fLeft.IsSatisfiedBy(item) or fRight.IsSatisfiedBy(item);
-end;
-
-{ TLogicalNotSpecification<T> }
-
-function TLogicalNotSpecification<T>.IsSatisfiedBy(const item: T): Boolean;
-begin
-  Result := not fSpecification.IsSatisfiedBy(item);
-end;
-
-{$ENDREGION}
-
-
 {$REGION 'TFactory<TKey, TBaseType>'}
 
 constructor TFactory<TKey, TBaseType>.Create;
 begin
-  inherited Create;
   fFactoryMethods := TCollections.CreateDictionary<TKey, TFactoryMethod<TBaseType>>;
 end;
 
@@ -544,13 +346,12 @@ end;
 
 constructor TClassTypeRegistry<TValue>.Create;
 begin
-  inherited Create;
   fLookup := TCollections.CreateDictionary<TClass, TValue>;
 end;
 
 procedure TClassTypeRegistry<TValue>.Register(classType: TClass; const value: TValue);
 begin
-  fLookup.AddOrSetValue(classType, value);
+  fLookup[classType] := value;
 end;
 
 procedure TClassTypeRegistry<TValue>.Unregister(classType: TClass);

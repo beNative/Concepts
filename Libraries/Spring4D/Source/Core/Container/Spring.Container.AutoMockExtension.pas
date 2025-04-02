@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -53,12 +53,12 @@ uses
 type
   TAutoMockResolver = class(TInterfacedObject, ISubDependencyResolver)
   private
-    fKernel: IKernel;
+    fKernel: TKernel;
     procedure EnsureMockRegistered(const mockedType: TRttiType);
     class function TryGetMockedType(const targetType: TRttiType;
       out mockedType: TRttiType): Boolean; static;
   public
-    constructor Create(const kernel: IKernel);
+    constructor Create(const kernel: TKernel);
 
     function CanResolve(const context: ICreationContext;
       const dependency: TDependencyModel; const argument: TValue): Boolean;
@@ -80,7 +80,7 @@ end;
 
 {$REGION 'TAutoMockResolver'}
 
-constructor TAutoMockResolver.Create(const kernel: IKernel);
+constructor TAutoMockResolver.Create(const kernel: TKernel);
 begin
   inherited Create;
   fKernel := kernel;
@@ -93,14 +93,14 @@ var
 begin
   if dependency.TargetType.IsGenericType
     and TryGetMockedType(dependency.TargetType, mockedType)
-    and mockedType.IsInterface and not mockedType.IsType<IInterface> then
+    and mockedType.IsInterface and not mockedType.IsType(TypeInfo(IInterface)) then
     Exit(True);
 
   if dependency.TargetType.IsInterface and not IsLazyType(dependency.TypeInfo) then
     if argument.IsEmpty then
       Exit(not fKernel.Registry.HasService(dependency.TypeInfo))
     else
-      if argument.IsType<string> then
+      if argument.IsString then
         Exit(not fKernel.Registry.HasService(dependency.TypeInfo, argument.AsString));
 
   Result := False;

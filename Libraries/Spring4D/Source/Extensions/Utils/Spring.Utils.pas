@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -34,14 +34,10 @@ interface
 
 uses
   Classes,
-  StrUtils,
   SysUtils,
   TypInfo,
 {$IFDEF MSWINDOWS}
-  ComObj,
-  Messages,
   Registry,
-  ShellAPI,
   ShlObj,
   Windows,
   Spring.Utils.WinAPI,
@@ -705,13 +701,13 @@ type
   /// </summary>
   TStringMatchers = class
   public
-    class function ContainsText(const s: string): TPredicate<string>;
-    class function StartsText(const s: string): TPredicate<string>;
-    class function EndsText(const s: string): TPredicate<string>;
-    class function SameText(const s: string): TPredicate<string>;
-    class function InStrings(const values: TStrings): TPredicate<string>;
-    class function InArray(const values: array of string): TPredicate<string>;
-    class function InCollection(const values: IEnumerable<string>): TPredicate<string>; overload;
+    class function ContainsText(const s: string): Predicate<string>;
+    class function StartsText(const s: string): Predicate<string>;
+    class function EndsText(const s: string): Predicate<string>;
+    class function SameText(const s: string): Predicate<string>;
+    class function InStrings(const values: TStrings): Predicate<string>;
+    class function InArray(const values: array of string): Predicate<string>;
+    class function InCollection(const values: IEnumerable<string>): Predicate<string>; overload;
   end;
 
   {$ENDREGION}
@@ -807,7 +803,7 @@ type
   /// <summary>
   ///   Converts a Delphi TDatetime value to a Windows TFiletime value.
   /// </summary>
-  function ConvertDateTimeToFileTime(const datetime: TDateTime; const useLocalTimeZone: Boolean): TFileTime; overload;
+  function ConvertDateTimeToFileTime(const dateTime: TDateTime; const useLocalTimeZone: Boolean): TFileTime; overload;
 
   /// <summary>
   ///   Converts a Windows TFiletime value to a Delphi TDatetime value. Not
@@ -823,7 +819,7 @@ type
   /// <param name="threadProc">
   ///   An anonymous method that will be executed.
   /// </param>
-  /// <exception cref="EArgumentNullException">
+  /// <exception cref="Spring|EArgumentNilException">
   ///   Raised if <paramref name="threadProc" /> was not assigned.
   /// </exception>
   procedure Synchronize(threadProc: TThreadProcedure);
@@ -834,7 +830,7 @@ type
   /// <param name="threadProc">
   ///   An anonymous method that will be executed.
   /// </param>
-  /// <exception cref="EArgumentNullException">
+  /// <exception cref="Spring|EArgumentNilException">
   ///   Raised if threadProc was not assigned.
   /// </exception>
   procedure Queue(threadProc: TThreadProcedure);
@@ -846,7 +842,7 @@ type
   ///   Returns true if the instance has the specified property and the
   ///   property has property information.
   /// </returns>
-  /// <exception cref="EArgumentNullException">
+  /// <exception cref="Spring|EArgumentNilException">
   ///   if instance is nil.
   /// </exception>
   function TryGetPropInfo(instance: TObject; const propertyName: string;
@@ -866,7 +862,7 @@ type
   /// <param name="proc">
   ///   the procedure that will be invoked.
   /// </param>
-  /// <exception cref="Spring|EArgumentNullException">
+  /// <exception cref="Spring|EArgumentNilException">
   ///   Raised if <paramref name="obj" /> is nil or <paramref name="proc" /> is
   ///   unassigned.
   /// </exception>
@@ -880,7 +876,7 @@ type
   /// <param name="strings">
   ///   an instance of TStrings.
   /// </param>
-  /// <exception cref="EArgumentNullException">
+  /// <exception cref="Spring|EArgumentNilException">
   ///   Raised if <paramref name="strings" /> is nil or <paramref name="proc" />
   ///    is not assigned.
   /// </exception>
@@ -1050,7 +1046,13 @@ uses
   Posix.Dlfcn,
   System.IOUtils,
 {$ENDIF POSIX}
+{$IFDEF MSWINDOWS}
+  ComObj,
+  Messages,
+  ShellAPI,
+{$ENDIF MSWINDOWS}
   Math,
+  StrUtils,
   Spring.ResourceStrings,
   Spring.SystemUtils;
 
@@ -1110,49 +1112,43 @@ begin
 end;
 
 {$IFDEF MSWINDOWS}
-function ConvertDateTimeToFileTime(const datetime: TDateTime;
+{$IFNDEF DELPHIX_RIO_UP}
+function TzSpecificLocalTimeToSystemTime(lpTimeZoneInformation: PTimeZoneInformation;
+  var lpLocalTime, lpUniversalTime: TSystemTime): BOOL; stdcall; external kernel32;
+{$ENDIF}
+
+function ConvertDateTimeToFileTime(const dateTime: TDateTime;
   const useLocalTimeZone: Boolean): TFileTime;
 var
-  systemTime: TSystemTime;
+  localTime, systemTime: TSystemTime;
   fileTime: TFileTime;
 begin
   Result.dwLowDateTime := 0;
   Result.dwHighDateTime := 0;
-  DateTimeToSystemTime(datetime, systemTime);
-  if SystemTimeToFileTime(systemTime, fileTime) then
-  begin
-    if useLocalTimeZone then
-    begin
-      LocalFileTimeToFileTime(fileTime, Result);
-    end
+  DateTimeToSystemTime(datetime, localTime);
+  if useLocalTimeZone then
+    if TzSpecificLocalTimeToSystemTime(nil, localTime, systemTime)
+      and SystemTimeToFileTime(systemTime, fileTime) then
+      Result := fileTime
     else
-    begin
+  else
+    if SystemTimeToFileTime(localTime, fileTime) then
       Result := fileTime;
-    end;
-  end;
 end;
 
-function ConvertFileTimeToDateTime(const fileTime: TFileTime; const useLocalTimeZone: Boolean): TDateTime;
+function ConvertFileTimeToDateTime(const fileTime: TFileTime;
+  const useLocalTimeZone: Boolean): TDateTime;
 var
-  localFileTime: TFileTime;
-  systemTime: TSystemTime;
+  systemTime, localTime: TSystemTime;
 begin
-  if useLocalTimeZone then
-  begin
-    FileTimeToLocalFileTime(fileTime, localFileTime);
-  end
-  else
-  begin
-    localFileTime := fileTime;
-  end;
-  if FileTimeToSystemTime(localFileTime, systemTime) then
-  begin
-    Result := SystemTimeToDateTime(systemTime);
-  end
-  else
-  begin
-    Result := 0;
-  end;
+  if FileTimeToSystemTime(fileTime, systemTime) then
+    if useLocalTimeZone then
+      if SystemTimeToTzSpecificLocalTime(nil, systemTime, localTime) then
+        Exit(SystemTimeToDateTime(localTime))
+      else
+    else
+      Exit(SystemTimeToDateTime(systemTime));
+  Result := 0;
 end;
 {$ENDIF MSWINDOWS}
 
@@ -1532,6 +1528,7 @@ begin
   fProductName := resource.ReadString('ProductName');
   fProductVersion := resource.ReadString('ProductVersion');
   fComments := resource.ReadString('Comments');
+  fSpecialBuild := resource.ReadString('SpecialBuild');
   fLanguage := Languages.NameFromLocaleID[resource.Language];
 end;
 
@@ -2460,7 +2457,7 @@ end;
 
 {$REGION 'TStringMatchers'}
 
-class function TStringMatchers.ContainsText(const s: string): TPredicate<string>;
+class function TStringMatchers.ContainsText(const s: string): Predicate<string>;
 begin
   Result :=
     function(const value: string): Boolean
@@ -2469,7 +2466,7 @@ begin
     end;
 end;
 
-class function TStringMatchers.StartsText(const s: string): TPredicate<string>;
+class function TStringMatchers.StartsText(const s: string): Predicate<string>;
 begin
   Result :=
     function(const value: string): Boolean
@@ -2478,7 +2475,7 @@ begin
     end;
 end;
 
-class function TStringMatchers.EndsText(const s: string): TPredicate<string>;
+class function TStringMatchers.EndsText(const s: string): Predicate<string>;
 begin
   Result :=
     function(const value: string): Boolean
@@ -2487,7 +2484,7 @@ begin
     end;
 end;
 
-class function TStringMatchers.SameText(const s: string): TPredicate<string>;
+class function TStringMatchers.SameText(const s: string): Predicate<string>;
 begin
   Result :=
     function(const value: string): Boolean
@@ -2497,7 +2494,7 @@ begin
 end;
 
 class function TStringMatchers.InArray(
-  const values: array of string): TPredicate<string>;
+  const values: array of string): Predicate<string>;
 var
   localValues: TArray<string>;
 begin
@@ -2515,7 +2512,7 @@ begin
 end;
 
 class function TStringMatchers.InStrings(
-  const values: TStrings): TPredicate<string>;
+  const values: TStrings): Predicate<string>;
 begin
   Result :=
     function(const value: string): Boolean
@@ -2525,7 +2522,7 @@ begin
 end;
 
 class function TStringMatchers.InCollection(
-  const values: IEnumerable<string>): TPredicate<string>;
+  const values: IEnumerable<string>): Predicate<string>;
 begin
   Result :=
     function(const value: string): Boolean

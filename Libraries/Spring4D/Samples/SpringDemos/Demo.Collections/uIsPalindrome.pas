@@ -7,7 +7,8 @@ function IsPalindrome(const aString: string): Boolean;
 implementation
 
 uses
-        Spring.Collections
+
+         Spring.Collections
       , {$IF CompilerVersion >= 23.0}System.SysUtils{$ELSE}SysUtils{$IFEND}
       , Character
       ;

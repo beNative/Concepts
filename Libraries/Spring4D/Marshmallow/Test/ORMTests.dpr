@@ -26,7 +26,9 @@ uses
   Spring.Persistence.Adapters.SQLite in '..\..\Source\Persistence\Adapters\Spring.Persistence.Adapters.SQLite.pas',
   {$IFDEF ENABLE_UIB}
   Spring.Persistence.Adapters.UIB in '..\..\Source\Persistence\Adapters\Spring.Persistence.Adapters.UIB.pas',
-  TestAdaptersUIB in 'TestAdaptersUIB.pas',
+  {$ENDIF}
+  {$IFDEF ENABLE_UNIDAC}
+  Spring.Persistence.Adapters.UniDAC in '..\..\Source\Persistence\Adapters\Spring.Persistence.Adapters.UniDAC.pas',
   {$ENDIF}
   {$IFDEF ENABLE_ZEOS}
   Spring.Persistence.Adapters.Zeos in '..\..\Source\Persistence\Adapters\Spring.Persistence.Adapters.Zeos.pas',
@@ -75,6 +77,7 @@ uses
   Spring.Data.ExpressionParser.Functions in '..\..\Source\Data\ObjectDataSet\Spring.Data.ExpressionParser.Functions.pas',
   Spring.Data.IndexList in '..\..\Source\Data\ObjectDataSet\Spring.Data.IndexList.pas',
   Spring.Data.ObjectDataSet in '..\..\Source\Data\ObjectDataSet\Spring.Data.ObjectDataSet.pas',
+  Spring.Data.ValueConverters in '..\..\Source\Data\ObjectDataSet\Spring.Data.ValueConverters.pas',
   Spring.Data.VirtualDataSet in '..\..\Source\Data\ObjectDataSet\Spring.Data.VirtualDataSet.pas',
   Spring.Persistence.SQL.Commands in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.pas',
   Spring.Persistence.SQL.Commands.Abstract in '..\..\Source\Persistence\SQL\Spring.Persistence.SQL.Commands.Abstract.pas',
@@ -119,7 +122,6 @@ uses
   TestDatabaseManager in 'TestDatabaseManager.pas',
   {$IFDEF DELPHIXE5_UP}
   TestAdaptersFireDAC in 'TestAdaptersFireDAC.pas',
-  TestFireDACConnection in 'TestFireDACConnection.pas',
   {$ENDIF}
   TestObjectDataSet in 'TestObjectDataSet.pas',
   TestPersistence in 'TestPersistence.pas',

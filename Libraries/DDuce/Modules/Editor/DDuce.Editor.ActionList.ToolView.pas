@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -181,9 +181,9 @@ procedure TfrmActionListView.AfterConstruction;
 begin
   inherited AfterConstruction;
   FActionItems  :=
-    TCollections.CreateList<TContainedAction>(False) as IObjectList;
+    TCollections.CreateObjectList<TContainedAction>(False) as IObjectList;
   FCommandItems :=
-    TCollections.CreateList<TTextEditorKeyCommand>(False) as IObjectList;
+    TCollections.CreateObjectList<TTextEditorKeyCommand>(False) as IObjectList;
   CreateActionsView;
   CreateCommandsView;
 

@@ -47,7 +47,7 @@ uses
   Spring.Collections,
   SysUtils,
   Types,
-  VirtualTrees;
+  VirtualTrees, VirtualTrees.BaseTree, VirtualTrees.Types, VirtualTrees.Header;
 
 {$I DSharp.Windows.CustomPresenter.Types.inc}
 
@@ -88,10 +88,10 @@ type
       Column: TColumnIndex; var Allowed: Boolean);
     procedure DoDragDrop(Sender: TBaseVirtualTree; Source: TObject;
       DataObject: IDataObject; Formats: TFormatArray; Shift: TShiftState;
-      Pt: TPoint; var Effect: Integer; Mode: VirtualTrees.TDropMode);
+      Pt: TPoint; var Effect: Integer; Mode: VirtualTrees.Types.TDropMode);
     procedure DoDragOver(Sender: TBaseVirtualTree; Source: TObject;
       Shift: TShiftState; State: TDragState; Pt: TPoint;
-      Mode: VirtualTrees.TDropMode; var Effect: Integer; var Accept: Boolean);
+      Mode: VirtualTrees.Types.TDropMode; var Effect: Integer; var Accept: Boolean);
     procedure DoEdited(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex);
     procedure DoEditing(Sender: TBaseVirtualTree; Node: PVirtualNode;
@@ -244,7 +244,6 @@ type
 implementation
 
 uses
-  VirtualTrees.Types, VirtualTrees.Header,
   DSharp.Core.Reflection,
   DSharp.Windows.ColumnDefinitions.ControlTemplate,
   DSharp.Windows.ControlTemplates,
@@ -677,7 +676,7 @@ end;
 procedure TTreeViewPresenter.DoDragDrop(Sender: TBaseVirtualTree;
   Source: TObject; DataObject: IDataObject; Formats: TFormatArray;
   Shift: TShiftState; Pt: TPoint; var Effect: Integer;
-  Mode: VirtualTrees.TDropMode);
+  Mode: VirtualTrees.Types.TDropMode);
 var
   i: Integer;
   LItem: TObject;
@@ -741,7 +740,7 @@ end;
 
 procedure TTreeViewPresenter.DoDragOver(Sender: TBaseVirtualTree;
   Source: TObject; Shift: TShiftState; State: TDragState; Pt: TPoint;
-  Mode: VirtualTrees.TDropMode; var Effect: Integer; var Accept: Boolean);
+  Mode: VirtualTrees.Types.TDropMode; var Effect: Integer; var Accept: Boolean);
 var
   LItem: TObject;
   LNode: PVirtualNode;
@@ -1539,7 +1538,7 @@ begin
           Refresh;
       end;
 
-      caReseted:
+      caReset:
       begin
         ResetRootNodeCount;
       end;

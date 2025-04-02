@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -201,19 +201,9 @@ type
       read GetPort;
   end;
 
-  IMqttChannel = interface(ILogChannel)
-  ['{5D482099-AB68-462B-8EE8-CCE4DBB60C44}']
-    {$REGION 'property access methods'}
-    function GetPort: Integer;
-    function GetBroker: string;
-    procedure SetBroker(const Value: string);
-    {$ENDREGION}
-    { Hostname/IP of the MQTT broker }
-    property Broker: string
-      read GetBroker write SetBroker;
+  INatsChannel = interface(ILogChannel)
+  ['{C94C5937-D11D-43B0-BCE4-2C98F70A6040}']
 
-    property Port: Integer
-      read GetPort;
   end;
 
   IWinipcChannel = interface(ILogChannel)
@@ -328,8 +318,8 @@ type
     function SendPointer(AValue: Pointer): ILogger; overload;
     function SendException(const AName: string; AValue: Exception): ILogger; overload;
     function SendException(AValue: Exception): ILogger; overload;
-    function SendBitmap(const AName: string; AValue: TBitmap; ASendCompressed: Boolean = True): ILogger; overload;
-    function SendBitmap(AValue: TBitmap; ASendCompressed: Boolean = True): ILogger; overload;
+    function SendBitmap(const AName: string; AValue: TBitmap; ASendCompressed: Boolean = False): ILogger; overload;
+    function SendBitmap(AValue: TBitmap; ASendCompressed: Boolean = False): ILogger; overload;
     function SendScreenShot(const AName: string; AForm: TCustomForm): ILogger; overload;
     function SendScreenShot(AForm: TCustomForm): ILogger; overload;
     function SendDataSet(const AName: string; AValue: TDataSet): ILogger; overload;
@@ -354,16 +344,16 @@ type
     ): ILogger; overload;
     function SendText(const AText: string): ILogger; overload;
 
-    function SendSQL(const AName: string; const AValue: string): ILogger; overload;
-    function SendSQL(const AValue: string): ILogger; overload;
-    function SendXML(const AName: string; const AValue: string): ILogger; overload;
-    function SendXML(const AValue: string): ILogger; overload;
-    function SendHTML(const AName: string; const AValue: string): ILogger; overload;
-    function SendHTML(const AValue: string): ILogger; overload;
-    function SendINI(const AName: string; const AValue: string): ILogger; overload;
-    function SendINI(const AValue: string): ILogger; overload;
-    function SendJSON(const AName: string; const AValue: string): ILogger; overload;
-    function SendJSON(const AValue: string): ILogger; overload;
+    function SendSql(const AName: string; const AValue: string): ILogger; overload;
+    function SendSql(const AValue: string): ILogger; overload;
+    function SendXml(const AName: string; const AValue: string): ILogger; overload;
+    function SendXml(const AValue: string): ILogger; overload;
+    function SendHtml(const AName: string; const AValue: string): ILogger; overload;
+    function SendHtml(const AValue: string): ILogger; overload;
+    function SendIni(const AName: string; const AValue: string): ILogger; overload;
+    function SendIni(const AValue: string): ILogger; overload;
+    function SendJson(const AName: string; const AValue: string): ILogger; overload;
+    function SendJson(const AValue: string): ILogger; overload;
 
     function IncCounter(const AName: string): ILogger;
     function DecCounter(const AName: string): ILogger;

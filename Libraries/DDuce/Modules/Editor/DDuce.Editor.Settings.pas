@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -115,7 +115,7 @@ type
     function GetHighlighters: THighlighters;
     function GetHighlighterType: string;
     function GetLanguageCode: string;
-    function GetOnChanged: IEvent<TNotifyEvent>;
+    function GetOnChanged: IInvokableEvent<TNotifyEvent>;
     function GetReadOnly: Boolean;
     function GetSingleInstance: Boolean;
     function GetToolSettings: TEditorToolSettings;
@@ -205,7 +205,7 @@ type
       read GetSingleInstance write SetSingleInstance
       default DEFAULT_SINGLE_INSTANCE;
 
-    property OnChanged: IEvent<TNotifyEvent>
+    property OnChanged: IInvokableEvent<TNotifyEvent>
       read GetOnChanged;
   end;
 
@@ -424,7 +424,7 @@ begin
   Result := FLanguageCode;
 end;
 
-function TEditorSettings.GetOnChanged: IEvent<TNotifyEvent>;
+function TEditorSettings.GetOnChanged: IInvokableEvent<TNotifyEvent>;
 begin
   Result := FOnChanged;
 end;

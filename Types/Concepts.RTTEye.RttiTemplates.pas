@@ -21,7 +21,7 @@ interface
 uses
   System.Rtti,
 
-  Spring.Collections,
+  Spring, Spring.Collections,
 
   DSharp.Core.DataTemplates;
 
@@ -55,7 +55,7 @@ type
 implementation
 
 uses
-  Spring.Reflection, Spring.Collections.Enumerable,
+  Spring.Reflection,
 
   DDuce.Logger;
 
@@ -91,25 +91,25 @@ begin
 end;
 
 function TRttiTypeTemplate.GetItems(const Item: TRttiType): IObjectList;
-var
-  EF : Enumerable<TRttiField>;
-  EP : Enumerable<TRttiProperty>;
-  EM : Enumerable<TRttiMethod>;
-  O  : IObjectList;
+//var
+//  EF : Enumerable<TRttiField>;
+//  EP : Enumerable<TRttiProperty>;
+//  EM : Enumerable<TRttiMethod>;
+//  O  : IObjectList;
 begin
-  Logger.Track('TRttiTypeTemplate.GetItems');
-  if Item is TRttiInstanceType then
-  begin
-    EF := TRttiInstanceType(Item).Fields;
-    O := EF.ToList as IObjectList;
-    EP := TRttiInstanceType(Item).Properties;
-    O.AddRange((EP.ToList as IObjectList).ToArray);
-    EM := TRttiInstanceType(Item).Methods;
-    O.AddRange((EM.ToList as IObjectList).ToArray);
-    Result := O;
-  end
-  else
-    Result := inherited GetItems(Item);
+//  Logger.Track('TRttiTypeTemplate.GetItems');
+//  if Item is TRttiInstanceType then
+//  begin
+//    EF := TRttiInstanceType(Item).Fields;
+//    O := EF.ToList as IObjectList;
+//    EP := TRttiInstanceType(Item).Properties;
+//    O.AddRange((EP.ToList as IObjectList).ToArray);
+//    EM := TRttiInstanceType(Item).Methods;
+//    O.AddRange((EM.ToList as IObjectList).ToArray);
+//    Result := O;
+//  end
+//  else
+//    Result := inherited GetItems(Item);
 end;
 
 function TRttiTypeTemplate.GetValue(const Item: TRttiType;
@@ -150,19 +150,19 @@ begin
 end;
 
 function TRttiMemberTemplate.GetItems(const Item: TRttiMember): IObjectList;
-var
-  EP : Enumerable<TRttiParameter>;
+//var
+//  EP : Enumerable<TRttiParameter>;
 begin
-  Logger.Track('TRttiMemberTemplate.GetItems');
-  if Item is TRttiMethod then
-  begin
-    EP := TRttiMethod(Item).Parameters;
-    Result :=  EP.ToList as IObjectList;
-  end
-  else
-  begin
-    Result := inherited GetItems(Item);
-  end;
+//  Logger.Track('TRttiMemberTemplate.GetItems');
+//  if Item is TRttiMethod then
+//  begin
+//    EP := TRttiMethod(Item).Parameters;
+//    Result :=  EP.ToList as IObjectList;
+//  end
+//  else
+//  begin
+//    Result := inherited GetItems(Item);
+//  end;
 end;
 
 function TRttiMemberTemplate.GetValue(const Item: TRttiMember;

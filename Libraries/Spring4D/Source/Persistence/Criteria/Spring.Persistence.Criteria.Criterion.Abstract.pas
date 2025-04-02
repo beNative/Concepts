@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -40,8 +40,11 @@ type
   TAbstractCriterion = class(TInterfacedObject, ICriterion)
   private
     fEntityClass: TClass;
+    fMemberPath: string;
     function GetEntityClass: TClass;
     procedure SetEntityClass(value: TClass);
+    function GetMemberPath: string;
+    procedure SetMemberPath(const value: string);
   protected
     function GetCriterionTable(const command: TDMLCommand): TSQLTable; overload;
     function GetCriterionTable(const command: TDMLCommand;
@@ -53,6 +56,7 @@ type
       addToCommand: Boolean): string; virtual; abstract;
 
     property EntityClass: TClass read GetEntityClass write SetEntityClass;
+    property MemberPath: string read GetMemberPath write SetMemberPath;
     property WhereOperator: TWhereOperator read GetWhereOperator;
   end;
 
@@ -64,7 +68,7 @@ implementation
 function TAbstractCriterion.GetCriterionTable(const command: TDMLCommand): TSQLTable;
 begin
   if command is TSelectCommand then
-    Result := TSelectCommand(command).FindTable(fEntityClass)
+    Result := TSelectCommand(command).FindTable(fEntityClass, fMemberPath)
   else
     Result := command.Table;
 end;
@@ -83,9 +87,19 @@ begin
   Result := fEntityClass;
 end;
 
+function TAbstractCriterion.GetMemberPath: string;
+begin
+  Result := fMemberPath;
+end;
+
 procedure TAbstractCriterion.SetEntityClass(value: TClass);
 begin
   fEntityClass := value;
+end;
+
+procedure TAbstractCriterion.SetMemberPath(const value: string);
+begin
+  fMemberPath := value;
 end;
 
 {$ENDREGION}

@@ -277,7 +277,7 @@ procedure TCustomPresenter.DoFilterItem(const AItem: TObject;
 var
   i: Integer;
 begin
-  View.Filter.Invoke(AItem, AAccepted);
+//  View.Filter.Invoke(AItem, AAccepted);
 
   if Assigned(ColumnDefinitions) then
   begin

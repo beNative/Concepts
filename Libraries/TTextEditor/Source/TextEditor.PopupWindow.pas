@@ -1,10 +1,14 @@
 ﻿unit TextEditor.PopupWindow;
 
+{$I TextEditor.Defines.inc}
+
 interface
 
 uses
   Winapi.Messages, System.Classes, System.Types, Vcl.Controls
-{$IFDEF ALPHASKINS}, acSBUtils, sCommonData, sStyleSimply{$ENDIF};
+{$IFDEF ALPHASKINS}
+  , acSBUtils, sCommonData, sStyleSimply
+{$ENDIF};
 
 type
   TTextEditorPopupWindow = class(TCustomControl)
@@ -34,23 +38,27 @@ type
 implementation
 
 uses
-  Winapi.Windows, System.SysUtils
-{$IFDEF ALPHASKINS}, sConst, sMessages, sSkinProps{$ENDIF};
+  Winapi.Windows
+{$IFDEF ALPHASKINS}
+  , System.SysUtils, sConst, sMessages, sSkinProps
+{$ENDIF};
 
 constructor TTextEditorPopupWindow.Create(AOwner: TComponent);
 begin
 {$IFDEF ALPHASKINS}
   FSkinData := TsScrollWndData.Create(Self, True);
   FSkinData.COC := COC_TsListBox;
-  if FSkinData.SkinSection = '' then
-    FSkinData.SkinSection := s_Edit;
 {$ENDIF}
 
   inherited Create(AOwner);
 
   ControlStyle := ControlStyle + [csNoDesignVisible, csReplicatable];
 
+{$IFDEF ALPHASKINS}
+  DoubleBuffered := False;
+{$ELSE}
   DoubleBuffered := True;
+{$ENDIF}
   Ctl3D := False;
   ParentCtl3D := False;
   Parent := AOwner as TWinControl;
@@ -64,6 +72,7 @@ begin
 {$IFDEF ALPHASKINS}
   if Assigned(FScrollWnd) then
     FreeAndNil(FScrollWnd);
+
   if Assigned(FSkinData) then
     FreeAndNil(FSkinData);
 {$ENDIF}
@@ -132,6 +141,7 @@ begin
       begin
         if Assigned(FSkinData.SkinManager) then
           AMessage.Result := FSkinData.SkinManager.SkinCommonInfo.Sections[ssEdit] + 1;
+
         Exit;
       end;
     AC_REFRESH:
@@ -139,8 +149,10 @@ begin
       begin
         RefreshEditScrolls(SkinData, FScrollWnd);
         CommonMessage(AMessage, FSkinData);
+
         if HandleAllocated and Visible then
           RedrawWindow(Handle, nil, 0, RDWA_REPAINT);
+
         Exit;
       end;
   end;

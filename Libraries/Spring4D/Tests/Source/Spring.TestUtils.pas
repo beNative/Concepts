@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -68,12 +68,12 @@ uses
   Math,
   StrUtils;
 
-{$IFNDEF DELPHIXE2_UP}
+{$IF not declared(ReturnAddress)}
 function ReturnAddress: Pointer; inline;
 begin
   Result := CallerAddr;
 end;
-{$ENDIF}
+{$IFEND}
 
 
 {$REGION 'TAbstractTestHelper'}
@@ -178,19 +178,15 @@ procedure TTestCase<T>.SetUp;
 begin
   inherited SetUp;
   fSUT := T.Create;
-{$IFNDEF AUTOREFCOUNT}
   if fSUT.InheritsFrom(TInterfacedObject) then
     TInterfacedObjectAccess(fSUT)._AddRef;
-{$ENDIF}
 end;
 
 procedure TTestCase<T>.TearDown;
 begin
-{$IFNDEF AUTOREFCOUNT}
   if fSUT.InheritsFrom(TInterfacedObject) then
     TInterfacedObjectAccess(fSUT)._Release
   else
-{$ENDIF}
     fSUT.Free;
   inherited TearDown;
 end;

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -70,7 +70,6 @@ type
   /// </summary>
   TLoggerResolver = class(TSubDependencyResolverBase)
   private
-    {$IFDEF AUTOREFCOUNT}[Unsafe]{$ENDIF}
     fConfiguration: TLoggingConfiguration;
     procedure EnsureConfiguration;
   public
@@ -88,6 +87,8 @@ type
 implementation
 
 uses
+  Spring,
+  Spring.Container.Registration,
   Spring.Logging.Controller;
 
 
@@ -113,8 +114,8 @@ end;
 class procedure TLoggingContainerHelper.RegisterLoggingWithConfiguration(
   const container: TContainer);
 begin
-  container.Kernel.Resolver.AddSubResolver(
-    TLoggerResolver.Create(container.Kernel));
+  container.Resolver.AddSubResolver(
+    TLoggerResolver.Create(container));
   container.RegisterType<TLoggingConfiguration>
     .Implements<TLoggingConfiguration>
     .AsSingleton;
@@ -158,10 +159,16 @@ begin
 end;
 
 procedure TLoggerResolver.EnsureConfiguration;
+var
+  value: TValue;
+  configuration: TLoggingConfiguration;
 begin
   if not Assigned(fConfiguration) then
-    fConfiguration := (Kernel as IKernelInternal).Resolve(
-      TypeInfo(TLoggingConfiguration)).AsType<TLoggingConfiguration>;
+  begin
+    value := (Kernel as IKernelInternal).Resolve(TypeInfo(TLoggingConfiguration));
+    value.AsType(TypeInfo(TLoggingConfiguration), configuration);
+    fConfiguration := configuration;
+  end;
 end;
 
 function TLoggerResolver.Resolve(const context: ICreationContext;

@@ -3,18 +3,19 @@
 interface
 
 uses
-  System.Classes, TextEditor.Lines;
+  System.Generics.Collections, TextEditor.Lines, TextEditor.Types;
 
 type
   TTextEditorSearchBase = class
   strict private
     FCaseSensitive: Boolean;
+    FEngine: TTextEditorSearchEngine;
     FStatus: string;
     FWholeWordsOnly: Boolean;
     procedure SetCaseSensitive(const AValue: Boolean);
   protected
     FPattern: string;
-    FResults: TList;
+    FResults: TList<Integer>;
     function GetLength(const AIndex: Integer): Integer; virtual; abstract;
     function GetResult(const AIndex: Integer): Integer; virtual;
     function GetResultCount: Integer; virtual;
@@ -26,6 +27,7 @@ type
     function SearchAll(const ALines: TTextEditorLines): Integer; virtual; abstract;
     procedure Clear; virtual;
     property CaseSensitive: Boolean read FCaseSensitive write SetCaseSensitive default False;
+    property Engine: TTextEditorSearchEngine read FEngine write FEngine;
     property Lengths[const AIndex: Integer]: Integer read GetLength;
     property Pattern: string read FPattern write SetPattern;
     property ResultCount: Integer read GetResultCount;
@@ -36,6 +38,9 @@ type
 
 implementation
 
+uses
+  System.SysUtils;
+
 constructor TTextEditorSearchBase.Create;
 begin
   inherited;
@@ -43,12 +48,13 @@ begin
   FCaseSensitive := False;
   FWholeWordsOnly := False;
   FPattern := '';
-  FResults := TList.Create;
+  FResults := TList<Integer>.Create;
 end;
 
 destructor TTextEditorSearchBase.Destroy;
 begin
-  FResults.Free;
+  FreeAndNil(FResults);
+
   inherited Destroy;
 end;
 
@@ -61,8 +67,9 @@ end;
 function TTextEditorSearchBase.GetResult(const AIndex: Integer): Integer;
 begin
   Result := 0;
+
   if (AIndex >= 0) and (AIndex < FResults.Count) then
-    Result := Integer(FResults[AIndex]);
+    Result := FResults[AIndex];
 end;
 
 function TTextEditorSearchBase.GetResultCount: Integer;

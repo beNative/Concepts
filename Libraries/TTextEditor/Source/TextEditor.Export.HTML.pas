@@ -12,11 +12,11 @@ type
     FFont: TFont;
     FStringList: TStrings;
     FTextEditor: TCustomControl;
-    function GetStyle(const AHighlighterAttribute: TTextEditorHighlighterAttribute): string;
     procedure CreateFooter;
-    procedure CreateHeader;
     procedure CreateHTMLDocument;
+    procedure CreateHeader;
     procedure CreateLines;
+    procedure GetStyle(const AHighlighterAttribute: TTextEditorHighlighterAttribute; var AStyle: string);
   public
     constructor Create(const ATextEditor: TCustomControl; const AFont: TFont; const ACharSet: string); overload;
     destructor Destroy; override;
@@ -27,19 +27,18 @@ type
 implementation
 
 uses
-  Winapi.Windows, System.NetEncoding, System.UITypes, TextEditor, TextEditor.Consts, TextEditor.Utils;
+  Winapi.Windows, System.NetEncoding, System.UITypes, TextEditor, TextEditor.Consts, TextEditor.Types, TextEditor.Utils;
 
 constructor TTextEditorExportHTML.Create(const ATextEditor: TCustomControl; const AFont: TFont; const ACharSet: string);
 begin
   inherited Create;
 
   FTextEditor := ATextEditor;
-
-  FCharSet := ACharSet;
-  if FCharSet = '' then
-    FCharSet := 'utf-8';
-
   FFont := AFont;
+  FCharSet := ACharSet;
+
+  if FCharSet.IsEmpty then
+    FCharSet := 'utf-8';
 
   FStringList := TStringList.Create;
 end;
@@ -53,9 +52,13 @@ end;
 
 procedure TTextEditorExportHTML.CreateHTMLDocument;
 begin
+  FStringList.BeginUpdate;
+
   CreateHeader;
   CreateLines;
   CreateFooter;
+
+  FStringList.EndUpdate;
 end;
 
 procedure TTextEditorExportHTML.CreateHeader;
@@ -70,38 +73,40 @@ begin
   FStringList.Add('<body>');
 end;
 
-function TTextEditorExportHTML.GetStyle(const AHighlighterAttribute: TTextEditorHighlighterAttribute): string;
+procedure TTextEditorExportHTML.GetStyle(const AHighlighterAttribute: TTextEditorHighlighterAttribute; var AStyle: string);
 begin
-  Result := 'box-sizing:border-box;font-family:' + FFont.Name +
+  AStyle := 'box-sizing:border-box;font-family:' + FFont.Name +
     ';font-size:' + IntToStr(FFont.Size) + 'pt' +
     ';color:' + ColorToHex(AHighlighterAttribute.Foreground).ToLower +
     ';background-color:' + ColorToHex(AHighlighterAttribute.Background).ToLower;
 
   if TFontStyle.fsBold in AHighlighterAttribute.FontStyles then
-    Result := Result + ';font-weight:700'
+    AStyle := AStyle + ';font-weight:700'
   else
-    Result := Result + ';font-weight:400';
+    AStyle := AStyle + ';font-weight:400';
 
   if TFontStyle.fsItalic in AHighlighterAttribute.FontStyles then
-    Result := Result + ';font-style:italic';
+    AStyle := AStyle + ';font-style:italic';
 
   if TFontStyle.fsUnderline in AHighlighterAttribute.FontStyles then
-    Result := Result + ';text-decoration:underline';
+    AStyle := AStyle + ';text-decoration:underline';
 
   if TFontStyle.fsStrikeOut in AHighlighterAttribute.FontStyles then
-    Result := Result + ';text-decoration:line-through';
+    AStyle := AStyle + ';text-decoration:line-through';
 end;
 
 procedure TTextEditorExportHTML.CreateLines;
 var
   LIndex, LStartLine, LEndLine: Integer;
-  LTextLine, LSpaces, LToken: string;
+  LLineNumber, LLineNumberHTML, LTextLine, LSpaces, LToken, LStyle: string;
   LHighlighterAttribute: TTextEditorHighlighterAttribute;
   LPreviousElement: string;
   LTextEditor: TTextEditor;
+  LShowLineNumbers: Boolean;
 begin
   LTextEditor := FTextEditor as TTextEditor;
 
+  LShowLineNumbers := eoShowLineNumbersInHTMLExport in LTextEditor.Options;
   LPreviousElement := '';
 
   if LTextEditor.SelectionAvailable then
@@ -115,6 +120,19 @@ begin
     LEndLine := LTextEditor.Lines.Count - 1;
   end;
 
+  LLineNumber := '';
+
+  if LShowLineNumbers then
+    LLineNumberHTML := '<span style="display:inline-block;text-align:right;text-valign:center;' +
+      ';font-family:' + LTextEditor.Fonts.LineNumbers.Name +
+      ';font-size:' + IntToStr(LTextEditor.Fonts.LineNumbers.Size) + 'pt' +
+      ';color:' + ColorToHex(LTextEditor.Colors.LeftMarginLineNumbers).ToLower +
+      ';background-color:' + ColorToHex(LTextEditor.Colors.LeftMarginBackground).ToLower +
+      ';width:' + LTextEditor.Canvas.TextWidth(StringOfChar('X', LEndLine.ToString.Length + 1)).ToString + 'px' +
+      '">%d&nbsp;</span>'
+  else
+    LLineNumberHTML := '';
+
   LTextEditor.Highlighter.ResetRange;
 
   for LIndex := LStartLine to LEndLine do
@@ -124,9 +142,13 @@ begin
 
     LTextEditor.Highlighter.SetLine(LTextEditor.Lines.ExpandedStrings[LIndex]);
 
+    if LShowLineNumbers then
+      LLineNumber := Format(LLineNumberHTML, [LIndex + 1]);
+
     LPreviousElement := '';
     LTextLine := '';
     LSpaces := '';
+
     while not LTextEditor.Highlighter.EndOfLine do
     begin
       LHighlighterAttribute := LTextEditor.Highlighter.TokenAttribute;
@@ -139,13 +161,16 @@ begin
       else
       if Assigned(LHighlighterAttribute) then
       begin
-        if (LPreviousElement <> '') and (LPreviousElement <> LHighlighterAttribute.Element) then
+        if not LPreviousElement.IsEmpty and (LPreviousElement <> LHighlighterAttribute.Element) then
           LTextLine := LTextLine + '</span>';
 
         if LPreviousElement <> LHighlighterAttribute.Element then
-          LTextLine := LTextLine + '<span style="' + GetStyle(LHighlighterAttribute) + '">';
+        begin
+          GetStyle(LHighlighterAttribute, LStyle);
+          LTextLine := LTextLine + '<span style="' + LStyle + '">';
+        end;
 
-        if LSpaces <> '' then
+        if not LSpaces.IsEmpty then
         begin
           LTextLine := LTextLine + LSpaces;
           LSpaces := '';
@@ -161,10 +186,10 @@ begin
     end;
 
     FStringList.Add('<p style="box-sizing:border-box;margin:0px;' +
-      'line-height:' + IntToStr(LTextEditor.Font.Size + 1) + 'pt;' +
-      'color:' + ColorToHex(LTextEditor.Colors.Foreground).ToLower + ';' +
-      'background-color:' + ColorToHex(LTextEditor.Colors.Background).ToLower + '">' +
-      LTextLine + '<br style="box-sizing:border-box"></p>');
+      'line-height:' + IntToStr(LTextEditor.Fonts.Text.Size + 1) + 'pt;' +
+      'color:' + ColorToHex(LTextEditor.Colors.EditorForeground).ToLower + ';' +
+      'background-color:' + ColorToHex(LTextEditor.Colors.EditorBackground).ToLower + '">' +
+      LLineNumber + LTextLine + '<br style="box-sizing:border-box"></p>');
   end;
 end;
 

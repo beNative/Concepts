@@ -1,5 +1,7 @@
 ﻿unit TextEditor.CompletionProposal.Snippets;
 
+{$I TextEditor.Defines.inc}
+
 interface
 
 uses
@@ -82,6 +84,7 @@ type
     FItems: TTextEditorCompletionProposalSnippetItems;
     FOwner: TPersistent;
     function GetItem(const AIndex: Integer): TTextEditorCompletionProposalSnippetItem;
+    function IsItemsStored: Boolean;
     procedure SetItems(const AValue: TTextEditorCompletionProposalSnippetItems);
   protected
     function GetOwner: TPersistent; override;
@@ -92,12 +95,15 @@ type
     property Item[const AIndex: Integer]: TTextEditorCompletionProposalSnippetItem read GetItem;
   published
     property Active: Boolean read FActive write FActive default True;
-    property Items: TTextEditorCompletionProposalSnippetItems read FItems write SetItems;
+    property Items: TTextEditorCompletionProposalSnippetItems read FItems write SetItems stored IsItemsStored;
   end;
 
   ETextEditorCompletionProposalSnippetException = class(Exception);
 
 implementation
+
+uses
+  System.StrUtils, TextEditor.Language;
 
 { TTextEditorCompletionProposalSnippetItemPosition }
 
@@ -200,10 +206,7 @@ end;
 
 function TTextEditorCompletionProposalSnippetItem.GetDisplayName: string;
 begin
-  if FKeyword <> '' then
-    Result := FKeyword
-  else
-    Result := '(unnamed)';
+  Result := IfThen(FKeyword.IsEmpty, STextEditorCompletionProposalSnippetItemUnnamed, FKeyword);
 end;
 
 { TTextEditorCompletionProposalSnippetItems }
@@ -270,6 +273,11 @@ begin
   end
   else
     inherited Assign(ASource);
+end;
+
+function TTextEditorCompletionProposalSnippets.IsItemsStored: Boolean;
+begin
+  Result := FItems.Count > 0;
 end;
 
 function TTextEditorCompletionProposalSnippets.GetItem(const AIndex: Integer): TTextEditorCompletionProposalSnippetItem;

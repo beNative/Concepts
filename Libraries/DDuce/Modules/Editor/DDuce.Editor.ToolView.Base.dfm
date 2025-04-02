@@ -1,18 +1,22 @@
 object CustomEditorToolView: TCustomEditorToolView
-  Left = 612
-  Top = 288
-  ClientHeight = 201
-  ClientWidth = 304
+  Left = 228
+  Top = 228
+  Margins.Left = 8
+  Margins.Top = 8
+  Margins.Right = 8
+  Margins.Bottom = 8
+  ClientHeight = 453
+  ClientWidth = 711
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -18
   Font.Name = 'Segoe UI'
   Font.Style = []
   KeyPreview = True
-  OldCreateOrder = True
   ScreenSnap = True
-  PixelsPerInch = 96
-  TextHeight = 13
+  ShowHint = True
+  PixelsPerInch = 144
+  TextHeight = 25
 end

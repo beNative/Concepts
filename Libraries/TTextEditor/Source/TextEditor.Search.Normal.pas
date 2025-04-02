@@ -3,17 +3,17 @@
 interface
 
 uses
-  System.Classes, System.SysUtils, TextEditor.Lines, TextEditor.Search.Base;
+  System.SysUtils, TextEditor.Lines, TextEditor.Search.Base;
 
 type
   TTextEditorNormalSearch = class(TTextEditorSearchBase)
   strict private
+    FCasedPattern: string;
     FCount: Integer;
     FExtended: Boolean;
+    FLineBreak: string;
     FLookAt: Integer;
     FOrigin: PChar;
-    FCasedPattern: string;
-    FLineBreak: string;
     FPatternLength, FPatternLengthSuccessor: Integer;
     FRun: PChar;
     FShift: array [AnsiChar] of Integer;
@@ -30,9 +30,9 @@ type
     procedure SetPattern(const AValue: string); override;
   public
     constructor Create(const AExtended: Boolean; const ALineBreak: string);
-    function SearchAll(const ALines: TTextEditorLines): Integer; override;
     function FindFirst(const AText: string): Integer;
     function Next: Integer;
+    function SearchAll(const ALines: TTextEditorLines): Integer; override;
     property Count: Integer read FCount write FCount;
     property Finished: Boolean read GetFinished;
     property Pattern read FCasedPattern;
@@ -62,20 +62,27 @@ var
   LIndex: Integer;
 begin
   FPatternLength := Length(FPattern);
+
   if FPatternLength = 0 then
     Status := STextEditorPatternIsEmpty;
+
   FPatternLengthSuccessor := FPatternLength + 1;
   FLookAt := 1;
+
   for LAnsiChar := Low(AnsiChar) to High(AnsiChar) do
     FShift[LAnsiChar] := FPatternLengthSuccessor;
+
   for LIndex := 1 to FPatternLength do
     FShift[AnsiChar(FPattern[LIndex])] := FPatternLengthSuccessor - LIndex;
+
   while FLookAt < FPatternLength do
   begin
     if FPattern[FPatternLength] = FPattern[FPatternLength - FLookAt] then
       Break;
+
     Inc(FLookAt);
   end;
+
   FShiftInitialized := True;
 end;
 
@@ -106,7 +113,9 @@ var
   LPValue: PChar;
 begin
   Result := 0;
+
   Inc(FRun, FPatternLength);
+
   while FRun < FTheEnd do
   begin
     if FPattern[FPatternLength] <> FRun^ then
@@ -115,23 +124,28 @@ begin
     begin
       LPValue := FRun - FPatternLength + 1;
       LIndex := 1;
+
       while FPattern[LIndex] = LPValue^ do
       begin
         if LIndex = FPatternLength then
         begin
-          if WholeWordsOnly then
-            if not TestWholeWord then
-              Break;
+          if WholeWordsOnly and not TestWholeWord then
+            Break;
+
           Inc(FCount);
-          Result := FRun - FOrigin - FPatternLength + 2;
-          Exit;
+
+          Exit(FRun - FOrigin - FPatternLength + 2);
         end;
+
         Inc(LIndex);
         Inc(LPValue);
       end;
+
       Inc(FRun, FLookAt);
+
       if FRun >= FTheEnd then
         Break;
+
       Inc(FRun, FShift[AnsiChar(FRun^)] - 1);
     end;
   end;
@@ -153,12 +167,15 @@ begin
   if FPattern <> LValue then
   begin
     FCasedPattern := LValue;
+
     if CaseSensitive then
       FPattern := FCasedPattern
     else
       FPattern := AnsiLowerCase(FCasedPattern);
+
     FShiftInitialized := False;
   end;
+
   FCount := 0;
 end;
 
@@ -168,6 +185,7 @@ begin
     FPattern := FCasedPattern
   else
     FPattern := AnsiLowerCase(FCasedPattern);
+
   FShiftInitialized := False;
 end;
 
@@ -177,13 +195,17 @@ var
 begin
   Status := '';
   Clear;
+
   LPosition := FindFirst(ALines.Text);
+
   while LPosition > 0 do
   begin
-    FResults.Add(Pointer(LPosition));
+    FResults.Add(LPosition);
     LPosition := Next;
   end;
+
   Result := FResults.Count;
+
   SetLength(FTextToSearch, 0);
 end;
 
@@ -191,16 +213,22 @@ function TTextEditorNormalSearch.FindFirst(const AText: string): Integer;
 begin
   if not FShiftInitialized then
     InitShiftTable;
+
   Result := 0;
+
   FTextLength := Length(AText);
+
   if FTextLength >= FPatternLength then
   begin
     FTextToSearch := AText;
+
     if not CaseSensitive then
       CharLowerBuff(PChar(FTextToSearch), FTextLength);
+
     FOrigin := PChar(FTextToSearch);
     FTheEnd := FOrigin + FTextLength;
     FRun := FOrigin - 1;
+
     Result := Next;
   end;
 end;

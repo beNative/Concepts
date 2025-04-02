@@ -2954,7 +2954,7 @@ end;
 
 class constructor TRttiPropertyExtension.Create;
 begin
-  FRegister := TObjectDictionary<TPair<PTypeInfo, string>, TRttiPropertyExtension>.Create([doOwnsValues]);
+  FRegister := TObjectDictionary<TPair<PTypeInfo, string>, TRttiPropertyExtension>.Create([Generics.Collections.doOwnsValues]);
   FPatchedClasses := TDictionary<TClass, TClass>.Create;
 
   TRttiPropertyExtension.InitVirtualMethodTable;
@@ -3204,7 +3204,7 @@ end;
 
 initialization
   Covariances := TDictionary<TPair<PTypeInfo, PTypeInfo>, Boolean>.Create;
-  Enumerations := TObjectDictionary<PTypeInfo, TStrings>.Create([doOwnsValues]);
+  Enumerations := TObjectDictionary<PTypeInfo, TStrings>.Create([Generics.Collections.doOwnsValues]);
 
 finalization
   Covariances.Free;

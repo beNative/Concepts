@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -34,8 +34,8 @@ uses
   Rtti,
   Spring;
 
-const
-  DefaultDelimiter = ',';
+var
+  DefaultDelimiter: string = ',';
 
 type
   TValue = Rtti.TValue;
@@ -45,7 +45,7 @@ type
     function GetValue(index: Integer): TValue;
   protected
     fValues: TArray<TValue>;
-    constructor Create(const values: string; const delimiter: string = DefaultDelimiter);
+    constructor Create(const values: string; const delimiter: string);
     property Values[index: Integer]: TValue read GetValue;
   end;
 
@@ -62,7 +62,8 @@ type
   /// </summary>
   TestCaseAttribute = class(TTestingAttribute)
   public
-    constructor Create(const values: string; const delimiter: string = DefaultDelimiter);
+    constructor Create(const values: string); overload;
+    constructor Create(const values: string; const delimiter: string); overload;
   end;
 
   TestCaseSourceAttribute = class(TBaseAttribute)
@@ -83,7 +84,8 @@ type
   ValuesAttribute = class(TTestingAttribute)
   public
     constructor Create; overload;
-    constructor Create(const values: string; const delimiter: Char = DefaultDelimiter); overload;
+    constructor Create(const values: string); overload;
+    constructor Create(const values: string; const delimiter: string); overload;
   end;
 
   /// <summary>
@@ -173,9 +175,6 @@ uses
   TypInfo,
   Spring.Reflection;
 
-var
-  ISO8601FormatSettings: TFormatSettings;
-
 type
   TRttiMethodHelper = class helper for TRttiMethod
     procedure ConvertValues(const values: TArray<TValue>;
@@ -190,7 +189,7 @@ var
   parameters: TArray<TRttiParameter>;
   i: Integer;
   value: TValue;
-  retType: TRttiType;
+  retType, paramType: TRttiType;
 begin
   parameters := GetParameters;
   for i := 0 to High(parameters) do
@@ -199,7 +198,13 @@ begin
       value := values[i]
     else
       value := TValue.Empty;
-    value.TryConvert(parameters[i].ParamType.Handle, arguments[i], ISO8601FormatSettings);
+    paramType := parameters[i].ParamType;
+    if value.IsString and not paramType.IsString then
+      value := Trim(value.AsString);
+    if paramType.Handle <> TypeInfo(TValue) then
+      value.TryConvert(paramType.Handle, arguments[i], ISO8601FormatSettings)
+    else
+      arguments[i] := value;
   end;
   retType := ReturnType;
   if retType <> nil then
@@ -234,8 +239,48 @@ end;
 {$REGION 'TTestingAttribute'}
 
 constructor TTestingAttribute.Create(const values: string; const delimiter: string);
+
+  function SplitString(const s, delimiter: string): TArray<string>;
+
+    function ScanChar(const s: string; var index: Integer): Boolean;
+    var
+      level: Integer;
+    begin
+      Result := False;
+      level := 0;
+      while index <= Length(s) do
+      begin
+        case s[index] of
+          '[': Inc(level);
+          ']': Dec(level);
+        else
+          if Copy(s, index, Length(delimiter)) = delimiter then
+            if level = 0 then
+              Exit(True);
+        end;
+        Inc(index);
+        Result := level = 0;
+      end;
+    end;
+
+  var
+    startPos, index, len: Integer;
+  begin
+    Result := nil;
+    startPos := 1;
+    index := 1;
+    while ScanChar(s, index) do
+    begin
+      len := Length(Result);
+      SetLength(Result, len + 1);
+      Result[len] := Copy(s, startPos, index - startPos);
+      Inc(index);
+      startPos := index;
+    end;
+  end;
+
 var
-  tempValues: TStringDynArray;
+  tempValues: TArray<string>;
   i: Integer;
 begin
   inherited Create;
@@ -257,6 +302,11 @@ end;
 
 
 {$REGION 'TestCaseAttribute'}
+
+constructor TestCaseAttribute.Create(const values: string);
+begin
+  inherited Create(values, DefaultDelimiter);
+end;
 
 constructor TestCaseAttribute.Create(const values: string; const delimiter: string);
 begin
@@ -289,10 +339,15 @@ end;
 
 constructor ValuesAttribute.Create;
 begin
-  inherited Create('');
+  inherited Create('', DefaultDelimiter);
 end;
 
-constructor ValuesAttribute.Create(const values: string; const delimiter: Char);
+constructor ValuesAttribute.Create(const values: string);
+begin
+  inherited Create(values, DefaultDelimiter);
+end;
+
+constructor ValuesAttribute.Create(const values: string; const delimiter: string);
 begin
   inherited Create(values, delimiter);
 end;
@@ -394,7 +449,9 @@ procedure TTestCase.Invoke(AMethod: TTestMethod);
 var
   expected, actual: TValue;
 begin
+  {$IF declared(FTestMethodInvoked)}
   FTestMethodInvoked := True;
+  {$IFEND}
   if Assigned(fExpectedException) then
     StartExpectingException(fExpectedException);
   if Assigned(fMethod) and (fMethod.CodeAddress = TMethod(AMethod).Code) then
@@ -469,9 +526,8 @@ end;
 
 procedure TTestSuite.AddTests(testClass: TTestCaseClass);
 
-  procedure InternalInvoke(const suite: ITestSuite; const method: TRttiMethod;
-    const parameters: TArray<TRttiParameter>; const arguments: TArray<TValue>;
-    argIndex: Integer = 0; paramIndex: Integer = 0);
+  procedure InternalInvoke(const method: TRttiMethod; const parameters: TArray<TRttiParameter>;
+    const arguments: TArray<TValue>; argIndex: Integer = 0; paramIndex: Integer = 0);
   var
     attribute: TTestingAttribute;
     i: Integer;
@@ -493,25 +549,24 @@ procedure TTestSuite.AddTests(testClass: TTestCaseClass);
           attribute.Values[i].TryConvert(
             parameters[paramIndex].ParamType.Handle, arguments[paramIndex], ISO8601FormatSettings);
           if paramIndex = Length(parameters) - 1 then
-            suite.AddTest(testClass.Create(method, arguments) as ITest)
+            AddTest(testClass.Create(method, arguments) as ITest)
           else
-            InternalInvoke(suite, method, parameters, arguments, i, paramIndex + 1);
+            InternalInvoke(method, parameters, arguments, i, paramIndex + 1);
         end
       else
       begin
         attribute.Values[argIndex].TryConvert(
           parameters[paramIndex].ParamType.Handle, arguments[paramIndex], ISO8601FormatSettings);
         if paramIndex = Length(parameters) - 1 then
-          suite.AddTest(testClass.Create(method, arguments) as ITest)
+          AddTest(testClass.Create(method, arguments) as ITest)
         else
-          InternalInvoke(suite, method, parameters, arguments, argIndex, paramIndex + 1);
+          InternalInvoke(method, parameters, arguments, argIndex, paramIndex + 1);
       end;
     end;
   end;
 
-  procedure HandleSourceAttribute(const suite: ITestSuite;
-    const method: TRttiMethod; const parameters: TArray<TRttiParameter>;
-    const arguments: TArray<TValue>);
+  procedure HandleSourceAttribute(const method: TRttiMethod;
+    const parameters: TArray<TRttiParameter>; const arguments: TArray<TValue>);
   var
     sourceAttribute: TestCaseSourceAttribute;
     sourceMethod: TRttiMethod;
@@ -540,18 +595,18 @@ procedure TTestSuite.AddTests(testClass: TTestCaseClass);
             end;
             if data.fName <> '' then
               testCase.Name := data.fName;
-            suite.AddTest(testCase as ITest);
+            AddTest(testCase as ITest);
             Continue;
           end;
 
           if Length(parameters) > 1 then
           begin
             method.ConvertValues(values.GetArray, arguments);
-            suite.AddTest(testClass.Create(method, arguments) as ITest);
+            AddTest(testClass.Create(method, arguments) as ITest);
           end
           else
             if values.TryConvert(parameters[0].ParamType.Handle, arguments[0], ISO8601FormatSettings) then
-              suite.AddTest(testClass.Create(method, arguments) as ITest);
+              AddTest(testClass.Create(method, arguments) as ITest);
         end;
       end;
     end;
@@ -562,7 +617,6 @@ var
   parameters: TArray<TRttiParameter>;
   i: Integer;
   arguments: TArray<TValue>;
-  suite: ITestSuite;
   attribute: TestCaseAttribute;
 begin
   for method in TType.GetType(testClass).GetMethods do
@@ -583,21 +637,18 @@ begin
     else
       SetLength(arguments, Length(parameters) + 1);
 
-    suite := TTestSuite.Create(method.Name);
-    AddTest(suite);
-
     for attribute in method.GetCustomAttributes<TestCaseAttribute> do
     begin
       method.ConvertValues(attribute.fValues, arguments);
-      suite.AddTest(testClass.Create(method, arguments) as ITest);
+      AddTest(testClass.Create(method, arguments) as ITest);
     end;
 
-    HandleSourceAttribute(suite, method, parameters, arguments);
+    HandleSourceAttribute(method, parameters, arguments);
 
-    if Length(parameters) = 0 then
-      suite.AddTest(testClass.Create(method, nil) as ITest)
+    if parameters = nil then
+      AddTest(testClass.Create(method, nil) as ITest)
     else if IsTestMethod(method, parameters) then
-      InternalInvoke(suite, method, parameters, arguments);
+      InternalInvoke(method, parameters, arguments);
   end;
 end;
 
@@ -638,15 +689,5 @@ end;
 
 {$ENDREGION}
 
-
-initialization
-  ISO8601FormatSettings := TFormatSettings.Create;
-  ISO8601FormatSettings.DateSeparator := '-';
-  ISO8601FormatSettings.TimeSeparator := ':';
-  ISO8601FormatSettings.ShortDateFormat := 'YYYY-MM-DD';
-  ISO8601FormatSettings.ShortTimeFormat := 'hh:mm:ss';
-  ISO8601FormatSettings.DecimalSeparator := '.';
-  ISO8601FormatSettings.TimeAMString := '';
-  ISO8601FormatSettings.TimePMString := '';
 
 end.

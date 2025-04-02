@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -96,9 +96,7 @@ type
 
   TRefCounted = class(TObject, IRefCounted)
   private
-{$IFNDEF AUTOREFCOUNT}
     fRefCount: Integer;
-{$ENDIF}
     function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
     function _AddRef: Integer; stdcall;
     function _Release: Integer; stdcall;
@@ -464,6 +462,14 @@ type
     fChicken: IChicken;
     function GetEgg: IEgg;
     procedure SetEgg(const egg: IEgg);
+  public
+    constructor Create(const chicken: IChicken);
+  end;
+
+  TEggWeakChicken = class(TInterfacedObject, IEgg)
+  private
+    fChicken: Weak<IChicken>;
+    function Chicken: IChicken;
   public
     constructor Create(const chicken: IChicken);
   end;
@@ -946,24 +952,16 @@ end;
 
 function TRefCounted._AddRef: Integer;
 begin
-{$IFNDEF AUTOREFCOUNT}
   Inc(fRefCount);
   Result := fRefCount;
-{$ELSE}
-  Result := __ObjAddRef;
-{$ENDIF}
 end;
 
 function TRefCounted._Release: Integer;
 begin
-{$IFNDEF AUTOREFCOUNT}
   Dec(fRefCount);
   Result := fRefCount;
   if Result = 0 then
     Destroy;
-{$ELSE}
-  Result := __ObjRelease;
-{$ENDIF}
 end;
 
 { TCustomNameService }
@@ -1089,7 +1087,7 @@ end;
 
 constructor TCollectionServiceD.Create(const collectionItem: ICollectionItem);
 begin
-  inherited Create;;
+  inherited Create;
   SetLength(fCollectionItems, 1);
   fCollectionItems[0] := collectionItem;
 end;
@@ -1162,6 +1160,18 @@ begin
 end;
 
 function TEggLazyChicken.Chicken: IChicken;
+begin
+  Result := fChicken;
+end;
+
+{ TEggWeakChicken }
+
+constructor TEggWeakChicken.Create(const chicken: IChicken);
+begin
+  fChicken := chicken;
+end;
+
+function TEggWeakChicken.Chicken: IChicken;
 begin
   Result := fChicken;
 end;

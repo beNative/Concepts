@@ -3,13 +3,12 @@
 interface
 
 uses
-  System.Classes, System.UITypes, TextEditor.Consts, TextEditor.Types;
+  System.Classes, TextEditor.Types;
 
 type
   TTextEditorSearchInSelection = class(TPersistent)
   strict private
     FActive: Boolean;
-    FBackground: TColor;
     FOnChange: TTextEditorSearchChangeEvent;
     FSelectionBeginPosition: TTextEditorTextPosition;
     FSelectionEndPosition: TTextEditorTextPosition;
@@ -22,7 +21,6 @@ type
     property SelectionEndPosition: TTextEditorTextPosition read FSelectionEndPosition write FSelectionEndPosition;
   published
     property Active: Boolean read FActive write SetActive default False;
-    property Background: TColor read FBackground write FBackground default TDefaultColors.SearchInSelectionBackground;
     property OnChange: TTextEditorSearchChangeEvent read FOnChange write FOnChange;
   end;
 
@@ -33,7 +31,6 @@ begin
   inherited;
 
   FActive := False;
-  FBackground := TDefaultColors.SearchInSelectionBackground;
 end;
 
 procedure TTextEditorSearchInSelection.DoChange;
@@ -48,9 +45,9 @@ begin
   with ASource as TTextEditorSearchInSelection do
   begin
     Self.FActive := FActive;
-    Self.FBackground := FBackground;
     Self.FSelectionBeginPosition := FSelectionBeginPosition;
     Self.FSelectionEndPosition := FSelectionEndPosition;
+
     Self.DoChange;
   end
   else
@@ -62,6 +59,7 @@ begin
   if FActive <> AValue then
   begin
     FActive := AValue;
+
     DoChange;
   end;
 end;

@@ -3,10 +3,8 @@ unit frmEnumerableDemo;
 interface
 
 uses
-  Windows, Messages, Variants, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls
-  , Generics.Collections
-  , Spring.Collections
-  ;
+  Windows, Messages, Variants, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Generics.Collections, Spring.Collections;
 
 type
    TIntegerStringPair = TPair<integer, string>;
@@ -63,156 +61,131 @@ implementation
 {$R *.dfm}
 
 uses
-       Spring
-     , SysUtils
-     , Spring.Collections.Extensions
-     ;
+  SysUtils,
+  Spring;
 
 procedure TEnumerationDemoForm.Button1Click(Sender: TObject);
 var
-  Pair: TIntegerStringPair;
+  pair: TIntegerStringPair;
 begin
   Clear;
-  for Pair in List do
-  begin
-    AddToMemo(Pair.Value);
-  end;
+  for pair in List do
+    AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.Button2Click(Sender: TObject);
 var
-  Predicate: Spring.TPredicate<TIntegerStringPair>;
-  Pair: TIntegerStringPair;
-  Enumerable: IEnumerable<TIntegerStringPair>;
+  predicate: Predicate<TIntegerStringPair>;
+  pair: TIntegerStringPair;
+  enumerable: IEnumerable<TIntegerStringPair>;
 begin
   Clear;
-  Predicate := function(const Pair: TIntegerStringPair): Boolean
-               begin
-                 Result :=  Pair.Key mod 2 = 0;
-               end;
-  // Same as TWhereEnumerable<TIntegerStringPair>.Create(List, Predicate);
-  Enumerable := List.Where(Predicate);
+  predicate :=
+    function(const Pair: TIntegerStringPair): Boolean
+    begin
+      Result :=  Pair.Key mod 2 = 0;
+    end;
+  enumerable := List.Where(predicate);
 
-  for Pair in Enumerable do
-  begin
-    AddToMemo(Pair.Value);
-  end;
-
+  for pair in enumerable do
+    AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.Button3Click(Sender: TObject);
 var
-  Pair: TIntegerStringPair;
-  Enumerable: IEnumerable<TIntegerStringPair>;
+  pair: TIntegerStringPair;
+  enumerable: IEnumerable<TIntegerStringPair>;
 begin
   Clear;
   // Skip the first seven
-  // The below is basically the same as TSkipEnumerable<TIntegerStringPair>.Create(List, 7);
-  Enumerable := List.Skip(7);
+  enumerable := List.Skip(7);
 
-  for Pair in Enumerable do
-  begin
-    AddToMemo(Pair.Value);
-  end;
-
+  for pair in enumerable do
+    AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.Button4Click(Sender: TObject);
 var
-  Pair: TIntegerStringPair;
-  Predicate: Spring.TPredicate<TIntegerStringPair>;
-  Enumerable: IEnumerable<TIntegerStringPair>;
+  pair: TIntegerStringPair;
+  predicate: Predicate<TIntegerStringPair>;
+  enumerable: IEnumerable<TIntegerStringPair>;
 begin
   Clear;
-  Predicate := function(const Pair: TIntegerStringPair): Boolean
-               begin
-                 Result :=  Pair.Key < 5;
-               end;
+  predicate :=
+    function(const Pair: TIntegerStringPair): Boolean
+    begin
+      Result :=  Pair.Key < 5;
+    end;
 
-  // Same as TSkipWhileEnumerable<TIntegerStringPair>.Create(List, Predicate);
-  Enumerable := List.SkipWhile(Predicate);
-  for Pair in Enumerable do
-  begin
-    AddToMemo(Pair.Value);
-  end;
-
+  enumerable := List.SkipWhile(predicate);
+  for pair in enumerable do
+    AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.Button5Click(Sender: TObject);
 var
-  Pair: TIntegerStringPair;
-  Enumerable: IEnumerable<TIntegerStringPair>;
+  pair: TIntegerStringPair;
+  enumerable: IEnumerable<TIntegerStringPair>;
 begin
   Clear;
   // Only "take" the first seven
-  // Same as TTakeEnumerable<TIntegerStringPair>.Create(List, 7);
-  Enumerable := List.Take(7);
+  enumerable := List.Take(7);
 
-  for Pair in Enumerable do
-  begin
-    AddToMemo(Pair.Value);
-  end;
-
+  for pair in enumerable do
+    AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.Button6Click(Sender: TObject);
 var
-  Pair: TIntegerStringPair;
-  Predicate: Spring.TPredicate<TIntegerStringPair>;
-  Enumerable: IEnumerable<TIntegerStringPair>;
+  pair: TIntegerStringPair;
+  predicate: Predicate<TIntegerStringPair>;
+  enumerable: IEnumerable<TIntegerStringPair>;
 begin
   Clear;
-  Predicate := function(const Pair: TIntegerStringPair): Boolean
-               begin
-                 Result :=  Pair.Key < 5;
-               end;
+  predicate :=
+    function(const Pair: TIntegerStringPair): Boolean
+    begin
+      Result := Pair.Key < 5;
+    end;
 
-  // Same as TTakeWhileEnumerable<TIntegerStringPair>.Create(List, Predicate);
   // "Takes" the items from the enumeration as long as the Pair.Key is less than
   // five.  Once it isn't less than five, it stops and nothing else is returned.
-  Enumerable := List.TakeWhile(Predicate);
-  for Pair in Enumerable do
-  begin
-    AddToMemo(Pair.Value);
-  end;
-
+  enumerable := List.TakeWhile(predicate);
+  for pair in enumerable do
+    AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.Button7Click(Sender: TObject);
 var
-  Pair: TIntegerStringPair;
-  Enumerable: IEnumerable<TIntegerStringPair>;
-  TempList: IList<TIntegerStringPair>;
+  pair: TIntegerStringPair;
+  enumerable: IEnumerable<TIntegerStringPair>;
+  tempList: IList<TIntegerStringPair>;
 begin
   Clear;
-  TempList := CreateAnotherList;
+  tempList := CreateAnotherList;
 
-  // Same as TConcatEnumerable<TIntegerStringPair>.Create(List, TempList);
-  Enumerable := List.Concat(TempList);
+  enumerable := List.Concat(tempList);
 
-  for Pair in Enumerable do
-  begin
-    AddToMemo(Pair.Value);
-  end;
-
+  for pair in enumerable do
+    AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.Button8Click(Sender: TObject);
 var
-  Pair: TIntegerStringPair;
+  pair: TIntegerStringPair;
 begin
   Clear;
-  Pair := List.First;
-  AddToMemo(Pair.Value);
+  pair := List.First;
+  AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.Button9Click(Sender: TObject);
 var
-  Pair: TIntegerStringPair;
+  pair: TIntegerStringPair;
 begin
   Clear;
-  Pair := List.Last;
-  AddToMemo(Pair.Value);
+  pair := List.Last;
+  AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.AddToMemo(const aString: string);
@@ -222,67 +195,63 @@ end;
 
 procedure TEnumerationDemoForm.Button10Click(Sender: TObject);
 var
-  Pair: TIntegerStringPair;
+  pair: TIntegerStringPair;
 begin
   Clear;
-  Pair := List.ElementAt(4); // zero-based
-  AddToMemo(Pair.Value);
+  pair := List.ElementAt(4); // zero-based
+  AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.Button11Click(Sender: TObject);
 var
-  Pair: TIntegerStringPair;
+  pair: TIntegerStringPair;
 begin
   Clear;
-  Pair := List.Min;
-  AddToMemo(Pair.Value);
+  pair := List.Min;
+  AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.Button12Click(Sender: TObject);
 var
-  Pair: TIntegerStringPair;
+  pair: TIntegerStringPair;
 begin
   Clear;
-  Pair := List.Max;
-  AddToMemo(Pair.Value);
+  pair := List.Max;
+  AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.Button13Click(Sender: TObject);
 var
-  Pair: TIntegerStringPair;
+  pair: TIntegerStringPair;
 begin
   Clear;
-  for Pair in List.Reversed do
-  begin
-    AddToMemo(Pair.Value);
-  end;
+  for pair in List.Reversed do
+    AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.Button14Click(Sender: TObject);
 var
-  Action: TAction<TIntegerStringPair>;
+  action: Action<TIntegerStringPair>;
 begin
   Clear;
-  Action := procedure(const Pair: TIntegerStringPair)
-            begin
-              AddToMemo(Format('The numeric form of %s is %d', [Pair.Value, Pair.Key]))
-            end;
+  action :=
+    procedure(const Pair: TIntegerStringPair)
+    begin
+      AddToMemo(Format('The numeric form of %s is %d', [Pair.Value, Pair.Key]))
+    end;
 
-  List.ForEach(Action);
-
+  List.ForEach(action);
 end;
 
 
 procedure TEnumerationDemoForm.Button15Click(Sender: TObject);
 var
-  Pair: TIntegerStringPair;
+  pair: TIntegerStringPair;
 begin
   Clear;
   // Note that the order is changed
-  for Pair in TCollections.CreateSet<TIntegerStringPair>(List) do
-  begin
-    AddToMemo(Pair.Value);
-  end;
+  for pair in TCollections.CreateSet<TIntegerStringPair>(List) do
+    AddToMemo(pair.Value);
 end;
 
 procedure TEnumerationDemoForm.Clear;

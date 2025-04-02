@@ -309,7 +309,10 @@ var
   LCustomer: TCustomer;
   i: Integer;
 begin
-  Result := TCollections.CreateObjectList<TCustomer>(True);
+  if ACreateMock then
+    Result := IList<TCustomer>(TCollections.CreateObjectList<TMockCustomer>(True))
+  else
+    Result := TCollections.CreateObjectList<TCustomer>(True);
   for i := 1 to ASize do
   begin
     // Mock of the customer class is needed to write down ID fields. Valid values
@@ -464,7 +467,7 @@ begin
     caRemoved: FRemovedItemAge := item.Age;
     caReplaced: ;
     caMoved: ;
-    caReseted: ;
+    caReset: ;
   end;
 end;
 

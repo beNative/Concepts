@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -43,23 +43,23 @@ type
   {$M+}
   IFactory<TResult> = interface(TFunc<TResult>)
     function Invoke: TResult;
-  end;
+  end deprecated 'Use Spring.Func<TResult> instead';
 
   IFactory<T,TResult> = interface(TFunc<T,TResult>)
     function Invoke(Arg: T): TResult;
-  end;
+  end deprecated 'Use Spring.Func<T, TResult> instead';
 
   IFactory<T1,T2,TResult> = interface(TFunc<T1,T2,TResult>)
     function Invoke(Arg1: T1; Arg2: T2): TResult;
-  end;
+  end deprecated 'Use Spring.Func<T1, T2, TResult> instead';
 
   IFactory<T1,T2,T3,TResult> = interface(TFunc<T1,T2,T3,TResult>)
     function Invoke(Arg1: T1; Arg2: T2; Arg3: T3): TResult;
-  end;
+  end deprecated 'Use Spring.Func<T1, T2, T3, TResult> instead';
 
   IFactory<T1,T2,T3,T4,TResult> = interface(TFunc<T1,T2,T3,T4,TResult>)
     function Invoke(Arg1: T1; Arg2: T2; Arg3: T3; Arg4: T4): TResult;
-  end;
+  end deprecated 'Use Spring.Func<T1, T2, T3, T4, TResult> instead';
   {$M-}
 
   {$ENDREGION}
@@ -389,70 +389,11 @@ type
 
 
   {$REGION 'Common Container Interfaces'}
+
   TActivatorDelegate = reference to function: TValue;
 
   TWhere = (First, Last);
 
-  IRegistration = interface
-    ['{94A80249-3C3D-4769-832A-274B1833DA70}']
-    function Implements(serviceType: PTypeInfo): IRegistration; overload;
-    function Implements(serviceType: PTypeInfo; const serviceName: string): IRegistration; overload;
-
-    function DelegateTo(const delegate: TActivatorDelegate): IRegistration; overload;
-
-    {$REGION 'Typed Injections'}
-
-    function InjectConstructor: IRegistration; overload;
-    function InjectConstructor(const parameterTypes: array of PTypeInfo): IRegistration; overload;
-    function InjectProperty(const propertyName: string): IRegistration; overload;
-    function InjectMethod(const methodName: string): IRegistration; overload;
-    function InjectMethod(const methodName: string; const parameterTypes: array of PTypeInfo): IRegistration; overload;
-    function InjectField(const fieldName: string): IRegistration; overload;
-
-    {$ENDREGION}
-
-    {$REGION 'Named/Valued Injections'}
-
-    function InjectConstructor(const arguments: array of TValue): IRegistration; overload;
-    function InjectProperty(const propertyName: string; const value: TValue): IRegistration; overload;
-    function InjectMethod(const methodName: string; const arguments: array of TValue): IRegistration; overload;
-    function InjectField(const fieldName: string; const value: TValue): IRegistration; overload;
-
-    {$ENDREGION}
-
-    function AsSingleton(refCounting: TRefCounting = TRefCounting.Unknown): IRegistration;
-    function AsSingletonPerThread(refCounting: TRefCounting = TRefCounting.Unknown): IRegistration;
-    function AsTransient: IRegistration;
-    function AsPooled(minPoolSize, maxPoolSize: Integer): IRegistration;
-
-    // TODO: refactor
-    function AsCustom(const lifetimeManager: IInterface): IRegistration;
-
-    function PerResolve: IRegistration;
-
-    function AsDefault: IRegistration; overload;
-    function AsDefault(serviceType: PTypeInfo): IRegistration; overload;
-
-{$IFNDEF DELPHI2010}
-    function AsFactory(paramResolution: TParamResolution = TParamResolution.ByName): IRegistration; overload;
-    function AsFactory(const resolvedServiceName: string;
-      paramResolution: TParamResolution = TParamResolution.ByName): IRegistration; overload;
-
-    function InterceptedBy(interceptorType: PTypeInfo;
-      where: TWhere = TWhere.Last): IRegistration; overload;
-    function InterceptedBy(const name: string;
-      where: TWhere = TWhere.Last): IRegistration; overload;
-{$ENDIF}
-  end;
-
-  IContainer = interface
-    ['{B7F38CF7-872F-4B8E-9593-67ABFD351EF2}']
-    function RegisterType(componentType: PTypeInfo): IRegistration; overload;
-    function RegisterType(serviceType, componentType: PTypeInfo;
-      const serviceName: string = ''): IRegistration; overload;
-
-    procedure Build;
-  end;
   {$ENDREGION}
 
 

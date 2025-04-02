@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -38,7 +38,13 @@ uses
   Spring.Data.VirtualDataSet;
 
 type
-  TObjectDataSet = class(TCustomVirtualDataSet)
+  TRttiProperty = Rtti.TRttiProperty;
+  TObjectDataSet = class;
+
+  TAddFieldDefEvent = procedure(DataSet: TObjectDataSet;
+    prop: TRttiProperty; fieldDef: TFieldDef) of object;
+
+  TObjectDataSet = class(TBaseVirtualDataSet)
   private type
     TIndexFieldInfo = record
       Field: TField;
@@ -64,6 +70,7 @@ type
     fAfterFilter: TDataSetNotifyEvent;
     fBeforeSort: TDataSetNotifyEvent;
     fAfterSort: TDataSetNotifyEvent;
+    fOnAddFieldDef: TAddFieldDefEvent;
 
     function GetSort: string;
     procedure SetSort(const value: string);
@@ -78,7 +85,6 @@ type
     procedure DoFilterRecord(var Accept: Boolean); override;
     procedure DoGetFieldValue(Field: TField; Index: Integer; var Value: Variant); override;
     procedure DoPostRecord(Index: Integer; Append: Boolean); override;
-    procedure RebuildPropertiesCache; override;
 
     function DataListCount: Integer;
     function GetRecordCount: Integer; override;
@@ -97,7 +103,7 @@ type
     function ParserGetVariableValue(Sender: TObject; const VarName: string; var Value: Variant): Boolean; virtual;
     function ParserGetFunctionValue(Sender: TObject; const FuncName: string;
       const Args: Variant; var ResVal: Variant): Boolean; virtual;
-    procedure InitRttiPropertiesFromItemType(AItemTypeInfo: PTypeInfo); virtual;
+    procedure InitRttiPropertiesFromItemType;
     procedure InternalSetSort(const value: string; index: Integer = 0); virtual;
     procedure LoadFieldDefsFromFields(Fields: TFields; FieldDefs: TFieldDefs); virtual;
     procedure LoadFieldDefsFromItemType; virtual;
@@ -201,6 +207,7 @@ type
     property BeforePost;
     property BeforeRefresh;
     property BeforeScroll;
+    property OnAddFieldDef: TAddFieldDefEvent read fOnAddFieldDef write fOnAddFieldDef;
     property OnCalcFields;
     property OnDeleteError;
     property OnEditError;
@@ -433,28 +440,31 @@ begin
   else
     newItem := IndexList.Items[Index];
 
-  if not fProperties.Any then
-    InitRttiPropertiesFromItemType(newItem.ClassInfo);
-
   sortNeeded := False;
 
-  for i := 0 to ModifiedFields.Count - 1 do
-  begin
-    field := ModifiedFields[i];
-
-    if not sortNeeded and Sorted then
-      sortNeeded := FieldInSortIndex(field);
-
-    // Fields not found in dictionary are calculated or lookup fields, do not post them
-    if fProperties.TryGetFirst(prop, TPropertyFilters.IsNamed(field.FieldName)) then
+  try
+    for i := 0 to ModifiedFields.Count - 1 do
     begin
-      fieldValue := field.Value;
-      if VarIsNull(fieldValue) then
-        prop.SetValue(newItem, TValue.Empty)
-      else
-        if TValue.From<Variant>(fieldValue).TryConvert(prop.PropertyType.Handle, value) then
-          prop.SetValue(newItem, value);
+      field := ModifiedFields[i];
+
+      if not sortNeeded and Sorted then
+        sortNeeded := FieldInSortIndex(field);
+
+      // Fields not found in dictionary are calculated or lookup fields, do not post them
+      if fProperties.TryGetFirst(prop, TPropertyFilters.IsNamed(field.FieldName)) then
+      begin
+        fieldValue := field.Value;
+        if VarIsNull(fieldValue) then
+          prop.SetValue(newItem, TValue.Empty)
+        else
+          if TValue.From<Variant>(fieldValue).TryConvert(prop.PropertyType.Handle, value) then
+            prop.SetValue(newItem, value);
+      end;
     end;
+  except
+    if State = dsInsert then
+      newItem.Free;
+    raise;
   end;
 
   if State = dsInsert then
@@ -534,43 +544,48 @@ begin
     fFilterParser.Expression := Filter;
 end;
 
-procedure TObjectDataSet.InitRttiPropertiesFromItemType(AItemTypeInfo: PTypeInfo);
+procedure TObjectDataSet.InitRttiPropertiesFromItemType;
 var
   itemType: TRttiType;
   prop: TRttiProperty;
   field: TField;
 begin
-  if AItemTypeInfo = nil then
+  if fItemTypeInfo = nil then
     Exit;
 
-  fProperties.Clear;
+  DisableControls;
+  try
+    fProperties.Clear;
 
-  itemType := TType.GetType(AItemTypeInfo);
-  for prop in itemType.GetProperties do
-  begin
-    if not (prop.Visibility in [mvPublic, mvPublished]) then
-      Continue;
-
-    if Fields.Count > 0 then
+    itemType := TType.GetType(fItemTypeInfo);
+    for prop in itemType.GetProperties do
     begin
-      field := Fields.FindField(prop.Name);
-      if Assigned(field) and (field.FieldKind = fkData) then
+      if not (prop.Visibility in [mvPublic, mvPublished]) then
+        Continue;
+
+      if Fields.Count > 0 then
       begin
-        fProperties.Add(prop);
-        if not prop.IsWritable then
-          field.ReadOnly := True;
+        field := Fields.FindField(prop.Name);
+        if Assigned(field) and (field.FieldKind = fkData) then
+        begin
+          fProperties.Add(prop);
+          if not prop.IsWritable then
+            field.ReadOnly := True;
+        end;
+        Continue;
       end;
-      Continue;
-    end;
 
-    if Assigned(fColumnAttributeClass) then
-    begin
-      if prop.HasCustomAttribute(fColumnAttributeClass) then
-        fProperties.Add(prop);
-    end
-    else
-      if prop.Visibility = mvPublished then
-        fProperties.Add(prop);
+      if Assigned(fColumnAttributeClass) then
+      begin
+        if prop.HasCustomAttribute(fColumnAttributeClass) then
+          fProperties.Add(prop);
+      end
+      else
+        if prop.Visibility = mvPublished then
+          fProperties.Add(prop);
+    end;
+  finally
+    EnableControls;
   end;
 end;
 
@@ -593,9 +608,6 @@ function TObjectDataSet.InternalGetFieldValue(field: TField; const obj: TObject)
 var
   prop: TRttiProperty;
 begin
-  if not fProperties.Any then
-    InitRttiPropertiesFromItemType(obj.ClassInfo);
-
   if fProperties.TryGetFirst(prop, TPropertyFilters.IsNamed(field.FieldName)) then
     Result := prop.GetValue(obj).ToVariant
   else
@@ -634,7 +646,6 @@ end;
 procedure TObjectDataSet.InternalSetSort(const value: string; index: Integer);
 var
   pos: Integer;
-  ownership: ICollectionOwnership;
   ownsObjects: Boolean;
   changed: Boolean;
 begin
@@ -652,18 +663,17 @@ begin
 
   if fSorted then
   begin
-    ownsObjects := Supports(fDataList, ICollectionOwnership, ownership)
-      and ownership.OwnsObjects;
+    ownsObjects := fDataList.OwnsObjects;
     try
       if ownsObjects then
-        ownership.OwnsObjects := False;
+        fDataList.OwnsObjects := False;
       if changed then
         IndexList.MergeSort(CompareRecords)
       else
         IndexList.InsertionSort(index, CompareRecords);
     finally
       if ownsObjects then
-        ownership.OwnsObjects := True;
+        fDataList.OwnsObjects := True;
 
       SetCurrent(pos);
     end;
@@ -681,7 +691,10 @@ var
   i: integer;
   field: TField;
   fieldDef: TFieldDef;
+  itemType: TRttiType;
+  prop: TRttiProperty;
 begin
+  itemType := TType.GetType(fItemTypeInfo);
   for i := 0 to Fields.Count - 1 do
   begin
     field := Fields[i];
@@ -699,6 +712,13 @@ begin
         fieldDef.Precision := TBCDField(field).Precision;
       if field is TObjectField then
         LoadFieldDefsFromFields(TObjectField(field).Fields, fieldDef.ChildDefs);
+    end;
+
+    if Assigned(itemType) and (field.FieldKind = fkData) then
+    begin
+      prop := itemType.GetProperty(field.FieldName);
+      if Assigned(prop) then
+        fProperties.Add(prop);
     end;
   end;
 end;
@@ -807,7 +827,7 @@ var
   end;
 
 begin
-  InitRttiPropertiesFromItemType(fItemTypeInfo);
+  InitRttiPropertiesFromItemType;
 
   if not fProperties.Any and Assigned(fColumnAttributeClass) then
     raise EObjectDataSetException.Create(SColumnPropertiesNotSpecified);
@@ -819,6 +839,9 @@ begin
     required := False;
     readOnly := False;
     fieldType := ftWideString;
+
+    if FieldDefs.IndexOf(prop.Name) >= 0 then
+      Continue;
 
     DoGetFieldType(prop.PropertyType.Handle);
 
@@ -845,6 +868,9 @@ begin
 
     if not prop.IsWritable then
       fieldDef.Attributes := fieldDef.Attributes + [DB.faReadOnly];
+
+    if Assigned(fOnAddFieldDef) then
+      fOnAddFieldDef(Self, prop, fieldDef);
   end;
 end;
 
@@ -876,17 +902,6 @@ begin
   end;
 end;
 
-procedure TObjectDataSet.RebuildPropertiesCache;
-var
-  itemType: TRttiType;
-  i: Integer;
-begin
-  fProperties.Clear;
-  itemType := TType.GetType(fItemTypeInfo);
-  for i := 0 to Fields.Count - 1 do
-    fProperties.Add(itemType.GetProperty(Fields[i].FieldName));
-end;
-
 procedure TObjectDataSet.RegisterChangeHandler;
 begin
   UnregisterChangeHandler;
@@ -897,7 +912,10 @@ end;
 procedure TObjectDataSet.SetDataList(const value: IObjectList);
 begin
   fDataList := value;
-  fItemTypeInfo := fDataList.ElementType;
+  if Assigned(fDataList) then
+    fItemTypeInfo := fDataList.ElementType
+  else
+    fItemTypeInfo := nil;
   IndexList.DataList := fDataList;
   RegisterChangeHandler;
   if Active then

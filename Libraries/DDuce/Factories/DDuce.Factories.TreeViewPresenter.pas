@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ uses
   DSharp.Windows.TreeViewPresenter, DSharp.Core.DataTemplates,
   DSharp.Bindings.Collections, DSharp.Windows.ColumnDefinitions,
 
-  VirtualTrees;
+  VirtualTrees, VirtualTrees.BaseTree;
 
 type
   TFactories = class sealed

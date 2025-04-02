@@ -1,5 +1,7 @@
 ﻿unit TextEditor.CodeFolding.Hint.Form;
 
+{$I TextEditor.Defines.inc}
+
 interface
 
 uses
@@ -54,20 +56,20 @@ implementation
 
 uses
   System.SysUtils, TextEditor, TextEditor.Consts, TextEditor.KeyCommands, TextEditor.PaintHelper, TextEditor.Utils
-{$IFDEF ALPHASKINS}, sSkinProvider{$ENDIF};
+{$IFDEF ALPHASKINS}
+  , sSkinProvider
+{$ENDIF};
 
-constructor TTextEditorCodeFoldingHintForm.Create(AOwner: TComponent); //FI:W525 Missing INHERITED call in constructor
+constructor TTextEditorCodeFoldingHintForm.Create(AOwner: TComponent);
 begin
   CreateNew(AOwner);
 
   ControlStyle := ControlStyle + [csNoDesignVisible, csReplicatable];
+
   if not (csDesigning in ComponentState) then
     ControlStyle := ControlStyle + [csAcceptsControls];
 
   FBufferBitmap := Vcl.Graphics.TBitmap.Create;
-  Visible := False;
-
-  Color := FBackgroundColor;
 
   FItemList := TStringList.Create;
 
@@ -78,6 +80,8 @@ begin
   FBackgroundColor := TColors.SysWindow;
   FBorderColor := TColors.SysBtnFace;
 
+  Visible := False;
+  Color := FBackgroundColor;
   BorderStyle := bsNone;
   FormStyle := fsStayOnTop;
 
@@ -173,8 +177,11 @@ var
   LIndex: Integer;
 begin
   ResetCanvas;
+
   LRect := ClientRect;
+
   Winapi.Windows.ExtTextOut(FBufferBitmap.Canvas.Handle, 0, 0, ETO_OPAQUE, LRect, '', 0, nil);
+
   FBufferBitmap.Canvas.Pen.Color := FBorderColor;
   FBufferBitmap.Canvas.Rectangle(LRect);
 
@@ -265,9 +272,11 @@ procedure TTextEditorCodeFoldingHintForm.Execute(const X, Y: Integer);
     LHeight := FEffectiveItemHeight * ItemList.Count + LBorderWidth + 2 * Margin;
 
     Canvas.Font.Assign(Font);
+
     for LIndex := 0 to ItemList.Count - 1 do
     begin
       LNewWidth := Canvas.TextWidth(ItemList[LIndex]);
+
       if LNewWidth > LWidth then
         LWidth := LNewWidth;
     end;
@@ -277,6 +286,7 @@ procedure TTextEditorCodeFoldingHintForm.Execute(const X, Y: Integer);
     if LX + LWidth > GetWorkAreaWidth then
     begin
       LX := GetWorkAreaWidth - LWidth - 5;
+
       if LX < 0 then
         LX := 0;
     end;
@@ -284,6 +294,7 @@ procedure TTextEditorCodeFoldingHintForm.Execute(const X, Y: Integer);
     if LY + LHeight > GetWorkAreaHeight then
     begin
       LY := LY - LHeight - (Owner as TCustomTextEditor).LineHeight - 2;
+
       if LY < 0 then
         LY := 0;
     end;

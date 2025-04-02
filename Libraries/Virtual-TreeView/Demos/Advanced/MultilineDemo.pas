@@ -8,7 +8,7 @@ interface
 
 uses
   Windows, SysUtils, Classes, Forms, Controls, Graphics, VirtualTrees,
-  ExtCtrls, StdCtrls, ImgList;
+  ExtCtrls, StdCtrls, ImgList, VirtualTrees.Types;
   
 type
   TNodeForm = class(TForm)

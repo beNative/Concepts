@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -30,19 +30,17 @@ interface
 
 uses
   Rtti,
-  SysUtils,
   Spring,
-  Spring.Collections,
-  Spring.DesignPatterns;
+  Spring.Collections;
 
 type
-  TArgMatch = TPredicate<TArray<TValue>>;
+  TArgMatch = Predicate<TArray<TValue>>;
 
   TMatcherFactory = record
   private
-    class threadvar conditionStack: TArray<TPredicate<TValue>>;
+    class threadvar conditionStack: TArray<Predicate<TValue>>;
 
-    class function AddMatcher(const condition: TPredicate<TValue>): Integer; static;
+    class function AddMatcher(const condition: Predicate<TValue>): Integer; static;
 
     class function GetIndex(const v: TValue): Integer; static;
     class procedure SetIndex(typeInfo: PTypeInfo; index: Integer; var Result); static;
@@ -56,7 +54,7 @@ type
     ///   Creates a new matcher and returns its index wrapped into a value of
     ///   type T.
     /// </summary>
-    class function CreateMatcher<T>(const condition: TPredicate<TValue>): T; static;
+    class function CreateMatcher<T>(const condition: Predicate<TValue>): T; static;
 
     /// <summary>
     ///   Creates an array of match predicates based on the passed arguments
@@ -65,17 +63,36 @@ type
     ///   Spring.Mocking.Arg</c> .
     /// </summary>
     class function CreateMatchers(const indizes: TArray<TValue>;
-      const parameters: TArray<TRttiParameter>): TPredicate<TArray<TValue>>; static;
+      const parameters: TArray<TRttiParameter>): Predicate<TArray<TValue>>; static;
+
+    class procedure ClearConditionStack; static;
+  end;
+
+  RefArgs = record
+  private
+    class threadvar fValues: TArray<TValue>;
+    class function GetValues: TArray<TValue>; static;
+    class procedure SetValues(const values: TArray<TValue>); static;
+  public
+    class procedure Add(const value; typeInfo: PTypeInfo); static;
+    class property Values: TArray<TValue> read GetValues write SetValues;
   end;
 
   TRangeKind = (Inclusive, Exclusive);
 
   TArg = record
+  private type
+    TArg<T> = record
+      class var IsAny: T;
+    end;
+    TRef<T> = record
+      class var Return: T;
+    end;
   private
     fIndex: Integer;
   public
     class function IsAny<T>: T; overload; static;
-    class function IsAny<T>(const condition: TPredicate<T>): T; overload; static;
+    class function IsAny<T>(const condition: Predicate<T>): T; overload; static;
     class function IsEqual<T>(const value: T): T; static;
     class function IsIn(const values: TByteSet): Byte; overload; static;
     class function IsIn<T>(const values: array of T): T; overload; static;
@@ -88,22 +105,38 @@ type
     class function IsNotIn<T>(const values: IEnumerable<T>): T; overload; static;
     class function IsNotNil<T>: T; static;
     class function IsRegex(const pattern: string): string; static;
+
+    class function Ref<T>: TArg<T>; overload; static; inline;
+    class function Ref<T>(const value: T): TRef<T>; overload; static; inline;
+
+    class function &&op_Equality<T>(const left: TArg; const right: T): T; static;
+    class function &&op_Inequality<T>(const left: TArg; const right: T): T; static;
   end;
 
   TArgs = record
   strict private
-    class function GetAny: TPredicate<TArray<TValue>>; static;
+    class function GetAny: Predicate<TArray<TValue>>; static;
     class function GetItems(index: Integer): TArg; static;
   public
-    class property Any: TPredicate<TArray<TValue>> read GetAny;
+    class property Any: Predicate<TArray<TValue>> read GetAny;
     class property Items[index: Integer]: TArg read GetItems; default;
   end;
+
+  TAny = record
+    class operator Implicit(const value: TAny): Boolean; overload;
+    class operator Implicit(const value: TAny): Integer; overload;
+    class operator Implicit(const value: TAny): Pointer; overload;
+    class operator Implicit(const value: TAny): string; overload;
+  end;
+
+procedure CleanupArguments(const arguments: array of TValue);
 
 implementation
 
 uses
   Generics.Defaults,
   RegularExpressions,
+  SysUtils,
   TypInfo,
   Spring.ResourceStrings;
 
@@ -121,12 +154,12 @@ end;
 
 function GetIndexOrdinal(const v: TValue): Integer;
 begin
-  Result := v.AsOrdinal;
+  Result := PByte(v.GetReferenceToRawData)^;
 end;
 
 function GetIndexFloat(const v: TValue): Integer;
 begin
-  Result := Trunc(v.AsExtended);
+  Result := Integer(Trunc(v.AsExtended));
 end;
 
 function GetIndexString(const v: TValue): Integer;
@@ -136,18 +169,17 @@ end;
 
 function GetIndexObject(const v: TValue): Integer;
 begin
-  Result := v.AsType<TIndexWrapper>.fIndex;
-{$IFNDEF AUTOREFCOUNT}
-  v.AsType<TIndexWrapper>.Free;
-{$ELSE}
-  v.AsType<TIndexWrapper>.DisposeOf;
-{$ENDIF}
+  Result := TIndexWrapper(TValueData(v).FAsObject).fIndex;
 end;
 
 function GetIndexInterface(const v: TValue): Integer;
 begin
-  Result := (v.AsType<IInterface> as TIndexWrapper).fIndex;
-  PValue(@v)^ := TValue.Empty;
+  Result := (PInterface(TValueData(v).FValueData.GetReferenceToRawData)^ as TIndexWrapper).fIndex;
+end;
+
+function GetIndexPointer(const v: TValue): Integer;
+begin
+  Result := Integer(TValueData(v).FAsPointer);
 end;
 
 function GetIndexRecord(const v: TValue): Integer;
@@ -155,7 +187,7 @@ var
   fields: TArray<TRttiField>;
 begin
   fields := TType.GetType(v.TypeInfo).GetFields;
-  if Length(fields) = 0 then
+  if fields = nil then
     raise ENotSupportedException.CreateResFmt(@STypeNotSupported, [v.TypeInfo.TypeName]);
   Result := TMatcherFactory.GetIndex(fields[0].GetValue(v.GetReferenceToRawData));
 end;
@@ -175,9 +207,10 @@ begin
   raise ENotSupportedException.CreateResFmt(@STypeNotSupported, [typeInfo.TypeName]);
 end;
 
-procedure SetIndexOrdinal(typeInfo: PTypeInfo; index: Integer; var Result); //FI:O804
+procedure SetIndexOrdinal(typeInfo: PTypeInfo; //FI:O804
+  index: Integer; var Result);
 begin
-  PByte(@Result)^ := index;
+  PByte(@Result)^ := Byte(index);
 end;
 
 procedure SetIndexFloat(typeInfo: PTypeInfo; index: Integer; var Result);
@@ -207,25 +240,31 @@ begin
       Assert(index <= 9); // only support up to index 9 for a Char
       PWideChar(@Result)^ := s[1];
     end;
-{$IFNDEF NEXTGEN}
     tkLString:
       PAnsiString(@Result)^ := AnsiString(s);
     tkWString:
       PWideString(@Result)^ := s;
-{$ENDIF}
     tkUString:
       PUnicodeString(@Result)^ := s;
   end;
 end;
 
-procedure SetIndexObject(typeInfo: PTypeInfo; index: Integer; var Result); //FI:O804
+procedure SetIndexObject(typeInfo: PTypeInfo; //FI:O804
+  index: Integer; var Result);
 begin
-  TObject(PPointer(@Result)^) := TIndexWrapper.Create(index);
+  TObject(Result) := TIndexWrapper.Create(index);
 end;
 
-procedure SetIndexInterface(typeInfo: PTypeInfo; index: Integer; var Result); //FI:O804
+procedure SetIndexInterface(typeInfo: PTypeInfo; //FI:O804
+  index: Integer; var Result);
 begin
   IInterface(PPointer(@Result)^) := TIndexWrapper.Create(index);
+end;
+
+procedure SetIndexPointer(typeInfo: PTypeInfo; //FI:O804
+  index: Integer; var Result);
+begin
+  NativeInt(Result) := index;
 end;
 
 procedure SetIndexRecord(typeInfo: PTypeInfo; index: Integer; var Result);
@@ -233,7 +272,7 @@ var
   fields: TArray<TRttiField>;
 begin
   fields := typeInfo.RttiType.GetFields;
-  if Length(fields) = 0 then
+  if fields = nil then
     raise ENotSupportedException.CreateResFmt(@STypeNotSupported, [typeInfo.TypeName]);
   TMatcherFactory.SetIndex(fields[0].FieldType.Handle, index, Result);
 end;
@@ -242,41 +281,80 @@ procedure SetIndexArray(typeInfo: PTypeInfo; index: Integer; var Result);
 const
   len: NativeInt = 1;
 begin
-  DynArraySetLength(PPointer(@Result)^, typeInfo, 1, @len);
-  TMatcherFactory.SetIndex(typeInfo.TypeData.DynArrElType^, index, PPointer(@Result)^^);
+  case typeInfo.Kind of
+    tkArray:
+      TMatcherFactory.SetIndex(typeInfo.TypeData.ArrayData.ElType^, index, Result);
+    tkDynArray:
+    begin
+      DynArraySetLength(PPointer(@Result)^, typeInfo, 1, @len);
+      TMatcherFactory.SetIndex(typeInfo.TypeData.DynArrElType^, index, PPointer(@Result)^^);
+    end;
+  end;
 end;
 
-procedure SetIndexVariant(typeInfo: PTypeInfo; index: Integer; var Result); //FI:O804
+procedure SetIndexVariant(typeInfo: PTypeInfo; //FI:O804
+  index: Integer; var Result);
 begin
   PVariant(@Result)^ := index;
+end;
+
+procedure CleanupArguments(const arguments: array of TValue);
+type
+  PValueData = ^TValueData;
+var
+  i: Integer;
+  fields: TArray<TRttiField>;
+  value: TValue;
+begin
+  for i := 0 to High(arguments) do
+    if arguments[i].IsType(TypeInfo(TIndexWrapper)) then
+    begin
+      TObject(TValueData(arguments[i]).FAsObject).Free;
+      PValueData(@arguments[i]).FAsObject := nil;
+    end else
+      case arguments[i].Kind of
+        tkRecord{$IF Declared(tkMRecord)}, tkMRecord{$IFEND}:
+        begin
+          fields := TType.GetType(arguments[i].TypeInfo).GetFields;
+          if fields = nil then
+            Continue;
+          value := fields[0].GetValue(arguments[i].GetReferenceToRawData);
+          CleanupArguments(value);
+        end;
+        tkArray, tkDynArray:
+        begin
+          if arguments[i].GetArrayLength = 0 then
+            Continue;
+          value := arguments[i].GetArrayElement(0);
+          CleanupArguments(value);
+        end;
+      end;
 end;
 
 
 {$REGION 'TMatcherFactory'}
 
 class function TMatcherFactory.CreateMatchers(const indizes: TArray<TValue>;
-  const parameters: TArray<TRttiParameter>): TPredicate<TArray<TValue>>;
+  const parameters: TArray<TRttiParameter>): Predicate<TArray<TValue>>;
 var
-  refParamCount, emptyParamCount, i: Integer;
-  conditions: TArray<TPredicate<TValue>>;
+  argCount, indexCount, i: Integer;
+  conditions: TArray<Predicate<TValue>>;
 begin
-  if Assigned(conditionStack) then
+  argCount := Length(conditionStack);
+  if argCount > 0 then
   begin
     try
-      refParamCount := 0;
-      for i := 0 to High(parameters) do
-        if parameters[i].Flags * [pfVar, pfOut] <> [] then
-          Inc(refParamCount);
-      emptyParamCount := 0;
-      for i := 0 to High(indizes) do
-        if indizes[i].IsEmpty then // nil can be passed without Arg, we handle it
-          Inc(emptyParamCount);
+      indexCount := Length(indizes);
+      for i := 0 to indexCount - 1 do
+        if (parameters[i].Flags * [pfVar, pfOut] <> []) // ignore var or out parameters
+          or indizes[i].IsEmpty then // nil can be passed without Arg, we handle it
+          Inc(argCount);
 
-      if Length(conditionStack) + refParamCount + emptyParamCount <> Length(indizes) then
+      if argCount <> indexCount then
         raise ENotSupportedException.Create('when using Arg all arguments must be passed using this way');
 
-      SetLength(conditions, Length(indizes));
-      for i := Low(indizes) to High(indizes) do
+      SetLength(conditions, indexCount);
+      for i := 0 to indexCount - 1 do
         if (parameters[i].Flags * [pfVar, pfOut] = []) and not indizes[i].IsEmpty then
           conditions[i] := conditionStack[GetIndex(indizes[i])];
     finally
@@ -299,7 +377,7 @@ begin
 end;
 
 class function TMatcherFactory.CreateMatcher<T>(
-  const condition: TPredicate<TValue>): T;
+  const condition: Predicate<TValue>): T;
 var
   index: Integer;
 begin
@@ -307,8 +385,13 @@ begin
   Result := WrapIndex<T>(index);
 end;
 
+class procedure TMatcherFactory.ClearConditionStack;
+begin
+  conditionStack := nil;
+end;
+
 class function TMatcherFactory.AddMatcher(
-  const condition: TPredicate<TValue>): Integer;
+  const condition: Predicate<TValue>): Integer;
 begin
   Result := Length(conditionStack);
   SetLength(conditionStack, Result + 1);
@@ -319,30 +402,27 @@ class function TMatcherFactory.GetIndex(const v: TValue): Integer;
 const
   Handlers: array[TTypeKind] of function(const v: TValue): Integer = (
     GetIndexFail, GetIndexOrdinal, GetIndexOrdinal, GetIndexOrdinal, GetIndexFloat,
-    GetIndexFail, GetIndexOrdinal, GetIndexObject, GetIndexFail, GetIndexString,
-    GetIndexString, GetIndexString, GetIndexVariant, GetIndexFail, GetIndexRecord,
-    GetIndexInterface, GetIndexOrdinal, GetIndexArray, GetIndexString, GetIndexFail,
-    GetIndexFail, GetIndexFail {$IF Declared(tkMRecord)}, GetIndexFail{$IFEND});
+    GetIndexFail, GetIndexOrdinal, GetIndexObject, GetIndexPointer, GetIndexString,
+    GetIndexString, GetIndexString, GetIndexVariant, GetIndexArray, GetIndexRecord,
+    GetIndexInterface, GetIndexOrdinal, GetIndexArray, GetIndexString, GetIndexPointer,
+    GetIndexObject, GetIndexPointer {$IF Declared(tkMRecord)}, GetIndexRecord{$IFEND});
 begin
-  Result := Handlers[TValueData(v).FTypeInfo.Kind](v);
+  Result := Handlers[TValueData(v).FTypeInfo.Kind](v) - 1;
 end;
 
 class procedure TMatcherFactory.SetIndex(typeInfo: PTypeInfo; index: Integer; var Result);
 const
   Handlers: array[TTypeKind] of procedure (typeInfo: PTypeInfo; index: Integer; var Result) = (
     SetIndexFail, SetIndexOrdinal, SetIndexOrdinal, SetIndexOrdinal, SetIndexFloat,
-    SetIndexFail, SetIndexOrdinal, SetIndexObject, SetIndexFail, SetIndexString,
-    SetIndexString, SetIndexString, SetIndexVariant, SetIndexFail, SetIndexRecord,
-    SetIndexInterface, SetIndexOrdinal, SetIndexArray, SetIndexString, SetIndexFail,
-    SetIndexFail, SetIndexFail {$IF Declared(tkMRecord)}, SetIndexFail{$IFEND});
+    SetIndexFail, SetIndexOrdinal, SetIndexObject, SetIndexPointer, SetIndexString,
+    SetIndexString, SetIndexString, SetIndexVariant, SetIndexArray, SetIndexRecord,
+    SetIndexInterface, SetIndexOrdinal, SetIndexArray, SetIndexString, SetIndexPointer,
+    SetIndexObject, SetIndexPointer {$IF Declared(tkMRecord)}, SetIndexRecord{$IFEND});
 begin
-  Handlers[typeInfo.Kind](typeInfo, index, Result);
+  Handlers[typeInfo.Kind](typeInfo, index + 1, Result);
 end;
 
 class function TMatcherFactory.WrapIndex<T>(index: Integer): T;
-var
-  f: TRttiField;
-  v: TValue;
 begin
   Result := Default(T);
   SetIndex(TypeInfo(T), index, Result);
@@ -361,6 +441,33 @@ end;
 {$ENDREGION}
 
 
+{$REGION 'RefArgs'}
+
+class procedure RefArgs.Add(const value; typeInfo: PTypeInfo);
+var
+  i, count: Integer;
+begin
+  count := Length(fValues);
+  for i := 0 to count - 1 do
+    if fValues[i].TypeInfo = typeInfo then
+      raise ENotSupportedException.Create('multiple by reference parameters of the same type are not supported');
+  SetLength(fValues, count + 1);
+  TValue.Make(@value, typeInfo, fValues[count]);
+end;
+
+class function RefArgs.GetValues: TArray<TValue>;
+begin
+  Result := fValues;
+end;
+
+class procedure RefArgs.SetValues(const values: TArray<TValue>);
+begin
+  fValues := values;
+end;
+
+{$ENDREGION}
+
+
 {$REGION 'TArg'}
 
 class function TArg.IsAny<T>: T;
@@ -372,24 +479,24 @@ begin
     end);
 end;
 
-class function TArg.IsAny<T>(const condition: TPredicate<T>): T;
+class function TArg.IsAny<T>(const condition: Predicate<T>): T;
 begin
   Result := TMatcherFactory.CreateMatcher<T>(
     function(const arg: TValue): Boolean
+    var
+      argValue: T;
     begin
-      Result := condition(arg.AsType<T>);
+      arg.AsType(TypeInfo(T), argValue);
+      Result := condition(argValue);
     end);
 end;
 
 class function TArg.IsEqual<T>(const value: T): T;
-var
-  comparer: IEqualityComparer<T>;
 begin
-  comparer := TEqualityComparer<T>.Default;
   Result := TMatcherFactory.CreateMatcher<T>(
     function(const arg: TValue): Boolean
     begin
-      Result := comparer.Equals(arg.AsType<T>, value);
+      Result := arg.Convert(TypeInfo(T)).Equals(TValue.From(value, TypeInfo(T)));
     end);
 end;
 
@@ -412,8 +519,11 @@ begin
   capturedValues := TArray.Copy<T>(values);
   Result := TMatcherFactory.CreateMatcher<T>(
     function(const arg: TValue): Boolean
+    var
+      argValue: T;
     begin
-      Result := TArray.Contains<T>(capturedValues, arg.AsType<T>);
+      arg.AsType(TypeInfo(T), argValue);
+      Result := TArray.Contains<T>(capturedValues, argValue);
     end);
 end;
 
@@ -421,29 +531,32 @@ class function TArg.IsIn<T>(const values: IEnumerable<T>): T;
 begin
   Result := TMatcherFactory.CreateMatcher<T>(
     function(const arg: TValue): Boolean
+    var
+      argValue: T;
     begin
-      Result := values.Contains(arg.AsType<T>);
+      arg.AsType(TypeInfo(T), argValue);
+      Result := values.Contains(argValue);
     end);
 end;
 
 class function TArg.IsInRange<T>(const lowValue, highValue: T;
   rangeKind: TRangeKind): T;
 var
-  comparer: IComparer<T>;
+  comparer: Pointer;
 begin
-  comparer := TComparer<T>.Default;
+  comparer := _LookupVtableInfo(giComparer, TypeInfo(T), SizeOf(T));
   Result := TMatcherFactory.CreateMatcher<T>(
     function(const arg: TValue): Boolean
     var
-      value: T;
+      argValue: T;
     begin
-      value := arg.AsType<T>;
+      arg.AsType(TypeInfo(T), argValue);
       if rangeKind = TRangeKind.Exclusive then
-        Result := (comparer.Compare(value, lowValue) > 0)
-          and (comparer.Compare(value, highValue) < 0)
+        Result := (IComparer<T>(comparer).Compare(argValue, lowValue) > 0)
+          and (IComparer<T>(comparer).Compare(argValue, highValue) < 0)
       else
-        Result := (comparer.Compare(value, lowValue) >= 0)
-          and (comparer.Compare(value, highValue) <= 0);
+        Result := (IComparer<T>(comparer).Compare(argValue, lowValue) >= 0)
+          and (IComparer<T>(comparer).Compare(argValue, highValue) <= 0);
     end);
 end;
 
@@ -463,8 +576,11 @@ begin
   capturedValues := TArray.Copy<T>(values);
   Result := TMatcherFactory.CreateMatcher<T>(
     function(const arg: TValue): Boolean
+    var
+      argValue: T;
     begin
-      Result := not TArray.Contains<T>(capturedValues, arg.AsType<T>);
+      arg.AsType(TypeInfo(T), argValue);
+      Result := not TArray.Contains<T>(capturedValues, argValue);
     end);
 end;
 
@@ -484,8 +600,11 @@ class function TArg.IsNotIn<T>(const values: IEnumerable<T>): T;
 begin
   Result := TMatcherFactory.CreateMatcher<T>(
     function(const arg: TValue): Boolean
+    var
+      argValue: T;
     begin
-      Result := not values.Contains(arg.AsType<T>);
+      arg.AsType(TypeInfo(T), argValue);
+      Result := not values.Contains(argValue);
     end);
 end;
 
@@ -506,8 +625,61 @@ begin
   Result := TMatcherFactory.CreateMatcher<string>(
     function(const arg: TValue): Boolean
     begin
-      Result := regex.IsMatch(pattern);
+      Result := regex.IsMatch(arg.AsString);
     end);
+end;
+
+class function TArg.&&op_Equality<T>(const left: TArg; //FI:O804
+  const right: T): T;
+var
+  comparer: Pointer;
+begin
+  if (TType.Kind<T> = tkPointer) and (PPointer(@right)^ = nil) then
+    Result := TMatcherFactory.CreateMatcher<T>(
+      function(const arg: TValue): Boolean
+      begin
+        Result := arg.IsEmpty;
+      end)
+  else
+  begin
+    comparer := _LookupVtableInfo(giEqualityComparer, TypeInfo(T), SizeOf(T));
+    Result := TMatcherFactory.CreateMatcher<T>(
+      function(const arg: TValue): Boolean
+      begin
+        Result := IEqualityComparer<T>(comparer).Equals(arg.AsType<T>, right);
+      end);
+  end;
+end;
+
+class function TArg.&&op_Inequality<T>(const left: TArg; //FI:O804
+  const right: T): T;
+var
+  comparer: Pointer;
+begin
+  if (TType.Kind<T> = tkPointer) and (PPointer(@right)^ = nil) then
+    Result := TMatcherFactory.CreateMatcher<T>(
+      function(const arg: TValue): Boolean
+      begin
+        Result := not arg.IsEmpty;
+      end)
+  else
+  begin
+    comparer := _LookupVtableInfo(giEqualityComparer, TypeInfo(T), SizeOf(T));
+    Result := TMatcherFactory.CreateMatcher<T>(
+      function(const arg: TValue): Boolean
+      begin
+        Result := not IEqualityComparer<T>(comparer).Equals(arg.AsType<T>, right);
+      end);
+  end;
+end;
+
+class function TArg.Ref<T>: TArg<T>; //FI:W521
+begin //FI:W519
+end;
+
+class function TArg.Ref<T>(const value: T): TRef<T>; //FI:W521
+begin
+  RefArgs.Add(value, TypeInfo(T));
 end;
 
 {$ENDREGION}
@@ -515,7 +687,7 @@ end;
 
 {$REGION 'TArgs'}
 
-class function TArgs.GetAny: TPredicate<TArray<TValue>>;
+class function TArgs.GetAny: Predicate<TArray<TValue>>;
 begin
   Result :=
     function(const args: TArray<TValue>): Boolean
@@ -527,6 +699,47 @@ end;
 class function TArgs.GetItems(index: Integer): TArg;
 begin
   Result.fIndex := index;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TAny'}
+
+class operator TAny.Implicit(const value: TAny): Boolean;
+begin
+  Result := TMatcherFactory.CreateMatcher<Boolean>(
+    function(const arg: TValue): Boolean
+    begin
+      Result := True;
+    end);
+end;
+
+class operator TAny.Implicit(const value: TAny): Integer;
+begin
+  Result := TMatcherFactory.CreateMatcher<Integer>(
+    function(const arg: TValue): Boolean
+    begin
+      Result := True;
+    end);
+end;
+
+class operator TAny.Implicit(const value: TAny): Pointer;
+begin
+  Result := TMatcherFactory.CreateMatcher<Pointer>(
+    function(const arg: TValue): Boolean
+    begin
+      Result := True;
+    end);
+end;
+
+class operator TAny.Implicit(const value: TAny): string;
+begin
+  Result := TMatcherFactory.CreateMatcher<string>(
+    function(const arg: TValue): Boolean
+    begin
+      Result := True;
+    end);
 end;
 
 {$ENDREGION}

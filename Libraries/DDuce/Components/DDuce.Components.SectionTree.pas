@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@
 
 unit DDuce.Components.SectionTree;
 
+{ TCustomVirtualStringTree descendant that allows the treeview to be displayed
+  as foldable section blocks. }
+
 interface
 
 uses
@@ -25,30 +28,27 @@ uses
   System.SysUtils, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ImgList,
 
-  VirtualTrees, VirtualTrees.Types, VirtualTrees.Header;
+  VirtualTrees, VirtualTrees.BaseTree, VirtualTrees.Types, VirtualTrees.Header;
 
-//const
-//  // Helper message to decouple node change handling from edit handling.
-//  WM_STARTEDITING = 1000 + 778;
 type
   TSectionTree = class(TCustomVirtualStringTree)
-  type
+  private type
     TGetBackColorEvent = procedure(
       ASender        : TBaseVirtualTree;
       AParentNode    : PVirtualNode;
       var ABackColor : TColor
     ) of object;
-  const
+  private const
     {$REGION 'default VST options'}
     DEFAULT_VST_SELECTIONOPTIONS = [
       { Prevent user from selecting with the selection rectangle in multiselect
         mode. }
   //    toDisableDrawSelection,
       { Entries other than in the main column can be selected, edited etc. }
-      toExtendedFocus
+      toExtendedFocus,
       { Hit test as well as selection highlight are not constrained to the text
         of a node. }
-  //    toFullRowSelect,
+      toFullRowSelect
       { Constrain selection to the same level as the selection anchor. }
   //    toLevelSelectConstraint,
       { Allow selection, dragging etc. with the middle mouse button. This and
@@ -74,21 +74,21 @@ type
       { Node captions can be edited. }
   //    toEditable,
       { Fully invalidate the tree when its window is resized (CS_HREDRAW/CS_VREDRAW).}
-  //    toFullRepaintOnResize,
+      toFullRepaintOnResize,
       { Use some special enhancements to simulate and support grid behavior. }
       toGridExtensions,
       { Initialize nodes when saving a tree to a stream. }
       toInitOnSave,
       { Tree behaves like TListView in report mode. }
-      toReportMode,
+  //  toReportMode,
       { Toggle node expansion state when it is double clicked. }
-      toToggleOnDblClick,
+//      toToggleOnDblClick,
       { Support for mouse panning (wheel mice only). This option and
         toMiddleClickSelect are mutal exclusive, where panning has precedence. }
       toWheelPanning,
       { The tree does not allow to be modified in any way. No action is executed
         and node editing is not possible. }
-  //    toReadOnly,
+      toReadOnly,
       { When set then GetNodeHeight will trigger OnMeasureItem to allow variable
         node heights. }
       toVariableNodeHeight
@@ -125,10 +125,12 @@ type
       { Display tree lines to show hierarchy of nodes. }
       toShowTreeLines,
       { Display vertical lines (depending on columns) to simulate a grid. }
-      toShowVertGridLines,
+  //    toShowVertGridLines,
       { Draw UI elements (header, tree buttons etc.) according to the current
         theme if enabled (Windows XP+ only, application must be themed). }
       toThemeAware,
+      { Use the explorer theme if run under Windows Vista or later. }
+//      toUseExplorerTheme,
       { Enable alpha blending for ghosted nodes or those which are being
         cut/copied. }
       toUseBlendedImages,
@@ -229,32 +231,28 @@ type
     ];
   {$ENDREGION}
   private
-    FOnGetBackColor: TGetBackColorEvent;
+    FOnGetBackColor : TGetBackColorEvent;
 
     {$REGION 'property access methods'}
     function GetOptions: TStringTreeOptions;
     procedure SetOptions(const AValue: TStringTreeOptions);
     {$ENDREGION}
 
-    //procedure WMChar(var Message: TWMChar); message WM_CHAR;
-
   protected
     procedure BuildTree; virtual;
+    procedure CustomPaint(
+      ACanvas   : TCanvas;
+      ANode     : PVirtualNode;
+      AColumn   : TColumnIndex;
+      ACellRect : TRect
+    );
+    {$REGION 'event dispatch methods'}
     {$REGION 'TVirtualStringTree overrides'}
     function GetOptionsClass: TTreeOptionsClass; override;
     procedure DoInitNode(
       Parent, ANode  : PVirtualNode;
       var InitStates : TVirtualNodeInitStates
     ); override;
-//    function DoCreateEditor(
-//      Node   : PVirtualNode;
-//      Column : TColumnIndex
-//    ): IVTEditLink; override;
-
-//    procedure KeyDown(
-//      var Key : Word;
-//      Shift   : TShiftState
-//    ); override;
     procedure DoBeforeCellPaint(
       Canvas          : TCanvas;
       ANode           : PVirtualNode;
@@ -274,17 +272,29 @@ type
       Node           : PVirtualNode;
       var NodeHeight : Integer
     ); override;
+    procedure DoAfterItemPaint(
+      Canvas   : TCanvas;
+      Node     : PVirtualNode;
+      ItemRect : TRect
+    ); override;
+    procedure DoBeforeItemErase(
+      Canvas          : TCanvas;
+      Node            : PVirtualNode;
+      ItemRect        : TRect;
+      var Color       : TColor;
+      var EraseAction : TItemEraseAction
+    ); override;
+    procedure DoAfterItemErase(
+      Canvas   : TCanvas;
+      Node     : PVirtualNode;
+      ItemRect : TRect
+    ); override;
     {$ENDREGION}
-
-    {$REGION 'event dispatch methods'}
     procedure DoGetBackColor(
       ANode          : PVirtualNode;
       var ABackColor : TColor
     ); virtual;
     {$ENDREGION}
-
-    // message handlers
-//    procedure WMStartEditing(var AMessage: TMessage); message WM_STARTEDITING;
 
   public
     procedure AfterConstruction; override;
@@ -337,8 +347,8 @@ type
     property IncrementalSearchStart;
     property IncrementalSearchTimeout;
     property Indent;
-    //property LineMode;
     property LineStyle;
+    property LineMode;
     property Margin;
     property NodeAlignment;
     property NodeDataSize;
@@ -504,15 +514,8 @@ type
 
 implementation
 
-//type
-//  TVKSet = set of Byte;
-//
-//var
-//  VK_EDIT_KEYS : TVKSet = [
-//    Ord('0')..Ord('Z'),
-//    VK_OEM_1..VK_OEM_102,
-//    VK_MULTIPLY..VK_DIVIDE
-//  ];
+uses
+  DDuce.Logger;
 
 {$REGION 'construction and destruction'}
 procedure TSectionTree.AfterConstruction;
@@ -528,7 +531,7 @@ begin
   DragOperations               := [doMove];
   Margin                       := 0;
   DrawSelectionMode            := smBlendedRectangle;
-  HintMode                     := hmHintAndDefault;
+  HintMode                     := hmTooltip;
   WantTabs                     := True;
   DefaultPasteMode             := amInsertAfter;
   EditDelay                    := 0;
@@ -557,32 +560,15 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION 'message handlers'}
-{ This message was posted by ourselves from the node change handler above to
-  decouple that change event and our intention to start editing a node. This
-  is necessary to avoid interferences between nodes editors potentially created
-  for an old edit action and the new one we start here. }
-
-//procedure TSectionTree.WMStartEditing(var AMessage: TMessage);
-//var
-//  Node: PVirtualNode;
-//begin
-//  Node := Pointer(AMessage.WParam);
-//  { Note: the test whether a node can really be edited is done in the
-//    OnEditing event. }
-//  EditNode(Node, 1);
-//end;
-{$ENDREGION}
-
 {$REGION 'event dispatch methods'}
 procedure TSectionTree.DoInitNode(Parent, ANode: PVirtualNode;
   var InitStates: TVirtualNodeInitStates);
 begin
-  Include(ANode.States, vsInitialized);
-  Include(ANode.States, vsMultiline);
-  Include(ANode.States, vsHeightMeasured);
-  if not Assigned(Parent) then
-    Include(InitStates, ivsExpanded);
+//  Include(ANode.States, vsInitialized);
+//  Include(ANode.States, vsMultiline);
+  //Include(ANode.States, vsHeightMeasured);
+//  if not Assigned(Parent) then
+//    Include(InitStates, ivsExpanded);
 
   inherited DoInitNode(Parent, ANode, InitStates);
 end;
@@ -590,20 +576,15 @@ end;
 procedure TSectionTree.DoMeasureItem(TargetCanvas: TCanvas; Node: PVirtualNode;
   var NodeHeight: Integer);
 var
-  N : Cardinal;
+  N : Integer;
 begin
-  inherited DoMeasureItem(TargetCanvas, Node, NodeHeight);
   N := ComputeNodeHeight(TargetCanvas, Node, 0);
   if N > (DefaultNodeHeight + 5) then
   begin
     NodeHeight := N;
   end;
+  inherited DoMeasureItem(TargetCanvas, Node, NodeHeight);
 end;
-
-//function TSectionTree.DoCreateEditor(Node: PVirtualNode; Column: TColumnIndex)
-//  : IVTEditLink;
-//begin
-//end;
 
 procedure TSectionTree.DoGetBackColor(ANode: PVirtualNode; var ABackColor: TColor);
 begin
@@ -611,31 +592,15 @@ begin
     FOnGetBackColor(Self, ANode, ABackColor);
 end;
 
-//procedure TSectionTree.KeyDown(var Key: Word; Shift: TShiftState);
-//var
-//  M : TMessage;
-//begin
-//  inherited KeyDown(Key, Shift);
-//  if not (tsEditing in TreeStates) and (Shift = []) and (Key in VK_EDIT_KEYS) then
-//  begin
-//    SendMessage(Self.Handle, WM_STARTEDITING, NativeUint(FocusedNode), 0);
-//    M.Result := 0;
-//    M.msg := WM_KEYDOWN;
-//    M.wParam := Key;
-//    M.lParam := 0;
-//    EditLink.ProcessMessage(M);
-//  end;
-//end;
-
 procedure TSectionTree.DoAfterCellPaint(Canvas: TCanvas; Node: PVirtualNode;
   Column: TColumnIndex; CellRect: TRect);
-var
-  LColor  : TColor;
-  LIndent : Integer;
+//var
+//  LColor  : TColor;
+//  LIndent : Integer;
 begin
-//  if vsSelected in Node.States then
+//  //if vsSelected in Node.States then
 //  begin
-//    LColor := clYellow;
+//    LColor := clWhite;
 //    if LineMode = lmBands then
 //    begin
 //      if Column = Header.MainColumn then
@@ -681,85 +646,36 @@ begin
   inherited;
 end;
 
+procedure TSectionTree.DoAfterItemErase(Canvas: TCanvas; Node: PVirtualNode;
+  ItemRect: TRect);
+begin
+  inherited;
+//
+end;
+
+procedure TSectionTree.DoAfterItemPaint(Canvas: TCanvas; Node: PVirtualNode;
+  ItemRect: TRect);
+begin
+  inherited DoAfterItemPaint(Canvas, Node, ItemRect);
+end;
+
 procedure TSectionTree.DoBeforeCellPaint(Canvas: TCanvas; ANode: PVirtualNode;
   Column: TColumnIndex; CellPaintMode: TVTCellPaintMode; CellRect: TRect;
   var ContentRect: TRect);
-var
-  LColor  : TColor;
-  LIndent : Integer;
 begin
-  LColor := clWhite;
-  if LineMode = lmBands then
+  if CellPaintMode = cpmPaint then
   begin
-    if Column = Header.MainColumn then
-    begin
-      LIndent := GetNodeLevel(ANode) * Indent;
-      Inc(CellRect.Left, LIndent);
-      LIndent := -Integer(Indent);
-    end
-    else
-    begin
-      LIndent := 0;
-    end;
-
-    DoGetBackColor(ANode, LColor);
-
-      if vsSelected in ANode.States then
-      begin
-        LColor := clYellow;
-      end;
-
-    if LColor <> Color then
-    begin // fill cell
-      Canvas.Brush.Color := LColor;
-      Canvas.FillRect(CellRect);
-    end;
-
-    if Column = Header.MainColumn then
-    begin
-      CellRect.Right := CellRect.Left + Integer(Indent);
-      Inc(CellRect.Bottom);
-      repeat
-        if vsSelected in ANode.States then
-        begin
-          LColor := clYellow;
-        end;
-        if LColor <> Color then
-        begin // fill vertical band
-          Canvas.Brush.Color := LColor;
-          Canvas.FillRect(CellRect);
-        end;
-
-        ANode := ANode.Parent;
-        if not Assigned(ANode) or (ANode = RootNode) then
-          Break;
-
-        Inc(CellRect.Left, LIndent);
-        Inc(CellRect.Right, LIndent);
-        DoGetBackColor(ANode, LColor);
-      until False;
-    end;
+//    CustomPaint(Canvas, ANode, Column, CellRect);
   end;
   inherited;
 end;
-{$ENDREGION}
 
-{$REGION 'private methods'}
-//procedure TSectionTree.WMChar(var Message: TWMChar);
-//begin
-//  with Message do
-//    if (CharCode in [Ord(^H), 32..255] -
-//        [VK_HOME, VK_END, VK_PRIOR, VK_NEXT, VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT, VK_BACK, VK_TAB,
-//         VK_ADD, VK_SUBTRACT, VK_MULTIPLY, VK_DIVIDE, VK_ESCAPE, VK_SPACE, Ord('+'), Ord('-'), Ord('*'), Ord('/')])
-//        and not Assigned(EditLink) then
-//      if Assigned(FocusedNode) and EditNode(FocusedNode, FocusedColumn) and Assigned(EditLink) then
-//      begin
-//        EditLink.ProcessMessage(TMessage(Message));
-//        Message.CharCode := 0;
-//      end;
-//  inherited;
-//end;
-{$ENDREGION}
+procedure TSectionTree.DoBeforeItemErase(Canvas: TCanvas; Node: PVirtualNode;
+  ItemRect: TRect; var Color: TColor; var EraseAction: TItemEraseAction);
+begin
+  inherited;
+  //
+end;
 
 {$REGION 'protected methods'}
 function TSectionTree.GetOptionsClass: TTreeOptionsClass;
@@ -770,6 +686,51 @@ end;
 procedure TSectionTree.BuildTree;
 begin
 // intended to be overridden in descendants.
+end;
+
+procedure TSectionTree.CustomPaint(ACanvas: TCanvas; ANode: PVirtualNode;
+  AColumn: TColumnIndex; ACellRect: TRect);
+var
+  LColor  : TColor;
+  LIndent : Integer;
+begin
+  LColor := clWhite;
+  if LineMode = lmBands then
+  begin
+    if AColumn = Header.MainColumn then
+    begin
+      LIndent := Integer(GetNodeLevel(ANode)) * Indent;
+      Inc(ACellRect.Left, LIndent);
+      LIndent := -Integer(Indent);
+    end
+    else
+    begin
+      LIndent := 0;
+    end;
+
+//      DoGetBackColor(ANode, LColor);
+
+    ACanvas.Brush.Color := LColor;
+    ACanvas.FillRect(ACellRect);
+
+    if AColumn = Header.MainColumn then
+    begin
+      ACellRect.Right := ACellRect.Left + Integer(Indent);
+      Inc(ACellRect.Bottom); // removes treeline
+      repeat
+        // fill vertical band
+        ACanvas.Brush.Color := LColor;
+        ACanvas.FillRect(ACellRect);
+        ANode := ANode.Parent;
+        if not Assigned(ANode) or (ANode = RootNode) then
+          Break;
+
+        Inc(ACellRect.Left, LIndent);
+        Inc(ACellRect.Right, LIndent);
+        //DoGetBackColor(ANode, LColor);
+      until False;
+    end;
+  end;
 end;
 {$ENDREGION}
 

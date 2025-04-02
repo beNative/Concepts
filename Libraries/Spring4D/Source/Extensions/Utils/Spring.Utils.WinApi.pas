@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -45,7 +45,7 @@ const
   {$EXTERNALSYM VER_NT_SERVER}
 
 const
-  VER_SERVER_NT                      = DWORD($80000000);
+  VER_SERVER_NT                      = $80000000;
   {$EXTERNALSYM VER_SERVER_NT}
   VER_WORKSTATION_NT                 = $40000000;
   {$EXTERNALSYM VER_WORKSTATION_NT}
@@ -103,7 +103,7 @@ const
   {$EXTERNALSYM MAX_SCOPE_ID_LEN}
 
 type
-  time_t = Longint;
+  time_t = NativeInt;
   {$EXTERNALSYM time_t}
 
   PIP_MASK_STRING = ^IP_MASK_STRING;

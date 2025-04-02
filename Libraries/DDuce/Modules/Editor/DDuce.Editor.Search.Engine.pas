@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -74,8 +74,8 @@ type
     function GetSettings: TSearchEngineSettings;
     function GetView: IEditorView;
     function GetViews: IEditorViews;
-    function GetOnChange: IEvent<TNotifyEvent>;
-    function GetOnExecute: IEvent<TNotifyEvent>;
+    function GetOnChange: IInvokableEvent<TNotifyEvent>;
+    function GetOnExecute: IInvokableEvent<TNotifyEvent>;
     procedure SetCurrentIndex(AValue: Integer);
     procedure SetOptions(AValue: TTextEditorSearchOptions);
     procedure SetReplaceText(AValue: string);
@@ -136,10 +136,10 @@ type
     property ItemList: IList<TSearchResult>
       read GetItemList;
 
-    property OnChange: IEvent<TNotifyEvent>
+    property OnChange: IInvokableEvent<TNotifyEvent>
       read GetOnChange;
 
-    property OnExecute: IEvent<TNotifyEvent>
+    property OnExecute: IInvokableEvent<TNotifyEvent>
       read GetOnExecute;
 
   public
@@ -157,7 +157,7 @@ procedure TSearchEngine.AfterConstruction;
 begin
   inherited AfterConstruction;
   FItemGroups := TCollections.CreateObjectList<TSearchResultGroup>;
-  FItemList   := TCollections.CreateList<TSearchResult>(False);
+  FItemList   := TCollections.CreateObjectList<TSearchResult>(False);
   Options     := Settings.Options;
 end;
 {$ENDREGION}
@@ -232,12 +232,12 @@ begin
   Result := Owner as IEditorViews;
 end;
 
-function TSearchEngine.GetOnChange: IEvent<TNotifyEvent>;
+function TSearchEngine.GetOnChange: IInvokableEvent<TNotifyEvent>;
 begin
   Result := FOnChange;
 end;
 
-function TSearchEngine.GetOnExecute: IEvent<TNotifyEvent>;
+function TSearchEngine.GetOnExecute: IInvokableEvent<TNotifyEvent>;
 begin
   Result := FOnExecute;
 end;

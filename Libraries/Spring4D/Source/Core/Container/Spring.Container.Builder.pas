@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -30,7 +30,6 @@ interface
 
 uses
   Rtti,
-  SysUtils,
   Spring,
   Spring.Collections,
   Spring.Container.Core;
@@ -38,12 +37,12 @@ uses
 type
   TComponentBuilder = class(TInterfacedObject, IComponentBuilder)
   private
-    fKernel: IKernel;
-    fOnBuild: INotifyEvent<TComponentModel>;
+    fKernel: TKernel;
+    fOnBuild: IInvokableNotifyEvent<TComponentModel>;
     fInspectors: IList<IBuilderInspector>;
     function GetOnBuild: INotifyEvent<TComponentModel>;
   public
-    constructor Create(const kernel: IKernel);
+    constructor Create(const kernel: TKernel);
 
     procedure AddInspector(const inspector: IBuilderInspector);
     procedure RemoveInspector(const inspector: IBuilderInspector);
@@ -56,24 +55,24 @@ type
 
   TInspectorBase = class abstract(TInterfacedObject, IBuilderInspector)
   protected
-    procedure DoProcessModel(const kernel: IKernel; const model: TComponentModel); virtual; abstract;
+    procedure DoProcessModel(const kernel: TKernel; const model: TComponentModel); virtual; abstract;
   public
-    procedure ProcessModel(const kernel: IKernel; const model: TComponentModel);
+    procedure ProcessModel(const kernel: TKernel; const model: TComponentModel);
   end;
 
   TInterfaceInspector = class(TInspectorBase)
   protected
-    procedure DoProcessModel(const kernel: IKernel; const model: TComponentModel); override;
+    procedure DoProcessModel(const kernel: TKernel; const model: TComponentModel); override;
   end;
 
   TLifetimeInspector = class(TInspectorBase)
   protected
-    procedure DoProcessModel(const kernel: IKernel; const model: TComponentModel); override;
+    procedure DoProcessModel(const kernel: TKernel; const model: TComponentModel); override;
   end;
 
   TComponentActivatorInspector = class(TInspectorBase)
   protected
-    procedure DoProcessModel(const kernel: IKernel; const model: TComponentModel); override;
+    procedure DoProcessModel(const kernel: TKernel; const model: TComponentModel); override;
   end;
 
   TMemberInspector = class(TInspectorBase)
@@ -84,49 +83,52 @@ type
 
   TConstructorInspector = class(TMemberInspector)
   protected
-    procedure DoProcessModel(const kernel: IKernel; const model: TComponentModel); override;
+    procedure DoProcessModel(const kernel: TKernel; const model: TComponentModel); override;
+    procedure HandleParameterInjections(model: TComponentModel;
+      const targets: TArray<TRttiParameter>; var arguments: TArray<TValue>);
   end;
 
   TPropertyInspector = class(TMemberInspector)
   protected
-    procedure DoProcessModel(const kernel: IKernel; const model: TComponentModel); override;
+    procedure DoProcessModel(const kernel: TKernel; const model: TComponentModel); override;
   end;
 
   TMethodInspector = class(TMemberInspector)
   protected
-    procedure DoProcessModel(const kernel: IKernel; const model: TComponentModel); override;
+    procedure DoProcessModel(const kernel: TKernel; const model: TComponentModel); override;
   end;
 
   TFieldInspector = class(TMemberInspector)
   protected
-    procedure DoProcessModel(const kernel: IKernel; const model: TComponentModel); override;
+    procedure DoProcessModel(const kernel: TKernel; const model: TComponentModel); override;
   end;
 
   TInjectionTargetInspector = class(TInspectorBase)
   private
     class var
-      fHasNoTargetCondition: TPredicate<IInjection>;
+      fHasNoTargetCondition: Predicate<IInjection>;
     class constructor Create;
   protected
-    procedure CheckConstructorInjections(const kernel: IKernel; const model: TComponentModel);
-    procedure CheckMethodInjections(const kernel: IKernel; const model: TComponentModel);
-    procedure DoProcessModel(const kernel: IKernel; const model: TComponentModel); override;
+    procedure CheckConstructorInjections(const kernel: TKernel; const model: TComponentModel);
+    procedure CheckMethodInjections(const kernel: TKernel; const model: TComponentModel);
+    procedure DoProcessModel(const kernel: TKernel; const model: TComponentModel); override;
   end;
 
   TInterceptorInspector = class(TInspectorBase)
   protected
-    procedure DoProcessModel(const kernel: IKernel; const model: TComponentModel); override;
+    procedure DoProcessModel(const kernel: TKernel; const model: TComponentModel); override;
   end;
 
   TAbstractMethodInspector = class(TInspectorBase)
   protected
-    procedure DoProcessModel(const kernel: IKernel; const model: TComponentModel); override;
+    procedure DoProcessModel(const kernel: TKernel; const model: TComponentModel); override;
   end;
 
 implementation
 
 uses
   Classes,
+  SysUtils,
   TypInfo,
   Spring.Container.Common,
   Spring.Container.ComponentActivator,
@@ -139,7 +141,7 @@ uses
 
 {$REGION 'TComponentBuilder'}
 
-constructor TComponentBuilder.Create(const kernel: IKernel);
+constructor TComponentBuilder.Create(const kernel: TKernel);
 begin
   Guard.CheckNotNull(kernel, 'kernel');
   inherited Create;
@@ -193,7 +195,7 @@ end;
 {$REGION 'TInspectorBase'}
 
 procedure TInspectorBase.ProcessModel(
-  const kernel: IKernel; const model: TComponentModel);
+  const kernel: TKernel; const model: TComponentModel);
 begin
   Guard.CheckNotNull(kernel, 'kernel');
   Guard.CheckNotNull(model, 'model');
@@ -205,7 +207,7 @@ end;
 
 {$REGION 'TLifetimeInspector'}
 
-procedure TLifetimeInspector.DoProcessModel(const kernel: IKernel;
+procedure TLifetimeInspector.DoProcessModel(const kernel: TKernel;
   const model: TComponentModel);
 
   function CreateLifetimeManager(const model: TComponentModel): ILifetimeManager;
@@ -300,9 +302,9 @@ end;
 {$REGION 'TConstructorInspector'}
 
 procedure TConstructorInspector.DoProcessModel(
-  const kernel: IKernel; const model: TComponentModel);
+  const kernel: TKernel; const model: TComponentModel);
 var
-  predicate: TPredicate<TRttiMethod>;
+  predicate: Predicate<TRttiMethod>;
   injection: IInjection;
   method: TRttiMethod;
   parameters: TArray<TRttiParameter>;
@@ -321,8 +323,35 @@ begin
     SetLength(arguments, Length(parameters));
     for i := Low(parameters) to High(parameters) do
       HandleInjectAttribute(parameters[i], injection.Dependencies[i], arguments[i]);
+    HandleParameterInjections(model, parameters, arguments);
     injection.InitializeArguments(arguments);
   end;
+end;
+
+procedure TConstructorInspector.HandleParameterInjections(model: TComponentModel;
+  const targets: TArray<TRttiParameter>; var arguments: TArray<TValue>);
+var
+  i: Integer;
+  parameter: TValue;
+  typedValue: TTypedValue;
+  namedValue: TNamedValue;
+begin
+  for i := Low(targets) to High(targets) do
+    for parameter in model.ParameterInjections do
+    begin
+      if parameter.TryAsType(TypeInfo(TTypedValue), typedValue)
+        and SameTypeInfo(typedValue.TypeInfo, targets[i].ParamType.Handle) then
+      begin
+        arguments[i] := typedValue.Value;
+        Break;
+      end;
+      if parameter.TryAsType(TypeInfo(TNamedValue), namedValue)
+        and SameText(namedValue.Name, targets[i].Name) then
+      begin
+        arguments[i] := namedValue.Value;
+        Break;
+      end;
+    end;
 end;
 
 {$ENDREGION}
@@ -330,10 +359,10 @@ end;
 
 {$REGION 'TMethodInspector'}
 
-procedure TMethodInspector.DoProcessModel(const kernel: IKernel;
+procedure TMethodInspector.DoProcessModel(const kernel: TKernel;
   const model: TComponentModel);
 var
-  condition: TPredicate<TRttiMethod>;
+  condition: Predicate<TRttiMethod>;
   method: TRttiMethod;
   injection: IInjection;
   parameters: TArray<TRttiParameter>;
@@ -363,10 +392,10 @@ end;
 
 {$REGION 'TPropertyInspector'}
 
-procedure TPropertyInspector.DoProcessModel(const kernel: IKernel;
+procedure TPropertyInspector.DoProcessModel(const kernel: TKernel;
   const model: TComponentModel);
 var
-  condition: TPredicate<TRttiProperty>;
+  condition: Predicate<TRttiProperty>;
   prop: TRttiProperty;
   injection: IInjection;
   argument: TValue;
@@ -389,10 +418,10 @@ end;
 
 {$REGION 'TFieldInspector'}
 
-procedure TFieldInspector.DoProcessModel(const kernel: IKernel;
+procedure TFieldInspector.DoProcessModel(const kernel: TKernel;
   const model: TComponentModel);
 var
-  condition: TPredicate<TRttiField>;
+  condition: Predicate<TRttiField>;
   field: TRttiField;
   injection: IInjection;
   argument: TValue;
@@ -415,7 +444,7 @@ end;
 {$REGION 'TComponentActivatorInspector'}
 
 procedure TComponentActivatorInspector.DoProcessModel(
-  const kernel: IKernel; const model: TComponentModel);
+  const kernel: TKernel; const model: TComponentModel);
 begin
   if not Assigned(model.ComponentActivator) then
     if not Assigned(model.ActivatorDelegate) then
@@ -441,7 +470,7 @@ begin
     end;
 end;
 
-procedure TInjectionTargetInspector.DoProcessModel(const kernel: IKernel;
+procedure TInjectionTargetInspector.DoProcessModel(const kernel: TKernel;
   const model: TComponentModel);
 begin
   CheckConstructorInjections(kernel, model);
@@ -449,9 +478,9 @@ begin
 end;
 
 procedure TInjectionTargetInspector.CheckConstructorInjections(
-  const kernel: IKernel; const model: TComponentModel);
+  const kernel: TKernel; const model: TComponentModel);
 var
-  filter: TPredicate<TRttiMethod>;
+  filter: Predicate<TRttiMethod>;
   injection: IInjection;
   method: TRttiMethod;
 begin
@@ -468,9 +497,9 @@ begin
 end;
 
 procedure TInjectionTargetInspector.CheckMethodInjections(
-  const kernel: IKernel; const model: TComponentModel);
+  const kernel: TKernel; const model: TComponentModel);
 var
-  filter: TPredicate<TRttiMethod>;
+  filter: Predicate<TRttiMethod>;
   injection: IInjection;
   method: TRttiMethod;
 begin
@@ -492,7 +521,7 @@ end;
 
 {$REGION 'TInterfaceInspector'}
 
-procedure TInterfaceInspector.DoProcessModel(const kernel: IKernel;
+procedure TInterfaceInspector.DoProcessModel(const kernel: TKernel;
   const model: TComponentModel);
 var
   attributes: TArray<ImplementsAttribute>;
@@ -523,7 +552,7 @@ begin
             service.DefaultName + '@' + model.ComponentTypeName);
           kernel.Registry.RegisterDefault(model, service.Handle);
         end;
-    if TType.IsDelegate(model.ComponentTypeInfo)
+    if IsMethodReference(model.ComponentTypeInfo)
       and not model.HasService(model.ComponentTypeInfo) then
       kernel.Registry.RegisterService(model, model.ComponentTypeInfo);
 
@@ -535,11 +564,10 @@ end;
 {$ENDREGION}
 
 
-{$REGION 'TInterceptorInspector' }
+{$REGION 'TInterceptorInspector'}
 
-procedure TInterceptorInspector.DoProcessModel(const kernel: IKernel;
+procedure TInterceptorInspector.DoProcessModel(const kernel: TKernel;
   const model: TComponentModel);
-{$IFNDEF DELPHI2010}
 var
   attributes: TArray<InterceptorAttribute>;
   attribute: InterceptorAttribute;
@@ -559,9 +587,6 @@ begin
       end) then
       model.Interceptors.Add(interceptorRef);
   end;
-{$ELSE}
-begin
-{$ENDIF}
 end;
 
 {$ENDREGION}
@@ -569,7 +594,7 @@ end;
 
 {$REGION 'TAbstractMethodInspector'}
 
-procedure TAbstractMethodInspector.DoProcessModel(const kernel: IKernel;
+procedure TAbstractMethodInspector.DoProcessModel(const kernel: TKernel;
   const model: TComponentModel);
 
   function HasVirtualAbstractMethod(const rttiType: TRttiType): Boolean;
@@ -584,13 +609,13 @@ procedure TAbstractMethodInspector.DoProcessModel(const kernel: IKernel;
       end);
     virtualMethodsGrouped := TEnumerable.GroupBy<TRttiMethod,SmallInt>(
       virtualMethods,
-      function(method: TRttiMethod): SmallInt
+      function(const method: TRttiMethod): SmallInt
       begin
         Result := method.VirtualIndex;
       end);
     virtualMethods := TEnumerable.Select<IGrouping<SmallInt,TRttiMethod>, TRttiMethod>(
       virtualMethodsGrouped,
-      function(group: IGrouping<SmallInt,TRttiMethod>): TRttiMethod
+      function(const group: IGrouping<SmallInt,TRttiMethod>): TRttiMethod
       begin
         Result := group.First;
       end);

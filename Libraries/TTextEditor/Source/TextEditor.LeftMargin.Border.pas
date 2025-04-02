@@ -3,15 +3,15 @@
 interface
 
 uses
-  System.Classes, Vcl.Graphics, TextEditor.Types;
+  System.Classes, TextEditor.Types;
 
 type
   TTextEditorLeftMarginBorder = class(TPersistent)
   strict private
     FOnChange: TNotifyEvent;
     FStyle: TTextEditorLeftMarginBorderStyle;
-    procedure SetStyle(const AValue: TTextEditorLeftMarginBorderStyle);
     procedure DoChange;
+    procedure SetStyle(const AValue: TTextEditorLeftMarginBorderStyle);
   public
     constructor Create;
     procedure Assign(ASource: TPersistent); override;
@@ -41,6 +41,7 @@ begin
   with ASource as TTextEditorLeftMarginBorder do
   begin
     Self.FStyle := FStyle;
+
     Self.DoChange;
   end
   else
@@ -50,6 +51,7 @@ end;
 procedure TTextEditorLeftMarginBorder.SetStyle(const AValue: TTextEditorLeftMarginBorderStyle);
 begin
   FStyle := AValue;
+
   DoChange
 end;
 

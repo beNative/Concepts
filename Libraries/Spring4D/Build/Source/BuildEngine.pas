@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -127,6 +127,7 @@ type
     fModifyDelphiRegistrySettings: Boolean;
     fOnlyShowInstalledVersions: Boolean;
     fPauseAfterEachStep: Boolean;
+    fRunSilent: Boolean;
     fRunTests: Boolean;
     fRunTestsAsConsole: Boolean;
     fSelectedTasks: IList<TBuildTask>;
@@ -143,6 +144,7 @@ type
     property OnlyShowInstalledVersions: Boolean
       read fOnlyShowInstalledVersions write fOnlyShowInstalledVersions;
     property PauseAfterEachStep: Boolean read FPauseAfterEachStep write FPauseAfterEachStep;
+    property RunSilent: Boolean read fRunSilent write fRunSilent;
     property RunTests: Boolean read fRunTests write fRunTests;
     property RunTestsAsConsole: Boolean read fRunTestsAsConsole write fRunTestsAsConsole;
     property SelectedTasks: IList<TBuildTask> read fSelectedTasks;
@@ -196,7 +198,9 @@ type
     Win64,
     OSX32,
     OSX64,
+    OSXARM64,
     iOSSimulator,
+    iOSSimARM64,
     iOSDevice,
     iOSDevice32,
     iOSDevice64,
@@ -458,20 +462,23 @@ const // luckily, the compiler file names have not changed over the Delphi versi
     'dcc64.exe',
     'dccosx.exe',
     'dccosx64.exe',
+    'dccosxarm64.exe',
     'dccios32.exe',
+    'dcciossimarm64.exe',
     'dcciosarm.exe',
     'dcciosarm.exe',
     'dcciosarm64.exe',
     'dccaarm.exe',
     'dccaarm64.exe',
-    'dcclinux64.exe'  );
+    'dcclinux64.exe'
+  );
 var
   knownPlatform: TKnownPlatforms;
   knownPlatformName: string;
 begin
   for knownPlatform := Low(TKnownPlatforms) to High(TKnownPlatforms) do
   begin
-    knownPlatformName := TEnum.GetName(knownPlatform);
+    knownPlatformName := Spring.TEnum.GetName(knownPlatform);
     if SameText(knownPlatformName, targetPlatform) then
     begin
       Result := CCommandLineCompilers[knownPlatform];
@@ -588,6 +595,11 @@ begin
   startupInfo := Default(TStartupInfo);
   processInfo := Default(TProcessInformation);
   startupInfo.cb := SizeOf(startupInfo);
+  if fRunSilent then
+  begin
+    startupInfo.dwFlags := STARTF_USESHOWWINDOW;
+    startupInfo.wShowWindow := SW_HIDE;
+  end;
   localCommandLine := commandLine;
   UniqueString(localCommandLine);
   if workingDir <> '' then
@@ -749,7 +761,7 @@ begin
     config := iniFile.ReadString('Globals', 'Config', 'Debug');
     fBuildConfigs := [];
     for config in SplitString(config, ',') do
-      Include(fBuildConfigs, TEnum.Parse<TBuildConfig>(config));
+      Include(fBuildConfigs, Spring.TEnum.Parse<TBuildConfig>(config));
     fSourceBaseDir := iniFile.ReadString('Globals', 'SourceBaseDir', '');
     fSourceBaseDir := ApplicationPath + fSourceBaseDir;
     fSourcePaths.DelimitedText := iniFile.ReadString('Globals', 'SourcePaths', '');
@@ -758,6 +770,7 @@ begin
         IncludeTrailingPathDelimiter(fSourceBaseDir) + fSourcePaths[i]);
     selectedTasks.DelimitedText := iniFile.ReadString('Globals', 'SelectedTasks', '');
     fPauseAfterEachStep := iniFile.ReadBool('Globals', 'PauseAfterEachStep', False);
+    fRunSilent := iniFile.ReadBool('Globals', 'RunSilent', False);
     fRunTests := iniFile.ReadBool('Globals', 'RunTests', False);
     fRunTestsAsConsole := iniFile.ReadBool('Globals', 'RunTestsAsConsole', False);
     fModifyDelphiRegistrySettings := iniFile.ReadBool('Globals', 'ModifyDelphiRegistrySettings', False);
@@ -823,6 +836,7 @@ begin
     iniFile.WriteString('Globals', 'Config', config);
     iniFile.WriteString('Globals', 'SelectedTasks', selectedTasks.DelimitedText);
     iniFile.WriteBool('Globals', 'PauseAfterEachStep', fPauseAfterEachStep);
+    iniFile.WriteBool('Globals', 'RunSilent', fRunSilent);
     iniFile.WriteBool('Globals', 'RunTests', fRunTests);
     iniFile.WriteBool('Globals', 'RunTestsAsConsole', fRunTestsAsConsole);
     iniFile.WriteBool('Globals', 'ModifyDelphiRegistrySettings', fModifyDelphiRegistrySettings);

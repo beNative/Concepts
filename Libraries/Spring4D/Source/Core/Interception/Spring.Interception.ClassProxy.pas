@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -88,7 +88,6 @@ type
 implementation
 
 uses
-  Generics.Collections,
   SysUtils,
   TypInfo,
   Spring.Interception.InterfaceProxy,
@@ -202,11 +201,6 @@ begin
     fIntercepts[method.VirtualIndex] := intercept;
     PVirtualMethodTable(ProxyClass)[method.VirtualIndex] := intercept.CodeAddress;
   end;
-{$IFDEF AUTOREFCOUNT}
-  // Release reference created by passing closure to HandleInvoke (RSP-10176)
-  if Assigned(intercept) then
-    __ObjRelease;
-{$ENDIF}
 end;
 
 procedure TClassProxy.GenerateInterfaces(
@@ -241,7 +235,7 @@ begin
 
   SetLength(fAdditionalInterfaces, entryCount - 1);
 
-  offset := ProxyClassData.InstanceSize - hfFieldSize;
+  offset := NativeUInt(ProxyClassData.InstanceSize - hfFieldSize);
   Inc(ProxyClassData.InstanceSize, (entryCount - 1) * SizeOf(Pointer));
 
   // add other interfaces
@@ -309,6 +303,8 @@ var
   params: TArray<TRttiParameter>;
   args: TArray<TValue>;
   i: Integer;
+  cls: TClass;
+  codeAddress: Pointer;
 begin
   params := fMethod.GetParameters;
   SetLength(args, Length(fArguments) + 1);
@@ -319,7 +315,12 @@ begin
     PassArg(params[i], fArguments[i], args[i + 1], fMethod.CallingConvention);
 
   if not fTarget.IsEmpty then
-    fResult := Rtti.Invoke(fMethod.CodeAddress, args, fMethod.CallingConvention, fMethod.ReturnTypeHandle);
+  begin
+    // perform virtual dispatch to the proxified class
+    cls := fTarget.AsObject.ClassParent;
+    codeAddress := PVirtualMethodTable(cls)[fMethod.VirtualIndex];
+    fResult := Rtti.Invoke(codeAddress, args, fMethod.CallingConvention, fMethod.ReturnTypeHandle);
+  end;
 end;
 
 {$ENDREGION}

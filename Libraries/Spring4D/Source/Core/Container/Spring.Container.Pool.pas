@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -66,9 +66,6 @@ type
     fActivator: IComponentActivator;
     fMinPoolsize: Nullable<Integer>;
     fMaxPoolsize: Nullable<Integer>;
-    // Use pointers to eliminate ARC on NextGen and just use our own mechanism
-    // for keeping the references alive. (The inactive object collection can
-    // also work the same way on all platforms this way.)
     fAvailableList: IQueue<Pointer>;
     fActiveList: IList<Pointer>;
     fInstances: IList<Pointer>;
@@ -119,7 +116,6 @@ end;
 
 destructor TSimpleObjectPool.Destroy;
 begin
-  // Needs to be freed prior our weakrefs get cleared
   fInstances := nil;
   fLock.Free;
   inherited Destroy;
@@ -133,11 +129,7 @@ begin
   if Result.InheritsFrom(TInterfacedObject) then
     TInterfacedObjectAccess(Result)._AddRef
   else if Supports(Result, IRefCounted, refCounted) then
-    refCounted._AddRef
-{$IFDEF AUTOREFCOUNT}
-  else Result.__ObjAddRef
-{$ENDIF}
-  ;
+    refCounted._AddRef;
   fInstances.Add(Result);
 end;
 
@@ -191,14 +183,7 @@ begin
     else if Supports(TObject(item), IRefCounted, refCounted) then
       refCounted._Release
     else
-{$IFNDEF AUTOREFCOUNT}
       TObject(item).Free;
-{$ELSE}
-    begin
-      if TObject(item).__ObjRelease > 0 then
-        TObject(item).DisposeOf;
-    end;
-{$ENDIF}
   end;
 end;
 

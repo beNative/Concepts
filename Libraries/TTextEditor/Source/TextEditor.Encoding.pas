@@ -1,5 +1,7 @@
 ﻿unit TextEditor.Encoding;
 
+{$I TextEditor.Defines.inc}
+
 interface
 
 uses
@@ -245,9 +247,11 @@ begin
   if not Assigned(FUTF8WithoutBOM) then
   begin
     LEncoding := TUTF8WithoutBOM.Create(CP_UTF8, 0, 0);
+
     if Assigned(AtomicCmpExchange(Pointer(FUTF8WithoutBOM), Pointer(LEncoding), nil)) then
       LEncoding.Free;
   end;
+
   Result := FUTF8WithoutBOM;
 end;
 
@@ -262,7 +266,7 @@ var
 
   procedure AddToResult;
   begin
-    if LValue <> '' then
+    if not LValue.IsEmpty then
     begin
       Result := Result + Chr(StrToIntDef(LValue, 0));
       LValue := '';
@@ -357,7 +361,7 @@ var
 
   procedure AddToResult;
   begin
-    if LValue <> '' then
+    if not LValue.IsEmpty then
     begin
       Result := Result + Chr(StrToIntDef('$' + LValue, 0));
       LValue := '';
@@ -402,7 +406,7 @@ var
 
   procedure AddToResult;
   begin
-    if LValue <> '' then
+    if not LValue.IsEmpty then
     begin
       Result := Result + Chr(StrToIntDef('$' + LValue, 0));
       LValue := '';
@@ -453,7 +457,7 @@ var
 
   procedure AddToResult;
   begin
-    if LValue <> '' then
+    if not LValue.IsEmpty then
     begin
       Result := Result + Chr(StrToIntDef('$' + LValue, 0));
       LValue := '';
@@ -622,7 +626,7 @@ var
 
   procedure AddToResult;
   begin
-    if LValue <> '' then
+    if not LValue.IsEmpty then
     begin
       Result := Result + Chr(OctToInt(LValue));
       LValue := '';

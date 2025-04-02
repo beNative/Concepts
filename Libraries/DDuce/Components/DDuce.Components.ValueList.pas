@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ uses
   System.Classes, System.Types,
   Vcl.Graphics,
 
-  VirtualTrees,
+  VirtualTrees, VirtualTrees.Types, VirtualTrees.BaseTree,
 
   Spring, Spring.Collections,
 
@@ -42,6 +42,7 @@ type
     GUTTER_COLUMN = 0;
     NAME_COLUMN   = 1;
     VALUE_COLUMN  = 2;
+
   private
     FData        : IDynamicRecord;
     FInitialized : Boolean;
@@ -357,7 +358,7 @@ uses
   System.SysUtils,
   Vcl.Forms, Vcl.Controls,
 
-  VirtualTrees.Types, VirtualTrees.Header;
+  VirtualTrees.Header;
 
 {$REGION 'construction and destruction'}
 destructor TValueList.Destroy;
@@ -602,12 +603,13 @@ begin
   end;
 end;
 
+{ Helper to find a Node by its index. }
+
 function TValueList.FindNode(AIdx: Integer;
   AParentNode: PVirtualNode): PVirtualNode;
 var
-  LNode: PVirtualNode;
+  LNode : PVirtualNode;
 begin
-  // Helper to find a Node by its index
   Result := nil;
   if Assigned(AParentNode) then
     LNode := GetFirstChild(AParentNode)
@@ -632,10 +634,9 @@ begin
     hoDisableAnimatedResize
   ];
   TreeOptions.PaintOptions := [
-    toHideFocusRect, toHotTrack, toPopupMode, toShowBackground, toShowButtons,
+    toHideFocusRect, toPopupMode, toShowBackground, toShowButtons,
     toShowDropmark, toStaticBackground, toShowRoot, toShowVertGridLines,
-    toThemeAware, toUseBlendedImages, toUseBlendedSelection, toStaticBackground,
-    toUseExplorerTheme
+    toThemeAware, toUseBlendedImages, toUseBlendedSelection, toStaticBackground
   ];
   TreeOptions.AnimationOptions := [];
   TreeOptions.AutoOptions := [
@@ -696,7 +697,7 @@ begin
   Colors.SelectionRectangleBlendColor := clGray;
   Colors.SelectionTextColor           := clBlack;
   Colors.GridLineColor                := clSilver;
-  FInitialized := True;
+  FInitialized                        := True;
 end;
 
 procedure TValueList.Refresh;
@@ -746,11 +747,12 @@ begin
   end;
 end;
 
+{ Helper to focus and highlight a node by its index. }
+
 procedure TValueList.SelectNode(AIdx: Integer; AParentNode: PVirtualNode);
 var
   LNode : PVirtualNode;
 begin
-  // Helper to focus and highlight a node by its index
   LNode := FindNode(AIdx, AParentNode);
   if Assigned(LNode) then
     SelectNode(LNode);

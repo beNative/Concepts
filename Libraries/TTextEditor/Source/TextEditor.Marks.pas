@@ -22,7 +22,7 @@ type
     property Char: Integer read FChar write FChar;
     property Data: Pointer read FData write FData;
     property ImageIndex: Integer read FImageIndex write FImageIndex;
-    property Index: Integer read FIndex write FIndex;
+    property &Index: Integer read FIndex write FIndex;
     property Line: Integer read FLine write FLine;
     property Visible: Boolean read FVisible write FVisible;
   end;
@@ -30,13 +30,15 @@ type
   TTextEditorMarkEvent = procedure(ASender: TObject; var AMark: TTextEditorMark) of object;
   TTextEditorMarks = array of TTextEditorMark;
 
+  TListItemIndex = {$IF CompilerVersion >= 36}NativeInt{$ELSE}Integer{$IFEND};
+
   TTextEditorMarkList = class(TObjectList)
   protected
     FEditor: TCustomControl;
     FOnChange: TNotifyEvent;
-    function GetItem(AIndex: Integer): TTextEditorMark;
+    function GetItem(const AIndex: TListItemIndex): TTextEditorMark;
     procedure Notify(Ptr: Pointer; Action: TListNotification); override;
-    procedure SetItem(AIndex: Integer; AItem: TTextEditorMark);
+    procedure SetItem(const AIndex: TListItemIndex; AItem: TTextEditorMark);
     property OwnsObjects;
   public
     constructor Create(AOwner: TCustomControl);
@@ -44,10 +46,10 @@ type
     function Find(const AIndex: Integer): TTextEditorMark;
     function First: TTextEditorMark;
     function Last: TTextEditorMark;
-    procedure ClearLine(ALine: Integer);
-    procedure GetMarksForLine(ALine: Integer; var AMarks: TTextEditorMarks);
+    procedure ClearLine(const ALine: Integer);
+    procedure GetMarksForLine(const ALine: Integer; var AMarks: TTextEditorMarks);
     procedure Place(AMark: TTextEditorMark);
-    property Items[AIndex: Integer]: TTextEditorMark read GetItem write SetItem; default;
+    property Items[const AIndex: TListItemIndex]: TTextEditorMark read GetItem write SetItem; default;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
@@ -70,16 +72,17 @@ end;
 procedure TTextEditorMarkList.Notify(Ptr: Pointer; Action: TListNotification);
 begin
   inherited;
+
   if Assigned(FOnChange) then
     FOnChange(Self);
 end;
 
-function TTextEditorMarkList.GetItem(AIndex: Integer): TTextEditorMark;
+function TTextEditorMarkList.GetItem(const AIndex: TListItemIndex): TTextEditorMark;
 begin
   Result := TTextEditorMark(inherited GetItem(AIndex));
 end;
 
-procedure TTextEditorMarkList.SetItem(AIndex: Integer; AItem: TTextEditorMark);
+procedure TTextEditorMarkList.SetItem(const AIndex:TListItemIndex; AItem: TTextEditorMark);
 begin
   inherited SetItem(AIndex, AItem);
 end;
@@ -87,6 +90,7 @@ end;
 constructor TTextEditorMarkList.Create(AOwner: TCustomControl);
 begin
   inherited Create;
+
   FEditor := AOwner;
 end;
 
@@ -96,9 +100,11 @@ var
   LMark: TTextEditorMark;
 begin
   Result := nil;
+
   for LIndex := Count - 1 downto 0 do
   begin
     LMark := Items[LIndex];
+
     if LMark.Index = AIndex then
       Exit(LMark);
   end;
@@ -119,7 +125,7 @@ begin
   Result := TTextEditorMark(inherited Extract(AItem));
 end;
 
-procedure TTextEditorMarkList.ClearLine(ALine: Integer);
+procedure TTextEditorMarkList.ClearLine(const ALine: Integer);
 var
   LIndex: Integer;
 begin
@@ -128,22 +134,25 @@ begin
     Delete(LIndex);
 end;
 
-procedure TTextEditorMarkList.GetMarksForLine(ALine: Integer; var AMarks: TTextEditorMarks);
+procedure TTextEditorMarkList.GetMarksForLine(const ALine: Integer; var AMarks: TTextEditorMarks);
 var
   LIndex, LIndex2: Integer;
   LMark: TTextEditorMark;
 begin
   SetLength(AMarks, Count);
   LIndex2 := 0;
+
   for LIndex := 0 to Count - 1 do
   begin
     LMark := Items[LIndex];
+
     if LMark.Line = ALine then
     begin
       AMarks[LIndex2] := LMark;
       Inc(LIndex2);
     end;
   end;
+
   SetLength(AMarks, LIndex2);
 end;
 
@@ -152,13 +161,17 @@ var
   LEditor: TCustomTextEditor;
 begin
   LEditor := nil;
+
   if Assigned(FEditor) and (FEditor is TCustomTextEditor) then
     LEditor := FEditor as TCustomTextEditor;
+
   if Assigned(LEditor) then
     if Assigned(LEditor.OnBeforeMarkPlaced) then
       LEditor.OnBeforeMarkPlaced(FEditor, AMark);
+
   if Assigned(AMark) then
     Add(AMark);
+
   if Assigned(LEditor) then
     if Assigned(LEditor.OnAfterMarkPlaced) then
       LEditor.OnAfterMarkPlaced(FEditor);

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -239,9 +239,7 @@ end;
 
 function TLoggerBase.IsEnabled(level: TLogLevel; eventTypes: TLogEventTypes): Boolean;
 begin
-{$IFDEF SPRING_ENABLE_GUARD}
   Guard.CheckTrue(eventTypes <> [], 'eventTypes');
-{$ENDIF}
   Result := fEnabled and (level in fLevels) and (eventTypes * fEventTypes <> []);
 end;
 
@@ -554,7 +552,7 @@ function TAbstractLogger.Track(level: TLogLevel; const classType: TClass;
   const methodName: string): IInterface;
 begin
   if IsEnabled(level, [TLogEventType.Entering, TLogEventType.Leaving]) then
-    Result := TLogTracking.Create(Self, level, classType, methodName)
+    Result := TLogTracking.Create(Self, level, classType, methodName) //FI:W534
   else
     Result := nil;
 end;

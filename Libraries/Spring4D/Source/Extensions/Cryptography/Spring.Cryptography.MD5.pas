@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -28,8 +28,7 @@ unit Spring.Cryptography.MD5;
 
 interface
 
-{$OVERFLOWCHECKS OFF}
-{$RANGECHECKS OFF}
+{$R-,Q-}
 
 uses
   Spring,
@@ -94,7 +93,7 @@ end;
 
 procedure TMD5.HashUpdate(const buffer: Pointer; count: Integer);
 begin
-  MD5Update(fContext, buffer, count);
+  MD5Update(fContext, buffer, Cardinal(count));
 end;
 
 function TMD5.HashFinal: TBuffer;
@@ -104,28 +103,13 @@ begin
 end;
 
 procedure TMD5.HashInit;
-var
-  i: Byte;
 begin
-  for i := Low(fDigest) to High(fDigest) do
-  begin
-    fDigest[i] := i + 1;
-  end;
+  fDigest := Default(TMD5Digest);
   MD5Init(fContext);
 end;
 
 {$ENDREGION}
 
-
-procedure CopyMemory(Destination: Pointer; Source: Pointer; Length: UInt32);
-begin
-  Move(Source^, Destination^, Length);
-end;
-
-procedure ZeroMemory(Destination: Pointer; Length: UInt32);
-begin
-  FillChar(Destination^, Length, 0);
-end;
 
 function F(x, y, z: UInt32): UInt32;
 {$IFDEF CPUX86}
@@ -234,8 +218,8 @@ begin
   inc(a, b);
 end;
 
-// Encode Count bytes at Source into (Count / 4) DWORDs at Target
-procedure Encode(Source, Target: pointer; Count: UInt32);
+// Decode Count bytes at Source into (Count / 4) DWORDs at Target
+procedure Decode(Source, Target: pointer; Count: UInt32);
 var
   S: PByte;
   T: PUInt32;
@@ -245,20 +229,14 @@ begin
   T := Target;
   for I := 1 to Count div 4 do //FI:W528
   begin
-    T^ := S^;
-    inc(S);
-    T^ := T^ or (S^ shl 8);
-    inc(S);
-    T^ := T^ or (S^ shl 16);
-    inc(S);
-    T^ := T^ or (S^ shl 24);
-    inc(S);
-    inc(T);
+    T^ := S[0] or (S[1] shl 8) or (S[2] shl 16) or (S[3] shl 24);
+    Inc(S, 4);
+    Inc(T);
   end;
 end;
 
-// Decode Count DWORDs at Source into (Count * 4) Bytes at Target
-procedure Decode(Source, Target: pointer; Count: UInt32);
+// Encode Count DWORDs at Source into (Count * 4) Bytes at Target
+procedure Encode(Source, Target: pointer; Count: UInt32);
 var
   S: PUInt32;
   T: PByte;
@@ -268,15 +246,12 @@ begin
   T := Target;
   for I := 1 to Count do //FI:W528
   begin
-    T^ := S^ and $ff;
-    inc(T);
-    T^ := (S^ shr 8) and $ff;
-    inc(T);
-    T^ := (S^ shr 16) and $ff;
-    inc(T);
-    T^ := (S^ shr 24) and $ff;
-    inc(T);
-    inc(S);
+    T[0] := Byte(S^ and $ff);
+    T[1] := Byte((S^ shr 8) and $ff);
+    T[2] := Byte((S^ shr 16) and $ff);
+    T[3] := Byte((S^ shr 24) and $ff);
+    Inc(T, 4);
+    Inc(S);
   end;
 end;
 
@@ -286,7 +261,7 @@ var
   a, b, c, d: UInt32;
   Block: TMD5Block;
 begin
-  Encode(Buffer, @Block, 64);
+  Decode(Buffer, @Block, 64);
   a := State[0];
   b := State[1];
   c := State[2];
@@ -372,7 +347,7 @@ begin
     State[3] := $10325476;
     Count[0] := 0;
     Count[1] := 0;
-    ZeroMemory(@Buffer, SizeOf(TMD5Buffer));
+    Buffer := Default(TMD5Buffer);
   end;
 end;
 
@@ -394,7 +369,7 @@ begin
   PartLen := 64 - Index;
   if Length >= PartLen then
   begin
-    CopyMemory(@Context.Buffer[Index], Input, PartLen);
+    Move(Input^, Context.Buffer[Index], Integer(PartLen));
     Transform(@Context.Buffer, Context.State);
     I := PartLen;
     while I + 63 < Length do
@@ -405,7 +380,7 @@ begin
     Index := 0;
   end
   else I := 0;
-  CopyMemory(@Context.Buffer[Index], @Input[I], Length - I);
+  Move(Input[I], Context.Buffer[Index], Integer(Length - I));
 end;
 
 // Finalize given Context, create Digest and zeroize Context
@@ -415,7 +390,7 @@ var
   Index: UInt32;
   PadLen: UInt32;
 begin
-  Decode(@Context.Count, @Bits, 2);
+  Encode(@Context.Count, @Bits, 2);
   Index := (Context.Count[0] shr 3) and $3f;
   if Index < 56 then
     PadLen := 56 - Index
@@ -423,8 +398,8 @@ begin
     PadLen := 120 - Index;
   MD5Update(Context, @PADDING, PadLen);
   MD5Update(Context, @Bits, 8);
-  Decode(@Context.State, @Digest, 4);
-  ZeroMemory(@Context, SizeOf(TMD5Context));
+  Encode(@Context.State, @Digest, 4);
+  Context := Default(TMD5Context);
 end;
 
 end.

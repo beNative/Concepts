@@ -1,5 +1,7 @@
 ﻿unit TextEditor.Highlighter.Token;
 
+{$I TextEditor.Defines.inc}
+
 interface
 
 uses
@@ -112,12 +114,14 @@ end;
 constructor TTextEditorAbstractToken.Create(const AHighlighterAttribute: TTextEditorHighlighterAttribute);
 begin
   Create;
+
   FAttribute := AHighlighterAttribute;
 end;
 
 constructor TTextEditorAbstractToken.Create(const AToken: TTextEditorAbstractToken);
 begin
   inherited Create;
+
   FAttribute := AToken.Attribute;
   FBreakType := AToken.BreakType;
 end;
@@ -191,6 +195,8 @@ begin
   Result := FSymbols.Count;
 end;
 
+{ TTextEditorToken }
+
 constructor TTextEditorToken.Create;
 begin
   inherited Create;
@@ -232,13 +238,15 @@ begin
   inherited Create;
 
   FChar := AChar;
-  FNextNodes := TTextEditorTokenNodeList.Create;
   FToken := nil;
+
+  FNextNodes := TTextEditorTokenNodeList.Create;
 end;
 
 constructor TTextEditorTokenNode.Create(const AChar: Char; const AToken: TTextEditorToken; const ABreakType: TTextEditorBreakType);
 begin
   Create(AChar);
+
   FBreakType := ABreakType;
   FToken := AToken;
 end;
@@ -282,6 +290,7 @@ begin
   for LIndex := FNodeList.Count - 1 downto 0 do
   begin
     LTokenNode := TTextEditorTokenNode(FNodeList.List[LIndex]);
+
     if LTokenNode.Char = AChar then
       Exit(LTokenNode);
   end;

@@ -46,11 +46,12 @@ type
   TTextEditorCodeFoldingRange = class
   strict private
     FAllCodeFoldingRanges: TTextEditorAllCodeFoldingRanges;
+    FCollapseMarkRect: TRect;
     FCollapsed: Boolean;
     FCollapsedBy: Integer;
-    FCollapseMarkRect: TRect;
     FFoldRangeLevel: Integer;
     FFromLine: Integer;
+    FGuideLineOffset: Integer;
     FIndentLevel: Integer;
     FIsExtraTokenFound: Boolean;
     FParentCollapsed: Boolean;
@@ -67,11 +68,12 @@ type
     procedure SetParentCollapsedOfSubCodeFoldingRanges(const AParentCollapsed: Boolean; const ACollapsedBy: Integer);
     procedure Widen(const ALineCount: Integer);
     property AllCodeFoldingRanges: TTextEditorAllCodeFoldingRanges read FAllCodeFoldingRanges write FAllCodeFoldingRanges;
+    property CollapseMarkRect: TRect read FCollapseMarkRect write FCollapseMarkRect;
     property Collapsed: Boolean read FCollapsed write FCollapsed default False;
     property CollapsedBy: Integer read FCollapsedBy write FCollapsedBy;
-    property CollapseMarkRect: TRect read FCollapseMarkRect write FCollapseMarkRect;
     property FoldRangeLevel: Integer read FFoldRangeLevel write FFoldRangeLevel;
     property FromLine: Integer read FFromLine write FFromLine;
+    property GuideLineOffset: Integer read FGuideLineOffset write FGuideLineOffset;
     property IndentLevel: Integer read FIndentLevel write FIndentLevel;
     property IsExtraTokenFound: Boolean read FIsExtraTokenFound write FIsExtraTokenFound default False;
     property ParentCollapsed: Boolean read FParentCollapsed write FParentCollapsed;
@@ -173,6 +175,7 @@ begin
   for LIndex := 0 to AllCount - 1 do
   begin
     LFoldRange := GetItem(LIndex);
+
     if Assigned(LFoldRange) then
       LFoldRange.ParentCollapsed := False;
   end;
@@ -180,6 +183,7 @@ begin
   for LIndex := 0 to AllCount - 1 do
   begin
     LFoldRange := GetItem(LIndex);
+
     if Assigned(LFoldRange) and not LFoldRange.ParentCollapsed then
       SetParentCollapsedOfSubCodeFoldingRanges(LFoldRange);
   end;
@@ -196,9 +200,7 @@ end;
 
 destructor TTextEditorCodeFoldingRanges.Destroy;
 begin
-  FList.Clear;
   FList.Free;
-  FList := nil;
 
   inherited;
 end;
@@ -208,6 +210,7 @@ function TTextEditorCodeFoldingRanges.Add(const AAllCodeFoldingRanges: TTextEdit
   const ARegionItem: TTextEditorCodeFoldingRegionItem; const AToLine: Integer): TTextEditorCodeFoldingRange;
 begin
   Result := TTextEditorCodeFoldingRange.Create;
+
   with Result do
   begin
     FromLine := AFromLine;
@@ -217,6 +220,7 @@ begin
     AllCodeFoldingRanges := AAllCodeFoldingRanges;
     RegionItem := ARegionItem;
   end;
+
   FList.Add(Result);
   AAllCodeFoldingRanges.List.Add(Result);
 end;
@@ -247,18 +251,17 @@ constructor TTextEditorCodeFoldingRange.Create;
 begin
   inherited;
 
-  FSubCodeFoldingRanges := TTextEditorCodeFoldingRanges.Create;
   FCollapsed := False;
   FCollapsedBy := -1;
+  FGuideLineOffset := 0;
   FIsExtraTokenFound := False;
+  FSubCodeFoldingRanges := TTextEditorCodeFoldingRanges.Create;
   FUndoListed := False;
 end;
 
 destructor TTextEditorCodeFoldingRange.Destroy;
 begin;
-  FSubCodeFoldingRanges.Clear;
   FSubCodeFoldingRanges.Free;
-  FSubCodeFoldingRanges := nil;
 
   inherited;
 end;
@@ -277,6 +280,7 @@ begin
   for LIndex := 0 to FSubCodeFoldingRanges.Count - 1 do
   begin
     LCodeFoldingRange := FSubCodeFoldingRanges[LIndex];
+
     if Assigned(LCodeFoldingRange) then
     begin
       LCodeFoldingRange.MoveChildren(ABy);

@@ -301,9 +301,13 @@ implementation
 {$R *.dfm}
 
 uses
-  DDuce.Logger, DDuce.Factories.zObjInspector, Vcl.Imaging.pngimage,
+  Vcl.Imaging.pngimage,
 
-  keditcommon;
+  DDuce.Logger, DDuce.Factories.zObjInspector,
+
+  keditcommon,
+
+  VirtualTrees.Types;
 
 //procedure ConvertStringToKMemoTable(tableStr: string; memo: TKMemo);
 //var
@@ -1210,7 +1214,7 @@ var
 begin
   if Assigned(FocusedNode) and (FocusedNode <> FRootNode) then
   begin
-    LNextNode := FocusedNode.NextNode;
+    LNextNode := FocusedNode.NextSiblingNode;
     FTree.DeleteNode(FTree.FocusedNode);
     KMemo.ExecuteCommand(ecCut);
 //    KMemo.DeleteSelectedBlock;
@@ -1228,7 +1232,7 @@ var
 begin
   if Assigned(FocusedNode) and (FocusedNode <> FRootNode) then
   begin
-    LNextNode := FocusedNode.NextNode;
+    LNextNode := FocusedNode.NextSiblingNode;
     FTree.DeleteNode(FTree.FocusedNode);
     KMemo.DeleteSelectedBlock;
     if Assigned(LNextNode) then

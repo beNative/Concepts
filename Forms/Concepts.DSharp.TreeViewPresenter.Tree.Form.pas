@@ -34,9 +34,9 @@ uses
   zObjInspector,
 
   DSharp.Windows.ColumnDefinitions, DSharp.Windows.TreeViewPresenter,
-  DSharp.Bindings, DSharp.Windows.CustomPresenter,
+  DSharp.Windows.CustomPresenter,
 
-  Spring.Collections, Spring.Reflection;
+  Spring.Collections, Spring.Reflection, Vcl.Mask;
 
 type
   TfrmTreeViewPresenterTree = class(TForm)
@@ -82,8 +82,6 @@ implementation
 uses
   System.Rtti,
 
-  Spring.Collections.Adapters, Spring.Collections.Enumerable,
-
   DDuce.Reflect, DDuce.Factories.zObjInspector,
 
   Concepts.RTTEye.RttiTemplates, Concepts.Factories;
@@ -119,7 +117,7 @@ end;
 {$REGION 'action handlers'}
 procedure TfrmTreeViewPresenterTree.actExecuteExecute(Sender: TObject);
 var
-  ET : Enumerable<TRttiType>;
+  ET : IEnumerable<TRttiType>;
 begin
   Screen.Cursor := crHourGlass;
   FTVP.BeginUpdate;
@@ -131,7 +129,7 @@ begin
         Result := AArg.QualifiedName.Contains(edtFilter.Text);
       end
     );
-    FObjectList.AddRange(ET.ToList as IObjectList);
+    FObjectList.AddRange(ET as IObjectList);
   finally
     Screen.Cursor := crDefault;
     FTVP.EndUpdate;

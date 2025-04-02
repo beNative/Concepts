@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -67,15 +67,11 @@ uses
 {$IFDEF TESTINSIGHT}
   TestInsight.DUnit;
 {$ELSE}
-  {$IFDEF DELPHI2010}
-  GUITestRunner;
-  {$ELSE}
   {$IFDEF MSWINDOWS}
   VSoft.DUnit.XMLTestRunner;
   {$ELSE}
   TextTestRunner;
   {$ENDIF}
-{$ENDIF}
 
 {$APPTYPE CONSOLE}
 
@@ -131,7 +127,9 @@ begin
     IgnoreEmptyEnumerable,
     IgnoreAnonymousMethodPointers,
     IgnoreCustomAttributes,
-    IgnoreTimeZoneCache
+    IgnoreTimeZoneCache,
+    TIgnore<TInitTable>.Any,
+    TIgnore<TInitTable>.AnyNestedClasses
   ]);
   // Initialize few things so they dont't leak in the tests
   TThread.CurrentThread;
@@ -139,9 +137,7 @@ begin
   TType.TryGetInterfaceType(IUnknown, intfType); // Initialize Spring.TType interface map
   intfType := nil;
   TVirtualClasses.Default.GetVirtualClass(TInterfacedObject);
-{$IFNDEF DELPHI2010}
   TTimeZone.Local.ID;
-{$ENDIF}
   StrToBool('True'); // Initialize StrToBool array cache
 {$IFDEF DELPHIXE5_UP}
   TEncoding.ANSI;
@@ -151,9 +147,7 @@ begin
   TEncoding.UTF7;
   TEncoding.UTF8;
   TEncoding.Unicode;
-{$IFNDEF ORM_TESTS}
-  GetInitTable(TTestObject);
-{$ELSE}
+{$IFDEF ORM_TESTS}
   // Initialize global Entity cache
   for lType in TType.Context.GetTypes do
     if lType.IsClass and lType.HasCustomAttribute(TableAttribute, True) then
@@ -197,15 +191,11 @@ begin
   ReportMemoryLeaksOnShutdown := True;
 {$ELSE}
   {$IFDEF MSWINDOWS}
-  {$IFDEF DELPHI2010}
-  GUITestRunner.RunRegisteredTests;
-  {$ELSE}
   if ParamCount > 0 then
     OutputFile := ParamStr(1);
-  VSoft.DUnit.XMLTestRunner.RunRegisteredTests(OutputFile){$IFNDEF AUTOREFCOUNT}.Free{$ENDIF};
-  {$ENDIF}
+  VSoft.DUnit.XMLTestRunner.RunRegisteredTests(OutputFile).Free;
   {$ELSE}
-  TextTestRunner.RunRegisteredTests{$IFNDEF AUTOREFCOUNT}.Free{$ENDIF};
+  TextTestRunner.RunRegisteredTests.Free;
   {$ENDIF}
 {$ENDIF}
 end;

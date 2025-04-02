@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -134,7 +134,7 @@ end;
 procedure TEmbeddedObjectEntity.AddValue(const fieldName: string;
   const value: Variant);
 begin
-  fValues.AddOrSetValue(GetKey(fieldName), value);
+  fValues[GetKey(fieldName)] := value;
   fIndexedValues.Add(GetKey(fieldName));
 end;
 

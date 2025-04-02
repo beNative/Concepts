@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -34,7 +34,6 @@ interface
 uses
   SysUtils,
   Types,
-  TypInfo,
   Spring;
 
 type
@@ -50,7 +49,6 @@ type
 /// </remarks>
 function GetByteLength(const s: string): Integer; overload; inline;
 
-{$IFNDEF NEXTGEN}
 /// <summary>
 ///   Retrieves the byte length of a WideString.
 /// </summary>
@@ -61,8 +59,6 @@ function GetByteLength(const s: WideString): Integer; overload; inline;
 ///   UTF8String).
 /// </summary>
 function GetByteLength(const s: RawByteString): Integer; overload; inline;
-{$ENDIF NEXTGEN}
-
 
 /// <summary>
 ///   Splits a string into different parts delimited by the specified delimiter
@@ -123,7 +119,6 @@ begin
   Result := Length(s) * SizeOf(Char);
 end;
 
-{$IFNDEF NEXTGEN}
 function GetByteLength(const s: WideString): Integer;
 begin
   Result := Length(s) * SizeOf(WideChar);
@@ -133,7 +128,6 @@ function GetByteLength(const s: RawByteString): Integer;
 begin
   Result := Length(s);
 end;
-{$ENDIF}
 
 function SplitString(const buffer: string; const separators: TSysCharSet;
   removeEmptyEntries: Boolean): TStringDynArray;
@@ -223,13 +217,13 @@ var
   year, month, day: Word;
   hour, minute, second, milliSecond: Word;
 
-  function ExtractElementDef(const element: string; const defaultValue: Integer = 0): Integer;
+  function ExtractElementDef(const element: string; const defaultValue: Word = 0): Word;
   var
     position: Integer;
   begin
     position := Pos(element, stringFormat);
     if position > 0 then
-      Result := StrToInt(Copy(localString, position, Length(element)))
+      Result := Word(StrToInt(Copy(localString, position, Length(element))))
     else
       Result := defaultValue;
   end;

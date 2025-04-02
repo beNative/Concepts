@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -28,10 +28,6 @@ unit Spring.Persistence.Core.Repository.Proxy;
 
 interface
 
-{$IFDEF DELPHI2010}
-  {$MESSAGE FATAL 'Proxy repository only supported on XE or higher'}
-{$ENDIF}
-
 uses
   Rtti,
   TypInfo,
@@ -55,7 +51,6 @@ type
   TProxyRepository<T: class, constructor; TID> = class(TProxyRepository)
   private
     fRepository: IPagedRepository<T,TID>;
-    {$IFDEF WEAKREF}[Weak]{$ENDIF}
     fSession: TSession;
     fDefaultMethods: IDictionary<string, TMethodReference>;
     fTypeName: string;
@@ -138,14 +133,6 @@ begin
     begin
       Result := DoOnInvoke(Method, Copy(Args, 1));
     end;
-{$IFDEF AUTOREFCOUNT}
-  // Release reference held by ancestor RawCallBack (bypass RSP-10177)
-  __ObjRelease;
-  // Release reference held by OnInvoke (RSP-10176)
-  __ObjRelease;
-  // Release reference held by RegisterDefaultMethods (RSP-10176)
-  __ObjRelease;
-{$ENDIF}
 end;
 
 function TProxyRepository<T, TID>.DoOnInvoke(const Method: TRttiMethod;
@@ -165,7 +152,7 @@ begin
       tkClass, tkClassRef, tkPointer:
       begin
         items := fRepository.Query(GetQueryTextFromMethod(Method), Args);
-        (items as ICollectionOwnership).OwnsObjects := False;
+        items.OwnsObjects := False;
         Result := TValue.From<T>(items.FirstOrDefault);
       end;
       tkInterface:
@@ -278,7 +265,7 @@ end;
 procedure TProxyRepository<T, TID>.RegisterMethod(
   const methodSignature: string; const methodRef: TMethodReference);
 begin
-  fDefaultMethods.AddOrSetValue(methodSignature, methodRef);
+  fDefaultMethods[methodSignature] := methodRef;
 end;
 
 {$ENDREGION}

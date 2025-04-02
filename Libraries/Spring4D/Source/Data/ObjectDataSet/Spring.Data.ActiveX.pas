@@ -190,15 +190,13 @@ type
       VT_BYREF or VT_ERROR:    (pscode: ^HResult);
       VT_BYREF or VT_CY:       (pcyVal: ^Currency);
       VT_BYREF or VT_DATE:     (pdate: ^TOleDate);
-{$IFNDEF NEXTGEN}
       VT_BYREF or VT_BSTR:     (pbstrVal: ^WideString);
-{$ENDIF}
       VT_BYREF or VT_UNKNOWN:  (punkVal: ^IUnknown);
       VT_BYREF or VT_DISPATCH: (pdispVal: ^IDispatch);
       VT_BYREF or VT_ARRAY:    (pparray: ^PSafeArray);
       VT_BYREF or VT_VARIANT:  (pvarVal: PVariant);
       VT_BYREF:                (byRef: Pointer);
-      VT_I1:                   (cVal: {$IFNDEF NEXTGEN}AnsiChar{$ELSE}Byte{$ENDIF});
+      VT_I1:                   (cVal: AnsiChar);
       VT_UI2:                  (uiVal: Word);
       VT_UI4:                  (ulVal: LongWord);
       VT_I8:                   (llVal: Int64);
@@ -206,9 +204,7 @@ type
       VT_INT:                  (intVal: Integer);
       VT_UINT:                 (uintVal: LongWord);
       VT_BYREF or VT_DECIMAL:  (pdecVal: PDecimal);
-{$IFNDEF NEXTGEN}
       VT_BYREF or VT_I1:       (pcVal: PAnsiChar);
-{$ENDIF}
       VT_BYREF or VT_UI2:      (puiVal: PWord);
       VT_BYREF or VT_UI4:      (pulVal: PInteger);
       VT_BYREF or VT_INT:      (pintVal: PInteger);

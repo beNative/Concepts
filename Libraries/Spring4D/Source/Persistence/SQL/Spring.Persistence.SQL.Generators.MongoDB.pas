@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -161,7 +161,7 @@ var
   i, j: Integer;
   insertField: TSQLInsertField;
   classCommand: TInsertCommand;
-  list: IList;
+  list: IEnumerable;
   current: TValue;
 
   function GetJsonValueFromClass(const value: TValue): string;
@@ -197,13 +197,13 @@ begin
       tkInterface:
       begin
         Result := Result + QuotedStr(insertField.Name) + ': [';
-        list := insertField.Column.GetValue(command.Entity).AsInterface as IList;
-        for j := 0 to list.Count - 1 do
+        list := insertField.Column.GetValue(command.Entity).AsInterface as IEnumerable;
+        j := 0;
+        for current in list do
         begin
           if j <> 0 then
             Result := Result + ',';
-
-          current := list[j];  
+          Inc(j);
           if list.ElementType.Kind = tkClass then
             Result := Result + GetJsonValueFromClass(current)                              
           else
@@ -231,7 +231,7 @@ var
   i, j: Integer;
   updateField: TSQLUpdateField;
   classCommand: TUpdateCommand;
-  list: IList;
+  list: IEnumerable;
   current: TValue;
 
   function GetJsonValueFromClass(const value: TValue): string;
@@ -267,13 +267,13 @@ begin
       tkInterface:
       begin
         Result := Result + QuotedStr(updateField.Name) + ': [';
-        list := updateField.Column.GetValue(command.Entity).AsInterface as IList;
-        for j := 0 to list.Count - 1 do
+        list := updateField.Column.GetValue(command.Entity).AsInterface as IEnumerable;
+        j := 0;
+        for current in list do
         begin
           if j <> 0 then
             Result := Result + ',';
-
-          current := list[j];  
+          Inc(j);
           if list.ElementType.Kind = tkClass then
             Result := Result + GetJsonValueFromClass(current)                              
           else

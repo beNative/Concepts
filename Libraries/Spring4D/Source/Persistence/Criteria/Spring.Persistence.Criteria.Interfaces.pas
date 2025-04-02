@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -66,10 +66,14 @@ type
   IOrderBy = interface(IInvokable)
     ['{F0047369-10D6-4A4D-9BB8-FD5699936D5D}']
     function GetEntityClass: TClass;
+    function GetMemberPath: string;
     function GetPropertyName: string;
     function GetSortingDirection: TSortingDirection;
     procedure SetEntityClass(value: TClass);
+    procedure SetMemberPath(const value: string);
+
     property EntityClass: TClass read GetEntityClass write SetEntityClass;
+    property MemberPath: string read GetMemberPath write SetMemberPath;
     property PropertyName: string read GetPropertyName;
     property SortingDirection: TSortingDirection read GetSortingDirection;
   end;
@@ -84,11 +88,16 @@ type
   ICriterion = interface(IInvokable)
     ['{E22DFB1C-0E0E-45F4-9740-9469164B4557}']
     function GetEntityClass: TClass;
+    function GetMemberPath: string;
     procedure SetEntityClass(value: TClass);
+    procedure SetMemberPath(const value: string);
+
     function ToSqlString(const params: IList<TDBParam>;
       const command: TWhereCommand; const generator: ISQLGenerator;
       addToCommand: Boolean): string;
+
     property EntityClass: TClass read GetEntityClass write SetEntityClass;
+    property MemberPath: string read GetMemberPath write SetMemberPath;
   end;
 
   IJunction = interface(ICriterion)
@@ -172,6 +181,10 @@ type
   /// </remarks>
   IProperty = interface(IInvokable)
     ['{2F58C81C-4817-43E7-BA3F-7570FE2A6823}']
+    function GetEntityClass: TClass;
+    function GetMemberPath: string;
+    function GetPropertyName: string;
+
     function Eq(const value: TValue): ICriterion;
     function NotEq(const value: TValue): ICriterion;
     function GEq(const value: TValue): ICriterion;
@@ -201,13 +214,11 @@ type
     function LtProperty(const other: IProperty): ICriterion; overload;
     function LtProperty(const otherPropertyName: string): ICriterion; overload;
 
-    function GetEntityClass: TClass;
-    function GetPropertyName: string;
-
     function Asc: IOrderBy;
     function Desc: IOrderBy;
 
     property EntityClass: TClass read GetEntityClass;
+    property MemberPath: string read GetMemberPath;
     property PropertyName: string read GetPropertyName;
   end;
 

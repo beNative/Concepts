@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -303,7 +303,7 @@ type
 
     property CurrentWord: string
       read GetCurrentWord;
-    //------------------------------------------
+
     property Lines: TStrings
       read GetLines;
 
@@ -409,8 +409,8 @@ type
     procedure SetReplaceText(AValue: string);
     procedure SetSearchAllViews(AValue: Boolean);
     procedure SetSearchText(AValue: string);
-    function GetOnChange: IEvent<TNotifyEvent>;
-    function GetOnExecute: IEvent<TNotifyEvent>;
+    function GetOnChange: IInvokableEvent<TNotifyEvent>;
+    function GetOnExecute: IInvokableEvent<TNotifyEvent>;
     {$ENDREGION}
 
     procedure Execute;
@@ -440,10 +440,10 @@ type
     property ItemGroups: IList<TSearchResultGroup>
       read GetItemGroups;
 
-    property OnChange: IEvent<TNotifyEvent>
+    property OnChange: IInvokableEvent<TNotifyEvent>
       read GetOnChange;
 
-    property OnExecute: IEvent<TNotifyEvent>
+    property OnExecute: IInvokableEvent<TNotifyEvent>
       read GetOnExecute;
   end;
 
@@ -454,22 +454,22 @@ type
   IEditorEvents = interface
   ['{D078C92D-16DF-4727-A18F-4C76E07D37A2}']
     {$REGION 'property access methods'}
-    function GetOnAddEditorView: IEvent<TEditorViewEvent>;
-    function GetOnActiveViewChange: IEvent<TNotifyEvent>;
-    function GetOnChange: IEvent<TNotifyEvent>;
-    function GetOnModified: IEvent<TNotifyEvent>;
-    function GetOnAfterSave: IEvent<TStorageEvent>;
-    function GetOnBeforeSave: IEvent<TStorageEvent>;
-    function GetOnHideEditorToolView: IEvent<TEditorToolViewEvent>;
-    function GetOnLoad: IEvent<TStorageEvent>;
-    function GetOnOpen: IEvent<TStorageEvent>;
-    function GetOnOpenOtherInstance: IEvent<TOpenOtherInstanceEvent>;
-    function GetOnSave: IEvent<TStorageEvent>;
-    function GetOnShowEditorToolView: IEvent<TEditorToolViewEvent>;
-    function GetOnNew: IEvent<TNewEvent>;
+    function GetOnAddEditorView: IInvokableEvent<TEditorViewEvent>;
+    function GetOnActiveViewChange: IInvokableEvent<TNotifyEvent>;
+    function GetOnChange: IInvokableEvent<TNotifyEvent>;
+    function GetOnModified: IInvokableEvent<TNotifyEvent>;
+    function GetOnAfterSave: IInvokableEvent<TStorageEvent>;
+    function GetOnBeforeSave: IInvokableEvent<TStorageEvent>;
+    function GetOnHideEditorToolView: IInvokableEvent<TEditorToolViewEvent>;
+    function GetOnLoad: IInvokableEvent<TStorageEvent>;
+    function GetOnOpen: IInvokableEvent<TStorageEvent>;
+    function GetOnOpenOtherInstance: IInvokableEvent<TOpenOtherInstanceEvent>;
+    function GetOnSave: IInvokableEvent<TStorageEvent>;
+    function GetOnShowEditorToolView: IInvokableEvent<TEditorToolViewEvent>;
+    function GetOnNew: IInvokableEvent<TNewEvent>;
 //    function GetOnStatusChange: TStatusChangeEvent;
-    function GetOnActionExecute: IEvent<TActionExecuteEvent>;
-    function GetOnCaretPositionChange: IEvent<TCaretPositionEvent>;
+    function GetOnActionExecute: IInvokableEvent<TActionExecuteEvent>;
+    function GetOnCaretPositionChange: IInvokableEvent<TCaretPositionEvent>;
     {$ENDREGION}
 
     // event dispatch methods
@@ -496,49 +496,49 @@ type
     );
 
     // events
-    property OnAddEditorView: IEvent<TEditorViewEvent>
+    property OnAddEditorView: IinvokableEvent<TEditorViewEvent>
       read GetOnAddEditorView;
 
-    property OnShowEditorToolView: IEvent<TEditorToolViewEvent>
+    property OnShowEditorToolView: IInvokableEvent<TEditorToolViewEvent>
       read GetOnShowEditorToolView;
 
-    property OnHideEditorToolView: IEvent<TEditorToolViewEvent>
+    property OnHideEditorToolView: IInvokableEvent<TEditorToolViewEvent>
       read GetOnHideEditorToolView;
 
-    property OnChange: IEvent<TNotifyEvent>
+    property OnChange: IInvokableEvent<TNotifyEvent>
       read GetOnChange;
 
-    property OnModified: IEvent<TNotifyEvent>
+    property OnModified: IInvokableEvent<TNotifyEvent>
       read GetOnModified;
 
-    property OnActiveViewChange: IEvent<TNotifyEvent>
+    property OnActiveViewChange: IInvokableEvent<TNotifyEvent>
       read GetOnActiveViewChange;
 
 //    property OnStatusChange: TStatusChangeEvent
 //      read GetOnStatusChange write SetOnStatusChange;
 
-    property OnLoad: IEvent<TStorageEvent>
+    property OnLoad: IInvokableEvent<TStorageEvent>
       read GetOnLoad;
 
-    property OnNew: IEvent<TNewEvent>
+    property OnNew: IInvokableEvent<TNewEvent>
       read GetOnNew;
 
-    property OnOpen: IEvent<TStorageEvent>
+    property OnOpen: IInvokableEvent<TStorageEvent>
       read GetOnOpen;
 
-    property OnBeforeSave: IEvent<TStorageEvent>
+    property OnBeforeSave: IInvokableEvent<TStorageEvent>
       read GetOnBeforeSave;
 
-    property OnAfterSave: IEvent<TStorageEvent>
+    property OnAfterSave: IInvokableEvent<TStorageEvent>
       read GetOnAfterSave;
 
-    property OnOpenOtherInstance: IEvent<TOpenOtherInstanceEvent>
+    property OnOpenOtherInstance: IInvokableEvent<TOpenOtherInstanceEvent>
       read GetOnOpenOtherInstance;
 
-    property OnActionExecute: IEvent<TActionExecuteEvent>
+    property OnActionExecute: IInvokableEvent<TActionExecuteEvent>
       read GetOnActionExecute;
 
-    property OnCaretPositionChange: IEvent<TCaretPositionEvent>
+    property OnCaretPositionChange: IInvokableEvent<TCaretPositionEvent>
       read GetOnCaretPositionChange;
   end;
 
@@ -566,7 +566,7 @@ type
     function GetReadOnly: Boolean;
     function GetSingleInstance: Boolean;
     function GetToolSettings: TEditorToolSettings;
-    function GetOnChanged: IEvent<TNotifyEvent>;
+    function GetOnChanged: IInvokableEvent<TNotifyEvent>;
     procedure SetAutoFormatXML(const AValue: Boolean);
     procedure SetAutoGuessHighlighterType(const AValue: Boolean);
     procedure SetCloseWithESC(const AValue: Boolean);
@@ -638,7 +638,7 @@ type
     property EditorOptions: TEditorOptionsSettings
       read GetEditorOptions write SetEditorOptions;
 
-    property OnChanged: IEvent<TNotifyEvent>
+    property OnChanged: IInvokableEvent<TNotifyEvent>
       read GetOnChanged;
   end;
 
@@ -762,7 +762,7 @@ type
     procedure LowerCaseSelection;
     procedure OpenFileAtCursor;
     procedure PascalStringFromSelection;
-    procedure QuoteLinesInSelection(ADelimit : Boolean = False);
+    procedure QuoteLinesInSelection(ADelimit: Boolean = False);
     procedure QuoteSelection;
     procedure SortSelectedLines;
     procedure SyncEditSelection;

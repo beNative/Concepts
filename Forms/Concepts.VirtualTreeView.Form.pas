@@ -30,7 +30,7 @@ uses
 
   zObjInspector, zObjInspTypes,
 
-  VirtualTrees;
+  VirtualTrees, VirtualTrees.Types, VirtualTrees.BaseTree;
 
 {$REGION 'documentation'}
 {
@@ -286,7 +286,7 @@ implementation
 uses
   System.TypInfo, System.Rtti, System.StrUtils,
 
-  VirtualTrees.Types, VirtualTrees.Header,
+  VirtualTrees.Header,
 
   DDuce.Logger, DDuce.Factories.VirtualTrees, DDuce.Factories.zObjInspector,
 

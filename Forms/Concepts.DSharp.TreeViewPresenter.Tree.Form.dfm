@@ -12,9 +12,7 @@ object frmTreeViewPresenterTree: TfrmTreeViewPresenterTree
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   Position = poDesigned
-  PixelsPerInch = 96
   TextHeight = 13
   object splVertical: TSplitter
     Left = 449
@@ -47,7 +45,7 @@ object frmTreeViewPresenterTree: TfrmTreeViewPresenterTree
       Width = 153
       Height = 21
       EditLabel.Width = 114
-      EditLabel.Height = 13
+      EditLabel.Height = 21
       EditLabel.Caption = 'Filter qualified names:'
       LabelPosition = lpLeft
       TabOrder = 1

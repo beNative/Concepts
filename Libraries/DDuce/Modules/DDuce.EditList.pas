@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,9 +31,11 @@ uses
 
   Spring,
 
-  VirtualTrees,
+  VirtualTrees, VirtualTrees.Types,
 
-  DDuce.DynamicRecord, DDuce.Components.ValueList, DDuce.Logger;
+  DDuce.DynamicRecord, DDuce.Components.ValueList, DDuce.Logger,
+  Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection,
+  SVGIconImageCollection;
 
 {$REGION 'documentation'}
 {  TODO :
@@ -71,7 +73,6 @@ type
     btnRefresh   : TToolButton;
     btnSpacer1   : TToolButton;
     btnSpacer2   : TToolButton;
-    imlMain      : TImageList;
     mniAdd       : TMenuItem;
     mniDelete    : TMenuItem;
     mniDuplicate : TMenuItem;
@@ -85,6 +86,8 @@ type
     pnlMain      : TPanel;
     ppmMain      : TPopupMenu;
     tlbMain      : TToolBar;
+    imcMain: TSVGIconImageCollection;
+    imlMain: TVirtualImageList;
     {$ENDREGION}
 
     {$REGION 'action handlers'}
@@ -249,6 +252,8 @@ type
 implementation
 
 uses
+  VirtualTrees.BaseTree,
+
   DDuce.Utils;
 
 {$R *.dfm}
@@ -625,6 +630,8 @@ begin
     Refresh;
     FUpdate := False;
   end;
+  // temp workaround for toolbar painting black in LogViewer.
+  tlbMain.Invalidate;
 end;
 {$ENDREGION}
 

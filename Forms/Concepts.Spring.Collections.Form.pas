@@ -85,8 +85,8 @@ type
 
   private
     FList        : IList<TContact>;
-    FFirstNameIs : TPredicate<TContact>;
-    FLastNameIs  : TPredicate<TContact>;
+    FFirstNameIs : Predicate<TContact>;
+    FLastNameIs  : Predicate<TContact>;
     FDict        : IDictionary<string,Int64>;
 
     procedure PopulateList;

@@ -1,9 +1,11 @@
 ﻿unit TextEditor.Lines;
 
+{$I TextEditor.Defines.inc}
+
 interface
 
 uses
-  System.Classes, System.SysUtils, Vcl.Graphics, TextEditor.Consts, TextEditor.Types, TextEditor.Utils;
+  System.Classes, System.SysUtils, TextEditor.Consts, TextEditor.Types, TextEditor.Utils;
 
 const
   TEXT_EDITOR_STRING_RECORD_SIZE = SizeOf(TTextEditorStringRecord);
@@ -18,12 +20,11 @@ type
 
   TTextEditorLines = class(TStrings)
   strict private
+    FBufferSize: Integer;
     FCapacity: Integer;
-    FCaseSensitive: Boolean;
     FColumns: Boolean;
     FCount: Integer;
     FEncoding: System.SysUtils.TEncoding;
-    FFileSize: Int64;
     FIndexOfLongestLine: Integer;
     FItems: PEditorStringRecordItems;
     FLengthOfLongestLine: Integer;
@@ -41,24 +42,26 @@ type
     FOwner: TObject;
     FPaintProgress: TNotifyEvent;
     FProgressPosition: Byte;
+    FProgressStep: Int64;
     FProgressType: TTextEditorProgressType;
     FSavingToStream: Boolean;
     FShowProgress: Boolean;
-    FSortOrder: TTextEditorSortOrder;
+    FSortOptions: TTextEditorSortOptions;
     FStreaming: Boolean;
     FTabWidth: Integer;
     FTextLength: Integer;
     FTrimTrailingSpaces: Boolean;
     FUnknownCharHigh: Byte;
     FUnknownCharsVisible: Boolean;
-    FUpdateCount: Integer;
     function ExpandString(const AIndex: Integer): string;
     function GetExpandedString(const AIndex: Integer): string;
     function GetExpandedStringLength(const AIndex: Integer): Integer;
+    function GetLineBreakFromFlags(const AFlags: TTextEditorStringFlags): string; inline;
     function GetLineState(const AIndex: Integer): TTextEditorLineState;
     function GetPartialTextLength(const AStart, AEnd: Integer): Integer;
     function GetPartialTextStr(const AStart, AEnd: Integer): string;
     function GetRanges(const AIndex: Integer): TTextEditorLinesRange;
+    function IsValidIndex(const AIndex: Integer): Boolean; inline;
     procedure ExchangeItems(const AIndex1, AIndex2: Integer);
     procedure Grow;
     procedure QuickSort(const ALeft, ARight: Integer; const ACompare: TTextEditorStringListSortCompare);
@@ -86,6 +89,7 @@ type
     function GetLengthOfLongestLine: Integer;
     function GetLineBreak(const AIndex: Integer): string;
     function GetTextLength: Integer;
+    function InternationalCharacterFound(var AChar, ALine: Integer): Boolean;
     function LineBreakLength(const AIndex: Integer): Integer;
     function StringLength(const AIndex: Integer): Integer;
     procedure AddLine(const AValue: string);
@@ -106,13 +110,12 @@ type
     procedure SaveToStream(AStream: TStream; AEncoding: System.SysUtils.TEncoding = nil); override;
     procedure Sort(const ABeginLine: Integer; const AEndLine: Integer); virtual;
     procedure Trim(const ATrimStyle: TTextEditorTrimStyle; const ABeginLine: Integer; const AEndLine: Integer);
-    property CaseSensitive: Boolean read FCaseSensitive write FCaseSensitive default False;
+    property BufferSize: Integer read FBufferSize write FBufferSize;
     property Columns: Boolean read FColumns write FColumns;
     property Count: Integer read FCount;
     property Encoding: TEncoding read FEncoding write SetEncoding;
     property ExpandedStringLengths[const AIndex: Integer]: Integer read GetExpandedStringLength;
     property ExpandedStrings[const AIndex: Integer]: string read GetExpandedString;
-    property FileSize: Int64 read FFileSize write FFileSize;
     property Items: PEditorStringRecordItems read FItems;
     property LineBreak: TTextEditorLineBreak read FLineBreak write FLineBreak default lbCRLF;
     property LineState[const AIndex: Integer]: TTextEditorLineState read GetLineState write SetLineState;
@@ -128,10 +131,11 @@ type
     property Owner: TObject read FOwner write FOwner;
     property PaintProgress: TNotifyEvent read FPaintProgress write FPaintProgress;
     property ProgressPosition: Byte read FProgressPosition write FProgressPosition;
+    property ProgressStep: Int64 read FProgressStep write FProgressStep;
     property ProgressType: TTextEditorProgressType read FProgressType write FProgressType;
     property Ranges[const AIndex: Integer]: TTextEditorLinesRange read GetRanges write SetRanges;
     property ShowProgress: Boolean read FShowProgress write FShowProgress;
-    property SortOrder: TTextEditorSortOrder read FSortOrder write FSortOrder;
+    property SortOptions: TTextEditorSortOptions read FSortOptions write FSortOptions;
     property Streaming: Boolean read FStreaming write FStreaming;
     property Strings[AIndex: Integer]: string read Get write Put; default; //FI:C110 Getter or setter name is different from property declaration
     property TabWidth: Integer read FTabWidth write SetTabWidth;
@@ -151,7 +155,7 @@ uses
 { TTextEditorLines }
 
 {$IFDEF TEXT_EDITOR_RANGE_CHECKS}
-procedure ListIndexOutOfBounds(AIndex: Integer);
+procedure ListIndexOutOfBounds(const AIndex: Integer);
 begin
   raise ETextEditorLinesException.CreateFmt(STextEditorListIndexOutOfBounds, [AIndex]);
 end;
@@ -161,10 +165,8 @@ constructor TTextEditorLines.Create;
 begin
   inherited Create;
 
-  FCaseSensitive := False;
   FCount := 0;
   FOwner := AOwner;
-  FUpdateCount := 0;
   FIndexOfLongestLine := -1;
   FLengthOfLongestLine := 0;
   FLongestLineNeedsUpdate := False;
@@ -182,8 +184,10 @@ destructor TTextEditorLines.Destroy;
 begin
   FOnChange := nil;
   FOnChanging := nil;
+
   if FCount > 0 then
     Finalize(FItems^[0], FCount);
+
   FCount := 0;
   SetCapacity(0);
 
@@ -198,22 +202,36 @@ end;
 function TTextEditorLines.Add(const AValue: string): Integer;
 begin
   Result := FCount;
+
   InsertItem(Result, AValue);
-  if Assigned(OnInserted) and (FUpdateCount = 0) then
+
+  if Assigned(OnInserted) then
     OnInserted(Self, Result, 1);
 end;
 
 function TTextEditorLines.CompareStrings(const S1, S2: string): Integer;
 begin
-  if SortOrder = soRandom then
+  if soRandom in FSortOptions then
     Exit(Random(2) - 1);
 
-  if CaseSensitive then
-    Result := CompareStr(S1, S2)
-  else
-    Result := CompareText(S1, S2);
+{$IF CompilerVersion >= 34.0}
+  var LOptions: TCompareOptions := [];
 
-  if SortOrder = soDesc then
+  if soNatural in FSortOptions then
+    Include(LOptions, coDigitAsNumbers);
+
+  if soIgnoreCase in FSortOptions then
+    Include(LOptions, coIgnoreCase);
+
+  Result := String.Compare(S1, S2, LOptions);
+{$ELSE}
+  if soIgnoreCase in FSortOptions then
+    Result := CompareText(S1, S2)
+  else
+    Result := CompareStr(S1, S2);
+{$ENDIF}
+
+  if soDesc in FSortOptions then
     Result := -1 * Result;
 end;
 
@@ -229,6 +247,7 @@ begin
     if FCount > 0 then
     begin
       LPStringRecord := @FItems^[0];
+
       for LIndex := 0 to FCount - 1 do
       begin
         if sfExpandedLengthUnknown in LPStringRecord^.Flags then
@@ -251,6 +270,20 @@ begin
     Result := 0;
 end;
 
+function TTextEditorLines.GetLineBreakFromFlags(const AFlags: TTextEditorStringFlags): string;
+begin
+  if (sfLineBreakCR in AFlags) and (sfLineBreakLF in AFlags) then
+    Result := TControlCharacters.CarriageReturnLineFeed
+  else
+  if sfLineBreakLF in AFlags then
+    Result := TControlCharacters.Linefeed
+  else
+  if sfLineBreakCR in AFlags then
+    Result := TControlCharacters.CarriageReturn
+  else
+    Result := DefaultLineBreak;
+end;
+
 function TTextEditorLines.GetLineBreak(const AIndex: Integer): string;
 var
   LFlags: TTextEditorStringFlags;
@@ -259,19 +292,11 @@ begin
   LFlags := [];
 
   LPStringRecord := @FItems^[AIndex];
+
   if Assigned(LPStringRecord) then
     LFlags := LPStringRecord^.Flags;
 
-  if (sfLineBreakCR in LFlags) and (sfLineBreakLF in LFlags) then
-    Result := TControlCharacters.CarriageReturnLineFeed
-  else
-  if sfLineBreakLF in LFlags then
-    Result := TControlCharacters.Linefeed
-  else
-  if sfLineBreakCR in LFlags then
-    Result := TControlCharacters.CarriageReturn
-  else
-    Result := DefaultLineBreak;
+  Result := GetLineBreakFromFlags(LFlags);
 end;
 
 function TTextEditorLines.LineBreakLength(const AIndex: Integer): Integer;
@@ -305,9 +330,11 @@ begin
     Finalize(FItems^[0], FCount);
     FCount := 0;
     SetCapacity(0);
+
     if Assigned(FOnCleared) then
       FOnCleared(Self);
   end;
+
   FIndexOfLongestLine := -1;
   FLengthOfLongestLine := 0;
 end;
@@ -318,16 +345,15 @@ begin
   if (AIndex < 0) or (AIndex > FCount) then
     ListIndexOutOfBounds(AIndex);
 {$ENDIF}
-  BeginUpdate;
-  try
-    Finalize(FItems^[AIndex]);
-    Dec(FCount);
-    if AIndex < FCount then
-      System.Move(FItems[AIndex + 1], FItems[AIndex], (FCount - AIndex) * TEXT_EDITOR_STRING_RECORD_SIZE);
-  finally
-    EndUpdate;
-  end;
+
+  Finalize(FItems^[AIndex]);
+  Dec(FCount);
+
+  if AIndex < FCount then
+    System.Move(FItems[AIndex + 1], FItems[AIndex], (FCount - AIndex) * TEXT_EDITOR_STRING_RECORD_SIZE);
+
   FIndexOfLongestLine := -1;
+
   if Assigned(FOnDeleted) then
     FOnDeleted(Self, AIndex, 1);
 end;
@@ -338,28 +364,28 @@ var
   LCount: Integer;
 begin
   LCount := ACount;
+
   if LCount > 0 then
   begin
 {$IFDEF TEXT_EDITOR_RANGE_CHECKS}
     if (AIndex < 0) or (AIndex > FCount) then
       ListIndexOutOfBounds(AIndex);
 {$ENDIF}
+
     LLinesAfter := FCount - (AIndex + LCount);
+
     if LLinesAfter < 0 then
       LCount := FCount - AIndex - 1;
+
     Finalize(FItems^[AIndex], LCount);
+
     if LLinesAfter > 0 then
-    begin
-      BeginUpdate;
-      try
-        System.Move(FItems[AIndex + LCount], FItems[AIndex], LLinesAfter * TEXT_EDITOR_STRING_RECORD_SIZE);
-      finally
-        EndUpdate;
-      end;
-    end;
+      System.Move(FItems[AIndex + LCount], FItems[AIndex], LLinesAfter * TEXT_EDITOR_STRING_RECORD_SIZE);
+
     Dec(FCount, LCount);
 
     FIndexOfLongestLine := -1;
+
     if Assigned(FOnDeleted) then
       FOnDeleted(Self, AIndex, LCount);
   end;
@@ -371,9 +397,10 @@ var
 begin
   with FItems^[AIndex] do
   begin
-    if TextLine = '' then
+    if TextLine.IsEmpty then
     begin
       Result := '';
+
       Exclude(Flags, sfExpandedLengthUnknown);
       Exclude(Flags, sfHasTabs);
       Include(Flags, sfHasNoTabs);
@@ -387,6 +414,7 @@ begin
       Exclude(Flags, sfExpandedLengthUnknown);
       Exclude(Flags, sfHasTabs);
       Exclude(Flags, sfHasNoTabs);
+
       if LHasTabs then
         Include(Flags, sfHasTabs)
       else
@@ -395,9 +423,14 @@ begin
   end;
 end;
 
+function TTextEditorLines.IsValidIndex(const AIndex: Integer): Boolean;
+begin
+  Result := (AIndex >= 0) and (AIndex < FCount);
+end;
+
 function TTextEditorLines.Get(AIndex: Integer): string;
 begin
-  if (AIndex >= 0) and (AIndex < FCount) then
+  if IsValidIndex(AIndex) then
     Result := FItems^[AIndex].TextLine
   else
     Result := '';
@@ -415,19 +448,20 @@ end;
 
 function TTextEditorLines.GetExpandedString(const AIndex: Integer): string;
 begin
-  Result := '';
-  if (AIndex >= 0) and (AIndex < FCount) then
+  if IsValidIndex(AIndex) then
   begin
     if sfHasNoTabs in FItems^[AIndex].Flags then
       Result := Get(AIndex)
     else
       Result := ExpandString(AIndex);
   end
+  else
+    Result := '';
 end;
 
 function TTextEditorLines.GetExpandedStringLength(const AIndex: Integer): Integer;
 begin
-  if (AIndex >= 0) and (AIndex < FCount) then
+  if IsValidIndex(AIndex) then
   begin
     if sfExpandedLengthUnknown in FItems^[AIndex].Flags then
       Result := Length(ExpandedStrings[AIndex])
@@ -444,7 +478,7 @@ var
 begin
   Result := lsNone;
 
-  if (AIndex >= 0) and (AIndex < FCount) then
+  if IsValidIndex(AIndex) then
   begin
     LFlags := FItems^[AIndex].Flags;
 
@@ -458,23 +492,24 @@ end;
 
 procedure TTextEditorLines.ExcludeFlag(const AIndex: Integer; const AFlag: TTextEditorStringFlag);
 begin
-  if (AIndex >= 0) and (AIndex < FCount) then
+  if IsValidIndex(AIndex) then
     Exclude(FItems^[AIndex].Flags, AFlag);
 end;
 
 procedure TTextEditorLines.IncludeFlag(const AIndex: Integer; const AFlag: TTextEditorStringFlag);
 begin
-  if (AIndex >= 0) and (AIndex < FCount) then
+  if IsValidIndex(AIndex) then
     Include(FItems^[AIndex].Flags, AFlag);
 end;
 
 procedure TTextEditorLines.SetLineState(const AIndex: Integer; const AValue: TTextEditorLineState);
 begin
-  if (AIndex >= 0) and (AIndex < FCount) then
+  if IsValidIndex(AIndex) then
   with FItems^[AIndex] do
   begin
     Exclude(Flags, sfLineStateNormal);
     Exclude(Flags, sfLineStateModified);
+
     if AValue = lsNormal then
       Include(Flags, sfLineStateNormal)
     else
@@ -485,7 +520,7 @@ end;
 
 function TTextEditorLines.GetRanges(const AIndex: Integer): TTextEditorLinesRange;
 begin
-  if (AIndex >= 0) and (AIndex < FCount) then
+  if IsValidIndex(AIndex) then
     Result := FItems^[AIndex].Range
   else
     Result := nil;
@@ -503,12 +538,48 @@ begin
     if FSavingToStream and TrimTrailingSpaces then
       TextLine := TextEditor.Utils.TrimRight(TextLine);
 
-    if FSavingToStream then
-      if sfEmptyLine in Flags then
-        Continue;
+    if FSavingToStream and (sfEmptyLine in Flags) then
+      Continue;
 
     Inc(Result, Length(TextLine) + LineBreakLength(LIndex))
   end;
+end;
+
+function TTextEditorLines.InternationalCharacterFound(var AChar, ALine: Integer): Boolean;
+var
+  LIndex, LLength: Integer;
+  LPValue, LPLastChar, LPStart: PChar;
+  LStringRecord: TTextEditorStringRecord;
+begin
+  Result := True;
+
+  for LIndex := 0 to FCount - 1 do
+  begin
+    LStringRecord := FItems^[LIndex];
+
+    LLength := Length(LStringRecord.TextLine);
+
+    if LLength > 0 then
+    begin
+      LPValue := @LStringRecord.TextLine[1];
+      LPStart := LPValue;
+      LPLastChar := @LStringRecord.TextLine[LLength];
+
+      while LPValue <= LPLastChar do
+      begin
+        if Ord(LPValue^) > 255 then
+        begin
+          ALine := LIndex;
+          AChar := LPValue - LPStart + 1;
+          Exit;
+        end;
+
+        Inc(LPValue);
+      end;
+    end;
+  end;
+
+  Result := False;
 end;
 
 function TTextEditorLines.GetPartialTextLength(const AStart, AEnd: Integer): Integer;
@@ -523,9 +594,8 @@ begin
     if FSavingToStream and TrimTrailingSpaces then
       TextLine := TextEditor.Utils.TrimRight(TextLine);
 
-    if FSavingToStream then
-      if sfEmptyLine in Flags then
-        Continue;
+    if FSavingToStream and (sfEmptyLine in Flags) then
+      Continue;
 
     Inc(Result, Length(TextLine) + LineBreakLength(LIndex))
   end;
@@ -538,30 +608,27 @@ begin
   for LIndex := 0 to FCount - 1 do
     Exclude(FItems^[LIndex].Flags, sfModify);
 
-  BeginUpdate;
-  try
-    for LIndex := Count - 1 downto 0 do
-    if sfEmptyLine in FItems^[LIndex].Flags then
-    begin
-      Finalize(FItems^[LIndex]);
-      Dec(FCount);
-      if LIndex < FCount then
-        System.Move(FItems[LIndex + 1], FItems[LIndex], (FCount - LIndex) * TEXT_EDITOR_STRING_RECORD_SIZE);
-    end;
-  finally
-    EndUpdate;
+  for LIndex := Count - 1 downto 0 do
+  if sfEmptyLine in FItems^[LIndex].Flags then
+  begin
+    Finalize(FItems^[LIndex]);
+    Dec(FCount);
+
+    if LIndex < FCount then
+      System.Move(FItems[LIndex + 1], FItems[LIndex], (FCount - LIndex) * TEXT_EDITOR_STRING_RECORD_SIZE);
   end;
 end;
 
 function TTextEditorLines.DefaultLineBreak: string;
 begin
-  if FLineBreak = lbCRLF then
-    Result := TControlCharacters.CarriageReturnLinefeed
-  else
-  if FLineBreak = lbLF then
-    Result := TControlCharacters.Linefeed
-  else
-    Result := TControlCharacters.CarriageReturn;
+  case FLineBreak of
+    lbCRLF:
+      Result := TControlCharacters.CarriageReturnLinefeed;
+    lbCR:
+      Result := TControlCharacters.CarriageReturn;
+    lbLF:
+      Result := TControlCharacters.Linefeed;
+  end;
 end;
 
 function TTextEditorLines.GetPartialTextStr(const AStart, AEnd: Integer): string;
@@ -576,39 +643,35 @@ begin
   else
     LSize := FTextLength;
 
-  FTextLength := 0;
-
   SetString(Result, nil, LSize);
-  LPValue := PChar(Result);
+
+  FTextLength := 0;
+  LPValue := Pointer(Result);
+
   for LIndex := AStart to AEnd - 1 do
   begin
     LStringRecord := FItems^[LIndex];
 
-    if FSavingToStream then
-      if sfEmptyLine in LStringRecord.Flags then
-        Continue;
+    if FSavingToStream and (sfEmptyLine in LStringRecord.Flags) then
+      Continue;
 
-    if (sfLineBreakCR in LStringRecord.Flags) and (sfLineBreakLF in LStringRecord.Flags) then
-      LLineBreak := TControlCharacters.CarriageReturnLinefeed
-    else
-    if sfLineBreakLF in LStringRecord.Flags then
-      LLineBreak := TControlCharacters.Linefeed
-    else
-    if sfLineBreakCR in LStringRecord.Flags then
-      LLineBreak := TControlCharacters.CarriageReturn
-    else
-      LLineBreak := DefaultLineBreak;
-    LLineBreakLength := Length(LLineBreak);
+    LLineBreak := GetLineBreakFromFlags(LStringRecord.Flags);
+    LLineBreakLength := LLineBreak.Length;
+    LLength := LStringRecord.TextLine.Length;
 
-    LLength := Length(LStringRecord.TextLine);
     if LLength <> 0 then
     begin
       System.Move(Pointer(LStringRecord.TextLine)^, LPValue^, LLength * SizeOf(Char));
-      for LIndex2 := 0 to LLength - 1 do //FI:W528 Variable not used in FOR-loop
+
+      LIndex2 := 0;
+
+      while LIndex2 < LLength do
       begin
         if LPValue^ = TControlCharacters.Substitute then
           LPValue^ := TControlCharacters.Null;
+
         Inc(LPValue);
+        Inc(LIndex2);
       end;
     end;
 
@@ -635,36 +698,31 @@ begin
   FTextLength := 0;
 
   SetString(Result, nil, LSize);
-  LPValue := PChar(Result);
+  LPValue := Pointer(Result);
+
   for LIndex := 0 to FCount - 1 do
   begin
     LStringRecord := FItems^[LIndex];
 
-    if FSavingToStream then
-      if sfEmptyLine in LStringRecord.Flags then
-        Continue;
+    if FSavingToStream and (sfEmptyLine in LStringRecord.Flags) then
+      Continue;
 
-    if (sfLineBreakCR in LStringRecord.Flags) and (sfLineBreakLF in LStringRecord.Flags) then
-      LLineBreak := TControlCharacters.CarriageReturnLinefeed
-    else
-    if sfLineBreakLF in LStringRecord.Flags then
-      LLineBreak := TControlCharacters.Linefeed
-    else
-    if sfLineBreakCR in LStringRecord.Flags then
-      LLineBreak := TControlCharacters.CarriageReturn
-    else
-      LLineBreak := DefaultLineBreak;
-    LLineBreakLength := Length(LLineBreak);
+    LLineBreak := GetLineBreakFromFlags(LStringRecord.Flags);
+    LLineBreakLength := LLineBreak.Length;
+    LLength := LStringRecord.TextLine.Length;
 
-    LLength := Length(LStringRecord.TextLine);
     if LLength <> 0 then
     begin
       System.Move(Pointer(LStringRecord.TextLine)^, LPValue^, LLength * SizeOf(Char));
-      for LIndex2 := 0 to LLength - 1 do //FI:W528 Variable not used in FOR-loop
+      LIndex2 := 0;
+
+      while LIndex2 < LLength do
       begin
         if LPValue^ = TControlCharacters.Substitute then
           LPValue^ := TControlCharacters.Null;
+
         Inc(LPValue);
+        Inc(LIndex2);
       end;
     end;
 
@@ -676,12 +734,18 @@ begin
   end;
 end;
 
+{$IF CompilerVersion >= 33.0}
+procedure TTextEditorLines.Grow;
+begin
+  SetCapacity(GrowCollection(FCapacity, FCount + 1));
+end;
+{$ELSE}
 procedure TTextEditorLines.Grow;
 var
   LDelta: Integer;
 begin
   if FCapacity > 64 then
-    LDelta := (FCapacity * 3) div 2
+    LDelta := (FCapacity * 3) shr 1
   else
   if FCapacity > 8 then
     LDelta := 16
@@ -690,6 +754,7 @@ begin
 
   SetCapacity(FCapacity + LDelta);
 end;
+{$ENDIF}
 
 procedure TTextEditorLines.Insert(AIndex: Integer; const AValue: string);
 begin
@@ -698,9 +763,12 @@ begin
     ListIndexOutOfBounds(AIndex);
 {$ENDIF}
   BeginUpdate;
+
   InsertItem(AIndex, AValue);
+
   if Assigned(FOnInserted) then
     FOnInserted(Self, AIndex, 1);
+
   EndUpdate;
 end;
 
@@ -713,6 +781,7 @@ begin
     System.Move(FItems^[AIndex], FItems^[AIndex + 1], (FCount - AIndex) * TEXT_EDITOR_STRING_RECORD_SIZE);
 
   FIndexOfLongestLine := -1;
+
   with FItems^[AIndex] do
   begin
     Pointer(TextLine) := nil;
@@ -721,6 +790,7 @@ begin
     ExpandedLength := -1;
     Flags := [sfExpandedLengthUnknown];
   end;
+
   Inc(FCount);
 end;
 
@@ -730,26 +800,25 @@ begin
   if (AIndex < 0) or (AIndex > FCount) then
     ListIndexOutOfBounds(AIndex);
 {$ENDIF}
-  BeginUpdate;
-  try
-    SetCapacity(FCount + 1);
-    if AIndex < FCount then
-      System.Move(FItems^[AIndex], FItems^[AIndex + 1], (FCount - AIndex) * TEXT_EDITOR_STRING_RECORD_SIZE);
-    FIndexOfLongestLine := -1;
-    with FItems^[AIndex] do
-    begin
-      Pointer(TextLine) := nil;
-      TextLine := '';
-      Range := nil;
-      ExpandedLength := -1;
-      Flags := [AFlag];
-    end;
-    Inc(FCount);
-  finally
-    EndUpdate;
+  SetCapacity(FCount + 1);
+
+  if AIndex < FCount then
+    System.Move(FItems^[AIndex], FItems^[AIndex + 1], (FCount - AIndex) * TEXT_EDITOR_STRING_RECORD_SIZE);
+
+  FIndexOfLongestLine := -1;
+
+  with FItems^[AIndex] do
+  begin
+    Pointer(TextLine) := nil;
+    TextLine := '';
+    Range := nil;
+    ExpandedLength := -1;
+    Flags := [AFlag];
   end;
 
-  if (UpdateCount = 0) and Assigned(OnInserted) and (AFlag <> sfEmptyLine) then
+  Inc(FCount);
+
+  if Assigned(OnInserted) and (AFlag <> sfEmptyLine) then
     OnInserted(Self, AIndex, 1);
 end;
 
@@ -764,32 +833,33 @@ begin
 {$ENDIF}
   if ACount > 0 then
   begin
-    BeginUpdate;
-    try
-      SetCapacity(FCount + ACount);
-      if AIndex < FCount then
-        System.Move(FItems^[AIndex], FItems^[AIndex + ACount], (FCount - AIndex) * TEXT_EDITOR_STRING_RECORD_SIZE);
+    SetCapacity(FCount + ACount);
 
-      FIndexOfLongestLine := -1;
-      LIndex := 0;
-      for LLine := AIndex to AIndex + ACount - 1 do
-      with FItems^[LLine] do
-      begin
-        Pointer(TextLine) := nil;
-        if Assigned(AStrings) then
-          TextLine := AStrings[LIndex];
-        Inc(LIndex);
-        Range := nil;
-        ExpandedLength := -1;
-        if AModified then
-          Flags := [sfExpandedLengthUnknown, sfLineStateModified]
-        else
-          Flags := [sfExpandedLengthUnknown];
-      end;
-      Inc(FCount, ACount);
-    finally
-      EndUpdate;
+    if AIndex < FCount then
+      System.Move(FItems^[AIndex], FItems^[AIndex + ACount], (FCount - AIndex) * TEXT_EDITOR_STRING_RECORD_SIZE);
+
+    FIndexOfLongestLine := -1;
+    LIndex := 0;
+
+    for LLine := AIndex to AIndex + ACount - 1 do
+    with FItems^[LLine] do
+    begin
+      Pointer(TextLine) := nil;
+
+      if Assigned(AStrings) then
+        TextLine := AStrings[LIndex];
+
+      Inc(LIndex);
+      Range := nil;
+      ExpandedLength := -1;
+
+      if AModified then
+        Flags := [sfExpandedLengthUnknown, sfLineStateModified]
+      else
+        Flags := [sfExpandedLengthUnknown];
     end;
+
+    Inc(FCount, ACount);
 
     if Assigned(OnInserted) then
       OnInserted(Self, AIndex, ACount);
@@ -800,7 +870,7 @@ procedure TTextEditorLines.InsertText(const AIndex: Integer; const AText: string
 var
   LStringList: TStringList;
 begin
-  if AText = '' then
+  if AText.IsEmpty then
     Exit;
 
   LStringList := TStringList.Create;
@@ -815,6 +885,7 @@ end;
 procedure TTextEditorLines.SetUnknownCharHigh;
 begin
   FUnknownCharHigh := 0;
+
   if FUnknownCharsVisible then
   begin
     if Encoding = System.SysUtils.TEncoding.ANSI then
@@ -827,7 +898,7 @@ end;
 
 function StringListCompareStrings(const AList: TTextEditorLines; const ALeft, ARight: Integer): Integer;
 begin
-  Result := AList.CompareStrings(AList.Items[ALeft].TextLine, AList.Items[ARight].TextLine);
+  Result := AList.CompareStrings(AList[ALeft], AList[ARight]);
 end;
 
 procedure TTextEditorLines.Sort(const ABeginLine: Integer; const AEndLine: Integer);
@@ -905,11 +976,13 @@ begin
     begin
       if LLeft <> LRight then
         ExchangeItems(LLeft, LRight);
+
       if LMiddle = LLeft then
         LMiddle := LRight
       else
       if LMiddle = LRight then
         LMiddle := LLeft;
+
       Inc(LLeft);
       Dec(LRight);
     end;
@@ -932,12 +1005,15 @@ begin
   try
     if Assigned(FOnBeforeSetText) then
       FOnBeforeSetText(Self);
+
     Clear;
     FIndexOfLongestLine := -1;
     FCount := AStrings.Count;
+
     if FCount > 0 then
     begin
       SetCapacity(AStrings.Capacity);
+
       for LIndex := 0 to FCount - 1 do
       with FItems^[LIndex] do
       begin
@@ -949,12 +1025,15 @@ begin
         OriginalLineNumber := LIndex;
       end;
     end;
+
     AStrings.Clear;
 
-    if (FUpdateCount = 0) and Assigned(FOnInserted) then
+    if Assigned(FOnInserted) then
       FOnInserted(Self, 0, FCount);
+
     if Assigned(FOnChange) then
       FOnChange(Self);
+
     if Assigned(FOnAfterSetText) then
       FOnAfterSetText(Self);
   finally
@@ -967,190 +1046,195 @@ end;
 procedure TTextEditorLines.LoadFromStream(AStream: TStream; AEncoding: System.SysUtils.TEncoding = nil);
 var
   LBuffer: TBytes;
-  LString: string;
-  LWithBOM: Boolean;
+  LBufferSize: Integer;
   LEncoding: System.SysUtils.TEncoding;
-  LPreambleLength: Integer;
-  LBufferLength, LLength: Integer;
+  LWithBOM: Boolean;
+  LStreamReader: TStreamReader;
+  LCharBuffer: TCharArray;
+  LContent: string;
+  LProgressPosition, LProgress: Int64;
   LPValue, LPLastChar, LPStartValue: PChar;
-  LRead: Boolean;
-  LPosition: Integer;
-  LProgressPosition, LProgress, LProgressInc: Int64;
+  LReadCount: Integer;
   LFlags: TTextEditorStringFlags;
+  LLineBreak: Boolean;
+  LTempLine: string;
 begin
   FStreaming := True;
 
-  SetLength(LBuffer, AStream.Size);
-  AStream.ReadBuffer(LBuffer, Length(LBuffer));
+  if AStream.Size > FBufferSize then
+    LBufferSize := FBufferSize
+  else
+    LBufferSize := AStream.Size;
 
   LEncoding := nil;
+
   if Assigned(AEncoding) then
     LEncoding := AEncoding
   else
-  if IsUTF8Buffer(LBuffer, LWithBOM) then
   begin
-    if LWithBOM then
-      LEncoding := TEncoding.UTF8
-    else
-      LEncoding := TextEditor.Encoding.TEncoding.UTF8WithoutBOM;
-  end;
+    SetLength(LBuffer, LBufferSize);
+    AStream.ReadBuffer(LBuffer, Length(LBuffer));
 
-  LPreambleLength := TEncoding.GetBufferEncoding(LBuffer, LEncoding);
+    if IsUTF8Buffer(LBuffer, LWithBOM) then
+    begin
+      if LWithBOM then
+        LEncoding := TEncoding.UTF8
+      else
+        LEncoding := TextEditor.Encoding.TEncoding.UTF8WithoutBOM;
+    end
+    else
+      TEncoding.GetBufferEncoding(LBuffer, LEncoding);
+
+    SetLength(LBuffer, 0);
+  end;
 
   Encoding := LEncoding;
 
-  LProgress := 0;
+  LProgress := FProgressStep;
   LProgressPosition := 0;
-  LProgressInc := 0;
-  { Progression is divided into a hundred, resulting optimal amount of paint events. }
-  if FShowProgress then
-  begin
-    FProgressPosition := 0;
-    FProgressType := ptLoading;
-    LProgressInc := FileSize div 100;
-  end;
+  LLineBreak := True;
 
   BeginUpdate;
-  Clear;
   try
+    Clear;
+
+    AStream.Position := 0;
+
+    LStreamReader := TStreamReader.Create(AStream, Encoding, True, LBufferSize);
     try
-      LRead := False;
-      LPosition := LPreambleLength;
-      LBufferLength := Length(LBuffer) - LPreambleLength;
-      { Large files can cause easily integer overflow without limiting the buffer size. }
-      while not LRead do
-      begin
-        if LBufferLength > TMaxValues.BufferSize then
+      try
+        SetLength(LCharBuffer, LBufferSize);
+
+        while not LStreamReader.EndOfStream do
         begin
-          LLength := TMaxValues.BufferSize - LPreambleLength;
-          { Find the previous line end }
-          while (LLength > 0) and
-            (LBuffer[LPosition + LLength] <> TControlCharacters.Keys.Linefeed) and
-            (LBuffer[LPosition + LLength] <> TControlCharacters.Keys.CarriageReturn) do
-            Dec(LLength);
-          { Include line breaks }
-          while (LBuffer[LPosition + LLength] = TControlCharacters.Keys.Linefeed) or
-            (LBuffer[LPosition + LLength] = TControlCharacters.Keys.CarriageReturn) do
-            Inc(LLength);
-          LString := Encoding.GetString(LBuffer, LPosition, LLength);
-          Dec(LBufferLength, LLength);
-          Inc(LPosition, LLength);
-        end
-        else
-        begin
-          LString := Encoding.GetString(LBuffer, LPosition, LBufferLength);
-          LRead := True;
+          LReadCount := LStreamReader.ReadBlock(LCharBuffer, 0, LBufferSize);
+
+          if LReadCount > 0 then
+          begin
+            SetString(LContent, PChar(@LCharBuffer[0]), LReadCount);
+
+            LPValue := @LContent[1];
+            LPLastChar := @LContent[LReadCount];
+
+            while LPValue <= LPLastChar do
+            begin
+              LPStartValue := LPValue;
+
+              while LPValue <= LPLastChar do
+              begin
+                if IsLineTerminatorCharacter(LPValue^) then
+                  Break;
+
+                if LPValue^ = TControlCharacters.Null then
+                  LPValue^ := TControlCharacters.Substitute;
+
+                Inc(LPValue);
+              end;
+
+              if FCount = FCapacity then
+                Grow;
+
+              with FItems^[FCount] do
+              begin
+                if LLineBreak then
+                  Pointer(TextLine) := nil;
+
+                if LPValue = LPStartValue then
+                  TextLine := ''
+                else
+                  SetString(TextLine, LPStartValue, LPValue - LPStartValue);
+
+                if not LLineBreak then
+                  TextLine := LTempLine + TextLine;
+
+                Range := nil;
+                ExpandedLength := -1;
+                Flags := [sfExpandedLengthUnknown];
+                OriginalLineNumber := FCount;
+
+                if LPValue^ = TControlCharacters.CarriageReturn then
+                begin
+                  Inc(LPValue);
+                  Include(Flags, sfLineBreakCR);
+                end;
+
+                if LPValue^ = TControlCharacters.Linefeed then
+                begin
+                  Inc(LPValue);
+                  Include(Flags, sfLineBreakLF);
+                end;
+
+                LLineBreak := Flags * [sfLineBreakCR, sfLineBreakLF] <> [];
+
+                if LLineBreak then
+                  Inc(FCount)
+                else
+                  LTempLine := TextLine;
+              end;
+
+              if FShowProgress then
+              begin
+                Inc(LProgressPosition, LPValue - LPStartValue);
+
+                if LProgressPosition > LProgress then
+                begin
+                  Inc(FProgressPosition);
+
+                  if Assigned(FPaintProgress) then
+                    FPaintProgress(nil);
+
+                  Inc(LProgress, FProgressStep);
+                end;
+              end;
+            end;
+          end;
         end;
 
-        LLength := Length(LString);
+        if not LLineBreak then
+          Inc(FCount);
 
-        if LLength > 0 then
+        if FCount > 0 then
         begin
-          LPValue := PChar(LString);
-          LPLastChar := @LString[LLength];
-
-          while LPValue <= LPLastChar do
+          if LLineBreak then
           begin
-            LPStartValue := LPValue;
-            { Delphi strings end with none char (#0). That's why those characters are changed to substitute characters. }
-            while (LPValue <= LPLastChar) and
-              (LPValue^ <> TControlCharacters.CarriageReturn) and (LPValue^ <> TControlCharacters.Linefeed) and
-              (LPValue^ <> TCharacters.LineSeparator) do
-            begin
-              if LPValue^ = TControlCharacters.Null then
-                LPValue^ := TControlCharacters.Substitute;
-              Inc(LPValue);
-            end;
-
             if FCount = FCapacity then
               Grow;
 
             with FItems^[FCount] do
             begin
               Pointer(TextLine) := nil;
-              if LPValue = LPStartValue then
-                TextLine := ''
-              else
-                SetString(TextLine, LPStartValue, LPValue - LPStartValue);
+              TextLine := '';
               Range := nil;
               ExpandedLength := -1;
               Flags := [sfExpandedLengthUnknown];
               OriginalLineNumber := FCount;
-
-              { Line break can be CR+LF (Windows), LF (Unix), and CR (Mac). }
-              if LPValue^ = TControlCharacters.CarriageReturn then
-              begin
-                Inc(LPValue);
-                Include(Flags, sfLineBreakCR);
-              end;
-
-              if LPValue^ = TControlCharacters.Linefeed then
-              begin
-                Inc(LPValue);
-                Include(Flags, sfLineBreakLF);
-              end;
-
-              if LPValue^ = TCharacters.LineSeparator then
-                Inc(LPValue);
             end;
 
             Inc(FCount);
-
-            if FShowProgress then
-            begin
-              Inc(LProgressPosition, LPValue - LPStartValue);
-              if LProgressPosition > LProgress then
-              begin
-                Inc(FProgressPosition);
-                if Assigned(FPaintProgress) then
-                  FPaintProgress(nil);
-                Inc(LProgress, LProgressInc);
-              end;
-            end;
-          end;
-        end;
-        SetLength(LString, 0);
-      end;
-      { Add the last line, if there was a line break. }
-      if FCount > 0 then
-      begin
-        LFlags := FItems^[FCount - 1].Flags;
-        if (sfLineBreakCR in LFlags) or (sfLineBreakLF in LFlags) then
-        begin
-          if FCount = FCapacity then
-            Grow;
-
-          with FItems^[FCount] do
-          begin
-            Pointer(TextLine) := nil;
-            TextLine := '';
-            Range := nil;
-            ExpandedLength := -1;
-            Flags := [sfExpandedLengthUnknown];
-            OriginalLineNumber := FCount;
           end;
 
-          Inc(FCount);
+          LFlags := FItems^[0].Flags;
+
+          if (sfLineBreakCR in LFlags) and (sfLineBreakLF in LFlags) then
+            LineBreak := lbCRLF
+          else
+          if sfLineBreakCR in LFlags then
+            LineBreak := lbCR
+          else
+          if sfLineBreakLF in LFlags then
+            LineBreak := lbLF;
         end;
-        { Set default line break }
-        if (sfLineBreakCR in LFlags) and (sfLineBreakLF in LFlags) then
-          LineBreak := lbCRLF
-        else
-        if (sfLineBreakCR in LFlags) then
-          LineBreak := lbCR
-        else
-        if (sfLineBreakLF in LFlags) then
-          LineBreak := lbLF;
+      except
+        on E: Exception do
+          raise ETextEditorLinesException.Create(E.Message);
       end;
-    except
-      on E: Exception do
-        raise ETextEditorLinesException.Create(E.Message);
+    finally
+      LStreamReader.Free;
     end;
   finally
     EndUpdate;
   end;
 
-  { Scan highlighter ranges }
   if Assigned(OnInserted) then
     OnInserted(Self, 0, FCount);
 
@@ -1175,30 +1259,32 @@ begin
   FSavingToStream := True;
   try
     LPreamble := FEncoding.GetPreamble;
+
     if Length(LPreamble) > 0 then
       AStream.WriteBuffer(LPreamble[0], Length(LPreamble));
 
     FTextLength := GetTextLength;
+
     if FTextLength >= TMaxValues.TextLength then
     begin
       LPreviousStart := 0;
       LEnd := 0;
-      LLineInc := FCount div 2;
+      LLineInc := FCount shr 1;
+
       while LEnd < FCount do
       begin
         LStart := LEnd;
         LEnd := Min(LEnd + LLineInc, FCount);
-
         FTextLength := GetPartialTextLength(LStart, LEnd);
+
         if FTextLength >= TMaxValues.TextLength then
         begin
           LEnd := LPreviousStart;
-          LLineInc := LLineInc div 2;
+          LLineInc := LLineInc shr 1;
         end
         else
         begin
           LPreviousStart := LStart;
-
           LText := GetPartialTextStr(LStart, LEnd);
           LBuffer := FEncoding.GetBytes(LText);
           SetLength(LText, 0);
@@ -1243,6 +1329,7 @@ begin
       Include(Flags, sfExpandedLengthUnknown);
       Exclude(Flags, sfHasTabs);
       Exclude(Flags, sfHasNoTabs);
+      Exclude(Flags, sfEmptyLine);
       TextLine := AValue;
       Include(Flags, sfLineStateModified);
     end;
@@ -1259,7 +1346,7 @@ end;
 procedure TTextEditorLines.DoTrimTrailingSpaces(const AIndex: Integer);
 begin
 {$IFDEF TEXT_EDITOR_RANGE_CHECKS}
-  if (AIndex >= 0) and (AIndex < FCount) then
+  if IsValidIndex(AIndex) then
 {$ENDIF}
   with FItems^[AIndex] do
   TextLine := TextEditor.Utils.TrimRight(TextLine);
@@ -1271,6 +1358,7 @@ begin
   if (AIndex < 0) or (AIndex >= FCount) then
     ListIndexOutOfBounds(AIndex);
 {$ENDIF}
+
   FItems^[AIndex].Range := ARange;
 end;
 
@@ -1284,6 +1372,9 @@ begin
     ReallocMem(FItems, AValue * TEXT_EDITOR_STRING_RECORD_SIZE);
     FCapacity := AValue;
   end;
+
+  if (FCapacity > 0) and not Assigned(FItems) then
+    OutOfMemoryError;
 end;
 
 procedure TTextEditorLines.SetEncoding(const AValue: System.SysUtils.TEncoding);
@@ -1324,53 +1415,52 @@ begin
   try
     Clear;
     FIndexOfLongestLine := -1;
-    LPValue := PChar(AValue);
-    if Assigned(LPValue) then
+    LLength := Length(AValue);
+
+    if LLength > 0 then
     begin
-      LLength := Length(AValue);
-      if LLength > 0 then
+      LPValue := @AValue[1];
+      LPLastChar := @AValue[LLength];
+
+      while LPValue <= LPLastChar do
       begin
-        LPLastChar := @AValue[LLength];
+        LPStartValue := LPValue;
+
         while LPValue <= LPLastChar do
+        if IsLineTerminatorCharacter(LPValue^) then
+          Break
+        else
+          Inc(LPValue);
+
+        if FCount = FCapacity then
+          Grow;
+
+        with FItems^[FCount] do
         begin
-          LPStartValue := LPValue;
-          while (LPValue <= LPLastChar) and
-            (LPValue^ <> TControlCharacters.CarriageReturn) and
-            (LPValue^ <> TControlCharacters.Linefeed) and
-            (LPValue^ <> TCharacters.LineSeparator) do
-            Inc(LPValue);
+          Pointer(TextLine) := nil;
 
-          if FCount = FCapacity then
-            Grow;
+          if LPValue = LPStartValue then
+            TextLine := ''
+          else
+            SetString(TextLine, LPStartValue, LPValue - LPStartValue);
 
-          with FItems^[FCount] do
+          Range := nil;
+          ExpandedLength := -1;
+          Flags := [sfExpandedLengthUnknown];
+          OriginalLineNumber := FCount;
+
+          Inc(FCount);
+
+          if LPValue^ = TControlCharacters.CarriageReturn then
           begin
-            Pointer(TextLine) := nil;
-            if LPValue = LPStartValue then
-              TextLine := ''
-            else
-              SetString(TextLine, LPStartValue, LPValue - LPStartValue);
-            Range := nil;
-            ExpandedLength := -1;
-            Flags := [sfExpandedLengthUnknown];
-            OriginalLineNumber := FCount;
+            Inc(LPValue);
+            Include(Flags, sfLineBreakCR);
+          end;
 
-            Inc(FCount);
-
-            if LPValue^ = TControlCharacters.CarriageReturn then
-            begin
-              Inc(LPValue);
-              Include(Flags, sfLineBreakCR);
-            end;
-
-            if LPValue^ = TControlCharacters.Linefeed then
-            begin
-              Inc(LPValue);
-              Include(Flags, sfLineBreakLF);
-            end;
-
-            if LPValue^ = TCharacters.LineSeparator then
-              Inc(LPValue);
+          if LPValue^ = TControlCharacters.Linefeed then
+          begin
+            Inc(LPValue);
+            Include(Flags, sfLineBreakLF);
           end;
         end;
       end;
@@ -1379,7 +1469,7 @@ begin
     EndUpdate;
   end;
 
-  if (FUpdateCount = 0) and Assigned(FOnInserted) then
+  if Assigned(FOnInserted) then
     FOnInserted(Self, 0, FCount);
 
   if Assigned(FOnChange) then

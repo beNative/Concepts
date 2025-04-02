@@ -3,7 +3,7 @@
 interface
 
 uses
-  System.Classes, Vcl.Controls, Vcl.Graphics, Vcl.ImgList;
+  System.Classes, Vcl.ImgList;
 
 type
   TTextEditorLeftMarginBookmarks = class(TPersistent)
@@ -12,6 +12,7 @@ type
     FLeftMargin: Integer;
     FOnChange: TNotifyEvent;
     FOwner: TComponent;
+    FScaled: Boolean;
     FShortCuts: Boolean;
     FVisible: Boolean;
     procedure DoChange;
@@ -25,6 +26,7 @@ type
   published
     property Images: TCustomImageList read FImages write SetImages;
     property LeftMargin: Integer read FLeftMargin write FLeftMargin default 2;
+    property Scaled: Boolean read FScaled write FScaled default True;
     property ShortCuts: Boolean read FShortCuts write FShortCuts default True;
     property Visible: Boolean read FVisible write SetVisible default True;
   end;
@@ -40,6 +42,7 @@ begin
 
   FOwner := AOwner;
   FLeftMargin := 2;
+  FScaled := True;
   FShortCuts := True;
   FVisible := True;
 end;
@@ -53,6 +56,7 @@ begin
     Self.FLeftMargin := FLeftMargin;
     Self.FShortCuts := FShortCuts;
     Self.FVisible := FVisible;
+
     if Assigned(Self.FOnChange) then
       Self.FOnChange(Self);
   end
@@ -79,8 +83,10 @@ begin
   if FImages <> AValue then
   begin
     FImages := AValue;
+
     if Assigned(FImages) then
       FImages.FreeNotification(FOwner);
+
     DoChange;
   end;
 end;
@@ -90,6 +96,7 @@ begin
   if FVisible <> AValue then
   begin
     FVisible := AValue;
+
     DoChange;
   end;
 end;

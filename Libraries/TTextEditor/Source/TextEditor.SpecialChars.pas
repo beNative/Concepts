@@ -56,6 +56,7 @@ destructor TTextEditorSpecialChars.Destroy;
 begin
   FLineBreak.Free;
   FSelection.Free;
+
   inherited Destroy;
 end;
 
@@ -76,6 +77,7 @@ begin
     Self.FOptions := FOptions;
     Self.FSelection.Assign(FSelection);
     Self.FVisible := FVisible;
+
     Self.DoChange;
   end
   else
@@ -101,6 +103,7 @@ begin
   if FColor <> AValue then
   begin
     FColor := AValue;
+
     DoChange;
   end;
 end;
@@ -120,6 +123,7 @@ begin
   if FVisible <> AValue then
   begin
     FVisible := AValue;
+
     DoChange;
   end;
 end;
@@ -129,6 +133,7 @@ begin
   if FStyle <> AValue then
   begin
     FStyle := AValue;
+
     DoChange;
   end;
 end;
@@ -138,12 +143,15 @@ var
   LValue: TTextEditorSpecialCharsOptions;
 begin
   LValue := AValue;
+
   if FOptions <> LValue then
   begin
     if scoTextColor in LValue then
       Exclude(LValue, scoMiddleColor);
+
     if scoMiddleColor in LValue then
       Exclude(LValue, scoTextColor);
+
     FOptions := LValue;
     DoChange;
   end;

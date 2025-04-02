@@ -8,7 +8,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtDlgs, ImgList, Buttons, ExtCtrls, ComCtrls, Mask,
-  VirtualTrees, VirtualTrees.EditLink;
+  VirtualTrees, VirtualTrees.EditLink, VirtualTrees.Types;
 
 type
   // Describes the type of value a property tree node stores in its data property.
@@ -169,7 +169,7 @@ type
   end;
 
   // Our own edit link to implement several different node editors.
-  TGridEditLink = class(TPropertyEditLink, IVTEditLink)
+  TGridEditLink = class(TBasePropertyEditLink, IVTEditLink)
   public
     procedure DoEndEdit(var Result: Boolean); override;
     procedure DoPrepareEdit(var Result: Boolean); override;

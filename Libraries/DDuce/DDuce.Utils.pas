@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -166,6 +166,8 @@ function AddMenuItem(
   AParent : TMenuItem;
   AMenu   : TMenu
 ): TMenuItem; overload;
+
+function ScaleSize(const ASize: Integer): Integer;
 
 implementation
 
@@ -1149,7 +1151,7 @@ end;
 
 function AddMenuItem(AParent: TMenuItem; AAction: TBasicAction): TMenuItem;
 var
-  MI: TMenuItem;
+  MI : TMenuItem;
 begin
   if not Assigned(AAction) then
   begin
@@ -1197,6 +1199,11 @@ begin
   end;
   MI.Enabled := True;
   Result := MI;
+end;
+
+function ScaleSize(const ASize: Integer): Integer;
+begin
+  Result := MulDiv(ASize, Screen.PixelsPerInch, 96)
 end;
 
 end.

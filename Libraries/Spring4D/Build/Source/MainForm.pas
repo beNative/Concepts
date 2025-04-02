@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -45,12 +45,13 @@ type
     chkModifyDelphiRegistrySettings: TCheckBox;
     chkPauseAfterEachStep: TCheckBox;
     PopupMenu1: TPopupMenu;
-    mniCheckAll: TMenuItem;
-    mniUncheckAll: TMenuItem;
     grpBuildConfigurations: TGroupBox;
     chkDebug: TCheckBox;
     chkRelease: TCheckBox;
     chkRunTestsAsConsole: TCheckBox;
+    chkRunSilent: TCheckBox;
+    mniSelectAll: TMenuItem;
+    mniSelectNone: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnBuildClick(Sender: TObject);
@@ -62,10 +63,13 @@ type
     procedure chkModifyDelphiRegistrySettingsClick(Sender: TObject);
     procedure chkPauseAfterEachStepClick(Sender: TObject);
     procedure mniCheckAllClick(Sender: TObject);
-    procedure mniUncheckAllClick(Sender: TObject);
     procedure chkDebugClick(Sender: TObject);
     procedure chkReleaseClick(Sender: TObject);
     procedure chkRunTestsAsConsoleClick(Sender: TObject);
+    procedure chkRunSilentClick(Sender: TObject);
+    procedure mniSelectAllClick(Sender: TObject);
+    procedure mniSelectNoneClick(Sender: TObject);
+    procedure mniSelectPlatformClick(Sender: TObject);
   private
     fBuildEngine: TBuildEngine;
   end;
@@ -88,7 +92,9 @@ const
 procedure TfrmMain.FormCreate(Sender: TObject);
 var
   task: TBuildTask;
-  index: Integer;
+  index, i: Integer;
+  found: Boolean;
+  menuItem: TMenuItem;
 begin
   fBuildEngine := TBuildEngine.Create;
   fBuildEngine.ConfigureCompilers(ApplicationPath + CCompilerSettingsFileName);
@@ -96,6 +102,7 @@ begin
   chkDebug.Checked := TBuildConfig.Debug in fBuildEngine.BuildConfigs;
   chkRelease.Checked := TBuildConfig.Release in fBuildEngine.BuildConfigs;
   chkPauseAfterEachStep.Checked := fBuildEngine.PauseAfterEachStep;
+  chkRunSilent.Checked := fBuildEngine.RunSilent;
   chkRunTests.Checked := fBuildEngine.RunTests;
   chkRunTestsAsConsole.Checked := fBuildEngine.RunTestsAsConsole;
   chkModifyDelphiRegistrySettings.Checked := fBuildEngine.ModifyDelphiRegistrySettings;
@@ -108,6 +115,20 @@ begin
     index := lbTargets.Items.AddObject(task.Name, task);
     lbTargets.ItemEnabled[index] := task.CanBuild;
     lbTargets.Checked[index] := fBuildEngine.SelectedTasks.Contains(task);
+
+    // TODO
+    found := False;
+    for i := 0 to PopupMenu1.Items.Count - 1 do
+      if string(PopupMenu1.Items[i].Tag) = task.Compiler.TargetPlatform then
+        found := True;
+    if not found then
+    begin
+      menuItem := TMenuItem.Create(Self);
+      menuItem.Caption := 'Select ' + task.Compiler.TargetPlatform;
+      menuItem.OnClick := mniSelectPlatformClick;
+      menuItem.Tag := NativeInt(Pointer(task.Compiler.TargetPlatform));
+      PopupMenu1.Items.Insert(PopupMenu1.Items.Count - 1, menuItem);
+    end;
   end;
 
   if FileExists('Build.md') then
@@ -143,12 +164,6 @@ begin
   btnBuild.Enabled := fBuildEngine.SelectedTasks.Any;
 end;
 
-procedure TfrmMain.mniUncheckAllClick(Sender: TObject);
-begin
-  lbTargets.CheckAll(cbUnchecked);
-  lbTargetsClickCheck(lbTargets);
-end;
-
 procedure TfrmMain.btnBuildClick(Sender: TObject);
 begin
   fBuildEngine.BuildAll;
@@ -165,12 +180,48 @@ begin
   lbTargetsClickCheck(lbTargets);
 end;
 
+procedure TfrmMain.mniSelectAllClick(Sender: TObject);
+begin
+  lbTargets.CheckAll(cbChecked, False, False);
+  lbTargetsClickCheck(lbTargets);
+end;
+
+procedure TfrmMain.mniSelectNoneClick(Sender: TObject);
+begin
+  lbTargets.CheckAll(cbUnchecked);
+  lbTargetsClickCheck(lbTargets);
+end;
+
+procedure TfrmMain.mniSelectPlatformClick(Sender: TObject);
+var
+  targetPlatform: string;
+  task: TBuildTask;
+  i: Integer;
+begin
+  targetPlatform := string(TMenuItem(Sender).Tag);
+
+  for i := 0 to lbTargets.Count - 1 do
+  begin
+    task := TBuildTask(lbTargets.Items.Objects[i]);
+    if task.Compiler.TargetPlatform <> targetPlatform then
+      Continue;
+
+    lbTargets.Checked[i] := True;
+  end;
+  lbTargetsClickCheck(lbTargets);
+end;
+
 procedure TfrmMain.chkReleaseClick(Sender: TObject);
 begin
   if chkRelease.Checked then
     fBuildEngine.BuildConfigs := fBuildEngine.BuildConfigs + [TBuildConfig.Release]
   else
     fBuildEngine.BuildConfigs := fBuildEngine.BuildConfigs - [TBuildConfig.Release];
+end;
+
+procedure TfrmMain.chkRunSilentClick(Sender: TObject);
+begin
+  fBuildEngine.RunSilent := chkRunSilent.Checked;
 end;
 
 procedure TfrmMain.chkRunTestsAsConsoleClick(Sender: TObject);

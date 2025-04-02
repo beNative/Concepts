@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -34,7 +34,6 @@ uses
   TypInfo,
   Spring,
   Spring.Collections,
-  Spring.DesignPatterns,
   Spring.Interception,
   Spring.Mocking.Matching,
   Spring.Times;
@@ -51,6 +50,7 @@ type
 const
   Arg: TArg = ();
   Args: TArgs = ();
+  Any: TAny = ();
   DefaultMockBehavior = TMockBehavior.Dynamic;
 
 type
@@ -58,10 +58,12 @@ type
   private
     fInvocation: IInvocation;
     fCallCount: Integer;
+  {$REGION 'Property Accessors'}
     function GetArg(index: Integer): TValue;
     function GetCallCount: Integer;
     function GetMethod: TRttiMethod;
     procedure SetArg(index: Integer; const value: TValue);
+  {$ENDREGION}
   public
     constructor Create(const invocation: IInvocation; callCount: Integer);
     property Args[index: Integer]: TValue read GetArg write SetArg; default;
@@ -81,6 +83,8 @@ type
     ['{0BC12D48-41FF-46D0-93B3-773EE19D75ED}']
     function Executes: IWhen; overload;
     function Executes(const action: TMockAction): IWhen; overload;
+    function Executes(const action: TFunc<TValue>): IWhen; overload;
+    function Executes(const action: TProc): IWhen; overload;
 
     function Raises(const exceptionClass: ExceptClass;
       const msg: string = ''): IWhen; overload;
@@ -93,8 +97,10 @@ type
 
   IMock = interface(IInvokable)
     ['{7D386664-22CF-4555-B03E-61319C39BC12}']
+  {$REGION 'Property Accessors'}
     function GetInstance: TValue;
     function GetTypeInfo: PTypeInfo;
+  {$ENDREGION}
 
     procedure Reset;
 
@@ -109,16 +115,20 @@ type
     property TypeInfo: PTypeInfo read GetTypeInfo;
   end;
 
-  IWhen<T> = interface(IInvokable)
+  IWhen<T> = interface(IInvokable) //FI:W524
     ['{4162918E-4DE6-47D6-B609-D5A17F3FBE2B}']
     function When: T; overload;
     function When(const match: TArgMatch): T; overload;
   end;
 
-  ISetup<T> = interface(IInvokable)
+  ISetup<T> = interface(IInvokable) //FI:W524
     ['{CD661866-EB29-400C-ABC8-19FC8D59FFAD}']
+    function Default(const target: T): ISetup<T>;
+
     function Executes: IWhen<T>; overload;
     function Executes(const action: TMockAction): IWhen<T>; overload;
+    function Executes(const action: TFunc<TValue>): IWhen<T>; overload;
+    function Executes(const action: TProc): IWhen<T>; overload;
 
     function Raises(const exceptionClass: ExceptClass;
       const msg: string = ''): IWhen<T>; overload;
@@ -143,7 +153,7 @@ type
     property Current: Integer read GetCurrent;
   end;
 
-  IMock<T> = interface(IInvokable)
+  IMock<T> = interface(IInvokable) //FI:W524
     ['{67AD5AD2-1C23-41BA-8F5D-5C28B3C7ABF7}']
   {$REGION 'Property Accessors'}
     function GetBehavior: TMockBehavior;
@@ -176,8 +186,12 @@ type
   private
     fSetup: ISetup<T>;
   public
+    function Default(const target: T): Setup<T>;
+
     function Executes: IWhen<T>; overload;
     function Executes(const action: TMockAction): IWhen<T>; overload;
+    function Executes(const action: TFunc<TValue>): IWhen<T>; overload;
+    function Executes(const action: TProc): IWhen<T>; overload;
 
     function Raises<TException: Exception>(
       const msg: string = ''): IWhen<T>; overload;
@@ -196,12 +210,14 @@ type
     // because it does not fit in a register
     fDummy: Pointer;
   {$HINTS ON}
-    procedure EnsureInitialized; inline;
+  {$REGION 'Property Accessors'}
     function GetInstance: T;
     function GetBehavior: TMockBehavior;
     function GetCallBase: Boolean;
     procedure SetBehavior(const value: TMockBehavior);
     procedure SetCallBase(const value: Boolean);
+  {$ENDREGION}
+    procedure EnsureInitialized; inline;
   public
     class function Create(
       behavior: TMockBehavior = DefaultMockBehavior): Mock<T>; overload; static;
@@ -226,7 +242,8 @@ type
     function Received(const match: TArgMatch): T; overload;
     function Received(const times: Times; const match: TArgMatch): T; overload;
 
-    function AsType<TInterface: IInterface>: Mock<TInterface>;
+    function AsType<TInterface: IInterface>(
+      behavior: TMockBehavior = DefaultMockBehavior): Mock<TInterface>;
 
     property Behavior: TMockBehavior read GetBehavior write SetBehavior;
     property CallBase: Boolean read GetCallBase write SetCallBase;
@@ -246,8 +263,10 @@ type
     // because it does not fit in a register
     fDummy: Pointer;
   {$HINTS ON}
-    procedure EnsureInitialized;
+  {$REGION 'Property Accessors'}
     function GetCompleted: Boolean;
+  {$ENDREGION}
+    procedure EnsureInitialized;
   public
     class operator Implicit(const value: MockSequence): IMockSequence;
 
@@ -306,7 +325,22 @@ begin
   Result := fSetup.Executes;
 end;
 
+function Setup<T>.Default(const target: T): Setup<T>;
+begin
+  Result.fSetup := fSetup.Default(target);
+end;
+
 function Setup<T>.Executes(const action: TMockAction): IWhen<T>;
+begin
+  Result := fSetup.Executes(action);
+end;
+
+function Setup<T>.Executes(const action: TFunc<TValue>): IWhen<T>;
+begin
+  Result := fSetup.Executes(action);
+end;
+
+function Setup<T>.Executes(const action: TProc): IWhen<T>;
 begin
   Result := fSetup.Executes(action);
 end;
@@ -324,7 +358,7 @@ end;
 
 function Setup<T>.Returns<TResult>(const value: TResult): IWhen<T>;
 begin
-  Result := fSetup.Returns(TValue.From<TResult>(value));
+  Result := fSetup.Returns(TValue.From(value, TypeInfo(TResult)));
 end;
 
 function Setup<T>.Returns<TResult>(const values: array of TResult): IWhen<T>;
@@ -334,7 +368,7 @@ var
 begin
   SetLength(tempValues, Length(values));
   for i := 0 to High(values) do
-    tempValues[i] := TValue.From<TResult>(values[i]);
+    TValue.Make(@values[i], TypeInfo(TResult), tempValues[i]);
   Result := fSetup.Returns(tempValues);
 end;
 
@@ -366,7 +400,7 @@ begin
     fMock := TMock<T>.Create(DefaultMockBehavior, [])
 end;
 
-function Mock<T>.AsType<TInterface>: Mock<TInterface>;
+function Mock<T>.AsType<TInterface>(behavior: TMockBehavior): Mock<TInterface>;
 var
   typeData: PTypeData;
   source: T;
@@ -380,13 +414,19 @@ begin
   source := fMock.Instance;
   if not Supports(PInterface(@source)^, IDynamicProxy, proxy) then
     raise EMockException.Create('fatal error');
-  proxy.AddAdditionalInterface(TypeInfo(TInterface), TProxyGenerationOptions.Default);
-  PInterface(@source)^.QueryInterface(typeData.Guid, target);
+  if PInterface(@source)^.QueryInterface(typeData.Guid, target) <> S_OK then
+  begin
+    proxy.AddAdditionalInterface(TypeInfo(TInterface), TProxyGenerationOptions.Default,
+      [TMockInterceptor.Create(behavior)]);
+    PInterface(@source)^.QueryInterface(typeData.Guid, target);
+  end;
   Result.fMock := Mock.From<TInterface>(target).fMock;
 end;
 
 procedure Mock<T>.Free;
 begin
+  if Assigned(fMock) then
+    fMock.Reset;
   fMock := nil;
 end;
 
@@ -483,7 +523,8 @@ end;
 
 procedure Mock<T>.Reset;
 begin
-  fMock.Reset;
+  if Assigned(fMock) then
+    fMock.Reset;
 end;
 
 {$ENDREGION}
@@ -504,7 +545,7 @@ begin
   mock.Create(TypeInfo(T), accessor.GetInterceptors.First(
     function(const interceptor: IInterceptor): Boolean
     begin
-      Result := (interceptor as TObject) is TMockInterceptor
+      Result := interceptor is TMockInterceptor;
     end) as TMockInterceptor, proxy);
   Result.fMock := mock as IMock<T>;
 end;

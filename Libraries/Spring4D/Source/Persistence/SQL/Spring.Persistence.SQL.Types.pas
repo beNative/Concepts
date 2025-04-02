@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -304,6 +304,7 @@ function GetEndOperator(startOperator: TWhereOperator): TWhereOperator;
 implementation
 
 uses
+  Rtti, // H2443
   StrUtils,
   SysUtils,
   Spring,

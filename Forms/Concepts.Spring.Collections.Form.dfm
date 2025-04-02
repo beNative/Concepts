@@ -18,13 +18,12 @@ object frmCollections: TfrmCollections
   object lblRecordCount: TLabel
     Left = 265
     Top = 43
-    Width = 65
+    Width = 71
     Height = 13
     Anchors = [akLeft, akTop, akRight]
     Caption = 'RecordCount:'
     FocusControl = trbRecordCount
     OnClick = lblRecordCountClick
-    ExplicitWidth = 71
   end
   object btnFirstNameIs: TButton
     Left = 8
@@ -155,8 +154,8 @@ object frmCollections: TfrmCollections
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 483
-      Height = 26
+      Width = 372
+      Height = 13
       Align = alClient
       Alignment = taCenter
       Caption = 
@@ -164,8 +163,6 @@ object frmCollections: TfrmCollections
         '.'
       Layout = tlCenter
       WordWrap = True
-      ExplicitWidth = 372
-      ExplicitHeight = 13
     end
   end
   object aclMain: TActionList

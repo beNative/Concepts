@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -99,7 +99,7 @@ var
   len: Integer;
 begin
   SetLength(Result, 1024);
-  len := ExceptionErrorMessage(e, ExceptAddr, @Result[1], Length(Result));
+  len := ExceptionErrorMessage(e, ExceptAddr, Pointer(Result), Length(Result));
   SetLength(Result, len);
 end;
 

@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -25,42 +25,323 @@
 unit Spring.Collections.Trees;
 
 {$I Spring.inc}
+// node records must not be packed because when they get stored in an array the
+// pointers must be at least 2 byte aligned to leave the least significant bit 0
+// aligning them by 2 byte causes at most wasting 1 byte of space for each
+{$A2}
 
 interface
 
 uses
-  Generics.Collections,
   Generics.Defaults,
-  Spring.Collections,
-  Spring.Collections.Base;
+  Spring,
+  Spring.Collections;
+
+{$IFDEF DELPHIXE6_UP}{$RTTI EXPLICIT METHODS([]) PROPERTIES([]) FIELDS(FieldVisibility)}{$ENDIF}
+
+const
+  ColorMask = IntPtr(1);
+  PointerMask = not ColorMask;
+  BlockSizeBits = 6;
+  BlockSize = 1 shl BlockSizeBits;
 
 type
   TNodeColor = (Black, Red);
 
-  TBucketIndex = record
-    Row, Pos: NativeUInt;
+  TBlockAllocatedArray = record
+  private
+    fItems: Pointer;
+    fCapacity: NativeInt;
+    procedure Grow(arrayType: PTypeInfo);
+    procedure SetCapacity(const value: NativeInt; arrayType: PTypeInfo);
   end;
 
-  PBinaryTreeNode = ^TBinaryTreeNode;
-  TBinaryTreeNode = record
+  TBlockAllocatedArray<T> = record
+  strict private type
+    PT = ^T;
   strict private
-    fLeft, fParent, fRight: PBinaryTreeNode;
-    function GetLeftMost: PBinaryTreeNode;
-    function GetRightMost: PBinaryTreeNode;
-    function GetNext: PBinaryTreeNode;
-    function GetPrev: PBinaryTreeNode;
-    function GetHeight: Integer;
+    fItems: TArray<TArray<T>>;
+    fCapacity: NativeInt;
+    function GetItem(index: Integer): PT; inline;
+    procedure SetCapacity(const value: NativeInt); inline;
   public
-    property Left: PBinaryTreeNode read fLeft;
-    property Parent: PBinaryTreeNode read fParent;
-    property Right: PBinaryTreeNode read fRight;
+    procedure Grow; inline;
+    property Capacity: NativeInt read fCapacity write SetCapacity;
+    property Items[index: Integer]: PT read GetItem; default;
+  end;
 
-    property LeftMost: PBinaryTreeNode read GetLeftMost;
-    property RightMost: PBinaryTreeNode read GetRightMost;
-    property Next: PBinaryTreeNode read GetNext;
-    property Prev: PBinaryTreeNode read GetPrev;
+  TTraverseMode = (tmInOrder, tmPreOrder, tmPostOrder);
 
-    property Height: Integer read GetHeight;
+  TBinaryTree = class abstract(TRefCountedObject)
+  private type
+    PNode = ^TNode;
+
+    TEnumeratorVtable = array[0..4] of Pointer;
+
+    TEnumerator = record
+    private
+      fRoot: PNode;
+      fMode: TTraverseMode;
+      fCurrent: PNode;
+    strict private
+      function MoveNextInOrder: Boolean;
+      function MoveNextPreOrder: Boolean;
+      function MoveNextPostOrder: Boolean;
+    public
+      constructor Create(const root: PNode; mode: TTraverseMode);
+      function MoveNext: Boolean;
+      property Current: PNode read fCurrent;
+    end;
+
+    TNode = record
+    strict private
+      fParent, fLeft, fRight: PNode;
+      function GetParent: PNode; inline;
+      function GetLeftMost: PNode;
+      function GetRightMost: PNode;
+      function GetNext: PNode;
+      function GetPrev: PNode;
+      function GetHeight: NativeInt;
+    public
+      property Parent: PNode read GetParent;
+      property Left: PNode read fLeft;
+      property Right: PNode read fRight;
+
+      property LeftMost: PNode read GetLeftMost;
+      property RightMost: PNode read GetRightMost;
+      property Next: PNode read GetNext;
+      property Prev: PNode read GetPrev;
+
+      property Height: NativeInt read GetHeight;
+    end;
+  protected
+    fRoot: PNode;
+    fCount: Integer;
+    fComparer: IInterface;
+
+  {$REGION 'Property Accessors'}
+    function GetCount: Integer; inline;
+    function GetHeight: Integer;
+    function GetRoot: PNode; inline;
+  {$ENDREGION}
+  public
+    property Comparer: IInterface read fComparer;
+    property Count: Integer read fCount;
+    property Root: PNode read fRoot;
+  end;
+
+  TRedBlackTree = class abstract(TBinaryTree)
+  private type
+    PNode = ^TNode;
+    TChildNodes = array[0..1] of PNode;
+    TNode = record
+    strict private
+      function GetColor: TNodeColor; inline;
+      function GetParent: PNode; inline;
+    private
+      fParent: PNode;
+      fChilds: TChildNodes;
+    public
+      property Color: TNodeColor read GetColor;
+      property Parent: PNode read GetParent;
+      property Left: PNode read fChilds[0];
+      property Right: PNode read fChilds[1];
+    end;
+  private
+    fFreeNode: PNode;
+    procedure Rotate(node: PNode; direction: Integer);
+
+    procedure FixupAfterInsert(node: PNode);
+    procedure FixupAfterDelete(node: PNode);
+    procedure Delete(node: PNode);
+  public
+    destructor Destroy; override;
+
+    procedure Clear; virtual;
+  end;
+
+  PBinaryTreeNode = TBinaryTree.PNode;
+  PRedBlackTreeNode = TRedBlackTree.PNode;
+
+  TNodes<T> = record
+  strict private type
+    PNode = ^TNode;
+
+    TKeyEnumerator = record
+    private
+      fEnumerator: TBinaryTree.TEnumerator;
+      function GetCurrent: T; inline;
+    public
+      constructor Create(const root: PNode; mode: TTraverseMode);
+      function MoveNext: Boolean; inline;
+      property Current: T read GetCurrent;
+    end;
+
+    TKeyEnumerable = record
+    private
+      fRoot: PNode;
+      fMode: TTraverseMode;
+    public
+      constructor Create(const root: PNode; mode: TTraverseMode);
+      function GetEnumerator: TKeyEnumerator; inline;
+    end;
+
+    TEnumerator = record
+    private
+      fEnumerator: TBinaryTree.TEnumerator;
+      function GetCurrent: PNode; inline;
+    public
+      constructor Create(const root: PNode; mode: TTraverseMode);
+      function MoveNext: Boolean; inline;
+      property Current: PNode read GetCurrent;
+    end;
+
+    TEnumerable = record
+    private
+      fRoot: PNode;
+      fMode: TTraverseMode;
+      function GetKeys: TKeyEnumerable; inline;
+    public
+      constructor Create(const root: PNode; mode: TTraverseMode);
+      function GetEnumerator: TEnumerator; inline;
+      property Keys: TKeyEnumerable read GetKeys;
+    end;
+
+    TNode = record
+    strict private
+      function GetLeftMost: PNode; inline;
+      function GetRightMost: PNode; inline;
+      function GetNext: PNode; inline;
+      function GetPrev: PNode; inline;
+
+      function GetColor: TNodeColor; inline;
+      function GetParent: PNode; inline;
+    private
+      fParent, fLeft, fRight: PNode;
+      fKey: T;
+      function GetEnumerable(mode: TTraverseMode): TEnumerable; inline;
+    public
+      function GetEnumerator: TEnumerator; inline;
+
+      property LeftMost: PNode read GetLeftMost;
+      property RightMost: PNode read GetRightMost;
+      property Next: PNode read GetNext;
+      property Prev: PNode read GetPrev;
+
+      property Color: TNodeColor read GetColor;
+      property Parent: PNode read GetParent;
+      property Left: PNode read fLeft;
+      property Right: PNode read fRight;
+      property Key: T read fKey;
+
+      property InOrder: TEnumerable index tmInOrder read GetEnumerable;
+      property PreOrder: TEnumerable index tmPreOrder read GetEnumerable;
+      property PostOrder: TEnumerable index tmPostOrder read GetEnumerable;
+    end;
+  public type
+    TRedBlackTreeNode = TNode;
+    PRedBlackTreeNode = PNode;
+  end;
+
+  TNodes<TKey, TValue> = record
+  strict private type
+    PNode = ^TNode;
+
+    TKeyEnumerator = record
+    private
+      fEnumerator: TBinaryTree.TEnumerator;
+      function GetCurrent: TKey; inline;
+    public
+      constructor Create(const root: PNode; mode: TTraverseMode);
+      function MoveNext: Boolean; inline;
+      property Current: TKey read GetCurrent;
+    end;
+
+    TKeyEnumerable = record
+    private
+      fRoot: PNode;
+      fMode: TTraverseMode;
+    public
+      constructor Create(const root: PNode; mode: TTraverseMode);
+      function GetEnumerator: TKeyEnumerator; inline;
+    end;
+
+    TValueEnumerator = record
+    private
+      fEnumerator: TBinaryTree.TEnumerator;
+      function GetCurrent: TValue; inline;
+    public
+      constructor Create(const root: PNode; mode: TTraverseMode);
+      function MoveNext: Boolean; inline;
+      property Current: TValue read GetCurrent;
+    end;
+
+    TValueEnumerable = record
+    private
+      fRoot: PNode;
+      fMode: TTraverseMode;
+    public
+      constructor Create(const root: PNode; mode: TTraverseMode);
+      function GetEnumerator: TValueEnumerator; inline;
+    end;
+
+    TEnumerator = record
+    private
+      fEnumerator: TBinaryTree.TEnumerator;
+      function GetCurrent: PNode; inline;
+    public
+      constructor Create(const root: PNode; mode: TTraverseMode);
+      function MoveNext: Boolean; inline;
+      property Current: PNode read GetCurrent;
+    end;
+
+    TEnumerable = record
+    private
+      fRoot: PNode;
+      fMode: TTraverseMode;
+      function GetKeys: TKeyEnumerable; inline;
+      function GetValues: TValueEnumerable; inline;
+    public
+      constructor Create(const root: PNode; mode: TTraverseMode);
+      function GetEnumerator: TEnumerator; inline;
+      property Keys: TKeyEnumerable read GetKeys;
+      property Values: TValueEnumerable read GetValues;
+    end;
+
+    TNode = record
+    strict private
+      function GetLeftMost: PNode; inline;
+      function GetRightMost: PNode; inline;
+      function GetNext: PNode; inline;
+      function GetPrev: PNode; inline;
+
+      function GetColor: TNodeColor; inline;
+      function GetParent: PNode; inline;
+    private
+      fParent, fLeft, fRight: PNode;
+      fPair: TPair<TKey, TValue>;
+      function GetEnumerable(mode: TTraverseMode): TEnumerable; inline;
+    public
+      function GetEnumerator: TEnumerator; inline;
+
+      property LeftMost: PNode read GetLeftMost;
+      property RightMost: PNode read GetRightMost;
+      property Next: PNode read GetNext;
+      property Prev: PNode read GetPrev;
+
+      property Color: TNodeColor read GetColor;
+      property Parent: PNode read GetParent;
+      property Left: PNode read fLeft;
+      property Right: PNode read fRight;
+      property Pair: TPair<TKey, TValue> read fPair;
+
+      property InOrder: TEnumerable index tmInOrder read GetEnumerable;
+      property PreOrder: TEnumerable index tmPreOrder read GetEnumerable;
+      property PostOrder: TEnumerable index tmPostOrder read GetEnumerable;
+    end;
+  public type
+    TRedBlackTreeNode = TNode;
+    PRedBlackTreeNode = PNode;
   end;
 
   IBinaryTree = interface
@@ -76,166 +357,96 @@ type
     property Root: PBinaryTreeNode read GetRoot;
   end;
 
-  IBinaryTree<T> = interface(IBinaryTree)
+  IBinaryTree<T> = interface(IBinaryTree) //FI:W524
     ['{06E837A5-29B7-4F33-AC5C-46BC82F00D15}']
+  {$REGION 'Property Accessors'}
+    function GetRoot: TNodes<T>.PRedBlackTreeNode;
+  {$ENDREGION}
+
     function Add(const key: T): Boolean;
     function Delete(const key: T): Boolean;
-    function Exists(const ley: T): Boolean;
-    function Find(const key: T; out value: T): Boolean;
+    function Exists(const key: T): Boolean;
+    function Find(const key: T; var value: T): Boolean;
     procedure Clear;
 
     function GetEnumerator: IEnumerator<T>;
     function ToArray: TArray<T>;
+
+    property Root: TNodes<T>.PRedBlackTreeNode read GetRoot;
   end;
 
-  IBinaryTree<TKey, TValue> = interface(IBinaryTree)
+  IBinaryTree<TKey, TValue> = interface(IBinaryTree) //FI:W524
     ['{7F554520-BD51-4B53-953B-61B43ED6D59E}']
+  {$REGION 'Property Accessors'}
+    function GetRoot: TNodes<TKey, TValue>.PRedBlackTreeNode;
+  {$ENDREGION}
+
     function Add(const key: TKey; const value: TValue): Boolean;
     function AddOrSet(const key: TKey; const value: TValue): Boolean;
     function Delete(const key: TKey): Boolean;
     function Exists(const key: TKey): Boolean;
-    function Find(const key: TKey; out foundValue: TValue): Boolean;
+    function Find(const key: TKey; var foundValue: TValue): Boolean;
     procedure Clear;
 
     function GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
     function ToArray: TArray<TPair<TKey,TValue>>;
+
+    property Root: TNodes<TKey, TValue>.PRedBlackTreeNode read GetRoot;
   end;
 
-  TBinaryTree = class abstract(TInterfacedObject)
-  protected
-    fRoot: Pointer;
-    fCount: Integer;
-
-  {$REGION 'Property Accessors'}
-    function GetCount: Integer;
-    function GetHeight: Integer;
-    function GetRoot: PBinaryTreeNode;
-  {$ENDREGION}
-
-    function GetBucketIndex(index: NativeUInt): TBucketIndex;
-  end;
-
-  TRedBlackTree = class abstract(TBinaryTree)
-  private
-    type
-      PRedBlackTreeNode = ^TRedBlackTreeNode;
-      TRedBlackTreeNode = record
-      private
-        fLeft, fParent, fRight: PRedBlackTreeNode;
-        fColor: TNodeColor;
-        function GetIsBlack: Boolean; inline;
-        procedure SetLeft(const value: PRedBlackTreeNode);
-        procedure SetParent(const value: PRedBlackTreeNode);
-        procedure SetRight(const value: PRedBlackTreeNode);
-      public
-        property Left: PRedBlackTreeNode read fLeft write SetLeft;
-        property Parent: PRedBlackTreeNode read fParent write SetParent;
-        property Right: PRedBlackTreeNode read fRight write SetRight;
-        property IsBlack: Boolean read GetIsBlack;
-      end;
-  private
-    procedure InsertLeft(node, newNode: PRedBlackTreeNode);
-    procedure InsertRight(node, newNode: PRedBlackTreeNode);
-    procedure RotateLeft(node: PRedBlackTreeNode);
-    procedure RotateRight(node: PRedBlackTreeNode);
-    procedure FixupAfterInsert(node: PRedBlackTreeNode);
-    procedure FixupAfterDelete(node: PRedBlackTreeNode);
-    procedure Delete(node: PRedBlackTreeNode);
-    procedure SetRoot(value: PRedBlackTreeNode);
-    property Root: PRedBlackTreeNode write SetRoot;
-  protected
-    procedure FreeNode(node: Pointer); virtual; abstract;
-  public
-    destructor Destroy; override;
-
-    procedure Clear; virtual;
-  end;
-
-  PRedBlackTreeNode = TRedBlackTree.PRedBlackTreeNode;
-
-  TRedBlackTreeNode<T> = record
-  private
-    fLeft, fParent, fRight: PRedBlackTreeNode;
-    fColor: TNodeColor;
-    fKey: T;
-  public
-    property Left: PRedBlackTreeNode read fLeft;
-    property Parent: PRedBlackTreeNode read fParent;
-    property Right: PRedBlackTreeNode read fRight;
-    property Color: TNodeColor read fColor;
-    property Key: T read fKey;
-  end;
-
-  TRedBlackTreeNode<TKey, TValue> = record
-  private
-    fLeft, fParent, fRight: PRedBlackTreeNode;
-    fColor: TNodeColor;
-    fKey: TKey;
-    fValue: TValue;
-  public
-    property Left: PRedBlackTreeNode read fLeft;
-    property Parent: PRedBlackTreeNode read fParent;
-    property Right: PRedBlackTreeNode read fRight;
-    property Color: TNodeColor read fColor;
-    property Key: TKey read fKey;
-    property Value: TValue read fValue write fValue;
-  end;
-
-  TRedBlackTreeNodeHelper<T> = record
-  type
-    TNode = TRedBlackTreeNode<T>;
-    PNode = ^TNode;
-  end;
-
-  TRedBlackTreeNodeHelper<TKey, TValue> = record
-  type
-    TNode = TRedBlackTreeNode<TKey, TValue>;
-    PNode = ^TNode;
-  end;
-
-  IRedBlackTree<T> = interface(IBinaryTree<T>)
+  IRedBlackTree<T> = interface(IBinaryTree<T>) //FI:W524
     ['{59BB2B37-D85F-4092-8E80-1EFEE1D2E8F8}']
-    function FindNode(const value: T): TRedBlackTreeNodeHelper<T>.PNode;
-    procedure DeleteNode(node: TRedBlackTreeNodeHelper<T>.PNode);
+    function FindNode(const value: T): TNodes<T>.PRedBlackTreeNode;
+    procedure DeleteNode(node: TNodes<T>.PRedBlackTreeNode);
   end;
 
-  IRedBlackTree<TKey, TValue> = interface(IBinaryTree<TKey, TValue>)
+  IRedBlackTree<TKey, TValue> = interface(IBinaryTree<TKey, TValue>) //FI:W524
     ['{8C6F6C1A-92C1-4F4A-A1A9-DD5EA70921CB}']
-    function FindNode(const key: TKey): TRedBlackTreeNodeHelper<TKey, TValue>.PNode;
-    procedure DeleteNode(node: TRedBlackTreeNodeHelper<TKey, TValue>.PNode);
+    function FindNode(const key: TKey): TNodes<TKey, TValue>.PRedBlackTreeNode;
+    procedure DeleteNode(node: TNodes<TKey, TValue>.PRedBlackTreeNode);
   end;
 
-  TRedBlackTree<T> = class(TRedBlackTree, IBinaryTree<T>, IRedBlackTree<T>)
+  TRedBlackTreeBase<T> = class(TRedBlackTree)
+  private type
+    TNode = TNodes<T>.TRedBlackTreeNode;
+    PNode = TNodes<T>.PRedBlackTreeNode;
   private
-    type
-      TEnumerator = class(TEnumeratorBase<T>)
-      private
-        fTree: TRedBlackTree;
-        fCurrentNode: PBinaryTreeNode;
-        fFinished: Boolean;
-      protected
-        function GetCurrent: T; override;
-      public
-        constructor Create(const tree: TRedBlackTree);
-        function MoveNext: Boolean; override;
-      end;
-      PNode = TRedBlackTreeNodeHelper<T>.PNode;
-  private
-    fStorage: TArray<TArray<TRedBlackTreeNode<T>>>;
-    procedure Grow;
-    procedure DestroyNode(node: PNode);
+    fStorage: TBlockAllocatedArray<TNode>;
+    function GetCapacity: Integer;
+    procedure SetCapacity(value: Integer);
   protected
-    fComparer: IComparer<T>;
-    function CreateNode(const key: T): PNode;
+    function AddNode(const key: T): PNode;
+    function CreateNode(const key: T; parent: PNode): PNode;
     function FindNode(const key: T): PNode;
     procedure DeleteNode(node: PNode);
-    procedure FreeNode(node: Pointer); override;
   public
     constructor Create; overload;
     constructor Create(const comparer: IComparer<T>); overload;
 
     procedure Clear; override;
 
+    procedure TrimExcess;
+
+    property Capacity: Integer read GetCapacity write SetCapacity;
+    property Count: Integer read GetCount;
+  end;
+
+  TRedBlackTree<T> = class(TRedBlackTreeBase<T>, IInterface, IBinaryTree<T>, IRedBlackTree<T>)
+  private type
+    PEnumerator = ^TEnumerator;
+    TEnumerator = record
+      Vtable: Pointer;
+      RefCount: Integer;
+      TypeInfo: PTypeInfo;
+      Parent: TRefCountedObject;
+      fEnumerator: TBinaryTree.TEnumerator;
+      function GetCurrent: T;
+      function MoveNext: Boolean;
+      class var Enumerator_Vtable: TEnumeratorVtable;
+    end;
+    PNode = TRedBlackTreeBase<T>.PNode;
+    function GetRoot: PNode; overload; inline;
+  public
     function GetEnumerator: IEnumerator<T>;
     function ToArray: TArray<T>;
 
@@ -243,43 +454,53 @@ type
     function Add(const key: T): Boolean;
     function Delete(const key: T): Boolean;
     function Exists(const key: T): Boolean;
-    function Find(const key: T; out value: T): Boolean;
+    function Find(const key: T; var value: T): Boolean;
   {$ENDREGION}
   end;
 
-  TRedBlackTree<TKey, TValue> = class(TRedBlackTree,
-    IBinaryTree<TKey, TValue>, IRedBlackTree<TKey, TValue>)
+  TRedBlackTreeBase<TKey, TValue> = class(TRedBlackTree)
+  private type
+    TNode = TNodes<TKey, TValue>.TRedBlackTreeNode;
+    PNode = TNodes<TKey, TValue>.PRedBlackTreeNode;
   private
-    type
-      TEnumerator = class(TEnumeratorBase<TPair<TKey,TValue>>)
-      private
-        fTree: TRedBlackTree;
-        fCurrentNode: PBinaryTreeNode;
-        fFinished: Boolean;
-      protected
-        function GetCurrent: TPair<TKey,TValue>; override;
-      public
-        constructor Create(const tree: TRedBlackTree);
-        function MoveNext: Boolean; override;
-      end;
-      PNode = TRedBlackTreeNodeHelper<TKey,TValue>.PNode;
-  private
-    fStorage: TArray<TArray<TRedBlackTreeNode<TKey, TValue>>>;
-    function InternalAdd(const key: TKey; const value: TValue; allowReplace: Boolean): Boolean;
-    procedure Grow;
-    procedure DestroyNode(node: PNode);
+    fStorage: TBlockAllocatedArray<TNode>;
+    function GetCapacity: Integer;
+    procedure SetCapacity(value: Integer);
   protected
-    fComparer: IComparer<TKey>;
-    function CreateNode(const key: TKey; const value: TValue): PNode;
+    // IMPORTANT: When returning an existing node the lowest bit is set
+    function AddNode(const key: TKey; allowReplace: Boolean = False): PNode;
+    function CreateNode(const key: TKey; parent: PNode): PNode;
     function FindNode(const key: TKey): PNode;
     procedure DeleteNode(node: PNode);
-    procedure FreeNode(node: Pointer); override;
   public
     constructor Create; overload;
     constructor Create(const comparer: IComparer<TKey>); overload;
 
     procedure Clear; override;
 
+    procedure TrimExcess;
+
+    property Capacity: Integer read GetCapacity write SetCapacity;
+    property Count: Integer read GetCount;
+  end;
+
+  TRedBlackTree<TKey, TValue> = class(TRedBlackTreeBase<TKey, TValue>,
+    IInterface, IBinaryTree<TKey, TValue>, IRedBlackTree<TKey, TValue>)
+  private type
+    PEnumerator = ^TEnumerator;
+    TEnumerator = record
+      Vtable: Pointer;
+      RefCount: Integer;
+      TypeInfo: PTypeInfo;
+      Parent: TRefCountedObject;
+      fEnumerator: TBinaryTree.TEnumerator;
+      function GetCurrent: TPair<TKey,TValue>;
+      function MoveNext: Boolean;
+      class var Enumerator_Vtable: TEnumeratorVtable;
+    end;
+    PNode = TRedBlackTreeBase<TKey, TValue>.PNode;
+    function GetRoot: PNode; overload; inline;
+  public
     function GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
     function ToArray: TArray<TPair<TKey,TValue>>;
 
@@ -288,122 +509,74 @@ type
     function AddOrSet(const key: TKey; const value: TValue): Boolean;
     function Delete(const key: TKey): Boolean;
     function Exists(const key: TKey): Boolean;
-    function Find(const key: TKey; out foundValue: TValue): Boolean;
+    function Find(const key: TKey; var foundValue: TValue): Boolean;
   {$ENDREGION}
   end;
-
-  TTest = TRedBlackTree<Integer,string>;
 
 implementation
 
 uses
-  Math;
+  {$IF not declared(TTypeKind)}
+  TypInfo,
+  {$IFEND}
+  Spring.Collections.Base,
+  Spring.Comparers;
 
-const
-  DefaultBucketSize = 64;
 
+{$REGION 'TBlockAllocatedArray<T>'}
 
-{$REGION 'TBinaryTreeNode'}
-
-function TBinaryTreeNode.GetHeight: Integer;
-begin
-  if Assigned(@Self) then
-    Result := Max(fLeft.Height, fRight.Height) + 1
-  else
-    Result := 0;
-end;
-
-function TBinaryTreeNode.GetLeftMost: PBinaryTreeNode;
-begin
-  Result := @Self;
-  if Result = nil then Exit;
-  while Assigned(Result.Left) do
-    Result := Result.Left;
-end;
-
-function TBinaryTreeNode.GetRightMost: PBinaryTreeNode;
-begin
-  Result := @Self;
-  if Result = nil then Exit;
-  while Assigned(Result.Right) do
-    Result := Result.Right;
-end;
-
-function TBinaryTreeNode.GetNext: PBinaryTreeNode;
+procedure TBlockAllocatedArray.Grow(arrayType: PTypeInfo);
 var
-  node: PBinaryTreeNode;
+  n, blockLength: NativeInt;
+  elemType: PTypeInfo;
 begin
-  if Assigned(Right) then
-    Exit(Right.GetLeftMost);
-  Result := Parent;
-  node := @Self;
-  while Assigned(Result) and (node = Result.Right) do
-  begin
-    node := Result;
-    Result := Result.Parent;
-  end;
+  n := DynArrayLength(fItems) + 1;
+  Inc(fCapacity, BlockSize);
+  DynArraySetLength(fItems, arrayType, 1, @n);
+  elemType := Pointer(PDynArrayTypeInfo(PByte(arrayType) + Byte(PDynArrayTypeInfo(arrayType).name)).elType^);
+  blockLength := BlockSize;
+  DynArraySetLength(TArray<Pointer>(fItems)[n-1], elemType, 1, @blockLength);
 end;
 
-function TBinaryTreeNode.GetPrev: PBinaryTreeNode;
+procedure TBlockAllocatedArray.SetCapacity(const value: NativeInt; arrayType: PTypeInfo);
 var
-  node: PBinaryTreeNode;
+  oldLength, newLength, i, blockLength: NativeInt;
+  elemType: PTypeInfo;
 begin
-  if Assigned(Left) then
-    Exit(Left.GetRightMost);
-  Result := Parent;
-  node := @Self;
-  while Assigned(Result) and (node = Result.Left) do
-  begin
-    node := Result;
-    Result := Result.Parent;
-  end;
+  oldLength := DynArrayLength(fItems);
+  newLength := value shr BlockSizeBits;
+  if value and (BlockSize - 1) > 0 then
+    Inc(newLength);
+  fCapacity := newLength * BlockSize;
+  DynArraySetLength(fItems, arrayType, 1, @newLength);
+  elemType := Pointer(PDynArrayTypeInfo(PByte(arrayType) + Byte(PDynArrayTypeInfo(arrayType).name)).elType^);
+  blockLength := BlockSize;
+  for i := oldLength to newLength - 1 do
+    DynArraySetLength(TArray<Pointer>(fItems)[i], elemType, 1, @blockLength);
 end;
 
-{$ENDREGION}
 
+{$REGION 'TBlockAllocatedArray<T>'}
 
-{$REGION 'TRedBlackTree.TRedBlackTreeNode'}
-
-function TRedBlackTree.TRedBlackTreeNode.GetIsBlack: Boolean;
+function TBlockAllocatedArray<T>.GetItem(index: Integer): PT;
 begin
-  Result := (@Self = nil) or (fColor = Black);
+  Result := @fItems[index shr BlockSizeBits, index and (BlockSize - 1)];
 end;
 
-procedure TRedBlackTree.TRedBlackTreeNode.SetLeft(const value: PRedBlackTreeNode);
+procedure TBlockAllocatedArray<T>.Grow;
 begin
-  fLeft := value;
-  if Assigned(value) then
-    value.fParent := @Self;
+  TBlockAllocatedArray(Self).Grow(TypeInfo(TArray<TArray<T>>));
 end;
 
-procedure TRedBlackTree.TRedBlackTreeNode.SetParent(const value: PRedBlackTreeNode);
+procedure TBlockAllocatedArray<T>.SetCapacity(const value: NativeInt);
 begin
-  Assert(not Assigned(value));
-  if Assigned(fParent) then
-    if fParent.fLeft = @Self then
-      fParent.fLeft := nil
-    else if fParent.fRight = @Self then
-      fParent.fRight := nil;
-  fParent := nil;
-end;
-
-procedure TRedBlackTree.TRedBlackTreeNode.SetRight(const value: PRedBlackTreeNode);
-begin
-  fRight := value;
-  if Assigned(value) then
-    value.fParent := @Self;
+  TBlockAllocatedArray(Self).SetCapacity(value, TypeInfo(TArray<TArray<T>>));
 end;
 
 {$ENDREGION}
 
 
 {$REGION 'TBinaryTree'}
-
-function TBinaryTree.GetBucketIndex(index: NativeUInt): TBucketIndex;
-begin
-  Result.Row := index div NativeUInt(DefaultBucketSize);
-  Result.Pos := index mod NativeUInt(DefaultBucketSize);
-end;
 
 function TBinaryTree.GetCount: Integer;
 begin
@@ -423,12 +596,188 @@ end;
 {$ENDREGION}
 
 
+{$REGION 'TBinaryTree.TNode'}
+
+function TBinaryTree.TNode.GetParent: PNode;
+begin
+  Result := Pointer(IntPtr(fParent) and PointerMask);
+end;
+
+function TBinaryTree.TNode.GetHeight: NativeInt;
+var
+  height: NativeInt;
+begin
+  Result := NativeInt(@Self);
+  if Result > 0 then
+  begin
+    height := fLeft.Height;
+    Result := fRight.Height;
+    if height >= Result then
+      Result := height;
+    Inc(Result);
+  end;
+end;
+
+function TBinaryTree.TNode.GetLeftMost: PNode;
+begin
+  Result := @Self;
+  if Result = nil then Exit;
+  while Assigned(Result.Left) do
+    Result := Result.Left;
+end;
+
+function TBinaryTree.TNode.GetRightMost: PNode;
+begin
+  Result := @Self;
+  if Result = nil then Exit;
+  while Assigned(Result.Right) do
+    Result := Result.Right;
+end;
+
+function TBinaryTree.TNode.GetNext: PNode;
+var
+  node: PNode;
+begin
+  Result := @Self;
+  if Result = nil then Exit;
+  if Assigned(Result.Right) then
+  begin
+    Result := Result.Right;
+    while Assigned(Result.Left) do
+      Result := Result.Left;
+    Exit;
+  end;
+  repeat
+    node := Result;
+    Result := Result.Parent;
+  until (Result = nil) or (node <> Result.Right);
+end;
+
+function TBinaryTree.TNode.GetPrev: PNode;
+var
+  node: PNode;
+begin
+  Result := @Self;
+  if Result = nil then Exit;
+  if Assigned(Result.Left) then
+  begin
+    Result := Result.Left;
+    while Assigned(Result.Right) do
+      Result := Result.Right;
+    Exit;
+  end;
+  repeat
+    node := Result;
+    Result := Result.Parent;
+  until (Result = nil) or (node <> Result.Left);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TBinaryTree.TEnumerator'}
+
+constructor TBinaryTree.TEnumerator.Create(const root: PNode;
+  mode: TTraverseMode);
+begin
+  fRoot := root;
+  fCurrent := nil;
+  fMode := mode;
+end;
+
+function TBinaryTree.TEnumerator.MoveNext: Boolean;
+begin
+  if fMode = tmInOrder then
+    Result := MoveNextInOrder
+  else if fMode = tmPreOrder then
+    Result := MoveNextPreOrder
+  else
+    Result := MoveNextPostOrder;
+end;
+
+function TBinaryTree.TEnumerator.MoveNextInOrder: Boolean;
+begin
+  if not Assigned(fCurrent) then
+    fCurrent := fRoot.LeftMost
+  else
+    fCurrent := fCurrent.Next;
+
+  Result := Assigned(fCurrent);
+  if not Result then
+    fRoot := nil;
+end;
+
+function TBinaryTree.TEnumerator.MoveNextPreOrder: Boolean;
+var
+  sibling: PBinaryTreeNode;
+begin
+  if not Assigned(fCurrent) then
+    fCurrent := fRoot
+  else if Assigned(fCurrent.Left) then // walk down left
+    fCurrent := fCurrent.Left
+  else if Assigned(fCurrent.Right) then // walk down right
+    fCurrent := fCurrent.Right
+  else
+  begin
+    while Assigned(fCurrent.Parent) and (fCurrent <> fRoot) do // walk up ...
+    begin
+      sibling := fCurrent.Parent.Right;
+      if Assigned(sibling) and (sibling <> fCurrent) then // ... and down right
+      begin
+        fCurrent := sibling;
+        Exit(True);
+      end;
+      fCurrent := fCurrent.Parent;
+    end;
+    fCurrent := nil;
+  end;
+
+  Result := Assigned(fCurrent);
+  if not Result then
+    fRoot := nil;
+end;
+
+function TBinaryTree.TEnumerator.MoveNextPostOrder: Boolean;
+var
+  sibling: PBinaryTreeNode;
+begin
+  if not Assigned(fCurrent) then
+    fCurrent := fRoot
+  else if Assigned(fCurrent.Parent) and (fCurrent <> fRoot) then // walk up ...
+  begin
+    sibling := fCurrent.Parent.Right;
+    if Assigned(sibling) and (sibling <> fCurrent) then // ... and down right
+      fCurrent := sibling
+    else
+    begin
+      fCurrent := fCurrent.Parent;
+      Exit(True);
+    end;
+  end
+  else
+    fCurrent := nil;
+
+  while Assigned(fCurrent) do // walk down to leftmost leaf
+    if Assigned(fCurrent.Left) then
+      fCurrent := fCurrent.Left
+    else if Assigned(fCurrent.Right) then
+      fCurrent := fCurrent.Right
+    else
+      Break;
+
+  Result := Assigned(fCurrent);
+  if not Result then
+    fRoot := nil;
+end;
+
+{$ENDREGION}
+
+
 {$REGION 'TRedBlackTree'}
 
-destructor TRedBlackTree.Destroy;
+destructor TRedBlackTree.Destroy; //FI:W504
 begin
   Clear;
-  inherited Destroy;
 end;
 
 procedure TRedBlackTree.Clear;
@@ -437,248 +786,621 @@ begin
   fCount := 0;
 end;
 
-procedure TRedBlackTree.Delete(node: PRedBlackTreeNode);
+procedure TRedBlackTree.Delete(node: PNode);
 var
-  child: PRedBlackTreeNode;
+  child, parent, freeNode: PNode;
+  nodeSide: Integer;
 begin
-  try
-    if Assigned(node.Left) then
-      child := node.Left
-    else
-      child := node.Right;
+  child := node.fChilds[Ord(Assigned(node.Right))];
+  parent := Pointer(IntPtr(node.fParent) and PointerMask);
 
-    // node has a child
-    if Assigned(child) then
-    begin
-      if not Assigned(node.Parent) then
-        Root := child
-      else if node.Parent.Left = node then
-        node.Parent.Left := child
-      else
-        node.Parent.Right := child;
-
-      if node.IsBlack then
-        FixupAfterDelete(child);
-    end else
-    // node is the root
-    if not Assigned(node.Parent) then
-      fRoot := nil
-    else
-    begin
-      if node.IsBlack then
-        FixupAfterDelete(node);
-      // unlink the node which could not be done before
-      // because DeleteFixUp requires Parent to be set
-      node.Parent := nil;
-    end;
-  finally
-    FreeNode(node);
-  end;
-end;
-
-procedure TRedBlackTree.FixupAfterDelete(node: PRedBlackTreeNode);
-var
-  sibling: PRedBlackTreeNode;
-begin
-  while (node <> fRoot) and node.IsBlack do
+  // node has a child
+  if Assigned(child) then
   begin
-    // node is a left child
-    if node = node.Parent.Left then
+    if Assigned(parent) then
     begin
-      sibling := node.Parent.Right;
-
-      // case 1: sibling is red
-      if not sibling.IsBlack then
-      begin
-        sibling.fColor := Black;
-        node.Parent.fColor := Red;
-        RotateLeft(node.Parent);
-        sibling := node.Parent.Right;
-      end;
-
-      // case 2: both of siblings children are black
-      if sibling.Left.IsBlack and sibling.Right.IsBlack then
-      begin
-        sibling.fColor := Red;
-        node := node.Parent;
-      end else
-      begin
-        // case 3: siblings right child is black
-        if sibling.Right.IsBlack then
-        begin
-          sibling.Left.fColor := Black;
-          sibling.fColor := Red;
-          RotateRight(sibling);
-          sibling := node.Parent.Right;
-        end;
-
-        // case 4: siblings right child is red
-        sibling.fColor := node.Parent.fColor;
-        node.Parent.fColor := Black;
-        sibling.Right.fColor := Black;
-        RotateLeft(node.Parent);
-        node := fRoot;
-      end;
-    end else
-    // node is a right child
-    begin
-      sibling := node.Parent.Left;
-
-      // case 1: sibling is red
-      if not sibling.IsBlack then
-      begin
-        sibling.fColor := Black;
-        node.Parent.fColor := Red;
-        RotateRight(node.Parent);
-        sibling := node.Parent.Left;
-      end;
-
-      // case 2: both of siblings children are black
-      if sibling.Right.IsBlack and sibling.Left.IsBlack then
-      begin
-        sibling.fColor := Red;
-        node := node.Parent;
-      end else
-      begin
-        // case 3: siblings left child is black
-        if sibling.Left.IsBlack then
-        begin
-          sibling.Right.fColor := Black;
-          sibling.fColor := Red;
-          RotateLeft(sibling);
-          sibling := node.Parent.Left;
-        end;
-
-        // case 4: siblings left child is red
-        sibling.fColor := node.Parent.fColor;
-        node.Parent.fColor := Black;
-        sibling.Left.fColor := Black;
-        RotateRight(node.Parent);
-        node := fRoot;
-      end;
-    end;
-  end;
-
-  node.fColor := Black;
-end;
-
-procedure TRedBlackTree.FixupAfterInsert(node: PRedBlackTreeNode);
-var
-  uncle: PRedBlackTreeNode;
-begin
-  node.fColor := Red;
-
-  while Assigned(node) and (node <> fRoot) and not node.Parent.IsBlack do
-  begin
-    // if nodes parent is the left child of its parent
-    if node.Parent = node.Parent.Parent.Left then
-    begin
-      uncle := node.Parent.Parent.Right;
-
-      // case 1: uncle is red
-      if not uncle.IsBlack then
-      begin
-        node.Parent.fColor := Black;
-        uncle.fColor := Black;
-        node.Parent.Parent.fColor := Red;
-        node := node.Parent.Parent;
-      end else
-      // case 2: uncle is black and node is a right child
-      if node = node.Parent.Right then
-      begin
-        node := node.Parent;
-        RotateLeft(node);
-      end else
-      // case 3: uncle is black and node is a left child
-      begin
-        node.Parent.fColor := Black;
-        node.Parent.Parent.fColor := Red;
-        RotateRight(node.Parent.Parent);
-      end;
-    end else
-    // if nodes parent is the right child of its parent
-    begin
-      uncle := node.Parent.Parent.Left;
-
-      // case 1: uncle is red
-      if not uncle.IsBlack then
-      begin
-        node.Parent.fColor := Black;
-        uncle.fColor := Black;
-        node.Parent.Parent.fColor := Red;
-        node := node.Parent.Parent;
-      end else
-      // case 2: uncle is black and node is a left child
-      if node = node.Parent.Left then
-      begin
-        node := node.Parent;
-        RotateRight(node);
-      end else
-      // case 3: uncle is black and node is right child
-      begin
-        node.Parent.fColor := Black;
-        node.Parent.Parent.fColor := Red;
-        RotateLeft(node.Parent.Parent);
-      end
+      // the side of node in the childs of its parent - 0 = left, 1 = right
+      nodeSide := Ord(parent.Right = node);
+      parent.fChilds[nodeSide] := child;
+      IntPtr(child.fParent) := IntPtr(parent) or IntPtr(child.fParent) and ColorMask;
     end
+    else
+    begin
+      fRoot := Pointer(child);
+      nodeSide := Ord(node.Right = child);
+      node.fChilds[nodeSide] := parent;
+      child.fParent := parent;
+    end;
+
+    if not Odd(IntPtr(node.fParent)) then
+      FixupAfterDelete(child);
+  end else
+  // node is not the root
+  if Assigned(parent) then
+  begin
+    if not Odd(IntPtr(node.fParent)) then
+      FixupAfterDelete(node);
+
+    // unlink the node which could not be done before
+    // because FixupAfterDelete requires Parent to be set
+    nodeSide := Ord(parent.Right = node);
+    parent.fChilds[nodeSide] := child;
+    node.fParent := child;
+  end
+  else
+    fRoot := Pointer(child);
+
+  Dec(fCount);
+  freeNode := fFreeNode;
+  fFreeNode := node;
+  node.fParent := freeNode;
+  node.fChilds[0] := nil;
+  node.fChilds[1] := nil;
+end;
+
+procedure TRedBlackTree.FixupAfterDelete(node: PNode);
+var
+  parent, sibling, child: PNode;
+  direction, parentColor: Integer;
+begin
+  if (Pointer(node) <> fRoot) and not Odd(IntPtr(node.fParent)) then
+  repeat
+    parent := Pointer(IntPtr(node.fParent) and PointerMask);
+
+    direction := Ord(node = parent.Left);   // 0 => right child, 1 => left child
+    sibling := parent.fChilds[direction];   // left = 0, right = 1
+
+    // case 1: sibling is red
+    if Assigned(sibling) and Odd(IntPtr(sibling.fParent)) then
+    begin
+      IntPtr(sibling.fParent) := IntPtr(sibling.fParent) and PointerMask;
+      IntPtr(parent.fParent) := IntPtr(parent.fParent) or 1;
+      Rotate(parent, direction xor 1);
+      parent := Pointer(IntPtr(node.fParent) and PointerMask);
+      sibling := parent.fChilds[direction];
+    end;
+
+    // case 2: both of siblings children are black
+    if not (Assigned(sibling.Left) and Odd(IntPtr(sibling.Left.fParent)))
+      and not (Assigned(sibling.Right) and Odd(IntPtr(sibling.Right.fParent))) then
+    begin
+      IntPtr(sibling.fParent) := IntPtr(sibling.fParent) or 1;
+      node := parent;
+    end else
+    begin
+      // case 3: siblings right/left child is black
+      child := sibling.fChilds[direction];
+      if not Assigned(child) or not Odd(IntPtr(child.fParent)) then
+      begin
+        child := sibling.fChilds[direction xor 1];
+        IntPtr(child.fParent) := IntPtr(child.fParent) and PointerMask;
+        IntPtr(sibling.fParent) := IntPtr(sibling.fParent) or 1;
+        Rotate(sibling, direction);
+        parent := Pointer(IntPtr(node.fParent) and PointerMask);
+        sibling := parent.fChilds[direction];
+      end;
+
+      // case 4: siblings right/left child is red
+      parentColor := IntPtr(parent.fParent) and ColorMask;
+      IntPtr(sibling.fParent) := IntPtr(sibling.fParent) and PointerMask or parentColor;
+      IntPtr(parent.fParent) := IntPtr(parent.fParent) and PointerMask;
+      child := sibling.fChilds[direction];
+      IntPtr(child.fParent) := IntPtr(child.fParent) and PointerMask;
+      Rotate(parent, direction xor 1);
+      node := Pointer(fRoot);
+    end;
+  until (Pointer(node) = fRoot) or Odd(IntPtr(node.fParent));
+
+  IntPtr(node.fParent) := IntPtr(node.fParent) and PointerMask;
+end;
+
+procedure TRedBlackTree.FixupAfterInsert(node: PNode);
+var
+  parent, grandParent, uncle: PNode;
+  direction: Integer;
+begin
+  parent := Pointer(IntPtr(node.fParent) and PointerMask);
+
+  // if node is not the root and its parent is red
+  if Assigned(parent) and Odd(IntPtr(parent.fParent)) then
+  repeat
+    grandParent := Pointer(IntPtr(parent.fParent) and PointerMask);
+    direction := Ord(parent = grandParent.Left);                        // 0 => right child, 1 => left child
+    uncle := grandParent.fChilds[direction];                            // left = 0, right = 1
+
+    // case 1: uncle is red
+    if Assigned(uncle) and Odd(IntPtr(uncle.fParent)) then
+    begin
+      IntPtr(parent.fParent) := IntPtr(parent.fParent) and PointerMask; // parent.Color := Black;
+      IntPtr(uncle.fParent) := IntPtr(uncle.fParent) and PointerMask;   // uncle.Color := Black;
+      IntPtr(grandParent.fParent) := IntPtr(grandParent.fParent) or 1;  // grandParent.Color := Red;
+      node := grandParent;
+    end else
+    // case 2: uncle is black and node is a right/left child
+    if node = parent.fChilds[direction] then
+    begin
+      node := parent;
+      Rotate(node, direction xor 1);                                    // if parent = grandParent.Left -> RotateLeft
+    end else
+    // case 3: uncle is black and node is a left/right child
+    begin
+      IntPtr(parent.fParent) := IntPtr(parent.fParent) and PointerMask; // parent.Color := Black;
+      IntPtr(grandParent.fParent) := IntPtr(grandParent.fParent) or 1;  // grandParent.Color := Red;
+      Rotate(grandParent, direction);                                   // if parent = grandParent.Left -> RotateRight
+    end;
+
+    if not Assigned(node) then Break;
+    if Pointer(node) = fRoot then Break;
+    parent := Pointer(IntPtr(node.fParent) and PointerMask);
+    if not Assigned(parent) then Break;
+    if not Odd(IntPtr(parent.fParent)) then Break;
+  until False;
+
+  IntPtr(PNode(fRoot).fParent) := IntPtr(PNode(fRoot).fParent) and PointerMask;
+end;
+
+procedure TRedBlackTree.Rotate(node: PNode; direction: Integer); // direction = 0  means left rotate
+var
+  newRoot, relocatedChild, parent: PRedBlackTreeNode;
+  nodeSide: Integer;
+begin
+  newRoot := node.fChilds[direction xor 1]; // newRoot is the child of node that gets moved up - 0 = right, 1 = left
+
+  relocatedChild := newRoot.fChilds[direction];  // the child of newRoot that is the replacement child of node
+  node.fChilds[direction xor 1] := relocatedChild;
+  if Assigned(relocatedChild) then
+    IntPtr(relocatedChild.fParent) := IntPtr(node) or IntPtr(relocatedChild.fParent) and ColorMask;
+
+  parent := Pointer(IntPtr(node.fParent) and PointerMask);
+  IntPtr(newRoot.fParent) := IntPtr(parent) or IntPtr(newRoot.fParent) and ColorMask;
+  if Assigned(parent) then
+  begin
+    nodeSide := Ord(parent.Right = node); // the side of node in the childs of its parent - 0 = left, 1 = right
+    parent.fChilds[nodeSide] := newRoot;
+  end
+  else
+    fRoot := Pointer(newRoot);
+
+  newRoot.fChilds[direction] := node;
+  if Assigned(node) then
+    IntPtr(node.fParent) := IntPtr(newRoot) or IntPtr(node.fParent) and ColorMask;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TRedBlackTree.TNode'}
+
+function TRedBlackTree.TNode.GetColor: TNodeColor;
+begin
+  Result := TNodeColor(IntPtr(fParent) and ColorMask);
+end;
+
+function TRedBlackTree.TNode.GetParent: PNode;
+begin
+  Result := Pointer(IntPtr(fParent) and PointerMask);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TNodes<T>.TNode'}
+
+function TNodes<T>.TNode.GetColor: TNodeColor;
+begin
+  Result := PRedBlackTreeNode(@fParent).Color;
+end;
+
+function TNodes<T>.TNode.GetEnumerable(mode: TTraverseMode): TEnumerable;
+begin
+  Result := TEnumerable.Create(@fParent, mode);
+end;
+
+function TNodes<T>.TNode.GetEnumerator: TEnumerator;
+begin
+  Result := TEnumerator.Create(@fParent, tmInOrder);
+end;
+
+function TNodes<T>.TNode.GetLeftMost: PNode;
+begin
+  Result := PNode(PBinaryTreeNode(@fParent).LeftMost);
+end;
+
+function TNodes<T>.TNode.GetNext: PNode;
+begin
+  Result := PNode(PBinaryTreeNode(@fParent).Next);
+end;
+
+function TNodes<T>.TNode.GetParent: PNode;
+begin
+  Result := PNode(PBinaryTreeNode(@fParent).Parent);
+end;
+
+function TNodes<T>.TNode.GetPrev: PNode;
+begin
+  Result := PNode(PBinaryTreeNode(@fParent).Prev);
+end;
+
+function TNodes<T>.TNode.GetRightMost: PNode;
+begin
+  Result := PNode(PBinaryTreeNode(@fParent).RightMost);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TNodes<T>.TKeyEnumerator'}
+
+constructor TNodes<T>.TKeyEnumerator.Create(const root: PNode;
+  mode: TTraverseMode);
+begin
+  fEnumerator := TBinaryTree.TEnumerator.Create(Pointer(root), mode);
+end;
+
+function TNodes<T>.TKeyEnumerator.GetCurrent: T;
+begin
+  Result := PNode(fEnumerator.fCurrent).Key;
+end;
+
+function TNodes<T>.TKeyEnumerator.MoveNext: Boolean;
+begin
+  Result := fEnumerator.MoveNext;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TNodes<T>.TKeyEnumerable'}
+
+constructor TNodes<T>.TKeyEnumerable.Create(const root: PNode;
+  mode: TTraverseMode);
+begin
+  fRoot := root;
+  fMode := mode;
+end;
+
+function TNodes<T>.TKeyEnumerable.GetEnumerator: TKeyEnumerator;
+begin
+  Result := TKeyEnumerator.Create(fRoot, fMode);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TNodes<T>.TEnumerator'}
+
+constructor TNodes<T>.TEnumerator.Create(const root: PNode;
+  mode: TTraverseMode);
+begin
+  fEnumerator := TBinaryTree.TEnumerator.Create(Pointer(root), mode);
+end;
+
+function TNodes<T>.TEnumerator.GetCurrent: PNode;
+begin
+  Result := PNode(fEnumerator.fCurrent);
+end;
+
+function TNodes<T>.TEnumerator.MoveNext: Boolean;
+begin
+  Result := fEnumerator.MoveNext;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TNodes<T>.TEnumerable'}
+
+constructor TNodes<T>.TEnumerable.Create(const root: PNode;
+  mode: TTraverseMode);
+begin
+  fRoot := root;
+  fMode := mode;
+end;
+
+function TNodes<T>.TEnumerable.GetEnumerator: TEnumerator;
+begin
+  Result := TEnumerator.Create(fRoot, fMode);
+end;
+
+function TNodes<T>.TEnumerable.GetKeys: TKeyEnumerable;
+begin
+  Result := TKeyEnumerable.Create(fRoot, fMode);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TNodes<TKey, TValue>.TNode'}
+
+function TNodes<TKey, TValue>.TNode.GetColor: TNodeColor;
+begin
+  Result := PRedBlackTreeNode(@fParent).Color;
+end;
+
+function TNodes<TKey, TValue>.TNode.GetEnumerable(
+  mode: TTraverseMode): TEnumerable;
+begin
+  Result := TEnumerable.Create(@fParent, mode);
+end;
+
+function TNodes<TKey, TValue>.TNode.GetEnumerator: TEnumerator;
+begin
+  Result := TEnumerator.Create(@fParent, tmInOrder);
+end;
+
+function TNodes<TKey, TValue>.TNode.GetLeftMost: PNode;
+begin
+  Result := PNode(PBinaryTreeNode(@fParent).LeftMost);
+end;
+
+function TNodes<TKey, TValue>.TNode.GetNext: PNode;
+begin
+  Result := PNode(PBinaryTreeNode(@fParent).Next);
+end;
+
+function TNodes<TKey, TValue>.TNode.GetParent: PNode;
+begin
+  Result := PNode(PBinaryTreeNode(@fParent).Parent);
+end;
+
+function TNodes<TKey, TValue>.TNode.GetPrev: PNode;
+begin
+  Result := PNode(PBinaryTreeNode(@fParent).Prev);
+end;
+
+function TNodes<TKey, TValue>.TNode.GetRightMost: PNode;
+begin
+  Result := PNode(PBinaryTreeNode(@fParent).RightMost);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TNodes<TKey, TValue>.TKeyEnumerator'}
+
+constructor TNodes<TKey, TValue>.TKeyEnumerator.Create(const root: PNode;
+  mode: TTraverseMode);
+begin
+  fEnumerator := TBinaryTree.TEnumerator.Create(Pointer(root), mode);
+end;
+
+function TNodes<TKey, TValue>.TKeyEnumerator.GetCurrent: TKey;
+begin
+  Result := PNode(fEnumerator.fCurrent).fPair.Key;
+end;
+
+function TNodes<TKey, TValue>.TKeyEnumerator.MoveNext: Boolean;
+begin
+  Result := fEnumerator.MoveNext;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TNodes<TKey, TValue>.TKeyEnumerable'}
+
+constructor TNodes<TKey, TValue>.TKeyEnumerable.Create(const root: PNode;
+  mode: TTraverseMode);
+begin
+  fRoot := root;
+  fMode := mode;
+end;
+
+function TNodes<TKey, TValue>.TKeyEnumerable.GetEnumerator: TKeyEnumerator;
+begin
+  Result := TKeyEnumerator.Create(fRoot, fMode);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TNodes<TKey, TValue>.TValueEnumerator'}
+
+constructor TNodes<TKey, TValue>.TValueEnumerator.Create(const root: PNode;
+  mode: TTraverseMode);
+begin
+  fEnumerator := TBinaryTree.TEnumerator.Create(Pointer(root), mode);
+end;
+
+function TNodes<TKey, TValue>.TValueEnumerator.GetCurrent: TValue;
+begin
+  Result := PNode(fEnumerator.fCurrent).fPair.Value;
+end;
+
+function TNodes<TKey, TValue>.TValueEnumerator.MoveNext: Boolean;
+begin
+  Result := fEnumerator.MoveNext;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TNodes<TKey, TValue>.TValueEnumerable'}
+
+constructor TNodes<TKey, TValue>.TValueEnumerable.Create(const root: PNode;
+  mode: TTraverseMode);
+begin
+  fRoot := root;
+  fMode := mode;
+end;
+
+function TNodes<TKey, TValue>.TValueEnumerable.GetEnumerator: TValueEnumerator;
+begin
+  Result := TValueEnumerator.Create(fRoot, fMode);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TNodes<TKey, TValue>.TEnumerator'}
+
+constructor TNodes<TKey, TValue>.TEnumerator.Create(const root: PNode;
+  mode: TTraverseMode);
+begin
+  fEnumerator := TBinaryTree.TEnumerator.Create(Pointer(root), mode);
+end;
+
+function TNodes<TKey, TValue>.TEnumerator.GetCurrent: PNode;
+begin
+  Result := PNode(fEnumerator.fCurrent);
+end;
+
+function TNodes<TKey, TValue>.TEnumerator.MoveNext: Boolean;
+begin
+  Result := fEnumerator.MoveNext;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TNodes<TKey, TValue>.TEnumerable'}
+
+constructor TNodes<TKey, TValue>.TEnumerable.Create(const root: PNode;
+  mode: TTraverseMode);
+begin
+  fRoot := root;
+  fMode := mode;
+end;
+
+function TNodes<TKey, TValue>.TEnumerable.GetEnumerator: TEnumerator;
+begin
+  Result := TEnumerator.Create(fRoot, fMode);
+end;
+
+function TNodes<TKey, TValue>.TEnumerable.GetKeys: TKeyEnumerable;
+begin
+  Result := TKeyEnumerable.Create(fRoot, fMode);
+end;
+
+function TNodes<TKey, TValue>.TEnumerable.GetValues: TValueEnumerable;
+begin
+  Result := TValueEnumerable.Create(fRoot, fMode);
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TRedBlackTreeBase<T>'}
+
+constructor TRedBlackTreeBase<T>.Create;
+begin
+  Create(nil);
+end;
+
+constructor TRedBlackTreeBase<T>.Create(const comparer: IComparer<T>);
+begin
+  fComparer := comparer;
+  if not Assigned(fComparer) then
+    fComparer := IComparer<T>(_LookupVtableInfo(giComparer, TypeInfo(T), SizeOf(T)));
+end;
+
+function TRedBlackTreeBase<T>.CreateNode(const key: T; parent: PNode): PNode;
+begin
+  if fCount = fStorage.Capacity then
+    fStorage.Grow;
+
+  if Assigned(fFreeNode) then
+  begin
+    Result := PNode(fFreeNode);
+    fFreeNode := fFreeNode.fParent;
+  end
+  else
+    Result := PNode(fStorage[fCount]);
+  IntPtr(Result.fParent) := IntPtr(parent) or Ord(Assigned(parent)); // mark node red when it has parent
+  Result.fKey := key;
+  Inc(fCount);
+end;
+
+function TRedBlackTreeBase<T>.AddNode(const key: T): PNode;
+var
+  node: PNode;
+  newNode, child: Pointer;
+  compareResult, i: Integer;
+begin
+  if Assigned(fRoot) then
+  begin
+    child := fRoot;
+    repeat
+      node := child;
+      compareResult := IComparer<T>(fComparer).Compare(node.Key, key);
+      if compareResult = 0 then
+        Exit(Pointer(compareResult)); //FI:W541
+      i := compareResult shr 31; // left -> 0, right -> 1
+      child := PRedBlackTreeNode(node).fChilds[i];
+    until not Assigned(child);
+
+    newNode := CreateNode(key, node);
+    PRedBlackTreeNode(node).fChilds[i] := newNode;
+    FixupAfterInsert(newNode);
+    Exit(newNode);
+  end
+  else
+  begin
+    Result := CreateNode(key, nil);
+    fRoot := Pointer(Result);
   end;
-
-  PRedBlackTreeNode(fRoot).fColor := Black;
 end;
 
-procedure TRedBlackTree.InsertLeft(node, newNode: PRedBlackTreeNode);
+procedure TRedBlackTreeBase<T>.Clear;
 begin
-  Assert(not Assigned(node.Left));
-  node.Left := newNode;
-  FixupAfterInsert(newNode);
+  inherited Clear;
+  fStorage.Capacity := 0;
 end;
 
-procedure TRedBlackTree.InsertRight(node, newNode: PRedBlackTreeNode);
-begin
-  Assert(not Assigned(node.Right));
-  node.Right := newNode;
-  FixupAfterInsert(newNode);
-end;
-
-procedure TRedBlackTree.RotateLeft(node: PRedBlackTreeNode);
+procedure TRedBlackTreeBase<T>.DeleteNode(node: PNode);
 var
-  right: PRedBlackTreeNode;
+  next: PNode;
 begin
-  right := node.Right;
-  node.Right := right.Left;
-
-  if not Assigned(node.Parent) then
-    Root := right
-  else if node.Parent.Left = node then
-    node.Parent.Left := right
-  else
-    node.Parent.Right := right;
-
-  right.Left := node;
+  if Assigned(node.Left) and Assigned(node.Right) then
+  begin
+    // inline node.Next -> we know that it will be node.Right.LeftMost
+    next := node.Right;
+    while Assigned(next.Left) do
+      next := next.Left;
+    node.fKey := next.Key;
+    node := next;
+  end;
+  node.fKey := Default(T);
+  inherited Delete(PRedBlackTreeNode(node));
 end;
 
-procedure TRedBlackTree.RotateRight(node: PRedBlackTreeNode);
+function TRedBlackTreeBase<T>.FindNode(const key: T): PNode;
 var
-  left: PRedBlackTreeNode;
+  root, node: PNode;
+  compareResult, i: Integer;
 begin
-  left := node.Left;
-  node.Left := left.Right;
-
-  if not Assigned(node.Parent) then
-    Root := left
-  else if node.Parent.Right = node then
-    node.Parent.Right := left
+  root := Pointer(fRoot);
+  if Assigned(root) then
+  begin
+    node := root;
+    repeat
+      compareResult := IComparer<T>(fComparer).Compare(node.Key, key);
+      if compareResult = 0 then Break;
+      i := compareResult shr 31; // left -> 0, right -> 1
+      node := PNode(PRedBlackTreeNode(node).fChilds[i]);
+    until not Assigned(node);
+    Result := node;
+  end
   else
-    node.Parent.Left := left;
-
-  left.Right := node;
+    Result := root;
 end;
 
-procedure TRedBlackTree.SetRoot(value: PRedBlackTreeNode);
+function TRedBlackTreeBase<T>.GetCapacity: Integer;
 begin
-  fRoot := value;
-  if Assigned(value) then
-    value.Parent := nil;
+  Result := fStorage.Capacity;
+end;
+
+procedure TRedBlackTreeBase<T>.SetCapacity(value: Integer);
+begin
+  if value >= fCount then
+    fStorage.Capacity := value
+  else
+    RaiseHelper.ArgumentOutOfRange(ExceptionArgument.value, ExceptionResource.ArgumentOutOfRange_Capacity);
+end;
+
+procedure TRedBlackTreeBase<T>.TrimExcess;
+begin
+  SetCapacity(fCount);
 end;
 
 {$ENDREGION}
@@ -686,116 +1408,9 @@ end;
 
 {$REGION 'TRedBlackTree<T>'}
 
-constructor TRedBlackTree<T>.Create;
-begin
-  Create(nil);
-end;
-
-constructor TRedBlackTree<T>.Create(const comparer: IComparer<T>);
-begin
-  inherited Create;
-  fComparer := comparer;
-  if not Assigned(fComparer) then
-    fComparer := TComparer<T>.Default;
-end;
-
-function TRedBlackTree<T>.CreateNode(const key: T): PNode;
-var
-  index: TBucketIndex;
-begin
-  index := GetBucketIndex(fCount);
-  if index.Pos = 0 then
-    Grow;
-
-  Result := @fStorage[index.Row, index.Pos];
-  Result.fKey := key;
-  Inc(fCount);
-end;
-
-procedure TRedBlackTree<T>.DestroyNode(node: PNode);
-var
-  index: TBucketIndex;
-  lastNode: PNode;
-begin
-  if fCount > 1 then
-  begin
-    index := GetBucketIndex(fCount - 1);
-    lastNode := @fStorage[index.Row, index.Pos];
-
-    if lastNode <> node then
-    begin
-      node^ := lastNode^;
-      if Assigned(node.fLeft) then
-        node.fLeft.fParent := PRedBlackTreeNode(node);
-      if Assigned(node.fRight) then
-        node.fRight.fParent := PRedBlackTreeNode(node);
-      if Assigned(node.fParent) then
-      begin
-        if node.fParent.fLeft = PRedBlackTreeNode(lastNode) then
-          node.fParent.fLeft := PRedBlackTreeNode(node)
-        else if node.fParent.fRight = PRedBlackTreeNode(lastNode) then
-          node.fParent.fRight := PRedBlackTreeNode(node)
-      end
-      else
-        fRoot := PRedBlackTreeNode(node);
-    end;
-
-    node := lastNode;
-  end;
-  Dec(fCount);
-  node.fLeft := nil;
-  node.fParent := nil;
-  node.fRight := nil;
-  node.fColor := Black;
-  node.fKey := Default(T);
-end;
-
-procedure TRedBlackTree<T>.FreeNode(node: Pointer);
-begin
-  DestroyNode(PNode(node));
-end;
-
 function TRedBlackTree<T>.Add(const key: T): Boolean;
-var
-  node: PRedBlackTreeNode;
-  compareResult: Integer;
 begin
-  if not Assigned(fRoot) then
-  begin
-    fRoot := PRedBlackTreeNode(CreateNode(key));
-    Exit(True);
-  end;
-
-  node := fRoot;
-  while True do
-  begin
-    compareResult := fComparer.Compare(key, PNode(node).Key);
-
-    if compareResult > 0 then
-      if Assigned(node.Right) then
-        node := node.Right
-      else
-      begin
-        InsertRight(node, PRedBlackTreeNode(CreateNode(key)));
-        Exit(True);
-      end
-    else if compareResult < 0 then
-      if Assigned(node.Left) then
-        node := node.Left
-      else
-      begin
-        InsertLeft(node, PRedBlackTreeNode(CreateNode(key)));
-        Exit(True);
-      end
-    else
-      Exit(False);
-  end;
-end;
-
-procedure TRedBlackTree<T>.Clear;
-begin
-  inherited Clear;
-  SetLength(fStorage, 0);
+  Result := Assigned(AddNode(key));
 end;
 
 function TRedBlackTree<T>.Delete(const key: T): Boolean;
@@ -810,25 +1425,15 @@ begin
     DeleteNode(node);
 end;
 
-procedure TRedBlackTree<T>.DeleteNode(node: PNode);
-var
-  next: PNode;
-begin
-  if Assigned(node.Left) and Assigned(node.Right) then
-  begin
-    next := PNode(PBinaryTreeNode(node).Next);
-    node.fKey := next.Key;
-    node := next;
-  end;
-  inherited Delete(PRedBlackTreeNode(node));
-end;
-
 function TRedBlackTree<T>.Exists(const key: T): Boolean;
+var
+  node: PNode;
 begin
-  Result := (fCount > 0) and Assigned(FindNode(key));
+  node := FindNode(key);
+  Result := Assigned(node);
 end;
 
-function TRedBlackTree<T>.Find(const key: T; out value: T): Boolean;
+function TRedBlackTree<T>.Find(const key: T; var value: T): Boolean;
 var
   node: PNode;
 begin
@@ -842,36 +1447,16 @@ begin
     value := Default(T);
 end;
 
-function TRedBlackTree<T>.FindNode(const key: T): PNode;
-var
-  compareResult: Integer;
+function TRedBlackTree<T>.GetEnumerator: IEnumerator<T>; //FI:W521
 begin
-  Result := PNode(fRoot);
-  while Assigned(Result) do
-  begin
-    compareResult := fComparer.Compare(key, Result.Key);
-
-    if compareResult < 0 then
-      Result := PNode(Result.Left)
-    else if compareResult > 0 then
-      Result := PNode(Result.Right)
-    else
-      Exit;
-  end;
+  with PEnumerator(TEnumeratorBlock.Create(@Result, @TEnumerator.Enumerator_Vtable,
+    TypeInfo(TEnumerator), @TEnumerator.GetCurrent, @TEnumerator.MoveNext))^ do
+    fEnumerator := TBinaryTree.TEnumerator.Create(fRoot, tmInOrder);
 end;
 
-function TRedBlackTree<T>.GetEnumerator: IEnumerator<T>;
+function TRedBlackTree<T>.GetRoot: PNode;
 begin
-  Result := TEnumerator.Create(Self);
-end;
-
-procedure TRedBlackTree<T>.Grow;
-var
-  index: TBucketIndex;
-begin
-  index := GetBucketIndex(fCount);
-  SetLength(fStorage, index.Row + 1);
-  SetLength(fStorage[index.Row], DefaultBucketSize);
+  Result := Pointer(fRoot);
 end;
 
 function TRedBlackTree<T>.ToArray: TArray<T>;
@@ -881,11 +1466,13 @@ var
 begin
   SetLength(Result, fCount);
   if fCount > 0 then
-    node := PBinaryTreeNode(fRoot).LeftMost;
-  for i := 0 to fCount - 1 do
   begin
-    Result[i] := PNode(node).Key;
-    node := node.Next;
+    node := PBinaryTreeNode(fRoot).LeftMost;
+    for i := 0 to fCount - 1 do
+    begin
+      Result[i] := PNode(node).Key;
+      node := node.Next;
+    end;
   end;
 end;
 
@@ -894,28 +1481,149 @@ end;
 
 {$REGION 'TRedBlackTree<T>.TEnumerator'}
 
-constructor TRedBlackTree<T>.TEnumerator.Create(
-  const tree: TRedBlackTree);
-begin
-  inherited Create;
-  fTree := tree;
-end;
-
 function TRedBlackTree<T>.TEnumerator.GetCurrent: T;
 begin
-  Result := PNode(fCurrentNode).Key;
+  Result := PNode(fEnumerator.fCurrent).Key;
 end;
 
 function TRedBlackTree<T>.TEnumerator.MoveNext: Boolean;
 begin
-  if (fTree.fCount = 0) or fFinished then
-    Exit(False);
-  if not Assigned(fCurrentNode) then
-    fCurrentNode := PBinaryTreeNode(fTree.fRoot).LeftMost
+  Result := fEnumerator.MoveNext;
+end;
+
+{$ENDREGION}
+
+
+{$REGION 'TRedBlackTreeBase<TKey, TValue>'}
+
+constructor TRedBlackTreeBase<TKey, TValue>.Create;
+begin
+  Create(nil);
+end;
+
+constructor TRedBlackTreeBase<TKey, TValue>.Create(const comparer: IComparer<TKey>);
+begin
+  fComparer := comparer;
+  if not Assigned(fComparer) then
+    fComparer := IComparer<TKey>(_LookupVtableInfo(giComparer, TypeInfo(TKey), SizeOf(TKey)));
+end;
+
+function TRedBlackTreeBase<TKey, TValue>.CreateNode(const key: TKey; parent: PNode): PNode;
+begin
+  if fCount = fStorage.Capacity then
+    fStorage.Grow;
+
+  if Assigned(fFreeNode) then
+  begin
+    Result := PNode(fFreeNode);
+    fFreeNode := fFreeNode.fParent;
+  end
   else
-    fCurrentNode := fCurrentNode.Next;
-  Result := Assigned(fCurrentNode);
-  fFinished := not Result;
+    Result := PNode(fStorage[fCount]);
+  IntPtr(Result.fParent) := IntPtr(parent) or Ord(Assigned(parent)); // mark node red when it has parent
+  Result.fPair.Key := key;
+  Inc(fCount);
+end;
+
+function TRedBlackTreeBase<TKey, TValue>.AddNode(const key: TKey; allowReplace: Boolean): PNode;
+var
+  node: PNode;
+  newNode: Pointer;
+  compareResult, i: Integer;
+begin
+  if Assigned(fRoot) then
+  begin
+    node := Pointer(fRoot);
+    repeat
+      compareResult := IComparer<TKey>(fComparer).Compare(node.fPair.Key, key);
+      if compareResult = 0 then Break;
+      i := compareResult shr 31; // left -> 0, right -> 1
+      if Assigned(PRedBlackTreeNode(node).fChilds[i]) then
+        node := PNode(PRedBlackTreeNode(node).fChilds[i])
+      else
+      begin
+        newNode := CreateNode(key, node);
+        PRedBlackTreeNode(node).fChilds[i] := newNode;
+        FixupAfterInsert(newNode);
+        Exit(newNode);
+      end;
+    until False;
+    if allowReplace then
+      // to indicate that an existing node was returned the lowest bit is set
+      // the caller needs to zero it again to work with the pointer
+      Exit(Pointer(IntPtr(node) or 1))
+    else
+      Exit(nil);
+  end
+  else
+  begin
+    Result := CreateNode(key, nil);
+    fRoot := Pointer(Result);
+  end;
+end;
+
+procedure TRedBlackTreeBase<TKey, TValue>.Clear;
+begin
+  inherited Clear;
+  fStorage.Capacity := 0;
+end;
+
+procedure TRedBlackTreeBase<TKey, TValue>.DeleteNode(node: PNode);
+var
+  next: PNode;
+begin
+  if Assigned(node.Left) and Assigned(node.Right) then
+  begin
+    // inline node.Next -> we know that it will be node.Right.LeftMost
+    next := node.Right;
+    while Assigned(next.Left) do
+      next := next.Left;
+    node.fPair.Key := next.fPair.Key;
+    node.fPair.Value := next.fPair.Value;
+    node := next;
+  end;
+  node.fPair.Key := Default(TKey);
+  node.fPair.Value := Default(TValue);
+  inherited Delete(PRedBlackTreeNode(node));
+end;
+
+function TRedBlackTreeBase<TKey, TValue>.FindNode(const key: TKey): PNode;
+var
+  root, node: PNode;
+  compareResult, i: Integer;
+begin
+  root := Pointer(fRoot);
+  if Assigned(root) then
+  begin
+    node := root;
+    repeat
+      compareResult := IComparer<TKey>(fComparer).Compare(node.fPair.Key, key);
+      if compareResult = 0 then Break;
+      i := compareResult shr 31; // left -> 0, right -> 1
+      node := PNode(PRedBlackTreeNode(node).fChilds[i]);
+    until not Assigned(node);
+    Result := node;
+  end
+  else
+    Result := root;
+end;
+
+function TRedBlackTreeBase<TKey, TValue>.GetCapacity: Integer;
+begin
+  Result := fStorage.Capacity;
+end;
+
+procedure TRedBlackTreeBase<TKey, TValue>.SetCapacity(value: Integer);
+begin
+  if value >= fCount then
+    fStorage.Capacity := value
+  else
+    RaiseHelper.ArgumentOutOfRange(ExceptionArgument.value, ExceptionResource.ArgumentOutOfRange_Capacity);
+end;
+
+procedure TRedBlackTreeBase<TKey, TValue>.TrimExcess;
+begin
+  SetCapacity(fCount);
 end;
 
 {$ENDREGION}
@@ -923,94 +1631,24 @@ end;
 
 {$REGION 'TRedBlackTree<TKey, TValue>'}
 
-constructor TRedBlackTree<TKey, TValue>.Create;
-begin
-  Create(nil);
-end;
-
-constructor TRedBlackTree<TKey, TValue>.Create(const comparer: IComparer<TKey>);
-begin
-  inherited Create;
-  fComparer := comparer;
-  if not Assigned(fComparer) then
-    fComparer := TComparer<TKey>.Default;
-end;
-
-function TRedBlackTree<TKey, TValue>.CreateNode(const key: TKey;
-  const value: TValue): PNode;
+function TRedBlackTree<TKey, TValue>.Add(const key: TKey; const value: TValue): Boolean;
 var
-  index: TBucketIndex;
+  node: PNode;
 begin
-  index := GetBucketIndex(fCount);
-  if index.Pos = 0 then
-    Grow;
-
-  Result := @fStorage[index.Row, index.Pos];
-  Result.fKey := key;
-  Result.fValue := value;
-  Inc(fCount);
+  node := AddNode(key, False);
+  if node = nil then Exit(Boolean(Pointer(node)));
+  node.fPair.Value := value;
+  Result := True;
 end;
 
-procedure TRedBlackTree<TKey, TValue>.DestroyNode(node: PNode);
+function TRedBlackTree<TKey, TValue>.AddOrSet(const key: TKey; const value: TValue): Boolean;
 var
-  index: TBucketIndex;
-  lastNode: PNode;
+  node: PNode;
 begin
-  if fCount > 1 then
-  begin
-    index := GetBucketIndex(fCount - 1);
-    lastNode := @fStorage[index.Row, index.Pos];
-
-    if lastNode <> node then
-    begin
-      node^ := lastNode^;
-      if Assigned(node.fLeft) then
-        node.fLeft.fParent := PRedBlackTreeNode(node);
-      if Assigned(node.fRight) then
-        node.fRight.fParent := PRedBlackTreeNode(node);
-      if Assigned(node.fParent) then
-      begin
-        if node.fParent.fLeft = PRedBlackTreeNode(lastNode) then
-          node.fParent.fLeft := PRedBlackTreeNode(node)
-        else if node.fParent.fRight = PRedBlackTreeNode(lastNode) then
-          node.fParent.fRight := PRedBlackTreeNode(node)
-      end
-      else
-        fRoot := PRedBlackTreeNode(node);
-    end;
-
-    node := lastNode;
-  end;
-  Dec(fCount);
-  node.fLeft := nil;
-  node.fParent := nil;
-  node.fRight := nil;
-  node.fColor := Black;
-  node.fKey := Default(TKey);
-  node.fValue := Default(TValue);
-end;
-
-procedure TRedBlackTree<TKey, TValue>.FreeNode(node: Pointer);
-begin
-  DestroyNode(PNode(node));
-end;
-
-function TRedBlackTree<TKey, TValue>.Add(const key: TKey;
-  const value: TValue): Boolean;
-begin
-  Result := InternalAdd(key, value, False);
-end;
-
-function TRedBlackTree<TKey, TValue>.AddOrSet(const key: TKey;
-  const value: TValue): Boolean;
-begin
-  Result := InternalAdd(key, value, True);
-end;
-
-procedure TRedBlackTree<TKey, TValue>.Clear;
-begin
-  inherited Clear;
-  SetLength(fStorage, 0);
+  node := AddNode(key, True);
+  node := Pointer(IntPtr(node) and not 1);
+  node.fPair.Value := value;
+  Result := True;
 end;
 
 function TRedBlackTree<TKey, TValue>.Delete(const key: TKey): Boolean;
@@ -1025,27 +1663,15 @@ begin
     DeleteNode(node);
 end;
 
-procedure TRedBlackTree<TKey, TValue>.DeleteNode(node: PNode);
-var
-  next: PNode;
-begin
-  if Assigned(node.Left) and Assigned(node.Right) then
-  begin
-    next := PNode(PBinaryTreeNode(node).Next);
-    node.fKey := next.Key;
-    node.fValue := next.Value;
-    node := next;
-  end;
-  inherited Delete(PRedBlackTreeNode(node));
-end;
-
 function TRedBlackTree<TKey, TValue>.Exists(const key: TKey): Boolean;
+var
+  node: PNode;
 begin
-  Result := (fCount > 0) and Assigned(FindNode(key));
+  node := FindNode(key);
+  Result := Assigned(node);
 end;
 
-function TRedBlackTree<TKey, TValue>.Find(const key: TKey;
-  out foundValue: TValue): Boolean;
+function TRedBlackTree<TKey, TValue>.Find(const key: TKey; var foundValue: TValue): Boolean;
 var
   node: PNode;
 begin
@@ -1054,85 +1680,21 @@ begin
   node := FindNode(key);
   Result := Assigned(node);
   if Result then
-    foundValue := node.Value
+    foundValue := node.fPair.Value
   else
     foundValue := Default(TValue);
 end;
 
-function TRedBlackTree<TKey, TValue>.FindNode(const key: TKey): PNode;
-var
-  compareResult: Integer;
+function TRedBlackTree<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>; //FI:W521
 begin
-  Result := PNode(fRoot);
-  while Assigned(Result) do
-  begin
-    compareResult := fComparer.Compare(key, Result.Key);
-
-    if compareResult < 0 then
-      Result := PNode(Result.Left)
-    else if compareResult > 0 then
-      Result := PNode(Result.Right)
-    else
-      Exit;
-  end;
+  with PEnumerator(TEnumeratorBlock.Create(@Result, @TEnumerator.Enumerator_Vtable,
+    TypeInfo(TEnumerator), @TEnumerator.GetCurrent, @TEnumerator.MoveNext))^ do
+    fEnumerator := TBinaryTree.TEnumerator.Create(fRoot, tmInOrder);
 end;
 
-function TRedBlackTree<TKey, TValue>.GetEnumerator: IEnumerator<TPair<TKey, TValue>>;
+function TRedBlackTree<TKey, TValue>.GetRoot: PNode;
 begin
-  Result := TEnumerator.Create(Self);
-end;
-
-procedure TRedBlackTree<TKey, TValue>.Grow;
-var
-  index: TBucketIndex;
-begin
-  index := GetBucketIndex(fCount);
-  SetLength(fStorage, index.Row + 1);
-  SetLength(fStorage[index.Row], DefaultBucketSize);
-end;
-
-function TRedBlackTree<TKey, TValue>.InternalAdd(const key: TKey;
-  const value: TValue; allowReplace: Boolean): Boolean;
-var
-  node: PRedBlackTreeNode;
-  compareResult: Integer;
-begin
-  if not Assigned(fRoot) then
-  begin
-    fRoot := PRedBlackTreeNode(CreateNode(key, value));
-    Exit(True);
-  end;
-
-  node := fRoot;
-  while True do
-  begin
-    compareResult := fComparer.Compare(key, PNode(node).Key);
-
-    if compareResult > 0 then
-      if Assigned(node.Right) then
-        node := node.Right
-      else
-      begin
-        InsertRight(node, PRedBlackTreeNode(CreateNode(key, value)));
-        Exit(True);
-      end
-    else if compareResult < 0 then
-      if Assigned(node.Left) then
-        node := node.Left
-      else
-      begin
-        InsertLeft(node, PRedBlackTreeNode(CreateNode(key, value)));
-        Exit(True);
-      end
-    else
-      if allowReplace then
-      begin
-        PNode(node).Value := value;
-        Exit(True);
-      end
-      else
-        Exit(False);
-  end;
+  Result := Pointer(fRoot);
 end;
 
 function TRedBlackTree<TKey, TValue>.ToArray: TArray<TPair<TKey, TValue>>;
@@ -1142,12 +1704,14 @@ var
 begin
   SetLength(Result, fCount);
   if fCount > 0 then
-    node := PBinaryTreeNode(fRoot).LeftMost;
-  for i := 0 to fCount - 1 do
   begin
-    Result[i].Key := PNode(node).Key;
-    Result[i].Value := PNode(node).Value;
-    node := node.Next;
+    node := fRoot.LeftMost;
+    for i := 0 to fCount - 1 do
+    begin
+      Result[i].Key := PNode(node).fPair.Key;
+      Result[i].Value := PNode(node).fPair.Value;
+      node := node.Next;
+    end;
   end;
 end;
 
@@ -1156,29 +1720,15 @@ end;
 
 {$REGION 'TRedBlackTree<TKey, TValue>.TEnumerator'}
 
-constructor TRedBlackTree<TKey, TValue>.TEnumerator.Create(
-  const tree: TRedBlackTree);
-begin
-  inherited Create;
-  fTree := tree;
-end;
-
 function TRedBlackTree<TKey, TValue>.TEnumerator.GetCurrent: TPair<TKey, TValue>;
 begin
-  Result.Key := PNode(fCurrentNode).Key;
-  Result.Value := PNode(fCurrentNode).Value;
+  Result.Key := PNode(fEnumerator.fCurrent).fPair.Key;
+  Result.Value := PNode(fEnumerator.fCurrent).fPair.Value;
 end;
 
 function TRedBlackTree<TKey, TValue>.TEnumerator.MoveNext: Boolean;
 begin
-  if (fTree.fCount = 0) or fFinished then
-    Exit(False);
-  if not Assigned(fCurrentNode) then
-    fCurrentNode := PBinaryTreeNode(fTree.fRoot).LeftMost
-  else
-    fCurrentNode := fCurrentNode.Next;
-  Result := Assigned(fCurrentNode);
-  fFinished := not Result;
+  Result := fEnumerator.MoveNext;
 end;
 
 {$ENDREGION}

@@ -111,8 +111,8 @@ var
   generator: ISQLGenerator;
 const
   expected =
-    '(t0."FIRST_NAME" = :FIRST_NAME1 OR t0."FIRST_NAME" = :FIRST_NAME2) AND ' +
-    '(t0."LAST_NAME" = :LAST_NAME1 OR t0."LAST_NAME" = :LAST_NAME2)';
+    '(t0."FIRST_NAME" = :p0 OR t0."FIRST_NAME" = :p1) AND ' +
+    '(t0."LAST_NAME" = :p2 OR t0."LAST_NAME" = :p3)';
 begin
   command := TSelectCommand.Create(TPerson);
   try
@@ -132,7 +132,7 @@ begin
     andJunction.Add(orJunction1);
     andJunction.Add(orJunction2);
 
-    params := TCollections.CreateList<TDBParam>(True);
+    params := TCollections.CreateObjectList<TDBParam>(True);
     param := TDBParam.Create('FIRST_NAME', '');
     params.Add(Param);
     param := TDBParam.Create('FIRST_NAME', '');
@@ -158,7 +158,7 @@ var
   command: TSelectCommand;
   generator: ISQLGenerator;
 const
-  expected = 't0."RESOURCE_NAME" = :RESOURCE_NAME1';
+  expected = 't0."RESOURCE_NAME" = :p0';
 begin
   criteria := FSession.CreateCriteria<TResource>;
 
@@ -169,7 +169,7 @@ begin
   command := TSelectCommand.Create(TResource);
   try
     generator := TSQLGeneratorRegister.GetGenerator(qlOracle);
-    params := TCollections.CreateList<TDBParam>(True);
+    params := TCollections.CreateObjectList<TDBParam>(True);
 
     sqlWhere := (criteria as TCriteria<TResource>).Criterions[0].ToSqlString(params, command, generator, False);
 

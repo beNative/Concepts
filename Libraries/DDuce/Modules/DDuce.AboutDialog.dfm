@@ -11,9 +11,7 @@ object frmAboutDialog: TfrmAboutDialog
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   PopupMode = pmAuto
   Position = poMainFormCenter
-  PixelsPerInch = 96
   TextHeight = 13
 end

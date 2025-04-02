@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -46,9 +46,9 @@ type
     );
     destructor Destroy; override;
 
-    function CreateFileMenu(AMenu : TMenu): TMenuItem;
-    function CreateEditMenu(AMenu : TMenu): TMenuItem;
-    function CreateSelectionMenu(AMenu : TMenu): TMenuItem;
+    function CreateFileMenu(AMenu: TMenu): TMenuItem;
+    function CreateEditMenu(AMenu: TMenu): TMenuItem;
+    function CreateSelectionMenu(AMenu: TMenu): TMenuItem;
     function CreateInsertMenu(AMenu: TMenu): TMenuItem;
     function CreateSearchMenu(AMenu: TMenu): TMenuItem;
     function CreateToolsMenu(AMenu: TMenu): TMenuItem;

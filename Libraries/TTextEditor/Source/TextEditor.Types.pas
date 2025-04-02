@@ -1,5 +1,7 @@
 ﻿unit TextEditor.Types;
 
+{$I TextEditor.Defines.inc}
+
 interface
 
 uses
@@ -20,16 +22,19 @@ type
     sfLineBreakCR, sfLineBreakLF, sfLineStateNormal, sfLineStateModified);
   TTextEditorStringFlags = set of TTextEditorStringFlag;
 
+  TTextEditorSortOption = (soAsc, soDesc, soIgnoreCase, {$IF CompilerVersion >= 34.0}soNatural,{$ENDIF} soRandom);
+  TTextEditorSortOptions = set of TTextEditorSortOption;
+
   TTextEditorLineState = (lsNone, lsNormal, lsModified);
   TTextEditorLineBreak = (lbCRLF, lbLF, lbCR);
 
   PTextEditorStringRecord = ^TTextEditorStringRecord;
   TTextEditorStringRecord = record
-    Flags: TTextEditorStringFlags;
     ExpandedLength: Integer;
+    Flags: TTextEditorStringFlags;
+    OriginalLineNumber: Integer;
     Range: TTextEditorLinesRange;
     TextLine: string;
-    OriginalLineNumber: Integer;
   end;
 
   TTextEditorArrayOfString = array of string;
@@ -43,8 +48,6 @@ type
   end;
   PRGBTripleArray = ^TRGBTripleArray;
   TRGBTripleArray = array[0..100] of TRGBTriple;
-
-  TTextEditorColorChanges = (ccBoth, ccBackground, ccForeground);
 
   TTextEditorStateFlag = (sfCaretChanged, sfLinesChanging, sfIgnoreNextChar, sfCaretVisible, sfDblClicked,
     sfWaitForDragging, sfCodeFoldingCollapseMarkClicked, sfInSelection, sfDragging);
@@ -97,7 +100,20 @@ type
   TTextEditorReplaceOption = (roBackwards, roCaseSensitive, roEntireScope, roPrompt, roReplaceAll, roSelectedOnly,
     roWholeWordsOnly);
   TTextEditorReplaceOptions = set of TTextEditorReplaceOption;
-  TTextEditorReplaceActionOption = (eraReplace, eraDeleteLine);
+  TTextEditorReplaceTextAction = (rtaAddLineBreak, rtaDeleteLine, rtaReplace);
+
+  TTextEditorReplaceTextParams = record
+    AddLineBreak: Boolean;
+    Backwards: Boolean;
+    Char: Integer;
+    DeleteLine: Boolean;
+    Line: Integer;
+    Prompt: Boolean;
+    ReplaceAll: Boolean;
+    ReplaceText: string;
+    ReplaceTextAction: TTextEditorReplaceTextAction;
+    SearchText: string;
+  end;
 
   { Completion proposal }
   TCompletionProposalOptions = record
@@ -125,9 +141,11 @@ type
   TTextEditorCompletionProposalItems = TList<TTextEditorCompletionProposalItem>;
 
   { Editor options }
-  TTextEditorOption = (eoAddHTMLCodeToClipboard, eoAutoIndent, eoDragDropEditing, eoDropFiles, eoShowControlCharacters,
-    eoShowNonBreakingSpaceAsSpace, eoShowNullCharacters{$IFDEF TEXT_EDITOR_SPELL_CHECK}, eoSpellCheck{$ENDIF},
-    eoShowZeroWidthSpaces, eoTrimTrailingSpaces, eoTrailingLineBreak);
+  TTextEditorOption = (eoAddHTMLCodeToClipboard, eoAutoIndent, eoDragDropEditing, eoDropFiles,
+    eoLoadColors, eoLoadFontNames, eoLoadFontSizes, eoLoadFontStyles, eoShowControlCharacters,
+    eoShowLineNumbersInHTMLExport, eoShowNonBreakingSpaceAsSpace, eoShowNullCharacters
+    {$IFDEF TEXT_EDITOR_SPELL_CHECK}, eoSpellCheck{$ENDIF}, eoShowZeroWidthSpaces, eoTrimTrailingSpaces,
+    eoTrailingLineBreak);
   TTextEditorOptions = set of TTextEditorOption;
 
   TTextEditorOvertypeMode = (omInsert, omOverwrite);
@@ -152,10 +170,12 @@ type
   TTextEditorSelectionOptions = set of TTextEditorSelectionOption;
 
   { Search }
+  TTextEditorResultPosition = (rpBottom, rpMiddle, rpTop);
   TTextEditorSearchChanges = (scRefresh, scSearch, scEngineUpdate, scInSelectionActive, scVisible);
 
   TTextEditorSearchOption = (soBeepIfStringNotFound, soCaseSensitive, soEntireScope, soHighlightResults,
-    soSearchOnTyping, soShowSearchStringNotFound, soShowSearchMatchNotFound, soWholeWordsOnly, soWrapAround);
+    soIgnoreComments, soSearchOnTyping, soShowSearchStringNotFound, soShowSearchMatchNotFound, soWholeWordsOnly,
+    soWrapAround);
   TTextEditorSearchOptions = set of TTextEditorSearchOption;
 
   TTextEditorSearchEngine = (seNormal, seExtended, seRegularExpression, seWildcard);
@@ -173,7 +193,7 @@ type
   TTextEditorSyncEditOptions = set of TTextEditorSyncEditOption;
 
   { Ruler }
-  TTextEditorRulerOption = (roShowSelection);
+  TTextEditorRulerOption = (roShowGuideLine, roShowSelection);
   TTextEditorRulerOptions = set of TTextEditorRulerOption;
 
   { Search map }
@@ -188,9 +208,10 @@ type
   TTextEditorLeftMarginLineNumberOptions = set of TTextEditorLeftMarginLineNumberOption;
 
   TTextEditorLeftMarginBorderStyle = (mbsNone, mbsMiddle, mbsRight);
+  TTextEditorLeftMarginLineStateAlign = (lsLeft, lsRight);
 
   { Right margin }
-  TTextEditorRightMarginOption = (rmoAutoLinebreak, rmoMouseMove, rmoShowMovingHint);
+  TTextEditorRightMarginOption = (rmoAutoLineBreak, rmoMouseMove, rmoShowMovingHint);
   TTextEditorRightMarginOptions = set of TTextEditorRightMarginOption;
 
   { Matching pair }
@@ -218,6 +239,8 @@ type
   TTextEditorHighlighterOption = (hoExecuteBeforePrepare, hoMultiHighlighter);
   TTextEditorHighlighterOptions = set of TTextEditorHighlighterOption;
 
+  TTextEditorHighlightLineItemOption = (hlIgnoreCase, hlMultiline, hlDeleteOnHighlighterLoad);
+  TTextEditorHighlightLineItemOptions = set of TTextEditorHighlightLineItemOption;
   { Special chars }
   TTextEditorSpecialCharsLineBreakStyle = (eolArrow, eolCRLF, eolEnter, eolPilcrow);
 
@@ -226,8 +249,7 @@ type
   TTextEditorSpecialCharsStyle = (scsDot, scsSolid);
 
   { Minimap }
-  TTextEditorMinimapOption = (moShowBookmarks, moShowIndentGuides, moShowSearchResults, moShowSelection,
-    moShowSpecialChars);
+  TTextEditorMinimapOption = (moShowBookmarks, moShowSearchResults, moShowSelection, moShowSpecialChars);
   TTextEditorMinimapOptions = set of TTextEditorMinimapOption;
   TTextEditorMinimapAlign = (maLeft, maRight);
   TTextEditorMinimapIndicatorOption = (ioInvertBlending, ioShowBorder, ioUseBlending);
@@ -241,13 +263,11 @@ type
   TTextEditorUndoOptions = set of TTextEditorUndoOption;
 
   TTextEditorChangeReason = (crInsert, crPaste, crDragDropInsert, crDelete, crLineBreak, crIndent, crUnindent, crCaret,
-    crSelection, crNothing, crGroupBreak);
+    crMultiCaret, crSelection, crNothing, crGroupBreak);
 
   { Case }
-  TTextEditorCase = (cNone=-1, cUpper=0, cLower=1, cAlternating=2, cSentence=3, cTitle=4, cOriginal=5);
-
-  { Sort }
-  TTextEditorSortOrder = (soAsc, soDesc, soRandom);
+  TTextEditorCase = (cNone=-1, cUpper=0, cLower=1, cAlternating=2, cSentence=3, cTitle=4, cOriginal=5, cKeywordsUpper=6,
+    cKeywordsLower=7, cKeywordsTitle=8);
 
   { Trim }
   TTextEditorTrimStyle = (tsBoth, tsLeft, tsRight);
@@ -269,9 +289,11 @@ type
   TTextEditorCodeFoldingHintIndicatorOptions = set of TTextEditorCodeFoldingHintIndicatorOption;
 
   TTextEditorCodeFoldingOption = (cfoAutoPadding, cfoAutoWidth, cfoFoldMultilineComments, cfoHighlightFoldingLine,
-    cfoHighlightIndentGuides, cfoHighlightMatchingPair, cfoShowCollapsedLine, cfoShowIndentGuides, cfoShowTreeLine,
-    cfoShowCollapseMarkAtTheEnd, cfoExpandByHintClick);
+    cfoHighlightMatchingPair, cfoShowCollapsedLine, cfoShowTreeLine, cfoShowCollapseMarkAtTheEnd, cfoExpandByHintClick);
   TTextEditorCodeFoldingOptions = set of TTextEditorCodeFoldingOption;
+
+  TTextEditorCodeFoldingGuideLineOption = (cfgHideAtFirstColumn, cfgHideOverText, cgfHideInActiveRow, cfgHighlightIndentGuides);
+  TTextEditorCodeFoldingGuideLineOptions = set of TTextEditorCodeFoldingGuideLineOption;
 
   TTextEditorCodeFoldingHintIndicatorPadding = class(TPadding)
   protected
@@ -299,8 +321,8 @@ type
   TTextEditorFrameTypes = set of TTextEditorFrameType;
   TTextEditorUnitSystem = (usMM, usCm, usInch, muThousandthsOfInches);
   TTextEditorPrintStatus = (psBegin, psNewPage, psEnd);
-  TTextEditorPrintStatusEvent = procedure(ASender: TObject; const AStatus: TTextEditorPrintStatus; const APageNumber: Integer;
-    var AAbort: Boolean) of object;
+  TTextEditorPrintStatusEvent = procedure(ASender: TObject; const AStatus: TTextEditorPrintStatus;
+    const APageNumber: Integer; var AAbort: Boolean) of object;
   TTextEditorPrintLineEvent = procedure(ASender: TObject; const ALineNumber: Integer; const APageNumber: Integer) of object;
 
   TTextEditorWrapPosition = class
@@ -311,11 +333,12 @@ type
   { Events }
   TOnCompletionProposalExecute = procedure(const ASender: TObject; var AParams: TCompletionProposalParams) of object;
 
+  TTextEditorAdditionalKeywordsEvent = procedure(const ASender: TObject; const AHighlighterName: string; const AKeyword: TStrings) of object;
   TTextEditorBookmarkDeletedEvent = procedure(const ASender: TObject; const ABookmark: TTextEditorMark) of object;
   TTextEditorBookmarkPlacedEvent = procedure(const ASender: TObject; const AIndex: Integer; const AImageIndex: Integer; const ATextPosition: TTextEditorTextPosition) of object;
   TTextEditorCaretChangedEvent = procedure(const ASender: TObject; const X, Y: Integer; const AOffset: Integer) of object;
-  TTextEditorCodeColorEvent = procedure(const AEvent: TTextEditorColorChanges) of object;
   TTextEditorCodeFoldingChangeEvent = procedure(const AEvent: TTextEditorCodeFoldingChanges) of object;
+  TTexteditorChangeScaleEvent = procedure(const ASender: TObject; const AMultiplier, ADivider: Integer{$IF CompilerVersion >= 35}; const AIsDpiChange: Boolean{$IFEND}) of object;
   TTextEditorContextHelpEvent = procedure(const ASender: TObject; const AWord: string) of object;
   TTextEditorCreateHighlighterStreamEvent = procedure(const ASender: TObject; const AName: string;
     var AStream: TStream) of object;
@@ -329,6 +352,7 @@ type
   TTextEditorKeyPressWEvent = procedure(const ASender: TObject; var AKey: Char) of object;
   TTextEditorLinePaintEvent = procedure(const ASender: TObject; const ACanvas: TCanvas; const ARect: TRect;
     const ALineNumber: Integer; const AIsMinimapLine: Boolean) of object;
+  TTextEditorLinkClickEvent = procedure(const ASender: TObject; const ALink: string) of object;
   TTextEditorMarkPanelLinePaintEvent = procedure(const ASender: TObject; const ACanvas: TCanvas; const ARect: TRect;
     const ALineNumber: Integer) of object;
   TTextEditorMarkPanelPaintEvent = procedure(const ASender: TObject; const ACanvas: TCanvas; const ARect: TRect;
@@ -339,14 +363,51 @@ type
   TTextEditorReplaceChangeEvent = procedure(const AEvent: TTextEditorReplaceChanges) of object;
   TTextEditorReplaceSearchCountEvent = procedure(const ASender: TObject; const ACount: Integer;
     const APageIndex: Integer) of object;
-  TTextEditorReplaceTextEvent = procedure(const ASender: TObject; const ASearch, AReplace: string;
-    const ALine, AColumn: Integer; const ADeleteLine: Boolean; var AAction: TTextEditorReplaceAction) of object;
+  TTextEditorReplaceTextEvent = procedure(const ASender: TObject; const AParams: TTextEditorReplaceTextParams;
+    var AAction: TTextEditorReplaceAction) of object;
+  TTextEditorSaveToFileEvent = procedure(const ASender: TObject; const AFilename: string; var AEncoding: TEncoding; var ACancel: Boolean) of object;
   TTextEditorScrollEvent = procedure(const ASender: TObject; const AScrollBar: TScrollBarKind) of object;
   TTextEditorSearchChangeEvent = procedure(const AEvent: TTextEditorSearchChanges) of object;
+
+  { Defaults options }
+  TTextEditorDefaultOptions = record
+  const
+    CodeFolding = [cfoAutoPadding, cfoAutoWidth, cfoHighlightMatchingPair, cfoShowTreeLine, cfoExpandByHintClick];
+    CodeFoldingGuideLines = [cfgHideOverText];
+    CodeFoldingHint = [hioShowBorder, hioShowMark];
+    CompletionProposal = [cpoAutoConstraints, cpoAddHighlighterKeywords, cpoFiltered, cpoParseItemsFromText];
+    HighlightLine = [hlIgnoreCase, hlDeleteOnHighlighterLoad];
+    MultiEdit = [meoShowActiveLine, meoShowGhost];
+  end;
 
   TTextEditorTimer = class(TTimer)
   public
     procedure Restart;
+  end;
+
+  { Highlighter color elements }
+  TElement = record
+  const
+    AssemblerComment = 'AssemblerComment';
+    AssemblerReservedWord = 'AssemblerReservedWord';
+    Attribute = 'Attribute';
+    Character = 'Character';
+    Comment = 'Comment';
+    Directive = 'Directive';
+    Editor = 'Editor';
+    HexNumber = 'HexNumber';
+    HighlightedBlock = 'HighlightedBlock';
+    HighlightedBlockSymbol = 'HighlightedBlockSymbol';
+    LogicalOperator = 'LogicalOperator';
+    Method = 'Method';
+    MethodItalic = 'MethodItalic';
+    NameOfMethod = 'MethodName';
+    Number = 'Number';
+    ReservedWord = 'ReservedWord';
+    StringOfCharacters = 'String';
+    Symbol = 'Symbol';
+    Value = 'Value';
+    WebLink = 'WebLink';
   end;
 
   function SearchEngineAsText(const ASearchEngine: TTextEditorSearchEngine): string;
@@ -419,7 +480,7 @@ end;
 procedure TTextEditorTimer.Restart;
 begin
   Enabled := False;
-  Enabled := True; //FI:W508 Variable is assigned twice successively
+  Enabled := True;
 end;
 
 end.

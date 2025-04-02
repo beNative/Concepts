@@ -41,6 +41,10 @@ uses
   VSoft.MSXML6,
   TestFramework;
 
+{$IF TestFrameworkHasConstParams}
+  {$DEFINE CONST_PARAMS}
+{$IFEND}
+
 const
    DEFAULT_FILENAME = 'dunit-report.xml';
 
@@ -99,17 +103,17 @@ type
   public
 
     // implement the ITestListener interface
-    procedure AddSuccess(test: ITest); virtual;
-    procedure AddError(error: TTestFailure); virtual;
-    procedure AddFailure(failure: TTestFailure); virtual;
-    function  ShouldRunTest(test :ITest):boolean; virtual;
-    procedure StartSuite(suite: ITest); virtual;
-    procedure EndSuite(suite: ITest); virtual;
-    procedure StartTest(test: ITest); virtual;
-    procedure EndTest(test: ITest); virtual;
+    procedure AddSuccess({$IFDEF CONST_PARAMS}const{$ENDIF} test: ITest); virtual;
+    procedure AddError({$IFDEF CONST_PARAMS}const{$ENDIF} error: TTestFailure); virtual;
+    procedure AddFailure({$IFDEF CONST_PARAMS}const{$ENDIF} failure: TTestFailure); virtual;
+    function  ShouldRunTest({$IFDEF CONST_PARAMS}const{$ENDIF} test: ITest):boolean; virtual;
+    procedure StartSuite({$IFDEF CONST_PARAMS}const{$ENDIF} suite: ITest); virtual;
+    procedure EndSuite({$IFDEF CONST_PARAMS}const{$ENDIF} suite: ITest); virtual;
+    procedure StartTest({$IFDEF CONST_PARAMS}const{$ENDIF} test: ITest); virtual;
+    procedure EndTest({$IFDEF CONST_PARAMS}const{$ENDIF} test: ITest); virtual;
     procedure TestingStarts; virtual;
-    procedure TestingEnds(testResult: TTestResult); virtual;
-    procedure Status(test :ITest; const Msg :string);
+    procedure TestingEnds({$IFDEF CONST_PARAMS}const{$ENDIF} testResult: TTestResult); virtual;
+    procedure Status({$IFDEF CONST_PARAMS}const{$ENDIF} test: ITest; const Msg :string);
 
     constructor Create; overload;
     constructor Create(outputFile : String); overload;
@@ -248,7 +252,7 @@ end;
 const
   TrueFalse : array[Boolean] of string = ('False', 'True');
 
-procedure TXMLTestListener.AddSuccess(test: ITest);
+procedure TXMLTestListener.AddSuccess({$IFDEF CONST_PARAMS}const{$ENDIF} test: ITest);
 var
   msgElement : IXMLDOMElement;
   reasonElement : IXMLDOMElement;
@@ -277,7 +281,7 @@ begin
   end;
 end;
 
-procedure TXMLTestListener.AddError(error: TTestFailure);
+procedure TXMLTestListener.AddError({$IFDEF CONST_PARAMS}const{$ENDIF} error: TTestFailure);
 var
   msgElement : IXMLDOMElement;
   failureElement : IXMLDOMElement;
@@ -298,7 +302,7 @@ begin
   Inc(FErrorCount);
 end;
 
-procedure TXMLTestListener.AddFailure(failure: TTestFailure);
+procedure TXMLTestListener.AddFailure({$IFDEF CONST_PARAMS}const{$ENDIF} failure: TTestFailure);
 var
   msgElement : IXMLDOMElement;
   failureElement : IXMLDOMElement;
@@ -320,7 +324,7 @@ begin
 end;
 
 
-procedure TXMLTestListener.StartTest(test: ITest);
+procedure TXMLTestListener.StartTest({$IFDEF CONST_PARAMS}const{$ENDIF} test: ITest);
 begin
   FMessageList.Clear;
   if Supports(test,ITestSuite) then
@@ -335,7 +339,7 @@ begin
   CurrentResultsElement.appendChild(FCurrentTestElement);
 end;
 
-procedure TXMLTestListener.EndTest(test: ITest);
+procedure TXMLTestListener.EndTest({$IFDEF CONST_PARAMS}const{$ENDIF} test: ITest);
 begin
   FCurrentTestElement := nil;
 end;
@@ -365,7 +369,7 @@ begin
 
 end;
 
-procedure TXMLTestListener.TestingEnds(testResult: TTestResult);
+procedure TXMLTestListener.TestingEnds({$IFDEF CONST_PARAMS}const{$ENDIF} testResult: TTestResult);
 var
   dtRunTime : TDateTime;
   h, m, s, l :Word;
@@ -445,12 +449,12 @@ begin
 end;
 
 
-procedure TXMLTestListener.Status(test: ITest; const Msg: string);
+procedure TXMLTestListener.Status({$IFDEF CONST_PARAMS}const{$ENDIF} test: ITest; const Msg: string);
 begin
   FMessageList.Add(Format('STATUS: %s: %s', [test.Name, Msg]));
 end;
 
-function TXMLTestListener.ShouldRunTest(test: ITest): boolean;
+function TXMLTestListener.ShouldRunTest({$IFDEF CONST_PARAMS}const{$ENDIF} test: ITest): boolean;
 begin
   Result := test.Enabled;
   (*
@@ -460,7 +464,7 @@ begin
   *)
 end;
 
-procedure TXMLTestListener.EndSuite(suite: ITest);
+procedure TXMLTestListener.EndSuite({$IFDEF CONST_PARAMS}const{$ENDIF} suite: ITest);
 var
   suiteElement : IXMLDOMElement;
   resultsElement : IXMLDOMElement;
@@ -481,7 +485,7 @@ begin
   PopSuite(suiteElement,resultsElement,name);
 end;
 
-procedure TXMLTestListener.StartSuite(suite: ITest);
+procedure TXMLTestListener.StartSuite({$IFDEF CONST_PARAMS}const{$ENDIF} suite: ITest);
 var
   suiteElement : IXMLDOMElement;
   resultsElement : IXMLDOMElement;

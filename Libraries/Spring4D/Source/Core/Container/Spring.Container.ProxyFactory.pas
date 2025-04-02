@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -37,13 +37,13 @@ uses
 type
   TProxyFactory = class(TInterfacedObject, IProxyFactory)
   private
-    fKernel: IKernel;
+    fKernel: TKernel;
     fSelectors: IList<IModelInterceptorsSelector>;
   protected
     function GetInterceptorsFor(const model: TComponentModel): TArray<TInterceptorReference>;
     function ObtainInterceptors(const model: TComponentModel): TArray<IInterceptor>;
   public
-    constructor Create(const kernel: IKernel);
+    constructor Create(const kernel: TKernel);
 
     procedure AddInterceptorSelector(const selector: IModelInterceptorsSelector);
 
@@ -62,7 +62,7 @@ uses
 
 {$REGION 'TProxyFactory'}
 
-constructor TProxyFactory.Create(const kernel: IKernel);
+constructor TProxyFactory.Create(const kernel: TKernel);
 begin
   inherited Create;
   fKernel := kernel;
@@ -75,9 +75,9 @@ begin
   fSelectors.Add(selector);
 end;
 
-function TProxyFactory.CreateInstance(const context: ICreationContext;
+function TProxyFactory.CreateInstance(const context: ICreationContext; //FI:O804
   const instance: TValue; const model: TComponentModel;
-  const constructorArguments: array of TValue): TValue;
+  const constructorArguments: array of TValue): TValue; //FI:O804
 var
   interceptors: TArray<IInterceptor>;
   intf: IInterface;

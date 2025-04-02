@@ -25,6 +25,7 @@ package Spring.Base;
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Spring4D Base package'}
 {$LIBSUFFIX '.Delphi10Tokyo'}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
@@ -40,7 +41,6 @@ requires
 contains
   Spring in '..\..\Source\Base\Spring.pas',
   Spring.Collections in '..\..\Source\Base\Collections\Spring.Collections.pas',
-  Spring.Collections.Adapters in '..\..\Source\Base\Collections\Spring.Collections.Adapters.pas',
   Spring.Collections.Base in '..\..\Source\Base\Collections\Spring.Collections.Base.pas',
   Spring.Collections.Dictionaries in '..\..\Source\Base\Collections\Spring.Collections.Dictionaries.pas',
   Spring.Collections.Events in '..\..\Source\Base\Collections\Spring.Collections.Events.pas',
@@ -48,13 +48,18 @@ contains
   Spring.Collections.Lists in '..\..\Source\Base\Collections\Spring.Collections.Lists.pas',
   Spring.Collections.LinkedLists in '..\..\Source\Base\Collections\Spring.Collections.LinkedLists.pas',
   Spring.Collections.MultiMaps in '..\..\Source\Base\Collections\Spring.Collections.MultiMaps.pas',
+  Spring.Collections.MultiSets in '..\..\Source\Base\Collections\Spring.Collections.MultiSets.pas',
   Spring.Collections.Queues in '..\..\Source\Base\Collections\Spring.Collections.Queues.pas',
   Spring.Collections.Sets in '..\..\Source\Base\Collections\Spring.Collections.Sets.pas',
   Spring.Collections.Stacks in '..\..\Source\Base\Collections\Spring.Collections.Stacks.pas',
   Spring.Collections.Trees in '..\..\Source\Base\Collections\Spring.Collections.Trees.pas',
+  Spring.Comparers in '..\..\Source\Base\Spring.Comparers.pas',
   Spring.DesignPatterns in '..\..\Source\Base\Spring.DesignPatterns.pas',
   Spring.Events in '..\..\Source\Base\Spring.Events.pas',
   Spring.Events.Base in '..\..\Source\Base\Spring.Events.Base.pas',
+  Spring.Hash in '..\..\Source\Base\Spring.Hash.pas',
+  Spring.HashTable in '..\..\Source\Base\Spring.HashTable.pas',
+  Spring.HazardEra in '..\..\Source\Base\Spring.HazardEra.pas',
   Spring.Helpers in '..\..\Source\Base\Spring.Helpers.pas',
   Spring.Logging in '..\..\Source\Base\Logging\Spring.Logging.pas',
   Spring.Logging.Appenders in '..\..\Source\Base\Logging\Spring.Logging.Appenders.pas',
@@ -66,6 +71,8 @@ contains
   Spring.Logging.ResourceStrings in '..\..\Source\Base\Logging\Spring.Logging.ResourceStrings.pas',
   Spring.Logging.Serializers in '..\..\Source\Base\Logging\Spring.Logging.Serializers.pas',
   Spring.MethodIntercept in '..\..\Source\Base\Spring.MethodIntercept.pas',
+  Spring.Patches.RSP13163 in '..\..\Source\Base\Patches\Spring.Patches.RSP13163.pas',
+  Spring.Patterns.Specification in '..\..\Source\Base\Patterns\Spring.Patterns.Specification.pas',
   Spring.Reflection in '..\..\Source\Base\Spring.Reflection.pas',
   Spring.ResourceStrings in '..\..\Source\Base\Spring.ResourceStrings.pas',
   Spring.SystemUtils in '..\..\Source\Base\Spring.SystemUtils.pas',

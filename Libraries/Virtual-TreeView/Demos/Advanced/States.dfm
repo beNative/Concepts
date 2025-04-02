@@ -11,8 +11,6 @@ object StateForm: TStateForm
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
-  PixelsPerInch = 96
   TextHeight = 13
   object EnableCheckBox: TCheckBox
     Left = 10
@@ -127,15 +125,6 @@ object StateForm: TStateForm
       Caption = 'Mouse wheel panning'
       Enabled = False
       TabOrder = 5
-    end
-    object CheckBox44: TCheckBox
-      Left = 10
-      Top = 84
-      Width = 190
-      Height = 17
-      Caption = 'Mouse wheel scrolling'
-      Enabled = False
-      TabOrder = 6
     end
   end
   object GroupBox3: TGroupBox

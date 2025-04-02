@@ -25,6 +25,7 @@ package Spring.Extensions;
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Spring4D Extensions package'}
 {$LIBSUFFIX '.Delphi10Tokyo'}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}

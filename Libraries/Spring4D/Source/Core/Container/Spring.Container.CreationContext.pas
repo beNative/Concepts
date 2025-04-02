@@ -2,7 +2,7 @@
 {                                                                           }
 {           Spring Framework for Delphi                                     }
 {                                                                           }
-{           Copyright (c) 2009-2018 Spring4D Team                           }
+{           Copyright (c) 2009-2024 Spring4D Team                           }
 {                                                                           }
 {           http://www.spring4d.org                                         }
 {                                                                           }
@@ -48,9 +48,7 @@ type
   public
     constructor Create(const model: TComponentModel;
       const arguments: array of TValue);
-{$IFNDEF AUTOREFCOUNT}
     destructor Destroy; override;
-{$ENDIF}
 
     function CanResolve(const context: ICreationContext;
       const dependency: TDependencyModel; const argument: TValue): Boolean;
@@ -77,10 +75,9 @@ uses
   Spring.Container.ResourceStrings,
   Spring.Reflection;
 
-{$IFNDEF AUTOREFCOUNT}
 type
   TInterfacedObjectAccess = class(TInterfacedObject);
-{$ENDIF}
+
 
 {$REGION 'TCreationContext'}
 
@@ -101,62 +98,58 @@ begin
   fPerResolveInstances := TCollections.CreateDictionary<TComponentModel, TValue>;
 end;
 
-{$IFNDEF AUTOREFCOUNT}
 destructor TCreationContext.Destroy;
 var
-  instance: TValue;
-  interfacedObject: TInterfacedObject;
+  instance: TPair<TComponentModel, TValue>;
 begin
-  for instance in fPerResolveInstances.Values do
-    if instance.TryAsType<TInterfacedObject>(interfacedObject) and Assigned(interfacedObject) then
-      AtomicDecrement(TInterfacedObjectAccess(interfacedObject).fRefCount);
+  for instance in fPerResolveInstances do
+    if (instance.Key.LifetimeType = TLifetimeType.PerResolve)
+      and (instance.Value.Kind = tkClass)
+      and (TObject(TValueData(instance.Value).FAsObject) is TInterfacedObject) then
+      TInterfacedObjectAccess(TValueData(instance.Value).FAsObject)._Release;
   inherited Destroy;
 end;
-{$ENDIF}
 
 function TCreationContext.AddArgument(const argument: TValue): Integer;
 begin
   fLock.BeginWrite;
   try
-    if argument.IsType<TTypedValue> then
+    if argument.IsType(TypeInfo(TTypedValue)) then
       Result := fTypedArguments.Add(argument)
-    else if argument.IsType<TNamedValue> then
+    else if argument.IsType(TypeInfo(TNamedValue)) then
       Result := fNamedArguments.Add(argument)
     else
       Result := fArguments.Add(argument);
-  finally
-    fLock.EndWrite
-  end;
-end;
-
-procedure TCreationContext.AddPerResolve(const model: TComponentModel;
-  const instance: TValue);
-{$IFNDEF AUTOREFCOUNT}
-var
-  interfacedObject: TInterfacedObject;
-{$ENDIF}
-begin
-  fLock.BeginWrite;
-  try
-    fPerResolveInstances.Add(model, instance);
-{$IFNDEF AUTOREFCOUNT}
-    if instance.TryAsType<TInterfacedObject>(interfacedObject) and Assigned(interfacedObject) then
-      AtomicIncrement(TInterfacedObjectAccess(interfacedObject).fRefCount);
-{$ENDIF}
   finally
     fLock.EndWrite;
   end;
 end;
 
-function TCreationContext.CanResolve(const context: ICreationContext;
-  const dependency: TDependencyModel; const argument: TValue): Boolean;
+procedure TCreationContext.AddPerResolve(const model: TComponentModel;
+  const instance: TValue);
+begin
+  fLock.BeginWrite;
+  try
+    fPerResolveInstances.Add(model, instance);
+    if (model.LifetimeType = TLifetimeType.PerResolve)
+      and (instance.Kind = tkClass)
+      and (TObject(TValueData(instance).FAsObject) is TInterfacedObject) then
+      TInterfacedObjectAccess(TValueData(instance).FAsObject)._AddRef;
+  finally
+    fLock.EndWrite;
+  end;
+end;
+
+function TCreationContext.CanResolve(const context: ICreationContext; //FI:O804
+  const dependency: TDependencyModel;
+  const argument: TValue): Boolean; //FI:O804
 var
   i: Integer;
 begin
   fLock.BeginRead;
   try
     for i := fTypedArguments.Count - 1 downto 0 do // check most recently added first
-      if fTypedArguments[i].TypeInfo = dependency.TypeInfo then
+      if SameTypeInfo(fTypedArguments[i].TypeInfo, dependency.TypeInfo) then
         Exit(True);
     Result := False;
   finally
@@ -254,7 +247,7 @@ procedure TCreationContext.LeaveResolution(const model: TComponentModel);
 begin
   try
     if fResolutionStack.Pop <> model then
-    raise EResolveException.CreateRes(@SResolutionStackUnbalanced);
+      raise EResolveException.CreateRes(@SResolutionStackUnbalanced);
   finally
     fLock.EndWrite;
   end;
@@ -270,16 +263,21 @@ begin
   end;
 end;
 
-function TCreationContext.Resolve(const context: ICreationContext;
-  const dependency: TDependencyModel; const argument: TValue): TValue;
+function TCreationContext.Resolve(const context: ICreationContext; //FI:O804
+  const dependency: TDependencyModel;
+  const argument: TValue): TValue; //FI:O804
 var
   i: Integer;
 begin
   fLock.BeginRead;
   try
     for i := fTypedArguments.Count - 1 downto 0 do
-      if fTypedArguments[i].TypeInfo = dependency.TypeInfo then
-        Exit(fTypedArguments[i].Value);
+      if SameTypeInfo(fTypedArguments[i].TypeInfo, dependency.TypeInfo) then
+      begin
+        Result := fTypedArguments[i].Value;
+        TValueData(Result).FTypeInfo := dependency.TypeInfo;
+        Exit;
+      end;
   finally
     fLock.EndRead;
   end;

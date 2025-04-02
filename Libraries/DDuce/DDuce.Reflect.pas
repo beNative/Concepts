@@ -1,5 +1,5 @@
 {
-  Copyright (C) 2013-2022 Tim Sinaeve tim.sinaeve@gmail.com
+  Copyright (C) 2013-2025 Tim Sinaeve tim.sinaeve@gmail.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -133,7 +133,6 @@ begin
 end;
 }
 
-
 {$REGION 'private methods'}
 class function Reflect.GetOrdValue(AInfo: PTypeInfo; const ASetParam): Integer;
 begin
@@ -178,7 +177,6 @@ class function Reflect.OrdValue<T>(const AArg: T): Integer;
 var
   V: TValue;
 begin
-  Result := 0;
   V := TValue.From<T>(AArg);
   Result := V.AsOrdinal;
 end;
@@ -249,7 +247,7 @@ type
 var
   S    : TIntegerSet;
   I    : Integer;
-  LName : string;
+  Name : string;
 begin
   Result := '';
   Integer(S) := GetOrdValue(TypeInfo(T), AArg);
@@ -259,8 +257,8 @@ begin
     begin
       if Result <> '' then
         Result := Result + ',';
-      LName := EnumName(I);
-      Result := Result + LName;
+      Name := EnumName(I);
+      Result := Result + Name;
     end;
   end;
 end;
