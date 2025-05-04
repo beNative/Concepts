@@ -47,6 +47,8 @@ type
     pnlVST            : TPanel;
     sbrMain           : TStatusBar;
     tbrMain           : TTaskbar;
+    Button1: TButton;
+    actSelectTheme: TAction;
     {$ENDREGION}
 
     {$REGION 'action handlers'}
@@ -68,6 +70,7 @@ type
       Shift   : TShiftState
     );
     procedure edtFilterChange(Sender: TObject);
+    procedure actSelectThemeExecute(Sender: TObject);
     {$ENDREGION}
 
   private
@@ -112,9 +115,11 @@ implementation
 uses
   Winapi.Windows, Winapi.Messages,
   System.StrUtils, System.SysUtils, System.UITypes,
-  Vcl.Graphics,
+  Vcl.Graphics, Vcl.Themes,
 
   Spring.Collections,
+
+  FVCLThemeSelector,
 
   Concepts.Factories, Concepts.Manager, Concepts.Settings;
 
@@ -171,7 +176,6 @@ begin
   FVST := TConceptFactories.CreateVirtualStringTree(Self, pnlVST);
   FVST.Header.Font.Style := FVST.Header.Font.Style + [fsBold];
   FTVP := TConceptFactories.CreateTreeViewPresenter(Self);
-  FTVP.Sorting := False;
   InitializePresenter;
   sbrMain.SimpleText := Format(SConceptsLoaded, [ConceptManager.ItemList.Count]);
   LoadSettings;
@@ -192,6 +196,14 @@ end;
 procedure TfrmMain.actExecuteModalExecute(Sender: TObject);
 begin
   ConceptManager.Execute(FTVP.SelectedItem);
+end;
+
+procedure TfrmMain.actSelectThemeExecute(Sender: TObject);
+var
+  S : string;
+begin
+  if ShowVCLThemeSelector(S) then
+    TStyleManager.SetStyle(S);
 end;
 
 procedure TfrmMain.actCenterMainFormExecute(Sender: TObject);
@@ -344,6 +356,7 @@ begin
   FTVP.TreeView         := FVST;
   FTVP.OnDoubleClick    := FTVPDoubleClick;
   FTVP.SelectionMode    := smMulti;
+  FTVP.Sorting          := False;
   FTVP.View.Filter.Add(FTVPFilter);
   FTVP.TreeView.OnKeyPress := FVSTKeyPress;
   FTVP.TreeView.Header.AutoFitColumns;

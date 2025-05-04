@@ -1,53 +1,42 @@
 object frmMain: TfrmMain
   Left = 0
   Top = 0
-  Margins.Left = 5
-  Margins.Top = 5
-  Margins.Right = 5
-  Margins.Bottom = 5
   Caption = 'Concepts'
-  ClientHeight = 843
-  ClientWidth = 1200
+  ClientHeight = 562
+  ClientWidth = 796
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -17
+  Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poScreenCenter
   ShowHint = True
-  PixelsPerInch = 144
-  TextHeight = 23
+  TextHeight = 13
   object pnlVST: TPanel
     Left = 0
     Top = 0
-    Width = 1200
-    Height = 764
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Width = 796
+    Height = 509
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 790
+    ExplicitHeight = 492
     object edtFilter: TEdit
       AlignWithMargins = True
-      Left = 5
-      Top = 5
-      Width = 1190
-      Height = 26
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Left = 3
+      Top = 3
+      Width = 790
+      Height = 18
       Align = alTop
       BevelInner = bvNone
       BevelOuter = bvNone
       BorderStyle = bsNone
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlue
-      Font.Height = -17
+      Font.Height = -11
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentFont = False
@@ -55,40 +44,38 @@ object frmMain: TfrmMain
       OnChange = edtFilterChange
       OnKeyDown = edtFilterKeyDown
       OnKeyUp = edtFilterKeyUp
+      ExplicitWidth = 784
     end
   end
   object sbrMain: TStatusBar
     Left = 0
-    Top = 815
-    Width = 1200
-    Height = 28
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Top = 543
+    Width = 796
+    Height = 19
     Panels = <>
     SimplePanel = True
+    ExplicitTop = 526
+    ExplicitWidth = 790
   end
   object pnlButtons: TGridPanel
     Left = 0
-    Top = 764
-    Width = 1200
-    Height = 51
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Top = 509
+    Width = 796
+    Height = 34
     Align = alBottom
     BevelOuter = bvNone
     ColumnCollection = <
       item
-        Value = 34.297279594373700000
+        Value = 25.000000000000000000
       end
       item
-        Value = 33.023156756930660000
+        Value = 25.000000000000000000
       end
       item
-        Value = 32.679563648695640000
+        Value = 25.000000000000000000
+      end
+      item
+        Value = 25.000000000000000000
       end>
     ControlCollection = <
       item
@@ -105,66 +92,84 @@ object frmMain: TfrmMain
         Column = 0
         Control = btnExecuteModal
         Row = 0
+      end
+      item
+        Column = 3
+        Control = Button1
+        Row = 0
       end>
     RowCollection = <
       item
         Value = 100.000000000000000000
       end>
     TabOrder = 2
+    ExplicitTop = 492
+    ExplicitWidth = 790
     object btnExecute: TButton
       AlignWithMargins = True
-      Left = 417
-      Top = 5
-      Width = 386
-      Height = 41
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Left = 202
+      Top = 3
+      Width = 193
+      Height = 28
       Action = actExecute
       Align = alClient
       DoubleBuffered = True
-      ImageMargins.Left = 6
+      ImageMargins.Left = 4
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 0
+      ExplicitLeft = 274
+      ExplicitWidth = 255
     end
     object btnClose: TButton
       AlignWithMargins = True
-      Left = 813
-      Top = 5
-      Width = 382
-      Height = 41
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
-      Action = actClose
+      Left = 401
+      Top = 3
+      Width = 193
+      Height = 28
+      Action = actSelectTheme
       Align = alClient
       DoubleBuffered = True
-      ImageMargins.Left = 6
+      ImageMargins.Left = 4
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 1
+      ExplicitLeft = 535
+      ExplicitWidth = 252
     end
     object btnExecuteModal: TButton
       AlignWithMargins = True
-      Left = 5
-      Top = 5
-      Width = 402
-      Height = 41
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Left = 3
+      Top = 3
+      Width = 193
+      Height = 28
       Action = actExecuteModal
       Align = alClient
       Default = True
       DoubleBuffered = True
-      ImageMargins.Left = 6
+      ImageMargins.Left = 4
       Images = dmResources.imlMain
       ParentDoubleBuffered = False
       TabOrder = 2
+      ExplicitWidth = 265
+    end
+    object Button1: TButton
+      AlignWithMargins = True
+      Left = 600
+      Top = 3
+      Width = 193
+      Height = 28
+      Action = actClose
+      Align = alClient
+      DoubleBuffered = True
+      ImageMargins.Left = 4
+      Images = dmResources.imlMain
+      ParentDoubleBuffered = False
+      TabOrder = 3
+      ExplicitLeft = 535
+      ExplicitTop = 4
+      ExplicitWidth = 252
+      ExplicitHeight = 25
     end
   end
   object aclMain: TActionList
@@ -191,6 +196,10 @@ object frmMain: TfrmMain
       Hint = 'Center main form on the screen.'
       ImageIndex = 38
       OnExecute = actCenterMainFormExecute
+    end
+    object actSelectTheme: TAction
+      Caption = 'Select Theme'
+      OnExecute = actSelectThemeExecute
     end
   end
   object tbrMain: TTaskbar
