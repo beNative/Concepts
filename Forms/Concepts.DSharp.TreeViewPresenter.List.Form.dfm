@@ -2,8 +2,8 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
   Left = 441
   Top = 465
   Caption = 'Virtual treeview presenter list'
-  ClientHeight = 694
-  ClientWidth = 1111
+  ClientHeight = 677
+  ClientWidth = 1105
   Color = clBtnFace
   DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
@@ -17,15 +17,15 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
     Left = 361
     Top = 0
     Width = 8
-    Height = 688
+    Height = 671
     ExplicitLeft = 289
     ExplicitHeight = 661
   end
   object pnlTop: TPanel
     Left = 369
     Top = 0
-    Width = 742
-    Height = 688
+    Width = 736
+    Height = 671
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
@@ -47,12 +47,13 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
       ParentBackground = False
       ParentFont = False
       TabOrder = 0
+      ExplicitWidth = 730
     end
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 688
-    Width = 1111
+    Top = 671
+    Width = 1105
     Height = 6
     Align = alBottom
     BevelOuter = bvNone
@@ -62,7 +63,7 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
     Left = 0
     Top = 0
     Width = 361
-    Height = 688
+    Height = 671
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 2
@@ -92,6 +93,7 @@ object frmTreeViewPresenterList: TfrmTreeViewPresenterList
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitHeight = 317
     end
     object pnlTreeviewPresenter: TPanel
       AlignWithMargins = True

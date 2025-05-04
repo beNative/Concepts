@@ -27,6 +27,8 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     Width = 1341
     Height = 19
     Panels = <>
+    ExplicitTop = 642
+    ExplicitWidth = 1335
   end
   object pnlLeft: TPanel
     Left = 0
@@ -36,6 +38,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitHeight = 608
   end
   object pnlMain: TPanel
     Left = 337
@@ -45,6 +48,8 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitWidth = 998
+    ExplicitHeight = 608
     object splHorizontal: TSplitter
       Left = 0
       Top = 288
@@ -129,6 +134,8 @@ object frmVirtualTreeView: TfrmVirtualTreeView
           Value = 100.000000000000000000
         end>
       TabOrder = 0
+      ExplicitWidth = 998
+      ExplicitHeight = 312
       object pnlCol0: TPanel
         Left = 0
         Top = 0
@@ -147,7 +154,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
       object pnlCol1: TPanel
         Left = 143
         Top = 0
-        Width = 143
+        Width = 144
         Height = 20
         Align = alClient
         BevelOuter = bvNone
@@ -160,7 +167,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         TabOrder = 1
       end
       object pnlCol2: TPanel
-        Left = 286
+        Left = 287
         Top = 0
         Width = 143
         Height = 20
@@ -175,9 +182,9 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         TabOrder = 2
       end
       object pnlCol3: TPanel
-        Left = 429
+        Left = 430
         Top = 0
-        Width = 143
+        Width = 144
         Height = 20
         Align = alClient
         BevelOuter = bvNone
@@ -190,7 +197,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         TabOrder = 3
       end
       object pnlCol4: TPanel
-        Left = 572
+        Left = 574
         Top = 0
         Width = 143
         Height = 20
@@ -205,9 +212,9 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         TabOrder = 4
       end
       object pnlCol5: TPanel
-        Left = 715
+        Left = 717
         Top = 0
-        Width = 143
+        Width = 144
         Height = 20
         Align = alClient
         BevelOuter = bvNone
@@ -220,9 +227,9 @@ object frmVirtualTreeView: TfrmVirtualTreeView
         TabOrder = 5
       end
       object pnlCol6: TPanel
-        Left = 858
+        Left = 861
         Top = 0
-        Width = 146
+        Width = 143
         Height = 20
         Align = alClient
         BevelOuter = bvNone
@@ -243,6 +250,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitWidth = 998
     end
   end
   object pnlHeader: TPanel
@@ -256,6 +264,7 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     Color = clWhite
     ParentBackground = False
     TabOrder = 3
+    ExplicitWidth = 1329
     DesignSize = (
       1335
       28)
@@ -279,15 +288,13 @@ object frmVirtualTreeView: TfrmVirtualTreeView
       WordWrap = True
     end
     object lblFocusedNode: TLabel
-      Left = 1250
+      Left = 1245
       Top = 7
-      Width = 75
+      Width = 84
       Height = 13
       Anchors = [akTop, akRight]
-      AutoSize = False
       Caption = 'lblFocusedNode'
       Layout = tlCenter
-      ExplicitLeft = 1257
     end
     object btnAutoSizeColumns: TButton
       Left = 608
@@ -313,14 +320,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
       Action = actSelectLastNode
       TabOrder = 2
     end
-    object btnListHeights: TButton
-      Left = 734
-      Top = 0
-      Width = 120
-      Height = 25
-      Action = actListHeights
-      TabOrder = 3
-    end
   end
   object aclMain: TActionList
     Left = 664
@@ -336,10 +335,6 @@ object frmVirtualTreeView: TfrmVirtualTreeView
     object actSelectLastNode: TAction
       Caption = 'Select Last Node'
       OnExecute = actSelectLastNodeExecute
-    end
-    object actListHeights: TAction
-      Caption = 'List Heights'
-      OnExecute = actListHeightsExecute
     end
   end
 end

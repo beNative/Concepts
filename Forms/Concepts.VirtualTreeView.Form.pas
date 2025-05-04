@@ -71,8 +71,6 @@ type
     actSelectLastNode  : TAction;
     btnSelectFirstNode : TButton;
     btnSelectLastNode  : TButton;
-    actListHeights     : TAction;
-    btnListHeights     : TButton;
     {$ENDREGION}
 
     procedure FormResize(Sender: TObject);
@@ -80,12 +78,10 @@ type
     procedure actAutoSizeColumnsExecute(Sender: TObject);
     procedure actSelectFirstNodeExecute(Sender: TObject);
     procedure actSelectLastNodeExecute(Sender: TObject);
-    procedure actListHeightsExecute(Sender: TObject);
 
   private
     FObjectInspector   : TzObjectInspector;
     FVirtualStringTree : TVirtualStringTree;
-    FHeights           : TList<Integer>;
 
     {$REGION 'event handlers'}
     function FObjectInspectorBeforeAddItem(
@@ -268,16 +264,14 @@ type
     procedure CreateInspectors;
     procedure InitializeTree;
     procedure UpdateActions; override;
-    procedure LogNodeHeights;
 
   public
     procedure AfterConstruction; override;
-    destructor Destroy; override;
 
   end;
 
 const
-  NODE_COUNT = 100000;
+  NODE_COUNT = 1000;
 
 implementation
 
@@ -293,7 +287,7 @@ uses
   Concepts.Types.Contact, Concepts.Factories;
 
 const
-  VisibleProperties : array of string = [
+  VST_VISIBLE_PROPERTIES : array of string = [
     'Color',
     'Colors',
     'DefaultNodeHeight',
@@ -325,23 +319,15 @@ const
 {$REGION 'construction and destruction'}
 procedure TfrmVirtualTreeView.AfterConstruction;
 var
-  I: Integer;
+  I : Integer;
 begin
   inherited AfterConstruction;
   FVirtualStringTree := TVirtualStringTreeFactory.CreateList(Self, pnlTreeView);
-
-  FHeights := TList<Integer>.Create;
-  // Ensure randomness
-  Randomize;
-  // Fill the list with 200 random numbers (range 1 to 1000, for example)
-  for I := 0 to NODE_COUNT - 1 do
-    FHeights.Add(Random(100) + 10); // Random numbers between 1 and 1000
-
   InitializeTree;
   FObjectInspector := TzObjectInspectorFactory.Create(Self, pnlLeft);
-  FObjectInspector.OnBeforeAddItem := FObjectInspectorBeforeAddItem;
+  FObjectInspector.OnBeforeAddItem  := FObjectInspectorBeforeAddItem;
   FObjectInspector.ObjectVisibility := mvPublished;
-  FObjectInspector.Component := FVirtualStringTree;
+  FObjectInspector.Component        := FVirtualStringTree;
   CreateInspectors;
 end;
 
@@ -364,20 +350,12 @@ begin
     P.Caption := FVirtualStringTree.Header.Columns[I].Text;
   end;
 end;
-destructor TfrmVirtualTreeView.Destroy;
-begin
-  inherited;
-  FHeights.Free;
-end;
 {$ENDREGION}
 
 {$REGION 'action handlers'}
 procedure TfrmVirtualTreeView.actAutoSizeColumnsExecute(Sender: TObject);
 begin
-  FVirtualStringTree.Header.AutoFitColumns(
-    True,
-    smaUseColumnOption
-  );
+  FVirtualStringTree.Header.AutoFitColumns;
 end;
 
 procedure TfrmVirtualTreeView.actSelectFirstNodeExecute(Sender: TObject);
@@ -390,15 +368,6 @@ procedure TfrmVirtualTreeView.actSelectLastNodeExecute(Sender: TObject);
 begin
   FVirtualStringTree.FocusedNode := FVirtualStringTree.GetLast;
   FVirtualStringTree.Selected[FVirtualStringTree.FocusedNode] := True;
-  FVirtualStringTree.TreeOptions.MiscOptions :=
-    FVirtualStringTree.TreeOptions.MiscOptions - [toVariableNodeHeight];
-  //toVariableNodeHeight
-  //FVirtualStringTree.OnMeasureItem := nil;
-end;
-
-procedure TfrmVirtualTreeView.actListHeightsExecute(Sender: TObject);
-begin
-  LogNodeHeights;
 end;
 {$ENDREGION}
 
@@ -412,7 +381,7 @@ begin
   LName := LName.Split(['.'], 2)[1];
   Result := not LName.Contains('ComObject')
     and (not (PItem.Prop.PropertyType is TRttiMethodType))
-    and MatchText(LName, VisibleProperties);
+    and MatchText(LName, VST_VISIBLE_PROPERTIES);
 end;
 
 procedure TfrmVirtualTreeView.FormResize(Sender: TObject);
@@ -725,8 +694,8 @@ begin
     with Header.Columns.Add do
     begin
       Color    := clWhite;
-      MaxWidth := 200;
-      MinWidth := 100;
+//      MaxWidth := 800;
+//      MinWidth := 100;
       Options  := [coAllowClick, coDraggable, coEnabled, coParentBidiMode,
         coResizable, coShowDropMark, coVisible, coSmartResize, coAllowFocus,
         coEditable];
@@ -736,10 +705,10 @@ begin
     end;
     with Header.Columns.Add do
     begin
-      MaxWidth := 200;
-      MinWidth := 100;
+//      MaxWidth := 800;
+//      MinWidth := 100;
       Options  := [coAllowClick, coDraggable, coEnabled, coParentBidiMode,
-        coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring,
+        coParentColor, coResizable, coShowDropMark, coVisible,
         coSmartResize, coAllowFocus, coEditable];
       Position := 1;
       Width    := 100;
@@ -747,10 +716,10 @@ begin
     end;
     with Header.Columns.Add do
     begin
-      MaxWidth := 200;
-      MinWidth := 100;
+//      MaxWidth := 800;
+//      MinWidth := 100;
       Options  := [coAllowClick, coDraggable, coEnabled, coParentBidiMode,
-        coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring,
+        coParentColor, coResizable, coShowDropMark, coVisible,
         coSmartResize, coAllowFocus, coEditable];
       Position := 2;
       Width    := 100;
@@ -758,10 +727,10 @@ begin
     end;
     with Header.Columns.Add do
     begin
-      MaxWidth := 400;
-      MinWidth := 100;
+//      MaxWidth := 800;
+//      MinWidth := 100;
       Options  := [coAllowClick, coDraggable, coEnabled, coParentBidiMode,
-        coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring,
+        coParentColor, coResizable, coShowDropMark, coVisible,
         coSmartResize, coAllowFocus, coEditable];
       Position := 3;
       Width    := 100;
@@ -769,10 +738,10 @@ begin
     end;
     with Header.Columns.Add do
     begin
-      MaxWidth := 400;
-      MinWidth := 100;
+//      MaxWidth := 800;
+//      MinWidth := 100;
       Options  := [coAllowClick, coDraggable, coEnabled, coParentBidiMode,
-        coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring,
+        coParentColor, coResizable, coShowDropMark, coVisible,
         coSmartResize, coAllowFocus, coEditable];
       Position := 4;
       Width    := 100;
@@ -780,10 +749,10 @@ begin
     end;
     with Header.Columns.Add do
     begin
-      MaxWidth := 200;
-      MinWidth := 70;
+//      MaxWidth := 800;
+//      MinWidth := 70;
       Options  := [coAllowClick, coDraggable, coEnabled, coParentBidiMode,
-        coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring,
+        coParentColor, coResizable, coShowDropMark, coVisible,
         coSmartResize, coAllowFocus, coEditable];
       Position := 5;
       Width    := 70;
@@ -791,10 +760,10 @@ begin
     end;
     with Header.Columns.Add do
     begin
-      MaxWidth := 200;
-      MinWidth := 70;
+//      MaxWidth := 800;
+//      MinWidth := 70;
       Options  := [coAllowClick, coDraggable, coEnabled, coParentBidiMode,
-        coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring,
+        coParentColor, coResizable, coShowDropMark, coVisible,
         coSmartResize, coAllowFocus, coEditable];
       Position := 6;
       Width    := 200;
@@ -802,22 +771,7 @@ begin
     end;
     ConnectEventHandlers;
     RootNodeCount := NODE_COUNT;
-    DefaultNodeHeight := 18;
     Header.AutoFitColumns;
-    Header.Options := Header.Options + [hoOwnerDraw];
-  end;
-end;
-
-procedure TfrmVirtualTreeView.LogNodeHeights;
-var
-  LNode : PVirtualNode;
-begin
-  LNode := FVirtualStringTree.GetFirst;
-  while Assigned(LNode) do
-  begin
-    //Logger.Info(Format('Node %d Height: %d', [LNode.Index, LNode.NodeHeight]));
-    Logger.Send('States', TValue.From(LNode.States));
-    LNode := FVirtualStringTree.GetNext(LNode);
   end;
 end;
 

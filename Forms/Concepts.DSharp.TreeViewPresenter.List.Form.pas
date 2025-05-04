@@ -140,14 +140,20 @@ begin
   FOI.OnItemSetValue  := FOIItemSetValue;
   FOI.Component       := FTVP;
   CreateColumnDefinitionsView;
+  FVST.Header.AutoFitColumns;
 end;
 {$ENDREGION}
 
 {$REGION 'event handlers'}
 function TfrmTreeViewPresenterList.FOIBeforeAddItem(Sender: TControl;
   PItem: PPropItem): Boolean;
+var
+  LName : string;
 begin
-  Result := not (PItem.Prop.PropertyType is TRttiMethodType);
+  LName := PItem.QualifiedName;
+  LName := LName.Split(['.'], 2)[1];
+  Result := not LName.Contains('ComObject')
+    and (not (PItem.Prop.PropertyType is TRttiMethodType));
 end;
 
 function TfrmTreeViewPresenterList.FOIItemSetValue(Sender: TControl;
