@@ -1,0 +1,171 @@
+<style type="text/css">
+code{
+  font-family: "Consolas", monospace;
+}
+pre{
+  border: 1px solid #ddd;
+  border-left: 3px solid #f36d33;
+  overflow: auto;
+  padding: 1em 1.5em;
+  display: block;
+}
+Blockquote{
+  border-left: 3px solid #d0d0d0;
+  padding-left: 0.5em;
+  margin-left:1em;
+}
+Blockquote p{
+  margin: 0;
+}
+table{
+  border:1px solid;
+  border-collapse:collapse;
+}
+th{  padding:5px;
+  border:1px solid;
+}
+td{
+  padding:5px;
+  border:1px solid;
+}
+</style>
+<h1>VCLThemeSelector <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg" alt="License"/></a></h1>
+<p><strong>Easy and elegant preview/selection of Theme (Light or Dark) for VCL apps plus HighDPI demo</strong></p>
+<p>Related links: https://www.embarcadero.com/ - https://learndelphi.org/</p>
+<p>With <strong>VCLThemeSelector</strong> you can easily add a modern and elegant Theme selector for your Delphi VCL app. The Form shows all the VCL Styles included in your application, then arrange them in defined Rows and Columns. You can specify to include or not 'Windows' not-styled option.</p>
+<h3>Preview (from Delphi 10.4 to Delphi 12 - using PerControlStyles)</h3>
+<p><img src="./Demo/Images/PreviewD10_4.jpg" alt="/Demo/Images/PreviewD10_4.jpg"/></p>
+<h3>Preview (before Delphi 10.3 - Without PerControlStyle)</h3>
+<p><img src="./Demo/Images/PreviewD10_3.jpg" alt="/Demo/Images/PreviewD10_3.jpg"/></p>
+<p>Use the <strong>VCLThemeSelectorLauncher</strong> demo present in Demo Folder to test it, and see how it's easy to use it, like in this example:</p>
+<pre><code class="pascal">var
+  LStyleName: string;
+  LExcludeWindows: boolean;
+  LMaxRows, LMaxCols: Integer;
+begin  
+  LStyleName := TStyleManager.ActiveStyle.Name;
+  LExcludeWindows := False;
+  LMaxRows := 3;
+  LMaxCols := 4;
+  if ShowVCLThemeSelector(LStyleName, LExcludeWindows, LMaxRows, LMaxCols) then
+    TStyleManager.SetStyle(LStyleName);
+end;    
+</code></pre>
+<p>License: the CBVCLStylePreview is based on VCLStylePreview (Vcl.Styles.Ext) from:
+<a href="https://github.com/RRUZ/vcl-styles-utils/">github.com/RRUZ/vcl-styles-utils</a> with full High-DPI support, and released under Apache 2.0 license.</p>
+<h2>High-DPI Delphi App full example</h2>
+<p>Also included in this repository you can find a full example of an HighDPI - VCL Themed enabled application that uses the VCLThemeSelector to change the Theme. You can run the demo from: Demo\Bin\ModernAppDemo.exe.</p>
+<h3>Preview ( Delphi 12 and Windows 11 Modern Dark Style)</h3>
+<p><img src="./Demo/Images/DemoPreviewD11_Dark.jpg" alt="/Demo/Images/DemoPreviewD11_Dark.jpg"/></p>
+<h3>Preview ( Delphi 12 and Windows 11 Modern Light Style)</h3>
+<p><img src="/Demo/Images/DemoPreview_D11_Light.jpg" alt="/Demo/Images/DemoPreview_D11_Light.jpg"/></p>
+<h3>Demo from 10.1 to 10.3 (with SVGIconsImageList)</h3>
+<p><img src="./Demo/Images/DemoPreview.jpg" alt="/Demo/Images/DemoPreview.jpg"/></p>
+<h3>Demo with Delphi 12 (with PerControlStyle and IconFontsImageList)</h3>
+<p><img src="./Demo/Images/DemoPreviewD10_4.jpg" alt="/Demo/Images/DemoPreviewD10_4.jpg"/></p>
+<p>WARNING: to edit and compile the demo you must first download:
+IconFontsImageList free components <a href="https://github.com/EtheaDev/IconFontsImageList/">here&hellip;</a> and SVGIconImageList free components <a href="https://github.com/EtheaDev/SVGIconImageList/">here&hellip;</a></p>
+<p>You can also use StyledComponents, enabling STYLEDCOMPONENTS Compiler directive in the Demo. You must first download StyledComponents <a href="https://github.com/EtheaDev/StyledComponents/">here&hellip;</a></p>
+<h3>Preview using StyledComponents with Rounded Buttons</h3>
+<p><img src="./Demo/Images/DemoPreviewStyledComponents.jpg" alt="/Demo/Images/DemoPreviewStyledComponents.jpg"/></p>
+<h3>License</h3>
+<p>this Demo is inspired by TSplitView demo (original software is Copyright (c) 2015 Embarcadero Technologies, Inc.) and is released under Apache 2.0 license.</p>
+<p><img src="./Demo/Images/SupportingDelphi.jpg" alt="Delphi Support"/></p>
+<h2>Compatibility</h2>
+<p><strong>VCLThemeSelector</strong> and <strong>VCLThemeSelectorLauncher</strong> are compatible from Delphi XE5 to 12, with some differences to High-DPI support.</p>
+<p><strong>ModernAppDemo</strong> is compatible with Delphi Delphi 12, 11, 10.4, 10.3, 10.2 and 10.1 (notice: 10.1 png stream format of pictures inside biolife.xml are incompatible: use an old biolife.xml file).</p>
+<h2>Release Notes</h2>
+<p>20 Nov 2024</p>
+<ul>
+<li>Added support for Delphi 12.2</li>
+<li>Fixed Font Loading fron Registry in DemoApp</li>
+</ul>
+<p>26 Apr 2024</p>
+<ul>
+<li>Added support for Delphi 12.1</li>
+<li>Added StyledComponents integration</li>
+<li>Added StyledComponents interposer in demo</li>
+</ul>
+<p>20 Oct 2023</p>
+<ul>
+<li>Added support for Delphi 12</li>
+<li>Examples Built with Delphi 12 (beta)</li>
+</ul>
+<p>04 Mar 2023</p>
+<ul>
+<li>Built with Delphi 11.3</li>
+<li>More VCL Styles supported</li>
+</ul>
+<p>15 Sep 2022</p>
+<ul>
+<li>Built with Delphi 11.2</li>
+</ul>
+<p>10 Apr 2022</p>
+<ul>
+<li>Built with Delphi 11.1</li>
+<li>Fixed Size of menu when resize icons</li>
+</ul>
+<p>16 Feb 2022</p>
+<ul>
+<li>Added italian translation</li>
+<li>SetEditorStyleAttributes to assign required/readonly attributes to edit controls</li>
+<li>Added pixelsperinch when storing font</li>
+<li>Added RegisterThemeAttributes to interface to add personal Styles</li>
+</ul>
+<p>19 Oct 2021</p>
+<ul>
+<li>Replaced &ldquo;Windows11 Light&rdquo; and &ldquo;Windows11 Dark&rdquo; Styles with &ldquo;Windows11 Modern Light&rdquo; and &ldquo;Windows11 Modern Dark&rdquo;</li>
+<li>Updated demos to use new Windows 11 Styles available from Get-It</li>
+</ul>
+<p>16 Oct 2021</p>
+<ul>
+<li>Added New Windows11 Light and Dark Themes to Modern Demo (Delphi 11)</li>
+<li>Added New Windows11 Light and Dark Themes to Launcher (Delphi 11)</li>
+</ul>
+<p>23 Aug 2021</p>
+<ul>
+<li>Added support for Delphi 11</li>
+</ul>
+<p>24 Jan 2021</p>
+<ul>
+<li>Changed preview to separate Light and Dark Themes</li>
+<li>Added support for info about Themes:
+TThemeAttribute = class
+StyleName: String;
+ThemeType: TThemeType;
+EditRequiredColor: TColor;
+EditReadonlyColor: TColor;
+end;</li>
+</ul>
+<p>30 Aug 2020</p>
+<ul>
+<li>Changed demo to use new IconsFontsVirtualImageList and SVGIconVirtualImageList components</li>
+<li>Updated external project VCLStyleUtils</li>
+</ul>
+<p>19 Jun 2020</p>
+<ul>
+<li>Fixed VCLThemeSelector for app in &ldquo;Windows&rdquo; Style for D10.4</li>
+<li>Recompiled Demo with IconFontsImageList 2.0 (with GDI+ support)</li>
+</ul>
+<p>11 Jun 2020</p>
+<ul>
+<li>Added SVGIconImageList</li>
+<li>Demo: swith icons from Fonts to SVG</li>
+</ul>
+<p>09 Jun 2020</p>
+<ul>
+<li>Updated Demo for Delphi 10.4</li>
+<li>Added custom form &ldquo;per-control styled&rdquo; for D10.4</li>
+</ul>
+<p>17 May 2020</p>
+<ul>
+<li>Changed &ldquo;Material Design Desktop&rdquo; Font used in Demo</li>
+</ul>
+<p>27 Apr 2020</p>
+<ul>
+<li>Added VCLThemeSelectorLauncher</li>
+</ul>
+<p>25 Apr 2020</p>
+<ul>
+<li>First release of Selector and Demo App</li>
+</ul>
