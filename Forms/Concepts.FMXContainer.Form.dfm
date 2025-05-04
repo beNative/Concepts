@@ -10,10 +10,8 @@ object frmFMXContainer: TfrmFMXContainer
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   Position = poMainFormCenter
   ShowHint = True
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlFMXContainer: TPanel
     Left = 0
@@ -23,6 +21,8 @@ object frmFMXContainer: TfrmFMXContainer
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 778
+    ExplicitHeight = 412
   end
   object pnlHeader: TPanel
     AlignWithMargins = True
@@ -46,5 +46,6 @@ object frmFMXContainer: TfrmFMXContainer
     ParentDoubleBuffered = False
     ParentFont = False
     TabOrder = 1
+    ExplicitWidth = 772
   end
 end

@@ -10,12 +10,10 @@ object frmIndyTCP: TfrmIndyTCP
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   Position = poMainFormCenter
   ScreenSnap = True
   ShowHint = True
   OnClose = FormClose
-  PixelsPerInch = 96
   TextHeight = 13
   object splVertical: TSplitter
     Left = 319
@@ -34,6 +32,7 @@ object frmIndyTCP: TfrmIndyTCP
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitHeight = 565
     object splLeftHorizontal: TSplitter
       Left = 0
       Top = 337
@@ -139,6 +138,7 @@ object frmIndyTCP: TfrmIndyTCP
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitHeight = 216
       object pgcSend: TPageControl
         Left = 0
         Top = 0
@@ -147,6 +147,7 @@ object frmIndyTCP: TfrmIndyTCP
         ActivePage = tsCommands
         Align = alClient
         TabOrder = 0
+        ExplicitHeight = 216
         object tsCommands: TTabSheet
           Caption = 'Commands'
           ImageIndex = 1
@@ -191,6 +192,7 @@ object frmIndyTCP: TfrmIndyTCP
                 Value = 16.666666666666640000
               end>
             TabOrder = 0
+            ExplicitHeight = 182
           end
         end
       end
@@ -211,6 +213,8 @@ object frmIndyTCP: TfrmIndyTCP
     Font.Style = []
     ParentFont = False
     TabOrder = 1
+    ExplicitWidth = 615
+    ExplicitHeight = 565
     object splRightHorizontal: TSplitter
       Left = 0
       Top = 280
@@ -236,6 +240,7 @@ object frmIndyTCP: TfrmIndyTCP
       Font.Style = []
       ParentFont = False
       TabOrder = 0
+      ExplicitWidth = 615
       object pnlSent: TPanel
         AlignWithMargins = True
         Left = 3
@@ -255,6 +260,7 @@ object frmIndyTCP: TfrmIndyTCP
         ParentFont = False
         TabOrder = 0
         StyleElements = [seFont, seBorder]
+        ExplicitWidth = 609
         object btnClearSent: TSpeedButton
           Left = 569
           Top = 0
@@ -282,6 +288,7 @@ object frmIndyTCP: TfrmIndyTCP
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitWidth = 615
         object cbxSent: TComboBox
           Left = 3
           Top = 2
@@ -301,6 +308,7 @@ object frmIndyTCP: TfrmIndyTCP
           ParentFont = False
           Sorted = True
           TabOrder = 0
+          ExplicitWidth = 533
         end
         object btnSendString: TButton
           Left = 548
@@ -311,6 +319,7 @@ object frmIndyTCP: TfrmIndyTCP
           Align = alRight
           Default = True
           TabOrder = 1
+          ExplicitLeft = 542
         end
       end
       object pgcSent: TPageControl
@@ -327,6 +336,7 @@ object frmIndyTCP: TfrmIndyTCP
         Font.Style = []
         ParentFont = False
         TabOrder = 2
+        ExplicitWidth = 615
         object tsSentLog: TTabSheet
           Caption = 'Log'
           Font.Charset = DEFAULT_CHARSET
@@ -363,6 +373,7 @@ object frmIndyTCP: TfrmIndyTCP
             PopupMenu = ppmReceivedText
             ScrollBars = ssVertical
             TabOrder = 0
+            ExplicitWidth = 607
           end
         end
       end
@@ -381,6 +392,8 @@ object frmIndyTCP: TfrmIndyTCP
       Font.Style = []
       ParentFont = False
       TabOrder = 1
+      ExplicitWidth = 615
+      ExplicitHeight = 279
       object pnlReceived: TPanel
         AlignWithMargins = True
         Left = 3
@@ -400,6 +413,7 @@ object frmIndyTCP: TfrmIndyTCP
         ParentFont = False
         TabOrder = 0
         StyleElements = [seFont, seBorder]
+        ExplicitWidth = 609
         object btnClearReceived: TSpeedButton
           Left = 569
           Top = 0
@@ -433,6 +447,8 @@ object frmIndyTCP: TfrmIndyTCP
         Font.Style = []
         ParentFont = False
         TabOrder = 1
+        ExplicitWidth = 615
+        ExplicitHeight = 253
         object tsReceivedLog: TTabSheet
           Caption = 'Log'
           Font.Charset = DEFAULT_CHARSET
@@ -468,6 +484,8 @@ object frmIndyTCP: TfrmIndyTCP
             ParentFont = False
             ScrollBars = ssVertical
             TabOrder = 0
+            ExplicitWidth = 607
+            ExplicitHeight = 225
           end
         end
       end
@@ -480,6 +498,8 @@ object frmIndyTCP: TfrmIndyTCP
     Height = 19
     Panels = <>
     SimplePanel = True
+    ExplicitTop = 571
+    ExplicitWidth = 946
   end
   object ilMain: TImageList
     ColorDepth = cd32Bit

@@ -10,10 +10,8 @@
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   Position = poMainFormCenter
   ShowHint = True
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlMain: TPanel
     Left = 0
@@ -23,6 +21,8 @@
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 1185
+    ExplicitHeight = 669
     object splSplitter: TSplitter
       Left = 433
       Top = 0
@@ -41,6 +41,7 @@
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitHeight = 650
       object splLeftHorizontal: TSplitter
         Left = 0
         Top = 368
@@ -79,6 +80,7 @@
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitTop = 356
         object pgcLeftBottoù: TPageControl
           Left = 0
           Top = 0
@@ -121,6 +123,8 @@
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitWidth = 744
+      ExplicitHeight = 650
       object spl1: TSplitter
         Left = 0
         Top = 385
@@ -139,6 +143,7 @@
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitWidth = 744
         object pgcMain: TPageControl
           AlignWithMargins = True
           Left = 3
@@ -148,6 +153,7 @@
           ActivePage = tsHighlighter
           Align = alClient
           TabOrder = 0
+          ExplicitWidth = 738
           object tsHighlighter: TTabSheet
             Caption = 'Highlighter definition'
             object pnlHighlighter: TPanel
@@ -158,6 +164,7 @@
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 0
+              ExplicitWidth = 577
             end
             object pnlHLLeft: TPanel
               Left = 0
@@ -190,6 +197,7 @@
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 2
+              ExplicitWidth = 577
             end
           end
           object tsThemes: TTabSheet
@@ -264,6 +272,8 @@
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitWidth = 744
+        ExplicitHeight = 259
       end
     end
     object sbrStatusBar: TStatusBar
@@ -274,6 +284,8 @@
       Panels = <>
       ParentShowHint = False
       ShowHint = True
+      ExplicitTop = 650
+      ExplicitWidth = 1185
     end
   end
   object pnlHeader: TPanel
@@ -293,17 +305,20 @@
     ParentBackground = False
     ParentFont = False
     TabOrder = 1
+    ExplicitWidth = 1179
     object lblHeader: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 273
-      Height = 13
+      Width = 1179
+      Height = 26
       Align = alClient
       Alignment = taCenter
       Caption = 'This form demonstrates the TTextEditor control.'
       Layout = tlCenter
       WordWrap = True
+      ExplicitWidth = 273
+      ExplicitHeight = 13
     end
   end
   object aclMain: TActionList

@@ -157,6 +157,7 @@ uses
   Concepts.SynMemoEx.Form,
   Concepts.MQTT.Form,
   Concepts.Nats.Form,
+  Concepts.RTTEye.Form,
 
   Concepts.FMXContainer.Form,
 
@@ -588,12 +589,12 @@ begin
   );
   {$ENDIF}
 
-//  ConceptManager.Register(
-//    TfrmRTTEye,
-//    'RTTEye',
-//    'System',
-//    'Reflection-like overview using the extended RTTI.'
-//  );
+  ConceptManager.Register(
+    TfrmRTTEye,
+    'RTTEye',
+    'System',
+    'Reflection-like overview using the extended RTTI.'
+  );
 
   {$IFDEF SYNAPSE}
   ConceptManager.Register(

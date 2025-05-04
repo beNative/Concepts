@@ -233,7 +233,7 @@ begin
   FHighlighterEditor := TConceptFactories.CreateTextEditor(
     Self,
     pnlHLRight,
-    //FTextEditor.               GetHighlighterFileName(FTextEditor.Highlighter.FileName),
+    //FTextEditor.GetHighlighterFileName(FTextEditor.Highlighter.FileName),
     '',
     'JSON',
     'tsColors'
@@ -242,7 +242,7 @@ begin
   FThemeEditor := TConceptFactories.CreateTextEditor(
     Self,
     tsThemes,
-    //FTextEditor.GetColorsFileName(FTextEditor.Highlighter.Colors.FileName),
+//    FTextEditor.GetColorsFileName(FTextEditor.Highlighter.Colors.FileName),
     '',
     'JSON',
     'tsColors'
@@ -264,7 +264,7 @@ begin
   FObjectInspector.Component := FTextEditor;
   FObjectInspector.ExpandAll;
   FHighlighters := TCollections.CreateList<string>;
-  FThemes    := TCollections.CreateList<string>;
+  FThemes       := TCollections.CreateList<string>;
   LoadHighlighters;
   LoadThemes;
 

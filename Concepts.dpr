@@ -103,7 +103,10 @@ uses
   Nats.Parser in 'Libraries\NATS\Nats.Parser.pas',
   Nats.Socket.Indy in 'Libraries\NATS\Nats.Socket.Indy.pas',
   Nats.Socket in 'Libraries\NATS\Nats.Socket.pas',
-  Concepts.Nats.Form in 'Forms\Concepts.Nats.Form.pas' {frmNats};
+  Concepts.Nats.Form in 'Forms\Concepts.Nats.Form.pas' {frmNats},
+  CBVCLStylePreview in 'Libraries\VCLThemeSelector\Source\CBVCLStylePreview.pas',
+  CBVCLStylePreviewForm in 'Libraries\VCLThemeSelector\Source\CBVCLStylePreviewForm.pas' {CBVCLPreviewForm},
+  FVCLThemeSelector in 'Libraries\VCLThemeSelector\Source\FVCLThemeSelector.pas' {VCLThemeSelectorForm};
 
 {$R *.res}
 

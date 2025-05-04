@@ -23,7 +23,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, Winapi.ActiveX,
   System.SysUtils, System.Variants, System.Classes, System.Actions,
-  System.ImageList,
+  System.ImageList, System.UITypes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
   Vcl.StdCtrls, Vcl.ActnList, Vcl.ImgList, Vcl.Menus,
 
@@ -35,6 +35,7 @@ uses
 
 type
   TBlockNode = TVTNode<TKMemoBlock>;
+  TImageIndex = System.UITypes.TImageIndex;
 
 type
   TfrmKMemo = class(TForm)
@@ -307,7 +308,7 @@ uses
 
   keditcommon,
 
-  VirtualTrees.Types;
+  VirtualTrees.Types, VirtualTrees.BaseTree;
 
 //procedure ConvertStringToKMemoTable(tableStr: string; memo: TKMemo);
 //var
@@ -363,7 +364,6 @@ uses
 //  LTable.ApplyDefaultCellStyle;
 //  Result := LTable;
 //end;
-
 
 {$REGION 'construction and destruction'}
 constructor TfrmKMemo.Create(AOwner: TComponent);
@@ -668,7 +668,7 @@ end;
 
 procedure TfrmKMemo.PasteBlock;
 begin
-
+//
 end;
 
 procedure TfrmKMemo.UpdateActions;
@@ -781,7 +781,8 @@ var
   LNode : TBlockNode;
   LNew  : TBlockNode;
 begin
-  LNode := nil;
+  Result := nil;
+  LNode  := nil;
   if Assigned(ABlock) then
   begin
     Logger.Send('ABlock', ABlock.ClassName);
@@ -829,7 +830,6 @@ begin
     begin
       LNew.ImageIndex := 4;
     end;
-   // FRootNode.Expanded := True;
     Result := LNew;
   end;
 end;
@@ -872,7 +872,7 @@ begin
 //  end;
 //
 //  Result := InsertIndex;
-
+  Result := 0;
 end;
 
 function TfrmKMemo.AddBulletList: TKMemoParagraph;
@@ -1039,7 +1039,7 @@ var
   LTable     : TKMemoTable;
   X          : Integer;
   Y          : Integer;
-  LTextBlock : TKMemoTextBlock;
+  //LTextBlock : TKMemoTextBlock;
   LIndex     : TKMemoBlockIndex;
   LPara      : TKMemoParagraph;
 begin

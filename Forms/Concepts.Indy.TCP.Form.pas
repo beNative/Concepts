@@ -40,8 +40,7 @@ uses
 
   zObjInspector, zObjInspTypes,
 
-  IdComponent, IdTCPConnection, IdTCPClient,
-  IdIntercept, IdGlobal, IdIOHandler,
+  IdComponent, IdTCPConnection, IdTCPClient, IdIntercept, IdGlobal, IdIOHandler,
   IdIOHandlerStack, IdBaseComponent;
 
 type

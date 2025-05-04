@@ -10,12 +10,10 @@ object frmObjectDataSet: TfrmObjectDataSet
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   PopupMode = pmAuto
   Position = poScreenCenter
   ShowHint = True
   OnResize = FormResize
-  PixelsPerInch = 96
   TextHeight = 13
   object pnlTop: TPanel
     Left = 0
@@ -26,6 +24,7 @@ object frmObjectDataSet: TfrmObjectDataSet
     BevelOuter = bvNone
     FullRepaint = False
     TabOrder = 0
+    ExplicitWidth = 1090
     object lblRecordCount: TLabel
       Left = 165
       Top = 12
@@ -71,6 +70,8 @@ object frmObjectDataSet: TfrmObjectDataSet
     BevelOuter = bvNone
     FullRepaint = False
     TabOrder = 1
+    ExplicitWidth = 1090
+    ExplicitHeight = 614
     object splVertical: TSplitter
       Left = 521
       Top = 0
@@ -88,6 +89,7 @@ object frmObjectDataSet: TfrmObjectDataSet
       BevelOuter = bvNone
       FullRepaint = False
       TabOrder = 0
+      ExplicitHeight = 614
       object pnlLeftHeader: TPanel
         Left = 0
         Top = 0
@@ -164,6 +166,7 @@ object frmObjectDataSet: TfrmObjectDataSet
         BevelOuter = bvNone
         FullRepaint = False
         TabOrder = 1
+        ExplicitTop = 502
         object lblFirstname: TLabel
           Left = 5
           Top = 26
@@ -298,6 +301,8 @@ object frmObjectDataSet: TfrmObjectDataSet
       BevelOuter = bvNone
       FullRepaint = False
       TabOrder = 1
+      ExplicitWidth = 562
+      ExplicitHeight = 614
       object pnlRightHeader: TPanel
         Left = 0
         Top = 0
@@ -308,6 +313,7 @@ object frmObjectDataSet: TfrmObjectDataSet
         BevelOuter = bvNone
         FullRepaint = False
         TabOrder = 0
+        ExplicitWidth = 562
         object pnlPresenter: TPanel
           AlignWithMargins = True
           Left = 3
@@ -330,6 +336,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           ParentBackground = False
           ParentFont = False
           TabOrder = 0
+          ExplicitWidth = 556
         end
         object btnConnectPresenter: TButton
           Left = 6
@@ -361,6 +368,8 @@ object frmObjectDataSet: TfrmObjectDataSet
         BevelOuter = bvNone
         FullRepaint = False
         TabOrder = 1
+        ExplicitTop = 502
+        ExplicitWidth = 562
         object edtFirstname: TLabeledEdit
           Left = 8
           Top = 42
@@ -374,6 +383,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           ParentShowHint = False
           ShowHint = False
           TabOrder = 0
+          Text = ''
         end
         object edtLastname: TLabeledEdit
           Left = 135
@@ -384,6 +394,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           EditLabel.Height = 13
           EditLabel.Caption = 'Lastname:'
           TabOrder = 1
+          Text = ''
         end
         object edtEmail: TLabeledEdit
           Left = 262
@@ -394,6 +405,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           EditLabel.Height = 13
           EditLabel.Caption = 'Email:'
           TabOrder = 2
+          Text = ''
         end
         object edtCompanyName: TLabeledEdit
           Left = 8
@@ -404,6 +416,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           EditLabel.Height = 13
           EditLabel.Caption = 'CompanyName:'
           TabOrder = 3
+          Text = ''
         end
         object edtAddress: TLabeledEdit
           Left = 135
@@ -414,6 +427,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           EditLabel.Height = 13
           EditLabel.Caption = 'Address:'
           TabOrder = 4
+          Text = ''
         end
         object edtNumber: TLabeledEdit
           Left = 376
@@ -424,6 +438,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           EditLabel.Height = 13
           EditLabel.Caption = 'Number:'
           TabOrder = 5
+          Text = ''
         end
         object pnlVCLControls: TPanel
           AlignWithMargins = True
@@ -447,6 +462,7 @@ object frmObjectDataSet: TfrmObjectDataSet
           ParentBackground = False
           ParentFont = False
           TabOrder = 6
+          ExplicitWidth = 556
         end
       end
     end
@@ -457,6 +473,8 @@ object frmObjectDataSet: TfrmObjectDataSet
     Width = 1096
     Height = 19
     Panels = <>
+    ExplicitTop = 647
+    ExplicitWidth = 1090
   end
   object btnInspectPresenter: TButton
     Left = 448

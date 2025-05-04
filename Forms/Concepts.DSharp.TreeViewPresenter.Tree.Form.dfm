@@ -28,6 +28,8 @@ object frmTreeViewPresenterTree: TfrmTreeViewPresenterTree
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitWidth = 650
+    ExplicitHeight = 671
     object pnlTreeView: TPanel
       Left = 0
       Top = 40
@@ -38,6 +40,8 @@ object frmTreeViewPresenterTree: TfrmTreeViewPresenterTree
       BevelEdges = []
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitWidth = 650
+      ExplicitHeight = 631
     end
     object edtFilter: TLabeledEdit
       Left = 120
@@ -60,6 +64,8 @@ object frmTreeViewPresenterTree: TfrmTreeViewPresenterTree
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitTop = 671
+    ExplicitWidth = 1105
   end
   object pnlLeft: TPanel
     Left = 0
@@ -69,13 +75,15 @@ object frmTreeViewPresenterTree: TfrmTreeViewPresenterTree
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitHeight = 671
     object splHorizontal: TSplitter
       Left = 0
-      Top = 130
+      Top = 273
       Width = 449
       Height = 5
       Cursor = crVSplit
       Align = alTop
+      ExplicitTop = 130
     end
     object pnlTreeviewPresenter: TPanel
       AlignWithMargins = True
@@ -100,25 +108,27 @@ object frmTreeViewPresenterTree: TfrmTreeViewPresenterTree
       Left = 0
       Top = 26
       Width = 449
-      Height = 104
+      Height = 247
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 1
     end
     object pnlLeftBottom: TPanel
       Left = 0
-      Top = 135
+      Top = 278
       Width = 449
-      Height = 553
+      Height = 410
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 2
+      ExplicitTop = 135
+      ExplicitHeight = 536
       object mmoDetails: TMemo
         AlignWithMargins = True
         Left = 3
         Top = 29
         Width = 443
-        Height = 521
+        Height = 378
         Align = alClient
         BorderStyle = bsNone
         Font.Charset = DEFAULT_CHARSET
@@ -129,6 +139,7 @@ object frmTreeViewPresenterTree: TfrmTreeViewPresenterTree
         ParentFont = False
         TabOrder = 0
         WordWrap = False
+        ExplicitHeight = 504
       end
       object pnlType: TPanel
         AlignWithMargins = True

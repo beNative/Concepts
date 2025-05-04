@@ -10,9 +10,7 @@ object frmSpringPersistence: TfrmSpringPersistence
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   ShowHint = True
-  PixelsPerInch = 96
   TextHeight = 13
   object dscMain: TDataSource
     Left = 200

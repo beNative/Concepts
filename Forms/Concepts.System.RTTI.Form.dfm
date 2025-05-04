@@ -11,9 +11,7 @@ object frmRTTI: TfrmRTTI
   Font.Height = -11
   Font.Name = 'Segoe UI'
   Font.Style = []
-  OldCreateOrder = False
   ShowHint = True
-  PixelsPerInch = 96
   TextHeight = 13
   object btnExecute: TButton
     Left = 8

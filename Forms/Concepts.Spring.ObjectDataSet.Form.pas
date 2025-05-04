@@ -42,7 +42,7 @@ uses
 
   DSharp.Windows.TreeViewPresenter,
 
-  Concepts.Types.Contact;
+  Concepts.Types.Contact, Vcl.Buttons;
 
 type
   TfrmObjectDataSet = class(TForm)

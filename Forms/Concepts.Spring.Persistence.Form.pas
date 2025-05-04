@@ -50,7 +50,7 @@ type
 
   public
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
+    destructor Destroy; override;
 
   end;
 
@@ -88,11 +88,11 @@ begin
   ShowMessage(FTracks.First.Album.Artist.Name.Value);
 end;
 
-procedure TfrmSpringPersistence.BeforeDestruction;
+destructor TfrmSpringPersistence.Destroy;
 begin
   FSession.Free;
   FObjectDataSet.Free;
-  inherited BeforeDestruction;
+  inherited Destroy;
 end;
 {$ENDREGION}
 

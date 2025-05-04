@@ -478,17 +478,16 @@ begin
 
   if AFileName <> '' then
     LEditor.LoadFromFile(AFileName);
-  if AHighlighter <> '' then
-    LEditor.Highlighter.LoadFromFile(AHighlighter + '.json');
-  if ATheme <> '' then
-    LEditor.Highlighter.Colors.LoadFromFile(ATheme + '.json');
+//  if AHighlighter <> '' then
+//    LEditor.Highlighter.LoadFromFile(AHighlighter + '.json');
+//  if ATheme <> '' then
+//    LEditor.Highlighter.Colors.LoadFromFile(ATheme + '.json');
 
   LEditor.CodeFolding.Options := LEditor.CodeFolding.Options + [cfoFoldMultilineComments];
-
   LEditor.Tabs.Options := LEditor.Tabs.Options + [toPreviousLineIndent];
   LEditor.Selection.Options := LEditor.Selection.Options + [soALTSetsColumnMode];
 
-//  LEditor.Font.Name := 'Consolas';
+  LEditor.Fonts.Text.Name := 'Consolas';
   LEditor.CodeFolding.Visible := True;
   LEditor.URIOpener := True;
 
@@ -527,17 +526,17 @@ begin
   C := TContact.Create;
   with C do
   begin
-    FirstName   := RandomData.FirstName;
-    LastName    := RandomData.LastName;
+    FirstName := RandomData.FirstName;
+    LastName  := RandomData.LastName;
     if ASpecial then
       CompanyName := RandomData.AlliteratedCompanyName
     else
       CompanyName := RandomData.CompanyName;
-    Email       := RandomData.Email(FirstName, LastName);
-    Address     := RandomData.Address;
-    Number      := RandomData.Number(100);
-    BirthDate   := RandomData.BirthDate(1928, 1987);
-    Active      := RandomData.Bool;
+    Email     := RandomData.Email(FirstName, LastName);
+    Address   := RandomData.Address;
+    Number    := RandomData.Number(100);
+    BirthDate := RandomData.BirthDate(1928, 1987);
+    Active    := RandomData.Bool;
   end;
   Result := C;
 end;
