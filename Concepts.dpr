@@ -106,7 +106,8 @@ uses
   Concepts.Nats.Form in 'Forms\Concepts.Nats.Form.pas' {frmNats},
   CBVCLStylePreview in 'Libraries\VCLThemeSelector\Source\CBVCLStylePreview.pas',
   CBVCLStylePreviewForm in 'Libraries\VCLThemeSelector\Source\CBVCLStylePreviewForm.pas' {CBVCLPreviewForm},
-  FVCLThemeSelector in 'Libraries\VCLThemeSelector\Source\FVCLThemeSelector.pas' {VCLThemeSelectorForm};
+  FVCLThemeSelector in 'Libraries\VCLThemeSelector\Source\FVCLThemeSelector.pas' {VCLThemeSelectorForm},
+  Concepts.Skia.Form in 'Forms\Concepts.Skia.Form.pas' {frmSkia};
 
 {$R *.res}
 

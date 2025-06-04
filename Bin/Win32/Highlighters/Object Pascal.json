@@ -668,12 +668,6 @@
             "RegionType": "SingleLine"
           },
           {
-            "OpenToken": "{",
-            "CloseToken": "}",
-            "RegionType": "MultiLine",
-            "NextCharIsNot": "$"
-          },
-          {
             "OpenToken": "(*",
             "CloseToken": "*)",
             "RegionType": "MultiLine"
@@ -771,8 +765,8 @@
             }
           },
           {
-            "OpenToken": "$REGION",
-            "CloseToken": "$ENDREGION",
+            "OpenToken": "{$REGION",
+            "CloseToken": "{$ENDREGION}",
             "Properties": {
               "OpenTokenEnd": "}",
               "ShowGuideLine": false,

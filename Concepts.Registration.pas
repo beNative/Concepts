@@ -161,6 +161,8 @@ uses
 
   Concepts.FMXContainer.Form,
 
+  Concepts.Skia.Form,
+
   Concepts.Manager;
 
 const
@@ -533,6 +535,13 @@ begin
     'NATS',
     'NATS',
     'NATS demo'
+  );
+
+  ConceptManager.Register(
+    TfrmSkia,
+    'Skia',
+    'Skia',
+    'Skia demo'
   );
 
   {$IFDEF DDETOURS}
