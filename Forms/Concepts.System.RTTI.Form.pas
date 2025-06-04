@@ -45,7 +45,7 @@ uses
 
 type
   TTest    = (ttOne, ttTwo, ttThree);
-  TTestSet =  set of TTest;
+  TTestSet = set of TTest;
 
 procedure TfrmRTTI.actExecuteExecute(Sender: TObject);
 var

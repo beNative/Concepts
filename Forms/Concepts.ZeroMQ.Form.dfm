@@ -21,8 +21,8 @@ object frmZMQConcept: TfrmZMQConcept
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 357
-    ExplicitHeight = 241
+    ExplicitWidth = 355
+    ExplicitHeight = 225
     object btnSend1000Messages: TButton
       Left = 15
       Top = 132
@@ -47,7 +47,7 @@ object frmZMQConcept: TfrmZMQConcept
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 2
-      ExplicitWidth = 357
+      ExplicitWidth = 355
       object edtConnectionString: TEdit
         Left = 0
         Top = 5
@@ -75,7 +75,7 @@ object frmZMQConcept: TfrmZMQConcept
       ActivePage = tsEndpoints
       Align = alTop
       TabOrder = 3
-      ExplicitWidth = 357
+      ExplicitWidth = 355
       object tsEndpoints: TTabSheet
         Caption = 'Endpoints'
         ImageIndex = 3
@@ -87,14 +87,14 @@ object frmZMQConcept: TfrmZMQConcept
           Height = 120
           Align = alClient
           TabOrder = 0
-          ExplicitWidth = 343
+          ExplicitWidth = 341
           DesignSize = (
             347
             120)
           object lblTransport: TLabel
             Left = 14
             Top = 48
-            Width = 52
+            Width = 51
             Height = 13
             Caption = 'Transport:'
             FocusControl = cbxTransport
@@ -190,7 +190,7 @@ object frmZMQConcept: TfrmZMQConcept
             Anchors = [akLeft, akTop, akRight, akBottom]
             ItemHeight = 13
             TabOrder = 5
-            ExplicitWidth = 190
+            ExplicitWidth = 188
           end
         end
       end
@@ -488,8 +488,8 @@ object frmZMQConcept: TfrmZMQConcept
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 4
-      ExplicitWidth = 357
-      ExplicitHeight = 65
+      ExplicitWidth = 355
+      ExplicitHeight = 49
     end
   end
   object sbrMain: TStatusBar
@@ -500,8 +500,8 @@ object frmZMQConcept: TfrmZMQConcept
     Panels = <>
     SimplePanel = True
     OnDblClick = sbrMainDblClick
-    ExplicitTop = 241
-    ExplicitWidth = 478
+    ExplicitTop = 225
+    ExplicitWidth = 476
   end
   object pnlLeft: TPanel
     Left = 0
@@ -511,7 +511,7 @@ object frmZMQConcept: TfrmZMQConcept
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitHeight = 241
+    ExplicitHeight = 225
     object pnlSocketConfiguration: TPanel
       Left = 0
       Top = 0
@@ -520,7 +520,7 @@ object frmZMQConcept: TfrmZMQConcept
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 241
+      ExplicitHeight = 225
       object mmoIPs: TMemo
         AlignWithMargins = True
         Left = 6
@@ -542,7 +542,7 @@ object frmZMQConcept: TfrmZMQConcept
         ParentFont = False
         ReadOnly = True
         TabOrder = 0
-        ExplicitHeight = 52
+        ExplicitHeight = 36
       end
       object grp1: TGroupBox
         Left = 0

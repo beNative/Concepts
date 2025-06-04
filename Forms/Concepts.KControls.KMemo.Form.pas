@@ -62,9 +62,6 @@ type
     mniAddParagraph   : TMenuItem;
     mniAddTable       : TMenuItem;
     pnlButtons        : TPanel;
-    btnDeleteObject   : TButton;
-    btnClear          : TButton;
-    btnRebuildTree    : TButton;
     btnAddTable       : TButton;
     btnAddParagraph   : TButton;
     btnAddImageBlock  : TButton;
@@ -90,26 +87,11 @@ type
     mniN4x12          : TMenuItem;
     pnlInspectors     : TPanel;
     spl1              : TSplitter;
-    btn1              : TButton;
-    Panel1            : TPanel;
-    Button1           : TButton;
-    Button2           : TButton;
-    Button3           : TButton;
-    Button4           : TButton;
-    Button5           : TButton;
-    Button6           : TButton;
-    Button7           : TButton;
-    Button8           : TButton;
-    Button9           : TButton;
-    Button10          : TButton;
     actOpenFile       : TAction;
     dlgOpenFile       : TFileOpenDialog;
-    btnOpenFile       : TButton;
     dlgSaveFile       : TFileSaveDialog;
-    btnSaveFile       : TButton;
     actSaveFile       : TAction;
     KMemo             : TKMemo;
-    Button11: TButton;
     actAddBulletList: TAction;
     pnlGrid: TGridPanel;
     pnlInspector00: TPanel;
@@ -134,6 +116,12 @@ type
     Cut1: TMenuItem;
     Copy1: TMenuItem;
     Paste1: TMenuItem;
+    btnRebuildTree: TButton;
+    btnDeleteObject: TButton;
+    btnClear: TButton;
+    btnAddBulletList: TButton;
+    btnOpenFile: TButton;
+    btnSaveFile: TButton;
     {$ENDREGION}
 
     {$REGION 'action handlers'}

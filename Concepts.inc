@@ -35,6 +35,8 @@
 {$DEFINE VIRTUALTREES}  // Virtual Treeview - http://github.com/Virtual-TreeView/Virtual-TreeView
 {$DEFINE WINAPI}        // Delphi WinApi units ('WinApi' prefix)
 {$DEFINE ZOBJECTINSPECTOR} // TzObjectInspector
+{$DEFINE SKIA}
+{$DEFINE ETHEA}          // StyledComponents, SVGIconImageList, VCLThemeSelector
 {.$DEFINE DEVEXPRESS}    // DevExpress - http://www.devexpress.com/Products/VCL/
 {.$DEFINE BTMEMORYMODULE} // BTMemoryModule.pas
 {.$DEFINE FASTMM}         // FastMM

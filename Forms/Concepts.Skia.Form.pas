@@ -20,11 +20,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes,
+  System.SysUtils, System.Variants, System.Classes, System.Skia,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ComCtrls, Vcl.ExtCtrls,
+  Vcl.ComCtrls, Vcl.ExtCtrls, Vcl.Skia,
 
-  zObjInspector, zObjInspTypes, System.Skia, Vcl.Skia;
+  zObjInspector, zObjInspTypes;
 
 type
   TfrmSkia = class(TForm)
@@ -35,10 +35,10 @@ type
     sbrStatusBar : TStatusBar;
     pnlHeader    : TPanel;
     lblHeader    : TLabel;
-    lblText: TSkLabel;
-    imgLottie: TSkAnimatedImage;
-    imgLottie1: TSkAnimatedImage;
-    lblSkia: TSkLabel;
+    lblText      : TSkLabel;
+    imgLottie    : TSkAnimatedImage;
+    imgLottie1   : TSkAnimatedImage;
+    lblSkia      : TSkLabel;
 
   private
     FObjectInspector : TzObjectInspector;
@@ -52,6 +52,7 @@ type
 
   public
     procedure AfterConstruction; override;
+
   end;
 
 implementation

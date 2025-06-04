@@ -44,7 +44,7 @@ type
     ): TzObjectInspector; static;
 
     class property DefaultBorderStyle: TBorderStyle
-      read FDefaultBorderStyle write FDefaultBorderStyle default bsSingle;
+      read FDefaultBorderStyle write FDefaultBorderStyle default bsNone;
 
     class property DefaultObjectVisibility: TMemberVisibility
       read FDefaultObjectVisibility write FDefaultObjectVisibility
@@ -73,7 +73,7 @@ begin
   OI                  := TzObjectInspector.Create(AOwner, AValueManager);
   OI.Parent           := AParent;
   OI.Align            := alClient;
-  OI.AlignWithMargins := False;
+  OI.AlignWithMargins := True;
   OI.Name             := AName;
   OI.Component        := AObject;
   OI.ObjectVisibility := DefaultObjectVisibility;

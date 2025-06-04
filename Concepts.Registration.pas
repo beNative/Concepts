@@ -161,19 +161,25 @@ uses
 
   Concepts.FMXContainer.Form,
 
+  {$IFDEF SKIA}
   Concepts.Skia.Form,
+  {$ENDIF}
+
+  {$IFDEF ETHEA}
+  Concepts.StyledComponents.Form,
+  {$ENDIF}
 
   Concepts.Manager;
 
 const
-  SPRING_CATEGORY_COLOR     = $00DDFFDD;
-  DSHARP_CATEGORY_COLOR     = $00B0FFFF;
-  INDY_CATEGORY_COLOR       = $00C1D6FF;
-  KCONTROLS_CATEGORY_COLOR  = $00FEFAC5;
-  DEVEXPRESS_CATEGORY_COLOR = $00C1E0FF;
-  SYSTEM_CATEGORY_COLOR     = $00E1E1FF;
-  VCL_CATEGORY_COLOR        = $00FFD9D9;
-  WINAPI_CATEGORY_COLOR     = $00C7E2E2;
+  CATEGORY_COLOR_SPRING     = $00DDFFDD;
+  CATEGORY_COLOR_DSHARP     = $00B0FFFF;
+  CATEGORY_COLOR_INDY       = $00C1D6FF;
+  CATEGORY_COLOR_KCONTROLS  = $00FEFAC5;
+  CATEGORY_COLOR_DEVEXPRESS = $00C1E0FF;
+  CATEGORY_COLOR_SYSTEM     = $00E1E1FF;
+  CATEGORY_COLOR_VCL        = $00FFD9D9;
+  CATEGORY_COLOR_WINAPI     = $00C7E2E2;
 
 procedure EnsureZMQLibExists;
 const
@@ -204,7 +210,7 @@ end;
 class procedure TConcepts.RegisterSpringConcepts;
 begin
   {$IFDEF SPRING}
-  FCategoryColor := SPRING_CATEGORY_COLOR;
+  FCategoryColor := CATEGORY_COLOR_SPRING;
   ConceptManager.Register(
     TfrmCollections,
     'Collections',
@@ -281,7 +287,7 @@ end;
 class procedure TConcepts.RegisterDSharpConcepts;
 begin
   {$IFDEF DSHARP}
-  FCategoryColor := DSHARP_CATEGORY_COLOR;
+  FCategoryColor := CATEGORY_COLOR_DSHARP;
   ConceptManager.Register(
     TfrmTreeViewPresenterList,
     'TreeViewPresenter list',
@@ -297,6 +303,7 @@ begin
     FCategoryColor
   );
   {$IFDEF DEVEXPRESS}
+    FCategoryColor := CATEGORY_COLOR_DEVEXPRESS;
   ConceptManager.Register(
     TfrmcxGridViewPresenter,
     'Presenters',
@@ -311,7 +318,7 @@ end;
 class procedure TConcepts.RegisterIndyConcepts;
 begin
   {$IFDEF INDY}
-  FCategoryColor := INDY_CATEGORY_COLOR;
+  FCategoryColor := CATEGORY_COLOR_INDY;
   ConceptManager.Register(
     TfrmIndyTCP,
     'TCP',
@@ -332,7 +339,7 @@ end;
 class procedure TConcepts.RegisterKControlsConcepts;
 begin
   {$IFDEF KCONTROLS}
-  FCategoryColor := KCONTROLS_CATEGORY_COLOR;
+  FCategoryColor := CATEGORY_COLOR_KCONTROLS;
   ConceptManager.Register(
     TfrmKMemo,
     'TKMemo control',
@@ -346,7 +353,7 @@ end;
 class procedure TConcepts.RegisterDevExpressConcepts;
 begin
   {$IFDEF DEVEXPRESS}
-  FCategoryColor := DEVEXPRESS_CATEGORY_COLOR;
+  FCategoryColor := CATEGORY_COLOR_DEVEXPRESS;
   ConceptManager.Register(
     TfrmcxEditors,
     'cxEditors',
@@ -360,7 +367,7 @@ end;
 class procedure TConcepts.RegisterSystemConcepts;
 begin
   {$IFDEF SYSTEM}
-  FCategoryColor := SYSTEM_CATEGORY_COLOR;
+  FCategoryColor := CATEGORY_COLOR_SYSTEM;
   ConceptManager.Register(
     TfrmLibraries,
     'Libraries',
@@ -467,7 +474,7 @@ end;
 class procedure TConcepts.RegisterVclConcepts;
 begin
   {$IFDEF VCL}
-  FCategoryColor := VCL_CATEGORY_COLOR;
+  FCategoryColor := CATEGORY_COLOR_VCL;
   ConceptManager.Register(
     TfrmGridPanel,
     'TGridPanel control',
@@ -490,7 +497,7 @@ end;
 class procedure TConcepts.RegisterWinApiConcepts;
 begin
   {$IFDEF WINAPI}
-  FCategoryColor := WINAPI_CATEGORY_COLOR;
+  FCategoryColor := CATEGORY_COLOR_WINAPI;
   ConceptManager.Register(
     TfrmLockPaint,
     'LockPaint',
@@ -542,6 +549,13 @@ begin
     'Skia',
     'Skia',
     'Skia demo'
+  );
+
+  ConceptManager.Register(
+    TfrmStyledComponents,
+    'StyledComponents',
+    'StyledComponents',
+    'StyledComponents demo'
   );
 
   {$IFDEF DDETOURS}

@@ -14,7 +14,7 @@ object frmKMemo: TfrmKMemo
   ShowHint = True
   TextHeight = 13
   object splVertical: TSplitter
-    Left = 1113
+    Left = 1143
     Top = 0
     Width = 5
     Height = 929
@@ -22,7 +22,7 @@ object frmKMemo: TfrmKMemo
     ExplicitHeight = 726
   end
   object spl1: TSplitter
-    Left = 393
+    Left = 423
     Top = 0
     Width = 5
     Height = 929
@@ -31,21 +31,22 @@ object frmKMemo: TfrmKMemo
     ExplicitHeight = 933
   end
   object pnlRichEditor: TPanel
-    Left = 1118
+    Left = 1148
     Top = 0
-    Width = 386
+    Width = 356
     Height = 929
     Align = alClient
     BevelOuter = bvNone
     Color = clWhite
     TabOrder = 0
-    ExplicitWidth = 380
+    ExplicitWidth = 350
     ExplicitHeight = 912
     object KMemo: TKMemo
-      Left = 0
-      Top = 0
-      Width = 386
-      Height = 929
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 350
+      Height = 923
       Align = alClient
       BorderStyle = bsNone
       ContentPadding.Left = 5
@@ -60,56 +61,31 @@ object frmKMemo: TfrmKMemo
       ParentFont = False
       TabOrder = 0
       Visible = True
-      ExplicitWidth = 380
-      ExplicitHeight = 912
+      ExplicitWidth = 344
+      ExplicitHeight = 906
     end
   end
   object pnlTree: TPanel
-    Left = 153
-    Top = 0
+    AlignWithMargins = True
+    Left = 180
+    Top = 3
     Width = 240
-    Height = 929
+    Height = 923
     Align = alLeft
     BevelOuter = bvNone
+    ParentColor = True
     TabOrder = 1
-    ExplicitHeight = 912
+    ExplicitHeight = 906
   end
   object pnlButtons: TPanel
     Left = 0
     Top = 0
-    Width = 153
+    Width = 177
     Height = 929
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 2
     ExplicitHeight = 912
-    object btnDeleteObject: TButton
-      Left = 3
-      Top = 394
-      Width = 150
-      Height = 25
-      Action = actDeleteBlock
-      Images = imlMain
-      TabOrder = 0
-    end
-    object btnClear: TButton
-      Left = 3
-      Top = 468
-      Width = 150
-      Height = 25
-      Action = actClear
-      Images = imlMain
-      TabOrder = 1
-    end
-    object btnRebuildTree: TButton
-      Left = 3
-      Top = 336
-      Width = 150
-      Height = 25
-      Action = actRebuildTree
-      Images = imlMain
-      TabOrder = 2
-    end
     object btnAddTable: TButton
       Left = 1
       Top = 147
@@ -119,7 +95,7 @@ object frmKMemo: TfrmKMemo
       ImageMargins.Left = 6
       ImageMargins.Top = 3
       Images = imlMain
-      TabOrder = 3
+      TabOrder = 0
     end
     object btnAddParagraph: TButton
       Left = 1
@@ -130,7 +106,7 @@ object frmKMemo: TfrmKMemo
       ImageMargins.Left = 6
       ImageMargins.Top = 3
       Images = imlMain
-      TabOrder = 4
+      TabOrder = 1
     end
     object btnAddImageBlock: TButton
       Left = 1
@@ -141,7 +117,7 @@ object frmKMemo: TfrmKMemo
       ImageMargins.Left = 6
       ImageMargins.Top = 3
       Images = imlMain
-      TabOrder = 5
+      TabOrder = 2
     end
     object btnAddHyperlink: TButton
       Left = 1
@@ -152,7 +128,7 @@ object frmKMemo: TfrmKMemo
       ImageMargins.Left = 6
       ImageMargins.Top = 3
       Images = imlMain
-      TabOrder = 6
+      TabOrder = 3
     end
     object btnAddContainer: TButton
       Left = 1
@@ -163,7 +139,7 @@ object frmKMemo: TfrmKMemo
       ImageMargins.Left = 6
       ImageMargins.Top = 3
       Images = imlMain
-      TabOrder = 7
+      TabOrder = 4
     end
     object btnAddTextBlock: TButton
       Left = 1
@@ -174,168 +150,71 @@ object frmKMemo: TfrmKMemo
       ImageMargins.Left = 6
       ImageMargins.Top = 3
       Images = imlMain
+      TabOrder = 5
+    end
+    object btnRebuildTree: TButton
+      Left = 3
+      Top = 178
+      Width = 150
+      Height = 25
+      Action = actRebuildTree
+      Images = imlMain
+      TabOrder = 6
+    end
+    object btnDeleteObject: TButton
+      Left = 3
+      Top = 209
+      Width = 150
+      Height = 25
+      Action = actDeleteBlock
+      Images = imlMain
+      TabOrder = 7
+    end
+    object btnClear: TButton
+      Left = 3
+      Top = 240
+      Width = 150
+      Height = 25
+      Action = actClear
+      Images = imlMain
       TabOrder = 8
     end
-    object btn1: TButton
-      Left = 152
-      Top = 704
-      Width = 75
+    object btnAddBulletList: TButton
+      Left = 3
+      Top = 271
+      Width = 150
       Height = 25
-      Caption = 'btn1'
+      Action = actAddBulletList
+      ImageMargins.Left = 6
+      ImageMargins.Top = 3
+      Images = imlMain
       TabOrder = 9
     end
-    object Panel1: TPanel
-      Left = 0
-      Top = 0
-      Width = 153
-      Height = 929
-      Align = alLeft
-      BevelOuter = bvNone
-      ParentBackground = False
+    object btnOpenFile: TButton
+      Left = 3
+      Top = 302
+      Width = 150
+      Height = 25
+      Action = actOpenFile
+      ImageMargins.Left = 6
+      ImageMargins.Top = 3
+      Images = imlMain
       TabOrder = 10
-      ExplicitHeight = 912
-      object Button1: TButton
-        Left = 1
-        Top = 206
-        Width = 150
-        Height = 25
-        Action = actDeleteBlock
-        ImageMargins.Left = 6
-        ImageMargins.Top = 3
-        Images = imlMain
-        TabOrder = 0
-      end
-      object Button2: TButton
-        Left = 1
-        Top = 236
-        Width = 150
-        Height = 25
-        Action = actClear
-        Images = imlMain
-        TabOrder = 1
-      end
-      object Button3: TButton
-        Left = 1
-        Top = 265
-        Width = 150
-        Height = 25
-        Action = actRebuildTree
-        ImageMargins.Left = 6
-        ImageMargins.Top = 3
-        Images = imlMain
-        TabOrder = 2
-      end
-      object Button4: TButton
-        Left = 1
-        Top = 177
-        Width = 150
-        Height = 25
-        Action = actAddTable
-        ImageMargins.Left = 6
-        ImageMargins.Top = 3
-        Images = imlMain
-        TabOrder = 3
-      end
-      object Button5: TButton
-        Left = 1
-        Top = 119
-        Width = 150
-        Height = 25
-        Action = actAddParagraph
-        ImageMargins.Left = 6
-        ImageMargins.Top = 3
-        Images = imlMain
-        TabOrder = 4
-      end
-      object Button6: TButton
-        Left = 1
-        Top = 89
-        Width = 150
-        Height = 25
-        Action = actAddImageBlock
-        ImageMargins.Left = 6
-        ImageMargins.Top = 3
-        Images = imlMain
-        TabOrder = 5
-      end
-      object Button7: TButton
-        Left = 1
-        Top = 60
-        Width = 150
-        Height = 25
-        Action = actAddHyperLink
-        ImageMargins.Left = 6
-        ImageMargins.Top = 3
-        Images = imlMain
-        TabOrder = 6
-      end
-      object Button8: TButton
-        Left = 1
-        Top = 31
-        Width = 150
-        Height = 25
-        Action = actAddContainer
-        ImageMargins.Left = 6
-        ImageMargins.Top = 3
-        Images = imlMain
-        TabOrder = 7
-      end
-      object Button9: TButton
-        Left = 1
-        Top = 2
-        Width = 150
-        Height = 25
-        Action = actAddTextBlock
-        ImageMargins.Left = 6
-        ImageMargins.Top = 3
-        Images = imlMain
-        TabOrder = 8
-      end
-      object Button10: TButton
-        Left = 152
-        Top = 704
-        Width = 75
-        Height = 25
-        Caption = 'btn1'
-        TabOrder = 9
-      end
-      object btnOpenFile: TButton
-        Left = 1
-        Top = 294
-        Width = 150
-        Height = 25
-        Action = actOpenFile
-        ImageMargins.Left = 6
-        ImageMargins.Top = 3
-        Images = imlMain
-        TabOrder = 10
-      end
-      object btnSaveFile: TButton
-        Left = 1
-        Top = 324
-        Width = 150
-        Height = 24
-        Action = actSaveFile
-        ImageMargins.Left = 6
-        ImageMargins.Top = 3
-        Images = imlMain
-        TabOrder = 11
-      end
-      object Button11: TButton
-        Left = 1
-        Top = 148
-        Width = 150
-        Height = 25
-        Action = actAddBulletList
-        ImageMargins.Left = 6
-        ImageMargins.Top = 3
-        Images = imlMain
-        TabOrder = 12
-      end
+    end
+    object btnSaveFile: TButton
+      Left = 3
+      Top = 333
+      Width = 150
+      Height = 24
+      Action = actSaveFile
+      ImageMargins.Left = 6
+      ImageMargins.Top = 3
+      Images = imlMain
+      TabOrder = 11
     end
   end
   object pnlInspectors: TPanel
-    Left = 398
+    Left = 428
     Top = 0
     Width = 715
     Height = 929
@@ -402,6 +281,10 @@ object frmKMemo: TfrmKMemo
           Control = pnlInspector12
           Row = 1
         end>
+      Padding.Left = 2
+      Padding.Top = 2
+      Padding.Right = 2
+      Padding.Bottom = 2
       RowCollection = <
         item
           Value = 33.333333333333340000
@@ -415,155 +298,243 @@ object frmKMemo: TfrmKMemo
       TabOrder = 0
       ExplicitHeight = 912
       object pnlInspector00: TPanel
-        Left = 0
-        Top = 0
-        Width = 238
-        Height = 310
+        Left = 4
+        Top = 4
+        Width = 232
+        Height = 304
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 6
+        ExplicitTop = 6
+        ExplicitWidth = 230
+        ExplicitHeight = 302
         object pnlSelectedBlockTitle: TPanel
           Left = 0
           Top = 0
-          Width = 238
+          Width = 232
           Height = 26
           Align = alTop
           BevelOuter = bvNone
           Caption = 'SelectedBlock'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -15
+          Font.Name = 'Consolas'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 0
+          ExplicitWidth = 230
         end
       end
       object pnlInspector01: TPanel
-        Left = 238
-        Top = 0
-        Width = 239
-        Height = 310
+        Left = 240
+        Top = 4
+        Width = 233
+        Height = 304
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
+        ExplicitLeft = 242
+        ExplicitTop = 6
+        ExplicitWidth = 231
+        ExplicitHeight = 302
         object pnlActiveBlockTitle: TPanel
           Left = 0
           Top = 0
-          Width = 239
+          Width = 233
           Height = 26
           Align = alTop
           BevelOuter = bvNone
           Caption = 'ActiveBlock'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -15
+          Font.Name = 'Consolas'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 0
+          ExplicitWidth = 231
         end
       end
       object pnlInspector10: TPanel
-        Left = 0
-        Top = 310
-        Width = 238
-        Height = 309
+        Left = 4
+        Top = 312
+        Width = 232
+        Height = 303
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 2
+        ExplicitLeft = 6
+        ExplicitTop = 314
+        ExplicitWidth = 230
+        ExplicitHeight = 301
         object pnlBlocksTitle: TPanel
           Left = 0
           Top = 0
-          Width = 238
+          Width = 232
           Height = 25
           Align = alTop
           BevelOuter = bvNone
           Caption = 'Blocks'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -15
+          Font.Name = 'Consolas'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 0
+          ExplicitWidth = 230
         end
       end
       object pnlInspector11: TPanel
-        Left = 238
-        Top = 310
-        Width = 239
-        Height = 309
+        Left = 240
+        Top = 312
+        Width = 233
+        Height = 303
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 3
+        ExplicitLeft = 242
+        ExplicitTop = 314
+        ExplicitWidth = 231
+        ExplicitHeight = 301
         object pnlActiveBlocksTitle: TPanel
           Left = 0
           Top = 0
-          Width = 239
+          Width = 233
           Height = 25
           Align = alTop
           BevelOuter = bvNone
           Caption = 'ActiveBlocks'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -15
+          Font.Name = 'Consolas'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 0
+          ExplicitWidth = 231
         end
       end
       object pnlInspector20: TPanel
-        Left = 0
+        Left = 4
         Top = 619
-        Width = 238
-        Height = 310
+        Width = 232
+        Height = 304
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 4
+        ExplicitLeft = 6
+        ExplicitTop = 621
+        ExplicitWidth = 230
+        ExplicitHeight = 302
         object pnlTextStyleTitle: TPanel
           Left = 0
           Top = 0
-          Width = 238
+          Width = 232
           Height = 25
           Align = alTop
           BevelOuter = bvNone
           Caption = 'TextStyle'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -15
+          Font.Name = 'Consolas'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 0
+          ExplicitWidth = 230
         end
       end
       object pnlInspector21: TPanel
-        Left = 238
+        Left = 240
         Top = 619
-        Width = 239
-        Height = 310
+        Width = 233
+        Height = 304
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 5
+        ExplicitLeft = 242
+        ExplicitTop = 621
+        ExplicitWidth = 231
+        ExplicitHeight = 302
         object pnlParaStyleTitle: TPanel
           Left = 0
           Top = 0
-          Width = 239
+          Width = 233
           Height = 25
           Align = alTop
           BevelOuter = bvNone
           Caption = 'ParaStyle'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -15
+          Font.Name = 'Consolas'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 0
+          ExplicitWidth = 231
         end
       end
       object pnlInspector02: TPanel
         Left = 477
-        Top = 0
-        Width = 238
-        Height = 310
+        Top = 4
+        Width = 232
+        Height = 304
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 6
+        ExplicitLeft = 479
+        ExplicitTop = 6
+        ExplicitWidth = 230
+        ExplicitHeight = 302
         object pnlActiveInnerBlockTitle: TPanel
           Left = 0
           Top = 0
-          Width = 238
+          Width = 232
           Height = 25
           Align = alTop
           BevelOuter = bvNone
           Caption = 'ActiveInnerBlock'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -15
+          Font.Name = 'Consolas'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 0
+          ExplicitWidth = 230
         end
       end
       object pnlInspector12: TPanel
         Left = 477
-        Top = 310
-        Width = 238
-        Height = 309
+        Top = 312
+        Width = 232
+        Height = 303
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 7
+        ExplicitLeft = 479
+        ExplicitTop = 314
+        ExplicitWidth = 230
+        ExplicitHeight = 301
         object pnlActiveInnerBlocksTitle: TPanel
           Left = 0
           Top = 0
-          Width = 238
+          Width = 232
           Height = 25
           Align = alTop
           BevelOuter = bvNone
           Caption = 'ActiveInnerBlocks'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -15
+          Font.Name = 'Consolas'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 0
+          ExplicitWidth = 230
         end
       end
     end

@@ -81,7 +81,7 @@ type
 
   public
     procedure AfterConstruction; override;
-    procedure BeforeDestruction; override;
+    destructor Destroy; override;
 
   end;
 
@@ -107,6 +107,7 @@ begin
   FObjectInspector                        := TzObjectInspector.Create(Self);
   FObjectInspector.Parent                 := pnlLeft;
   FObjectInspector.Align                  := alClient;
+  FObjectInspector.BorderStyle            := bsNone;
   FObjectInspector.AlignWithMargins       := True;
   FObjectInspector.Name                   := 'FObjectInspector';
   FObjectInspector.ShowReadOnlyProperties := False;
@@ -130,13 +131,13 @@ begin
   FObjectInspector.SortByCategory := False;
 end;
 
-procedure TfrmzObjectInspector.BeforeDestruction;
+destructor TfrmzObjectInspector.Destroy;
 begin
   FContact.Free;
   cbxControls.Clear;
   if Assigned(FObjectHost) then
     FObjectHost.Free;
-  inherited BeforeDestruction;
+  inherited;
 end;
 {$ENDREGION}
 

@@ -28,7 +28,7 @@ uses
   System.SysUtils, System.Variants, System.Classes, System.Actions,
   System.Threading, System.ImageList,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnList, Vcl.ImgList,
-  Vcl.StdCtrls, Vcl.ExtCtrls,
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Mask,
 
   Spring, Spring.Collections,
 
@@ -65,10 +65,10 @@ type
     {$ENDREGION}
 
   strict private
-    FProc      : TProc<Integer>;
-    FCount     : Integer;
-    FLog       : TLogTree;
-    FTasks     : IList<ITask>;
+    FProc  : TProc<Integer>;
+    FCount : Integer;
+    FLog   : TLogTree;
+    FTasks : IList<ITask>;
 
     function GetIterations: Integer;
     function GetStrides: Integer;

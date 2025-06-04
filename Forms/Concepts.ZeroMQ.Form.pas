@@ -181,6 +181,7 @@ type
     procedure actStartExecute(Sender: TObject);
     {$ENDREGION}
 
+    {$REGION 'event handlers'}
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure lbxEventsClickCheck(Sender: TObject);
     procedure edtCounterExit(Sender: TObject);
@@ -189,6 +190,7 @@ type
     procedure edtAddressExit(Sender: TObject);
     procedure edtPortExit(Sender: TObject);
     procedure sbrMainDblClick(Sender: TObject);
+    {$ENDREGION}
 
   private
     FActive          : Boolean;

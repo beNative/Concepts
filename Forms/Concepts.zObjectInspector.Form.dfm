@@ -21,8 +21,6 @@ object frmzObjectInspector: TfrmzObjectInspector
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 793
-    ExplicitHeight = 665
     object splSplitter: TSplitter
       Left = 313
       Top = 0
@@ -73,14 +71,12 @@ object frmzObjectInspector: TfrmzObjectInspector
       DoubleBuffered = True
       ParentDoubleBuffered = False
       TabOrder = 1
-      ExplicitWidth = 472
-      ExplicitHeight = 646
       DesignSize = (
         478
         663)
       object btnButton: TButton
-        Left = 223
-        Top = 6
+        Left = 279
+        Top = 3
         Width = 109
         Height = 25
         Action = actTest1
@@ -116,6 +112,7 @@ object frmzObjectInspector: TfrmzObjectInspector
         Height = 553
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelInner = bvNone
+        BevelOuter = bvNone
         BevelKind = bkFlat
         BorderStyle = bsNone
         ButtonOptions = [gboAllowReorder, gboShowCaptions]
@@ -137,14 +134,18 @@ object frmzObjectInspector: TfrmzObjectInspector
         ExplicitWidth = 461
       end
       object edtButtonedEdit: TButtonedEdit
-        Left = 119
+        Left = 127
         Top = 6
-        Width = 98
+        Width = 130
         Height = 21
+        Images = dmResources.imlMain
+        LeftButton.Enabled = False
+        LeftButton.ImageIndex = 997
+        LeftButton.Visible = True
         RightButton.Hint = 'Hint'
         RightButton.HotImageIndex = 114
         RightButton.ImageIndex = 115
-        RightButton.PressedImageIndex = 116
+        RightButton.PressedImageIndex = 105
         RightButton.Visible = True
         TabOrder = 5
         Text = 'TButtonedEdit'
